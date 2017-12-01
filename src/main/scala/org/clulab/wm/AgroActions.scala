@@ -15,6 +15,12 @@ import utils.DisplayUtils._
 
 //TODO: need to add polarity flipping
 
+
+case class Quantification(quantifier: String) extends Modification
+case class Increase(trigger: String, quantifier: Option[Seq[String]] = None) extends Modification
+case class Decrease(trigger: String, quantifier: Option[Seq[String]] = None) extends Modification
+
+
 class AgroActions extends Actions with LazyLogging {
 
   import AgroActions._
@@ -186,6 +192,52 @@ class AgroActions extends Actions with LazyLogging {
     nonEvents ++ completeEventMentions.flatten.toSeq
   }
 
+  //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
+  //Rule to add Increase/Decrease to the state of an entity
+  // todo Heather: write toy test for this
+  def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = for {
+    m <- ms
+    if m matches "EntityModifier"
+    modification = getModification(m)
+    copyWithMod = m match {
+      case tb: TextBoundMention => tb.copy(modifications = tb.modifications ++ Set(modification))
+      // Here, we want to keep the theme that is being modified, not the modification event itself
+      case rm: RelationMention =>
+        val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
+        theme.copy(modifications = theme.modifications ++ Set(modification))
+      case em: EventMention =>
+        val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
+        theme.copy(modifications = theme.modifications ++ Set(modification))
+    }
+  } yield copyWithMod
+
+
+  def getModification(m: Mention): Modification = {
+    m.label match {
+      case "Quantification" => {
+        val quantifier = m.asInstanceOf[EventMention].trigger.text
+        new Quantification(quantifier)
+      }
+      case "Increase" => {
+        val quantifiers = getOptionalQuantifiers(m)
+        val trigger = m.asInstanceOf[EventMention].trigger.text
+        new Increase(trigger, quantifiers)
+      }
+      case "Decrease" => {
+        val quantifiers = getOptionalQuantifiers(m)
+        val trigger = m.asInstanceOf[EventMention].trigger.text
+        new Decrease(trigger, quantifiers)
+      }
+    }
+  }
+
+
+  def getOptionalQuantifiers(m: Mention): Option[Seq[String]] = {
+    m.asInstanceOf[EventMention]
+      .arguments
+      .get("quantifier")
+      .map(qs => qs.map(_.text))
+  }
 
 
 }
