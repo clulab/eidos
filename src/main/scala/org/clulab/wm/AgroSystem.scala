@@ -1,6 +1,7 @@
 package org.clulab.wm
 
 import org.clulab.odin._
+
 import org.clulab.processors.{Document, Processor}
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.sequences.LexiconNER
@@ -18,11 +19,11 @@ import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams
   * Handles text processing and information extraction for Agro domain.
   */
 class AgroSystem(
-  entityRulesPath: String = "/org/clulab/wm/grammars/agro/entities_master.yml",
+  masterRulesPath: String = "/org/clulab/wm/grammars/agro/master.yml",
   eventRulesPath: String = "/org/clulab/wm/grammars/agro/events_master.yml",
   quantifierKBPath:String = "/org/clulab/wm/quantifierKB/gradable_adj_fullmodel.kb",
   domainParamKBPath:String = "/org/clulab/wm/quantifierKB/domain_parameters.kb",
-  agrovocLexiconsPath:String = "org/clulab/wm/agrovoc/lexicons",
+  //agrovocLexiconsPath:String = "org/clulab/wm/agrovoc/lexicons",
   processor: Option[Processor] = None,
   debug: Boolean = false
 ) {
@@ -31,9 +32,8 @@ class AgroSystem(
   val proc = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
 
   // ODIN Rules Files
-  val entityRules: String = readRules(entityRulesPath)
-  val eventRules: String = readRules(eventRulesPath)
-  val rules: String = s"$entityRules\n$eventRules"
+  val rules: String = readRules(masterRulesPath)
+
 
   val entityFinder = AgroEntityFinder(maxHops = 2)
 
@@ -45,19 +45,23 @@ class AgroSystem(
 
   // ODIN components
   val actions = new AgroActions
-  val entityEngine: ExtractorEngine = ExtractorEngine(entityRules, actions)
-  val eventEngine: ExtractorEngine = ExtractorEngine(eventRules, actions)
+  val engine: ExtractorEngine = ExtractorEngine(rules, actions)
 
   // LexiconNER for labeling domain entities
+  //TODO: agrovoc lexicons aren't in this project yet
   // todo: the order matters, we should be taking order into account
-  println("agrovoc path: " + agrovocLexiconsPath)
-
-  val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
-  agrovocLexicons.foreach(println)
+//  println("agrovoc path: " + agrovocLexiconsPath)
+//
+//  val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
+//  agrovocLexicons.foreach(println)
 
   // todo: handle adverbial quantifiers
+//  val ner = LexiconNER(
+//    Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv") ++ agrovocLexicons,
+//    caseInsensitiveMatching = true
+//  )
   val ner = LexiconNER(
-    Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv") ++ agrovocLexicons,
+    Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv"),
     caseInsensitiveMatching = true
   )
 
@@ -72,6 +76,7 @@ class AgroSystem(
     extractFrom(doc)
   }
 
+//TODO: BECKY PICK UP HERE :)
 
   def extractEntitiesFrom(doc: Document, state: State = new State()): Vector[Mention] = {
     println ("Extracting from: " + doc.sentences.map(_.getSentenceText()).mkString(" "))
@@ -178,4 +183,5 @@ object AgroSystem {
 
 
 }
+
 
