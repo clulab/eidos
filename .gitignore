@@ -32,3 +32,6 @@ null_*
 
 #scripts
 scripts/*
+
+#IML files
+*.iml
