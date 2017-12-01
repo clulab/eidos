@@ -1,0 +1,41 @@
+taxonomy: org/clulab/wm/grammars/taxonomy.yml
+
+rules:
+  #Entities are found with EntityFinder! Not extracted here!
+
+  #Quantifiers
+  - import: org/clulab/wm/grammars/quantifiers.yml
+    vars:
+      rulepriority: "1"
+
+
+  #Events
+  #Step 1: find the direct modifiers of entities (e.g. "small puppies")
+  #TODO: make sure the Increase/Decrease are in avoid.yml
+  - import: org/clulab/wm/grammars/entityQuantification.yml
+    vars:
+      rulepriority: "2"
+      action: applyModification #Should add modifier to state of entity
+      label: Quantification
+
+  #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
+  - import: org/clulab/wm/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyModification #Should add Increase/Decrease to state of entity
+      label: Increase
+      trigger: "increase"
+
+  - import: org/clulab/wm/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyModification #Should add Increase/Decrease to state of entity
+      label: Decrease
+      trigger: "decrease"
+
+  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
+  #Acts upon entities
+  - import: <name of file>
+    vars:
+      rulepriority: "4"
+      #action: ? #

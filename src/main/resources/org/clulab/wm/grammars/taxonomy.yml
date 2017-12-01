@@ -1,0 +1,16 @@
+- Entity:
+  - Param
+  - Agrovoc
+  - NounPhrase
+- Quantifier
+- Event:
+  - EntityModifier:
+    - Quantification
+    - Increase
+    - Decrease
+  - EntityLinker:
+    - Causal
+    - Correlation
+    - IsA
+
+
