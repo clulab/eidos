@@ -32,7 +32,7 @@ object demoWMseed extends App with LazyLogging {
   logger.info(s"Document Path : $documentPath")
 
   // creates an extractor engine using the rules and the default actions
-  val extractor = new AgroSystem(entityRulesPath = entitiesMasterFile, eventRulesPath = eventsMasterFile)
+  val extractor = new AgroSystem(masterRulesPath = entitiesMasterFile)
 
   // create the processor
   val proc: Processor = extractor.proc
