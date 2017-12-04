@@ -5,6 +5,7 @@ import org.clulab.openie.entities.RuleBasedEntityFinder
 import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.openie.ResourceUtils
 import org.clulab.processors.Document
+import org.clulab.wm.wmutils.FileUtils.readRules
 
 class AgroEntityFinder(
   entityEngine: ExtractorEngine,
@@ -47,7 +48,7 @@ object AgroEntityFinder extends LazyLogging {
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
   def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): RuleBasedEntityFinder = {
     val entityRules = ResourceUtils.readResource("org/clulab/openie/entities/grammar/entities.yml")
-    val avoidRules = ResourceUtils.readResource("org/clulab/openie/entities/grammar/avoid.yml")
+    val avoidRules = readRules("/org/clulab/wm/grammars/avoidLocal.yml")
 
     val avoidEngine = ExtractorEngine(avoidRules)
     val entityEngine = ExtractorEngine(entityRules)
