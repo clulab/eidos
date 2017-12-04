@@ -1,5 +1,6 @@
 vars:
   modifiers: "amod|compound|dep|name"
+  quant_modifiers: "amod|advmod"
   agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   preps: "nmodof|nmodin$"
   prep_dobjs: "nmod"
@@ -18,8 +19,8 @@ rules:
     priority: ${ rulepriority }
     example: "small increase in small puppies"
     label: ${ label }
-    actions: ${ action }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       theme: Entity = nmod_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ modifiers }|${ preps }/{,2}
-      quantifier:Quantifier? = amod
+      quantifier:Quantifier? = ${quant_modifiers}
