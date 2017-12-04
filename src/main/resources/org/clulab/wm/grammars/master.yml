@@ -33,9 +33,9 @@ rules:
       label: Decrease
       trigger: "decrease"
 
-  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
-  #Acts upon entities
-  - import: <name of file>
-    vars:
-      rulepriority: "4"
-      #action: ? #
+#  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
+#  #Acts upon entities
+#  - import: <name of file>
+#    vars:
+#      rulepriority: "4"
+#      #action: ? #
