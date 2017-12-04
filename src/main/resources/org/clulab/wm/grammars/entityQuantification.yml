@@ -6,5 +6,5 @@ rules:
     label: ${ label }
     actions: ${ action }
     pattern: |
-      trigger: = [mention=Quantifier] #Find the quantifier
+      trigger = [mention=Quantifier] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
