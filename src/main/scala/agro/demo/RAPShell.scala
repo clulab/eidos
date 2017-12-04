@@ -42,8 +42,8 @@ object RAPShell extends App {
   val ieSystem = new AgroSystem()
 
   var proc = ieSystem.proc
-  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv"), caseInsensitiveMatching = true)
-  val grounder = ieSystem.gradableAdjGroundingModel
+//  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv"), caseInsensitiveMatching = true)
+//  val grounder = ieSystem.gradableAdjGroundingModel
 
   reader.setPrompt("(RAP)>>> ")
   println("\nWelcome to the RAPShell!")
@@ -93,7 +93,7 @@ object RAPShell extends App {
     displayMentions(mentions, doc)
 
     // pretty display
-    prettyDisplay(mentions, doc)
+//    prettyDisplay(mentions, doc)
 
   }
 
@@ -110,7 +110,7 @@ object RAPShell extends App {
     println(s"Grounding the gradable adjectives ... ")
     val (groundedAdjectives, causalEvents) = groundGradableAdjectives(ieSystem, mentions, grounder)
     println("DONE .... ")
-    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
+//    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
     // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
     (doc.sentences.head, mentions.sortBy(_.start), groundedAdjectives, causalEvents)
   }
@@ -120,8 +120,109 @@ object RAPShell extends App {
     val params = new mutable.HashMap[String, ListBuffer[ParamInstance]]()
     val groundedParams = new mutable.HashMap[String, ListBuffer[GroundedParamInstance]]()
 
+    // todo: if you want this functionality you need to actually reimplement it
+//    (groundedParams, new Vector[(String, Map[String, String])] )
+
+//    for (e <- events) {
+//      val f = formalWithoutColor(e)
+//      if (f.isDefined) {
+//        val just = e.text
+//        val sent = e.sentenceObj.getSentenceText
+//        val quantifiers = e.arguments.get("quantifier") match {
+//          case Some(quantifierMentions) => Some(quantifierMentions.map(_.text))
+//          case None => None
+//        }
+//
+//        val themes = e.arguments.getOrElse("theme", Seq[Mention]())
+//        val themeTexts = themes.map(m => m.text)
+//        val baseParamTexts = themes.flatMap(m => m.arguments.get("baseParam")).flatten.map(n => n.text)
+//        val sortedParamTexts = (themeTexts ++ baseParamTexts).sortBy(-_.length)
+//        params.getOrElseUpdate(f.get, new ListBuffer[ParamInstance]) += new ParamInstance(just, sent, quantifiers, sortedParamTexts)
+//      }
+//    }
+//
+//    if (params.nonEmpty) {
+//      Console.out.println("RAP Parameters:")
+//      // k is the display string (i.e., INCREASE in Productivity)
+//      for (k <- params.keySet) {
+//        val evidence = params.get(k).get
+////        Console.out.println(s"$k : ${evidence.size} instances:")
+//        for (ev <- evidence) {
+////          Console.out.println(s"\tJustification: [${ev.justification}]")
+////          Console.out.println(s"\tSentence: ${ev.sentence}")
+//
+//          // If there is a gradable adjective:
+//          if (ev.quantifiers.isDefined) {
+//            val eventQuantifiers = ev.quantifiers.get
+////            Console.out.println(s"\tQuantifier: ${Console.MAGENTA} ${eventQuantifiers.mkString(", ")} ${Console.RESET}")
+//
+//            // Lookup mean and stdev of Param
+//            val longestDatabaseMatch = ev.param.indexWhere(text => ieSystem.domainParamValues.contains(text))
+//            val longestMatchText = if (longestDatabaseMatch != -1) ev.param(longestDatabaseMatch) else "DEFAULT"
+//            val paramDetails = if (longestDatabaseMatch != -1) {
+//              ieSystem.domainParamValues.get(longestMatchText)
+//            } else {
+//              ieSystem.domainParamValues.get(AgroSystem.DEFAULT_DOMAIN_PARAM)
+//            }
+//            if (paramDetails.isEmpty) throw new RuntimeException("Requested param not in database, and default is not working.")
+//
+//
+//            // todo: Try head of Base string of Param as another backoff (?)
+//
+//            // Lookup the model row for the quantifier
+//            // todo: only using head, is this ok?
+//            val modelRow = grounder.get(ev.quantifiers.get.head)
+//            if (modelRow.isDefined) {
+//
+//              val intercept = modelRow.get(AgroSystem.INTERCEPT)
+//              val mu = modelRow.get(AgroSystem.MU_COEFF)
+//              val sigma = modelRow.get(AgroSystem.SIGMA_COEFF)
+//
+//              // add the calculation
+//              // TODO: incorporate backoff!!
+//              val paramMean = paramDetails.get(AgroSystem.PARAM_MEAN)
+//              val paramStdev = paramDetails.get(AgroSystem.PARAM_STDEV)
+//
+//              val predictedDelta = math.pow(math.E, intercept + (mu * paramMean) + (sigma * paramStdev)) * paramStdev
+//
+//              // display
+////              Console.out.println(s"Predicted delta = ${Console.BOLD} ${"%3.3f".format(predictedDelta)} ${Console.RESET}  (base param $longestMatchText " +
+////                s"[with typical mean=$paramMean and stdev=$paramStdev], gradable adj: ${eventQuantifiers.head})")
+//              groundedParams.getOrElseUpdate(k, new ListBuffer[GroundedParamInstance]) += new GroundedParamInstance(ev.justification, ev.sentence, ev.quantifiers, Some(longestMatchText), Some(predictedDelta), Some(paramMean), Some(paramStdev), Some(eventQuantifiers.head))
+//
+//            }
+//            else {
+//              groundedParams.getOrElseUpdate(k, new ListBuffer[GroundedParamInstance]) += new GroundedParamInstance(ev.justification, ev.sentence, ev.quantifiers, Some(longestMatchText), None, None, None, Some(eventQuantifiers.head))
+//            }
+//
+//          }
+//          else{
+//            groundedParams.getOrElseUpdate(k, new ListBuffer[GroundedParamInstance]) += new GroundedParamInstance(ev.justification, ev.sentence, None, None, None, None, None, None)
+//          }
+//        }
+//      }
+
+
+
+    val causalEvents = events.filter(_ matches "Cause_and_Effect").map{e =>
+      val causeEvent = e.asInstanceOf[EventMention]
+      val trigger = causeEvent.trigger.text
+      val arguments = causeEvent.arguments.map{a =>
+            val name = a._1
+            val arg_mentions = a._2.map(_.text).mkString(" ")
+            (name, arg_mentions)
+          }
+      (trigger, arguments)
+      }
+
+    (groundedParams, causalEvents)
+  }
+
+  def prettyDisplay(mentions: Seq[Mention], doc: Document): Unit = {
+    val events = mentions.filter(_ matches "Event")
+    val params = new mutable.HashMap[String, ListBuffer[ParamInstance]]()
     for (e <- events) {
-      val f = formalWithoutColor(e)
+      val f = formal(e)
       if (f.isDefined) {
         val just = e.text
         val sent = e.sentenceObj.getSentenceText
@@ -143,169 +244,38 @@ object RAPShell extends App {
       // k is the display string (i.e., INCREASE in Productivity)
       for (k <- params.keySet) {
         val evidence = params.get(k).get
-//        Console.out.println(s"$k : ${evidence.size} instances:")
-        for (ev <- evidence) {
-//          Console.out.println(s"\tJustification: [${ev.justification}]")
-//          Console.out.println(s"\tSentence: ${ev.sentence}")
-
-          // If there is a gradable adjective:
-          if (ev.quantifiers.isDefined) {
-            val eventQuantifiers = ev.quantifiers.get
-//            Console.out.println(s"\tQuantifier: ${Console.MAGENTA} ${eventQuantifiers.mkString(", ")} ${Console.RESET}")
-
-            // Lookup mean and stdev of Param
-            val longestDatabaseMatch = ev.param.indexWhere(text => ieSystem.domainParamValues.contains(text))
-            val longestMatchText = if (longestDatabaseMatch != -1) ev.param(longestDatabaseMatch) else "DEFAULT"
-            val paramDetails = if (longestDatabaseMatch != -1) {
-              ieSystem.domainParamValues.get(longestMatchText)
-            } else {
-              ieSystem.domainParamValues.get(AgroSystem.DEFAULT_DOMAIN_PARAM)
-            }
-            if (paramDetails.isEmpty) throw new RuntimeException("Requested param not in database, and default is not working.")
-
-
-            // todo: Try head of Base string of Param as another backoff (?)
-
-            // Lookup the model row for the quantifier
-            // todo: only using head, is this ok?
-            val modelRow = grounder.get(ev.quantifiers.get.head)
-            if (modelRow.isDefined) {
-
-              val intercept = modelRow.get(AgroSystem.INTERCEPT)
-              val mu = modelRow.get(AgroSystem.MU_COEFF)
-              val sigma = modelRow.get(AgroSystem.SIGMA_COEFF)
-
-              // add the calculation
-              // TODO: incorporate backoff!!
-              val paramMean = paramDetails.get(AgroSystem.PARAM_MEAN)
-              val paramStdev = paramDetails.get(AgroSystem.PARAM_STDEV)
-
-              val predictedDelta = math.pow(math.E, intercept + (mu * paramMean) + (sigma * paramStdev)) * paramStdev
-
-              // display
-//              Console.out.println(s"Predicted delta = ${Console.BOLD} ${"%3.3f".format(predictedDelta)} ${Console.RESET}  (base param $longestMatchText " +
-//                s"[with typical mean=$paramMean and stdev=$paramStdev], gradable adj: ${eventQuantifiers.head})")
-              groundedParams.getOrElseUpdate(k, new ListBuffer[GroundedParamInstance]) += new GroundedParamInstance(ev.justification, ev.sentence, ev.quantifiers, Some(longestMatchText), Some(predictedDelta), Some(paramMean), Some(paramStdev), Some(eventQuantifiers.head))
-
-            }
-            else {
-              groundedParams.getOrElseUpdate(k, new ListBuffer[GroundedParamInstance]) += new GroundedParamInstance(ev.justification, ev.sentence, ev.quantifiers, Some(longestMatchText), None, None, None, Some(eventQuantifiers.head))
-            }
-
-          }
-          else{
-            groundedParams.getOrElseUpdate(k, new ListBuffer[GroundedParamInstance]) += new GroundedParamInstance(ev.justification, ev.sentence, None, None, None, None, None, None)
-          }
-        }
-      }
-
-    }
-
-    val causalEvents = events.filter(_ matches "Cause_and_Effect").map{e =>
-      val causeEvent = e.asInstanceOf[EventMention]
-      val trigger = causeEvent.trigger.text
-      val arguments = causeEvent.arguments.map{a =>
-            val name = a._1
-            val arg_mentions = a._2.map(_.text).mkString(" ")
-            (name, arg_mentions)
-          }
-      (trigger, arguments)
-      }
-
-    (groundedParams, causalEvents)
-  }
-
-  def prettyDisplay(mentions: Seq[Mention], doc: Document): Unit = {
-    val events = mentions.filter(_ matches "Event")
-    val params = new mutable.HashMap[String, ListBuffer[ParamInstance]]()
-    for(e <- events) {
-      val f = formal(e)
-      if(f.isDefined) {
-        val just = e.text
-        val sent = e.sentenceObj.getSentenceText
-        val quantifiers = e.arguments.get("quantifier") match {
-          case Some(quantifierMentions) => Some(quantifierMentions.map(_.text))
-          case None => None
-        }
-
-        val themes = e.arguments.getOrElse("theme", Seq[Mention]())
-        val themeTexts = themes.map(m => m.text)
-        val baseParamTexts = themes.flatMap(m => m.arguments.get("baseParam")).flatten.map(n => n.text)
-        val sortedParamTexts = (themeTexts ++ baseParamTexts).sortBy(- _.length)
-        params.getOrElseUpdate(f.get, new ListBuffer[ParamInstance]) += new ParamInstance(just, sent, quantifiers, sortedParamTexts)
-      }
-    }
-
-    if(params.nonEmpty) {
-      Console.out.println("RAP Parameters:")
-      // k is the display string (i.e., INCREASE in Productivity)
-      for (k <- params.keySet) {
-        val evidence = params.get(k).get
         Console.out.println(s"$k : ${evidence.size} instances:")
         for (ev <- evidence) {
           Console.out.println(s"\tJustification: [${ev.justification}]")
           Console.out.println(s"\tSentence: ${ev.sentence}")
 
           // If there is a gradable adjective:
-          if (ev.quantifiers.isDefined ) {
+          if (ev.quantifiers.isDefined) {
             val eventQuantifiers = ev.quantifiers.get
             Console.out.println(s"\tQuantifier: ${Console.MAGENTA} ${eventQuantifiers.mkString(", ")} ${Console.RESET}")
-
-            // Lookup mean and stdev of Param
-            val longestDatabaseMatch = ev.param.indexWhere(text => ieSystem.domainParamValues.contains(text))
-            val longestMatchText = if (longestDatabaseMatch != -1) ev.param(longestDatabaseMatch) else "DEFAULT"
-            val paramDetails = if (longestDatabaseMatch != -1) {
-              ieSystem.domainParamValues.get(longestMatchText)
-            } else {
-              ieSystem.domainParamValues.get(AgroSystem.DEFAULT_DOMAIN_PARAM)
-            }
-            if (paramDetails.isEmpty) throw new RuntimeException ("Requested param not in database, and default is not working.")
-
-
-            // todo: Try head of Base string of Param as another backoff (?)
-
-            // Lookup the model row for the quantifier
-            // todo: only using head, is this ok?
-            val modelRow = grounder.get(ev.quantifiers.get.head)
-            if (modelRow.isDefined) {
-
-              val intercept = modelRow.get(AgroSystem.INTERCEPT)
-              val mu = modelRow.get(AgroSystem.MU_COEFF)
-              val sigma = modelRow.get(AgroSystem.SIGMA_COEFF)
-
-              // add the calculation
-              // TODO: incorporate backoff!!
-              val paramMean = paramDetails.get(AgroSystem.PARAM_MEAN)
-              val paramStdev = paramDetails.get(AgroSystem.PARAM_STDEV)
-
-              val predictedDelta = math.pow(math.E, intercept + (mu * paramMean) + (sigma * paramStdev)) * paramStdev
-
-              // display
-              Console.out.println(s"Predicted delta = ${Console.BOLD} ${"%3.3f".format(predictedDelta)} ${Console.RESET}  (base param: $longestMatchText " +
-                s"[with typical mean=$paramMean and stdev=$paramStdev], gradable adj: ${eventQuantifiers.head})")
-            }
-
           }
+
         }
-        println()
       }
+      println()
     }
+
 
     // print the No_Change_Event and cause/effect events here
 
-    for(e <- events){
+    for (e <- events) {
 
-      if(e matches "No_Change_Event"){
+      if (e matches "No_Change_Event") {
         // TODO: Complete this...
       }
-      else if(e matches "Cause_and_Effect"){
+      else if (e matches "Cause_and_Effect") {
         println("Causal Event")
         println("--------------------------------")
         e match {
           case em: EventMention =>
             val trigger = em.trigger.text
 
-            val arguments = em.arguments.map{a =>
+            val arguments = em.arguments.map { a =>
               val name = a._1
               val arg_mentions = a._2.map(_.text).mkString(" ")
               (name, arg_mentions)
@@ -314,7 +284,7 @@ object RAPShell extends App {
             println(s"${Console.UNDERLINED} ${e.sentenceObj.getSentenceText} ${Console.RESET}")
             println(s"\tTrigger: ${Console.BOLD} ${trigger} ${Console.RESET}")
             println(s"\tArguments:")
-            arguments foreach {a =>
+            arguments foreach { a =>
               println(s"${Console.BOLD}\t  ${a._1} ${Console.RESET} => ${Console.BLUE_B} ${Console.BOLD} ${a._2} ${Console.RESET}")
             }
         }
@@ -322,6 +292,7 @@ object RAPShell extends App {
       println()
     }
   }
+
 
   // Returns Some(string) if there is an INCREASE or DECREASE event with a Param, otherwise None
   def formal(e:Mention):Option[String] = {
