@@ -71,6 +71,7 @@ object DisplayUtils {
     mention match {
       case tb: TextBoundMention =>
         println(s"\t${tb.labels.mkString(", ")} => ${tb.text}")
+        println(s"\tModifications: ${tb.modifications.mkString(", ")}")
       case em: EventMention =>
         println(s"\ttrigger => ${em.trigger.text}")
         displayArguments(em)
@@ -108,6 +109,7 @@ object DisplayUtils {
       case (argName, ms) =>
         ms foreach { v =>
           println(s"\t$argName ${v.labels.mkString("(", ", ", ")")} => ${v.text}")
+          println(s"\tModifications: ${v.modifications.mkString(", ")}")
         }
     }
   }
