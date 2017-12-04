@@ -175,6 +175,19 @@ class AgroActions extends Actions with LazyLogging {
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
 
     val (events, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
+    val (textBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
+    // remove incomplete entities (i.e. under specified when more fully specified exists)
+
+    val tbMentionGroupings =
+      textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, m.label))
+
+    // remove incomplete mentions
+    val completeTBMentions =
+      for ((k, tbms) <- tbMentionGroupings) yield {
+        val maxModSize: Int = tbms.map(tbm => tbm.modifications.size).max
+        val filteredTBMs = tbms.filter(m => m.modifications.size == maxModSize)
+        filteredTBMs
+      }
 
     // We need to remove underspecified EventMentions of near-duplicate groupings
     // (ex. same phospho, but one is missing a site)
@@ -185,11 +198,13 @@ class AgroActions extends Actions with LazyLogging {
     val completeEventMentions =
       for ((k, ems) <- eventMentionGroupings) yield {
         val maxSize: Int = ems.map(_.arguments.values.flatten.size).max
-        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize)
+        val maxModSize: Int = ems.map(em => em.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max).max
+        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
+          m.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max == maxModSize)
         filteredEMs
       }
 
-    nonEvents ++ completeEventMentions.flatten.toSeq
+    completeTBMentions.flatten.toSeq ++ relationMentions ++ completeEventMentions.flatten.toSeq
   }
 
   //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
@@ -197,7 +212,7 @@ class AgroActions extends Actions with LazyLogging {
   // todo Heather: write toy test for this
   def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = for {
     m <- ms
-    if m matches "EntityModifier"
+    //if m matches "EntityModifier"
     modification = getModification(m)
     copyWithMod = m match {
       case tb: TextBoundMention => tb.copy(modifications = tb.modifications ++ Set(modification))
@@ -210,6 +225,12 @@ class AgroActions extends Actions with LazyLogging {
         theme.copy(modifications = theme.modifications ++ Set(modification))
     }
   } yield copyWithMod
+
+
+  def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
+    println("DEBUG ACTION")
+    ms
+  }
 
 
   def getModification(m: Mention): Modification = {
@@ -244,7 +265,7 @@ class AgroActions extends Actions with LazyLogging {
 
 object AgroActions extends Actions {
 
-  val taxonomy = readTaxonomy("org/clulab/wm/grammars/agro/taxonomy.yml")
+  val taxonomy = readTaxonomy("org/clulab/wm/grammars/taxonomy.yml")
 
   private def readTaxonomy(path: String): Taxonomy = {
     val url = getClass.getClassLoader.getResource(path)
