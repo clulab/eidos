@@ -68,10 +68,10 @@ object ExtractFromFile  extends App {
           pw.println(s"\tJustification: [${e._1}]")
           pw.println(s"""\tSentence: "${e._2}"""")
           pw.println(s"\tQuantifier: ${e._3}")
-          if (agroSystem.gradableAdjGroundingModel.contains(e._3)) {
-            val modelRow = agroSystem.gradableAdjGroundingModel(e._3)
-            pw.println(s"\t\t$modelRow")
-          }
+//          if (agroSystem.gradableAdjGroundingModel.contains(e._3)) {
+//            val modelRow = agroSystem.gradableAdjGroundingModel(e._3)
+//            pw.println(s"\t\t$modelRow")
+//          }
         }
         pw.println()
       }
