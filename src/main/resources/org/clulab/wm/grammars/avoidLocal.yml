@@ -41,4 +41,5 @@ rules:
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /increase/]
+      [word = /increas|improv|promot|boost|decreas|cut|phase out|deteriorat|reduc|less/]
+
