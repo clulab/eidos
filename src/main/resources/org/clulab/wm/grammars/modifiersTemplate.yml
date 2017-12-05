@@ -2,7 +2,7 @@ vars:
   modifiers: "amod|compound|dep|name"
   quant_modifiers: "amod|advmod"
   agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
-  preps: "nmodof|nmodin$"
+  preps: "nmod_of|nmod_in"
   prep_dobjs: "nmod"
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
@@ -12,7 +12,7 @@ vars:
   negTriggers: "not"
 
 #
-# The government promotes improved cultivar to boose agricultural production for ensuring food security.
+# The government promotes improved cultivar to boost agricultural production for ensuring food security.
 # However, the policy to seriously cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, lose use of inorganic fertilizer, less water, significantly reduced farm sizes which lead to low benefit from the improved cultivar.
 #
 
@@ -20,12 +20,13 @@ vars:
 #Rules with "ported" in the name means that they are adaped from the positive_regulation_template.yml in REACH
 rules:
 
-  - name: ${ label }_ported_syntax_1_verb
+  - name: ${ label }_ported_syntax_1_verb_edited
     priority: ${ rulepriority }
     example: "small increase in small puppies"
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
-      theme: Entity = nmod_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ modifiers }|${ preps }/{,2}
+      # | ${complements} in the () with with the FIRST objects.
+      theme: Entity = nmod_by? (${objects}) /${ conjunctions }|${ objects }|${ modifiers }|${ preps }/{,2}
       quantifier:Quantifier? = ${quant_modifiers}

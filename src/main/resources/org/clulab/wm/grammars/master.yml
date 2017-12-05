@@ -24,19 +24,20 @@ rules:
       rulepriority: "3"
       action: applyModification #Should add Increase/Decrease to state of entity
       label: Increase
-      trigger: "increas|improv|promot|boost"
+      trigger: "increas|promot|boost"
 
   - import: org/clulab/wm/grammars/modifiersTemplate.yml
     vars:
       rulepriority: "3"
       action: applyModification #Should add Increase/Decrease to state of entity
       label: Decrease
-      trigger: "decreas|cut|phase out|deteriorat|reduc|less"
+      trigger: "decreas|cut|phase out|deteriorat|reduc|less|low"
 
-#  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
-#  #Acts upon entities
-#  - import: org/clulab/wm/grammars/causal.yml
-#    vars:
-#      rulepriority: "4"
-#      trigger: "result"
-#      #action: ? #
+  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
+  #Acts upon entities
+  - import: org/clulab/wm/grammars/causal.yml
+    vars:
+      rulepriority: "4"
+      label: Causal
+      trigger: "result"
+      #action: ? #
