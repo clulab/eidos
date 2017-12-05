@@ -39,5 +39,5 @@ rules:
     vars:
       rulepriority: "4"
       label: Causal
-      trigger: "result"
+      trigger: "result|lead"
       #action: ? #
