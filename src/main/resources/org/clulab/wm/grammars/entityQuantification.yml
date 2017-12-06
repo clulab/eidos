@@ -4,7 +4,7 @@ rules:
     priority: ${ rulepriority }
     example: "large puppies"
     label: ${ label }
-    actions: ${ action }
+    action: ${ action }
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
