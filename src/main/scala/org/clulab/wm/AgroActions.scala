@@ -196,11 +196,14 @@ class AgroActions extends Actions with LazyLogging {
 
     // remove incomplete mentions
     val completeEventMentions =
-      for ((k, ems) <- eventMentionGroupings) yield {
+      for ((_, ems) <- eventMentionGroupings) yield {
+        // max number of arguments
         val maxSize: Int = ems.map(_.arguments.values.flatten.size).max
-        val maxModSize: Int = ems.map(em => em.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max).max
+        // max number of argument modifications
+        val maxArgMods = ems.map(em => em.arguments.values.flatten.map(arg => arg.modifications.size).sum).max
+//        val maxModSize: Int = ems.map(em => em.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max).max
         val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
-          m.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max == maxModSize)
+          m.arguments.values.flatMap(ms => ms.map(_.modifications.size)).sum == maxArgMods)
         filteredEMs
       }
 
@@ -211,44 +214,44 @@ class AgroActions extends Actions with LazyLogging {
   //Rule to add Increase/Decrease to the state of an entity
   //TODO Heather: write toy test for this
   //TODO: perhaps keep token interval of the EVENT because it will be longer?
-  def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = {
-    val out = for {
-    // group mentions by their entities (group all mentions for same entitiy together)
-      (_, mentionsOfThisEntity) <- ms.groupBy(m => (m.label, m.tokenInterval, m.sentence))
-      // get all modifications for this entity
-      allmodsOfThisEntity = mentionsOfThisEntity.map(mention => getModification(mention)).toSet
-      // Get the entity to use for copying
-      m = mentionsOfThisEntity.head
-      copyWithMod = m match {
-        case tb: TextBoundMention => tb.copy(modifications = tb.modifications ++ allmodsOfThisEntity)
-        // Here, we want to keep the theme that is being modified, not the modification event itself
-        case rm: RelationMention =>
-          val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
-          theme.copy(modifications = theme.modifications ++ allmodsOfThisEntity)
-        case em: EventMention =>
-          val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
-          theme.copy(modifications = theme.modifications ++ allmodsOfThisEntity)
-      }
-    } yield copyWithMod
-    out.toSeq
-  }
+//  def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = {
+//    val out = for {
+//    // group mentions by their entities (group all mentions for same entitiy together)
+//      (_, mentionsOfThisEntity) <- ms.groupBy(m => (m.label, m.tokenInterval, m.sentence))
+//      // get all modifications for this entity
+//      allmodsOfThisEntity = mentionsOfThisEntity.map(mention => getModification(mention)).toSet
+//      // Get the entity to use for copying
+//      m = mentionsOfThisEntity.head
+//      copyWithMod = m match {
+//        case tb: TextBoundMention => tb.copy(modifications = tb.modifications ++ allmodsOfThisEntity, foundBy = s"${tb.foundBy}-${rm.foundBy}")
+//        // Here, we want to keep the theme that is being modified, not the modification event itself
+//        case rm: RelationMention =>
+//          val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
+//          theme.copy(modifications = theme.modifications ++ allmodsOfThisEntity, foundBy = s"${theme.foundBy}-${rm.foundBy}")
+//        case em: EventMention =>
+//          val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
+//          theme.copy(modifications = theme.modifications ++ allmodsOfThisEntity, foundBy = s"${theme.foundBy}-${em.foundBy}")
+//      }
+//    } yield copyWithMod
+//    out.toSeq
+//  }
 
 
-//  def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = for {
-//    m <- ms
-//    //if m matches "EntityModifier"
-//    modification = getModification(m)
-//    copyWithMod = m match {
-//      case tb: TextBoundMention => tb.copy(modifications = tb.modifications ++ Set(modification))
-//      // Here, we want to keep the theme that is being modified, not the modification event itself
-//      case rm: RelationMention =>
-//        val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
-//        theme.copy(modifications = theme.modifications ++ Set(modification))
-//      case em: EventMention =>
-//        val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
-//        theme.copy(modifications = theme.modifications ++ Set(modification))
-//    }
-//  } yield copyWithMod
+  def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = for {
+    m <- ms
+    //if m matches "EntityModifier"
+    modification = getModification(m)
+    copyWithMod = m match {
+      case tb: TextBoundMention => tb.copy(modifications = tb.modifications ++ Set(modification))
+      // Here, we want to keep the theme that is being modified, not the modification event itself
+      case rm: RelationMention =>
+        val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
+        theme.copy(modifications = theme.modifications ++ Set(modification))
+      case em: EventMention =>
+        val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
+        theme.copy(modifications = theme.modifications ++ Set(modification))
+    }
+  } yield copyWithMod
 
 
 
