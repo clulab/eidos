@@ -209,7 +209,8 @@ class AgroActions extends Actions with LazyLogging {
 
   //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
   //Rule to add Increase/Decrease to the state of an entity
-  // todo Heather: write toy test for this
+  //TODO Heather: write toy test for this
+  //TODO: perhaps keep token interval of the EVENT because it will be longer?
   def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = for {
     m <- ms
     //if m matches "EntityModifier"
@@ -247,6 +248,7 @@ class AgroActions extends Actions with LazyLogging {
       case "Decrease" => {
         val quantifiers = getOptionalQuantifiers(m)
         val trigger = m.asInstanceOf[EventMention].trigger.text
+        //println(s"Decrease found: ${new Decrease(trigger, quantifiers)}")
         new Decrease(trigger, quantifiers)
       }
     }

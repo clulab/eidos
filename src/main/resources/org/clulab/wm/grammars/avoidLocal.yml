@@ -33,7 +33,7 @@ rules:
       # avoid xrefs
       [tag=NNP] "et" "al." @Avoid
 
-  # OUR HERE:
+  # OURS HERE:
   - name: "increase-decrease-triggers"
     label: Avoid
     priority: 1
@@ -41,4 +41,31 @@ rules:
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /increase/]
+      [word = /increas|improv|promot|boost|decreas|cut|phas|deteriorat|reduc|less/]
+
+  - name: "gradable"
+    label: Avoid
+    priority: 1
+    type: token
+    pattern: |
+      # avoid coordinations
+      # we want any coordinated entities we might encounter to be split
+      [word = /low/]
+
+  - name: "causal-triggers"
+    label: Avoid
+    priority: 1
+    type: token
+    pattern: |
+      # avoid coordinations
+      # we want any coordinated entities we might encounter to be split
+      [word = /result|lead/]
+
+#  - name: "hacky"
+#    label: Avoid
+#    priority: 1
+#    type: token
+#    pattern: |
+#      # avoid coordinations
+#      # we want any coordinated entities we might encounter to be split
+#      [word = /out/]

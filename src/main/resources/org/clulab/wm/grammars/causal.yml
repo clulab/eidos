@@ -1,0 +1,23 @@
+vars:
+  modifiers: "amod|compound|dep|name"
+  quant_modifiers: "amod|advmod"
+  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  preps: "nmod_of|nmod_in"
+  prep_dobjs: "nmod"
+  conjunctions: "appos|conj|conj_|cc"
+  complements: "xcomp|ccomp"
+
+  objects: "dobj"
+
+  negTriggers: "not"
+
+rules:
+
+  - name: causal-1
+    priority: ${ rulepriority }
+    example: "More water resulting in an increase of productivty."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      cause: Entity  = nsubj #</^conj/?
+      effect: Entity = nmod_in | nmod_to

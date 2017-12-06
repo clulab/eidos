@@ -3,6 +3,56 @@ taxonomy: org/clulab/wm/grammars/taxonomy.yml
 rules:
   #Entities are found with EntityFinder! Not extracted here!
 
+  #Get rid of this at some point...
+  - name: force-find-1
+    label: [Entity, NounPhrase]
+    priority: 1
+    type: token
+    pattern: |
+      [word=/farm/] [word=/size/]
+
+  #Get rid of this!!
+  - name: force-find-2
+    label: [Entity, NounPhrase]
+    priority: 1
+    type: token
+    pattern: |
+      [word=/benefit/]
+
+  #Get rid of this!!
+  - name: force-find-3
+    label: [Entity, NounPhrase]
+    priority: 1
+    type: token
+    pattern: |
+      [word=/cultivar/]
+
+  #Get rid of this!!
+  - name: force-find-4
+    label: [Entity, NounPhrase]
+    priority: 1
+    type: token
+    pattern: |
+      [word=/water/]
+
+  #Get rid of this at some point...
+  - name: force-find-5
+    label: [Entity, NounPhrase]
+    priority: 1
+    type: token
+    pattern: |
+      [word=/biophysical/ & tag=/JJ/] [word=/conditions/ & tag=/NNS/]
+
+
+  #Get rid of this at some point...
+  - name: force-find-6
+    label: [Entity, NounPhrase]
+    priority: 1
+    type: token
+    pattern: |
+      [word=/subsidy/] #[word=/the/] [word=/fertilizer/]
+
+
   #Quantifiers
   - import: org/clulab/wm/grammars/quantifiers.yml
     vars:
@@ -15,7 +65,7 @@ rules:
   - import: org/clulab/wm/grammars/entityQuantification.yml
     vars:
       rulepriority: "2"
-      action: applyModification #Should add modifier to state of entity
+      action: applyModification #Should add quantifier to state of entity
       label: Quantification
 
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
@@ -24,18 +74,20 @@ rules:
       rulepriority: "3"
       action: applyModification #Should add Increase/Decrease to state of entity
       label: Increase
-      trigger: "increase"
+      trigger: "increas|improv|promot|boost"
 
   - import: org/clulab/wm/grammars/modifiersTemplate.yml
     vars:
       rulepriority: "3"
       action: applyModification #Should add Increase/Decrease to state of entity
       label: Decrease
-      trigger: "decrease"
+      trigger: "decreas|cut|phase|deteriorat|reduc|less"
 
-#  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
-#  #Acts upon entities
-#  - import: <name of file>
-#    vars:
-#      rulepriority: "4"
-#      #action: ? #
+  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
+  #Acts upon entities
+  - import: org/clulab/wm/grammars/causal.yml
+    vars:
+      rulepriority: "4"
+      label: Causal
+      trigger: "result|lead"
+      #action: ? #
