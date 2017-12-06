@@ -13,7 +13,7 @@ vars:
 
 #
 # The government promotes improved cultivar to boost agricultural production for ensuring food security.
-# However, the policy to seriously cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, lose use of inorganic fertilizer, less water, significantly reduced farm sizes which lead to low benefit from the improved cultivar.
+# However, the policy to seriously cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, less use of inorganic fertilizer, less water, significantly reduced farm sizes which lead to low benefit from the improved cultivar.
 #
 
 
@@ -27,6 +27,49 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
-      # | ${complements} in the () with with the FIRST objects.
+      # | ${complements} originally in the () with with the FIRST ${ objects }.
       theme: Entity = nmod_by? (${objects}) /${ conjunctions }|${ objects }|${ modifiers }|${ preps }/{,2}
       quantifier:Quantifier? = ${quant_modifiers}
+
+  - name: ${ label}_adjective_rule_1
+    priority: ${ rulepriority }
+    example: "less water"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/^J/]
+      theme: Entity = <${ modifiers }
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  #Trying to capture "improved cultivar" as Increase cultivar
+  - name: ${ label}_rule_1
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/VBN/]
+      theme: Entity = amod
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  #Trying to capture "phase out the fertilizer subsidy"
+  - name: ${ label }_rule_2
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/NN/] [word=/out/ & tag=/IN/]
+      theme: Entity = <nmod_out|case
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  #Trying to capture "deteriorating biophysical conditions"
+  - name: ${ label }_rule_3
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/VBG/]
+      theme: Entity = <amod
+      quantifier: Quantifier? = ${quant_modifiers}

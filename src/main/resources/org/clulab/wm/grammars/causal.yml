@@ -15,11 +15,9 @@ rules:
 
   - name: causal-1
     priority: ${ rulepriority }
-    #Original example: "We found that prolonged expression of active Ras resulted in up-regulation of the MKP3 gene"
-    example: ""
+    example: "More water resulting in an increase of productivty."
     label: ${ label }
-    #More water resulting in an increase of productivty.
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]
-      cause: Entity  = nsubj
+      cause: Entity  = nsubj #</^conj/?
       effect: Entity = nmod_in | nmod_to
