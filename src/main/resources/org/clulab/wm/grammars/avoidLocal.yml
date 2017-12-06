@@ -61,11 +61,3 @@ rules:
       # we want any coordinated entities we might encounter to be split
       [word = /result|lead/]
 
-#  - name: "hacky"
-#    label: Avoid
-#    priority: 1
-#    type: token
-#    pattern: |
-#      # avoid coordinations
-#      # we want any coordinated entities we might encounter to be split
-#      [word = /out/]
