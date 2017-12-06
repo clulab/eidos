@@ -73,10 +73,10 @@ object DisplayUtils {
     mention match {
       case tb: TextBoundMention =>
         println(s"\t${tb.labels.mkString(", ")} => ${tb.text}")
-        println(s"\t  * Modifications: ${modificationsString(tb.modifications)}")
+        if (tb.modifications.nonEmpty) println(s"\t  * Modifications: ${modificationsString(tb.modifications)}")
       case em: EventMention =>
-        println(s"\ttrigger => ${em.trigger.text}}")
-        println(s"\t  * Modifications: ${modificationsString(em.trigger.modifications)}")
+        println(s"\ttrigger => ${em.trigger.text}")
+        if (em.trigger.modifications.nonEmpty) println(s"\t  * Modifications: ${modificationsString(em.trigger.modifications)}")
         displayArguments(em)
         if (em.modifications.nonEmpty) {
           println(s"\tEvent Modifications: ${modificationsString(em.modifications)}")
@@ -118,7 +118,7 @@ object DisplayUtils {
       case (argName, ms) =>
         ms foreach { v =>
           println(s"\t$argName ${v.labels.mkString("(", ", ", ")")} => ${v.text}")
-          println(s"\t  * Modifications: ${modificationsString(v.modifications)}")
+          if (v.modifications.nonEmpty) println(s"\t  * Modifications: ${modificationsString(v.modifications)}")
         }
     }
   }
