@@ -1,15 +1,15 @@
 vars:
-  modifiers: "amod|compound|dep|name"
-  quant_modifiers: "amod|advmod"
   agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
-  preps: "nmod_of|nmod_in"
-  prep_dobjs: "nmod"
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
-
-  objects: "dobj"
-
+  modifiers: "amod|compound|dep|name"
   negTriggers: "not"
+  objects: "dobj"
+  preps: "nmod_of|nmod_in"
+  prep_dobjs: "nmod"
+  quant_modifiers: "amod|advmod"
+
+
 
 #
 # The government promotes improved cultivar to boost agricultural production for ensuring food security.
@@ -49,7 +49,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^${ trigger }/ & tag=/VBN/]
-      theme: Entity = amod
+      theme: Entity = <amod
       quantifier: Quantifier? = ${quant_modifiers}
 
   #Trying to capture "phase out the fertilizer subsidy"
@@ -60,13 +60,12 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^${ trigger }/ & tag=/NN/] [word=/out/ & tag=/IN/]
-      theme: Entity = <nmod_out|case
+      theme: Entity = <case
       quantifier: Quantifier? = ${quant_modifiers}
 
-  #Trying to capture "deteriorating biophysical conditions"
   - name: ${ label }_rule_3
     priority: ${ rulepriority }
-    example: ""
+    example: "deteriorating biophysical conditions"
     label: ${ label }
     action: ${ action }
     pattern: |
