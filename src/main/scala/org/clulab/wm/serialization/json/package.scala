@@ -1,26 +1,52 @@
-package org.clulab.wm
-
-package object serialization {
-
-}
+package org.clulab.wm.serialization.json
 
 import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.struct.DirectedGraph
-import org.json4s._
+import org.clulab.wm.{Decrease, Increase, Quantification}
 import org.json4s.JsonDSL._
+import org.json4s._
+import org.json4s.jackson.Serialization.write
+
 import scala.util.hashing.MurmurHash3._
 
+// Code ported from ODIN
 
 package object json {
 
-  import org.clulab.serialization.json.{JSONSerializer => _, _}
+  implicit val formats = org.json4s.DefaultFormats
+
 
   private def argsAST(arguments: Map[String, Seq[Mention]]): JObject = {
     val args = arguments.map {
-      case (name, mentions) => name -> JArray(mentions.map(_.jsonAST).toList)
+      case (name, mentions) => name -> JArray(mentions.map(MentionOps.jsonAST(_)).toList)
     }
     JObject(args.toList)
+  }
+
+  private def modsAST(modifications: Set[Modification]): Set[JValue] = {
+
+    def modToJSON(m: Modification): JValue = {
+      m match {
+        case inc:Increase =>
+        {
+          ("type" -> Increase.string) ~
+          ("mod" -> write(m))
+        }
+        case dec:Decrease =>
+        {
+          ("type" -> Decrease.string) ~
+          ("mod" -> write(m))
+        }
+        case quant:Quantification =>
+        {
+          ("type" -> Quantification.string) ~
+          ("mod" -> write(m))
+        }
+      }
+    }
+
+    modifications.map(m => modToJSON(m))
   }
 
   /** Hash representing the [[Mention.arguments]] */
@@ -28,61 +54,72 @@ package object json {
     val argHashes = for {
       (role, mns) <- args
       bh = stringHash(s"role:$role")
-      hs = mns.map(_.equivalenceHash)
+      hs = mns.map(MentionOps.equivalenceHash(_))
     } yield mix(bh, unorderedHash(hs))
     val h0 = stringHash("org.clulab.odin.Mention.arguments")
     finalizeHash(h0, unorderedHash(argHashes))
   }
 
   private def pathsAST(paths: Map[String, Map[Mention, odin.SynPath]]): JValue = paths match {
-    case gps if gps.nonEmpty => gps.jsonAST
+    case gps if gps.nonEmpty => OdinPathOps.jsonAST(gps)
     case _ => JNothing
   }
 
-  implicit val formats = org.json4s.DefaultFormats
+//   def modsAST(modifications: Set[Modification]): JValue = {
+//     val mods = modifications.map {
+//      case mod: Modification => {
+//
+//        write(mod)
+//      }
+//      case _ => JNothing
+//    }
+//    write(mods)
+//  }
 
-  implicit class MentionOps(m: Mention) extends JSONSerialization with Equivalency {
+  object MentionOps {
 
-    def jsonAST: JValue = m match {
-      case tb: TextBoundMention => TextBoundMentionOps(tb).jsonAST
-      case em: EventMention => EventMentionOps(em).jsonAST
-      case rm: RelationMention => RelationMentionOps(rm).jsonAST
-      case csm: CrossSentenceMention => CrossSentenceMentionOps(csm).jsonAST
+    def jsonAST(m: Mention): JValue = m match {
+      case tb: TextBoundMention => TextBoundMentionOps.jsonAST(tb)
+      case em: EventMention => EventMentionOps.jsonAST(em)
+      case rm: RelationMention => RelationMentionOps.jsonAST(rm)
+      case csm: CrossSentenceMention => CrossSentenceMentionOps.jsonAST(csm)
     }
 
-    val stringCode: String = m match {
-      case tb: TextBoundMention => TextBoundMentionOps(tb).stringCode
-      case em: EventMention => EventMentionOps(em).stringCode
-      case rm: RelationMention => RelationMentionOps(rm).stringCode
-      case csm: CrossSentenceMention => CrossSentenceMentionOps(csm).stringCode
+    def stringCode(m: Mention): String = m match {
+      case tb: TextBoundMention => TextBoundMentionOps.stringCode
+      case em: EventMention => EventMentionOps.stringCode
+      case rm: RelationMention => RelationMentionOps.stringCode
+      case csm: CrossSentenceMention => CrossSentenceMentionOps.stringCode
     }
 
-    def equivalenceHash: Int = m match {
-      case tb: TextBoundMention => TextBoundMentionOps(tb).equivalenceHash
-      case em: EventMention => EventMentionOps(em).equivalenceHash
-      case rm: RelationMention => RelationMentionOps(rm).equivalenceHash
-      case csm: CrossSentenceMention => CrossSentenceMentionOps(csm).equivalenceHash
+    def equivalenceHash(m: Mention): Int = m match {
+      case tb: TextBoundMention => TextBoundMentionOps.equivalenceHash(tb)
+      case em: EventMention => EventMentionOps.equivalenceHash(em)
+      case rm: RelationMention => RelationMentionOps.equivalenceHash(rm)
+      case csm: CrossSentenceMention => CrossSentenceMentionOps.equivalenceHash(csm)
     }
 
-    override def id: String = m match {
-      case tb: TextBoundMention => TextBoundMentionOps(tb).id
-      case em: EventMention => EventMentionOps(em).id
-      case rm: RelationMention => RelationMentionOps(rm).id
-      case csm: CrossSentenceMention => CrossSentenceMentionOps(csm).id
+    def id(m: Mention): String = m match {
+      case tb: TextBoundMention => TextBoundMentionOps.id(tb)
+      case em: EventMention => EventMentionOps.id(em)
+      case rm: RelationMention => RelationMentionOps.id(rm)
+      case csm: CrossSentenceMention => CrossSentenceMentionOps.id(csm)
     }
 
     // A mention only only contains a pointer to a document, so
     // create a Seq[Mention] whose jsonAST includes
     // an accompanying json map of docEquivHash -> doc's json
-    def completeAST: JValue = Seq(m).jsonAST
+    def completeAST(m: Mention): JValue = MentionSeq.jsonAST(Seq(m))
 
   }
 
-  implicit class TextBoundMentionOps(tb: TextBoundMention) extends JSONSerialization with Equivalency {
+  object TextBoundMentionOps {
 
-    val stringCode = s"org.clulab.odin.${TextBoundMention.string}"
+    val stringCode = s"org.clulab.odin.${WMTextBoundMention.string}"
+    implicit val formats = org.json4s.DefaultFormats
 
-    def equivalenceHash: Int = {
+
+    def equivalenceHash(tb: TextBoundMention): Int = {
       // the seed (not counted in the length of finalizeHash)
       val h0 = stringHash(stringCode)
       // labels
@@ -98,12 +135,12 @@ package object json {
       finalizeHash(h5, 5)
     }
 
-    override def id: String = s"${TextBoundMention.shortString}:$equivalenceHash"
+    def id(tb: TextBoundMention): String = s"${WMTextBoundMention.shortString}:${equivalenceHash(tb)}"
 
-    def jsonAST: JValue = {
-      ("type" -> TextBoundMention.string) ~
+    def jsonAST(tb: TextBoundMention): JValue = {
+      ("type" -> WMTextBoundMention.string) ~
         // used for correspondence with paths map
-        ("id" -> tb.id) ~
+        ("id" -> id(tb)) ~
         ("text" -> tb.text) ~
         ("labels" -> tb.labels) ~
         ("tokenInterval" -> Map("start" -> tb.tokenInterval.start, "end" -> tb.tokenInterval.end)) ~
@@ -112,15 +149,16 @@ package object json {
         ("sentence" -> tb.sentence) ~
         ("document" -> tb.document.equivalenceHash.toString) ~
         ("keep" -> tb.keep) ~
-        ("foundBy" -> tb.foundBy)
+        ("foundBy" -> tb.foundBy) ~
+        ("modifications" -> modsAST(tb.modifications))
     }
   }
 
-  implicit class EventMentionOps(em: EventMention) extends JSONSerialization with Equivalency {
+  object EventMentionOps {
 
-    val stringCode = s"org.clulab.odin.${EventMention.string}"
+    val stringCode = s"org.clulab.odin.${WMEventMention.string}"
 
-    def equivalenceHash: Int = {
+    def equivalenceHash(em: EventMention): Int = {
       // the seed (not counted in the length of finalizeHash)
       val h0 = stringHash(stringCode)
       // labels
@@ -136,19 +174,19 @@ package object json {
       // args
       val h6 = mix(h5, argsHash(em.arguments))
       // trigger
-      val h7 = mix(h6, TextBoundMentionOps(em.trigger).equivalenceHash)
+      val h7 = mix(h6, TextBoundMentionOps.equivalenceHash(em.trigger))
       finalizeHash(h7, 7)
     }
 
-    override def id: String = s"${EventMention.shortString}:$equivalenceHash"
+    def id(em: EventMention): String = s"${WMEventMention.shortString}:${equivalenceHash(em)}"
 
-    def jsonAST: JValue = {
-      ("type" -> EventMention.string) ~
+    def jsonAST(em: EventMention): JValue = {
+      ("type" -> WMEventMention.string) ~
         // used for paths map
-        ("id" -> em.id) ~
+        ("id" -> id(em)) ~
         ("text" -> em.text) ~
         ("labels" -> em.labels) ~
-        ("trigger" -> em.trigger.jsonAST) ~
+        ("trigger" -> TextBoundMentionOps.jsonAST(em.trigger)) ~
         ("arguments" -> argsAST(em.arguments)) ~
         // paths are encoded as (arg name -> (mentionID -> path))
         ("paths" -> pathsAST(em.paths)) ~
@@ -158,15 +196,16 @@ package object json {
         ("sentence" -> em.sentence) ~
         ("document" -> em.document.equivalenceHash.toString) ~
         ("keep" -> em.keep) ~
-        ("foundBy" -> em.foundBy)
+        ("foundBy" -> em.foundBy) ~
+        ("modifications" -> modsAST(em.modifications))
     }
   }
 
-  implicit class RelationMentionOps(rm: RelationMention) extends JSONSerialization with Equivalency {
+  object RelationMentionOps {
 
-    val stringCode = s"org.clulab.odin.${RelationMention.string}"
+    val stringCode = s"org.clulab.odin.${WMRelationMention.string}"
 
-    def equivalenceHash: Int = {
+    def equivalenceHash(rm: RelationMention): Int = {
       // the seed (not counted in the length of finalizeHash)
       val h0 = stringHash(stringCode)
       // labels
@@ -184,12 +223,12 @@ package object json {
       finalizeHash(h6, 6)
     }
 
-    override def id: String = s"${RelationMention.shortString}:$equivalenceHash"
+    def id(rm: RelationMention): String = s"${WMRelationMention.shortString}:${equivalenceHash(rm)}"
 
-    def jsonAST: JValue = {
-      ("type" -> RelationMention.string) ~
+    def jsonAST(rm: RelationMention): JValue = {
+      ("type" -> WMRelationMention.string) ~
         // used for paths map
-        ("id" -> rm.id) ~
+        ("id" -> id(rm)) ~
         ("text" -> rm.text) ~
         ("labels" -> rm.labels) ~
         ("arguments" -> argsAST(rm.arguments)) ~
@@ -201,15 +240,16 @@ package object json {
         ("sentence" -> rm.sentence) ~
         ("document" -> rm.document.equivalenceHash.toString) ~
         ("keep" -> rm.keep) ~
-        ("foundBy" -> rm.foundBy)
+        ("foundBy" -> rm.foundBy) ~
+        ("modifications" -> modsAST(rm.modifications))
     }
   }
 
-  implicit class CrossSentenceMentionOps(csm: CrossSentenceMention) extends JSONSerialization with Equivalency {
+  object CrossSentenceMentionOps {
 
-    val stringCode = s"org.clulab.odin.${CrossSentenceMention.string}"
+    val stringCode = s"org.clulab.odin.${WMCrossSentenceMention.string}"
 
-    def equivalenceHash: Int = {
+    def equivalenceHash(csm: CrossSentenceMention): Int = {
       // the seed (not counted in the length of finalizeHash)
       val h0 = stringHash(stringCode)
       // labels
@@ -227,65 +267,79 @@ package object json {
       finalizeHash(h6, 6)
     }
 
-    override def id: String = s"${CrossSentenceMention.shortString}:$equivalenceHash"
+    def id(csm: CrossSentenceMention): String = s"${WMCrossSentenceMention.shortString}:${equivalenceHash(csm)}"
 
-    def jsonAST: JValue = {
-      ("type" -> CrossSentenceMention.string) ~
+    def jsonAST(csm: CrossSentenceMention): JValue = {
+      ("type" -> WMCrossSentenceMention.string) ~
         // used for paths map
-        ("id" -> csm.id) ~
+        ("id" -> id(csm)) ~
         ("text" -> csm.text) ~
         ("labels" -> csm.labels) ~
-        ("anchor" -> csm.anchor.id) ~
-        ("neighbor" -> csm.anchor.id) ~
+        ("anchor" -> MentionOps.id(csm.anchor)) ~
+        ("neighbor" -> MentionOps.id(csm.anchor)) ~
         ("arguments" -> argsAST(csm.arguments)) ~
         ("tokenInterval" -> Map("start" -> csm.tokenInterval.start, "end" -> csm.tokenInterval.end)) ~
         ("sentence" -> csm.sentence) ~
         ("document" -> csm.document.equivalenceHash.toString) ~
         ("keep" -> csm.keep) ~
-        ("foundBy" -> csm.foundBy)
+        ("foundBy" -> csm.foundBy) ~
+        ("modifications" -> modsAST(csm.modifications))
     }
   }
 
   /** For sequences of mentions */
-  implicit class MentionSeq(mentions: Seq[Mention]) extends JSONSerialization {
+  object MentionSeq {
 
-    def jsonAST: JValue = JSONSerializer.jsonAST(mentions)
+    def jsonAST(mentions: Seq[Mention]): JValue = WMJSONSerializer.jsonAST(mentions)
 
   }
 
   // Syntactic paths generalized are graph paths
-  implicit class OdinPathOps(paths: Map[String, Map[Mention, odin.SynPath]]) extends JSONSerialization {
+  object OdinPathOps {
+    import org.clulab.serialization.json.EdgeOps
     // simplify paths by ignoring Mentions
-    def jsonAST: JValue = {
+    def jsonAST(paths: Map[String, Map[Mention, odin.SynPath]]): JValue = {
       val simplePathMap: Map[String, Map[String, List[JValue]]] = paths.mapValues{ innermap =>
         val pairs = for {
           (m: Mention, path: odin.SynPath) <- innermap.toList
           edgeAST = DirectedGraph.triplesToEdges[String](path.toList).map(_.jsonAST)
-        } yield (m.id, edgeAST)
+        } yield (MentionOps.id(m), edgeAST)
         pairs.toMap
       }
       simplePathMap
     }
   }
 
-  object TextBoundMention {
+  object WMTextBoundMention {
     val string = "TextBoundMention"
     val shortString = "T"
   }
 
-  object EventMention {
+  object WMEventMention {
     val string = "EventMention"
     val shortString = "E"
   }
 
-  object RelationMention {
+  object WMRelationMention {
     val string = "RelationMention"
     val shortString = "R"
   }
 
-  object CrossSentenceMention {
+  object WMCrossSentenceMention {
     val string = "CrossSentenceMention"
     val shortString = "CS"
+  }
+
+  object Increase {
+    val string = "Increase"
+  }
+
+  object Decrease {
+    val string = "Decrease"
+  }
+
+  object Quantification {
+    val string = "Quantification"
   }
 }
 
