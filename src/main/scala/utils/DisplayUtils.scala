@@ -2,7 +2,7 @@ package utils
 
 import java.io.PrintWriter
 
-import org.clulab.odin.{EventMention, Mention, RelationMention, TextBoundMention}
+import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 
 object DisplayUtils {
@@ -60,6 +60,8 @@ object DisplayUtils {
     }
   }
 
+  def modificationsString(mods: Set[Modification]): String = s"${mods.mkString(", ")}"
+
   def displayMention(mention: Mention) {
     val boundary = s"\t${"-" * 30}"
     println(s"${mention.labels} => ${mention.text}")
@@ -71,12 +73,19 @@ object DisplayUtils {
     mention match {
       case tb: TextBoundMention =>
         println(s"\t${tb.labels.mkString(", ")} => ${tb.text}")
-        println(s"\tModifications: ${tb.modifications.mkString(", ")}")
+        println(s"\t  * Modifications: ${modificationsString(tb.modifications)}")
       case em: EventMention =>
-        println(s"\ttrigger => ${em.trigger.text}")
+        println(s"\ttrigger => ${em.trigger.text}}")
+        println(s"\t  * Modifications: ${modificationsString(em.trigger.modifications)}")
         displayArguments(em)
+        if (em.modifications.nonEmpty) {
+          println(s"\tEvent Modifications: ${modificationsString(em.modifications)}")
+        }
       case rel: RelationMention =>
         displayArguments(rel)
+        if (rel.modifications.nonEmpty) {
+          println(s"\tRelation Modifications: ${modificationsString(rel.modifications)}")
+        }
       case _ => ()
     }
     println(s"$boundary\n")
@@ -109,7 +118,7 @@ object DisplayUtils {
       case (argName, ms) =>
         ms foreach { v =>
           println(s"\t$argName ${v.labels.mkString("(", ", ", ")")} => ${v.text}")
-          println(s"\tModifications: ${v.modifications.mkString(", ")}")
+          println(s"\t  * Modifications: ${modificationsString(v.modifications)}")
         }
     }
   }
