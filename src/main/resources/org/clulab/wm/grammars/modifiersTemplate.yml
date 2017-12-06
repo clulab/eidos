@@ -21,7 +21,7 @@ vars:
 rules:
 
   - name: ${ label }_ported_syntax_1_verb_edited
-    priority: ${ rulepriority }
+    priority: ${ objrulepriority }
     example: "small increase in small puppies"
     label: ${ label }
     action: ${ action }
@@ -32,7 +32,7 @@ rules:
       quantifier:Quantifier? = ${quant_modifiers}
 
   - name: ${ label}_adjective_rule_1
-    priority: ${ rulepriority }
+    priority:  ${ modrulepriority }
     example: "less water"
     label: ${ label }
     action: ${ action }
@@ -43,7 +43,7 @@ rules:
 
   #Trying to capture "improved cultivar" as Increase cultivar
   - name: ${ label}_rule_1
-    priority: ${ rulepriority }
+    priority: ${ modrulepriority }
     example: ""
     label: ${ label }
     action: ${ action }
@@ -54,7 +54,7 @@ rules:
 
   #Trying to capture "phase out the fertilizer subsidy"
   - name: ${ label }_rule_2
-    priority: ${ rulepriority }
+    priority: ${ modrulepriority }
     example: ""
     label: ${ label }
     action: ${ action }
@@ -64,7 +64,7 @@ rules:
       quantifier: Quantifier? = ${quant_modifiers}
 
   - name: ${ label }_rule_3
-    priority: ${ rulepriority }
+    priority: ${ modrulepriority }
     example: "deteriorating biophysical conditions"
     label: ${ label }
     action: ${ action }
