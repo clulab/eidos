@@ -18,4 +18,13 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]
       cause: Entity  = nsubj #</^conj/?
-      effect: Entity = nmod_in | nmod_to
+      effect: Entity = (nmod_in | nmod_to) | ccomp (nsubj | dobj)?
+
+#  - name: causal-2
+#    priority: ${ rulepriority }
+#    example: "More water resulting in an increase of productivity."
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/]
+#      cause: Entity  = nsubj acl dobj |nmod_)/
+#      effect: Entity = nmod_in | nmod_to
