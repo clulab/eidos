@@ -2,6 +2,7 @@
   - Param
   - Agrovoc
   - NounPhrase
+- Transparent
 - Quantifier
 - Event:
   - EntityModifier:
@@ -12,5 +13,7 @@
     - Causal
     - Correlation
     - IsA
+    - Origin
+    - TransparentLink
 
 
