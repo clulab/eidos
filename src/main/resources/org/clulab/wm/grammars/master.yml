@@ -9,6 +9,10 @@ rules:
     vars:
       rulepriority: "1"
 
+  #Transparent Words
+  - import: org/clulab/wm/grammars/transparent.yml
+    vars:
+      rulepriority: "1"
 
   #Events
   #Step 1: find the direct modifiers of entities (e.g. "small puppies")
@@ -43,4 +47,18 @@ rules:
       rulepriority: "6"
       label: Causal
       trigger: "result|lead"
+      #action: ? #
+
+  - import: org/clulab/wm/grammars/origin.yml
+    vars:
+      rulepriority: "6"
+      label: Origin
+      trigger: "from|for"
+      #action: ? #
+
+  - import: org/clulab/wm/grammars/transparentLinkers.yml
+    vars:
+      rulepriority: "6"
+      label: TransparentLink
+      trigger: "from"
       #action: ? #
