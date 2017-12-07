@@ -1,0 +1,11 @@
+
+rules:
+
+  - name: translink-1
+    priority: ${ rulepriority }
+    example: "More water resulting in an increase of productivity."
+    label: ${ label }
+    pattern: |
+      trigger = [mention=Transparent]
+      theme: Entity  = acl_to dobj /^nmod_/?
+      # effect: Entity = nmod_in | nmod_to

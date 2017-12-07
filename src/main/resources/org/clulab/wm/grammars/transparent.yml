@@ -1,0 +1,8 @@
+rules:
+
+    - name: transparent-1
+      label: Transparent
+      priority: ${rulepriority}
+      type: token
+      pattern: |
+        [word=/policy/]
