@@ -19,7 +19,8 @@ libraryDependencies ++= {
     //"org.clulab" %% "influencer-core" % "0.1-SNAPSHOT",
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
     "ai.lum" %% "common" % "0.0.7",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+    "edu.stanford.nlp"    %  "stanford-corenlp"  % "3.8.0" classifier "models"
   )
 }
 
