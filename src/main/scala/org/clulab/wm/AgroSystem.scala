@@ -7,7 +7,6 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.sequences.LexiconNER
 
 import scala.collection.mutable
-import org.clulab.openie.entities.RuleBasedEntityFinder
 import org.clulab.wm.entities.AgroEntityFinder
 import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams, loadGradableAdjGroundingFile, readRules}
 

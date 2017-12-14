@@ -41,9 +41,9 @@ object WMJSONSerializer {
     parse(contents)
   }
 
-  def toAttachments(json: JValue): Set[Modification] = {
-    // Get the Modification from the json string
-    def findModification(json: JValue): Modification = {
+  def toAttachments(json: JValue): Set[Attachment] = {
+    // Get the Attachment from the json string
+    def findAttachment(json: JValue): Attachment = {
 
       def parseJValue(js: JValue): JValue = {
         parse(js.extract[String])
@@ -57,10 +57,10 @@ object WMJSONSerializer {
     }
 
     json match {
-      case JNothing => Set.empty[Modification]
+      case JNothing => Set.empty[Attachment]
       case contents => for {
         jValue <- contents.extract[Set[JValue]]
-      } yield { findModification(jValue) }
+      } yield { findAttachment(jValue) }
     }
   }
 
@@ -97,7 +97,7 @@ object WMJSONSerializer {
     val document = docMap(docHash)
     val keep = (mjson \ "keep").extract[Boolean]
     val foundBy = (mjson \ "foundBy").extract[String]
-    val modifications = toAttachments(mjson \ "modifications")
+    val attachments = toAttachments(mjson \ "attachments")
 
     def mkArgumentsFromJsonAST(json: JValue): Map[String, Seq[Mention]] = try {
       val args = json.extract[Map[String, JArray]]
@@ -109,10 +109,6 @@ object WMJSONSerializer {
     } catch {
       case e: org.json4s.MappingException => Map.empty[String, Seq[Mention]]
     }
-
-//    def toModifications(json: JValue): Set[Modification] = {
-//      json \ ""
-//    }
 
 
     /** Build mention paths from json */
@@ -176,7 +172,7 @@ object WMJSONSerializer {
           document,
           keep,
           foundBy,
-          modifications = modifications
+          attachments = attachments
         )
       case JString(WMRelationMention.string) =>
         new RelationMention(
@@ -188,7 +184,7 @@ object WMJSONSerializer {
           document,
           keep,
           foundBy,
-          modifications = modifications
+          attachments = attachments
         )
       case JString(WMTextBoundMention.string) =>
         new TextBoundMention(
@@ -198,7 +194,7 @@ object WMJSONSerializer {
           document,
           keep,
           foundBy,
-          modifications = modifications
+          attachments = attachments
         )
       case JString(WMCrossSentenceMention.string) =>
         val args = mkArgumentsFromJsonAST(mjson \ "arguments")
@@ -213,7 +209,7 @@ object WMJSONSerializer {
           document,
           keep,
           foundBy,
-          modifications = modifications
+          attachments = attachments
         )
 
       case other => throw new Exception(s"unrecognized mention type '${other.toString}'")

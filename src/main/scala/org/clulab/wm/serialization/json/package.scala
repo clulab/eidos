@@ -24,9 +24,9 @@ package object json {
     JObject(args.toList)
   }
 
-  private def modsAST(modifications: Set[Modification]): Set[JValue] = {
+  private def attachmentsAST(attachments: Set[Attachment]): Set[JValue] = {
 
-    def modToJSON(m: Modification): JValue = {
+    def attachmentToJSON(m: Attachment): JValue = {
       m match {
         case inc:Increase =>
         {
@@ -46,7 +46,7 @@ package object json {
       }
     }
 
-    modifications.map(m => modToJSON(m))
+    attachments.map(a => attachmentToJSON(a))
   }
 
   /** Hash representing the [[Mention.arguments]] */
@@ -65,16 +65,6 @@ package object json {
     case _ => JNothing
   }
 
-//   def modsAST(modifications: Set[Modification]): JValue = {
-//     val mods = modifications.map {
-//      case mod: Modification => {
-//
-//        write(mod)
-//      }
-//      case _ => JNothing
-//    }
-//    write(mods)
-//  }
 
   object MentionOps {
 
@@ -150,7 +140,7 @@ package object json {
         ("document" -> tb.document.equivalenceHash.toString) ~
         ("keep" -> tb.keep) ~
         ("foundBy" -> tb.foundBy) ~
-        ("modifications" -> modsAST(tb.modifications))
+        ("attachments" -> attachmentsAST(tb.attachments))
     }
   }
 
@@ -197,7 +187,7 @@ package object json {
         ("document" -> em.document.equivalenceHash.toString) ~
         ("keep" -> em.keep) ~
         ("foundBy" -> em.foundBy) ~
-        ("modifications" -> modsAST(em.modifications))
+        ("attachments" -> attachmentsAST(em.attachments))
     }
   }
 
@@ -241,7 +231,7 @@ package object json {
         ("document" -> rm.document.equivalenceHash.toString) ~
         ("keep" -> rm.keep) ~
         ("foundBy" -> rm.foundBy) ~
-        ("modifications" -> modsAST(rm.modifications))
+        ("attachments" -> attachmentsAST(rm.attachments))
     }
   }
 
@@ -283,7 +273,7 @@ package object json {
         ("document" -> csm.document.equivalenceHash.toString) ~
         ("keep" -> csm.keep) ~
         ("foundBy" -> csm.foundBy) ~
-        ("modifications" -> modsAST(csm.modifications))
+        ("attachments" -> attachmentsAST(csm.attachments))
     }
   }
 
