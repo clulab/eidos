@@ -2,12 +2,12 @@ name := "eidos"
 
 version := "1.0"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.4"
 
 //EclipseKeys.withSource := true
 
 libraryDependencies ++= {
-  val procVer = "6.2.1-SNAPSHOT"
+  val procVer = "7.0.0"
 
   Seq(
     "org.clulab" %% "processors-main" % procVer,
@@ -17,9 +17,9 @@ libraryDependencies ++= {
     "org.clulab" %% "processors-modelscorenlp" % procVer,
     "org.clulab" %% "processors-openie" % procVer,
     //"org.clulab" %% "influencer-core" % "0.1-SNAPSHOT",
-    "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-    "ai.lum" %% "common" % "0.0.7",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
+    "org.scalatest" %% "scalatest" % "3.0.4" % "test",
+    "ai.lum" %% "common" % "0.0.8",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   )
 }
 
