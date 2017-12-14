@@ -30,7 +30,7 @@ rules:
       modrulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Increase
-      trigger: "increas|improv|promot|boost"
+      trigger: "increas|improv|promot|boost|better"
 
   - import: org/clulab/wm/grammars/modifiersTemplate.yml
     vars:
