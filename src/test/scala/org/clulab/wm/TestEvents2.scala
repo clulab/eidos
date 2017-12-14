@@ -13,7 +13,8 @@ class TestEvents2 extends FlatSpec with Matchers {
   sent1 should "have 1 IncreaseEvent for Economy" in {
 
     val mentions = extractMentions(sent1)
-    val events = mentions.filter(_ matches INCREASE) //Param: Economy (market)
+    val events = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    //val events = mentions.filter(_ matches INCREASE) //Param: Economy (market)
     //This would be 2 increase events if we counted "agricultural credit", however this is not a Param
     events should have size (1)
     for (e <- events) {

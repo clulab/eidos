@@ -81,14 +81,14 @@ class AgroActions extends Actions with LazyLogging {
     //if m matches "EntityModifier"
     attachment = getAttachment(m)
     copyWithMod = m match {
-      case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment))
+      case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}-mod")
       // Here, we want to keep the theme that is being modified, not the modification event itself
       case rm: RelationMention =>
         val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment))
+        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}-${rm.foundBy}")
       case em: EventMention =>
         val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment))
+        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}-${em.foundBy}")
     }
   } yield copyWithMod
 
