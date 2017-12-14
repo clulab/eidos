@@ -60,7 +60,7 @@ object DisplayUtils {
     }
   }
 
-  def modificationsString(mods: Set[Modification]): String = s"${mods.mkString(", ")}"
+  def attachmentsString(mods: Set[Attachment]): String = s"${mods.mkString(", ")}"
 
   def displayMention(mention: Mention) {
     val boundary = s"\t${"-" * 30}"
@@ -73,18 +73,18 @@ object DisplayUtils {
     mention match {
       case tb: TextBoundMention =>
         println(s"\t${tb.labels.mkString(", ")} => ${tb.text}")
-        if (tb.modifications.nonEmpty) println(s"\t  * Modifications: ${modificationsString(tb.modifications)}")
+        if (tb.attachments.nonEmpty) println(s"\t  * Attachments: ${attachmentsString(tb.attachments)}")
       case em: EventMention =>
-        println(s"\ttrigger => ${em.trigger.text}")
-        if (em.trigger.modifications.nonEmpty) println(s"\t  * Modifications: ${modificationsString(em.trigger.modifications)}")
+        println(s"\ttrigger => ${em.trigger.text}}")
+        if (em.trigger.attachments.nonEmpty) println(s"\t  * Attachments: ${attachmentsString(em.trigger.attachments)}")
         displayArguments(em)
-        if (em.modifications.nonEmpty) {
-          println(s"\tEvent Modifications: ${modificationsString(em.modifications)}")
+        if (em.attachments.nonEmpty) {
+          println(s"\tEvent Attachments: ${attachmentsString(em.attachments)}")
         }
       case rel: RelationMention =>
         displayArguments(rel)
-        if (rel.modifications.nonEmpty) {
-          println(s"\tRelation Modifications: ${modificationsString(rel.modifications)}")
+        if (rel.attachments.nonEmpty) {
+          println(s"\tRelation Attachments: ${attachmentsString(rel.attachments)}")
         }
       case _ => ()
     }
@@ -118,7 +118,7 @@ object DisplayUtils {
       case (argName, ms) =>
         ms foreach { v =>
           println(s"\t$argName ${v.labels.mkString("(", ", ", ")")} => ${v.text}")
-          if (v.modifications.nonEmpty) println(s"\t  * Modifications: ${modificationsString(v.modifications)}")
+          if (v.attachments.nonEmpty) println(s"\t  * Attachments: ${attachmentsString(v.attachments)}")
         }
     }
   }

@@ -1,5 +1,5 @@
 name := """webapp"""
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.4"
 
 libraryDependencies ++= Seq(
   guice,
