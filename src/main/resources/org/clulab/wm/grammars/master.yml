@@ -15,12 +15,12 @@ rules:
       rulepriority: "1"
 
   #Events
-  #Step 1: find the direct modifiers of entities (e.g. "small puppies")
+  #Step 1: find the direct attachments of entities (e.g. "small puppies")
   #TODO: make sure the Increase/Decrease are in avoid.yml
   - import: org/clulab/wm/grammars/entityQuantification.yml
     vars:
       rulepriority: "2"
-      action: applyModification #Should add quantifier to state of entity
+      action: applyAttachment #Should add quantifier to state of entity
       label: Quantification
 
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
@@ -28,7 +28,7 @@ rules:
     vars:
       objrulepriority: "4"
       modrulepriority: "3"
-      action: applyModification #Should add Increase/Decrease to state of entity
+      action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Increase
       trigger: "increas|improv|promot|boost"
 
@@ -36,7 +36,7 @@ rules:
     vars:
       objrulepriority: "4"
       modrulepriority: "3"
-      action: applyModification #Should add Increase/Decrease to state of entity
+      action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Decrease
       trigger: "decreas|cut|phase|deteriorat|reduc|less"
 

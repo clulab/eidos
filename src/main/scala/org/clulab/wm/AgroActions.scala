@@ -76,7 +76,7 @@ class AgroActions extends Actions with LazyLogging {
   //TODO Heather: write toy test for this
   //TODO: perhaps keep token interval of the EVENT because it will be longer?
 
-  def applyModification(ms: Seq[Mention], state: State): Seq[Mention] = for {
+  def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = for {
     m <- ms
     //if m matches "EntityModifier"
     attachment = getAttachment(m)
