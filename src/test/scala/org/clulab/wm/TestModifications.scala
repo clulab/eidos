@@ -46,30 +46,48 @@ class TestModifications extends FlatSpec with Matchers {
   //TODO: See sent3 test as example for how to test the eidos modified entities.
   //TODO: Update other tests accordingly
   //TODO: Move any cause-effect tests to a TestEvents class
-  val sent3 = "Limited financial capacities and low education levels further restrict farmers’ ability for higher benefits from increased agricultural production."
+  val sent3 = "Limited financial capacities and low education levels further restrict farmers’ ability for " +
+    "higher benefits from increased agricultural production."
+  // (DEC-limited) financial capacities
+  // (QUANT-low) education levels
+  // (INC-inc) agricultural production
+  val mentions3 = extractMentions(sent3)
 
-  sent3 should "have 1 Increase Event for Productivty and 1 Decrease Event for Economy" in {
-    val mentions = extractMentions(sent3)
+  sent3 should "have three modified entities" in {
+    val entities = mentions3.count(_.attachments.nonEmpty) should be (3)
+  }
 
-
-    println(s"SENT-3-Mentions: ${ mentions }")
-    val entitiesWithInc = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
-    println(s"SENT-3-Events: ${ entitiesWithInc }")
-
+  sent3 should "have one Increase modification" in {
+    val entitiesWithInc = mentions3.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
     entitiesWithInc should have size (1)
 
     for (e <- entitiesWithInc) {
-      val argIncrease = e.attachments.head
-      println(s"SENT-3-Attachments: ${ argIncrease }")
-      argIncrease.asInstanceOf[Increase].trigger should be ("increased")
-
-      val t = e.text
-      t should be ("agricultural production")
-      println(s"SENT-3-TEXT: ${t}")
-
+      e.attachments.head.asInstanceOf[Increase].trigger should be("increased")
+      e.text should be("agricultural production")
     }
+  }
 
-//    val eventsDecrease = mentions.filter(_ matches DECREASE)
+  sent3 should "have one Quantification modification" in {
+    val entities = mentions3.filter(m => m.attachments.exists(a => a.isInstanceOf[Quantification]))
+    entities should have size (1)
+
+    for (e <- entities) {
+      e.attachments.head.asInstanceOf[Quantification].quantifier should be("low")
+      e.text should be("education levels")
+    }
+  }
+
+  sent3 should "have one Decrease modification" in {
+    val entities = mentions3.filter(m => m.attachments.exists(a => a.isInstanceOf[Decrease]))
+    entities should have size (1)
+
+    for (e <- entities) {
+      e.attachments.head.asInstanceOf[Decrease].trigger should be("restrict")
+      e.text should be("education levels")
+    }
+  }
+
+  //    val eventsDecrease = mentions.filter(_ matches DECREASE)
 //    eventsDecrease should have size (1)
 //
 //    for (e <- eventsDecrease) {
@@ -78,7 +96,7 @@ class TestModifications extends FlatSpec with Matchers {
 //      e.arguments.get("theme").get.exists(_.text == "financial capacities") should be(true)
 //    }
 
-  }
+
 
 
   val sent4: String = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
