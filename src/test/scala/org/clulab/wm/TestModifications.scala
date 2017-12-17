@@ -4,18 +4,20 @@ import org.scalatest._
 import TestUtils._
 import ReaderUtils._
 
-class TestEvents2 extends FlatSpec with Matchers {
+class TestModifications extends FlatSpec with Matchers {
 
 
   //ONE Increase Event
   val sent1 = "Better and well-functioning agricultural credit and market services for both established and emerging farmers."
 
-  sent1 should "have 1 IncreaseEvent for Economy" in {
+  sent1 should "have 1 IncreaseEvent for 'agricultural credit' " in {
 
     val mentions = extractMentions(sent1)
+
+    println(s"SENT-1-Mentions: ${ mentions }")
     val events = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
-    //val events = mentions.filter(_ matches INCREASE) //Param: Economy (market)
-    //This would be 2 increase events if we counted "agricultural credit", however this is not a Param
+    println(s"SENT-1-Events: ${ events }")
+
     events should have size (1)
     for (e <- events) {
       e.arguments.get("theme").get should have size (1) //Param: Economy
@@ -41,26 +43,40 @@ class TestEvents2 extends FlatSpec with Matchers {
   }
 
 
+  //TODO: See sent3 test as example for how to test the eidos modified entities.
+  //TODO: Update other tests accordingly
+  //TODO: Move any cause-effect tests to a TestEvents class
   val sent3 = "Limited financial capacities and low education levels further restrict farmers’ ability for higher benefits from increased agricultural production."
 
   sent3 should "have 1 Increase Event for Productivty and 1 Decrease Event for Economy" in {
     val mentions = extractMentions(sent3)
-    val events = mentions.filter(_ matches INCREASE) //increased agricultural production
-    events should have size (1)
-    for (e <- events) {
-      e.arguments.get("theme").get should have size (1) //Param: Productivty
-      e.arguments.get("theme").get.exists(_.label == "Productivity")
-      e.arguments.get("theme").get.exists(_.text == "agricultural production") should be(true)
+
+
+    println(s"SENT-3-Mentions: ${ mentions }")
+    val entitiesWithInc = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    println(s"SENT-3-Events: ${ entitiesWithInc }")
+
+    entitiesWithInc should have size (1)
+
+    for (e <- entitiesWithInc) {
+      val argIncrease = e.attachments.head
+      println(s"SENT-3-Attachments: ${ argIncrease }")
+      argIncrease.asInstanceOf[Increase].trigger should be ("increased")
+
+      val t = e.text
+      t should be ("agricultural production")
+      println(s"SENT-3-TEXT: ${t}")
+
     }
 
-    val eventsDecrease = mentions.filter(_ matches DECREASE)
-    eventsDecrease should have size (1)
-
-    for (e <- eventsDecrease) {
-      e.arguments.get("theme").get should have size (1) //Param: Economy
-      e.arguments.get("theme").get.exists(_.label == "Economy")
-      e.arguments.get("theme").get.exists(_.text == "financial capacities") should be(true)
-    }
+//    val eventsDecrease = mentions.filter(_ matches DECREASE)
+//    eventsDecrease should have size (1)
+//
+//    for (e <- eventsDecrease) {
+//      e.arguments.get("theme").get should have size (1) //Param: Economy
+//      e.arguments.get("theme").get.exists(_.label == "Economy")
+//      e.arguments.get("theme").get.exists(_.text == "financial capacities") should be(true)
+//    }
 
   }
 
