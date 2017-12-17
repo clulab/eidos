@@ -2,7 +2,7 @@ vars:
   agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
-  modifiers: "amod|compound|dep|name"
+  noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
   preps: "nmod_of|nmod_in"
@@ -10,6 +10,20 @@ vars:
   quant_modifiers: "amod|advmod"
 
 rules:
+
+# ------------------- Verbal PROMOTION/INHIBITION Rules --------------------------
+
+  - name: ${ label }_ported_syntax_1_verb_edited
+    priority: ${ rulepriority }
+    example: "small increase in small puppies"
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ promotion_trigger })/ & tag=/^V/] # original rule had RB as possible tag
+      # | ${complements} originally in the () with with the FIRST ${ objects }.
+      cause: Entity = nsubj
+      effect: Entity = nmod_by? (${objects}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      quantifier:Quantifier? = ${quant_modifiers}
+
 
 # ------------------- Nominal Triggers --------------------------
 

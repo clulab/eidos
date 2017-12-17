@@ -1,5 +1,9 @@
 taxonomy: org/clulab/wm/grammars/taxonomy.yml
 
+vars:
+  increase_triggers: "increas|improv|promot|boost|better"
+  decrease_triggers: "decreas|cut|phase|deteriorat|reduc|less"
+
 rules:
   #Entities are found with EntityFinder! Not extracted here!
 
@@ -30,7 +34,7 @@ rules:
       modrulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Increase
-      trigger: "increas|improv|promot|boost|better"
+      trigger: ${ increase_triggers }
 
   - import: org/clulab/wm/grammars/modifiersTemplate.yml
     vars:
@@ -38,7 +42,7 @@ rules:
       modrulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Decrease
-      trigger: "decreas|cut|phase|deteriorat|reduc|less"
+      trigger: ${ decrease_triggers }
 
   #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
   #Acts upon entities
@@ -47,6 +51,7 @@ rules:
       rulepriority: "6"
       label: Causal
       trigger: "lead"
+      promotion_trigger: ${increase_triggers} | ${decrease_triggers}
       # To handle the syntactic ambiguity of "A is the cause of B" versus "A is the result of B" which have
       # identical syntactic structure, but opposite directions for identifying the cause/effect, we introduce a set
       # of triggers for reversed direction nouns (e.g., "result" and "effect")
