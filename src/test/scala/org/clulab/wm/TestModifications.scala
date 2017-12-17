@@ -6,46 +6,35 @@ import ReaderUtils._
 
 class TestModifications extends FlatSpec with Matchers {
 
+  //TODO: Move any cause-effect tests to a TestEvents class
+
 
   //ONE Increase Event
   val sent1 = "Better and well-functioning agricultural credit and market services for both established and emerging farmers."
 
-  sent1 should "have 1 IncreaseEvent for 'agricultural credit' " in {
+  sent1 should "have 1 Increase attachment for 'agricultural credit' " in {
 
     val mentions = extractMentions(sent1)
-
-    println(s"SENT-1-Mentions: ${ mentions }")
-    val events = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
-    println(s"SENT-1-Events: ${ events }")
-
-    events should have size (1)
-    for (e <- events) {
-      e.arguments.get("theme").get should have size (1) //Param: Economy
-      e.arguments.get("theme").get.exists(_.text == "market services") should be(true)
-      //      e.arguments.get("theme").get.exists(_.text.contains("market services")) should be (true)
-    }
+    val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    entities should have size (1)
+    entities.head.attachments.head.asInstanceOf[Increase].trigger should be ("Better")
+    entities.head.text should be ("well-functioning agricultural credit")
 
   }
 
-  val sent2 = "The support for agricultural research, education, and extension programs will also be increased for developing and disseminating climate change adaptation agricultural technologies to the farmers."
-
-  sent2 should "have 1 Increase Event for Productivity" in {
+  val sent2 = "The support for agricultural research, education, and extension programs will also be increased for " +
+    "developing and disseminating climate change adaptation agricultural technologies to the farmers."
+  // Note: parse of sentence makes it "impossible" to extract increase for education and extension programs --> maybe
+  // a reason to switch to cluprocessor
+  sent2 should "have 1 Increase attachment" in {
     val mentions = extractMentions(sent2)
-    val events = mentions.filter(_ matches INCREASE) //Param: Productivity (i.e. "technologies)
-    //3 Non-params are "supported": research, education, & programs
-    events should have size (1)
-    for (e <- events) {
-      e.arguments.get("theme").get should have size (1) //Param: Productivty
-      e.arguments.get("theme").get.exists(_.label == "Productivity")
-      e.arguments.get("theme").get.exists(_.text == "climate change adaptation agricultural technologies") should be(true)
-    }
+    val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    entities should have size (1)
+    entities.head.attachments.head.asInstanceOf[Increase].trigger should be ("increased")
+    entities.head.text should be ("The support for agricultural research")
 
   }
 
-
-  //TODO: See sent3 test as example for how to test the eidos modified entities.
-  //TODO: Update other tests accordingly
-  //TODO: Move any cause-effect tests to a TestEvents class
   val sent3 = "Limited financial capacities and low education levels further restrict farmers’ ability for " +
     "higher benefits from increased agricultural production."
   // (DEC-limited) financial capacities
@@ -77,6 +66,7 @@ class TestModifications extends FlatSpec with Matchers {
     }
   }
 
+  // TODO: fails now, please make pass -- there's an issue with entity finder...
   sent3 should "have one Decrease modification" in {
     val entities = mentions3.filter(m => m.attachments.exists(a => a.isInstanceOf[Decrease]))
     entities should have size (1)
@@ -87,18 +77,8 @@ class TestModifications extends FlatSpec with Matchers {
     }
   }
 
-  //    val eventsDecrease = mentions.filter(_ matches DECREASE)
-//    eventsDecrease should have size (1)
-//
-//    for (e <- eventsDecrease) {
-//      e.arguments.get("theme").get should have size (1) //Param: Economy
-//      e.arguments.get("theme").get.exists(_.label == "Economy")
-//      e.arguments.get("theme").get.exists(_.text == "financial capacities") should be(true)
-//    }
 
-
-
-
+  // TODO: please do...
   val sent4: String = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
 
   val mentions4 = extractMentions(sent4)
@@ -226,16 +206,13 @@ class TestModifications extends FlatSpec with Matchers {
 
   val sent5 = "With increases in poverty levels people become more vulnerable to climate change and other risks."
 
-  "sent5" should "have one IncreaseEvent" in {
+  "sent5" should "have one Increase" in {
     val mentions = extractMentions(sent5)
-    val events = mentions.filter(_ matches INCREASE) //
-    events should have size (1)
+    val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    entities should have size (1)
+    entities.head.attachments.head.asInstanceOf[Increase].trigger should be ("increases")
+    entities.head.text should be ("poverty levels")
 
-    for (e <- events) {
-      e.arguments.get("theme").get should have size (1)
-      e.arguments.get("theme").get.exists(_.label == "Poverty")
-      e.arguments.get("theme").get.exists(_.text == "poverty levels") should be(true)
-    }
   }
 
 
@@ -243,39 +220,17 @@ class TestModifications extends FlatSpec with Matchers {
   //small increase in crop diversity (Increase in Crop)
   //increase in crop due to "the need to combat the climate and market risks (Increase due to NounPhrase)
 
-  val mentions6 = extractMentions(sent6)
-
-  "sent6" should "have 1 Increase Event for Crop with a Quantifier" in {
-    val events = mentions6.filter(_ matches INCREASE) //
-    events should have size (1)
-
-    for (e <- events) {
-      e.arguments.get("theme").get should have size (1)
-      e.arguments.get("theme").get.exists(_.label == "Crop")
-      e.arguments.get("theme").get.exists(_.text == "in crop diversity") should be(true) //will pass with "in" but probably shouldn't have it here
-      e.arguments.get("quantifier").get should have size (1)
-      e.arguments.get("quantifier").get.exists(_.label == "Quantifier")
-      e.arguments.get("quantifier").get.exists(_.text == "small") should be(true)
-    }
+  "sent6" should "have one Increase" in {
+    val mentions = extractMentions(sent6)
+    val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    entities should have size (1)
+    entities.head.attachments.head.asInstanceOf[Increase].trigger should be ("increase")
+    val quantifiers = entities.head.attachments.head.asInstanceOf[Increase].quantifier.get
+    quantifiers should have size (1)
+    quantifiers.head should be ("small")
+    entities.head.text should be ("crop diversity")
   }
 
-  "sent6" should "have 1 Cause-and-Effect Event" in {
-    val events = mentions6.filter(_ matches CAUSEEF) //
-    events should have size (1)
-
-    for (e <- events) {
-      e.arguments.keySet should contain("cause")
-      e.arguments.get("cause").get should have size (1)
-      e.arguments.get("cause").get.exists(_.label == "NounPhrase")
-      e.arguments.get("cause").get.exists(_.text == "the need to combat the climate and market risks") should be(true)
-
-      e.arguments.keySet should contain("effect")
-      e.arguments.get("effect").get should have size (1)
-      e.arguments.get("effect").get.exists(_.label == "Increase")
-      e.arguments.get("effect").get.exists(_.text == "small increase in crop diversity") should be(true)
-    }
-
-  }
 
 
   val sent7 = "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income."
@@ -283,68 +238,51 @@ class TestModifications extends FlatSpec with Matchers {
   //Increase in non-farm income (Increase Economy)
   //2 Decrease Events: decline in Poverty & decrease in family size (Population)
 
-  "sent7" should "have 1 Increase Event for Economy" in {
-    val events = mentions7.filter(_ matches INCREASE) //
-    events should have size (1)
-
-    for (e <- events) {
-      e.arguments.get("theme").get should have size (1)
-      e.arguments.get("theme").get.exists(_.label == "Economy")
-      e.arguments.get("theme").get.exists(_.text == "non-farm income") should be(true)
-
-    }
+  "sent7" should "have 1 Increase for 'non-farm income'" in {
+    val entities = mentions7.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    entities should have size (1)
+    entities.head.attachments.head.asInstanceOf[Increase].trigger should be ("increase")
+    entities.head.text should be ("non-farm income")
   }
 
-  "sent7" should "have 1 Decrease Event for Poverty" in {
-    val events = mentions7.filter(_ matches DECREASE) //
-    val filteredEvents = events.filter(_.arguments("theme").head.label == "Poverty")
-    filteredEvents should have size (1)
-    val themes = filteredEvents.map(_.arguments("theme").head.text)
-    themes should contain("poverty")
-    val filteredQuants = events.filter(_.arguments("quantifier").head.label == "Quantifier")
-    filteredQuants should have size (1)
-    val quants = filteredQuants.map(_.arguments("quantifier").head.text)
-    quants should contain("Significant")
+  "sent7" should "have 2 Decrease attachments" in {
+    val entities = mentions7.filter(m => m.attachments.exists(a => a.isInstanceOf[Decrease]))
+    entities should have size (2)
 
+    val dec1 = entities.filter(e => e.attachments.head.asInstanceOf[Decrease].trigger == "decline")
+    dec1 should have size (1)
+    dec1.head.attachments.head.asInstanceOf[Decrease].quantifier.get.head should be ("Significant")
+    dec1.head.text should be ("poverty")
+
+    val dec2 = entities.filter(e => e.attachments.head.asInstanceOf[Decrease].trigger == "decrease")
+    dec2 should have size (1)
+    dec2.head.text should be ("family size")
   }
 
-  //
-  "sent7" should "have 1 Decrease Event for Population" in {
-    val events = mentions7.filter(_ matches DECREASE) //
-    val filteredEvents = events.filter(_.arguments("theme").head.label == "HouseholdSize")
-    filteredEvents should have size (1)
-    val themes = filteredEvents.map(_.arguments("theme").head.text)
-    themes should contain("family size")
-  }
 
 
     //Increase in Poverty
   val sent8 = "Poverty levels continue to increase, people become more vulnerable to food insecurity and other risks."
-  val mentions8 = extractMentions(sent8)
 
-  "sent8" should "have 1 Increase Event for Population" in {
-    val events = mentions8.filter(_ matches INCREASE)
-    events should have size(1)
-    val filteredEvents = events.filter(_.arguments("theme").head.label == "Poverty")
-    filteredEvents should have size (1)
-    val themes = filteredEvents.map(_.arguments("theme").head.text)
-    themes should contain("Poverty levels")
+  "sent8" should "have one Increase" in {
+    val mentions = extractMentions(sent8)
+    val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    entities should have size (1)
+    entities.head.attachments.head.asInstanceOf[Increase].trigger should be("increase")
+    entities.head.text should be("Poverty levels")
   }
 
 
   //Increase water irrigation/management system
   //DUE TO? Increase Water due to Drought?
   val sent9 = "Government puts more emphasis on improving the agricultural water irrigation/management system to cope with drought conditions."
-  val mentions9 = extractMentions(sent9)
 
-  "sent9" should "have 1 Increase Event for Water" in {
-    val events = mentions9.filter(_ matches INCREASE)
-    events should have size(1)
-    val filteredEvents = events.filter(_.arguments("theme").head.label == "Water")
-    filteredEvents should have size (1)
-    val themes = filteredEvents.map(_.arguments("theme").head.text)
-    themes should contain("the agricultural water irrigation/management system")
-
+  "sent9" should "have one Increase" in {
+    val mentions = extractMentions(sent9)
+    val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
+    entities should have size (1)
+    entities.head.attachments.head.asInstanceOf[Increase].trigger should be("improving")
+    entities.head.text should be("the agricultural water irrigation/management systems")
   }
 
   //Increase in Subsidy
