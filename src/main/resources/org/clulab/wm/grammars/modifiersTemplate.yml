@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj | 'nsubj:xsubj' | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   noun_modifiers: "amod|compound|dep|name"
@@ -21,26 +21,47 @@ vars:
 rules:
 
 # ------------------- Verbal Triggers --------------------------
-  - name: ${ label }_ported_syntax_1_verb_edited
+  - name: ${ label }_ported_syntax_1_verb
     priority: ${ objrulepriority }
     example: "small increase in small puppies"
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
-      # | ${complements} originally in the () with with the FIRST ${ objects }.
-      theme: Entity = nmod_by? (${objects}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
+      theme: Entity = nmod_by? (${objects}|${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
       quantifier:Quantifier? = ${quant_modifiers}
 
-  - name: ${ label}_adjective_rule_1
-    priority:  ${ modrulepriority }
-    example: "less water"
+  - name: ${ label }_syntax_1_verb_edited
+    priority: ${ objrulepriority }
+    example: "Poverty levels continue to increase."
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^${ trigger }/ & tag=/^J/]
-      theme: Entity = <${ noun_modifiers }
-      quantifier: Quantifier? = ${quant_modifiers}
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
+      theme: Entity = >${complements} ${ agents }
+      quantifier:Quantifier? = ${quant_modifiers}
+
+  # Note: Captures passive voice; thus verb must be VBD|VBN
+  - name: ${ label }_ported_syntax_2_verb
+    priority: ${ objrulepriority }
+    example: "wheat production in the region will be adversely affected"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
+      theme: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_ported_syntax_6_verb
+    priority: ${ modrulepriority }
+    example: "Better and well-functioning agricultural credit and market services for both established and emerging farmers ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBN|RB/]
+      theme: Entity = (< /amod|xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
 
   #Trying to capture "improved cultivar" as Increase cultivar
   - name: ${ label}_rule_1
@@ -73,6 +94,19 @@ rules:
       trigger = [word=/(?i)^${ trigger }/ & tag=/VBG/]
       theme: Entity = <amod
       quantifier: Quantifier? = ${quant_modifiers}
+
+# ------------------- Other Triggers --------------------------
+
+  - name: ${ label}_adjective_rule_1
+    priority:  ${ modrulepriority }
+    example: "less water"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/^J/]
+      theme: Entity = <${ noun_modifiers }
+      quantifier: Quantifier? = ${quant_modifiers}
+
 
 # ------------------- Nominal Triggers --------------------------
   - name: ${ label }_ported_syntax_1_noun
