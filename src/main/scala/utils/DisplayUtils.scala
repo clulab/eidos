@@ -75,7 +75,7 @@ object DisplayUtils {
         println(s"\t${tb.labels.mkString(", ")} => ${tb.text}")
         if (tb.attachments.nonEmpty) println(s"\t  * Attachments: ${attachmentsString(tb.attachments)}")
       case em: EventMention =>
-        println(s"\ttrigger => ${em.trigger.text}}")
+        println(s"\ttrigger => ${em.trigger.text}")
         if (em.trigger.attachments.nonEmpty) println(s"\t  * Attachments: ${attachmentsString(em.trigger.attachments)}")
         displayArguments(em)
         if (em.attachments.nonEmpty) {
