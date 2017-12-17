@@ -2,7 +2,7 @@ vars:
   agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
-  modifiers: "amod|compound|dep|name"
+  noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
   preps: "nmod_of|nmod_in"
@@ -20,6 +20,7 @@ vars:
 #Rules with "ported" in the name means that they are adaped from the positive_regulation_template.yml in REACH
 rules:
 
+# ------------------- Verbal Triggers --------------------------
   - name: ${ label }_ported_syntax_1_verb_edited
     priority: ${ objrulepriority }
     example: "small increase in small puppies"
@@ -28,7 +29,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       # | ${complements} originally in the () with with the FIRST ${ objects }.
-      theme: Entity = nmod_by? (${objects}) /${ conjunctions }|${ objects }|${ modifiers }|${ preps }/{,2}
+      theme: Entity = nmod_by? (${objects}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
       quantifier:Quantifier? = ${quant_modifiers}
 
   - name: ${ label}_adjective_rule_1
@@ -38,7 +39,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^${ trigger }/ & tag=/^J/]
-      theme: Entity = <${ modifiers }
+      theme: Entity = <${ noun_modifiers }
       quantifier: Quantifier? = ${quant_modifiers}
 
   #Trying to capture "improved cultivar" as Increase cultivar
@@ -72,3 +73,24 @@ rules:
       trigger = [word=/(?i)^${ trigger }/ & tag=/VBG/]
       theme: Entity = <amod
       quantifier: Quantifier? = ${quant_modifiers}
+
+# ------------------- Nominal Triggers --------------------------
+  - name: ${ label }_ported_syntax_1_noun
+    priority: ${ objrulepriority }
+    example: "massive increases in agricultural production"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /${ preps }/ /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+  - name: ${ label }_ported_syntax_2_noun
+    priority: ${ objrulepriority }
+    example: "technological progress"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /${ preps }$/? /${ conjunctions }|${ noun_modifiers }/{1,2}
+      quantifier:Quantifier? = ${ quant_modifiers }

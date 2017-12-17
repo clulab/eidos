@@ -11,14 +11,16 @@ vars:
 
 rules:
 
-  - name: causal-1
+# ------------------- Nominal Triggers --------------------------
+
+  - name: causal-noun-1
     priority: ${ rulepriority }
     example: "More water resulting in an increase of productivity."
     label: ${ label }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/]
+      trigger = [word=/(?i)^(${ reverse_noun_trigger })/]
       cause: Entity  = nsubj #</^conj/?
-      effect: Entity = (nmod_in | nmod_to) | ccomp (nsubj | dobj)?
+      effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
 
 #  - name: causal-2
 #    priority: ${ rulepriority }
