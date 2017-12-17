@@ -41,7 +41,7 @@ rules:
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /increas|improv|promot|boost|better|decreas|cut|phas|deteriorat|reduc|less/]
+      [word = /increas|improv|promot|boost|better|decreas|cut|phas|deteriorat|reduc|less|declin/]
 
   - name: "gradable"
     label: Avoid

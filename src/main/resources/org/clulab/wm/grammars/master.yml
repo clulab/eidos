@@ -2,7 +2,7 @@ taxonomy: org/clulab/wm/grammars/taxonomy.yml
 
 vars:
   increase_triggers: "increas|improv|promot|boost|better"
-  decrease_triggers: "decreas|cut|phase|deteriorat|reduc|less"
+  decrease_triggers: "decreas|cut|phase|deteriorat|reduc|less|declin"
 
 rules:
   #Entities are found with EntityFinder! Not extracted here!
@@ -19,6 +19,13 @@ rules:
       rulepriority: "1"
 
   #Events
+  # TODO: rules for 'become' where do modifications live? causality?
+  # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
+  # example: "There will be a small increase in crop diversity due to the need to combat the climate and market risks
+  #            as both of these might become more volatile in the future."
+  # TODO: correlation rules
+  # example: "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income ."
+
   #Step 1: find the direct attachments of entities (e.g. "small puppies")
   #TODO: make sure the Increase/Decrease are in avoid.yml
   - import: org/clulab/wm/grammars/entityQuantification.yml
