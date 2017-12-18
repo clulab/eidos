@@ -15,7 +15,7 @@ rules:
 
   - name: ${ label }_ported_syntax_1_verb_edited
     priority: ${ rulepriority }
-    example: "small increase in small puppies"
+    example: "With the high cost of production, food imports will further reduce farmers’ chances to make a living from agriculture."
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ promotion_trigger })/ & tag=/^V/] # original rule had RB as possible tag

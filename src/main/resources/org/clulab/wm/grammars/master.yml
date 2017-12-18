@@ -2,7 +2,7 @@ taxonomy: org/clulab/wm/grammars/taxonomy.yml
 
 vars:
   increase_triggers: "increas|improv|promot|boost|better"
-  decrease_triggers: "decreas|cut|phase|deteriorat|reduc|less|declin"
+  decrease_triggers: "cut|declin|decreas|degrad|deteriorat|inadequate|less|limit|low|phase|reduc|shortage|shrink"
 
 rules:
   #Entities are found with EntityFinder! Not extracted here!
@@ -19,6 +19,9 @@ rules:
       rulepriority: "1"
 
   #Events
+  # TODO: 'with X, Y...' sentences:
+  # example: "With the high cost of production, food imports will further reduce farmers’ chances to make a living from agriculture."
+  # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
   # TODO: rules for 'become' where do modifications live? causality?
   # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
   # example: "There will be a small increase in crop diversity due to the need to combat the climate and market risks
