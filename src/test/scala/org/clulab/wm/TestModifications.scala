@@ -62,7 +62,7 @@ class TestModifications extends FlatSpec with Matchers {
 
     for (e <- entities) {
       e.attachments.head.asInstanceOf[Quantification].quantifier should be("low")
-      e.text should be("education levels")
+      e.text should be("farmers' ability")
     }
   }
 
@@ -286,18 +286,18 @@ class TestModifications extends FlatSpec with Matchers {
   }
 
   //Increase in Subsidy
-  val sent10 = "Main interventions will include support for the agricultural-service sector, fertilizer subsidies, and feeder roads (slow)."
-
-  "sent10" should "have 1 Increase Event for Subsidy" in {
-    val mentions = extractMentions(sent10)
-    val events = mentions.filter(_ matches INCREASE)
-    events should have size(1)
-    val filteredEvents = events.filter(_.arguments("theme").head.label == "Subsidy")
-    filteredEvents should have size(1)
-    val themes = filteredEvents.map(_.arguments("theme").head.text)
-    themes should contain("fertilizer subsidies")
-
-  }
+//  val sent10 = "Main interventions will include support for the agricultural-service sector, fertilizer subsidies, and feeder roads (slow)."
+//
+//  "sent10" should "have 1 Increase Event for Subsidy" in {
+//    val mentions = extractMentions(sent10)
+//    val events = mentions.filter(_ matches INCREASE)
+//    events should have size(1)
+//    val filteredEvents = events.filter(_.arguments("theme").head.label == "Subsidy")
+//    filteredEvents should have size(1)
+//    val themes = filteredEvents.map(_.arguments("theme").head.text)
+//    themes should contain("fertilizer subsidies")
+//
+//  }
 
   //2 increase events (Crops & FertilizerUse), 1 decrease event (FertilizerPrice)
   val sent11 = "The government promotes high-yielding and drought-/flood-tolerant rice varieties with policy to encourage the application of organic fertilizers, decreasing the cost on inorganic fertilizers."
@@ -1044,6 +1044,8 @@ class TestModifications extends FlatSpec with Matchers {
   }
 
   //TODO: SENTENCES I"M UNSURE ABOUT
+  val sent10 = "Main interventions will include support for the agricultural-service sector, fertilizer subsidies, and feeder roads (slow)."
+
   //increase44 "prioritize its programs" an increaseEvent ????
   val increase44 = "However, the government will prioritize its programs to minimize the loss from climate change impacts and reduce the vulnerability of the people."
 
