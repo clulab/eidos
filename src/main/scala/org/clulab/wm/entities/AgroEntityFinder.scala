@@ -59,13 +59,13 @@ class AgroEntityFinder(
 object AgroEntityFinder extends LazyLogging {
 
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
-  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): RuleBasedEntityFinder = {
+  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): AgroEntityFinder = {
     val entityRules = ResourceUtils.readResource("org/clulab/openie/entities/grammar/entities.yml")
     val avoidRules = readRules("/org/clulab/wm/grammars/avoidLocal.yml")
 
     val avoidEngine = ExtractorEngine(avoidRules)
     val entityEngine = ExtractorEngine(entityRules)
-    new RuleBasedEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
+    new AgroEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
   }
 
 
