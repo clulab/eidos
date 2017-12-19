@@ -1,8 +1,12 @@
 taxonomy: org/clulab/wm/grammars/taxonomy.yml
 
 vars:
-  increase_triggers: "increas|improv|promot|boost|better"
-  decrease_triggers: "cut|declin|decreas|degrad|deteriorat|inadequate|less|limit|low|phase|reduc|shortage|shrink"
+  posTriggers: "acceler|accept|activat|aid|allow|augment|cataly|caus|contribut|direct|driv|elev|elicit|enabl|enhanc|increas|induc|initi|interconvert|lead|led|mediat|modul|necess|overexpress|potenti|produc|prolong|promot|rais|reactivat|re-express|rescu|restor|retent|signal|stimul|support|synerg|synthes|target|trigger|underli|up-regul|upregul"
+  negTriggers: "attenu|abolish|abrog|antagon|arrest|attenu|block|deactiv|decreas|degrad|deplet|deregul|diminish|disrupt|down-reg|downreg|dysregul|elimin|impair|imped|inactiv|inhibit|knockdown|limit|loss|lower|negat|nullifi|perturb|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shutdown|slow|starv|suppress|supress"
+  increase_triggers: "${posTriggers}|increas|improv|promot|boost|better"
+  decrease_triggers: "${negTriggers}|cut|declin|decreas|degrad|deteriorat|inadequate|less|limit|low|phase|reduc|shortage|shrink"
+
+
 
 rules:
   #Entities are found with EntityFinder! Not extracted here!

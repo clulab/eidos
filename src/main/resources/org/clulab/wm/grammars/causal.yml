@@ -44,3 +44,348 @@ rules:
 #      trigger = [word=/(?i)^(${ trigger })/]
 #      cause: Entity  = nsubj acl dobj |nmod_)/
 #      effect: Entity = nmod_in | nmod_to
+
+#
+
+# ------------------- Previous Grammar Unsorted --------------------------
+
+
+  - name: dueTo2-${addlabel}
+    priority: ${rulepriority}
+    type: token
+    label: ${label}
+    pattern: |
+      @effect:Event [lemma="due"] [lemma="to"] @cause:Entity
+
+  - name: dueToSyntax1-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = prep_to
+      effect: Entity = <acomp
+
+# todo: I don't think this rule applies in new grammar - remove?
+#  - name: dueToSyntax2-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    pattern: |
+#      trigger: Change_Event
+#      #effect: ${ effect_types } = prep_to
+#      cause: ${ cause_types } = prep_due_to
+
+
+
+#
+# Something-A (effect) due to|because of Something-B (case)
+#
+#  - name: causeEffect-2-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    pattern: |
+#      trigger = [lemma="due" & tag=/^JJ/]
+#      effect: Event = nsubj
+#      cause: Potential_Cause = prep_to # note -- should maybe be higher level than NP in taxonomy?
+
+
+  # Something-A (effect) caused|influenced|initiated| by Something-B (cause)
+  - name: causeEffect-3-${addlabel}
+    priority: ${ rulepriority }
+    label: ${label}
+    pattern: |
+      trigger = [lemma=/cause|influence|initiate/ & tag=/^V/]
+      cause: Entity = nsubj
+      effect: Entity = dobj
+
+  #
+  # param is nominal subject of verb: "PARAM increases/decreases with _____ "
+  #
+  - name: causeEffect-4-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    pattern: |
+      trigger = [word=with]
+      cause: Entity = nsubj
+      effect: Entity = prep_with
+
+
+
+#
+# The rest of the rules here are PORTED FROM pos-reg_template.yml from REACH grammar
+# NB: These rules are mostly the same as the pos-reg rules, except that all instances of "auxtriggers" in the pattern trigger have been deleted.
+#
+
+  - name: causeEffect_ported_syntax_1_verb-${addlabel}
+    priority: ${ rulepriority }
+    #example: "The water quality caused an increase in poverty and a decrease in poverty."
+    example: "improved economic performance expected to cause a shift from agriculture to service industry."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
+      effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      cause: Entity = <xcomp? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
+
+
+
+  #Handles occurrence of prep_by when NOT passive voice
+  - name: causeEffect_ported_syntax_1c_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "The water quality caused poverty by an increase in productivity."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      effect: Entity = prep_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      cause: Entity = <xcomp? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+
+
+  # Note: Captures passive voice; thus verb must be VBD|VBN
+  - name: causeEffect_ported_syntax_2_verb-${addlabel}
+    priority: ${ rulepriority }
+    #example: "Increase in poverty was caused by the water quality."
+    example: "intensive cultivation will be caused by a shrinking land base for agriculture"
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
+      effect: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      cause: Entity = (agent|prep_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+
+
+#  #Is this trying to catch parser errors??? what???
+#  - name: causeEffect_ported_syntax_3_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    example: ""
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & !outgoing=nsubjpass & tag=/^V|RB/]
+#      effect: Entity = ( (/${ prep_objs }|conj_|${ noun_modifiers }/{,2}) | (< /${ prep_objs }|conj_|${ noun_modifiers }/{1,2}) )
+#      cause: Entity = <nn{,2} | (prep_by) /${ noun_modifiers }|${ conjunctions }/{,2}
+
+
+  - name: causeEffect_ported_syntax_4_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
+      effect: Entity = (nsubjpass /conj_|${ noun_modifiers }/{,2})
+      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /nmod_by|agent/ /conj_|${ noun_modifiers }/{,2}
+
+
+  - name: causeEffect_ported_syntax_5_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
+      effect: Entity = dobj /${ noun_modifiers }|${ conjunctions }/{,2}
+      cause: Entity = (< /xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
+
+
+  - name: causeEffect_ported_syntax_6_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBN|RB/]
+      effect: Entity = (< /xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
+      cause: Entity = /nmod_by|${agents}/ /${ conjunctions }|${ noun_modifiers }/{,2}
+
+  #NB: In original pos_reg rules, this had a comment: "# remove?"
+  #So it may not be a good rule to have. It doesn't look like something we will use...
+  - name: causeEffect_ported_syntax_7_verb-${addlabel}
+    priority: ${ rulepriority }
+    #original example: "ASPP1 aids in the translocation of Kras to the membrane."
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/] # "aids" is incorrectly tagged as a noun
+      effect: Entity = nmod_in$ | nmod_to
+      cause: Entity = (nsubj | <rcmod) /${ conjunctions }|${ noun_modifiers }/{,2}
+
+  - name: causeEffect_ported_syntax_8_verb-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "We found that prolonged expression of active Ras resulted in up-regulation of the MKP3 gene"
+    example: ""
+    label: ${ label }
+    #More water resulting in an increase of productivty.
+    pattern: |
+      trigger = [lemma=result] in [word=/(?i)^(${ trigger })/]
+      effect: Entity  = nmod_of compound?
+      cause: Entity = nsubj /${ noun_modifiers }|${ conjunctions }|${ preps }|/{,2}
+
+
+  - name: causeEffect_ported_syntax_1_noun-${addlabel}
+    priority: ${ rulepriority }
+    example: "The cause of increasing poverty by bad water quality is the worst."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      effect: Entity = /${ preps }/ /${ noun_modifiers }|${ conjunctions }/{,2}
+      cause: Entity = /nmod_of/? nmod_by (<${objects}|nmod_by|agent|${noun_modifiers}|${preps}){1,2} /compound|amod|conj_|cc/{,2} #the prep_of may appear due to bad syntax
+
+  - name: causeEffect_ported_syntax_2_noun-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      effect: Entity = /${ preps }$/? /${ conjunctions }|${ noun_modifiers }/{1,2}
+      cause: Entity = /nmod_of/? /nmoc_by|agent/ /${ conjunctions }|${ noun_modifiers }/{,2} # the prep_of may appear due to bad syntax
+
+
+  - name: causeEffect_ported_syntax_3_noun-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    #Original rule had a "downstream" part in the trigger #[lemma=/^(${ auxtriggers })/ & tag=/^N/]? (?! downstream)
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/ & !outgoing=nmod_by]
+      effect: Entity = /${ preps }$/ /${ conjunctions }|${ noun_modifiers }/{,2}
+      cause: Entity = /cc|${ noun_modifiers }/{1,2} | conj_or nmod_by compound?
+
+
+  # There is no syntax_4_noun rule!
+
+  - name: causeEffect_ported_syntax_5_noun-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      effect: Entity = < ${noun_modifiers} > /nmod_/ /${ conjunctions }|${ noun_modifiers }/{,2}
+      cause: Entity = < ${noun_modifiers} /${ conjunctions }|${ noun_modifiers }/{,2}
+
+
+  - name: causeEffect_ported_syntax_6_noun-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      effect: Entity = (/${ preps }$/ /${ conjunctions }|${ noun_modifiers }/{,2}){1,2}
+      cause: Entity = <nmod_via (agent|nmod_by) /${ conjunctions }|${ noun_modifiers }/{,2}
+
+
+
+  - name: causeEffect_ported_syntax_7_noun-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "Rapamycin, an activator of the mTOR kinase,"
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      effect: Entity = <dep /${ conjunctions }|${ noun_modifiers }/{,2}
+      cause: Entity = (/${ preps }$/ /${ conjunctions }|${ noun_modifiers }/{,2}){1,2}
+
+
+    #ORIGINAL COMMENT: Captures common Hearst patterns: hypernym such as hyponym
+  - name: causeEffect_ported_syntax_noun_Hearst-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "HDAC activators including trichostatin A"
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      effect: Entity = /${ conjunctions }|${ noun_modifiers }/{,2}
+      cause: Entity = /nmod_such_as|nmod_including|nmod_like/ (${ noun_modifiers })?
+
+  - name: causeEffect_ported_copula_1-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "A is an activator of B"
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
+      effect: Entity = nsubj
+      cause: Entity = /${ preps }$/
+
+
+  - name: causeEffect_ported_possessive_noun-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "ASPP1 is common, as is its activation by ASPP2."
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=/${ trigger }/ & tag=/^N/]
+      effect: Entity = /nmod_by|agent/
+      cause: Entity = /nmod:poss/ # I think this is the UDep version
+
+  - name: causeEffect_ported_token_1_verb-${addlabel}
+    priority: ${ rulepriority }
+    type: token
+    label: ${ label }
+    #Original example: "monoubiquitinated K-Ras is less sensitive than the unmodified protein to GAP-mediated GTP hydrolysis"
+    example: "HIV/AIDS result in labor shortage"
+    #example: "phase out the fertilizer subsidy results in deteriorating biophysical conditions"
+    #example: "water resulting in an increase of productivty"
+    pattern: |
+        @cause: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & !tag=/^JJ/]) @effect: Entity
+
+
+# --------------Stopped Here
+
+  #We may need a better verb than "mediated" and "activation" here
+  - name: causeEffect_ported_token_1b_verb-${addlabel}
+    priority: ${ rulepriority }
+    type: token
+    label: ${ label }
+    #Original example: "Interacting proteins that facilitate FGFR3 mediated STAT1 activation could exist in cells."
+    pattern: |
+      @cause: Entity (?<trigger> [word=/(?i)^(mediat)/ & !tag=/^JJ/]) @effect: Entity /(?i)^(activation)/
+
+
+  - name: causeEffect_ported_token_1_noun-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "mTOR activator Rapamycin"
+    example: ""
+    type: token
+    label: ${ label }
+    pattern: |
+      @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
+
+
+  # this rule is needed because PP attachment of "by" is often wrong
+  - name: causeEffect_ported_token_2_noun-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "Activation of mTOR by rapamycin has been standard treatment "
+    example: ""
+    type: token
+    label: ${ label }
+    pattern: |
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) of @effect: Entity by  @cause: Entity (?! [lemma=/${ negTriggers }/ ])
+
+
+  # a rule written to catch an example from MITRE
+  # currently unclear how common this pattern may be...
+  #For RAPS texts/agro domain, "stimulated" may not be the best word?
+  - name: causeEffect_ported_token_experimental_results_1-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "Cells were additionally stimulated with 10 ng/ml leptin and cell extracts analyzed for ErbB3 tyrosine phosphorylation."
+    type: token
+    label: ${ label }
+    pattern: |
+      # passive verb ("stimulated" in the example)
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=VBN])
+      # "leptin" in our example
+      with /./{,2}  @cause: Entity
+      # analyzed, examined, etc.
+      # hopefully this isn't too noisy...
+      and /./{,3} [tag=/^V/] for
+      # the phosphorylation in our example
+      @effect: Entity
+
+  - name: causeEffect_ported_nested_syntax_2_verb-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "We also demonstrate that tyrosine phosphorylation of ErbB3 may lead to recruitment and activation of PI-3 kinase."
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=lead] to
+      cause: Entity = nsubj|xcomp
+      effect: Entity = (?= nmod_to [word=/(?i)^(${ trigger })/]) nmod_to nmod_of? ${noun_modifiers}?
+
+    #Reach commetns for this rule:
+    # TODO: expand lemma pattern for trigger
+    # xcomp for "A, leading to B" pattern
+    # "leading to activation"
+
