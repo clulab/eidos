@@ -42,8 +42,8 @@ class TestModifications extends FlatSpec with Matchers {
   // (INC-inc) agricultural production
   val mentions3 = extractMentions(sent3)
 
-  sent3 should "have three modified entities" in {
-    val entities = mentions3.count(_.attachments.nonEmpty) should be (3)
+  sent3 should "have four modified entities" in {
+    val entities = mentions3.count(_.attachments.nonEmpty) should be (4)
   }
 
   sent3 should "have one Increase modification" in {
@@ -62,20 +62,24 @@ class TestModifications extends FlatSpec with Matchers {
 
     for (e <- entities) {
       e.attachments.head.asInstanceOf[Quantification].quantifier should be("low")
-      e.text should be("farmers' ability")
-    }
-  }
-
-  // TODO: fails now, please make pass -- there's an issue with entity finder...
-  sent3 should "have one Decrease modification" in {
-    val entities = mentions3.filter(m => m.attachments.exists(a => a.isInstanceOf[Decrease]))
-    entities should have size (1)
-
-    for (e <- entities) {
-      e.attachments.head.asInstanceOf[Decrease].trigger should be("restrict")
       e.text should be("education levels")
     }
   }
+
+  sent3 should "have one Decrease modification for farmers' ability" in {
+    val entities = mentions3.filter(m => m.attachments.exists(a => a.asInstanceOf[Decrease].trigger == "restrict"))
+    entities should have size (1)
+    entities.head.text should be ("' ability")
+
+  }
+
+  sent3 should "have one Decrease modification for financial capacities" in {
+    val entities = mentions3.filter(m => m.attachments.exists(a => a.asInstanceOf[Decrease].trigger == "Limited"))
+    entities should have size (1)
+    entities.head.text should be ("financial capacities")
+
+  }
+
 
 
   // TODO: please do...
