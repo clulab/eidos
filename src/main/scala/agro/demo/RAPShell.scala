@@ -42,12 +42,9 @@ object RAPShell extends App {
   val ieSystem = new AgroSystem()
 
   var proc = ieSystem.proc
-//  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv"), caseInsensitiveMatching = true)
-//  val grounder = ieSystem.gradableAdjGroundingModel
 
   reader.setPrompt("(RAP)>>> ")
   println("\nWelcome to the RAPShell!")
-//  println(s"Loading the gradable adjectives grounding model from : $quantifierKBFile")
   printCommands()
 
   var running = true
