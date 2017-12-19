@@ -106,7 +106,7 @@ object AgroSystem {
   val INTERCEPT: String = "intercept"
   val PARAM_MEAN: String = "mean"
   val PARAM_STDEV: String = "stdev"
-  
+
 }
 
 
