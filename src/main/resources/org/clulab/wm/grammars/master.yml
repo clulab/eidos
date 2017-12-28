@@ -1,11 +1,13 @@
 taxonomy: org/clulab/wm/grammars/taxonomy.yml
 
 vars:
-  posTriggers: "acceler|accept|activat|aid|allow|augment|cataly|caus|contribut|direct|driv|elev|elicit|enabl|enhanc|increas|induc|initi|interconvert|lead|led|mediat|modul|necess|overexpress|potenti|produc|prolong|promot|rais|reactivat|re-express|rescu|restor|retent|signal|stimul|support|synerg|synthes|target|trigger|underli|up-regul|upregul"
+  posTriggers: "acceler|aid|augment|elev|enhanc|increas|prolong|promot|rais|reactivat|restor|retent|stimul|support|synerg|up-regul|upregul"
   negTriggers: "attenu|abolish|abrog|antagon|arrest|attenu|block|deactiv|decreas|degrad|deplet|deregul|diminish|disrupt|down-reg|downreg|dysregul|elimin|impair|imped|inactiv|inhibit|knockdown|limit|loss|lower|negat|nullifi|perturb|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shutdown|slow|starv|suppress|supress"
   increase_triggers: "${posTriggers}|increas|improv|promot|boost|better"
   decrease_triggers: "${negTriggers}|cut|declin|decreas|degrad|deteriorat|inadequate|less|limit|low|phase|reduc|shortage|shrink"
-
+  cause_triggers: "activat|allow|cataly|caus|contribut|driv|elicit|enabl|induc|initi|interconvert|lead|led|mediat|modul|produc|signal|synthes|target|trigger|underli|"
+  correlation_triggers: "associat|correlat"
+  other_triggers: "accept|direct|necess|overexpress|potenti|re-express|rescu|"
 
 
 rules:
@@ -64,7 +66,7 @@ rules:
     vars:
       rulepriority: "6"
       label: Causal
-      trigger: "lead"
+      trigger: ${cause_triggers}
       promotion_trigger: ${increase_triggers} | ${decrease_triggers}
       # To handle the syntactic ambiguity of "A is the cause of B" versus "A is the result of B" which have
       # identical syntactic structure, but opposite directions for identifying the cause/effect, we introduce a set
@@ -72,6 +74,7 @@ rules:
       reverse_noun_trigger: "result|effect"
       # results in versus results from
       #action: ? #
+
 
   - import: org/clulab/wm/grammars/origin.yml
     vars:
