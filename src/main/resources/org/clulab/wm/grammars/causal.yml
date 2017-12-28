@@ -36,6 +36,16 @@ rules:
       cause: Entity  = nsubj #</^conj/?
       effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
 
+  - name: causeEffect_ported_copula_1-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "A is an activator of B"
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
+      effect: Entity = nsubj
+      cause: Entity = /${ preps }$/
+
 #  - name: causal-2
 #    priority: ${ rulepriority }
 #    example: "More water resulting in an increase of productivity."
@@ -288,16 +298,6 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       effect: Entity = /${ conjunctions }|${ noun_modifiers }/{,2}
       cause: Entity = /nmod_such_as|nmod_including|nmod_like/ (${ noun_modifiers })?
-
-  - name: causeEffect_ported_copula_1-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "A is an activator of B"
-    example: ""
-    label: ${ label }
-    pattern: |
-      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
-      effect: Entity = nsubj
-      cause: Entity = /${ preps }$/
 
 
   - name: causeEffect_ported_possessive_noun-${addlabel}
