@@ -1,6 +1,8 @@
 package controllers
 
 import javax.inject._
+
+import agro.demo.RAPShell.GroundedEntity
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
@@ -26,7 +28,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   var proc = ieSystem.proc
   val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv"), caseInsensitiveMatching = true)
-  val grounder = ieSystem.gradableAdjGroundingModel
+  val grounder = ieSystem.grounder
   println("[AgroSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -42,20 +44,23 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def parseSentence(sent: String) = Action {
-    val (procSentence, agroMentions, groundedAdjs, causalEvents) = RAPShell.processPlaySentence(ieSystem, sent, grounder) // Call the agro.demo.RAPShell.processPlaySentence
+    val (procSentence, agroMentions, groundedEntities, causalEvents) = RAPShell.processPlaySentence(ieSystem, sent) // Call the agro.demo.RAPShell.processPlaySentence
     println(s"Sentence returned from processPlaySentence : ${procSentence.getSentenceText()}")
-    val json = mkJson(procSentence, agroMentions, groundedAdjs, causalEvents) // we only handle a single sentence
+    val json = mkJson(procSentence, agroMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
   }
 
-  def mkJson(sent: Sentence, mentions: Vector[Mention], groundedAdjs: mutable.HashMap[String, ListBuffer[GroundedParamInstance]], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
+  def mkJson(sent: Sentence, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
+    println("Found mentions (in mkJson):")
+    mentions.foreach(utils.DisplayUtils.displayMention)
+
     val syntaxJsonObj = Json.obj(
         "text" -> sent.getSentenceText(),
         "entities" -> mkJsonFromTokens(sent),
         "relations" -> mkJsonFromDependencies(sent)
       )
     val agroJsonObj = mkJsonForAgro(sent, mentions)
-    val groundedAdjObj = mkGroundedObj(groundedAdjs, causalEvents)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, causalEvents)
     println(s"Grounded Gradable Adj: ")
     println(s"$groundedAdjObj")
     Json.obj(
@@ -65,39 +70,38 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkGroundedObj(groundedAdjs: mutable.HashMap[String, ListBuffer[GroundedParamInstance]],
+  def mkGroundedObj(groundedEntities: Vector[GroundedEntity],
                     causalEvents: Vector[(String, Map[String, String])]): String = {
     var objectToReturn = ""
-    if(groundedAdjs.size > 0){
-      val toReturn = for(key <- groundedAdjs.keys) yield {
-        val groundings = groundedAdjs.get(key).get
-        val toPrint = for (grounding <- groundings) yield {
-          val justification = grounding.justification
-          val sentence = grounding.sentence
-          val quantifier = grounding.quantifiers
-          val param = grounding.param
-          val predictedDelta = grounding.predictedDelta
-          val mean = grounding.mean
-          val stdev = grounding.stdev
-          val gradableAdj = grounding.gradableAdj
-          var stringToYield = s"${tab}Justification: ${justification}<br>${tab}Sentence: ${sentence}"
-          if(quantifier.isDefined)
-            stringToYield += s"<br>${tab}Quantifier: ${quantifier.get.mkString(", ")}"
-          if(param.isDefined && predictedDelta.isDefined && mean.isDefined && stdev.isDefined && gradableAdj.isDefined)
-            stringToYield += s"<br>${tab}Predicted delta = ${"%3.3f".format(predictedDelta.get)} (base param: ${param.get} [with typical mean=${mean.get} and stdev=${stdev.get}], gradable adj: ${gradableAdj.get})"
-          stringToYield
-        }
+    if(groundedEntities.size > 0){
+      objectToReturn += "<br><br>Grounded Entities:<br>"
 
-//        s"<br>$key : ${groundedAdjs.size} instances<br>${toPrint.toList.mkString("<br>")}"
-        s"<br>$key<br>${toPrint.toList.mkString("<br>")}"
+      // Make the string for each grounded entity
+      val toPrint = for (grounding <- groundedEntities) yield {
+        val sentence = grounding.sentence
+        val quantifier = grounding.quantifier
+        val groundedEntity = grounding.entity
+        val predictedDelta = grounding.predictedDelta
+        val mean = grounding.mean
+        val stdev = grounding.stdev
+        var stringToYield = s"${tab}Sentence: ${sentence}"
+
+        stringToYield += s"<br>${tab}Entity: ${groundedEntity}"
+        stringToYield += s"<br>${tab}Quantifier: ${quantifier}"
+        if (predictedDelta.isDefined && mean.isDefined && stdev.isDefined)
+          stringToYield += s"<br>${tab}Predicted delta = ${"%3.3f".format(predictedDelta.get)} (with typical mean=${mean.get} and stdev=${stdev.get})"
+        stringToYield += "<br>"
+        stringToYield
       }
-      objectToReturn += toReturn.mkString("<br>")
+
+      toPrint.foreach(str => objectToReturn += s"<br>$str")
     }
+
     else
       objectToReturn += ""
 
     if(causalEvents.size > 0) {
-      objectToReturn += s"<br><br>CAUSAL Events<br>"
+      objectToReturn += s"<br><br>EntityLinking Events<br>"
       for (ce <- causalEvents) {
         objectToReturn += s"${tab} Trigger : ${ce._1}<br>${tab} Arguments:<br>"
         for (arg <-  ce._2) {

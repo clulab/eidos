@@ -4,10 +4,10 @@ import java.io.File
 
 import jline.console.ConsoleReader
 import jline.console.history.FileHistory
-import org.clulab.odin.{EventMention, Mention}
+import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.AgroSystem
+import org.clulab.wm.{AgroSystem, Decrease, Increase, Quantification}
 import utils.DisplayUtils.displayMentions
 
 import scala.collection.immutable.ListMap
@@ -18,6 +18,8 @@ import scala.collection.mutable.ListBuffer
   * Interactive shell for parsing RAPs
   */
 object RAPShell extends App {
+
+  import org.clulab.wm.Aliases._
 
   //TODO: Load the parameters to the system through a config file
 //  val config = ConfigFactory.load()         // load the configuration file
@@ -94,7 +96,7 @@ object RAPShell extends App {
 
   }
 
-  def processPlaySentence(ieSystem: AgroSystem, text: String, grounder: Map[String, Map[String, Double]]): (Sentence, Vector[Mention], mutable.HashMap[String, ListBuffer[GroundedParamInstance]], Vector[(String, Map[String, String])]) = {
+  def processPlaySentence(ieSystem: AgroSystem, text: String): (Sentence, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
     // preprocessing
     println(s"Processing sentence : ${text}" )
     val doc = ieSystem.annotate(text)
@@ -105,19 +107,110 @@ object RAPShell extends App {
     println(s"Done extracting the mentions ... ")
 
     println(s"Grounding the gradable adjectives ... ")
-    val (groundedAdjectives, causalEvents) = groundGradableAdjectives(ieSystem, mentions, grounder)
+    val groundedEntities = groundEntities(ieSystem, mentions)
+
+    println(s"Getting entity linking events ... ")
+    val events = getEntityLinkerEvents(mentions)
+
     println("DONE .... ")
 //    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
     // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
-    (doc.sentences.head, mentions.sortBy(_.start), groundedAdjectives, causalEvents)
+    (doc.sentences.head, mentions.sortBy(_.start), groundedEntities, events)
   }
 
-  def groundGradableAdjectives(ieSystem: AgroSystem, mentions: Vector[Mention], grounder: Map[String, Map[String, Double]]): (mutable.HashMap[String, ListBuffer[GroundedParamInstance]], Vector[(String, Map[String, String])] ) = {
-    val events = mentions.filter(_ matches "Event")
-    val params = new mutable.HashMap[String, ListBuffer[ParamInstance]]()
-    val groundedParams = new mutable.HashMap[String, ListBuffer[GroundedParamInstance]]()
+  case class GroundedEntity(sentence: String,
+                            quantifier: Quantifier,
+                            entity: Entity,
+                            predictedDelta: Option[Double],
+                            mean: Option[Double],
+                            stdev: Option[Double])
 
-    // todo: if you want this functionality you need to actually reimplement it
+
+
+  // Return the sorted Quantification, Increase, and Decrease modifications
+  def separateAttachments(m: Mention): (Set[Attachment], Set[Attachment], Set[Attachment]) = {
+    val attachments = m.attachments
+    (attachments.filter(_.isInstanceOf[Quantification]),
+      attachments.filter(_.isInstanceOf[Increase]),
+      attachments.filter(_.isInstanceOf[Decrease]))
+  }
+
+  def convertToAdjective(adverb: String): String = {
+    if (adverb.endsWith("ily")) {
+      adverb.slice(0, adverb.length - 3) ++ "y"
+    }
+
+    adverb.slice(0, adverb.length - 2)
+  }
+
+  def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: AgroSystem): GroundedEntity = {
+    val pseudoStemmed = if (quantifier.endsWith("ly")) convertToAdjective(quantifier) else quantifier
+    val modelRow = ieSystem.grounder.getOrElse(pseudoStemmed, Map.empty[String, Double])
+    val intercept = modelRow.get(AgroSystem.INTERCEPT)
+    val mu = modelRow.get(AgroSystem.MU_COEFF)
+    val sigma = modelRow.get(AgroSystem.SIGMA_COEFF)
+
+    // add the calculation
+    println("loaded domain params:" + ieSystem.domainParamValues.toString())
+    println(s"\tkeys: ${ieSystem.domainParamValues.keys.mkString(", ")}")
+    println(s"getting details for: ${mention.text}")
+
+    val paramDetails = ieSystem.domainParamValues.get("DEFAULT").get
+    val paramMean = paramDetails.get(AgroSystem.PARAM_MEAN)
+    val paramStdev = paramDetails.get(AgroSystem.PARAM_STDEV)
+
+    val predictedDelta = if (modelRow.nonEmpty && paramDetails.nonEmpty){
+      Some(math.pow(math.E, intercept.get + (mu.get * paramMean.get) + (sigma.get * paramStdev.get)) * paramStdev.get)
+    } else None
+
+    GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, mu, sigma)
+  }
+
+
+  def groundEntities(ieSystem: AgroSystem, mentions: Seq[Mention]): Vector[GroundedEntity] = {
+    val gms = for {
+      m <- mentions
+      (quantifications, increases, decreases) = separateAttachments(m)
+
+      groundedQuantifications = for {
+        q <- quantifications
+        quantTrigger = q.asInstanceOf[Quantification].quantifier
+      } yield groundEntity(m, quantTrigger, ieSystem)
+
+      groundedIncreases = for {
+        inc <- increases
+        quantTrigger <- inc.asInstanceOf[Increase].quantifier.getOrElse(Seq.empty[Quantifier])
+      } yield groundEntity(m, quantTrigger, ieSystem)
+
+      groundedDecreases = for {
+        dec <- decreases
+        quantTrigger <- dec.asInstanceOf[Decrease].quantifier.getOrElse(Seq.empty[Quantifier])
+      } yield groundEntity(m, quantTrigger, ieSystem)
+
+
+      } yield groundedQuantifications ++ groundedIncreases ++ groundedDecreases
+
+    gms.flatten.toVector
+  }
+
+
+  def getEntityLinkerEvents(mentions: Vector[Mention]): Vector[(Trigger, Map[String, String])] = {
+    val events = mentions.filter(_ matches "Event")
+    val entityLinkingEvents = events.filter(_ matches "EntityLinker").map { e =>
+      val event = e.asInstanceOf[EventMention]
+      val trigger = event.trigger.text
+      val arguments = event.arguments.map { a =>
+        val name = a._1
+        val arg_mentions = a._2.map(_.text).mkString(" ")
+        (name, arg_mentions)
+      }
+      (trigger, arguments)
+    }
+
+    entityLinkingEvents
+  }
+
+  // todo: if you want this functionality you need to actually reimplement it
 //    (groundedParams, new Vector[(String, Map[String, String])] )
 
 //    for (e <- events) {
@@ -200,95 +293,82 @@ object RAPShell extends App {
 //      }
 
 
+//  }
 
-    val causalEvents = events.filter(_ matches "Cause_and_Effect").map{e =>
-      val causeEvent = e.asInstanceOf[EventMention]
-      val trigger = causeEvent.trigger.text
-      val arguments = causeEvent.arguments.map{a =>
-            val name = a._1
-            val arg_mentions = a._2.map(_.text).mkString(" ")
-            (name, arg_mentions)
-          }
-      (trigger, arguments)
-      }
-
-    (groundedParams, causalEvents)
-  }
-
-  def prettyDisplay(mentions: Seq[Mention], doc: Document): Unit = {
-    val events = mentions.filter(_ matches "Event")
-    val params = new mutable.HashMap[String, ListBuffer[ParamInstance]]()
-    for (e <- events) {
-      val f = formal(e)
-      if (f.isDefined) {
-        val just = e.text
-        val sent = e.sentenceObj.getSentenceText
-        val quantifiers = e.arguments.get("quantifier") match {
-          case Some(quantifierMentions) => Some(quantifierMentions.map(_.text))
-          case None => None
-        }
-
-        val themes = e.arguments.getOrElse("theme", Seq[Mention]())
-        val themeTexts = themes.map(m => m.text)
-        val baseParamTexts = themes.flatMap(m => m.arguments.get("baseParam")).flatten.map(n => n.text)
-        val sortedParamTexts = (themeTexts ++ baseParamTexts).sortBy(-_.length)
-        params.getOrElseUpdate(f.get, new ListBuffer[ParamInstance]) += new ParamInstance(just, sent, quantifiers, sortedParamTexts)
-      }
-    }
-
-    if (params.nonEmpty) {
-      Console.out.println("RAP Parameters:")
-      // k is the display string (i.e., INCREASE in Productivity)
-      for (k <- params.keySet) {
-        val evidence = params.get(k).get
-        Console.out.println(s"$k : ${evidence.size} instances:")
-        for (ev <- evidence) {
-          Console.out.println(s"\tJustification: [${ev.justification}]")
-          Console.out.println(s"\tSentence: ${ev.sentence}")
-
-          // If there is a gradable adjective:
-          if (ev.quantifiers.isDefined) {
-            val eventQuantifiers = ev.quantifiers.get
-            Console.out.println(s"\tQuantifier: ${Console.MAGENTA} ${eventQuantifiers.mkString(", ")} ${Console.RESET}")
-          }
-
-        }
-      }
-      println()
-    }
-
-
-    // print the No_Change_Event and cause/effect events here
-
-    for (e <- events) {
-
-      if (e matches "No_Change_Event") {
-        // TODO: Complete this...
-      }
-      else if (e matches "Cause_and_Effect") {
-        println("Causal Event")
-        println("--------------------------------")
-        e match {
-          case em: EventMention =>
-            val trigger = em.trigger.text
-
-            val arguments = em.arguments.map { a =>
-              val name = a._1
-              val arg_mentions = a._2.map(_.text).mkString(" ")
-              (name, arg_mentions)
-            }
-
-            println(s"${Console.UNDERLINED} ${e.sentenceObj.getSentenceText} ${Console.RESET}")
-            println(s"\tTrigger: ${Console.BOLD} ${trigger} ${Console.RESET}")
-            println(s"\tArguments:")
-            arguments foreach { a =>
-              println(s"${Console.BOLD}\t  ${a._1} ${Console.RESET} => ${Console.BLUE_B} ${Console.BOLD} ${a._2} ${Console.RESET}")
-            }
-        }
-      }
-      println()
-    }
-  }
+//  def prettyDisplay(mentions: Seq[Mention], doc: Document): Unit = {
+//    val events = mentions.filter(_ matches "Event")
+//    val params = new mutable.HashMap[String, ListBuffer[ParamInstance]]()
+//    for (e <- events) {
+//      val f = formal(e)
+//      if (f.isDefined) {
+//        val just = e.text
+//        val sent = e.sentenceObj.getSentenceText
+//        val quantifiers = e.arguments.get("quantifier") match {
+//          case Some(quantifierMentions) => Some(quantifierMentions.map(_.text))
+//          case None => None
+//        }
+//
+//        val themes = e.arguments.getOrElse("theme", Seq[Mention]())
+//        val themeTexts = themes.map(m => m.text)
+//        val baseParamTexts = themes.flatMap(m => m.arguments.get("baseParam")).flatten.map(n => n.text)
+//        val sortedParamTexts = (themeTexts ++ baseParamTexts).sortBy(-_.length)
+//        params.getOrElseUpdate(f.get, new ListBuffer[ParamInstance]) += new ParamInstance(just, sent, quantifiers, sortedParamTexts)
+//      }
+//    }
+//
+//    if (params.nonEmpty) {
+//      Console.out.println("RAP Parameters:")
+//      // k is the display string (i.e., INCREASE in Productivity)
+//      for (k <- params.keySet) {
+//        val evidence = params.get(k).get
+//        Console.out.println(s"$k : ${evidence.size} instances:")
+//        for (ev <- evidence) {
+//          Console.out.println(s"\tJustification: [${ev.justification}]")
+//          Console.out.println(s"\tSentence: ${ev.sentence}")
+//
+//          // If there is a gradable adjective:
+//          if (ev.quantifiers.isDefined) {
+//            val eventQuantifiers = ev.quantifiers.get
+//            Console.out.println(s"\tQuantifier: ${Console.MAGENTA} ${eventQuantifiers.mkString(", ")} ${Console.RESET}")
+//          }
+//
+//        }
+//      }
+//      println()
+//    }
+//
+//
+//    // print the No_Change_Event and cause/effect events here
+//
+//    for (e <- events) {
+//
+//      if (e matches "No_Change_Event") {
+//        // TODO: Complete this...
+//      }
+//      else if (e matches "Cause_and_Effect") {
+//        println("Causal Event")
+//        println("--------------------------------")
+//        e match {
+//          case em: EventMention =>
+//            val trigger = em.trigger.text
+//
+//            val arguments = em.arguments.map { a =>
+//              val name = a._1
+//              val arg_mentions = a._2.map(_.text).mkString(" ")
+//              (name, arg_mentions)
+//            }
+//
+//            println(s"${Console.UNDERLINED} ${e.sentenceObj.getSentenceText} ${Console.RESET}")
+//            println(s"\tTrigger: ${Console.BOLD} ${trigger} ${Console.RESET}")
+//            println(s"\tArguments:")
+//            arguments foreach { a =>
+//              println(s"${Console.BOLD}\t  ${a._1} ${Console.RESET} => ${Console.BLUE_B} ${Console.BOLD} ${a._2} ${Console.RESET}")
+//            }
+//        }
+//      }
+//      println()
+//    }
+//  }
 
 
   // Returns Some(string) if there is an INCREASE or DECREASE event with a Param, otherwise None
@@ -314,5 +394,5 @@ object RAPShell extends App {
 
 }
 
-case class ParamInstance(justification: String, sentence: String, quantifiers: Option[Seq[String]], param: Seq[String])
-case class GroundedParamInstance(justification: String, sentence: String, quantifiers: Option[Seq[String]], param: Option[String], predictedDelta: Option[Double], mean: Option[Double], stdev: Option[Double], gradableAdj: Option[String])
+//case class ParamInstance(justification: String, sentence: String, quantifiers: Option[Seq[String]], param: Seq[String])
+case class GroundedParamInstance(justification: String, sentence: String, quantifiers: Option[Seq[String]], groundedEntity: Option[String], predictedDelta: Option[Double], mean: Option[Double], stdev: Option[Double], gradableAdj: Option[String])
