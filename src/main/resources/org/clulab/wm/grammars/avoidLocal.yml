@@ -68,5 +68,5 @@ rules:
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /result|lead/]
+      [word = /result|lead|due/]
 

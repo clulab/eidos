@@ -75,7 +75,6 @@ rules:
       # results in versus results from
       #action: ? #
 
-
   - import: org/clulab/wm/grammars/origin.yml
     vars:
       rulepriority: "6"

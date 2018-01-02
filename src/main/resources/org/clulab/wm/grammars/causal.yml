@@ -310,19 +310,20 @@ rules:
       effect: Entity = /nmod_by|agent/
       cause: Entity = /nmod:poss/ # I think this is the UDep version
 
-  - name: causeEffect_ported_token_1_verb-${addlabel}
-    priority: ${ rulepriority }
-    type: token
-    label: ${ label }
-    #Original example: "monoubiquitinated K-Ras is less sensitive than the unmodified protein to GAP-mediated GTP hydrolysis"
-    example: "HIV/AIDS result in labor shortage"
-    #example: "phase out the fertilizer subsidy results in deteriorating biophysical conditions"
-    #example: "water resulting in an increase of productivty"
-    pattern: |
-        @cause: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & !tag=/^JJ/]) @effect: Entity
+# BS: removed because it's firing on "Water quality and water availability for agriculture will decrease due to pollution
+# of water bodies," with "and" as the trigger
 
+#  - name: causeEffect_ported_token_1_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    type: token
+#    label: ${ label }
+#    #Original example: "monoubiquitinated K-Ras is less sensitive than the unmodified protein to GAP-mediated GTP hydrolysis"
+#    example: "HIV/AIDS result in labor shortage"
+#    #example: "phase out the fertilizer subsidy results in deteriorating biophysical conditions"
+#    #example: "water resulting in an increase of productivty"
+#    pattern: |
+#        @cause: Entity (?<trigger> [word= /(?i)^(${ trigger })/ & !tag=/^(JJ|DT)/] ) @effect: Entity
 
-# --------------Stopped Here
 
   #We may need a better verb than "mediated" and "activation" here
   - name: causeEffect_ported_token_1b_verb-${addlabel}

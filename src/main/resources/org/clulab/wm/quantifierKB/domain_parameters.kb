@@ -2,4 +2,4 @@ poverty	mean:23.2	stdev:1.3
 agricultural production	mean:12.4	stdev:3.1
 subsidies	mean:1200	stdev:350
 prices of agricultural commodities	mean:236	stdev:35
-all	mean:35.76	stdev:4.56
+DEFAULT	mean:35.76	stdev:4.56
