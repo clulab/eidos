@@ -8,7 +8,7 @@ import org.clulab.sequences.LexiconNER
 
 import org.clulab.wm.entities.AgroEntityFinder
 import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams, loadGradableAdjGroundingFile, readRules}
-
+import Aliases._
 
 
 /**
@@ -17,7 +17,7 @@ import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams
 class AgroSystem(
   masterRulesPath: String = "/org/clulab/wm/grammars/master.yml",
   quantifierKBPath:String = "/org/clulab/wm/quantifierKB/gradable_adj_fullmodel.kb",
-  //domainParamKBPath:String = "/org/clulab/wm/quantifierKB/domain_parameters.kb",
+  domainParamKBPath:String = "/org/clulab/wm/quantifierKB/domain_parameters.kb",
   //agrovocLexiconsPath:String = "org/clulab/wm/agrovoc/lexicons",
   processor: Option[Processor] = None,
   debug: Boolean = true
@@ -30,16 +30,16 @@ class AgroSystem(
   val rules: String = readRules(masterRulesPath)
 
 
-  val entityFinder = AgroEntityFinder(maxHops = 2)
+  val entityFinder: AgroEntityFinder = AgroEntityFinder(maxHops = 2)
 
   // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
-  //val domainParamValues = loadDomainParams(domainParamKBPath)
+  val domainParamValues: Map[Param, Map[String, Double]] = loadDomainParams(domainParamKBPath)
 
   // Load the gradable adj grounding KB file
-  val gradableAdjGroundingModel = loadGradableAdjGroundingFile(quantifierKBPath)
+  val grounder: Map[Quantifier, Map[String, Double]] = loadGradableAdjGroundingFile(quantifierKBPath)
 
   // ODIN components
-  val actions = new AgroActions
+  val actions: AgroActions = new AgroActions
   val engine: ExtractorEngine = ExtractorEngine(rules, actions)
 
   // LexiconNER for labeling domain entities
@@ -100,7 +100,7 @@ object AgroSystem {
 
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
-  val DEFAULT_DOMAIN_PARAM: String = "all"
+  val DEFAULT_DOMAIN_PARAM: String = "DEFAULT"
   val MU_COEFF: String = "mu_coeff"
   val SIGMA_COEFF: String = "sigma_coeff"
   val INTERCEPT: String = "intercept"
