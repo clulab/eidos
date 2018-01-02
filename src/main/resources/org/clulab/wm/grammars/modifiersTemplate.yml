@@ -49,7 +49,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
-      theme: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = (?! dobj) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
