@@ -5,6 +5,7 @@ import java.io.File
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
+import org.clulab.wm.Aliases.Quantifier
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -17,9 +18,9 @@ import scala.io.BufferedSource
 //TODO: need to add polarity flipping
 
 
-case class Quantification(quantifier: String) extends Attachment
-case class Increase(trigger: String, quantifier: Option[Seq[String]] = None) extends Attachment
-case class Decrease(trigger: String, quantifier: Option[Seq[String]] = None) extends Attachment
+case class Quantification(quantifier: Quantifier) extends Attachment
+case class Increase(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
+case class Decrease(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
 
 
 class AgroActions extends Actions with LazyLogging {
@@ -81,14 +82,14 @@ class AgroActions extends Actions with LazyLogging {
     //if m matches "EntityModifier"
     attachment = getAttachment(m)
     copyWithMod = m match {
-      case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}-mod")
+      case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
       // Here, we want to keep the theme that is being modified, not the modification event itself
       case rm: RelationMention =>
         val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}-${rm.foundBy}")
+        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
       case em: EventMention =>
         val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}-${em.foundBy}")
+        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
     }
   } yield copyWithMod
 
@@ -121,7 +122,7 @@ class AgroActions extends Actions with LazyLogging {
   }
 
 
-  def getOptionalQuantifiers(m: Mention): Option[Seq[String]] = {
+  def getOptionalQuantifiers(m: Mention): Option[Seq[Quantifier]] = {
     m.asInstanceOf[EventMention]
       .arguments
       .get("quantifier")
