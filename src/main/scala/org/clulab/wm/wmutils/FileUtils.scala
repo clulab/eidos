@@ -10,6 +10,8 @@ import scala.collection.mutable.ListBuffer
 
 object FileUtils {
 
+  import org.clulab.wm.Aliases._
+
   def readRules(rulesPath: String): String = {
     println(s"rulesPath:\t$rulesPath")
     val source = scala.io.Source.fromURL(getClass.getResource(rulesPath))
@@ -19,7 +21,7 @@ object FileUtils {
   }
 
   //Load the domain parameters (such as mean,stdev for parameters in the domain)
-  def loadDomainParams(domainParamKBFile: String): Map[String, Map[String, Double]] = {
+  def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
     println(s"Loading domain parameters file from ${domainParamKBFile}")
     val source = scala.io.Source.fromURL(getClass.getResource(domainParamKBFile))
     val domainParams = source
@@ -38,13 +40,16 @@ object FileUtils {
         (param ->  var_values)
       }.toMap
     source.close
+
+    println("loaded domain params:" + domainParams.toString())
+
     domainParams
   }
 
 
 
   //Load the gradable adjective grounding from file
-  def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[String, Map[String, Double]] = {
+  def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[Quantifier, Map[String, Double]] = {
     println(s"Loading the gradable adjectives model file from ${quantifierKBFile}")
     // adjective -> Map(name:value)
     val source = scala.io.Source.fromURL(getClass.getResource(quantifierKBFile))
