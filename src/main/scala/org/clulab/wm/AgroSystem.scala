@@ -30,7 +30,7 @@ class AgroSystem(
   val rules: String = readRules(masterRulesPath)
 
 
-  val entityFinder: AgroEntityFinder = AgroEntityFinder(maxHops = 2)
+  val entityFinder: AgroEntityFinder = AgroEntityFinder(maxHops = 5)
 
   // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
   val domainParamValues: Map[Param, Map[String, Double]] = loadDomainParams(domainParamKBPath)
