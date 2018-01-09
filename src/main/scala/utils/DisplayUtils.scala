@@ -91,6 +91,38 @@ object DisplayUtils {
     println(s"$boundary\n")
   }
 
+  def webAppMention(mention: Mention): String = {
+    val sb = new StringBuilder
+    val boundary = s"${tab}${"-" * 30}<br>"
+    sb.append(s"${mention.labels} => ${mention.text}<br>")
+    sb.append(boundary)
+    //sb.append(s"${tab}Rule => ${mention.foundBy}<br>")
+    val mentionType = mention.getClass.toString.split("""\.""").last
+    sb.append(s"${tab}Type => $mentionType<br>")
+    sb.append(boundary)
+    mention match {
+      case tb: TextBoundMention =>
+        sb.append(s"${tab}${tb.labels.mkString(", ")} => ${tb.text}<br>")
+        if (tb.attachments.nonEmpty) sb.append(s"${tab}  * Attachments: ${attachmentsString(tb.attachments)}<br>")
+      case em: EventMention =>
+        sb.append(s"${tab}trigger => ${em.trigger.text}<br>")
+        if (em.trigger.attachments.nonEmpty) sb.append(s"${tab}  * Attachments: ${attachmentsString(em.trigger.attachments)}<br>")
+        sb.append(webAppArguments(em))
+        if (em.attachments.nonEmpty) {
+          sb.append(s"${tab}Event Attachments: ${attachmentsString(em.attachments)}<br>")
+        }
+      case rel: RelationMention =>
+        sb.append(webAppArguments(rel))
+        if (rel.attachments.nonEmpty) {
+          sb.append(s"${tab}Relation Attachments: ${attachmentsString(rel.attachments)}<br>")
+        }
+      case _ => ()
+    }
+    sb.append(s"$boundary<br>")
+
+    sb.toString()
+  }
+
   def printMention(mention: Mention, pw: PrintWriter) {
     val boundary = s"\t${"-" * 30}"
     pw.println(s"${mention.labels} => ${mention.text}")
@@ -113,6 +145,7 @@ object DisplayUtils {
   }
 
 
+
   def displayArguments(b: Mention): Unit = {
     b.arguments foreach {
       case (argName, ms) =>
@@ -121,6 +154,18 @@ object DisplayUtils {
           if (v.attachments.nonEmpty) println(s"\t  * Attachments: ${attachmentsString(v.attachments)}")
         }
     }
+  }
+
+  def webAppArguments(b: Mention): String = {
+    val sb = new StringBuilder
+    b.arguments foreach {
+      case (argName, ms) =>
+        ms foreach { v =>
+          sb.append(s"${tab}$argName ${v.labels.mkString("(", ", ", ")")} => ${v.text}<br>")
+          if (v.attachments.nonEmpty) sb.append(s"${tab}  * Attachments: ${attachmentsString(v.attachments)}<br>")
+        }
+    }
+    sb.toString()
   }
 
   def printArguments(b: Mention, pw: PrintWriter): Unit = {
@@ -142,4 +187,7 @@ object DisplayUtils {
     }
     sb.toString
   }
+
+  // html tab
+  def tab():String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 }

@@ -33,6 +33,14 @@ var collData = {
         // Use a slightly darker version of the bgColor for the border
         "borderColor": "darken"
     },
+    {
+            "type"   : "NounPhrase",
+            "labels" : ["NounPhrase", "NP"],
+            // Blue is a nice colour for a person?
+            "bgColor": "thistle",
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
      // --------------------------- Param -------------------------------------
      {
       "type": "FarmSize",
@@ -296,9 +304,9 @@ var collData = {
       },
 
       {
-        "type": "Cause_and_Effect",
+        "type": "Causal",
         "labels": ["CAUSAL"],
-        "bgColor": "pink",
+        "bgColor": "lightgreen",
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},

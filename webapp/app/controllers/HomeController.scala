@@ -60,7 +60,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "relations" -> mkJsonFromDependencies(sent)
       )
     val agroJsonObj = mkJsonForAgro(sent, mentions)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, causalEvents)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents)
     println(s"Grounded Gradable Adj: ")
     println(s"$groundedAdjObj")
     Json.obj(
@@ -71,10 +71,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def mkGroundedObj(groundedEntities: Vector[GroundedEntity],
+                    mentions: Vector[Mention],
                     causalEvents: Vector[(String, Map[String, String])]): String = {
     var objectToReturn = ""
+
     if(groundedEntities.size > 0){
-      objectToReturn += "<br><br>Grounded Entities:<br>"
+      objectToReturn += """<br><br><font size="3" color="cadetblue">Grounded Entities:</font>"""
 
       // Make the string for each grounded entity
       val toPrint = for (grounding <- groundedEntities) yield {
@@ -100,17 +102,35 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     else
       objectToReturn += ""
 
-    if(causalEvents.size > 0) {
-      objectToReturn += s"<br><br>EntityLinking Events<br>"
-      for (ce <- causalEvents) {
-        objectToReturn += s"${tab} Trigger : ${ce._1}<br>${tab} Arguments:<br>"
-        for (arg <-  ce._2) {
-          objectToReturn += s"${tab}${tab}${arg._1} => ${arg._2}<br>"
-        }
+    // Entities
+    val entities = mentions.filter(_ matches "Entity")
+    if (entities.nonEmpty){
+      objectToReturn += """<br><font size="3" color="rebeccapurple">Found Entities:</font><br>"""
+      for (entity <- entities) {
+        objectToReturn += s"${utils.DisplayUtils.webAppMention(entity)}"
       }
     }
 
-    objectToReturn += "<br><br>"
+
+    val events = mentions.filter(_ matches "Event")
+    if (events.nonEmpty) {
+      objectToReturn += """<font size="3" color="green">Found Events:</font><br>"""
+      for (event <- events) {
+        objectToReturn += s"${utils.DisplayUtils.webAppMention(event)}"
+      }
+    }
+
+//    if(causalEvents.size > 0) {
+//      objectToReturn += s"<br><br>EntityLinking Events<br>"
+//      for (ce <- causalEvents) {
+//        objectToReturn += s"${tab} Trigger : ${ce._1}<br>${tab} Arguments:<br>"
+//        for (arg <-  ce._2) {
+//          objectToReturn += s"${tab}${tab}${arg._1} => ${arg._2}<br>"
+//        }
+//      }
+//    }
+
+    objectToReturn += "<br>"
     objectToReturn
   }
 
