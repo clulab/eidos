@@ -5,9 +5,10 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in"
+  preps: "nmod_of|nmod_in|nmod_to"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
+  # Todo: nmod_from "X will follow from Y"
 
 rules:
 
@@ -33,7 +34,7 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ reverse_noun_trigger })/]
-      cause: Entity  = nsubj #</^conj/?
+      cause: Entity  = nsubj
       effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
 
   - name: causeEffect_ported_copula_1-${addlabel}
@@ -110,13 +111,13 @@ rules:
   #
   # param is nominal subject of verb: "PARAM increases/decreases with _____ "
   #
-  - name: causeEffect-4-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    pattern: |
-      trigger = [word=with]
-      cause: Entity = nsubj
-      effect: Entity = prep_with
+#  - name: causeEffect-4-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    pattern: |
+#      trigger = [word=with]
+#      cause: Entity = nsubj
+#      effect: Entity = prep_with
 
 
 
@@ -144,7 +145,7 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      effect: Entity = prep_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      effect: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
       cause: Entity = <xcomp? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
@@ -157,7 +158,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
       effect: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
-      cause: Entity = (agent|prep_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+      cause: Entity = (agent|nmod_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
 #  #Is this trying to catch parser errors??? what???
@@ -173,7 +174,7 @@ rules:
 
   - name: causeEffect_ported_syntax_4_verb-${addlabel}
     priority: ${ rulepriority }
-    example: ""
+    example: "Intensive cultivation will be caused by a shrinking agriculture land base"
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
@@ -209,8 +210,8 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/] # "aids" is incorrectly tagged as a noun
-      effect: Entity = nmod_in$ | nmod_to
-      cause: Entity = (nsubj | <rcmod) /${ conjunctions }|${ noun_modifiers }/{,2}
+      effect: Entity = (nmod_in$ | nmod_to) /${ noun_modifiers }/{,2}
+      cause: Entity = (nsubj | <rcmod) /${ conjunctions }|${ noun_modifiers }|nmod_in/{,2}
 
   - name: causeEffect_ported_syntax_8_verb-${addlabel}
     priority: ${ rulepriority }
@@ -256,14 +257,15 @@ rules:
 
   # There is no syntax_4_noun rule!
 
-  - name: causeEffect_ported_syntax_5_noun-${addlabel}
-    priority: ${ rulepriority }
-    example: ""
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      effect: Entity = < ${noun_modifiers} > /nmod_/ /${ conjunctions }|${ noun_modifiers }/{,2}
-      cause: Entity = < ${noun_modifiers} /${ conjunctions }|${ noun_modifiers }/{,2}
+# Doesn't apply to new framework I think -- looks for pos/neg regulation (i.e. labor shortage)
+#  - name: causeEffect_ported_syntax_5_noun-${addlabel}
+#    priority: ${ rulepriority }
+#    example: ""
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+#      effect: Entity = < ${noun_modifiers} > /nmod_/ /${ conjunctions }|${ noun_modifiers }/{,2}
+#      cause: Entity = < ${noun_modifiers} /${ conjunctions }|${ noun_modifiers }/{,2}
 
 
   - name: causeEffect_ported_syntax_6_noun-${addlabel}
@@ -335,14 +337,14 @@ rules:
       @cause: Entity (?<trigger> [word=/(?i)^(mediat)/ & !tag=/^JJ/]) @effect: Entity /(?i)^(activation)/
 
 
-  - name: causeEffect_ported_token_1_noun-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "mTOR activator Rapamycin"
-    example: ""
-    type: token
-    label: ${ label }
-    pattern: |
-      @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
+#  - name: causeEffect_ported_token_1_noun-${addlabel}
+#    priority: ${ rulepriority }
+#    #Original example: "mTOR activator Rapamycin"
+#    example: ""
+#    type: token
+#    label: ${ label }
+#    pattern: |
+#      @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
 
 
   # this rule is needed because PP attachment of "by" is often wrong

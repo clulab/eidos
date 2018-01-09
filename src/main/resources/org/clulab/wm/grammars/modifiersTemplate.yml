@@ -44,7 +44,7 @@ rules:
   # Note: Captures passive voice; thus verb must be VBD|VBN
   - name: ${ label }_ported_syntax_2_verb
     priority: ${ objrulepriority }
-    example: "wheat production in the region will be adversely affected"
+    example: "wheat production in the region will be diminished"
     label: ${ label }
     action: ${ action }
     pattern: |
