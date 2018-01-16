@@ -31,3 +31,9 @@ lazy val webapp = project
   .enablePlugins(PlayScala)
   .aggregate(core)
   .dependsOn(core)
+
+test in assembly := {}
+assemblyMergeStrategy in assembly := {
+    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+    case x => MergeStrategy.first
+}
