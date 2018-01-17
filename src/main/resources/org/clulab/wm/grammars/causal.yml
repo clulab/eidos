@@ -337,14 +337,14 @@ rules:
       @cause: Entity (?<trigger> [word=/(?i)^(mediat)/ & !tag=/^JJ/]) @effect: Entity /(?i)^(activation)/
 
 
-#  - name: causeEffect_ported_token_1_noun-${addlabel}
-#    priority: ${ rulepriority }
-#    #Original example: "mTOR activator Rapamycin"
-#    example: ""
-#    type: token
-#    label: ${ label }
-#    pattern: |
-#      @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
+  - name: causeEffect_ported_token_1_noun-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "mTOR activator Rapamycin"
+    example: ""
+    type: token
+    label: ${ label }
+    pattern: |
+      @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
 
 
   # this rule is needed because PP attachment of "by" is often wrong
