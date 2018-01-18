@@ -22,6 +22,7 @@ class AgroSystem(
   processor: Option[Processor] = None,
   debug: Boolean = true
 ) {
+  def this(x:Object) = this()
 
   // defaults to FastNLPProcessor if no processor is given
   val proc:Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
