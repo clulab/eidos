@@ -16,10 +16,9 @@ object ExampleGenerator extends App {
 
   // creates an extractor engine using the rules and the default actions
   val ieSystem = new AgroSystem()
-  val proc = ieSystem.proc
 
-  val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security. However, the policy to seriously cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, less use of inorganic fertilizer, less water, significantly reduced farm sizes which lead to low benefit from the improved cultivar."
-  val doc = proc.annotate(text)
+  val text = "The government uses significantly improved cultivar to boost agricultural production."
+  val doc = ieSystem.annotate(text)
 
   // extract mentions from annotated document
   val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
@@ -32,9 +31,9 @@ object ExampleGenerator extends App {
   println(pretty(render(mentionsJSON)))
 
 
-  val pw = new PrintWriter("/Users/bsharp/wmExampleJson_dec7.txt")
-  pw.println(pretty(render(mentionsJSON)))
-  pw.close()
+//  val pw = new PrintWriter("/Users/bsharp/wmExampleJson_dec7.txt")
+//  pw.println(pretty(render(mentionsJSON)))
+//  pw.close()
 
 
 
