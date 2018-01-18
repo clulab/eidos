@@ -41,6 +41,10 @@ object WMJSONSerializer {
     parse(contents)
   }
 
+  def toJsonStr(mentions: Seq[Mention]): String = {
+    pretty(render(jsonAST(mentions)))
+    }
+
   def toAttachments(json: JValue): Set[Attachment] = {
     // Get the Attachment from the json string
     def findAttachment(json: JValue): Attachment = {
