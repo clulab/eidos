@@ -1,9 +1,9 @@
 package org.clulab.wm
 
-import org.scalatest._
+import TestUtils._
 import CAG._
 
-class TestCag extends FlatSpec with Matchers {
+class TestCag extends AgroTest {
   def getSpecialCharsSize(s: String) = s.filter(c => c > 127).size
   
   "p1" should "have the correct number of special characters" in {

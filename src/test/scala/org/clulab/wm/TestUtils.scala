@@ -1,6 +1,10 @@
 package org.clulab.wm
 
+import org.scalatest._
+
 import org.clulab.odin.Mention
+
+class AgroTest extends FlatSpec with Matchers
 
 /**
   * These are the functions that we'll be testing, that import from PaperReader
