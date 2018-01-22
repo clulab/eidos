@@ -12,19 +12,6 @@ vars:
 
 rules:
 
-# ------------------- Verbal PROMOTION/INHIBITION Rules --------------------------
-
-  - name: ${ label }_ported_syntax_1_verb_edited
-    priority: ${ rulepriority }
-    example: "With the high cost of production, food imports will further reduce farmers’ chances to make a living from agriculture."
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ promotion_trigger })/ & tag=/^V/] # original rule had RB as possible tag
-      # | ${complements} originally in the () with with the FIRST ${ objects }.
-      cause: Entity = nsubj
-      effect: Entity = nmod_by? (${objects}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
-      quantifier:Quantifier? = ${quant_modifiers}
-
 
 # ------------------- Nominal Triggers --------------------------
 
@@ -47,20 +34,12 @@ rules:
       effect: Entity = nsubj
       cause: Entity = /${ preps }$/
 
-#  - name: causal-2
-#    priority: ${ rulepriority }
-#    example: "More water resulting in an increase of productivity."
-#    label: ${ label }
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/]
-#      cause: Entity  = nsubj acl dobj |nmod_)/
-#      effect: Entity = nmod_in | nmod_to
 
-#
 
 # ------------------- Previous Grammar Unsorted --------------------------
 
 
+  # todo: not very general
   - name: dueTo2-${addlabel}
     priority: ${rulepriority}
     type: token
@@ -73,19 +52,8 @@ rules:
     label: ${label}
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = prep_to
-      effect: Entity = <acomp
-
-# todo: I don't think this rule applies in new grammar - remove?
-#  - name: dueToSyntax2-${addlabel}
-#    priority: ${rulepriority}
-#    label: ${label}
-#    pattern: |
-#      trigger: Change_Event
-#      #effect: ${ effect_types } = prep_to
-#      cause: ${ cause_types } = prep_due_to
-
-
+      cause: Entity = </case|advmod/ <nmod_due_to? nsubj
+      effect: Entity = /<case|>nmod_to/  # /<case|nmod_to/
 
 #
 # Something-A (effect) due to|because of Something-B (case)
@@ -213,6 +181,7 @@ rules:
       effect: Entity = (nmod_in$ | nmod_to) /${ noun_modifiers }/{,2}
       cause: Entity = (nsubj | <rcmod) /${ conjunctions }|${ noun_modifiers }|nmod_in/{,2}
 
+  # todo: I think this is no longer relevant with the new stateful entities
   - name: causeEffect_ported_syntax_8_verb-${addlabel}
     priority: ${ rulepriority }
     #Original example: "We found that prolonged expression of active Ras resulted in up-regulation of the MKP3 gene"
@@ -225,6 +194,7 @@ rules:
       cause: Entity = nsubj /${ noun_modifiers }|${ conjunctions }|${ preps }|/{,2}
 
 
+  # todo: maybe applies only to promotion triggers
   - name: causeEffect_ported_syntax_1_noun-${addlabel}
     priority: ${ rulepriority }
     example: "The cause of increasing poverty by bad water quality is the worst."

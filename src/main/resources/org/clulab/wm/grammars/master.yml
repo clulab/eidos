@@ -70,8 +70,8 @@ rules:
     vars:
       rulepriority: "6"
       label: Causal
-      trigger: ${cause_triggers}
-      promotion_trigger: ${increase_triggers} | ${decrease_triggers}
+      trigger: ${cause_triggers} | ${increase_triggers} | ${decrease_triggers}
+      #promotion_trigger: ${increase_triggers} | ${decrease_triggers}
       # To handle the syntactic ambiguity of "A is the cause of B" versus "A is the result of B" which have
       # identical syntactic structure, but opposite directions for identifying the cause/effect, we introduce a set
       # of triggers for reversed direction nouns (e.g., "result" and "effect")
