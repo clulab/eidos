@@ -13,16 +13,7 @@ vars:
 rules:
 
 
-# ------------------- Nominal Triggers --------------------------
-
-  - name: causal-noun-1
-    priority: ${ rulepriority }
-    example: "More water resulting in an increase of productivity."
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ reverse_noun_trigger })/]
-      cause: Entity  = nsubj
-      effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
+# ------------------- Copular Constructions --------------------------
 
   - name: causeEffect_ported_copula_1-${addlabel}
     priority: ${ rulepriority }
@@ -75,7 +66,7 @@ rules:
     example: ""
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      effect: Entity = nsubj
+      effect: Entity = <xcomp? nsubj
       cause: Entity = nmod_with /${ preps }/{,2}
 
 

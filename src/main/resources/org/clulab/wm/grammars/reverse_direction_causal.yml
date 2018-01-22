@@ -1,0 +1,23 @@
+vars:
+  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  conjunctions: "appos|conj|conj_|cc"
+  complements: "xcomp|ccomp"
+  noun_modifiers: "amod|compound|dep|name"
+  negTriggers: "not"
+  objects: "dobj"
+  preps: "nmod_of|nmod_in|nmod_to"
+  prep_dobjs: "nmod"
+  quant_modifiers: "amod|advmod"
+  # Todo: nmod_from "X will follow from Y"
+
+rules:
+
+  - name: reverse_causal-noun-1
+    priority: ${ rulepriority }
+    example: "More water resulting in an increase of productivity."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      cause: Entity  = nsubj
+      effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
+
