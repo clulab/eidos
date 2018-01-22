@@ -76,7 +76,6 @@ class AgroActions extends Actions with LazyLogging {
   //Rule to add Increase/Decrease to the state of an entity
   //TODO Heather: write toy test for this
   //TODO: perhaps keep token interval of the EVENT because it will be longer?
-
   def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = for {
     m <- ms
     //if m matches "EntityModifier"
