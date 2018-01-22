@@ -27,7 +27,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   val ieSystem = new AgroSystem()
 
   var proc = ieSystem.proc
-  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv", "org/clulab/wm/lexicons/IncDec.tsv"), caseInsensitiveMatching = true)
+  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
   val grounder = ieSystem.grounder
   println("[AgroSystem] Completed Initialization ...")
   // -------------------------------------------------
