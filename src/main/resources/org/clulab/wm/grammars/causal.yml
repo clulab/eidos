@@ -50,42 +50,33 @@ rules:
   - name: dueToSyntax1-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    example: "food imports will decrease due to rainfall today"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = </case|advmod/ <nmod_due_to? nsubj
-      effect: Entity = /<case|>nmod_to/  # /<case|nmod_to/
+      cause: Entity = <advmod <nmod_due_to? nsubj
+      effect: Entity = nmod_to
 
-#
-# Something-A (effect) due to|because of Something-B (case)
-#
-#  - name: causeEffect-2-${addlabel}
-#    priority: ${rulepriority}
-#    label: ${label}
-#    pattern: |
-#      trigger = [lemma="due" & tag=/^JJ/]
-#      effect: Event = nsubj
-#      cause: Potential_Cause = prep_to # note -- should maybe be higher level than NP in taxonomy?
-
-
-  # Something-A (effect) caused|influenced|initiated| by Something-B (cause)
-  - name: causeEffect-3-${addlabel}
-    priority: ${ rulepriority }
+  - name: dueToSyntax2-${addlabel}
+    priority: ${rulepriority}
     label: ${label}
+    example: "food imports will decrease due to rainfall"
     pattern: |
-      trigger = [lemma=/cause|influence|initiate/ & tag=/^V/]
-      cause: Entity = nsubj
-      effect: Entity = dobj
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = <case <nmod_due_to? nsubj
+      effect: Entity = <case
+
 
   #
   # param is nominal subject of verb: "PARAM increases/decreases with _____ "
   #
-#  - name: causeEffect-4-${addlabel}
-#    priority: ${rulepriority}
-#    label: ${label}
-#    pattern: |
-#      trigger = [word=with]
-#      cause: Entity = nsubj
-#      effect: Entity = prep_with
+  - name: with-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: ""
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      effect: Entity = nsubj
+      cause: Entity = nmod_with /${ preps }/{,2}
 
 
 
