@@ -1,7 +1,7 @@
 package org.clulab.wm
 
-class TestTest extends AgroTest {
-  
+import TestUtils._
+
+class TestTest extends Test {
   1 should be (1)
-  
 }

@@ -7,9 +7,26 @@ import org.clulab.odin.TextBoundMention
 
 import org.clulab.wm.Aliases.Quantifier
 
+class Event(val label: String)
+
+object NoEvent extends Event(null)
+object Causal extends Event("Causal")
+object Correlation extends Event("Correlation")
+object IsA extends Event("IsA")
+object Origin extends Event("Origin")
+object TransparentLink extends Event("TransparentLink")
+object Affect extends Event("Affect")
+
 abstract class GraphSpec {
-  def toString(mentions: Vector[Mention]): String = {
-    mentions.map(_.text).mkString(", ")
+  def toString(mentions: Seq[Mention]): String = {
+    val stringBuilder = new StringBuilder()
+        .append(mentions.map(_.text).mkString(", "))
+         
+    if (!mentions.isEmpty && mentions.head.document.discourseTree != None)
+      stringBuilder
+          .append("\nDiscourse tree: ")
+          .append(mentions.head.document.discourseTree.get.toString())
+    stringBuilder.toString()
   }
 }
 
@@ -19,20 +36,20 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
   var complaints = Seq[String]()
   
   protected def matchAttachments(mention: TextBoundMention): Boolean = {
-    val result = mention.attachments == attachments
+    val success = mention.attachments == attachments
     
-    result
+    success
   }
 
   protected def matchText(mention: TextBoundMention): Boolean = {
     val text = mention.text
-    val result = text == nodeText
+    val success = text == nodeText
     
     println(text)
-    result
+    success
   }
     
-  protected def testSpec(mentions: Vector[Mention]): Option[Mention] = {
+  protected def testSpec(mentions: Seq[Mention]): Option[Mention] = {
     val matches = mentions
         .filter(_.isInstanceOf[TextBoundMention])
         .map(_.asInstanceOf[TextBoundMention])
@@ -43,7 +60,7 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
     else None
   }
   
-  def test(mentions: Vector[Mention]): Seq[String] = {
+  def test(mentions: Seq[Mention]): Seq[String] = {
     if (!tested) {
       mention = testSpec(mentions)
       if (mention == None)
@@ -64,12 +81,12 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
   }
   
   protected def toString(attachment: Attachment): String = {
-    val result = attachment match {
+    val string = attachment match {
       case x: Decrease => "+DEC(" + x.trigger + toString(x.quantifier)
       case x: Increase => "+INC(" + x.trigger + toString(x.quantifier)
       case x: Quantification => "+QUANT(" + x.quantifier
     }
-    result + ")"
+    string + ")"
   }
   
   override def toString(): String = {
@@ -84,7 +101,7 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
   }
 }
 
-class EdgeSpec(val cause: NodeSpec, val effects: Set[NodeSpec]) extends GraphSpec {
+class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]) extends GraphSpec {
 
   protected def matchArgument(mention: EventMention, argument: String): Boolean = {
     val tmpMentions = cause.mention.get
@@ -109,10 +126,11 @@ class EdgeSpec(val cause: NodeSpec, val effects: Set[NodeSpec]) extends GraphSpe
       false 
   } 
   
-  protected def testSpec(mentions: Vector[Mention]): Option[Mention] = {
+  protected def testSpec(mentions: Seq[Mention]): Option[Mention] = {
     val matches = mentions
         .filter(_.isInstanceOf[EventMention])
         .map(_.asInstanceOf[EventMention])
+        .filter(_.labels.contains(event.label))
         .filter(matchCause(_))
         .filter(matchEffects(_))
     
@@ -120,16 +138,16 @@ class EdgeSpec(val cause: NodeSpec, val effects: Set[NodeSpec]) extends GraphSpe
     else None
   }
   
-  def test(mentions: Vector[Mention]): Seq[String] = {
+  def test(mentions: Seq[Mention]): Seq[String] = {
     val causeComplaints = cause.test(mentions)
     val effectComplaints = effects.flatMap(effect => effect.test(mentions))
 
-    val causeResult =  causeComplaints.isEmpty
-    val effectResult = effectComplaints.isEmpty
+    val causeSuccess =  causeComplaints.isEmpty
+    val effectSuccess = effectComplaints.isEmpty
     
     val arrowComplaints =
-        if (causeResult && effectResult && testSpec(mentions) == None)
-          Seq("Could not find EdgeSpec " + this + " in mentions " + toString(mentions))
+        if (causeSuccess && effectSuccess && testSpec(mentions) == None)
+          Seq("Could not find EdgeSpec " + this + " in mentions: " + toString(mentions))
         else 
           Seq()
 
@@ -138,7 +156,9 @@ class EdgeSpec(val cause: NodeSpec, val effects: Set[NodeSpec]) extends GraphSpe
   
   override def toString(): String = {
     new StringBuilder(cause.toString())
-        .append("->")
+        .append("->(")
+        .append(event.label)
+        .append(")->")
         .append(
             if (effects.isEmpty)
               "NoEdge"

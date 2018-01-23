@@ -3,7 +3,7 @@ package org.clulab.wm
 import CAG._
 import TestUtils._
 
-class TestCagP1 extends AgroTest {
+class TestCagP1 extends Test {
   val mentions = extractMentions(p1s1)
   "p1s1" should "have correct nodes" in {
     val poorRainfall = newNodeSpec("poor rainfall in southeastern areas", newQuantification("poor"))
@@ -24,10 +24,10 @@ class TestCagP1 extends AgroTest {
     
     // This will be OutEdge and then will also test for InEdge
     // Alternatively, add to Node the number of expected edges in and out?
-     val conflict_foodInsecurityLevelsEdge = newEdgeSpec(conflict, foodInsecurityLevels)
+     val conflict_foodInsecurityLevelsEdge = newEdgeSpec(conflict, Causal, foodInsecurityLevels)
      // conflict_foodInsecurityLevelsEdge.test(mentions) shouldBe successful
      
-     val economy_foodInsecurityLevelsEdge = newEdgeSpec(economy, foodInsecurityLevels)
+     val economy_foodInsecurityLevelsEdge = newEdgeSpec(economy, Causal, foodInsecurityLevels)
      // economy_foodInsecurityLevelsEdge.test(mentions) shouldBe successful
   }
 }

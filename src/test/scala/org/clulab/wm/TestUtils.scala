@@ -5,21 +5,22 @@ import org.scalatest._
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 
-class AgroTest extends FlatSpec with Matchers
-
 /**
   * These are the functions that we'll be testing, that import from PaperReader
   */
 
 //val eeWithActionsAndGlobal = ExtractorEngine(rules, myActions, myGlobalAction)
 object TestUtils {
+  class Test extends FlatSpec with Matchers
+
   protected val tagName = "org.clulab.wm"
   object Keith extends Tag(tagName)
   object Becky extends Tag(tagName)
+  // TODO: Add other users
   
-  val agroSystem = new AgroSystem()
+  val system = new AgroSystem() // TODO: Change this class name
 
-  def extractMentions(text: String): Vector[Mention] = agroSystem.extractFrom(text)
+  def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
   
   
   def newNodeSpec(nodeText: String, attachments: Set[Attachment]) =
@@ -27,10 +28,8 @@ object TestUtils {
   def newNodeSpec(nodeText: String, attachments: Attachment*) =
       new NodeSpec(nodeText, attachments.toSet)
   
-  def newEdgeSpec(cause: NodeSpec) =
-      new EdgeSpec(cause, Set())
-  def newEdgeSpec(cause: NodeSpec, effects: NodeSpec*) =
-      new EdgeSpec(cause, effects.toSet)
+  def newEdgeSpec(cause: NodeSpec, event: Event, effects: NodeSpec*) =
+      new EdgeSpec(cause, event, effects.toSet)
   
   
   def newQuantification(quantifier: String) =

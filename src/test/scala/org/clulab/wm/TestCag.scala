@@ -1,9 +1,9 @@
 package org.clulab.wm
 
-import TestUtils._
 import CAG._
+import TestUtils._
 
-class TestCag extends AgroTest {
+class TestCag extends Test {
   def getSpecialCharsSize(s: String) = s.filter(c => c > 127).size
   
   "p1" should "have the correct number of special characters" in {
