@@ -4,6 +4,9 @@ object CAG {
   val SINGLE_SENTENCE_SEPARATOR = " "
   val DOUBLE_SENTENCE_SEPARATOR = "  "
   val PARAGRAPH_SEPARATOR = "\n"
+
+  // This one is for testing
+  val p0s1 = "The decrease in rainfall caused significantly increased poverty."
   
   // Note the two &ndash;
   val p1s1 = "Food insecurity levels are extremely alarming throughout the country due to conflict, a collapsing economy, low cereal production, poor rainfall in southeastern areas, and the exhaustion of coping capacities after several years of crisis."
