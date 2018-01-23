@@ -3,9 +3,6 @@ package org.clulab.wm
 import CAG._
 import TestUtils._
 
-import org.clulab.odin.Attachment
-import org.clulab.odin.Mention
-
 class TestCagP1 extends AgroTest {
   val mentions = extractMentions(p1s1)
   "p1s1" should "have correct nodes" in {

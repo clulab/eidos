@@ -35,8 +35,9 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
   protected def testSpec(mentions: Vector[Mention]): Option[Mention] = {
     val matches = mentions
         .filter(_.isInstanceOf[TextBoundMention])
-        .filter(mention => matchText(mention.asInstanceOf[TextBoundMention]))
-        .filter(mention => matchAttachments(mention.asInstanceOf[TextBoundMention]))
+        .map(_.asInstanceOf[TextBoundMention])
+        .filter(matchText(_))
+        .filter(matchAttachments(_))
         
     if (matches.size == 1) Option(matches.head)
     else None
@@ -110,9 +111,10 @@ class EdgeSpec(val cause: NodeSpec, val effects: Set[NodeSpec]) extends GraphSpe
   
   protected def testSpec(mentions: Vector[Mention]): Option[Mention] = {
     val matches = mentions
-        .filter(_.isInstanceOf[EventMention]) // so just map it here?
-        .filter(mention => matchCause(mention.asInstanceOf[EventMention]))
-        .filter(mention => matchEffects(mention.asInstanceOf[EventMention]))
+        .filter(_.isInstanceOf[EventMention])
+        .map(_.asInstanceOf[EventMention])
+        .filter(matchCause(_))
+        .filter(matchEffects(_))
     
     if (matches.size == 1) Option(matches.head)
     else None

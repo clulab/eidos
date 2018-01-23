@@ -13,6 +13,10 @@ class AgroTest extends FlatSpec with Matchers
 
 //val eeWithActionsAndGlobal = ExtractorEngine(rules, myActions, myGlobalAction)
 object TestUtils {
+  protected val tagName = "org.clulab.wm"
+  object Keith extends Tag(tagName)
+  object Becky extends Tag(tagName)
+  
   val agroSystem = new AgroSystem()
 
   def extractMentions(text: String): Vector[Mention] = agroSystem.extractFrom(text)
