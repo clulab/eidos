@@ -9,7 +9,7 @@ import org.clulab.wm.Aliases.Quantifier
 
 abstract class GraphSpec {
   def toString(mentions: Vector[Mention]): String = {
-    mentions.toString()
+    mentions.map(_.text).mkString(", ")
   }
 }
 
@@ -47,7 +47,7 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
     if (!tested) {
       mention = testSpec(mentions)
       if (mention == None)
-        complaints = Seq("Could not find NodeSpec " + this + " in mentions " + toString(mentions))
+        complaints = Seq("Could not find NodeSpec " + this + " in mentions: " + toString(mentions))
       tested = true
     }
     complaints
