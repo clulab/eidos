@@ -2,6 +2,7 @@ package org.clulab.wm
 
 import org.scalatest._
 
+import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 
 class AgroTest extends FlatSpec with Matchers
@@ -15,4 +16,27 @@ object TestUtils {
   val agroSystem = new AgroSystem()
 
   def extractMentions(text: String): Vector[Mention] = agroSystem.extractFrom(text)
+  
+  
+  def newTextMentionSpec(nodeText: String, attachments: Set[Attachment]) =
+      new TextMentionSpec(nodeText, attachments)
+  def newTextMentionSpec(nodeText: String, attachments: Attachment*) =
+      new TextMentionSpec(nodeText, attachments.toSet)
+  
+  def newCauseEffectSpec(cause: TextMentionSpec, effect: TextMentionSpec) =
+      new CauseEffectSpec(cause, effect)
+  
+  
+  def newQuantification(quantifier: String) =
+      new Quantification(quantifier)
+  
+  def newDecrease(trigger: String) =
+      new Decrease(trigger, None)
+  def newDecrease(trigger: String, quantifiers: String*) =
+      new Decrease(trigger, Option(quantifiers.toSeq))
+          
+  def newIncrease(trigger: String) =
+      new Increase(trigger, None)
+  def newIncrease(trigger: String, quantifiers: String*) =
+      new Increase(trigger, Option(quantifiers.toSeq))        
 }
