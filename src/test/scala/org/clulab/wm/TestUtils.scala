@@ -44,5 +44,7 @@ object TestUtils {
   def newIncrease(trigger: String) =
       new Increase(trigger, None)
   def newIncrease(trigger: String, quantifiers: String*) =
-      new Increase(trigger, Option(quantifiers.toSeq))        
+      new Increase(trigger, Option(quantifiers.toSeq))
+  
+  val successful = Seq()
 }

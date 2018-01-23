@@ -16,7 +16,7 @@ class TestCagP0 extends AgroTest {
     
     val rainfallPovertyEdge = newEdgeSpec(rainfallNode, povertyNode)
     
-    rainfallPovertyEdge.test(mentions) shouldBe empty
+    rainfallPovertyEdge.test(mentions) shouldBe successful
   }
   
   ignore should "be ignored" taggedAs(Becky) in {
