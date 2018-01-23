@@ -52,7 +52,7 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
     complaints
   }
 
-  def toString(quantifiers: Option[Seq[Quantifier]]): String = {
+  protected def toString(quantifiers: Option[Seq[Quantifier]]): String = {
     val stringBuilder = new StringBuilder()
     
     if (quantifiers != None)
@@ -62,7 +62,7 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
     stringBuilder.toString()
   }
   
-  def toString(attachment: Attachment): String = {
+  protected def toString(attachment: Attachment): String = {
     val result = attachment match {
       case x: Decrease => "+DEC(" + x.trigger + toString(x.quantifier)
       case x: Increase => "+INC(" + x.trigger + toString(x.quantifier)
