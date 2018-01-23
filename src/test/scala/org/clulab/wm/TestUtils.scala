@@ -23,8 +23,10 @@ object TestUtils {
   def newNodeSpec(nodeText: String, attachments: Attachment*) =
       new NodeSpec(nodeText, attachments.toSet)
   
-  def newEdgeSpec(cause: NodeSpec, effect: NodeSpec) =
-      new EdgeSpec(cause, effect)
+  def newEdgeSpec(cause: NodeSpec) =
+      new EdgeSpec(cause, Set())
+  def newEdgeSpec(cause: NodeSpec, effects: NodeSpec*) =
+      new EdgeSpec(cause, effects.toSet)
   
   
   def newQuantification(quantifier: String) =

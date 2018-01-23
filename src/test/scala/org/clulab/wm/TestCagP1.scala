@@ -15,4 +15,22 @@ class TestCagP1 extends AgroTest {
     poorRainfall.test(mentions) should be (true)
     cerealProduction.test(mentions) should be (true)
   }
+  
+  // These are examples from the entire paragraph, just for syntax
+  "p1" should "have tests that compile" in {
+    val conflict = newNodeSpec("conflict")
+    val economy = newNodeSpec("economy", newDecrease("collapsing"))
+    val foodInsecurityLevels = newNodeSpec("food insecurityLevels") // what is +alarming(extremely)?
+    val cerealProduction = newNodeSpec("cereal production", newDecrease("low"))
+    val copingCapacities = newNodeSpec("coping capacities", newDecrease("exhaustion"))
+    val rainfall = newNodeSpec("rainfall", newDecrease("poor"))
+    
+    // This will be OutEdge and then will also test for InEdge
+     val conflict_foodInsecurityLevelsEdge = newEdgeSpec(conflict, foodInsecurityLevels)
+     // conflict_foodInsecurityLevelsEdge.test(mentions) should be (true)
+     
+     val economy_foodInsecurityLevelsEdge = newEdgeSpec(economy, foodInsecurityLevels)
+     // economy_foodInsecurityLevelsEdge.test(mentions) should be (true)
+  }
+  
 }

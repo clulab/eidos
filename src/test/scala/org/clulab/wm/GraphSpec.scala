@@ -46,22 +46,24 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
   }
 }
 
-class EdgeSpec(val cause: NodeSpec, val effect: NodeSpec) extends GraphSpec {
+class EdgeSpec(val cause: NodeSpec, val effects: Set[NodeSpec]) extends GraphSpec {
 
   protected def matchCause(mention: EventMention): Boolean = {
     val tmpCause = cause.mention.get
     
+    // Should it match exactly once?  Only a single cause?
     if (mention.arguments.contains("cause"))
       mention.arguments("cause").contains(tmpCause)
     else 
       false
   }
     
-  protected def matchEffect(mention: EventMention): Boolean = {
-    val tmpEffect = effect.mention.get
+  protected def matchEffects(mention: EventMention): Boolean = {
+    val tmpEffects = effects.map(effect => effect.mention.get)
 
+    // Should it match exactly once?
     if (mention.arguments.contains("effect"))
-      mention.arguments("effect").contains(tmpEffect)
+      mention.arguments("effect").toSet == tmpEffects
     else 
       false
   }
@@ -70,7 +72,7 @@ class EdgeSpec(val cause: NodeSpec, val effect: NodeSpec) extends GraphSpec {
     val matches = mentions
         .filter(_.isInstanceOf[EventMention]) // so just map it here?
         .filter(mention => matchCause(mention.asInstanceOf[EventMention]))
-        .filter(mention => matchEffect(mention.asInstanceOf[EventMention]))
+        .filter(mention => matchEffects(mention.asInstanceOf[EventMention]))
     
     if (matches.size == 1) Option(matches.head)
     else None
@@ -78,7 +80,7 @@ class EdgeSpec(val cause: NodeSpec, val effect: NodeSpec) extends GraphSpec {
   
   def test(mentions: Vector[Mention]): Boolean = {
     val causeResult = cause.test(mentions)
-    val effectResult = effect.test(mentions)
+    val effectResult = !effects.exists(effect => !effect.test(mentions))
     val arrowResult = causeResult && effectResult && testSpec(mentions) != None
     
     (causeResult, effectResult, arrowResult) == (true, true, true)
