@@ -18,13 +18,13 @@ object TestUtils {
   def extractMentions(text: String): Vector[Mention] = agroSystem.extractFrom(text)
   
   
-  def newTextMentionSpec(nodeText: String, attachments: Set[Attachment]) =
-      new TextMentionSpec(nodeText, attachments)
-  def newTextMentionSpec(nodeText: String, attachments: Attachment*) =
-      new TextMentionSpec(nodeText, attachments.toSet)
+  def newNodeSpec(nodeText: String, attachments: Set[Attachment]) =
+      new NodeSpec(nodeText, attachments)
+  def newNodeSpec(nodeText: String, attachments: Attachment*) =
+      new NodeSpec(nodeText, attachments.toSet)
   
-  def newCauseEffectSpec(cause: TextMentionSpec, effect: TextMentionSpec) =
-      new CauseEffectSpec(cause, effect)
+  def newEdgeSpec(cause: NodeSpec, effect: NodeSpec) =
+      new EdgeSpec(cause, effect)
   
   
   def newQuantification(quantifier: String) =

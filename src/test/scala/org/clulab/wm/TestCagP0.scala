@@ -11,17 +11,11 @@ class TestCagP0 extends AgroTest {
 
   "p0s1" should "have the correct triples" in {
     // Should this just be "rainfall"?
-    val rainfall = newTextMentionSpec("in rainfall", newDecrease("decrease"))
-    val poverty = newTextMentionSpec("poverty", newIncrease("increased", "significantly"))
+    val rainfall = newNodeSpec("in rainfall", newDecrease("decrease"))
+    val poverty = newNodeSpec("poverty", newIncrease("increased", "significantly"))
     
-    val rainfallCausedPoverty = newCauseEffectSpec(rainfall, poverty)
-
-    // Add unattached nodes and test
-    // Also check them for lack of connections
-    // Argument to indicate number of expected attachments?
-    // Even if attached, don't want extra attachments
-    // newOrphanSpec?
+    val rainfallCausedPoverty = newEdgeSpec(rainfall, poverty)
     
-    rainfallCausedPoverty.test(mentions) should be ((true, true, true))    
+    rainfallCausedPoverty.test(mentions) should be (true)    
   }
 }
