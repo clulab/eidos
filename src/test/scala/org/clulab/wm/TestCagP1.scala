@@ -12,8 +12,8 @@ class TestCagP1 extends AgroTest {
     val poorRainfall = newNodeSpec("poor rainfall in southeastern areas", newQuantification("poor"))
     val cerealProduction = newNodeSpec("cereal production", newQuantification("low"), newDecrease("low"))
     
-    poorRainfall.test(mentions) should be (true)
-    cerealProduction.test(mentions) should be (true)
+    poorRainfall.test(mentions) shouldBe empty
+    cerealProduction.test(mentions) shouldBe empty
   }
   
   // These are examples from the entire paragraph, just for syntax
@@ -26,11 +26,11 @@ class TestCagP1 extends AgroTest {
     val rainfall = newNodeSpec("rainfall", newDecrease("poor"))
     
     // This will be OutEdge and then will also test for InEdge
+    // Alternatively, add to Node the number of expected edges in and out?
      val conflict_foodInsecurityLevelsEdge = newEdgeSpec(conflict, foodInsecurityLevels)
-     // conflict_foodInsecurityLevelsEdge.test(mentions) should be (true)
+     // conflict_foodInsecurityLevelsEdge.test(mentions) shouldBe empty
      
      val economy_foodInsecurityLevelsEdge = newEdgeSpec(economy, foodInsecurityLevels)
-     // economy_foodInsecurityLevelsEdge.test(mentions) should be (true)
+     // economy_foodInsecurityLevelsEdge.test(mentions) shouldBe empty
   }
-  
 }

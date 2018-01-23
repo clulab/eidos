@@ -16,6 +16,6 @@ class TestCagP0 extends AgroTest {
     
     val rainfallPovertyEdge = newEdgeSpec(rainfallNode, povertyNode)
     
-    rainfallPovertyEdge.test(mentions) should be (true)    
+    rainfallPovertyEdge.test(mentions) shouldBe empty
   }
 }
