@@ -2,7 +2,7 @@ package org.clulab.wm
 
 import TestUtils._
 
-class TestEntityFinder extends AgroTest {
+class TestEntityFinder extends Test {
 
   "rainfall entity" should "have leaving preposition trimmed" in {
     val text = "The decrease in rainfall was a problem."
