@@ -33,11 +33,11 @@ For Windows, it may be necessary to set an environment variable that influences 
 much memory is allowed for Java in general.  On the traditional Command Prompt use
 
 ```
-set JAVA_OPTS=-Xms6g
+set JAVA_OPTS=-Xmx6g
 ```
 
 The corresponding command for PowerShell is
 
 ```
-$env:JAVA_OPTS = "-Xms6g"
+$env:JAVA_OPTS = "-Xmx6g"
 ```
