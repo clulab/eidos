@@ -19,7 +19,8 @@ and then navigate to `localhost:9000` in a web browser.
 
 Note: The default size of the memory allocation pool for the JVM is 1/4 of your
 physical memory, but eidos may require more RAM than that. You can increase the
-memory allocation by specifying it in the `.sbtopts` file: 
+memory allocation by specifying it in the `.sbtopts` file in the `eidos`
+directory (the one in which this README resides): 
 
 ```
 echo "-J-Xmx6g" >> .sbtopts
