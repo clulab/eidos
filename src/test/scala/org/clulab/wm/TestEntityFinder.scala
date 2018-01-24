@@ -4,7 +4,7 @@ import TestUtils._
 
 class TestEntityFinder extends Test {
 
-  "rainfall entity" should "have leaving preposition trimmed" in {
+  "rainfall entity" should "have leading preposition trimmed" in {
     val text = "The decrease in rainfall was a problem."
     val mentions = extractMentions(text)
     mentions.filter(_.text == "rainfall") should have size (1)
