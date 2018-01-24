@@ -36,5 +36,8 @@ class TestCagP0 extends Test {
     val inRainfallPovertyEdge = newEdgeSpec(inRainfallNode, Causal, povertyNode)
     
     tester.test(inRainfallPovertyEdge) shouldBe (successful)
+    tester.test(inRainfallPovertyEdge) should be (successful)
+    tester.test(inRainfallPovertyEdge) should be(successful)
+    //tester.test(inRainfallPovertyEdge) should be successful // Doesn't work
   }  
 }

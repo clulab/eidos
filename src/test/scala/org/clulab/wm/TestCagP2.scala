@@ -17,13 +17,13 @@ class TestCagP2 extends Test {
     behavior of "p2s1"
     
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(sudanesePound, Causal, economicCrisis)) should be(successful)
+      tester.test(newEdgeSpec(sudanesePound, Causal, economicCrisis)) should be (successful)
     }
     failingTest should "have correct edges 2" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(hardCurrency, Causal, economicCrisis)) should be(successful)
+      tester.test(newEdgeSpec(hardCurrency, Causal, economicCrisis)) should be (successful)
     }
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(oilPrices, Causal, economicCrisis)) should be(successful)
+      tester.test(newEdgeSpec(oilPrices, Causal, economicCrisis)) should be (successful)
     }
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(dependenceOnImports, Causal, economicCrisis)) should be (successful)
@@ -44,19 +44,19 @@ class TestCagP2 extends Test {
     behavior of "p2s2"
 
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(conflict, Causal, foodPrices)) should be(successful)
+      tester.test(newEdgeSpec(conflict, Causal, foodPrices)) should be (successful)
     }
     failingTest should "have correct edges 2" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(insecurity, Causal, foodPrices)) should be(successful)
+      tester.test(newEdgeSpec(insecurity, Causal, foodPrices)) should be (successful)
     }
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(marketDisruption, Causal, foodPrices)) should be(successful)
+      tester.test(newEdgeSpec(marketDisruption, Causal, foodPrices)) should be (successful)
     }
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(economic, Causal, foodPrices)) should be(successful)
+      tester.test(newEdgeSpec(economic, Causal, foodPrices)) should be (successful)
     }
     failingTest should "have correct edges 5" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(cropFailure, Causal, foodPrices)) should be(successful)
+      tester.test(newEdgeSpec(cropFailure, Causal, foodPrices)) should be (successful)
     }
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(hunger) should be (successful)
