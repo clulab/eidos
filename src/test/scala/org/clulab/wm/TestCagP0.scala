@@ -5,7 +5,7 @@ import TestUtils._
 
 class TestCagP0 extends Test {
 
-  behavior of "p0s1"
+  behavior of p0s1
   
   it should "not be ignored" in {
   }

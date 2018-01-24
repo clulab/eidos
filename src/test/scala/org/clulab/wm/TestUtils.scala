@@ -13,29 +13,34 @@ import org.clulab.wm.Aliases.Quantifier
 
 //val eeWithActionsAndGlobal = ExtractorEngine(rules, myActions, myGlobalAction)
 object TestUtils {
+  
+  // This will be a GraphTest in contrast to a RuleTest
   class Test extends FlatSpec with Matchers {
+    protected val tagName = "org.clulab.wm.TestUtils"
+    object Nobody extends Tag(tagName)
+    object Somebody extends Tag(tagName)
+    object Keith extends Tag(tagName)
+    object Becky extends Tag(tagName)
+    // TODO: Add other users
+
     val passingTest = it
     val failingTest = ignore
+    
+    val successful = Seq()
+    
+    class Tester(text: String) {
+      val mentions = extractMentions(text)
+      
+      def test(nodeSpec: NodeSpec): Seq[String] = nodeSpec.test(mentions)
+      
+      def test(edgeSpec: EdgeSpec): Seq[String] = edgeSpec.test(mentions)
+    }
   }
   
-  protected val tagName = "org.clulab.wm.TestUtils"
-  object Nobody extends Tag(tagName)
-  object Somebody extends Tag(tagName)
-  object Keith extends Tag(tagName)
-  object Becky extends Tag(tagName)
-  // TODO: Add other users
   
   protected lazy val system = new AgroSystem() // TODO: Change this class name
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
-  
-  class Tester(text: String) {
-    val mentions = extractMentions(text)
-    
-    def test(nodeSpec: NodeSpec): Seq[String] = nodeSpec.test(mentions)
-    
-    def test(edgeSpec: EdgeSpec): Seq[String] = edgeSpec.test(mentions)
-  }
   
   def newNodeSpec(nodeText: String, attachments: Set[Attachment]) =
       new NodeSpec(nodeText, attachments)
@@ -61,6 +66,4 @@ object TestUtils {
 
   def newUnmarked(quantifier: String) =
       new Unmarked(quantifier)
-  
-  val successful = Seq()
 }
