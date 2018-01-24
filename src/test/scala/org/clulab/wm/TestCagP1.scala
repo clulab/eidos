@@ -4,13 +4,13 @@ import CAG._
 import TestUtils._
 
 class TestCagP1 extends Test {
-  val mentions = extractMentions(p1s1)
+  val tester = new Tester(p1s1)
   "p1s1" should "have correct nodes" in {
     val poorRainfall = newNodeSpec("poor rainfall in southeastern areas", newQuantification("poor"))
     val cerealProduction = newNodeSpec("cereal production", newQuantification("low"), newDecrease("low"))
     
-    poorRainfall.test(mentions) shouldBe successful
-    cerealProduction.test(mentions) shouldBe successful
+    tester.test(poorRainfall) shouldBe (successful)
+    tester.test(cerealProduction) shouldBe (successful)
   }
   
   // These are examples from the entire paragraph, just for syntax

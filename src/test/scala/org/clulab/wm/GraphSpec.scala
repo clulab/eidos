@@ -7,6 +7,8 @@ import org.clulab.odin.TextBoundMention
 
 import org.clulab.wm.Aliases.Quantifier
 
+case class Unmarked(quantifier: Quantifier) extends Attachment
+  
 class Event(val label: String)
 
 object NoEvent extends Event(null)
@@ -85,6 +87,7 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
       case x: Decrease => "+DEC(" + x.trigger + toString(x.quantifier)
       case x: Increase => "+INC(" + x.trigger + toString(x.quantifier)
       case x: Quantification => "+QUANT(" + x.quantifier
+      case x: Unmarked => "+" + x.quantifier
     }
     string + ")"
   }

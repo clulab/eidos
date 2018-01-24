@@ -5,6 +5,8 @@ import org.scalatest._
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 
+import org.clulab.wm.Aliases.Quantifier
+
 /**
   * These are the functions that we'll be testing, that import from PaperReader
   */
@@ -14,14 +16,23 @@ object TestUtils {
   class Test extends FlatSpec with Matchers
 
   protected val tagName = "org.clulab.wm"
+  object Nobody extends Tag(tagName)
+  object Somebody extends Tag(tagName)
   object Keith extends Tag(tagName)
   object Becky extends Tag(tagName)
   // TODO: Add other users
   
-  val system = new AgroSystem() // TODO: Change this class name
+  protected val system = new AgroSystem() // TODO: Change this class name
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
   
+  class Tester(text: String) {
+    val mentions = extractMentions(text)
+    
+    def test(nodeSpec: NodeSpec): Seq[String] = nodeSpec.test(mentions)
+    
+    def test(edgeSpec: EdgeSpec): Seq[String] = edgeSpec.test(mentions)
+  }
   
   def newNodeSpec(nodeText: String, attachments: Set[Attachment]) =
       new NodeSpec(nodeText, attachments)
@@ -44,6 +55,9 @@ object TestUtils {
       new Increase(trigger, None)
   def newIncrease(trigger: String, quantifiers: String*) =
       new Increase(trigger, Option(quantifiers.toSeq))
+
+  def newUnmarked(quantifier: String) =
+      new Unmarked(quantifier)
   
   val successful = Seq()
 }

@@ -4,7 +4,7 @@ import CAG._
 import TestUtils._
 
 class TestCagP0 extends Test {
-  val mentions = extractMentions(p0s1)
+  val tester = new Tester(p0s1)
 
   "p0s1" should "not be ignored" in {
   }
@@ -16,7 +16,7 @@ class TestCagP0 extends Test {
     
     val inRainfallPovertyEdge = newEdgeSpec(inRainfallNode, Causal, povertyNode)
     
-    inRainfallPovertyEdge.test(mentions) shouldBe successful
+    tester.test(inRainfallPovertyEdge) shouldBe (successful)
   }
   
   ignore should "be ignored" taggedAs(Becky) in {
