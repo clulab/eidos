@@ -11,9 +11,9 @@ class TestCagP2 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
     
-    "p2s1" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p2s1"
+    
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }
@@ -24,9 +24,9 @@ class TestCagP2 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
 
-    "p2s2" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p2s2"
+    
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }
@@ -37,9 +37,9 @@ class TestCagP2 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
 
-    "p2s3" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p2s3"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }
@@ -50,9 +50,9 @@ class TestCagP2 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
 
-    "p2s4" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p2s4"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }
@@ -63,9 +63,9 @@ class TestCagP2 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
 
-    "p2s5" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p2s5"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }  

@@ -13,8 +13,11 @@ import org.clulab.wm.Aliases.Quantifier
 
 //val eeWithActionsAndGlobal = ExtractorEngine(rules, myActions, myGlobalAction)
 object TestUtils {
-  class Test extends FlatSpec with Matchers
-
+  class Test extends FlatSpec with Matchers {
+    val passingTest = it
+    val failingTest = ignore
+  }
+  
   protected val tagName = "org.clulab.wm"
   object Nobody extends Tag(tagName)
   object Somebody extends Tag(tagName)

@@ -11,9 +11,9 @@ class TestCagP1 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
     
-    "p1s1" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p1s1"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }
@@ -24,9 +24,9 @@ class TestCagP1 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
 
-    "p1s2" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p1s2"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }
@@ -37,9 +37,9 @@ class TestCagP1 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
 
-    "p1s3" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p1s3"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   }
@@ -50,9 +50,9 @@ class TestCagP1 extends Test {
     val node1 = newNodeSpec(null)
     val node2 = newNodeSpec(null)
 
-    "p1s4" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p1s4"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(node1, Causal, node2)) should be (successful)
     }
   } 

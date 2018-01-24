@@ -12,12 +12,12 @@ class TestCagP4 extends Test {
     val impact = newNodeSpec("impact of the conflict")
     val ability = newNodeSpec("people's ability to access safe water", newDecrease("undermined"))
     
-    "p4s1" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p4s1"
+    
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(cost, Causal, ability)) should be (successful)
     }
-    ignore should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(impact, Causal, ability)) should be (successful)
     }
   }
@@ -25,8 +25,7 @@ class TestCagP4 extends Test {
   { // S2
     val tester = new Tester(p4s2)
   
-    "p4s2" should "not be ignored" in {
-    }
+    behavior of "p4s2"
   }
   
   { // S3
@@ -35,9 +34,9 @@ class TestCagP4 extends Test {
     val cost     = newNodeSpec("cost of fuel")
     val trucking = newNodeSpec("water trucking", newDecrease("decreased"))
   
-    "p4s3" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p4s3"
+    
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(cost, Causal, trucking)) should be (successful)
     }
   }
@@ -51,18 +50,18 @@ class TestCagP4 extends Test {
     val access     = newNodeSpec("access", newDecrease("lack"))
     val repairs    = newNodeSpec("borehole repairs", newDecrease("inhibit"))
   
-    "p4s4" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p4s4"
+    
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(insecurity, Causal, access)) should be (successful)
     }
-    ignore should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(expertise, Causal, access)) should be (successful)
     }
-    ignore should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(supplies, Causal, access)) should be (successful)
     }
-    ignore should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(access, Causal, repairs)) should be (successful)
     }
   }

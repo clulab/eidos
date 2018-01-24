@@ -12,12 +12,12 @@ class TestCagP3 extends Test {
     val displacement = newNodeSpec("displacement")
     val people       = newNodeSpec("people", newQuantification("vulnerable"))
     
-    "p3s1" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p3s1"
+    
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, people)) should be (successful)
     }
-    ignore should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(displacement, Causal, people)) should be (successful)
     }
   }
@@ -31,18 +31,18 @@ class TestCagP3 extends Test {
     val production = newNodeSpec("agricultural production", newDecrease("reduced"))
     val insecurity = newNodeSpec("food insecurity", newQuantification("critical"))
     
-    "p3s2" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p3s2"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(impacts, Causal, production)) should be (successful)
     }
-    ignore should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(economic, Causal, production)) should be (successful)
     }
-    ignore should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, production)) should be (successful)
     }
-    ignore should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(production, Correlation, insecurity)) should be (successful)
     }
   }
@@ -50,8 +50,7 @@ class TestCagP3 extends Test {
   { // S3
     val tester = new Tester(p3s3)
   
-    "p3s3" should "not be ignored" in {
-    }
+    behavior of "p3s3"
   }
   
   { // S4
@@ -60,9 +59,9 @@ class TestCagP3 extends Test {
     val harvest = newNodeSpec("harvest")
     val prices  = newNodeSpec("food prices", newIncrease("high"))
   
-    "p3s4" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p3s4"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(harvest, Affect, prices)) should be (successful)
     }
   }
@@ -75,15 +74,15 @@ class TestCagP3 extends Test {
     val accessWater = newNodeSpec("access to clean water", newDecrease("reduction"))
     val foods       = newNodeSpec("foods", newDecrease("reduction"))
   
-    "p3s5" should "not be ignored" in {
-    }
-    ignore should "have correct edges 1" taggedAs(Somebody) in {
+    behavior of "p3s5"
+
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(economic, Causal, accessFood)) should be (successful)
     }
-    ignore should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(economic, Causal, accessWater)) should be (successful)
     }
-    ignore should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(economic, Causal, foods)) should be (successful)
     }
   }  
