@@ -18,14 +18,14 @@ object TestUtils {
     val failingTest = ignore
   }
   
-  protected val tagName = "org.clulab.wm"
+  protected val tagName = "org.clulab.wm.TestUtils"
   object Nobody extends Tag(tagName)
   object Somebody extends Tag(tagName)
   object Keith extends Tag(tagName)
   object Becky extends Tag(tagName)
   // TODO: Add other users
   
-  protected val system = new AgroSystem() // TODO: Change this class name
+  protected lazy val system = new AgroSystem() // TODO: Change this class name
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
   

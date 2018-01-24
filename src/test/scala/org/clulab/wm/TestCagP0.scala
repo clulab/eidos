@@ -4,7 +4,6 @@ import CAG._
 import TestUtils._
 
 class TestCagP0 extends Test {
-  val tester = new Tester(p0s1)
 
   behavior of "p0s1"
   
@@ -26,6 +25,8 @@ class TestCagP0 extends Test {
   failingTest should "fail" in {
     1 should be (2)
   }
+  
+  val tester = new Tester(p0s1)
   
   ignore should "have the correct triples" taggedAs(Somebody) in {
     // Should this just be "rainfall"?
