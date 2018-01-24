@@ -11,7 +11,7 @@ class TestCagP0 extends AgroTest {
   
   it should "have the correct triples" taggedAs(Keith) in {
     // Should this just be "rainfall"?
-    val rainfallNode = newNodeSpec("in rainfall", newDecrease("decrease"))
+    val rainfallNode = newNodeSpec("rainfall", newDecrease("decrease"))
     val povertyNode = newNodeSpec("poverty", newIncrease("increased", "significantly"))
     
     val rainfallPovertyEdge = newEdgeSpec(rainfallNode, povertyNode)
