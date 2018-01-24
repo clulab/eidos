@@ -7,6 +7,7 @@ class TestCagP0 extends Test {
 
   behavior of p0s1
   
+
   it should "not be ignored" in {
   }
   
@@ -30,7 +31,7 @@ class TestCagP0 extends Test {
   
   ignore should "have the correct triples" taggedAs(Somebody) in {
     // Should this just be "rainfall"?
-    val inRainfallNode = newNodeSpec("in rainfall", newDecrease("decrease"))
+    val inRainfallNode = newNodeSpec("rainfall", newDecrease("decrease"))
     val povertyNode = newNodeSpec("poverty", newIncrease("increased", "significantly"))
     
     val inRainfallPovertyEdge = newEdgeSpec(inRainfallNode, Causal, povertyNode)
