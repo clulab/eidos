@@ -43,22 +43,22 @@ class TestCagP2 extends Test {
 
     behavior of "p2s2"
 
-    passingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, foodPrices)) should be(successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(insecurity, Causal, foodPrices)) should be(successful)
     }
-    passingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(marketDisruption, Causal, foodPrices)) should be(successful)
     }
-    passingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(economic, Causal, foodPrices)) should be(successful)
     }
-    passingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(cropFailure, Causal, foodPrices)) should be(successful)
     }
-    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(hunger) should be (successful)
     }
   }
@@ -73,16 +73,16 @@ class TestCagP2 extends Test {
 
     behavior of "p2s3"
 
-    passingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, violence)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-    passingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(economic, Causal, violence)) should be (successful)
     }
-    passingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(economic, Causal, displacement)) should be (successful)
     }
   }
@@ -101,10 +101,10 @@ class TestCagP2 extends Test {
 
     behavior of "p2s4"
 
-    passingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(violence, Causal, livestock)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(displacement, Causal, delayedPlanting)) should be (successful)
     }
   }
@@ -118,10 +118,10 @@ class TestCagP2 extends Test {
 
     behavior of "p2s5"
 
-    passingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(impactsLivestock, Causal, livelihoods)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(impactsCrops, Causal, livelihoods)) should be (successful)
     }
   }  
