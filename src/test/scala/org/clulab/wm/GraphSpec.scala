@@ -105,56 +105,94 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
 }
 
 class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]) extends GraphSpec {
+  protected def testPattern = testLines(_)
+  //protected def testPattern = testStar(_)
+  
+  protected def getArgument(mention: EventMention, nodeSpec: NodeSpec, argument: String): Option[Mention] = {
+    val tmpMention = nodeSpec.mention.get
 
-  protected def matchArgument(mention: EventMention, argument: String): Boolean = {
-    val tmpMentions = cause.mention.get
-    
-    // Should it match exactly once?  Only a single cause?
     if (mention.arguments.contains(argument))
-      mention.arguments(argument).contains(tmpMentions)
+      mention.arguments(argument).find(_ == tmpMention)
     else 
-      false
+      None
   }
+    
+  protected def getCause(mention: EventMention): Option[Mention] =
+      getArgument(mention, cause, "cause")
+
+  protected def getEffect(mention: EventMention, effect: NodeSpec): Option[Mention] =
+      getArgument(mention, effect, "effect")
   
   protected def matchCause(mention: EventMention): Boolean =
-      matchArgument(mention, "cause")
+      getArgument(mention, cause, "cause") != None
+
+  protected def matchEffect(mention: EventMention, effect: NodeSpec) =
+      getArgument(mention, effect, "effect") != None
     
+  protected def matchEffect(mention: EventMention): Boolean =
+      effects.exists(effect => matchEffect(mention, effect))
+        
   protected def matchEffects(mention: EventMention): Boolean = { 
     val tmpEffects = effects.map(effect => effect.mention.get) 
  
-    // Should it match exactly once? 
     if (mention.arguments.contains("effect")) 
-      mention.arguments("effect").toSet == tmpEffects 
+      // This has to be all of them at once and only all of them
+      // Both are converted to sets for comparison
+      // If the effects can be a subset, use .sameElements(tmpEfects)
+      mention.arguments("effect").toSet == tmpEffects
     else  
       false 
-  } 
-  
+  }
+      
   protected def testSpec(mentions: Seq[Mention]): Option[Mention] = {
     val matches = mentions
         .filter(_.isInstanceOf[EventMention])
         .map(_.asInstanceOf[EventMention])
         .filter(_.labels.contains(event.label))
         .filter(matchCause(_))
-        .filter(matchEffects(_))
+        .filter(matchEffects(_)) // All of them
     
     if (matches.size == 1) Option(matches.head)
     else None
   }
-  
+    
+  protected def testLines(mentions: Seq[Mention]): Seq[String] = {
+    val matches = mentions
+        .filter(_.isInstanceOf[EventMention])
+        .map(_.asInstanceOf[EventMention])
+        .filter(_.labels.contains(event.label))
+        .filter(matchCause)
+        .filter(matchEffect(_)) // One of them
+    val badCause = matches.find(mention => getCause(mention).get != cause.mention.get).isDefined
+    val effectResults = effects.toSeq
+        .map(effect => (effect, matches.find(mention => matchEffect(mention, effect))))
+    val complaints = effectResults.flatMap(effectResult =>
+      if (effectResult._2.isDefined) Seq()
+      else Seq("Could not find line EdgeSpec " + effectResult._1 + " in mentions: " + toString(mentions))
+    )
+    
+    if (badCause) complaints ++ Seq("Not all effects had same cause")
+    else complaints
+  }
+    
+  protected def testStar(mentions: Seq[Mention]): Seq[String] =
+    if (testSpec(mentions) == None)
+      Seq("Could not find star EdgeSpec " + this + " in mentions: " + toString(mentions))
+    else 
+      Seq()
+      
   def test(mentions: Seq[Mention]): Seq[String] = {
     val causeComplaints = cause.test(mentions)
     val effectComplaints = effects.flatMap(effect => effect.test(mentions))
 
-    val causeSuccess =  causeComplaints.isEmpty
+    val causeSuccess = causeComplaints.isEmpty
     val effectSuccess = effectComplaints.isEmpty
     
-    val arrowComplaints =
-        if (causeSuccess && effectSuccess && testSpec(mentions) == None)
-          Seq("Could not find EdgeSpec " + this + " in mentions: " + toString(mentions))
-        else 
-          Seq()
+    val edgeComplaints =
+        if (causeSuccess && effectSuccess) testPattern(mentions)
+        else Seq()            
 
-    causeComplaints ++ effectComplaints ++ arrowComplaints
+    causeComplaints ++ effectComplaints ++ edgeComplaints
   }
   
   override def toString(): String = {
