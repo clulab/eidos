@@ -108,7 +108,7 @@ class AgroEntityFinder(
     * @return TextBoundMention with valid interval
     */
   def trimEntityEdges(entity: Mention): Mention = {
-
+    // println(s"trying to trim entity: ${entity.text}")
     // Check starting tag, get the location of first valid tag
     val tags = entity.document.sentences(entity.sentence).tags.get
     val startToken = entity.tokenInterval.start
@@ -124,8 +124,13 @@ class AgroEntityFinder(
     if (firstValidStart == startToken && lastValidEnd == endToken) {
       // No trimming needed because both first and last were valid
       entity
-    } else {
+    } else if (firstValidStart > lastValidEnd) {
+      // If you trimmed everything...
+      entity
+    }
+    else {
       // Return a new entity with the trimmed token interval
+      // println(s"firstValidStart = $firstValidStart, lastValidEnd = $lastValidEnd")
       val interval = Interval(firstValidStart, lastValidEnd + 1)
       new TextBoundMention(entity.labels, interval, entity.sentence, entity.document, entity.keep, entity.foundBy)
     }
@@ -150,7 +155,8 @@ class AgroEntityFinder(
   // Set of tags that we don't want to begin or end an entity
   val INVALID_EDGE_TAGS = Set[scala.util.matching.Regex](
     "^IN".r,
-    "^TO".r
+    "^TO".r,
+    "^DT".r
   )
 
 }
