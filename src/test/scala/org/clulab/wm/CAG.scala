@@ -8,9 +8,6 @@ object CAG {
   val ndash = "\u2013"
   val rsquo = "\u2019"
   
-  // This one is for testing
-  val p0s1 = "The decrease in rainfall caused significantly increased poverty."
-  
   // Note the two &ndash;
   val p1s1 = "Food insecurity levels are extremely alarming throughout the country due to conflict, a collapsing economy, low cereal production, poor rainfall in southeastern areas, and the exhaustion of coping capacities after several years of crisis."
   val p1s2raw = "In Eastern Equatoria \u2013 one of the drought-hit areas \u2013 the latest food security and nutrition assessments in November 2016 revealed that households experiencing poor food consumption nearly doubled from 19 to 37 percent when compared with the same time in 2015."
