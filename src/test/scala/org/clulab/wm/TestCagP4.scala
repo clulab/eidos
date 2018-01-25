@@ -14,10 +14,10 @@ class TestCagP4 extends Test {
     
     behavior of "p4s1"
     
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Mithun) in {
       tester.test(newEdgeSpec(cost, Causal, ability)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Mithun) in {
       tester.test(newEdgeSpec(impact, Causal, ability)) should be (successful)
     }
   }
@@ -36,7 +36,7 @@ class TestCagP4 extends Test {
   
     behavior of "p4s3"
     
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(newEdgeSpec(cost, Causal, trucking)) should be (successful)
     }
   }
@@ -48,20 +48,20 @@ class TestCagP4 extends Test {
     val expertise  = newNodeSpec("technical expertise", newDecrease("lack"))
     val supplies   = newNodeSpec("supplies", newDecrease("lack"))
     val access     = newNodeSpec("access", newDecrease("lack"))
-    val repairs    = newNodeSpec("borehole repairs", newDecrease("inhibit"))
+    val repairs    = newNodeSpec("Borehole repairs", newDecrease("inhibit"))
   
     behavior of "p4s4"
     
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Fan) in {
       tester.test(newEdgeSpec(insecurity, Causal, access)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Fan) in {
       tester.test(newEdgeSpec(expertise, Causal, access)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Fan) in {
       tester.test(newEdgeSpec(supplies, Causal, access)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Fan) in {
       tester.test(newEdgeSpec(access, Causal, repairs)) should be (successful)
     }
   }

@@ -20,7 +20,7 @@ object CAG {
   // Note the &rsquo;
   // Some sentences are separated by a single space; others, by a double space.
   val p2s1raw = "South Sudan\u2019s economic crisis has been driven by the rapidly depreciating value of the South Sudanese Pound (SSP), shortages of hard currency, global declines in oil prices and significant dependence on imports."
-  val p2s1 = p1s2raw.replaceAll(rsquo, "'")
+  val p2s1 = p2s1raw.replaceAll(rsquo, "'")
   val p2s2 = "Conflict, insecurity, market disruption, economic downturn and localized crop failures have caused record high food prices and hunger has spread to locations that were previously stable."
   val p2s3 = "Conflict and economic decline have led to violence and displacement."
   val p2s4 = "Violence has caused livestock to be looted, killed and disease-prone and crops destroyed, and displacement has caused delayed planting."

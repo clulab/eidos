@@ -8,7 +8,7 @@ class TestCagP6 extends Test {
   { // S1
     val tester = new Tester(p6s1)
 
-    val insecurity    = newNodeSpec("insecurity", newQuantification("persistent"))
+    val insecurity    = newNodeSpec("insecurity", newQuantification("Persistent"))
     val conflict      = newNodeSpec("armed conflict")
     val functionality = newNodeSpec("market functionality")
     val activities    = newNodeSpec("livelihood activities")
@@ -16,23 +16,23 @@ class TestCagP6 extends Test {
   
     behavior of "p6s1"
     
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Affect, functionality)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Causal, activities)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Causal, access)) should be (successful)
     }
     
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Becky) in {
       tester.test(newEdgeSpec(conflict, Affect, functionality)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Becky) in {
       tester.test(newEdgeSpec(conflict, Causal, activities)) should be (successful)
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    failingTest should "have correct edges 6" taggedAs(Becky) in {
       tester.test(newEdgeSpec(conflict, Causal, access)) should be (successful)
     }
   }
@@ -47,36 +47,34 @@ class TestCagP6 extends Test {
     val diet         = newNodeSpec("diet", newDecrease("poor", "extremely"))
     val coverage     = newNodeSpec("coverage of sanitation facilities", newDecrease("low"))
     val practices    = newNodeSpec("hygiene practices", newDecrease("poor"))
-    val malnutrition = newNodeSpec("acute malnutrition", newDecrease("worsened"))
+    val malnutrition = newNodeSpec("Acute malnutrition", newDecrease("worsened"))
     
     val displacement = newNodeSpec("displacement")
   
     behavior of "p6s2"
     
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Causal, malnutrition)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(newEdgeSpec(fighting, Causal, malnutrition)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(newEdgeSpec(access, Causal, malnutrition)) should be (successful)
     }
-    
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Becky) in {
       tester.test(newEdgeSpec(morbidity, Causal, malnutrition)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Becky) in {
       tester.test(newEdgeSpec(diet, Causal, malnutrition)) should be (successful)
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    failingTest should "have correct edges 6" taggedAs(Becky) in {
       tester.test(newEdgeSpec(coverage, Causal, malnutrition)) should be (successful)
     }
-    failingTest should "have correct edges 7" taggedAs(Somebody) in {
+    failingTest should "have correct edges 7" taggedAs(Becky) in {
       tester.test(newEdgeSpec(practices, Causal, malnutrition)) should be (successful)
     }
-
-    failingTest should "have correct edges 8" taggedAs(Somebody) in {
+    failingTest should "have correct edges 8" taggedAs(Becky) in {
       tester.test(newEdgeSpec(displacement, Causal, access)) should be (successful)
     }
   }
@@ -89,7 +87,7 @@ class TestCagP6 extends Test {
      
     behavior of "p6s3"
     
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(consumption, Causal, malnutrition)) should be (successful)
     }
   }
