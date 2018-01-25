@@ -9,23 +9,23 @@ class TestCagP2 extends Test {
     val tester = new Tester(p2s1)
 
     val economicCrisis = newNodeSpec("South Sudan's economic crisis")
-    val sudanesePound = newNodeSpec("South Sudanese Pound")
+    val sudanesePound = newNodeSpec("value of the South Sudanese Pound", newDecrease("depreciating", "rapidly"))
     val hardCurrency = newNodeSpec("hard currency", newDecrease("shortages"))
     val oilPrices = newNodeSpec("oil prices", newDecrease("declines"))
     val dependenceOnImports = newNodeSpec("dependence on imports", newQuantification("significant"))
     
     behavior of "p2s1"
     
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(sudanesePound, Causal, economicCrisis)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(hardCurrency, Causal, economicCrisis)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(oilPrices, Causal, economicCrisis)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(dependenceOnImports, Causal, economicCrisis)) should be (successful)
     }
   }
@@ -37,28 +37,28 @@ class TestCagP2 extends Test {
     val insecurity = newNodeSpec("insecurity")
     val marketDisruption = newNodeSpec("market disruption")
     val economic = newNodeSpec("economic", newDecrease("downturn"))
-    val cropFailure = newNodeSpec("crop", newDecrease("failure"))
+    val cropFailure = newNodeSpec("localized crop", newDecrease("failure"))
     val foodPrices = newNodeSpec("food prices", newIncrease("high", "record"))
     val hunger = newNodeSpec("hunger", newIncrease("spread"))
 
     behavior of "p2s2"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(conflict, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(insecurity, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(marketDisruption, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(cropFailure, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(hunger) should be (successful)
     }
   }
@@ -73,16 +73,16 @@ class TestCagP2 extends Test {
 
     behavior of "p2s3"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, violence)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, violence)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, displacement)) should be (successful)
     }
   }
@@ -90,7 +90,7 @@ class TestCagP2 extends Test {
   { // S4
     val tester = new Tester(p2s4)
 
-    val violence = newNodeSpec("violence")
+    val violence = newNodeSpec("Violence")
     val livestock = newNodeSpec("livestock") //todo: add more modifications when we have that functionality
     val displacement = newNodeSpec("displacement")
     val delayedPlanting = newNodeSpec("delayed planting") //todo: adjust when more mods available
@@ -101,10 +101,10 @@ class TestCagP2 extends Test {
 
     behavior of "p2s4"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(violence, Causal, livestock)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Fan) in {
       tester.test(newEdgeSpec(displacement, Causal, delayedPlanting)) should be (successful)
     }
   }
@@ -118,10 +118,10 @@ class TestCagP2 extends Test {
 
     behavior of "p2s5"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Mihai) in {
       tester.test(newEdgeSpec(impactsLivestock, Causal, livelihoods)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Mihai) in {
       tester.test(newEdgeSpec(impactsCrops, Causal, livelihoods)) should be (successful)
     }
   }  
