@@ -29,7 +29,7 @@ class TestModifications extends FlatSpec with Matchers {
     val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
     entities should have size (1)
     entities.head.attachments.head.asInstanceOf[Increase].trigger should be ("increased")
-    entities.head.text should be ("The support for agricultural research")
+    entities.head.text should be ("support for agricultural research")
 
   }
 

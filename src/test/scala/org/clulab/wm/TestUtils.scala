@@ -21,7 +21,16 @@ object TestUtils {
     object Somebody extends Tag(tagName)
     object Keith extends Tag(tagName)
     object Becky extends Tag(tagName)
-    // TODO: Add other users
+    object Egoitz extends Tag(tagName)
+    object Ajay extends Tag(tagName)
+    object Adarsh extends Tag(tagName)
+    object Mithun extends Tag(tagName)
+    object Fan extends Tag(tagName)
+    object Zheng extends Tag(tagName)
+    object Mihai extends Tag(tagName)
+
+
+
 
     val passingTest = it
     val failingTest = ignore
