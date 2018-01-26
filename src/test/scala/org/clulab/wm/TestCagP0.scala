@@ -11,7 +11,7 @@ class TestCagP0 extends Test {
     
     behavior of "a sentence with a 1:1 edge"
     
-    ignore should "have the correct triples" taggedAs(Somebody) in {
+    it should "have the correct triples" taggedAs(Somebody) in {
       val rainfall = newNodeSpec("rainfall", newDecrease("decrease"))
       val poverty = newNodeSpec("poverty", newIncrease("increased", "significantly"))
       val edge = newEdgeSpec(rainfall, Causal, poverty)
@@ -36,5 +36,4 @@ class TestCagP0 extends Test {
       tester.test(edge) should be (successful)
     }
   }
-  
 }
