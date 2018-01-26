@@ -21,13 +21,10 @@ object Affect extends Event("Affect")
 
 abstract class GraphSpec {
   def toString(mentions: Seq[Mention]): String = {
+    // See utils.DisplayUtils.displayMentions for possible better implementation
     val stringBuilder = new StringBuilder()
         .append(mentions.map(_.text).mkString(", "))
          
-    if (!mentions.isEmpty && mentions.head.document.discourseTree != None)
-      stringBuilder
-          .append("\nDiscourse tree: ")
-          .append(mentions.head.document.discourseTree.get.toString())
     stringBuilder.toString()
   }
 }
@@ -47,7 +44,6 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
     val text = mention.text
     val success = text == nodeText
     
-    println(text)
     success
   }
     
