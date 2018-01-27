@@ -96,7 +96,7 @@ object DisplayUtils {
     val boundary = s"${tab}${"-" * 30}<br>"
     sb.append(s"${mention.labels} => ${mention.text}<br>")
     sb.append(boundary)
-    //sb.append(s"${tab}Rule => ${mention.foundBy}<br>")
+    sb.append(s"${tab}Rule => ${mention.foundBy}<br>")
     val mentionType = mention.getClass.toString.split("""\.""").last
     sb.append(s"${tab}Type => $mentionType<br>")
     sb.append(boundary)
