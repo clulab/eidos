@@ -28,6 +28,7 @@ object TestUtils {
     object Fan extends Tag(tagName)
     object Zheng extends Tag(tagName)
     object Mihai extends Tag(tagName)
+    object Ben extends Tag(tagName)
 
 
 
