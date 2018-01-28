@@ -313,6 +313,17 @@ var collData = {
           {"type": "effect", "labels": ["effect"], "borderColor": "darken", "bgColor":"pink"}
          ]
       },
+
+      {
+        "type": "Affect",
+        "labels": ["AFFECT"],
+        "bgColor": "PALETURQUOISE",
+        "borderColor": "darken",
+        "arcs": [
+          {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
+          {"type": "effect", "labels": ["effect"], "borderColor": "darken", "bgColor":"pink"}
+         ]
+      }
     ]
 };
 
