@@ -30,13 +30,13 @@ class TestCagP4 extends Test {
   
   { // S3
     val tester = new Tester(p4s3)
-
+    // water trucking has decreased due to the cost of fuel
     val cost     = newNodeSpec("cost of fuel")
     val trucking = newNodeSpec("water trucking", newDecrease("decreased"))
   
     behavior of "p4s3"
     
-    failingTest should "have correct edges 1" taggedAs(Ben) in {
+    it should "have correct edges 1" taggedAs(Ben) in {
       tester.test(newEdgeSpec(cost, Causal, trucking)) should be (successful)
     }
   }
