@@ -7,7 +7,7 @@ vars:
 
   cause_triggers: "activat|allow|cataly|caus|contribut|driv|elicit|enabl|induc|initi|interconvert|lead|led|mediat|modul|produc|signal|synthes|target|trigger|underli|"
 
-  affect_triggers: "affect|impact|influenc|alter|chang|modifi|modify"
+  affect_triggers: "affect|alter|chang|impact|influenc|modifi|modify"
 
   #correlation_triggers: "associat|correlat"
   #other_triggers: "accept|direct|necess|overexpress|potenti|re-express|rescu|"
