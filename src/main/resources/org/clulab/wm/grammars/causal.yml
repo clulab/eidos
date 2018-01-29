@@ -40,8 +40,8 @@ rules:
     example: "food imports will decrease due to rainfall"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case <nmod_due_to? nsubj
-      effect: Entity = <case
+      cause: Entity = <case
+      effect: Entity = <case <nmod_due_to? nsubj
 
 # ------------------- Explicity Causal REACH --------------------------
 
