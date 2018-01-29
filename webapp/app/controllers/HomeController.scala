@@ -169,7 +169,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       .toMap
     // return brat output
     Json.obj(
-      "text" -> sent.getSentenceText(),
+      "text" -> sent.getSentenceText().replaceAll(" , ", ", "),
       "entities" -> mkJsonFromEntities(entities ++ topLevelTBM, tbMentionToId),
       "triggers" -> mkJsonFromEntities(triggers, tbMentionToId),
       "events" -> mkJsonFromEventMentions(events, tbMentionToId)
