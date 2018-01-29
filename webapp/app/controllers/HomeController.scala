@@ -76,7 +76,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     var objectToReturn = ""
 
     if(groundedEntities.size > 0){
-      objectToReturn += """<br><br><font size="3" color="cadetblue">Grounded Entities:</font>"""
+      objectToReturn += """<br><br><font size="4" color="#2471A3">Grounded Entities:</font>"""
 
       // Make the string for each grounded entity
       val toPrint = for (grounding <- groundedEntities) yield {
@@ -105,7 +105,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     // Entities
     val entities = mentions.filter(_ matches "Entity")
     if (entities.nonEmpty){
-      objectToReturn += """<br><font size="3" color="rebeccapurple">Found Entities:</font><br>"""
+      objectToReturn += """<br><font size="4" color="#2471A3">Found Entities:</font><br>"""
       for (entity <- entities) {
         objectToReturn += s"${utils.DisplayUtils.webAppMention(entity)}"
       }
@@ -114,7 +114,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     val events = mentions.filter(_ matches "Event")
     if (events.nonEmpty) {
-      objectToReturn += """<font size="3" color="green">Found Events:</font><br>"""
+      objectToReturn += """<font size="4" color="#2471A3">Found Events:</font><br>"""
       for (event <- events) {
         objectToReturn += s"${utils.DisplayUtils.webAppMention(event)}"
       }

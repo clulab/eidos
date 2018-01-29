@@ -41,7 +41,7 @@ class AgroActions extends Actions with LazyLogging {
     // remove incomplete entities (i.e. under specified when more fully specified exists)
 
     val tbMentionGroupings =
-      textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, m.label))
+      textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, reduceNounPhrases(m.label)))
 
     // remove incomplete mentions
     val completeTBMentions =
@@ -72,6 +72,14 @@ class AgroActions extends Actions with LazyLogging {
     completeTBMentions.flatten.toSeq ++ relationMentions ++ completeEventMentions.flatten.toSeq
   }
 
+  // Use to temporarily collapse noun phrase types for grouping
+  def reduceNounPhrases(s:String) = s match {
+    case "NounPhrase-Inc" => "NounPhrase"
+    case "NounPhrase-Dec" => "NounPhrase"
+    case "NounPhrase-Quant" => "NounPhrase"
+    case _ => s
+  }
+
   //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
   //Rule to add Increase/Decrease to the state of an entity
   //TODO Heather: write toy test for this
@@ -79,16 +87,21 @@ class AgroActions extends Actions with LazyLogging {
   def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = for {
     m <- ms
     //if m matches "EntityModifier"
-    attachment = getAttachment(m)
+    (attachment, npLabel) = getAttachment(m)
+
     copyWithMod = m match {
-      case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
+      case tb: TextBoundMention =>
+        val copyLabels = Seq(npLabel) ++ m.labels
+        tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod", labels = copyLabels)
       // Here, we want to keep the theme that is being modified, not the modification event itself
       case rm: RelationMention =>
         val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
+        val copyLabels = Seq(npLabel) ++ theme.labels
+        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}", labels = copyLabels)
       case em: EventMention =>
         val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
+        val copyLabels = Seq(npLabel) ++ theme.labels
+        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}", labels = copyLabels)
     }
   } yield copyWithMod
 
@@ -100,22 +113,22 @@ class AgroActions extends Actions with LazyLogging {
   }
 
 
-  def getAttachment(m: Mention): Attachment = {
+  def getAttachment(m: Mention): (Attachment, String) = {
     m.label match {
       case "Quantification" => {
         val quantifier = m.asInstanceOf[EventMention].trigger.text
-        new Quantification(quantifier)
+        (new Quantification(quantifier), NP_QUANT_LABEL)
       }
       case "Increase" => {
         val quantifiers = getOptionalQuantifiers(m)
         val trigger = m.asInstanceOf[EventMention].trigger.text
-        new Increase(trigger, quantifiers)
+        (new Increase(trigger, quantifiers), NP_INC_LABEL)
       }
       case "Decrease" => {
         val quantifiers = getOptionalQuantifiers(m)
         val trigger = m.asInstanceOf[EventMention].trigger.text
         //println(s"Decrease found: ${new Decrease(trigger, quantifiers)}")
-        new Decrease(trigger, quantifiers)
+        (new Decrease(trigger, quantifiers), NP_DEC_LABEL)
       }
     }
   }
@@ -134,6 +147,9 @@ class AgroActions extends Actions with LazyLogging {
 object AgroActions extends Actions {
 
   val taxonomy = readTaxonomy("org/clulab/wm/grammars/taxonomy.yml")
+  val NP_INC_LABEL = "NounPhrase-Inc"
+  val NP_DEC_LABEL = "NounPhrase-Dec"
+  val NP_QUANT_LABEL = "NounPhrase-Quant"
 
   private def readTaxonomy(path: String): Taxonomy = {
     val url = getClass.getClassLoader.getResource(path)

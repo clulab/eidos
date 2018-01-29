@@ -2,6 +2,9 @@
   - Param
   - Agrovoc
   - NounPhrase
+    - NounPhrase-Inc
+    - NounPhrase-Dec
+    - NounPhrase-Quant
 - Transparent
 - Quantifier
 - Event:

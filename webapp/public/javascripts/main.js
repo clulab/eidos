@@ -29,7 +29,7 @@ var collData = {
         "type"   : "Quantifier",
         "labels" : ["Quantifier", "Quant"],
         // Blue is a nice colour for a person?
-        "bgColor": "lightblue",
+        "bgColor": "#AED6F1",
         // Use a slightly darker version of the bgColor for the border
         "borderColor": "darken"
     },
@@ -37,7 +37,35 @@ var collData = {
             "type"   : "NounPhrase",
             "labels" : ["NounPhrase", "NP"],
             // Blue is a nice colour for a person?
-            "bgColor": "thistle",
+            //"bgColor": "thistle",
+            "bgColor": "#CCD1D1",
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "NounPhrase-Inc",
+            "labels" : ["NounPhrase", "NP"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": "#BBDC90",
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "NounPhrase-Dec",
+            "labels" : ["NounPhrase", "NP"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": "#FC5C38",
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "NounPhrase-Quant",
+            "labels" : ["NounPhrase", "NP"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": "#85C1E9",
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -306,7 +334,7 @@ var collData = {
       {
         "type": "Causal",
         "labels": ["CAUSAL"],
-        "bgColor": "lightgreen",
+        "bgColor": "#BB8FCE",
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
@@ -317,7 +345,7 @@ var collData = {
       {
         "type": "Affect",
         "labels": ["AFFECT"],
-        "bgColor": "PALETURQUOISE",
+        "bgColor": "#F7DC6F",
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
