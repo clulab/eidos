@@ -12,12 +12,14 @@ vars:
 
 rules:
 
+  # ms: this rule must include a preposition in the trigger because "resulting in" is different from "resulting from"
+  # ms: added /^nmod_/? to capture both NPs in "These impacts on livestock and crops have resulted in ..."
   - name: reverse_causal-noun-1
     priority: ${ rulepriority }
     example: "More water resulting in an increase of productivity."
     label: ${ label }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/]
-      cause: Entity  = nsubj
+      trigger = [word=/(?i)^(${ trigger })/] (in|to|into)
+      cause: Entity  = nsubj /^nmod_/?
       effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
 
