@@ -1,5 +1,14 @@
 var bratLocation = 'assets/brat';
 
+// Color names used
+var baseNounPhraseColor = '#CCD1D1';
+var increaseNounPhraseColor = '#BBDC90';
+var decreaseNounPhraseColor = '#FC5C38';
+var quantifiedNounPhraseColor = '#85C1E9';
+var causalEventColor = '#BB8FCE';
+var affectEventColor = '#F7DC6F';
+
+
 head.js(
     // External libraries
     bratLocation + '/client/lib/jquery.min.js',
@@ -38,7 +47,7 @@ var collData = {
             "labels" : ["NounPhrase", "NP"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": "#CCD1D1",
+            "bgColor": baseNounPhraseColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -47,7 +56,7 @@ var collData = {
             "labels" : ["NounPhrase", "NP"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": "#BBDC90",
+            "bgColor": increaseNounPhraseColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -56,7 +65,7 @@ var collData = {
             "labels" : ["NounPhrase", "NP"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": "#FC5C38",
+            "bgColor": decreaseNounPhraseColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -65,7 +74,7 @@ var collData = {
             "labels" : ["NounPhrase", "NP"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": "#85C1E9",
+            "bgColor": quantifiedNounPhraseColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -334,7 +343,7 @@ var collData = {
       {
         "type": "Causal",
         "labels": ["CAUSAL"],
-        "bgColor": "#BB8FCE",
+        "bgColor": causalEventColor,
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
@@ -345,7 +354,7 @@ var collData = {
       {
         "type": "Affect",
         "labels": ["AFFECT"],
-        "bgColor": "#F7DC6F",
+        "bgColor": affectEventColor,
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
