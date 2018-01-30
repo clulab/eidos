@@ -10,7 +10,7 @@ import org.clulab.processors.{Document, Sentence}
 import agro.demo._
 import org.clulab.odin.{EventMention, Mention, RelationMention, TextBoundMention}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.AgroSystem
+import org.clulab.wm.{AgroSystem, Decrease, Increase, Quantification}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -184,7 +184,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def mkJsonFromTextBoundMention(m: TextBoundMention, i: Int): Json.JsValueWrapper = {
     Json.arr(
       s"T$i",
-      m.label,
+      HomeController.statefulRepresentation(m).label,
       Json.arr(Json.arr(m.startOffset, m.endOffset))
     )
   }
@@ -263,4 +263,33 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def tab():String = "&nbsp;&nbsp;&nbsp;&nbsp;"
+}
+
+object HomeController {
+
+  // fixme: ordering/precedence...
+  def statefulRepresentation(m: Mention): Mention = {
+    val stateAffix = m.attachments match {
+      case inc if inc.exists(a => a.isInstanceOf[Increase]) => AgroSystem.INC_LABEL_AFFIX
+      case dec if dec.exists(a => a.isInstanceOf[Decrease]) => AgroSystem.DEC_LABEL_AFFIX
+      case quant if quant.exists(a => a.isInstanceOf[Quantification]) => AgroSystem.QUANT_LABEL_AFFIX
+      case _ => ""
+    }
+
+    // If you found something, append the affix to top label and add to the Seq of labels
+    if (stateAffix.nonEmpty) {
+      val modifiedLabels = Seq(m.label ++ stateAffix) ++ m.labels
+      val out = m match {
+        case tb: TextBoundMention => m.asInstanceOf[TextBoundMention].copy(labels = modifiedLabels)
+        case rm: RelationMention => m.asInstanceOf[RelationMention].copy(labels = modifiedLabels)
+        case em: EventMention => em.copy(labels = modifiedLabels)
+      }
+
+      return out
+    }
+
+    // otherwise, return original
+    m
+  }
+
 }
