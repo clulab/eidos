@@ -107,6 +107,11 @@ object AgroSystem {
   val INTERCEPT: String = "intercept"
   val PARAM_MEAN: String = "mean"
   val PARAM_STDEV: String = "stdev"
+  // Stateful Labels used by webapp
+  val INC_LABEL_AFFIX = "-Inc"
+  val DEC_LABEL_AFFIX = "-Dec"
+  val QUANT_LABEL_AFFIX = "-Quant"
+
 
 }
 

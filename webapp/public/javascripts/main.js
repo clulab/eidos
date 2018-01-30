@@ -1,5 +1,15 @@
 var bratLocation = 'assets/brat';
 
+// Color names used
+var baseNounPhraseColor = '#CCD1D1';
+var increaseNounPhraseColor = '#BBDC90';
+var decreaseNounPhraseColor = '#FC5C38';
+var quantifierColor = '#AED6F1';
+var quantifiedNounPhraseColor = '#85C1E9';
+var causalEventColor = '#BB8FCE';
+var affectEventColor = '#F7DC6F';
+
+
 head.js(
     // External libraries
     bratLocation + '/client/lib/jquery.min.js',
@@ -29,7 +39,7 @@ var collData = {
         "type"   : "Quantifier",
         "labels" : ["Quantifier", "Quant"],
         // Blue is a nice colour for a person?
-        "bgColor": "lightblue",
+        "bgColor": quantifierColor,
         // Use a slightly darker version of the bgColor for the border
         "borderColor": "darken"
     },
@@ -37,7 +47,35 @@ var collData = {
             "type"   : "NounPhrase",
             "labels" : ["NounPhrase", "NP"],
             // Blue is a nice colour for a person?
-            "bgColor": "thistle",
+            //"bgColor": "thistle",
+            "bgColor": baseNounPhraseColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "NounPhrase-Inc",
+            "labels" : ["NounPhrase", "NP"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": increaseNounPhraseColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "NounPhrase-Dec",
+            "labels" : ["NounPhrase", "NP"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": decreaseNounPhraseColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "NounPhrase-Quant",
+            "labels" : ["NounPhrase", "NP"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": quantifiedNounPhraseColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -306,7 +344,7 @@ var collData = {
       {
         "type": "Causal",
         "labels": ["CAUSAL"],
-        "bgColor": "lightgreen",
+        "bgColor": causalEventColor,
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
@@ -317,7 +355,7 @@ var collData = {
       {
         "type": "Affect",
         "labels": ["AFFECT"],
-        "bgColor": "PALETURQUOISE",
+        "bgColor": affectEventColor,
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},

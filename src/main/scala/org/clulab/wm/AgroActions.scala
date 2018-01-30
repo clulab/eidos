@@ -72,6 +72,7 @@ class AgroActions extends Actions with LazyLogging {
     completeTBMentions.flatten.toSeq ++ relationMentions ++ completeEventMentions.flatten.toSeq
   }
 
+
   //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
   //Rule to add Increase/Decrease to the state of an entity
   //TODO Heather: write toy test for this
@@ -80,6 +81,7 @@ class AgroActions extends Actions with LazyLogging {
     m <- ms
     //if m matches "EntityModifier"
     attachment = getAttachment(m)
+
     copyWithMod = m match {
       case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
       // Here, we want to keep the theme that is being modified, not the modification event itself
