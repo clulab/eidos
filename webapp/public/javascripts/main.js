@@ -4,6 +4,7 @@ var bratLocation = 'assets/brat';
 var baseNounPhraseColor = '#CCD1D1';
 var increaseNounPhraseColor = '#BBDC90';
 var decreaseNounPhraseColor = '#FC5C38';
+var quantifierColor = '#AED6F1';
 var quantifiedNounPhraseColor = '#85C1E9';
 var causalEventColor = '#BB8FCE';
 var affectEventColor = '#F7DC6F';
@@ -38,7 +39,7 @@ var collData = {
         "type"   : "Quantifier",
         "labels" : ["Quantifier", "Quant"],
         // Blue is a nice colour for a person?
-        "bgColor": "#AED6F1",
+        "bgColor": quantifierColor,
         // Use a slightly darker version of the bgColor for the border
         "borderColor": "darken"
     },
