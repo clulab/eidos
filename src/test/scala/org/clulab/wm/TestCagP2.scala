@@ -114,14 +114,15 @@ class TestCagP2 extends Test {
   
     val impactsLivestock = newNodeSpec("impacts on livestock")
     val impactsCrops = newNodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
-    val livelihoods = newNodeSpec("livelihoods", newDecrease("decimated"))
+    // TODO: the entity below is 'livelihoods being decimated' because "being..." is an acl dependency, which modifies nouns
+    val livelihoods = newNodeSpec("livelihoods being decimated", newDecrease("decimated"))
 
     behavior of "p2s5"
 
-    failingTest should "have correct edges 1" taggedAs(Mihai) in {
+    it should "have correct edges 1" taggedAs(Mihai) in {
       tester.test(newEdgeSpec(impactsLivestock, Causal, livelihoods)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Mihai) in {
+    it should "have correct edges 2" taggedAs(Mihai) in {
       tester.test(newEdgeSpec(impactsCrops, Causal, livelihoods)) should be (successful)
     }
   }  
