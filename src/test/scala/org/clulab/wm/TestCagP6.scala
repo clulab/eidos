@@ -42,7 +42,7 @@ class TestCagP6 extends Test {
 
     val insecurity   = newNodeSpec("food insecurity", newIncrease("high", "unprecedented"))
     val fighting     = newNodeSpec("fighting", newUnmarked("widespread"))
-    val access       = newNodeSpec("access to services", newDecrease("poor"))
+    val access       = newNodeSpec("access to services", newDecrease("poor"), newQuantification("poor"))
     val morbidity    = newNodeSpec("morbidity", newIncrease("high"))
     val diet         = newNodeSpec("diet", newDecrease("poor", "extremely"))
     val coverage     = newNodeSpec("coverage of sanitation facilities", newDecrease("low"))
