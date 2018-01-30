@@ -42,7 +42,7 @@ class TestCagP6 extends Test {
 
     val insecurity   = newNodeSpec("food insecurity", newIncrease("high", "unprecedented"))
     val fighting     = newNodeSpec("fighting", newUnmarked("widespread"))
-    val access       = newNodeSpec("access to services", newDecrease("poor"))
+    val access       = newNodeSpec("access to services", newDecrease("poor"), newQuantification("poor"))
     val morbidity    = newNodeSpec("morbidity", newIncrease("high"))
     val diet         = newNodeSpec("diet", newDecrease("poor", "extremely"))
     val coverage     = newNodeSpec("coverage of sanitation facilities", newDecrease("low"))
@@ -74,7 +74,7 @@ class TestCagP6 extends Test {
     failingTest should "have correct edges 7" taggedAs(Becky) in {
       tester.test(newEdgeSpec(practices, Causal, malnutrition)) should be (successful)
     }
-    failingTest should "have correct edges 8" taggedAs(Ben) in {
+    it should "have correct edges 8" taggedAs(Ben) in {
       tester.test(newEdgeSpec(displacement, Causal, access)) should be (successful)
     }
   }
