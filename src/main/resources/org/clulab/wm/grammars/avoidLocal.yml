@@ -49,7 +49,7 @@ rules:
       #removed: support, produc
       attenu|abolish|abrog|antagon|arrest|attenu|block|deactiv|decreas|degrad|deplet|deregul|diminish|disrupt|
       down-reg|downreg|dysregul|elimin|impair|imped|inactiv|inhibit|knockdown|limit|loss|lower|negat|nullifi|
-      perturb|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shutdown|slow|starv|suppress|supress|worse/] # neg reg guys
+      perturb|poor|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shutdown|slow|starv|suppress|supress|worse/] # neg reg guys
 
 
   - name: "gradable"
