@@ -41,12 +41,24 @@ object TestUtils {
     class Tester(text: String) {
       val mentions = extractMentions(text)
       
-      def test(nodeSpec: NodeSpec): Seq[String] = nodeSpec.test(mentions)
+      protected def toString(mentions: Seq[Mention]): String = {
+        val stringBuilder = new StringBuilder()
+        
+        mentions.indices.foreach(index => stringBuilder.append(s"${index}: ${mentions(index).text}\n"))
+        stringBuilder.toString()
+      }
+    
+      protected def annotateTest(result: Seq[String]): Seq[String] =
+          if (result == successful)
+            result
+          else
+            result ++ Seq("Mentions:\n" + toString(mentions))
       
-      def test(edgeSpec: EdgeSpec): Seq[String] = edgeSpec.test(mentions)
+      def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions))
+      
+      def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions))
     }
   }
-  
   
   protected lazy val system = new AgroSystem() // TODO: Change this class name
 

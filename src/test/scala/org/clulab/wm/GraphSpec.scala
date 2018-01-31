@@ -19,15 +19,7 @@ object Origin extends Event("Origin")
 object TransparentLink extends Event("TransparentLink")
 object Affect extends Event("Affect")
 
-abstract class GraphSpec {
-  def toString(mentions: Seq[Mention]): String = {
-    // See utils.DisplayUtils.displayMentions for possible better implementation
-    val stringBuilder = new StringBuilder()
-        .append(mentions.map(_.text).mkString(", "))
-         
-    stringBuilder.toString()
-  }
-}
+abstract class GraphSpec
 
 class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends GraphSpec {
   var mention: Option[Mention] = None
@@ -62,7 +54,7 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
     if (!tested) {
       mention = testSpec(mentions)
       if (mention == None)
-        complaints = Seq("Could not find NodeSpec " + this + " in mentions: " + toString(mentions))
+        complaints = Seq("Could not find NodeSpec " + this)
       tested = true
     }
     complaints
@@ -164,7 +156,7 @@ class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]
         .map(effect => (effect, matches.find(mention => matchEffect(mention, effect))))
     val complaints = effectResults.flatMap(effectResult =>
       if (effectResult._2.isDefined) Seq()
-      else Seq("Could not find line EdgeSpec " + effectResult._1 + " in mentions: " + toString(mentions))
+      else Seq("Could not find line EdgeSpec " + effectResult._1)
     )
     
     if (badCause) complaints ++ Seq("Not all effects had same cause")
@@ -173,7 +165,7 @@ class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]
     
   protected def testStar(mentions: Seq[Mention]): Seq[String] =
     if (testSpec(mentions) == None)
-      Seq("Could not find star EdgeSpec " + this + " in mentions: " + toString(mentions))
+      Seq("Could not find star EdgeSpec " + this)
     else 
       Seq()
       

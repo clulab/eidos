@@ -74,7 +74,7 @@ class TestCagP6 extends Test {
     failingTest should "have correct edges 7" taggedAs(Becky) in {
       tester.test(newEdgeSpec(practices, Causal, malnutrition)) should be (successful)
     }
-    it should "have correct edges 8" taggedAs(Ben) in {
+    passingTest should "have correct edges 8" taggedAs(Ben) in {
       tester.test(newEdgeSpec(displacement, Causal, access)) should be (successful)
     }
   }

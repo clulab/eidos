@@ -36,7 +36,7 @@ class TestCagP4 extends Test {
   
     behavior of "p4s3"
     
-    it should "have correct edges 1" taggedAs(Ben) in {
+    passingTest should "have correct edges 1" taggedAs(Ben) in {
       tester.test(newEdgeSpec(cost, Causal, trucking)) should be (successful)
     }
   }
