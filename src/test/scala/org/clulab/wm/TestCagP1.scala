@@ -38,14 +38,14 @@ class TestCagP1 extends Test {
     val tester = new Tester(p1s2)
   
     val households = newNodeSpec("households", newIncrease("doubled"))
-    val foodConsumption = newNodeSpec("food consumption", newDecrease("poor"))
+    val foodConsumption = newNodeSpec("food consumption", newDecrease("poor"), newQuantification("poor"))
 
     behavior of "p1s2"
 
     failingTest should "have correct singleton node 1" taggedAs(Keith) in {
       tester.test(households) should be (successful)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Keith) in {
+    passingTest should "have correct singleton node 2" taggedAs(Keith) in {
       tester.test(foodConsumption) should be (successful)
     }
   }
