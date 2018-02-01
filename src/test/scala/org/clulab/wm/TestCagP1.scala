@@ -11,25 +11,25 @@ class TestCagP1 extends Test {
     val foodInsecurityLevels = newNodeSpec("Food insecurity levels") //fixme: add extra mods
     val conflict = newNodeSpec("conflict")
     val economy = newNodeSpec("economy", newDecrease("collapsing"))
-    val cerealProduction = newNodeSpec("cereal production", newDecrease("low"))
-    val rainfall = newNodeSpec("rainfall in southeastern areas", newDecrease("poor"))
+    val cerealProduction = newNodeSpec("cereal production", newDecrease("low"), newQuantification("low"))
+    val rainfall = newNodeSpec("rainfall in southeastern areas", newDecrease("poor"), newQuantification("poor"))
     val copingCapacities = newNodeSpec("coping capacities", newDecrease("exhaustion"))
 
     behavior of "p1s1"
 
-    failingTest should "have correct edges 1" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(conflict, Causal, foodInsecurityLevels)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(economy, Causal, foodInsecurityLevels)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(cerealProduction, Causal, foodInsecurityLevels)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 4" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(rainfall, Causal, foodInsecurityLevels)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 5" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(copingCapacities, Causal, foodInsecurityLevels)) should be (successful)
     }
   }

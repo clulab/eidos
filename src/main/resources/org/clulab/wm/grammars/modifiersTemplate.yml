@@ -128,3 +128,13 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       theme: Entity = /${ preps }$/? /${ conjunctions }|${ noun_modifiers }/{1,2}
       quantifier:Quantifier? = ${ quant_modifiers }
+
+  - name: ${ label }_ported_syntax_3_noun
+    priority: ${ objrulepriority }
+    example: "exhaustion of copying capacities"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = acl_of dobj
+      quantifier:Quantifier? = ${ quant_modifiers }
