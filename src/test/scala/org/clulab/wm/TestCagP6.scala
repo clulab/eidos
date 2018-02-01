@@ -11,7 +11,7 @@ class TestCagP6 extends Test {
     val insecurity    = newNodeSpec("insecurity", newQuantification("Persistent"))
     val conflict      = newNodeSpec("armed conflict")
     val functionality = newNodeSpec("market functionality")
-    val activities    = newNodeSpec("livelihood activities")
+    val activities    = newNodeSpec("livelihood activities", newDecrease("disrupted"))
     val access        = newNodeSpec("physical access to markets")
   
     behavior of "p6s1"
@@ -19,7 +19,7 @@ class TestCagP6 extends Test {
     failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Affect, functionality)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Becky) in {
+    passingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Causal, activities)) should be (successful)
     }
     failingTest should "have correct edges 3" taggedAs(Becky) in {
