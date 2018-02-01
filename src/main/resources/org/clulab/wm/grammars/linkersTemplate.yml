@@ -56,7 +56,9 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
-      cause: Entity = <xcomp? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
+      cause: Entity = </xcomp|advcl/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
+
+
 
 
 
@@ -68,7 +70,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       effect: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
-      cause: Entity = <xcomp? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+      cause: Entity = </xcomp|advcl/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
   # Note: Captures passive voice; thus verb must be VBD|VBN
