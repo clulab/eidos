@@ -31,8 +31,8 @@ rules:
     example: "food imports will decrease due to rainfall today"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <advmod <nmod_due_to? nsubj
-      effect: Entity = nmod_to
+      cause: Entity = nmod_to (${ conjunctions })?
+      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
 
   - name: dueToSyntax2-${addlabel}
     priority: ${rulepriority}
@@ -42,6 +42,16 @@ rules:
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case
       effect: Entity = <case <nmod_due_to? nsubj
+
+  - name: dueToSyntax3-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: "food imports will decrease due to the exhaustion of coping capacities"
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
+      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
+
 
 # ------------------- Explicity Causal REACH --------------------------
 

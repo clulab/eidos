@@ -54,7 +54,7 @@ class AgroActions extends Actions with LazyLogging {
     // We need to remove underspecified EventMentions of near-duplicate groupings
     // (ex. same phospho, but one is missing a site)
     val eventMentionGroupings =
-      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.trigger, m.label))
+      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.trigger, m.label, m.tokenInterval))
 
     // remove incomplete mentions
     val completeEventMentions =
