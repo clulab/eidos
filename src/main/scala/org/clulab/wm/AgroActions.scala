@@ -116,6 +116,7 @@ class AgroActions extends Actions with LazyLogging {
       case "Decrease" => {
         val quantifiers = getOptionalQuantifiers(m)
         val trigger = m.asInstanceOf[EventMention].trigger.text
+//        println(s"HI! i found a trigger (${trigger}) for the mention: ${m.text}")
         //println(s"Decrease found: ${new Decrease(trigger, quantifiers)}")
         new Decrease(trigger, quantifiers)
       }

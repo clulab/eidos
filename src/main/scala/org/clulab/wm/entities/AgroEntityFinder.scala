@@ -28,12 +28,19 @@ class AgroEntityFinder(
     val stateFromAvoid = State(avoid)
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
     val expandedEntities: Seq[Mention] = baseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
+//    println("after expansion:")
+//    expandedEntities.foreach(e => println("\t" + e.text))
     // split entities on likely coordinations
     val splitEntities = (baseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
+//    println("after splitting:")
+//    splitEntities.foreach(e => println("\t" + e.text))
+
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
     val trimmedEntities = distinctEntities.map(trimEntityEdges)
+//    println("after trimming:")
+//    trimmedEntities.foreach(e => println("\t" + e.text))
 
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty) {
@@ -42,6 +49,8 @@ class AgroEntityFinder(
       val avoidLabel = avoid.head.labels.last
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
+//    println("after filter:")
+//    res.foreach(e => println("\t" + e.text))
 
     res
   }
