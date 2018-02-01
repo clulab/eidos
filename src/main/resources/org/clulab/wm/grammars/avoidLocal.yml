@@ -57,9 +57,8 @@ rules:
     priority: 1
     type: token
     pattern: |
-      # avoid coordinations
-      # we want any coordinated entities we might encounter to be split
-      [word = /low/]
+      # avoid gradable adjectives tagged by lexicon
+      [entity="B-Quantifier"] [entity="I-Quantifier"]*
 
   - name: "causal-triggers"
     label: Avoid
