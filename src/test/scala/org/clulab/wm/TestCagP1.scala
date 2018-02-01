@@ -13,7 +13,7 @@ class TestCagP1 extends Test {
     val economy = newNodeSpec("economy", newDecrease("collapsing"))
     val cerealProduction = newNodeSpec("cereal production", newDecrease("low"), newQuantification("low"))
     val rainfall = newNodeSpec("rainfall in southeastern areas", newDecrease("poor"), newQuantification("poor"))
-    val copingCapacities = newNodeSpec("coping capacities", newDecrease("exhaustion"))
+    val copingCapacities = newNodeSpec("capacities", newDecrease("exhaustion"))
 
     behavior of "p1s1"
 
@@ -38,14 +38,14 @@ class TestCagP1 extends Test {
     val tester = new Tester(p1s2)
   
     val households = newNodeSpec("households", newIncrease("doubled"))
-    val foodConsumption = newNodeSpec("food consumption", newDecrease("poor"))
+    val foodConsumption = newNodeSpec("food consumption", newDecrease("poor"), newQuantification("poor"))
 
     behavior of "p1s2"
 
     failingTest should "have correct singleton node 1" taggedAs(Keith) in {
       tester.test(households) should be (successful)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Keith) in {
+    passingTest should "have correct singleton node 2" taggedAs(Keith) in {
       tester.test(foodConsumption) should be (successful)
     }
   }
@@ -82,7 +82,7 @@ class TestCagP1 extends Test {
 
     behavior of "p1s4"
 
-    failingTest should "have correct singleton node 1" taggedAs(Adarsh) in {
+    passingTest should "have correct singleton node 1" taggedAs(Adarsh) in {
       tester.test(rainfall) should be (successful)
     }
   } 

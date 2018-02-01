@@ -136,5 +136,5 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      theme: Entity = acl_of dobj
+      theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
