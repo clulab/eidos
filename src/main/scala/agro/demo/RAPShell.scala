@@ -2,8 +2,6 @@ package agro.demo
 
 import java.io.File
 
-import jline.console.ConsoleReader
-import jline.console.history.FileHistory
 import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
@@ -14,9 +12,53 @@ import scala.collection.immutable.ListMap
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
+
+/**
+  * Line reader to use in different environments.  The CliReader works on the command line
+  * and with sbt and supports history.  However, it doesn't work well in the IntelliJ
+  * or Eclipse IDEs (as least not with Windows).  For those, use the IdeReader.  To switch
+  * between the two, add a command line argument to get the IdeReader rather than changing
+  * the code.
+  */
+
+abstract class LineReader {
+  def readLine(): String
+}
+
+class CliReader(prompt: String, parentProperty: String, child: String) extends LineReader {
+  import jline.console.ConsoleReader
+  import jline.console.history.FileHistory
+
+  val reader = new ConsoleReader()
+  val history = new FileHistory(new File(System.getProperty(parentProperty), child))
+
+  reader.setPrompt(prompt)
+  reader.setHistory(history)
+  sys addShutdownHook {
+    reader.getTerminal.restore()
+    reader.shutdown()
+    history.flush() // flush file before exiting
+  }
+
+  override def readLine = reader.readLine
+}
+
+class IdeReader(protected var prompt: String) extends LineReader {
+  import java.util.Scanner
+
+  protected val reader = new Scanner(System.in)
+
+  override def readLine = {
+    print(prompt)
+    Console.flush()
+    reader.nextLine
+  }
+}
+
 /**
   * Interactive shell for parsing RAPs
   */
+
 object RAPShell extends App {
 
   import org.clulab.wm.Aliases._
@@ -26,13 +68,12 @@ object RAPShell extends App {
 //  val quantifierKBFile: String = config[String]("wmseed.quantifierKB")
 //  val domainParamKBFile: String = config[String]("wmseed.domainParamKB")
 
-  val history = new FileHistory(new File(System.getProperty("user.home"), ".agroshellhistory"))
-  sys addShutdownHook {
-    history.flush() // flush file before exiting
-  }
+  val reader = {
+    val prompt = "(RAP)>>> "
 
-  val reader = new ConsoleReader
-  reader.setHistory(history)
+    if (args.length == 0) new CliReader(prompt, "user.home", ".agroshellhistory")
+    else new IdeReader(prompt)
+  }
 
   val commands = ListMap(
     ":help" -> "show commands",
@@ -45,14 +86,14 @@ object RAPShell extends App {
 
   var proc = ieSystem.proc
 
-  reader.setPrompt("(RAP)>>> ")
   println("\nWelcome to the RAPShell!")
   printCommands()
 
   var running = true
 
   while (running) {
-    reader.readLine match {
+    val line = reader.readLine
+    line match {
       case ":help" =>
         printCommands()
 
@@ -67,10 +108,6 @@ object RAPShell extends App {
         extractFrom(text)
     }
   }
-
-  // manual terminal cleanup
-  reader.getTerminal.restore()
-  reader.shutdown()
 
   // summarize available commands
   def printCommands(): Unit = {
