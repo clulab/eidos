@@ -104,14 +104,6 @@ rules:
       effect: Entity = (nsubjpass /conj_|${ noun_modifiers }/{,2})
       cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${conjunctions}|${preps}|${ noun_modifiers }/{,2}
 
-#  - name: sanity_check_ported_syntax_4_verb-${addlabel}
-#    priority: ${ rulepriority }
-#    example: "Intensive cultivation will be caused by a shrinking agriculture land base"
-#    label: ${ label }
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
-#      effect: Entity = (nsubjpass /conj_|${ noun_modifiers }/{,2})
-#      cause: Entity = /nmod_agent/ /nmod_agent/
 
   - name: ported_syntax_5_verb-${addlabel}
     priority: ${ rulepriority }
