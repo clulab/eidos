@@ -89,7 +89,7 @@ object RAPShell extends App {
     val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
 
     // debug display the mentions
-    displayMentions(mentions, doc)
+    displayMentions(mentions, doc, true)
 
     // pretty display
 //    prettyDisplay(mentions, doc)

@@ -8,13 +8,15 @@ import org.clulab.processors.{Document, Sentence}
 object DisplayUtils {
 
 
-  def displayMentions(mentions: Seq[Mention], doc: Document): Unit = {
+  def displayMentions(mentions: Seq[Mention], doc: Document, printDeps: Boolean = false): Unit = {
     val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
     for ((s, i) <- doc.sentences.zipWithIndex) {
       println(s"sentence #$i")
       println(s.getSentenceText)
       println("Tokens: " + (s.words.indices, s.words, s.tags.get).zipped.mkString(", "))
-//      printSyntacticDependencies(s)
+      if(printDeps){
+          printSyntacticDependencies(s)
+      }
       println
 
       val sortedMentions = mentionsBySentence(i).sortBy(_.label)
