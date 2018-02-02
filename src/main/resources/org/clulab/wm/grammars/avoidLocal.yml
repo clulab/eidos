@@ -25,8 +25,8 @@ rules:
     example: "X HINDERS Y."
     type: token
     pattern: |
-      # avoid verbs with arguments but maintain copula
-      [outgoing=/^nsubj/ & ! outgoing=/cop/]
+      # avoid verbs with arguments
+      [outgoing=/^nsubj/ & tag=/^V/]
 
   - name: "references-et-al"
     label: Avoid
