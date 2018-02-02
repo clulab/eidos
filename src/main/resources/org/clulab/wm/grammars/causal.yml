@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   noun_modifiers: "amod|compound|dep|name"
@@ -41,7 +41,7 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case
-      effect: Entity = <case <nmod_due_to? nsubj
+      effect: Entity = <case <nmod_due_to? /${agents}/ /${ preps }/{,2}
 
   - name: dueToSyntax3-${addlabel}
     priority: ${rulepriority}

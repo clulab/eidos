@@ -103,7 +103,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^${ trigger }/ & tag=/^J/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]   #word=/(?i)^(${ trigger })/
       theme: Entity = <${ noun_modifiers }
       quantifier: Quantifier? = ${quant_modifiers}
 

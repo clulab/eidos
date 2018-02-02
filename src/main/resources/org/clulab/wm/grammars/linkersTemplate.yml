@@ -8,6 +8,7 @@ vars:
   preps: "nmod_of|nmod_in|nmod_to"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
+  passive_agents: "nmod_by|nmod_agent|agent"
   # Todo: nmod_from "X will follow from Y"
 
 rules:
@@ -101,7 +102,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
       effect: Entity = (nsubjpass /conj_|${ noun_modifiers }/{,2})
-      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /nmod_by|agent/ /conj_|${ noun_modifiers }/{,2}
+      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${conjunctions}|${preps}|${ noun_modifiers }/{,2}
 
 
   - name: ported_syntax_5_verb-${addlabel}

@@ -27,13 +27,19 @@ class AgroEntityFinder(
     val avoid = avoidEngine.extractFrom(doc)
     val stateFromAvoid = State(avoid)
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
+
+
     val expandedEntities: Seq[Mention] = baseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
+
     // split entities on likely coordinations
     val splitEntities = (baseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
+
+
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
     val trimmedEntities = distinctEntities.map(trimEntityEdges)
+
 
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty) {
@@ -42,6 +48,7 @@ class AgroEntityFinder(
       val avoidLabel = avoid.head.labels.last
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
+
 
     res
   }
@@ -97,7 +104,7 @@ class AgroEntityFinder(
     "^acl$".r, // replaces vmod
     // Changed from processors......
     "^nmod".r, // replaces prep_
-    "case".r
+//    "case".r
   )
 
   // Todo: currently does not work for cross-sentence mentions, add functionality
