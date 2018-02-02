@@ -73,16 +73,18 @@ rules:
       cause: Entity = </xcomp|advcl/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
-  # Note: Captures passive voice; thus verb must be VBD|VBN
-  - name: ported_syntax_2_verb-${addlabel}
-    priority: ${ rulepriority }
-    #example: "Increase in poverty was caused by the water quality."
-    example: "intensive cultivation will be caused by a shrinking land base for agriculture"
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
-      effect: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
-      cause: Entity = (agent|nmod_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+# BS: removed bc seems that passive voice is consistently captured with nsubjpass, and was mis-labeling some causal events (i.e. their polarity)
+# ex of issue: The water quality caused poverty by an increase in productivity.
+#  # Note: Captures passive voice; thus verb must be VBD|VBN
+#  - name: ported_syntax_2_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    #example: "Increase in poverty was caused by the water quality."
+#    example: "intensive cultivation will be caused by a shrinking land base for agriculture"
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
+#      effect: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+#      cause: Entity = (agent|nmod_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
 #  #Is this trying to catch parser errors??? what???
