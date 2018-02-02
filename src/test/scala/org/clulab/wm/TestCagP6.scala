@@ -83,11 +83,11 @@ class TestCagP6 extends Test {
     val tester = new Tester(p6s3)
 
     val consumption  = newNodeSpec("consumption of household production")
-    val malnutrition = newNodeSpec("acute malnutrition", newIncrease("worsened", "marginal"))
+    val malnutrition = newNodeSpec("levels of acute malnutrition", newIncrease("improvements", "marginal"))
      
     behavior of "p6s3"
     
-    failingTest should "have correct edges 1" taggedAs(Zheng) in {
+    it should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(consumption, Causal, malnutrition)) should be (successful)
     }
   }
