@@ -42,7 +42,7 @@ class TestCagP1 extends Test {
 
     behavior of "p1s2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Keith) in {
+    passingTest should "have correct singleton node 1" taggedAs(Keith) in {
       tester.test(households) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Keith) in {
