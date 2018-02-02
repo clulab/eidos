@@ -15,7 +15,7 @@ import scala.collection.mutable.ListBuffer
 
 /**
   * Line reader to use in different environments.  The CliReader works on the command line
-  * and and with sbt and supports history.  However, it doesn't work well in the IntelliJ
+  * and with sbt and supports history.  However, it doesn't work well in the IntelliJ
   * or Eclipse IDEs (as least not with Windows).  For those, use the IdeReader.  To switch
   * between the two, add a command line argument to get the IdeReader rather than changing
   * the code.
