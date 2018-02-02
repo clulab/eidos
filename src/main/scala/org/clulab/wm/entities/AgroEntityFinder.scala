@@ -27,6 +27,9 @@ class AgroEntityFinder(
     val avoid = avoidEngine.extractFrom(doc)
     val stateFromAvoid = State(avoid)
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
+//    println("before expansion:")
+//    baseEntities.foreach(e => println("\t" + e.text))
+
     val expandedEntities: Seq[Mention] = baseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
 //    println("after expansion:")
 //    expandedEntities.foreach(e => println("\t" + e.text))
@@ -106,7 +109,7 @@ class AgroEntityFinder(
     "^acl$".r, // replaces vmod
     // Changed from processors......
     "^nmod".r, // replaces prep_
-    "case".r
+//    "case".r
   )
 
   // Todo: currently does not work for cross-sentence mentions, add functionality
