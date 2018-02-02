@@ -25,7 +25,7 @@ rules:
     example: "X HINDERS Y."
     type: token
     pattern: |
-      # avoid verbs with arguments
+      # avoid verbs with arguments but maintain copula
       [outgoing=/^nsubj/ & ! outgoing=/cop/]
 
   - name: "references-et-al"
@@ -77,6 +77,14 @@ rules:
     priority: 1
     type: token
     pattern: |
-      # avoid coordinations
-      # we want any coordinated entities we might encounter to be split
+      # avoid verbal affect triggers
       [tag = /VBG/ & word = /${ affect_triggers }/]
+
+  - name: "during"
+    label: Avoid
+    priority: 1
+    type: token
+    pattern: |
+      # avoid nmod_during
+      [incoming = nmod_during]
+

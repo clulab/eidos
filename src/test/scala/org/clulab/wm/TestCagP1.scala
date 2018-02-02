@@ -54,7 +54,7 @@ class TestCagP1 extends Test {
     val tester = new Tester(p1s3)
   
     val rainfall = newNodeSpec("Rainfall", newDecrease("deficits"))
-    val shock = newNodeSpec("shock during the last agricultural season", newQuantification("major"))
+    val shock = newNodeSpec("shock", newQuantification("major"))
     val pasture = newNodeSpec("pasture")
     val waterAvailability = newNodeSpec("water availability")
     val foodProduction = newNodeSpec("local food production")
