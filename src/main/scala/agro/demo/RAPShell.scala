@@ -25,15 +25,15 @@ abstract class LineReader {
   def readLine(): String
 }
 
-class CliReader(parentProperty: String, child: String, prompt: String) extends LineReader {
+class CliReader(prompt: String, parentProperty: String, child: String) extends LineReader {
   import jline.console.ConsoleReader
   import jline.console.history.FileHistory
 
   val reader = new ConsoleReader()
   val history = new FileHistory(new File(System.getProperty(parentProperty), child))
 
-  reader.setHistory(history)
   reader.setPrompt(prompt)
+  reader.setHistory(history)
   sys addShutdownHook {
     reader.getTerminal.restore()
     reader.shutdown()
@@ -68,12 +68,12 @@ object RAPShell extends App {
 //  val quantifierKBFile: String = config[String]("wmseed.quantifierKB")
 //  val domainParamKBFile: String = config[String]("wmseed.domainParamKB")
 
-    val reader = {
-      val prompt = "(RAP)>>> "
+  val reader = {
+    val prompt = "(RAP)>>> "
 
-      if (args.length == 0) new CliReader("user.home", ".agroshellhistory", prompt)
-      else new IdeReader(prompt)
-    }
+    if (args.length == 0) new CliReader(prompt, "user.home", ".agroshellhistory")
+    else new IdeReader(prompt)
+  }
 
   val commands = ListMap(
     ":help" -> "show commands",
