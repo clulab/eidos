@@ -54,23 +54,23 @@ class TestCagP1 extends Test {
     val tester = new Tester(p1s3)
   
     val rainfall = newNodeSpec("Rainfall", newDecrease("deficits"))
-    val shock = newNodeSpec("shock", newQuantification("major"))
+    val shock = newNodeSpec("shock during the last agricultural season", newQuantification("major"))
     val pasture = newNodeSpec("pasture")
     val waterAvailability = newNodeSpec("water availability")
     val foodProduction = newNodeSpec("local food production")
 
     behavior of "p1s3"
 
-    failingTest should "have correct edges 1" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(shock, Affect, pasture)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(shock, Affect, waterAvailability)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(shock, Affect, foodProduction)) should be (successful)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
+    passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(rainfall) should be (successful)
     }
   }
