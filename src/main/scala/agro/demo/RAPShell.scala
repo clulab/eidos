@@ -77,14 +77,14 @@ object RAPShell extends App {
 
   val commands = ListMap(
     ":help" -> "show commands",
-    // ":reload" -> "reload grammar",
+    ":reload" -> "reload grammar",
     ":exit" -> "exit system"
   )
 
   // creates an extractor engine using the rules and the default actions
   val ieSystem = new AgroSystem()
 
-  var proc = ieSystem.proc
+  //var proc = ieSystem.proc // Not used
 
   println("\nWelcome to the RAPShell!")
   printCommands()
@@ -98,8 +98,7 @@ object RAPShell extends App {
         printCommands()
 
       case ":reload" =>
-        println("Not supported yet.")
-        // TODO
+        ieSystem.reload()
 
       case ":exit" | null =>
         running = false
