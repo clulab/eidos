@@ -10,58 +10,71 @@ import org.clulab.wm.entities.AgroEntityFinder
 import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams, loadGradableAdjGroundingFile, readRules}
 import Aliases._
 
-
 /**
   * Handles text processing and information extraction for Agro domain.
   */
 class AgroSystem(
-  // In order to reload, these values must be saved.
   // The first three are loaded as resources from URLs, thus the leading /
-  val   masterRulesPath:   String = "/org/clulab/wm/grammars/master.yml",
-  val  quantifierKBPath:   String = "/org/clulab/wm/quantifierKB/gradable_adj_fullmodel.kb",
-  val domainParamKBPath:   String = "/org/clulab/wm/quantifierKB/domain_parameters.kb",
   // The last two are loaded as resources from files and have no leading /
-  val    quantifierPath:   String = "org/clulab/wm/lexicons/Quantifier.tsv",
-//  val agrovocLexiconsPath: String = "org/clulab/wm/agrovoc/lexicons",
+      masterRulesPath: String = "/org/clulab/wm/grammars/master.yml",
+     quantifierKBPath: String = "/org/clulab/wm/quantifierKB/gradable_adj_fullmodel.kb",
+    domainParamKBPath: String = "/org/clulab/wm/quantifierKB/domain_parameters.kb",
+       quantifierPath: String =  "org/clulab/wm/lexicons/Quantifier.tsv",
+//agrovocLexiconsPath: String =  "org/clulab/wm/agrovoc/lexicons",
   processor: Option[Processor] = None,
   debug: Boolean = true
 ) {
   def this(x:Object) = this()
 
   // Defaults to FastNLPProcessor if no processor is given.  This is the expensive object
-  // that should not be lost on a restart.  The "rules" that the processor follows are
+  // that should not be lost on a reload.  The "rules" that the processor follows are
   // not expected to change, or if they do, the processor would be restarted.
   val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
+
+  class LoadableAttributes(
+      val entityFinder: AgroEntityFinder, 
+      val domainParamValues: Map[Param, Map[String, Double]],
+      val grounder: Map[Quantifier, Map[String, Double]],
+      val actions: AgroActions,
+      val engine: ExtractorEngine,
+      val ner: LexiconNER
+  )
   
-  protected var entityFinder: AgroEntityFinder = _
-  var domainParamValues: Map[Param, Map[String, Double]] = _
-  var grounder: Map[Quantifier, Map[String, Double]] = _
-  protected var actions: AgroActions = _
-  var engine: ExtractorEngine = _
-  var ner: LexiconNER = _
-  
-  init()
-  
-  protected def init(): Unit = {
-    // Both of these involve internal configuration files which may change.
-    entityFinder = AgroEntityFinder(maxHops = 5)    
-    // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
-    domainParamValues = loadDomainParams(domainParamKBPath)
-    // Load the gradable adj grounding KB file
-    grounder = loadGradableAdjGroundingFile(quantifierKBPath)
-    
-    val rules = readRules(masterRulesPath)
-    actions = new AgroActions
-    engine = ExtractorEngine(rules, actions) // ODIN component
-    
-    // LexiconNER for labeling domain entities
-    //TODO: agrovoc lexicons aren't in this project yet
-    // todo: the order matters, we should be taking order into account
-    //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
-    ner = LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true) //TODO: keep Quantifier...
+  object LoadableAttributes {
+    def apply(): LoadableAttributes = {
+      val rules = readRules(masterRulesPath)
+      val actions = new AgroActions
+     
+      new LoadableAttributes(
+          AgroEntityFinder(maxHops = 5), 
+          // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
+          loadDomainParams(domainParamKBPath), 
+          // Load the gradable adj grounding KB file
+          loadGradableAdjGroundingFile(quantifierKBPath), 
+          actions, 
+          ExtractorEngine(rules, actions), // ODIN component 
+          // LexiconNER for labeling domain entities
+          //TODO: agrovoc lexicons aren't in this project yet
+          // todo: the order matters, we should be taking order into account
+          //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
+          ner = LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true) //TODO: keep Quantifier...
+      )
+    }
   }
   
-  def reload() = init
+  var loadableAttributes = LoadableAttributes()
+  
+  // These public variables are accessed directly by clients and
+  // the protected variables by local methods, neither of which
+  // know they are loadable and which had better not keep copies.
+  protected def entityFinder = loadableAttributes.entityFinder
+  def domainParamValues = loadableAttributes.domainParamValues
+  def grounder = loadableAttributes.grounder
+  protected def actions = loadableAttributes.actions
+  def engine = loadableAttributes.engine
+  def ner = loadableAttributes.ner
+  
+  def reload() = loadableAttributes = LoadableAttributes()
   
   def annotate(text: String): Document = {
     val doc = proc.annotate(text)
