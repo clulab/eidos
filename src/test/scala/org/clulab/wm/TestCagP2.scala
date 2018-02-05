@@ -115,7 +115,7 @@ class TestCagP2 extends Test {
     val impactsLivestock = newNodeSpec("impacts on livestock")
     val impactsCrops = newNodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
     // TODO: the entity below is 'livelihoods being decimated' because "being..." is an acl dependency, which modifies nouns
-    val livelihoods = newNodeSpec("livelihoods being decimated", newDecrease("decimated"))
+    val livelihoods = newNodeSpec("livelihoods", newDecrease("decimated"))
 
     behavior of "p2s5"
 
