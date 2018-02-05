@@ -1,13 +1,6 @@
 taxonomy: org/clulab/wm/grammars/taxonomy.yml
 
-vars:
-  increase_triggers: "acceler|aid|augment|better|boost|doubl|elev|enhanc|greater|high|improv|increas|prolong|promot|rais|reactivat|restor|retent|stimul|support|synerg|up-regul|upregul"
-
-  decrease_triggers: "attenu|abolish|abrog|advers|antagon|arrest|attenu|block|collaps|cut|deactiv|decimat|declin|decreas|degrad|deplet|depreciat|depress|deregul|deteriorat|diminish|disrupt|down-reg|downreg|dysregul|elimin|exhaust|impair|imped|inactiv|inadequate|inhibit|knockdown|limit|less|loss|low|negat|nullifi|perturb|phase|poor|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shortage|shrink|shutdown|slow|starv|suppress|supress|worse"
-
-  cause_triggers: "activat|allow|cataly|caus|contribut|driv|elicit|enabl|induc|initi|interconvert|lead|led|mediat|modul|produc|signal|synthes|target|trigger|underli|"
-
-  affect_triggers: "affect|alter|chang|impact|influenc|modifi|modify"
+vars: org/clulab/wm/grammars/triggers.yml
 
   #correlation_triggers: "associat|correlat"
   #other_triggers: "accept|direct|necess|overexpress|potenti|re-express|rescu|"
