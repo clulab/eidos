@@ -18,20 +18,55 @@ import scala.io.BufferedSource
 //TODO: need to add polarity flipping
 
 
-case class Quantification(quantifier: Quantifier) extends Attachment
+case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends Attachment
 case class Increase(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
 case class Decrease(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
 
 
 class AgroActions extends Actions with LazyLogging {
 
-  import AgroActions._
-
   /**
     * @author Gus Hahn-Powell
     * Copies the label of the lowest overlapping entity in the taxonomy
     */
 
+  def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
+
+    // --- To distinguish between :
+    // 1. Attachments: Quantification(high,Some(Vector(record))), Increase(high,None)
+    // 2. Attachments: Quantification(high,None), Increase(high,None)
+    // --- and select 2.
+
+    val mention_attachmentSz = for (mention <- mentions) yield {
+
+      val size = if(mention.isInstanceOf[EventMention])
+                    mention.arguments.values.flatten.size
+                  else
+                    0
+
+      val modSize = if (mention.isInstanceOf[TextBoundMention])
+                        mention.attachments.size
+                    else if (mention.isInstanceOf[EventMention])
+                        mention.asInstanceOf[EventMention].arguments.values.flatten.map(arg => arg.attachments.size).sum
+                    else
+                        0
+
+      val attachArgumentsSz = (for (attachment <- mention.attachments) yield {
+        val attachmentArgSz = attachment match {
+          case quant: Quantification => if (quant.adverbs.isDefined) quant.adverbs.get.size else 0
+          case inc: Increase => if (inc.quantifier.isDefined) inc.quantifier.get.size else 0
+          case dec: Decrease => if (dec.quantifier.isDefined) dec.quantifier.get.size else 0
+          case _ => 0
+        }
+        attachmentArgSz
+      }).sum
+      (mention, (attachArgumentsSz + modSize + size)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
+    }
+
+    val maxModAttachSz = mention_attachmentSz.map(_._2).max
+    val filteredMentions = mention_attachmentSz.filter(m => m._2 == maxModAttachSz).map(_._1)
+    filteredMentions
+  }
 
   // remove incomplete EVENT Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
@@ -46,8 +81,9 @@ class AgroActions extends Actions with LazyLogging {
     // remove incomplete mentions
     val completeTBMentions =
       for ((k, tbms) <- tbMentionGroupings) yield {
-        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
-        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
+//        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
+//        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
+        val filteredTBMs = customAttachmentFilter(tbms)
         filteredTBMs
       }
 
@@ -62,10 +98,12 @@ class AgroActions extends Actions with LazyLogging {
         // max number of arguments
         val maxSize: Int = ems.map(_.arguments.values.flatten.size).max
         // max number of argument modifications
-        val maxArgMods = ems.map(em => em.arguments.values.flatten.map(arg => arg.attachments.size).sum).max
+        // todo not all attachments are equal
+//        val maxArgMods = ems.map(em => em.arguments.values.flatten.map(arg => arg.attachments.size).sum).max
 //        val maxModSize: Int = ems.map(em => em.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max).max
-        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
-          m.arguments.values.flatMap(ms => ms.map(_.attachments.size)).sum == maxArgMods)
+//        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
+//          m.arguments.values.flatMap(ms => ms.map(_.attachments.size)).sum == maxArgMods)
+        val filteredEMs = customAttachmentFilter(ems)
         filteredEMs
       }
 
@@ -106,7 +144,11 @@ class AgroActions extends Actions with LazyLogging {
     m.label match {
       case "Quantification" => {
         val quantifier = m.asInstanceOf[EventMention].trigger.text
-        new Quantification(quantifier)
+        val adverbs = m.asInstanceOf[EventMention].arguments.get("adverb") match {
+          case Some(found) => Some(found.map(_.text))
+          case None => None
+        }
+        new Quantification(quantifier, adverbs)
       }
       case "Increase" => {
         val quantifiers = getOptionalQuantifiers(m)

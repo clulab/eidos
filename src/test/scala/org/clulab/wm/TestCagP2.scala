@@ -43,22 +43,22 @@ class TestCagP2 extends Test {
 
     behavior of "p2s2"
 
-    failingTest should "have correct edges 1" taggedAs(Ajay) in {
+    passingTest should "have correct edges 1" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(conflict, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Ajay) in {
+    passingTest should "have correct edges 2" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(insecurity, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Ajay) in {
+    passingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(marketDisruption, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Ajay) in {
+    passingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Ajay) in {
+    passingTest should "have correct edges 5" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(cropFailure, Causal, foodPrices)) should be (successful)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
+    passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(hunger) should be (successful)
     }
   }

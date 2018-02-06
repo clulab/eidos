@@ -8,3 +8,14 @@ rules:
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
+
+  - name: quantification2
+    priority: ${ rulepriority }
+    example: "record high food prices"
+    label: ${ label }
+    action: ${ action }
+    type: token
+    pattern: |
+      @adverb: Quantifier?
+      (?<trigger> [mention=Quantifier])  #Find the adverbial quantifier
+      @theme: Entity #Find the adjectival quantifier being quantified :)  

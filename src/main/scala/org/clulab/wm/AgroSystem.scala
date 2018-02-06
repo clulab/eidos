@@ -1,14 +1,12 @@
 package org.clulab.wm
 
 import org.clulab.odin._
-
-import org.clulab.processors.{Document, Processor}
 import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
-
+import org.clulab.wm.Aliases._
 import org.clulab.wm.entities.AgroEntityFinder
-import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams, loadGradableAdjGroundingFile, readRules}
-import Aliases._
+import org.clulab.wm.wmutils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
 
 /**
   * Handles text processing and information extraction for Agro domain.
@@ -100,8 +98,12 @@ class AgroSystem(
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
+    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
+    val unfilteredEntities = entityFinder.extract(doc).toVector
+    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
     val res = extractEventsFrom(doc, State(entities)).distinct
+    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
     res
   }
 
