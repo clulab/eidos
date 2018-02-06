@@ -1,8 +1,4 @@
-taxonomy:
-  - Entity:
-    - NounPhrase
-  # references, tables, etc.
-  - Avoid
+taxonomy: org/clulab/wm/grammars/entities/grammar/taxonomy.yml
 
 vars: org/clulab/wm/grammars/triggers.yml
 
