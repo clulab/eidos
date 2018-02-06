@@ -101,7 +101,7 @@ class AgroEntityFinder(
     "^compound".r, // replaces nn
     "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
     // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X."
-    "^acl$".r, // replaces vmod
+    "^acl".r, // replaces vmod
     // Changed from processors......
     "^nmod".r, // replaces prep_
 //    "case".r
