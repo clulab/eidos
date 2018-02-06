@@ -9,7 +9,7 @@ import org.clulab.odin.Mention
   */
 object EntityConstraints extends LazyLogging {
 
-  val VALID_FINAL_TAG = """^(NN|VB|\-R[SR]B).*"""
+  val VALID_FINAL_TAG = """^(NN|VB|JJ|\-R[SR]B).*"""
 
   // POS tags for splitting conjunctions
   val coordPOS = Set(
