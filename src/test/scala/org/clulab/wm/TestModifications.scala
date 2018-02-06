@@ -9,7 +9,7 @@ class TestModifications extends FlatSpec with Matchers {
   //ONE Increase Event
   val sent1 = "Better and well-functioning agricultural credit and market services for both established and emerging farmers."
 
-  sent1 should "have 1 Increase attachment for 'agricultural credit' " in {
+  ignore should "have 1 Increase attachment for 'agricultural credit' " in {
 
     val mentions = extractMentions(sent1)
     val entities = mentions.filter(m => m.attachments.exists(a => a.isInstanceOf[Increase]))
