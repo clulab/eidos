@@ -4,6 +4,8 @@ taxonomy:
   # references, tables, etc.
   - Avoid
 
+vars: org/clulab/wm/grammars/triggers.yml
+
 rules:
 
   - name: "coordinations"
@@ -23,7 +25,8 @@ rules:
     type: token
     pattern: |
       # avoid verbs with arguments
-      [outgoing=/^nsubj/]
+      [outgoing=/^nsubj/ & tag=/^V/]
+      # [outgoing=/^nsubj/ & ! outgoing=/cop/]
 
   - name: "references-et-al"
     label: Avoid
@@ -33,23 +36,17 @@ rules:
       # avoid xrefs
       [tag=NNP] "et" "al." @Avoid
 
+
   # OURS HERE:
-  - name: "increase-decrease-triggers"
+  - name: "triggers"
     label: Avoid
     priority: 1
     type: token
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /increas|improv|promot|boost|better|rising|  # increase guys
-      cut|declin|decreas|degrad|deteriorat|depreciat|inadequate|less|limit|low|phase|reduc|shortage|shrink|undermine| # decrease guys
-      acceler|accept|activat|aid|allow|augment|cataly|caus|contribut|direct|driv|elev|elicit|enabl|enhanc|great|high|increas|
-      induc|initi|interconvert|lead|led|mediat|modul|necess|overexpress|potenti|prolong|promot|rais|reactivat|
-      re-express|rescu|restor|retent|signal|stimul|synerg|synthes|target|trigger|underli|up-regul|upregul| # pos reg guys,
-      #removed: support, produc
-      attenu|abolish|abrog|antagon|arrest|attenu|block|collaps|deactiv|decreas|degrad|deplet|depress|deregul|diminish|disrupt|
-      down-reg|downreg|dysregul|elimin|exhaust|impair|imped|inactiv|inhibit|knockdown|limit|loss|lower|negat|nullifi|
-      perturb|poor|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shutdown|slow|starv|suppress|supress|worse/] # neg reg guys
+      [word = /^(${increase_triggers}|${decrease_triggers}|${cause_triggers}|${affect_triggers})/] # triggers used downstream
+
 
 
   - name: "gradable"
@@ -65,7 +62,6 @@ rules:
     priority: 1
     type: token
     pattern: |
-      # avoid coordinations
-      # we want any coordinated entities we might encounter to be split
-      [word = /result|lead|due/]
+      # additional triggers
+      [word = /result|due/]
 
