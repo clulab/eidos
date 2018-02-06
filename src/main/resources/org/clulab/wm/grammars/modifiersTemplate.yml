@@ -138,3 +138,15 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_surface_VBN
+    priority: ${ objrulepriority }
+    example: "exhaustion of copying capacities"
+    label: ${ label }
+    action: ${ action }
+    type: token
+    pattern: |
+      @theme: Entity
+      [lemma=have]
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=dobj])
