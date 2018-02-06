@@ -13,11 +13,11 @@ class TestCagP4 extends Test {
     val ability = newNodeSpec("people's ability to access safe water", newDecrease("undermined"))
     
     behavior of "p4s1"
-    
-    it should "have correct edges 1" taggedAs(Mithun) in {
+
+    passingTest should "have correct edges 1" taggedAs(Mithun) in {
       tester.test(newEdgeSpec(cost, Causal, ability)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Mithun) in {
+    passingTest should "have correct edges 2" taggedAs(Mithun) in {
       tester.test(newEdgeSpec(impact, Causal, ability)) should be (successful)
     }
   }

@@ -78,12 +78,13 @@ class TestCagP3 extends Test {
     val tester = new Tester(p3s5)
 
     val economic    = newNodeSpec("economic", newDecrease("decline"))
-    val accessFood  = newNodeSpec("access to staple foods", newDecrease("reduction"))
-    val accessWater = newNodeSpec("access to clean water", newDecrease("reduction"))
+    val accessFood  = newNodeSpec("access to staple food", newDecrease("reduction"))
+    // becky: with current tokenInterval restrictions, can't have access to clean water (i.e., split interval)
+    val accessWater = newNodeSpec("clean water", newDecrease("reduction"))
     val foods       = newNodeSpec("foods", newDecrease("reduction"))
   
     behavior of "p3s5"
-
+    //waiting on "economic" fix from becky. 
     failingTest should "have correct edges 1" taggedAs(Mithun) in {
       tester.test(newEdgeSpec(economic, Causal, accessFood)) should be (successful)
     }
