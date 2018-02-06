@@ -38,7 +38,7 @@ class TestCagP2 extends Test {
     val marketDisruption = newNodeSpec("market disruption")
     val economic = newNodeSpec("economic", newDecrease("downturn"))
     val cropFailure = newNodeSpec("localized crop", newDecrease("failure"))
-    val foodPrices = newNodeSpec("food prices", newIncrease("high", "record"))
+    val foodPrices = newNodeSpec("food prices", newIncrease("high"), newQuantification("high", "record"))
     val hunger = newNodeSpec("hunger", newIncrease("spread"))
 
     behavior of "p2s2"
