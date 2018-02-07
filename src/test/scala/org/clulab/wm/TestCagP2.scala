@@ -80,10 +80,10 @@ class TestCagP2 extends Test {
     passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Ajay) in {
+    passingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, violence)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Ajay) in {
+    passingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, displacement)) should be (successful)
     }
   }
