@@ -1,8 +1,8 @@
 increase_triggers: "acceler|aid|augment|better|boost|doubl|elev|enhanc|greater|high|improv|increas|prolong|promot|rais|reactivat|restor|retent|rising|stimul|support|synerg|up-regul|upregul"
 
-decrease_triggers: "attenu|abolish|abrog|advers|antagon|arrest|attenu|block|collaps|cut|deactiv|decimat|declin|decreas|degrad|deplet|depreciat|depress|deregul|deteriorat|diminish|disrupt|down-reg|downreg|dysregul|elimin|exhaust|impair|imped|inactiv|inadequate|inhibit|knockdown|limit|less|loss|low|negat|nullifi|perturb|phase|poor|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shortage|shrink|shutdown|slow|starv|suppress|supress|undermin|worse"
+decrease_triggers: "attenu|abolish|abrog|advers|antagon|arrest|attenu|block|collaps|cut|deactiv|decimat|declin|decreas|degrad|deplet|depreciat|depress|deregul|deteriorat|diminish|disrupt|down-reg|downreg|downturn|dysregul|elimin|exhaust|impair|imped|inactiv|inadequate|inhibit|knockdown|limit|less|loss|low|negat|nullifi|perturb|phase|poor|prevent|reduc|reliev|repress|resist|restrict|revers|sequester|shortage|shrink|shutdown|slow|starv|suppress|supress|undermin|worse"
 
-cause_triggers: "activat|allow|cataly|caus|contribut|driv|elicit|enabl|induc|initi|interconvert|lead|led|mediat|mean|modul|signal|synthes|target|trigger|underli"
+cause_triggers: "activat|allow|because|cataly|caus|contribut|driv|elicit|enabl|induc|initi|interconvert|lead|led|mediat|meant|modul|signal|synthes|target|trigger|underli"
 
 nonavoid_causal_triggers: "produc"
 
