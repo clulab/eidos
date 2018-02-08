@@ -29,8 +29,7 @@ object TestUtils {
     object Zheng extends Tag(tagName)
     object Mihai extends Tag(tagName)
     object Ben extends Tag(tagName)
-
-
+    object Heather extends Tag(tagName)
 
 
     val passingTest = it
