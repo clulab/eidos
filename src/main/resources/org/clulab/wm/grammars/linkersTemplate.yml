@@ -2,6 +2,7 @@ vars:
   agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
+  adverbial_clause: "advcl"
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
@@ -57,7 +58,9 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
-      cause: Entity = <xcomp? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
+      cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
+
+
 
 
 
@@ -69,19 +72,21 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       effect: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
-      cause: Entity = <xcomp? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+      cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
-  # Note: Captures passive voice; thus verb must be VBD|VBN
-  - name: ported_syntax_2_verb-${addlabel}
-    priority: ${ rulepriority }
-    #example: "Increase in poverty was caused by the water quality."
-    example: "intensive cultivation will be caused by a shrinking land base for agriculture"
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
-      effect: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
-      cause: Entity = (agent|nmod_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+# BS: removed bc seems that passive voice is consistently captured with nsubjpass, and was mis-labeling some causal events (i.e. their polarity)
+# ex of issue: The water quality caused poverty by an increase in productivity.
+#  # Note: Captures passive voice; thus verb must be VBD|VBN
+#  - name: ported_syntax_2_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    #example: "Increase in poverty was caused by the water quality."
+#    example: "intensive cultivation will be caused by a shrinking land base for agriculture"
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
+#      effect: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+#      cause: Entity = (agent|nmod_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
 #  #Is this trying to catch parser errors??? what???

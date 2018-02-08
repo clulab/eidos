@@ -15,17 +15,17 @@ class TestCagP2 extends Test {
     val dependenceOnImports = newNodeSpec("dependence on imports", newQuantification("significant"))
     
     behavior of "p2s1"
-    
-    it should "have correct edges 1" taggedAs(Zheng) in {
+
+    passingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(sudanesePound, Causal, economicCrisis)) should be (successful)
     }
-    it should "have correct edges 2" taggedAs(Zheng) in {
+    passingTest should "have correct edges 2" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(hardCurrency, Causal, economicCrisis)) should be (successful)
     }
-    it should "have correct edges 3" taggedAs(Zheng) in {
+    passingTest should "have correct edges 3" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(oilPrices, Causal, economicCrisis)) should be (successful)
     }
-    it should "have correct edges 4" taggedAs(Zheng) in {
+    passingTest should "have correct edges 4" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(dependenceOnImports, Causal, economicCrisis)) should be (successful)
     }
   }
@@ -115,7 +115,7 @@ class TestCagP2 extends Test {
     val impactsLivestock = newNodeSpec("impacts on livestock")
     val impactsCrops = newNodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
     // TODO: the entity below is 'livelihoods being decimated' because "being..." is an acl dependency, which modifies nouns
-    val livelihoods = newNodeSpec("livelihoods being decimated", newDecrease("decimated"))
+    val livelihoods = newNodeSpec("livelihoods", newDecrease("decimated"))
 
     behavior of "p2s5"
 

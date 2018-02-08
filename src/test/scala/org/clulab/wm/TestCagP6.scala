@@ -16,7 +16,7 @@ class TestCagP6 extends Test {
   
     behavior of "p6s1"
     
-    failingTest should "have correct edges 1" taggedAs(Becky) in {
+    passingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Affect, functionality)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Becky) in {
@@ -26,10 +26,10 @@ class TestCagP6 extends Test {
       tester.test(newEdgeSpec(insecurity, Causal, access)) should be (successful)
     }
     
-    failingTest should "have correct edges 4" taggedAs(Becky) in {
+    passingTest should "have correct edges 4" taggedAs(Becky) in {
       tester.test(newEdgeSpec(conflict, Affect, functionality)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Becky) in {
+    passingTest should "have correct edges 5" taggedAs(Becky) in {
       tester.test(newEdgeSpec(conflict, Causal, activities)) should be (successful)
     }
     failingTest should "have correct edges 6" taggedAs(Becky) in {
@@ -86,8 +86,8 @@ class TestCagP6 extends Test {
     val malnutrition = newNodeSpec("levels of acute malnutrition", newIncrease("improvements", "marginal"))
      
     behavior of "p6s3"
-    
-    it should "have correct edges 1" taggedAs(Zheng) in {
+
+    passingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(newEdgeSpec(consumption, Causal, malnutrition)) should be (successful)
     }
   }

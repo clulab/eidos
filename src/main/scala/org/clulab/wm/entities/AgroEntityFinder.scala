@@ -1,9 +1,8 @@
 package org.clulab.wm.entities
 
 import com.typesafe.scalalogging.LazyLogging
-import org.clulab.openie.entities.RuleBasedEntityFinder
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
-import org.clulab.openie.ResourceUtils
+import org.clulab.wm.entities.ResourceUtils
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.wmutils.FileUtils.readRules
@@ -101,7 +100,7 @@ class AgroEntityFinder(
     "^compound".r, // replaces nn
     "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
     // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X."
-    "^acl$".r, // replaces vmod
+    "^acl".r, // replaces vmod
     // Changed from processors......
     "^nmod".r, // replaces prep_
 //    "case".r
@@ -172,7 +171,7 @@ object AgroEntityFinder extends LazyLogging {
 
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
   def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): AgroEntityFinder = {
-    val entityRules = ResourceUtils.readResource("org/clulab/openie/entities/grammar/entities.yml")
+    val entityRules = ResourceUtils.readResource("org/clulab/wm/grammars/entities/grammar/entities.yml")
     val avoidRules = readRules("/org/clulab/wm/grammars/avoidLocal.yml")
 
     val avoidEngine = ExtractorEngine(avoidRules)

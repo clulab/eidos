@@ -5,7 +5,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in"
+  preps: "nmod_of|nmod_in|nmod_to"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
 
@@ -116,7 +116,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      theme: Entity = /${ preps }/ /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = /${ preps }/{1,2} /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
   - name: ${ label }_ported_syntax_2_noun
