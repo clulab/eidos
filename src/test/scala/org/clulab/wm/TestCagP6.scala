@@ -12,6 +12,7 @@ class TestCagP6 extends Test {
     val conflict      = newNodeSpec("armed conflict")
     val functionality = newNodeSpec("market functionality")
     val activities    = newNodeSpec("livelihood activities", newDecrease("disrupted"))
+    // NOTE: changing 'limited' to 'shrunk' (see CAG.scala) necessitates adding the newDecrease to access
     val access        = newNodeSpec("physical access to markets", newDecrease("shrunk"))
   
     behavior of "p6s1"
