@@ -48,7 +48,7 @@ object CAG {
   val p5s2 = "Many have been displaced multiple times because of repeated attacks, particularly in counties such as Leer, Koch, Mayendit and Rubkona in Unity State, Fangak and Pigi County in Jonglei, and Malakal and surrounding areas in Upper Nile."
   val p5 = Array(p5s1, p5s2).mkString(SINGLE_SENTENCE_SEPARATOR)
   
-  val p6s1 = "Persistent insecurity and armed conflict have disrupted livelihood activities, affected market functionality and limited physical access to markets."
+  val p6s1 = "Persistent insecurity and armed conflict have disrupted livelihood activities, affected market functionality and shrunk physical access to markets."
   val p6s2 = "Acute malnutrition has worsened compared to the same period in 2016 due largely to the unprecedented high levels of food insecurity, widespread fighting, displacement causing poor access to services, high morbidity, extremely poor diet (in terms of both quality and quantity), low coverage of sanitation facilities and poor hygiene practices."
   val p6s3 = "While marginal improvements in levels of acute malnutrition are expected up to December 2017 due to consumption of household production, forecasts for 2018 are deeply concerning with over 1.1 million children under five expected to be acutely malnourished and 269 000 children likely to be severely malnourished."
   val p6 = Array(p6s1, p6s2, p6s3).mkString(SINGLE_SENTENCE_SEPARATOR)
