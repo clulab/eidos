@@ -12,7 +12,8 @@ class TestCagP6 extends Test {
     val conflict      = newNodeSpec("armed conflict")
     val functionality = newNodeSpec("market functionality")
     val activities    = newNodeSpec("livelihood activities", newDecrease("disrupted"))
-    val access        = newNodeSpec("physical access to markets")
+    // NOTE: changing 'limited' to 'shrunk' (see CAG.scala) necessitates adding the newDecrease to access
+    val access        = newNodeSpec("physical access to markets", newDecrease("shrunk"))
   
     behavior of "p6s1"
     
@@ -22,7 +23,7 @@ class TestCagP6 extends Test {
     passingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Causal, activities)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Becky) in {
+    passingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(newEdgeSpec(insecurity, Causal, access)) should be (successful)
     }
     
@@ -32,7 +33,7 @@ class TestCagP6 extends Test {
     passingTest should "have correct edges 5" taggedAs(Becky) in {
       tester.test(newEdgeSpec(conflict, Causal, activities)) should be (successful)
     }
-    failingTest should "have correct edges 6" taggedAs(Becky) in {
+    passingTest should "have correct edges 6" taggedAs(Becky) in {
       tester.test(newEdgeSpec(conflict, Causal, access)) should be (successful)
     }
   }
