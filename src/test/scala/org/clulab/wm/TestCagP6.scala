@@ -47,7 +47,7 @@ class TestCagP6 extends Test {
     val diet         = newNodeSpec("diet", newDecrease("poor", "extremely"))
     val coverage     = newNodeSpec("coverage of sanitation facilities", newDecrease("low"))
     val practices    = newNodeSpec("hygiene practices", newDecrease("poor"))
-    val malnutrition = newNodeSpec("Acute malnutrition", newDecrease("worsened"))
+    val malnutrition = newNodeSpec("Acute malnutrition", newDecrease("worsened")) //yes
     
     val displacement = newNodeSpec("displacement")
   
