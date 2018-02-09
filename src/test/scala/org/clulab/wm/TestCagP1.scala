@@ -61,16 +61,16 @@ class TestCagP1 extends Test {
 
     behavior of "p1s3"
 
-    failingTest should "have correct edges 1" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(shock, Affect, pasture)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(shock, Affect, waterAvailability)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(newEdgeSpec(shock, Affect, foodProduction)) should be (successful)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
+    passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(rainfall) should be (successful)
     }
   }
