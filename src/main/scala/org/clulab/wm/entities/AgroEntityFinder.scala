@@ -41,11 +41,11 @@ class AgroEntityFinder(
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
 
-    println(s"Base-entities  -- ${baseEntities.map(m => m.text).mkString(",\t")}")
-    println(s"Expanded-entities  -- ${expandedEntities.map(m => m.text).mkString(",\t")}")
-    println(s"distinct-Entities -- ${distinctEntities.map(m => m.text).mkString(",\t")}")
-    println(s"trimmed-Entities -- ${trimmedEntities.map(m => m.text).mkString(",\t")}")
-    println(s"Entities finally returned -- ${res.map(m => m.text).mkString(",\t")}")
+//    println(s"Base-entities  -- ${baseEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"Expanded-entities  -- ${expandedEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"distinct-Entities -- ${distinctEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"trimmed-Entities -- ${trimmedEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"Entities finally returned -- ${res.map(m => m.text).mkString(",\t")}")
     res
   }
 
@@ -168,7 +168,7 @@ object AgroEntityFinder extends LazyLogging {
 
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
   def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): AgroEntityFinder = {
-    val entityRules = ResourceUtils.readResource("org/clulab/wm/grammars/entities/grammar/entities.yml")
+    val entityRules = readRules("/org/clulab/wm/grammars/entities/grammar/entities.yml")
     val avoidRules = readRules("/org/clulab/wm/grammars/avoidLocal.yml")
 
     val avoidEngine = ExtractorEngine(avoidRules)

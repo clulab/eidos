@@ -1,11 +1,7 @@
 package org.clulab.wm
 
+import org.clulab.odin.{Attachment, Mention}
 import org.scalatest._
-
-import org.clulab.odin.Attachment
-import org.clulab.odin.Mention
-
-import org.clulab.wm.Aliases.Quantifier
 
 /**
   * These are the functions that we'll be testing, that import from PaperReader
@@ -74,8 +70,10 @@ object TestUtils {
   
   
   def newQuantification(quantifier: String) =
-      new Quantification(quantifier)
-  
+      new Quantification(quantifier, None)
+  def newQuantification(quantifier: String, adverbs: String*) =
+    new Quantification(quantifier, Option(adverbs.toSeq))
+
   def newDecrease(trigger: String) =
       new Decrease(trigger, None)
   def newDecrease(trigger: String, quantifiers: String*) =

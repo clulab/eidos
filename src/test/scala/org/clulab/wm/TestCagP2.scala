@@ -31,14 +31,15 @@ class TestCagP2 extends Test {
   }
 
   { // S2
+    // Todo: Many causal links are not true (since hunger is a dobj of cause) because of a bad parse.
     val tester = new Tester(p2s2)
   
     val conflict = newNodeSpec("Conflict")
     val insecurity = newNodeSpec("insecurity")
-    val marketDisruption = newNodeSpec("market disruption")
+    val marketDisruption = newNodeSpec("market", newDecrease("disruption")) //newNodeSpec("market disruption")
     val economic = newNodeSpec("economic", newDecrease("downturn"))
-    val cropFailure = newNodeSpec("localized crop", newDecrease("failure"))
-    val foodPrices = newNodeSpec("food prices", newIncrease("high", "record"))
+    val cropFailure = newNodeSpec("localized crop", newDecrease("failures"))
+    val foodPrices = newNodeSpec("food prices", newIncrease("high"), newQuantification("high", "record"))
     val hunger = newNodeSpec("hunger", newIncrease("spread"))
 
     behavior of "p2s2"
@@ -79,10 +80,10 @@ class TestCagP2 extends Test {
     passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(newEdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Ajay) in {
+    passingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, violence)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Ajay) in {
+    passingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, displacement)) should be (successful)
     }
   }

@@ -40,18 +40,25 @@ class AgroActions extends Actions with LazyLogging {
     val mention_attachmentSz = for (mention <- mentions) yield {
 
       val size = if(mention.isInstanceOf[EventMention])
-                    mention.arguments.values.flatten.size
+                    (mention.arguments.values.flatten.size * 100)
                   else
                     0
 
       val modSize = if (mention.isInstanceOf[TextBoundMention])
-                        mention.attachments.size
+                        (mention.attachments.size * 10)
                     else if (mention.isInstanceOf[EventMention])
-                        mention.asInstanceOf[EventMention].arguments.values.flatten.map(arg => arg.attachments.size).sum
+                        (mention.asInstanceOf[EventMention].arguments.values.flatten.map(arg => arg.attachments.size).sum * 10)
                     else
                         0
 
-      val attachArgumentsSz = (for (attachment <- mention.attachments) yield {
+      val attachmentsList = if (mention.isInstanceOf[TextBoundMention])
+                              Some(mention.attachments)
+                            else if (mention.isInstanceOf[EventMention])
+                              Some(mention.asInstanceOf[EventMention].arguments.values.flatten.map(m => m.attachments).flatten.toSet)
+                            else
+                              None
+
+      val attachArgumentsSz =  (for (attachment <- attachmentsList.get) yield {
         val attachmentArgSz = attachment match {
           case quant: Quantification => if (quant.adverbs.isDefined) quant.adverbs.get.size else 0
           case inc: Increase => if (inc.quantifier.isDefined) inc.quantifier.get.size else 0
@@ -60,6 +67,7 @@ class AgroActions extends Actions with LazyLogging {
         }
         attachmentArgSz
       }).sum
+
       (mention, (attachArgumentsSz + modSize + size)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
     }
 

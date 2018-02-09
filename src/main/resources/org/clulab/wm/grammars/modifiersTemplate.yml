@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj | 'nsubj:xsubj' | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   noun_modifiers: "amod|compound|dep|name"
@@ -107,6 +107,19 @@ rules:
       theme: Entity = <${ noun_modifiers }
       quantifier: Quantifier? = ${quant_modifiers}
 
+# ------------------- Copular Constructions --------------------------
+
+  - name: ported_copula_mods-${label}
+    priority: ${ modrulepriority }
+    #Original example: "A is an activator of B"
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger =   [lemma=/${ trigger }/]
+      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) nsubj
+      #todo: Quantifiers ?
+
 
 # ------------------- Nominal Triggers --------------------------
   - name: ${ label }_ported_syntax_1_noun
@@ -138,3 +151,15 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_surface_VBN
+    priority: ${ objrulepriority }
+    example: "exhaustion of copying capacities"
+    label: ${ label }
+    action: ${ action }
+    type: token
+    pattern: |
+      @theme: Entity
+      [lemma=have]
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=dobj])

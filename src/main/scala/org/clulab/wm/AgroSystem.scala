@@ -98,12 +98,12 @@ class AgroSystem(
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
-    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
+//    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
     val unfilteredEntities = entityFinder.extract(doc).toVector
-    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
     val res = extractEventsFrom(doc, State(entities)).distinct
-    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
+//    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
     res
   }
 
