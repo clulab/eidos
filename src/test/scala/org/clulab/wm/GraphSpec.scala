@@ -67,7 +67,7 @@ object Inc {
 }    
 
 class Unmarked(unmodified: Unmodified) extends AttachmentSpec(unmodified) {
-  override def toString = "+" + unmodified.quantifier + ")"
+  override def toString = "+" + unmodified.quantifier
 }
 
 object Unmarked {
