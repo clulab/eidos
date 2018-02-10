@@ -6,7 +6,7 @@ import java.io.{File, FilenameFilter, PrintWriter}
 
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
-import org.clulab.wm.AgroSystem
+import org.clulab.wm.OpenIESystem
 import utils.DisplayUtils.printMentions
 
 import scala.collection.mutable
@@ -14,7 +14,7 @@ import scala.collection.mutable.ListBuffer
 
 object ExtractFromFile  extends App {
 
-  val agroSystem = new AgroSystem()
+  val agroSystem = new OpenIESystem()
   val files = findFiles("/Users/bsharp/github/research/wmseed/src/main/resources/org/clulab/wm/rapdocs", "txt")
   val outputDir = "/Users/bsharp"
 
