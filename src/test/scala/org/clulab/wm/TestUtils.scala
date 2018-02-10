@@ -12,23 +12,22 @@ object TestUtils {
   
   // This will be a GraphTest in contrast to a RuleTest
   class Test extends FlatSpec with Matchers {
-    protected val tagName = "org.clulab.wm.TestUtils"
-    object Nobody extends Tag(tagName)
-    object Somebody extends Tag(tagName)
-    object Keith extends Tag(tagName)
-    object Becky extends Tag(tagName)
-    object Egoitz extends Tag(tagName)
-    object Ajay extends Tag(tagName)
-    object Adarsh extends Tag(tagName)
-    object Mithun extends Tag(tagName)
-    object Fan extends Tag(tagName)
-    object Zheng extends Tag(tagName)
-    object Mihai extends Tag(tagName)
-    object Ben extends Tag(tagName)
+    class TesterTag extends Tag("org.clulab.wm.TestUtils")
+    
+    object Nobody   extends TesterTag
+    object Somebody extends TesterTag
+    object Keith    extends TesterTag
+    object Becky    extends TesterTag
+    object Egoitz   extends TesterTag
+    object Ajay     extends TesterTag
+    object Adarsh   extends TesterTag
+    object Mithun   extends TesterTag
+    object Fan      extends TesterTag
+    object Zheng    extends TesterTag
+    object Mihai    extends TesterTag
+    object Ben      extends TesterTag
 
-
-
-
+    
     val passingTest = it
     val failingTest = ignore
     
@@ -53,7 +52,7 @@ object TestUtils {
       def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions))
       
       def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions))
-    }
+    }    
   }
   
   protected lazy val system = new AgroSystem() // TODO: Change this class name

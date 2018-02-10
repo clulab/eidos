@@ -14,13 +14,13 @@ class TestCagP5 extends Test {
   { // S2
     val tester = new Tester(p5s2)
 
-    val attacks = newNodeSpec("repeated attacks")
-    val many    = newNodeSpec("Many", newUnmarked("displaced"))
+    val attacks = NodeSpec("repeated attacks")
+    val many    = NodeSpec("Many", Unmarked("displaced"))
   
     behavior of "p5s2"
     
     failingTest should "have correct edges 1" taggedAs(Becky) in {
-      tester.test(newEdgeSpec(attacks, Causal, many)) should be (successful)
+      tester.test(EdgeSpec(attacks, Causal, many)) should be (successful)
     }
   }
 }

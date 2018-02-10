@@ -8,25 +8,25 @@ class TestCagP2 extends Test {
   { // S1
     val tester = new Tester(p2s1)
 
-    val economicCrisis = newNodeSpec("South Sudan's economic crisis")
-    val sudanesePound = newNodeSpec("value of the South Sudanese Pound", newDecrease("depreciating", "rapidly"))
-    val hardCurrency = newNodeSpec("hard currency", newDecrease("shortages"))
-    val oilPrices = newNodeSpec("oil prices", newDecrease("declines"))
-    val dependenceOnImports = newNodeSpec("dependence on imports", newQuantification("significant"))
+    val economicCrisis = NodeSpec("South Sudan's economic crisis")
+    val sudanesePound = NodeSpec("value of the South Sudanese Pound", Dec("depreciating", "rapidly"))
+    val hardCurrency = NodeSpec("hard currency", Dec("shortages"))
+    val oilPrices = NodeSpec("oil prices", Dec("declines"))
+    val dependenceOnImports = NodeSpec("dependence on imports", Quant("significant"))
     
     behavior of "p2s1"
 
     passingTest should "have correct edges 1" taggedAs(Zheng) in {
-      tester.test(newEdgeSpec(sudanesePound, Causal, economicCrisis)) should be (successful)
+      tester.test(EdgeSpec(sudanesePound, Causal, economicCrisis)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Zheng) in {
-      tester.test(newEdgeSpec(hardCurrency, Causal, economicCrisis)) should be (successful)
+      tester.test(EdgeSpec(hardCurrency, Causal, economicCrisis)) should be (successful)
     }
     passingTest should "have correct edges 3" taggedAs(Zheng) in {
-      tester.test(newEdgeSpec(oilPrices, Causal, economicCrisis)) should be (successful)
+      tester.test(EdgeSpec(oilPrices, Causal, economicCrisis)) should be (successful)
     }
     passingTest should "have correct edges 4" taggedAs(Zheng) in {
-      tester.test(newEdgeSpec(dependenceOnImports, Causal, economicCrisis)) should be (successful)
+      tester.test(EdgeSpec(dependenceOnImports, Causal, economicCrisis)) should be (successful)
     }
   }
 
@@ -67,18 +67,18 @@ class TestCagP2 extends Test {
   { // S3
     val tester = new Tester(p2s3)
 
-    val conflict = newNodeSpec("Conflict")
-    val economic = newNodeSpec("economic", newDecrease("decline"))
-    val violence = newNodeSpec("violence")
-    val displacement = newNodeSpec("displacement")
+    val conflict = NodeSpec("Conflict")
+    val economic = NodeSpec("economic", Dec("decline"))
+    val violence = NodeSpec("violence")
+    val displacement = NodeSpec("displacement")
 
     behavior of "p2s3"
 
     passingTest should "have correct edges 1" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(conflict, Causal, violence)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, violence)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(conflict, Causal, displacement)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
     passingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(newEdgeSpec(economic, Causal, violence)) should be (successful)
@@ -91,40 +91,40 @@ class TestCagP2 extends Test {
   { // S4
     val tester = new Tester(p2s4)
 
-    val violence = newNodeSpec("Violence")
-    val livestock = newNodeSpec("livestock") //todo: add more modifications when we have that functionality
-    val displacement = newNodeSpec("displacement")
-    val delayedPlanting = newNodeSpec("delayed planting") //todo: adjust when more mods available
+    val violence = NodeSpec("Violence")
+    val livestock = NodeSpec("livestock") //todo: add more modifications when we have that functionality
+    val displacement = NodeSpec("displacement")
+    val delayedPlanting = NodeSpec("delayed planting") //todo: adjust when more mods available
 
 
-    val node1 = newNodeSpec(null)
-    val node2 = newNodeSpec(null)
+    val node1 = NodeSpec(null)
+    val node2 = NodeSpec(null)
 
     behavior of "p2s4"
 
     passingTest should "have correct edges 1" taggedAs(Somebody) in {
-      tester.test(newEdgeSpec(violence, Causal, livestock)) should be (successful)
+      tester.test(EdgeSpec(violence, Causal, livestock)) should be (successful)
     }
     failingTest should "have correct edges 2" taggedAs(Fan) in {
-      tester.test(newEdgeSpec(displacement, Causal, delayedPlanting)) should be (successful)
+      tester.test(EdgeSpec(displacement, Causal, delayedPlanting)) should be (successful)
     }
   }
 
   { // S5
     val tester = new Tester(p2s5)
   
-    val impactsLivestock = newNodeSpec("impacts on livestock")
-    val impactsCrops = newNodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
+    val impactsLivestock = NodeSpec("impacts on livestock")
+    val impactsCrops = NodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
     // TODO: the entity below is 'livelihoods being decimated' because "being..." is an acl dependency, which modifies nouns
-    val livelihoods = newNodeSpec("livelihoods", newDecrease("decimated"))
+    val livelihoods = NodeSpec("livelihoods", Dec("decimated"))
 
     behavior of "p2s5"
 
     passingTest should "have correct edges 1" taggedAs(Mihai) in {
-      tester.test(newEdgeSpec(impactsLivestock, Causal, livelihoods)) should be (successful)
+      tester.test(EdgeSpec(impactsLivestock, Causal, livelihoods)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Mihai) in {
-      tester.test(newEdgeSpec(impactsCrops, Causal, livelihoods)) should be (successful)
+      tester.test(EdgeSpec(impactsCrops, Causal, livelihoods)) should be (successful)
     }
   }  
 }
