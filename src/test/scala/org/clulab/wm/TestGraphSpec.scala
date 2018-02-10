@@ -7,6 +7,7 @@ class TestGraphSpec extends Test {
   val povertyNode = NodeSpec("poverty", Inc("increased", "significantly"))
   val manyNode = NodeSpec("many", Unmarked("displaced")) 
   val rainfallPovertyEdge = EdgeSpec(rainfallNode, Affect, povertyNode)
+  val rainfallNoEventPovertyEdge = EdgeSpec(rainfallNode, NoEvent, povertyNode)
 
   "rainfallNode" should "have the correct string representation" in {
     rainfallNode.toString() should be ("[in rainfall|+DEC(decrease)]")    
@@ -20,7 +21,11 @@ class TestGraphSpec extends Test {
     manyNode.toString() should be ("[many|+displaced]")
   }
   
-  "rainfallPovertyEdge" should "have a string representation" in {
-    !rainfallPovertyEdge.toString().isEmpty()
+  "rainfallPovertyEdge" should "have the correct string representation" in {
+    rainfallPovertyEdge.toString() should be ("[in rainfall|+DEC(decrease)]->(Affect)->[poverty|+INC(increased, Quant: significantly)]")
+  }
+
+  "rainfallNoEventPovertyEdge" should "have the correct string representation" in {
+    rainfallNoEventPovertyEdge.toString() should be ("[in rainfall|+DEC(decrease)]->()->[poverty|+INC(increased, Quant: significantly)]")
   }
 }
