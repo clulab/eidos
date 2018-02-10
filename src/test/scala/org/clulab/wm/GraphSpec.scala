@@ -13,7 +13,7 @@ abstract class GraphSpec
 
 class EventSpec(val label: String) extends GraphSpec
 
-object NoEvent extends EventSpec(null)
+object NoEvent extends EventSpec("")
 object Causal extends EventSpec("Causal")
 object Correlation extends EventSpec("Correlation")
 object IsA extends EventSpec("IsA")
