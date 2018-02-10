@@ -7,21 +7,76 @@ import org.clulab.odin.TextBoundMention
 
 import org.clulab.wm.Aliases.Quantifier
 
-case class Unmarked(quantifier: Quantifier) extends Attachment
-  
-class Event(val label: String)
-
-object NoEvent extends Event(null)
-object Causal extends Event("Causal")
-object Correlation extends Event("Correlation")
-object IsA extends Event("IsA")
-object Origin extends Event("Origin")
-object TransparentLink extends Event("TransparentLink")
-object Affect extends Event("Affect")
+case class Unmodified(quantifier: Quantifier) extends Attachment
 
 abstract class GraphSpec
 
-class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends GraphSpec {
+class EventSpec(val label: String) extends GraphSpec
+
+object NoEvent extends EventSpec(null)
+object Causal extends EventSpec("Causal")
+object Correlation extends EventSpec("Correlation")
+object IsA extends EventSpec("IsA")
+object Origin extends EventSpec("Origin")
+object TransparentLink extends EventSpec("TransparentLink")
+object Affect extends EventSpec("Affect")
+
+class AttachmentSpec(val attachment: Attachment) extends GraphSpec {
+  protected def toString(quantifiers: Option[Seq[Quantifier]]): String = {
+    val stringBuilder = new StringBuilder()
+    
+    if (quantifiers != None)
+      stringBuilder
+          .append(", ")
+          .append(quantifiers.get.map("Quant: " + _).mkString(", "))
+    stringBuilder.toString()
+  }  
+}
+
+class Quant(quantization: Quantification) extends AttachmentSpec(quantization) {
+  override def toString = "+QUANT(" + quantization.quantifier + ")"
+}
+
+object Quant {
+  def apply(quantifier: Quantifier) =
+      new Quant(Quantification(quantifier))
+}
+
+class Dec(decrease: Decrease) extends AttachmentSpec(decrease) {
+  override def toString = "+DEC(" + decrease.trigger + toString(decrease.quantifier) + ")"  
+}
+
+object Dec {
+  def apply(trigger: String) =
+      new Dec(Decrease(trigger, None))
+  
+  def apply(trigger: String, quantifiers: String*) =
+      new Dec(Decrease(trigger, Option(quantifiers.toSeq)))
+}
+
+class Inc(increase: Increase) extends AttachmentSpec(increase) {
+  override def toString = "+INC(" + increase.trigger + toString(increase.quantifier) + ")"
+}
+
+object Inc {
+  def apply(trigger: String) =
+    new Inc(Increase(trigger, None))
+  
+  def apply(trigger: String, quantifiers: String*) =
+      new Inc(Increase(trigger, Option(quantifiers.toSeq)))
+}    
+
+class Unmarked(unmodified: Unmodified) extends AttachmentSpec(unmodified) {
+  override def toString = "+" + unmodified.quantifier + ")"
+}
+
+object Unmarked {
+  def apply(quantifier: Quantifier) =
+      new Unmarked(Unmodified(quantifier))
+}
+
+class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec]) extends GraphSpec {
+  val attachments = attachmentSpecs.map(_.attachment)
   var mention: Option[Mention] = None
   var tested = false
   var complaints = Seq[String]()
@@ -59,40 +114,27 @@ class NodeSpec(val nodeText: String, val attachments: Set[Attachment]) extends G
     }
     complaints
   }
-
-  protected def toString(quantifiers: Option[Seq[Quantifier]]): String = {
-    val stringBuilder = new StringBuilder()
-    
-    if (quantifiers != None)
-      stringBuilder
-          .append(", ")
-          .append(quantifiers.get.map(quantifier => "Quant: " + quantifier).mkString(", "))
-    stringBuilder.toString()
-  }
-  
-  protected def toString(attachment: Attachment): String = {
-    val string = attachment match {
-      case x: Decrease => "+DEC(" + x.trigger + toString(x.quantifier)
-      case x: Increase => "+INC(" + x.trigger + toString(x.quantifier)
-      case x: Quantification => "+QUANT(" + x.quantifier
-      case x: Unmarked => "+" + x.quantifier
-    }
-    string + ")"
-  }
   
   override def toString(): String = {
     val stringBuilder = new StringBuilder("[")
         .append(nodeText)
         .append(if (!attachments.isEmpty) "|" else "")
         
-    attachments.foreach(attachment => stringBuilder.append(toString(attachment)))
+    attachmentSpecs.foreach(attachmentSpec => stringBuilder.append(attachmentSpec.toString))
     stringBuilder
         .append("]")
         .toString()
   }
 }
 
-class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]) extends GraphSpec {
+object NodeSpec {
+  def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
+      new NodeSpec(nodeText, attachmentSpecs)
+  def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
+      new NodeSpec(nodeText, attachmentSpecs.toSet)  
+}
+
+class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeSpec]) extends GraphSpec {
   protected def testPattern = testLines(_)
   //protected def testPattern = testStar(_)
   
@@ -118,10 +160,10 @@ class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]
       getArgument(mention, effect, "effect") != None
     
   protected def matchEffect(mention: EventMention): Boolean =
-      effects.exists(effect => matchEffect(mention, effect))
+      effects.exists(matchEffect(mention, _))
         
   protected def matchEffects(mention: EventMention): Boolean = { 
-    val tmpEffects = effects.map(effect => effect.mention.get) 
+    val tmpEffects = effects.map(_.mention.get) 
  
     if (mention.arguments.contains("effect")) 
       // This has to be all of them at once and only all of them
@@ -171,7 +213,7 @@ class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]
       
   def test(mentions: Seq[Mention]): Seq[String] = {
     val causeComplaints = cause.test(mentions)
-    val effectComplaints = effects.flatMap(effect => effect.test(mentions))
+    val effectComplaints = effects.flatMap(_.test(mentions))
 
     val causeSuccess = causeComplaints.isEmpty
     val effectSuccess = effectComplaints.isEmpty
@@ -192,8 +234,13 @@ class EdgeSpec(val cause: NodeSpec, val event: Event, val effects: Set[NodeSpec]
             if (effects.isEmpty)
               "NoEdge"
             else
-              effects.map(effect => effect.toString()).mkString("->")
+              effects.map(_.toString()).mkString("->")
         )
         .toString()
   }
+}
+
+object EdgeSpec {
+    def apply(cause: NodeSpec, event: EventSpec, effects: NodeSpec*) =
+      new EdgeSpec(cause, event, effects.toSet)
 }
