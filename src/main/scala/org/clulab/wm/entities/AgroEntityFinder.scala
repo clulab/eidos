@@ -2,7 +2,6 @@ package org.clulab.wm.entities
 
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
-import org.clulab.wm.entities.ResourceUtils
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.wmutils.FileUtils.readRules
