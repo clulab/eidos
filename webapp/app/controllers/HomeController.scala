@@ -46,23 +46,25 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def parseSentence(sent: String) = Action {
     val (procSentence, agroMentions, groundedEntities, causalEvents) = RAPShell.processPlaySentence(ieSystem, sent) // Call the agro.demo.RAPShell.processPlaySentence
     println(s"Sentence returned from processPlaySentence : ${procSentence.getSentenceText()}")
-    val json = mkJson(procSentence, agroMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    val json = mkJson(sent, procSentence, agroMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
   }
 
-  def mkJson(sent: Sentence, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
+  def mkJson(sentenceText: String, sent: Sentence, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
     println("Found mentions (in mkJson):")
     mentions.foreach(utils.DisplayUtils.displayMention)
 
     val syntaxJsonObj = Json.obj(
-        "text" -> sent.getSentenceText(),
+        "text" -> sentenceText,
         "entities" -> mkJsonFromTokens(sent),
         "relations" -> mkJsonFromDependencies(sent)
       )
-    val agroJsonObj = mkJsonForAgro(sent, mentions)
+    val agroJsonObj = mkJsonForAgro(sentenceText, sent, mentions)
     val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents)
-    println(s"Grounded Gradable Adj: ")
-    println(s"$groundedAdjObj")
+
+    // These print the html and it's a mess to look at...
+    // println(s"Grounded Gradable Adj: ")
+    // println(s"$groundedAdjObj")
     Json.obj(
       "syntax" -> syntaxJsonObj,
       "agroMentions" -> agroJsonObj,
@@ -134,7 +136,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForAgro(sent: Sentence, mentions: Vector[Mention]): Json.JsValueWrapper = {
+  def mkJsonForAgro(sentenceText: String, sent: Sentence, mentions: Vector[Mention]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.flatMap {
       case m: TextBoundMention => Some(m)
       case _ => None
@@ -169,7 +171,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       .toMap
     // return brat output
     Json.obj(
-      "text" -> sent.getSentenceText().replaceAll(" , ", ", "),
+      "text" -> sentenceText,
       "entities" -> mkJsonFromEntities(entities ++ topLevelTBM, tbMentionToId),
       "triggers" -> mkJsonFromEntities(triggers, tbMentionToId),
       "events" -> mkJsonFromEventMentions(events, tbMentionToId)
