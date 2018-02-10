@@ -138,7 +138,6 @@ object RAPShell extends App {
     // extract mentions from annotated document
     val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
     println(s"Done extracting the mentions ... ")
-    println(s"They are : ${mentions.map(m => m.text).mkString(",\t")}")
 
     println(s"Grounding the gradable adjectives ... ")
     val groundedEntities = groundEntities(ieSystem, mentions)
