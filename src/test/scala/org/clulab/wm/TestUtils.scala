@@ -59,7 +59,7 @@ object TestUtils {
     }    
   }
   
-  protected lazy val system = new AgroSystem() // TODO: Change this class name
+  protected lazy val system = new OpenIESystem()
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text) 
 }

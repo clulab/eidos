@@ -6,14 +6,14 @@ import org.clulab.processors.{Document, Processor}
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.sequences.LexiconNER
 
-import org.clulab.wm.entities.AgroEntityFinder
+import org.clulab.wm.entities.OpenIEEntityFinder
 import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams, loadGradableAdjGroundingFile, readRules}
 import Aliases._
 
 /**
-  * Handles text processing and information extraction for Agro domain.
+  * Handles text processing and information extraction for a domain.
   */
-class AgroSystem(
+class OpenIESystem(
   // The first three are loaded as resources from URLs, thus the leading /
   // The last two are loaded as resources from files and have no leading /
       masterRulesPath: String = "/org/clulab/wm/grammars/master.yml",
@@ -32,10 +32,10 @@ class AgroSystem(
   val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
 
   class LoadableAttributes(
-      val entityFinder: AgroEntityFinder, 
+      val entityFinder: OpenIEEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
       val grounder: Map[Quantifier, Map[String, Double]],
-      val actions: AgroActions,
+      val actions: OpenIEActions,
       val engine: ExtractorEngine,
       val ner: LexiconNER
   )
@@ -43,10 +43,10 @@ class AgroSystem(
   object LoadableAttributes {
     def apply(): LoadableAttributes = {
       val rules = readRules(masterRulesPath)
-      val actions = new AgroActions
+      val actions = new OpenIEActions
      
       new LoadableAttributes(
-          AgroEntityFinder(maxHops = 5), 
+          OpenIEEntityFinder(maxHops = 5), 
           // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
           // Load the gradable adj grounding KB file
@@ -116,7 +116,7 @@ class AgroSystem(
   }
 }
 
-object AgroSystem {
+object OpenIESystem {
 
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
