@@ -34,30 +34,30 @@ class TestCagP2 extends Test {
     // Todo: Many causal links are not true (since hunger is a dobj of cause) because of a bad parse.
     val tester = new Tester(p2s2)
   
-    val conflict = newNodeSpec("Conflict")
-    val insecurity = newNodeSpec("insecurity")
-    val marketDisruption = newNodeSpec("market", newDecrease("disruption")) //newNodeSpec("market disruption")
-    val economic = newNodeSpec("economic", newDecrease("downturn"))
-    val cropFailure = newNodeSpec("localized crop", newDecrease("failures"))
-    val foodPrices = newNodeSpec("food prices", newIncrease("high"), newQuantification("high", "record"))
-    val hunger = newNodeSpec("hunger", newIncrease("spread"))
+    val conflict = NodeSpec("Conflict")
+    val insecurity = NodeSpec("insecurity")
+    val marketDisruption = NodeSpec("market", Dec("disruption")) //newNodeSpec("market disruption")
+    val economic = NodeSpec("economic", Dec("downturn"))
+    val cropFailure = NodeSpec("localized crop", Dec("failures"))
+    val foodPrices = NodeSpec("food prices", Inc("high"), Quant("high", "record"))
+    val hunger = NodeSpec("hunger", Inc("spread"))
 
     behavior of "p2s2"
 
     passingTest should "have correct edges 1" taggedAs(Ajay) in {
-      tester.test(newEdgeSpec(conflict, Causal, foodPrices)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, foodPrices)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Ajay) in {
-      tester.test(newEdgeSpec(insecurity, Causal, foodPrices)) should be (successful)
+      tester.test(EdgeSpec(insecurity, Causal, foodPrices)) should be (successful)
     }
     passingTest should "have correct edges 3" taggedAs(Ajay) in {
-      tester.test(newEdgeSpec(marketDisruption, Causal, foodPrices)) should be (successful)
+      tester.test(EdgeSpec(marketDisruption, Causal, foodPrices)) should be (successful)
     }
     passingTest should "have correct edges 4" taggedAs(Ajay) in {
-      tester.test(newEdgeSpec(economic, Causal, foodPrices)) should be (successful)
+      tester.test(EdgeSpec(economic, Causal, foodPrices)) should be (successful)
     }
     passingTest should "have correct edges 5" taggedAs(Ajay) in {
-      tester.test(newEdgeSpec(cropFailure, Causal, foodPrices)) should be (successful)
+      tester.test(EdgeSpec(cropFailure, Causal, foodPrices)) should be (successful)
     }
     passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(hunger) should be (successful)
@@ -81,10 +81,10 @@ class TestCagP2 extends Test {
       tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
     passingTest should "have correct edges 3" taggedAs(Ajay) in {
-      tester.test(newEdgeSpec(economic, Causal, violence)) should be (successful)
+      tester.test(EdgeSpec(economic, Causal, violence)) should be (successful)
     }
     passingTest should "have correct edges 4" taggedAs(Ajay) in {
-      tester.test(newEdgeSpec(economic, Causal, displacement)) should be (successful)
+      tester.test(EdgeSpec(economic, Causal, displacement)) should be (successful)
     }
   }
 

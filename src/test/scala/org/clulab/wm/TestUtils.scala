@@ -58,31 +58,4 @@ object TestUtils {
   protected lazy val system = new AgroSystem() // TODO: Change this class name
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
-  
-  def newNodeSpec(nodeText: String, attachments: Set[Attachment]) =
-      new NodeSpec(nodeText, attachments)
-  def newNodeSpec(nodeText: String, attachments: Attachment*) =
-      new NodeSpec(nodeText, attachments.toSet)
-  
-  def newEdgeSpec(cause: NodeSpec, event: Event, effects: NodeSpec*) =
-      new EdgeSpec(cause, event, effects.toSet)
-  
-  
-  def newQuantification(quantifier: String) =
-      new Quantification(quantifier, None)
-  def newQuantification(quantifier: String, adverbs: String*) =
-    new Quantification(quantifier, Option(adverbs.toSeq))
-
-  def newDecrease(trigger: String) =
-      new Decrease(trigger, None)
-  def newDecrease(trigger: String, quantifiers: String*) =
-      new Decrease(trigger, Option(quantifiers.toSeq))
-          
-  def newIncrease(trigger: String) =
-      new Increase(trigger, None)
-  def newIncrease(trigger: String, quantifiers: String*) =
-      new Increase(trigger, Option(quantifiers.toSeq))
-
-  def newUnmarked(quantifier: String) =
-      new Unmarked(quantifier)
 }
