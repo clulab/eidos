@@ -8,25 +8,21 @@ class TestCagP3 extends Test {
   { // S1
     val tester = new Tester(p3s1)
 
-    val foodInsecurity = NodeSpec("Food insecurity", Quant("severe")) // todo: add ability to have 'more'?
-    val foodInsecurityDeep = NodeSpec("Food insecurity", Inc("deepening")) // todo: add ability to have 'more'?
+    val foodInsecurity = NodeSpec("Food insecurity", Inc("deepening"), Quant("severe")) // todo: add ability to have 'more'?
     val conflict     = NodeSpec("conflict")
     val displacement = NodeSpec("displacement")
     val people       = NodeSpec("people", Quant("vulnerable"))
     
     behavior of "p3s1"
-    
-    failingTest should "have correct edges 1" taggedAs(Ajay) in {
+
+    passingTest should "have correct edges 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(conflict, Causal, people)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Ajay) in {
+    passingTest should "have correct edges 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(displacement, Causal, people)) should be (successful)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
+    passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(foodInsecurity) should be (successful)
-    }
-    failingTest should "have correct singleton node 2" taggedAs(Ajay) in {
-      tester.test(foodInsecurityDeep) should be (successful)
     }
   }
   

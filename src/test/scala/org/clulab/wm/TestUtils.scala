@@ -1,11 +1,7 @@
 package org.clulab.wm
 
+import org.clulab.odin.{Attachment, Mention}
 import org.scalatest._
-
-import org.clulab.odin.Attachment
-import org.clulab.odin.Mention
-
-import org.clulab.wm.Aliases.Quantifier
 
 /**
   * These are the functions that we'll be testing, that import from PaperReader
@@ -61,5 +57,5 @@ object TestUtils {
   
   protected lazy val system = new AgroSystem() // TODO: Change this class name
 
-  def extractMentions(text: String): Seq[Mention] = system.extractFrom(text) 
+  def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
 }

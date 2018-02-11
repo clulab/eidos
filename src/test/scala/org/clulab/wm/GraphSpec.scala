@@ -39,7 +39,9 @@ class Quant(quantization: Quantification) extends AttachmentSpec(quantization) {
 
 object Quant {
   def apply(quantifier: Quantifier) =
-      new Quant(Quantification(quantifier))
+      new Quant(Quantification(quantifier, None))
+
+  def apply(quantifier: Quantifier, adverbs: String*): Quant = new Quant(Quantification(quantifier, Option(adverbs.toSeq)))
 }
 
 class Dec(decrease: Decrease) extends AttachmentSpec(decrease) {
