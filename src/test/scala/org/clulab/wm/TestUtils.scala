@@ -30,6 +30,8 @@ object TestUtils {
     
     val passingTest = it
     val failingTest = ignore
+    val futureWorkTest = ignore // added to mark the tests that are not currently passing, but with planned changes to the
+                                // framework, they will be achievable
     
     val successful = Seq()
     
