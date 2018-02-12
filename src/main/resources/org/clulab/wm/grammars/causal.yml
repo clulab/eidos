@@ -41,7 +41,9 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case
-      effect: Entity = <case <nmod_due_to? /${agents}/ /${ preps }/{,2}
+      effect: Entity = (<case <nmod_due_to? /${agents}/ /${ preps }/{,2})|(<case <nmod_due_to)
+
+
 
   - name: dueToSyntax3-${addlabel}
     priority: ${rulepriority}
