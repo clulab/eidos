@@ -8,7 +8,7 @@ import org.clulab.wm.wmutils.FileUtils.readRules
 
 import scala.annotation.tailrec
 
-class AgroEntityFinder(
+class EidosEntityFinder(
   entityEngine: ExtractorEngine,
   avoidEngine: ExtractorEngine,
   maxHops: Int
@@ -163,16 +163,16 @@ class AgroEntityFinder(
 
 }
 
-object AgroEntityFinder extends LazyLogging {
+object EidosEntityFinder extends LazyLogging {
 
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
-  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): AgroEntityFinder = {
+  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
     val entityRules = readRules("/org/clulab/wm/grammars/entities/grammar/entities.yml")
     val avoidRules = readRules("/org/clulab/wm/grammars/avoidLocal.yml")
 
     val avoidEngine = ExtractorEngine(avoidRules)
     val entityEngine = ExtractorEngine(entityRules)
-    new AgroEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
+    new EidosEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
   }
 
 

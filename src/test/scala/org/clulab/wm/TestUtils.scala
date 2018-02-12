@@ -57,7 +57,7 @@ object TestUtils {
     }    
   }
   
-  protected lazy val system = new AgroSystem() // TODO: Change this class name
+  protected lazy val system = new EidosSystem() // TODO: Change this class name
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
 }
