@@ -3,14 +3,11 @@ package agro.demo
 import java.io.File
 
 import org.clulab.odin.{Attachment, EventMention, Mention}
-import org.clulab.processors.{Document, Sentence}
-import org.clulab.sequences.LexiconNER
+import org.clulab.processors.Sentence
 import org.clulab.wm.{AgroSystem, Decrease, Increase, Quantification}
 import utils.DisplayUtils.displayMentions
 
 import scala.collection.immutable.ListMap
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 
 /**
@@ -141,6 +138,7 @@ object RAPShell extends App {
     // extract mentions from annotated document
     val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
     println(s"Done extracting the mentions ... ")
+    println(s"They are : ${mentions.map(m => m.text).mkString(",\t")}")
 
     println(s"Grounding the gradable adjectives ... ")
     val groundedEntities = groundEntities(ieSystem, mentions)

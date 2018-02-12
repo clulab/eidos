@@ -1,3 +1,14 @@
+vars:
+  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  conjunctions: "appos|conj|conj_|cc"
+  complements: "xcomp|ccomp"
+  noun_modifiers: "amod|compound|dep|name"
+  negTriggers: "not"
+  objects: "dobj"
+  preps: "nmod_of|nmod_in|nmod_to"
+  prep_dobjs: "nmod"
+  quant_modifiers: "amod|advmod"
+
 rules:
 
   - name: quantification1
@@ -8,3 +19,24 @@ rules:
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
+
+  - name: quantification2
+    priority: ${ rulepriority }
+    example: "record high food prices"
+    label: ${ label }
+    action: ${ action }
+    type: token
+    pattern: |
+      @adverb: Quantifier?
+      (?<trigger> [mention=Quantifier])  #Find the adverbial quantifier
+      @theme: Entity #Find the adjectival quantifier being quantified :)  
+
+  - name: quantification_adjective_rule_2
+    priority:  ${ rulepriority }
+    example: "food insecurity is becoming severe"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      theme: Entity = <xcomp (${agents})
+#      adverbs: Quantifier? = ${quant_modifiers} // todo: we should allow for modification here (e.g. 'more')

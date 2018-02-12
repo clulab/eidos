@@ -14,7 +14,9 @@ object EntityConstraints extends LazyLogging {
   // POS tags for splitting conjunctions
   val coordPOS = Set(
     "CC",
-    ","
+    ",",
+    "-LRB-",
+    "-RRB-"
   )
 
   /** Ensure final token of mention span is valid */
