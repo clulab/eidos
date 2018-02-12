@@ -7,7 +7,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.processors.{Document, Processor}
 import ai.lum.common.ConfigUtils._
 import org.clulab.odin.Mention
-import org.clulab.wm.OpenIESystem
+import org.clulab.wm.EidosSystem
 import utils.DisplayUtils.displayMentions
 
 import scala.collection.mutable
@@ -32,7 +32,7 @@ object demoWMseed extends App with LazyLogging {
   logger.info(s"Document Path : $documentPath")
 
   // creates an extractor engine using the rules and the default actions
-  val extractor = new OpenIESystem(masterRulesPath = entitiesMasterFile)
+  val extractor = new EidosSystem(masterRulesPath = entitiesMasterFile)
 
   // create the processor
   val proc: Processor = extractor.proc

@@ -6,14 +6,14 @@ import org.clulab.processors.{Document, Processor}
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.sequences.LexiconNER
 
-import org.clulab.wm.entities.OpenIEEntityFinder
+import org.clulab.wm.entities.EidosEntityFinder
 import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams, loadGradableAdjGroundingFile, readRules}
 import Aliases._
 
 /**
   * Handles text processing and information extraction for a domain.
   */
-class OpenIESystem(
+class EidosSystem(
   // The first three are loaded as resources from URLs, thus the leading /
   // The last two are loaded as resources from files and have no leading /
       masterRulesPath: String = "/org/clulab/wm/grammars/master.yml",
@@ -32,10 +32,10 @@ class OpenIESystem(
   val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
 
   class LoadableAttributes(
-      val entityFinder: OpenIEEntityFinder, 
+      val entityFinder: EidosEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
       val grounder: Map[Quantifier, Map[String, Double]],
-      val actions: OpenIEActions,
+      val actions: EidosActions,
       val engine: ExtractorEngine,
       val ner: LexiconNER
   )
@@ -43,10 +43,10 @@ class OpenIESystem(
   object LoadableAttributes {
     def apply(): LoadableAttributes = {
       val rules = readRules(masterRulesPath)
-      val actions = new OpenIEActions
+      val actions = new EidosActions
      
       new LoadableAttributes(
-          OpenIEEntityFinder(maxHops = 5), 
+          EidosEntityFinder(maxHops = 5), 
           // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
           // Load the gradable adj grounding KB file
@@ -116,7 +116,7 @@ class OpenIESystem(
   }
 }
 
-object OpenIESystem {
+object EidosSystem {
 
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"

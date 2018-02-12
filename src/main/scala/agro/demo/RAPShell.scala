@@ -5,7 +5,7 @@ import java.io.File
 import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.{OpenIESystem, Decrease, Increase, Quantification}
+import org.clulab.wm.{EidosSystem, Decrease, Increase, Quantification}
 import utils.DisplayUtils.displayMentions
 
 import scala.collection.immutable.ListMap
@@ -82,7 +82,7 @@ object RAPShell extends App {
   )
 
   // creates an extractor engine using the rules and the default actions
-  val ieSystem = new OpenIESystem()
+  val ieSystem = new EidosSystem()
 
   //var proc = ieSystem.proc // Not used
 
@@ -132,7 +132,7 @@ object RAPShell extends App {
 
   }
 
-  def processPlaySentence(ieSystem: OpenIESystem, text: String): (Sentence, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
+  def processPlaySentence(ieSystem: EidosSystem, text: String): (Sentence, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
     // preprocessing
     println(s"Processing sentence : ${text}" )
     val doc = ieSystem.annotate(text)
@@ -179,12 +179,12 @@ object RAPShell extends App {
     adverb.slice(0, adverb.length - 2)
   }
 
-  def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: OpenIESystem): GroundedEntity = {
+  def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: EidosSystem): GroundedEntity = {
     val pseudoStemmed = if (quantifier.endsWith("ly")) convertToAdjective(quantifier) else quantifier
     val modelRow = ieSystem.grounder.getOrElse(pseudoStemmed, Map.empty[String, Double])
-    val intercept = modelRow.get(OpenIESystem.INTERCEPT)
-    val mu = modelRow.get(OpenIESystem.MU_COEFF)
-    val sigma = modelRow.get(OpenIESystem.SIGMA_COEFF)
+    val intercept = modelRow.get(EidosSystem.INTERCEPT)
+    val mu = modelRow.get(EidosSystem.MU_COEFF)
+    val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
 
     // add the calculation
     println("loaded domain params:" + ieSystem.domainParamValues.toString())
@@ -192,8 +192,8 @@ object RAPShell extends App {
     println(s"getting details for: ${mention.text}")
 
     val paramDetails = ieSystem.domainParamValues.get("DEFAULT").get
-    val paramMean = paramDetails.get(OpenIESystem.PARAM_MEAN)
-    val paramStdev = paramDetails.get(OpenIESystem.PARAM_STDEV)
+    val paramMean = paramDetails.get(EidosSystem.PARAM_MEAN)
+    val paramStdev = paramDetails.get(EidosSystem.PARAM_STDEV)
 
     val predictedDelta = if (modelRow.nonEmpty && paramDetails.nonEmpty){
       Some(math.pow(math.E, intercept.get + (mu.get * paramMean.get) + (sigma.get * paramStdev.get)) * paramStdev.get)
@@ -203,7 +203,7 @@ object RAPShell extends App {
   }
 
 
-  def groundEntities(ieSystem: OpenIESystem, mentions: Seq[Mention]): Vector[GroundedEntity] = {
+  def groundEntities(ieSystem: EidosSystem, mentions: Seq[Mention]): Vector[GroundedEntity] = {
     val gms = for {
       m <- mentions
       (quantifications, increases, decreases) = separateAttachments(m)

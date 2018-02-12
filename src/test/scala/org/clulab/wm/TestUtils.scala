@@ -59,7 +59,7 @@ object TestUtils {
     }    
   }
   
-  protected lazy val system = new OpenIESystem()
+  protected lazy val system = new EidosSystem()
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text) 
 }

@@ -23,9 +23,7 @@ case class Increase(trigger: String, quantifier: Option[Seq[Quantifier]] = None)
 case class Decrease(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
 
 
-class OpenIEActions extends Actions with LazyLogging {
-
-  import OpenIEActions._
+class EidosActions extends Actions with LazyLogging {
 
   /**
     * @author Gus Hahn-Powell
@@ -134,7 +132,7 @@ class OpenIEActions extends Actions with LazyLogging {
 
 }
 
-object OpenIEActions extends Actions {
+object EidosActions extends Actions {
 
   val taxonomy = readTaxonomy("org/clulab/wm/grammars/taxonomy.yml")
 
