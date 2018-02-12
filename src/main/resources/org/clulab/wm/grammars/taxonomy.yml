@@ -10,10 +10,13 @@
     - Increase
     - Decrease
   - EntityLinker:
-    - Affect
-    - Causal
-    - Correlation
-    - IsA
-    - Origin
-    - TransparentLink
+    - DirectedRelation:
+      - Affect
+      - Causal
+      - Correlation
+      - IsA
+      - Origin
+      - TransparentLink
+    - UndirectedRelation:
+      - SameAs
 
