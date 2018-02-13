@@ -41,7 +41,8 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case
-      effect: Entity = <case </nmod_(due_to|to)/? /${agents}/ /${ preps }/{,2}
+      effect: Entity = (<case <nmod_due_to? /${agents}/ /${ preps }/{,2})|(<case <nmod_due_to)
+
 
   - name: dueToSyntax4-${addlabel}
     priority: ${rulepriority}
@@ -49,8 +50,8 @@ rules:
     example: "food imports will decrease due to rainfall"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /${preps}/ /${conjunctions}/{,2}
-      effect: Entity = <case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}
+      cause: Entity = <case /${conjunctions}/? /${preps}/ /${conjunctions}/{,2}
+      effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
 
 
   - name: dueToSyntax3-${addlabel}
