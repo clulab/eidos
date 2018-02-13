@@ -1,5 +1,7 @@
 package org.clulab.wm.serialization.json
 
+import scala.collection.mutable
+
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
@@ -20,6 +22,8 @@ import org.json4s.jackson.JsonMethods._
 
 abstract class JSONLDObjectProvider(val value: Any) {
 
+  def toJFields(jsonldPublisher: JSONLDPublisher): List[JsonAST.JField] = List(new JsonAST.JField("nothing", JsonAST.JNothing))
+  
   def toJObject(jsonldPublisher: JSONLDPublisher): JObject
   
   def newJSONLDMention(mention: Mention): JSONLDMention = mention match {
@@ -39,16 +43,16 @@ abstract class JSONLDObjectProvider(val value: Any) {
 object JSONLDObjectProvider {
   case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
   type Anthology = Seq[AnnotatedDocument]  
-  
-  val home = "http://www.example.com/"
 }
 
 class JSONLDNamedArgument(name: String, attachments: Seq[Mention]) extends JSONLDObjectProvider {
 
   def toJObject(publisher: JSONLDPublisher): JObject =
-      publisher.mkType("Argument") ~
-          ("name" -> name) ~
-          ("attachments" -> attachments.map(newJSONLDMention(_).toJObject(publisher))) // TODO: Why not id?
+    (JSONLDNamedArgument.singular ->
+        publisher.mkType("Argument") ~
+        ("name" -> name) ~
+        ("attachments" -> attachments.map(newJSONLDMention(_).toJObject(publisher))) // TODO: Why not id?
+    )
 }
 
 object JSONLDNamedArgument {
@@ -235,12 +239,10 @@ object JSONLDSentence {
 class JSONLDDocument(annotatedDocument: JSONLDObjectProvider.AnnotatedDocument) extends JSONLDObjectProvider {
   
   def toJObject(publisher: JSONLDPublisher): JObject =
-    (JSONLDDocument.singular ->
-        publisher.mkType(JSONLDDocument.typename) ~
-        publisher.mkId(this) ~
-        (JSONLDSentence.plural -> annotatedDocument.document.sentences.map(new JSONLDSentence(_, annotatedDocument.document.text).toJObject(publisher)).toList) // ~
+      publisher.mkType(JSONLDDocument.typename) ~
+      publisher.mkId(this) ~
+      (JSONLDSentence.plural -> annotatedDocument.document.sentences.map(new JSONLDSentence(_, annotatedDocument.document.text).toJObject(publisher)).toList) // ~
 //      (JSONLDMention.plural -> mentions.map(newJSONLDMention(_).toJObject).toList)
-    )
 }
 
 object JSONLDDocument {
@@ -252,11 +254,9 @@ object JSONLDDocument {
 class JSONLDAnthology(anthology: JSONLDObjectProvider.Anthology) extends JSONLDObjectProvider {
   
   def toJObject(publisher: JSONLDPublisher): JObject = {
-      (JSONLDAnthology.singular ->
-          publisher.mkType(JSONLDAnthology.typename) ~
-          publisher.mkId(this) ~
-          (JSONLDDocument.plural -> anthology.map(annotatedDocument => new JSONLDDocument(annotatedDocument).toJObject(publisher)).toList)
-      )
+    publisher.mkType(JSONLDAnthology.typename) ~
+    publisher.mkId(this) ~
+    (JSONLDDocument.plural -> anthology.map(annotatedDocument => new JSONLDDocument(annotatedDocument).toJObject(publisher)).toList)
     // Maybe have different entity collection, because they could span documents and sentences?
     // then do entities next
   }
@@ -269,8 +269,7 @@ object JSONLDAnthology {
 }
 
 class JSONLDPublisher(jsonldObjectProvider: JSONLDObjectProvider) {
-  
-  
+  val typenames = mutable.HashSet[String]()
   
   // TODO: Make these nicer by handing out ids from somewhere
   def id(any: Any): String = System.identityHashCode(any).toString
@@ -278,31 +277,37 @@ class JSONLDPublisher(jsonldObjectProvider: JSONLDObjectProvider) {
   // TODO: Documents may already have some kind of ID.  Should it be used?
   def id(document: Document): String = document.id.getOrElse(id(document.asInstanceOf[Any]))
 
-  def mkId(any: JSONLDObjectProvider) = ("@id" -> (JSONLDObjectProvider.home + "id/" + id(any)))
+  def mkId(any: JSONLDObjectProvider) = ("@id" -> (JSONLDPublisher.home + "id/" + id(any)))
 
   def mkId(document: JSONLDDocument) = ("@id" -> id(document))
   
-  def mkType(value: String) = ("@type" -> value)
-  
-  def mkContext():JObject = {
-    def mkContext(name: String) = (name -> (JSONLDObjectProvider.home + name))
-    // Depends on what kind of objects have been included.
-    ("@context" ->
-        mkContext(JSONLDDocument.typename) ~
-        mkContext(JSONLDSentence.typename) ~
-        mkContext(JSONLDWord.typename) ~
-        mkContext(JSONLDMention.typename) ~
-        mkContext(JSONLDProvenance.typename) ~
-        mkContext(JSONLDInterval.typename) ~
-        mkContext(JSONLDNamedArgument.typename) 
-    )
+  def mkType(typename: String) = {
+    typenames += typename
+    ("@type" -> typename)
   }
   
-  def mkRef(name: String, jsonldObjectProvider: JSONLDObjectProvider): JObject = {
-    ("name" ->
-      ("@id" -> "This is a test") ~
-      ("nothing" -> 0 )
-    )
+  def mkTypeField(typename: String): JsonAST.JField = {
+    typenames += typename
+    
+    new JField("@type", typename)
+  }
+  
+//  def mkContext(): JsonAST.JField = {
+//    def mkContext(name: String): JsonAST.JField = new JsonAST.JField(name, JSONLDPublisher.home + name)
+//    
+//    new JsonAST.JField("@context", new JObject(typenames.map(mkContext(_)).toList))
+//  }
+
+  def mkContext(): JObject = {
+    def mkContext(name: String): JsonAST.JField = new JsonAST.JField(name, JSONLDPublisher.home + name)
+    
+    new JObject(typenames.map(mkContext(_)).toList)
+  }
+  
+  def mkRef(name: String, jsonldObjectProvider: JSONLDObjectProvider): JsonAST.JField = {
+    val ref = "_:5"
+    
+    new JsonAST.JField(name, new JObject(List(new JField("@id", ref))))
   }
   
   def register(jsonLDOjectProvider: JSONLDObjectProvider): String = {
@@ -313,13 +318,34 @@ class JSONLDPublisher(jsonldObjectProvider: JSONLDObjectProvider) {
   }
   
   def publish(): JValue = {
-    val jObject = jsonldObjectProvider.toJObject(this)
+    val jObject = jsonldObjectProvider.toJObject(this) // turn into list of fields
+    val context = mkContext 
+    val itsValues = jObject.values
+    
+    val result = ("@context" -> context) ~
+    jObject
+    
+//    val fields = List(
+//        context
+//        // the rest of the object
+//    )
+    
+    
+    // Is a field
+    
+    
     // Look over the jObject and construct the context?
     
 //    mkContext() ~
     // Add the context on top
     // Reset the id map
 
-    jObject
-  }
+   // jObject
+//    new JObject(fields)
+    result
+  }  
+}
+
+object JSONLDPublisher {
+  val home = "http://www.example.com/"
 }
