@@ -10,7 +10,7 @@ import org.clulab.processors.{Document, Sentence}
 import agro.demo._
 import org.clulab.odin.{EventMention, Mention, RelationMention, TextBoundMention}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.{AgroSystem, Decrease, Increase, Quantification}
+import org.clulab.wm.{EidosSystem, Decrease, Increase, Quantification}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -21,15 +21,15 @@ import scala.collection.mutable.ListBuffer
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
-  // Initialize the AgroSystem
+  // Initialize the EidosSystem
   // -------------------------------------------------
-  println("[AgroSystem] Initializing the AgroSystem ...")
-  val ieSystem = new AgroSystem()
+  println("[EidosSystem] Initializing the AgroSystem ...")
+  val ieSystem = new EidosSystem()
 
   var proc = ieSystem.proc
   val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
   val grounder = ieSystem.grounder
-  println("[AgroSystem] Completed Initialization ...")
+  println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
   /**
@@ -274,9 +274,9 @@ object HomeController {
   // fixme: ordering/precedence...
   def statefulRepresentation(m: Mention): Mention = {
     val stateAffix = m.attachments match {
-      case inc if inc.exists(a => a.isInstanceOf[Increase]) => AgroSystem.INC_LABEL_AFFIX
-      case dec if dec.exists(a => a.isInstanceOf[Decrease]) => AgroSystem.DEC_LABEL_AFFIX
-      case quant if quant.exists(a => a.isInstanceOf[Quantification]) => AgroSystem.QUANT_LABEL_AFFIX
+      case inc if inc.exists(a => a.isInstanceOf[Increase]) => EidosSystem.INC_LABEL_AFFIX
+      case dec if dec.exists(a => a.isInstanceOf[Decrease]) => EidosSystem.DEC_LABEL_AFFIX
+      case quant if quant.exists(a => a.isInstanceOf[Quantification]) => EidosSystem.QUANT_LABEL_AFFIX
       case _ => ""
     }
 

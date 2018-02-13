@@ -3,7 +3,7 @@ package agro.demo
 import java.io.PrintWriter
 
 import org.json4s.jackson.JsonMethods._
-import org.clulab.wm.AgroSystem
+import org.clulab.wm.EidosSystem
 import org.clulab.wm.serialization.json.WMJSONSerializer
 import utils.DisplayUtils.displayMentions
 
@@ -15,7 +15,7 @@ object ExampleGenerator extends App {
 
 
   // creates an extractor engine using the rules and the default actions
-  val ieSystem = new AgroSystem()
+  val ieSystem = new EidosSystem()
 
   val text = "The government uses significantly improved cultivar to boost agricultural production."
   val doc = ieSystem.annotate(text)
