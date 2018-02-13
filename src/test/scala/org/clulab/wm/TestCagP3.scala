@@ -83,10 +83,10 @@ class TestCagP3 extends Test {
     //waiting on "economic" fix from becky. 
 
     passingTest should "have correct edges 1" taggedAs(Mithun) in {
-      tester.test(newEdgeSpec(economic, Causal, accessFood)) should be (successful)
+      tester.test(EdgeSpec(economic, Causal, accessFood)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Mithun) in {
-      tester.test(newEdgeSpec(economic, Causal, accessWater)) should be (successful)
+      tester.test(EdgeSpec(economic, Causal, accessWater)) should be (successful)
 
     }
     //becky said this might need more modifications since there is a det:qmod for "variety of foods"
