@@ -18,167 +18,154 @@ import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
-abstract class JSONObjectProvider extends JSONSerialization {
-  
-  def toJObject: JObject
-  
-  def jsonAST: JValue = render(toJObject)
+abstract class JSONLDObjectProvider(val value: Any) {
 
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject
+  
   // TODO: Make these nicer by handing out ids from somewhere
   def id(any: Any): String = System.identityHashCode(any).toString
   
   // TODO: Documents may already have some kind of ID.  Should it be used?
   def id(document: Document): String = document.id.getOrElse(id(document.asInstanceOf[Any]))
 
-  def mkId(any: Any) = ("@id" -> (JSONObjectProvider.home + "id/" + id(any)))
+  def mkId(any: Any) = ("@id" -> (JSONLDObjectProvider.home + "id/" + id(any)))
 
   def mkId(document: Document) = ("@id" -> id(document))
   
   def mkType(value: String) = ("@type" -> value)
   
-  def mkContext():JObject = {
-    def mkContext(name: String) = (name -> (JSONObjectProvider.home + name))
-    
-    ("@context" ->
-        mkContext(JSONDocument.typename) ~
-        mkContext(JSONSentence.typename) ~
-        mkContext(JSONWord.typename) ~
-        mkContext(JSONMention.typename) ~
-        mkContext(JSONProvenance.typename) ~
-        mkContext(JSONInterval.typename) ~
-        mkContext(JSONNamedArgument.typename) 
-    )
-  }
-  
-  def newJSONMention(mention: Mention): JSONMention = mention match {
-    case mention: TextBoundMention => new JSONTextBoundMention(mention)
-    case mention: RelationMention => new JSONRelationMention(mention)
-    case mention: EventMention => new JSONEventMention(mention)
+  def newJSONLDMention(mention: Mention): JSONLDMention = mention match {
+    case mention: TextBoundMention => new JSONLDTextBoundMention(mention)
+    case mention: RelationMention => new JSONLDRelationMention(mention)
+    case mention: EventMention => new JSONLDEventMention(mention)
   }      
 
-  def newJSONAttachment(attachment: Attachment): JSONAttachment = attachment match {
+  def newJSONLDAttachment(attachment: Attachment): JSONLDAttachment = attachment match {
     // These attachments are the first class in the matching package and could be changed
-    case attachment: Quantification => new JSONAttachment("QUANT", attachment.quantifier, None)
-    case attachment: Increase => new JSONAttachment("INC", attachment.trigger, attachment.quantifier)
-    case attachment: Decrease => new JSONAttachment("DEC", attachment.trigger, attachment.quantifier)
+    case attachment: Quantification => new JSONLDAttachment("QUANT", attachment.quantifier, None)
+    case attachment: Increase => new JSONLDAttachment("INC", attachment.trigger, attachment.quantifier)
+    case attachment: Decrease => new JSONLDAttachment("DEC", attachment.trigger, attachment.quantifier)
   }
 }
 
-object JSONObjectProvider {
+object JSONLDObjectProvider {
+  case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
+  type Anthology = Seq[AnnotatedDocument]  
+  
   val home = "http://www.example.com/"
 }
 
-class JSONNamedArgument(name: String, attachments: Seq[Mention]) extends JSONObjectProvider {
+class JSONLDNamedArgument(name: String, attachments: Seq[Mention]) extends JSONLDObjectProvider {
 
-  def toJObject: JObject =
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
       mkType("Argument") ~
       ("name" -> name) ~
-      ("attachments" -> attachments.map(newJSONMention(_).toJObject)) // TODO: Why not id?
+      ("attachments" -> attachments.map(newJSONLDMention(_).toJObject(jsonldPublisher))) // TODO: Why not id?
 }
 
-object JSONNamedArgument {
+object JSONLDNamedArgument {
   val singular = "argument"
   val plural = "arguments"
   val typename = "NamedArgument"
 }
 
-class JSONAttachment(kind: String, text: String, modifiers: Option[Seq[Quantifier]]) extends JSONObjectProvider {
+class JSONLDAttachment(kind: String, text: String, modifiers: Option[Seq[Quantifier]]) extends JSONLDObjectProvider {
   
-  def toJObject: JObject =
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
       mkType(kind) ~
       ("text", text) ~
       ("modifiers", modifiers) // TODO: This is as far as it goes
 }
 
-class JSONInterval(interval: Interval) extends JSONObjectProvider {
+class JSONLDInterval(interval: Interval) extends JSONLDObjectProvider {
 
-  def toJObject: JObject =
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
       mkType("Position") ~
       ("start", interval.start) ~
       ("end", interval.end)
 }
 
-object JSONInterval {
+object JSONLDInterval {
   val singular = "position"
   val plural = "positions"
   val typename = "Position"
 }
 
-class JSONProvenance(mention: Mention) extends JSONObjectProvider {
+class JSONLDProvenance(mention: Mention) extends JSONLDObjectProvider {
 
-  def toJObject: JObject =
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
       mkType("Provenance") ~
-      (JSONDocument.singular -> id(mention.document)) ~
-      (JSONSentence.singular -> id(mention.sentenceObj)) ~
-      (JSONInterval.plural -> Seq(mention.tokenInterval).map(new JSONInterval(_).toJObject)) // TODO: We only have one
+      (JSONLDDocument.singular -> id(mention.document)) ~
+      (JSONLDSentence.singular -> id(mention.sentenceObj)) ~
+      (JSONLDInterval.plural -> Seq(mention.tokenInterval).map(new JSONLDInterval(_).toJObject(jsonldPublisher))) // TODO: We only have one
 }
 
-object JSONProvenance {
+object JSONLDProvenance {
   val singular = "provenance"
   val plural = "provenances"
   val typename = "Provenance"
 }
 
-class JSONMention(mention: Mention) extends JSONObjectProvider {
+class JSONLDMention(mention: Mention) extends JSONLDObjectProvider {
  
-  def toJObject: JObject =
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
       mkType("Entity") ~
       mkId(mention) ~
       ("labels" -> mention.labels) ~
       ("text" -> mention.text) ~
-      (JSONProvenance.singular -> new JSONProvenance(mention).toJObject) ~
+      (JSONLDProvenance.singular -> new JSONLDProvenance(mention).toJObject(jsonldPublisher)) ~
       ("rule" -> mention.foundBy)
 }
 
-object JSONMention {
+object JSONLDMention {
   val singular = "entity"
   val plural = "entities"
   val typename = "Entity"
 }
 
-class JSONTextBoundMention(mention: TextBoundMention) extends JSONMention(mention) {
+class JSONLDTextBoundMention(mention: TextBoundMention) extends JSONLDMention(mention) {
   
-  override def toJObject: JObject =
+  override def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
      mkType("Entity") ~
-     super.toJObject ~
-     ("states" -> mention.attachments.map(newJSONAttachment(_).toJObject).toList)
+     super.toJObject(jsonldPublisher) ~
+     ("states" -> mention.attachments.map(newJSONLDAttachment(_).toJObject(jsonldPublisher)).toList)
 }
 
-class JSONRelationMention(mention: RelationMention) extends JSONMention(mention) {
+class JSONLDRelationMention(mention: RelationMention) extends JSONLDMention(mention) {
   
-  override def toJObject: JObject = 
+  override def toJObject(jsonldPublisher: JSONLDPublisher): JObject = 
     mkType("Undirected Relation") ~ // TODO: Is this true, see no trigger
-    super.toJObject
+    super.toJObject(jsonldPublisher) ~
     // TODO: No trigger
     // TODO: The picture is vague
-    (JSONNamedArgument.plural, mention.arguments.map(item => new JSONNamedArgument(item._1, item._2).toJObject).toList)
+    (JSONLDNamedArgument.plural, mention.arguments.map(item => new JSONLDNamedArgument(item._1, item._2).toJObject(jsonldPublisher)).toList)
 }
 
-class JSONEventMention(mention: EventMention) extends JSONMention(mention) {
+class JSONLDEventMention(mention: EventMention) extends JSONLDMention(mention) {
   
-  override def toJObject: JObject = {
+  override def toJObject(jsonldPublisher: JSONLDPublisher): JObject = {
     val sources = mention.arguments.getOrElse("cause", Nil) // TODO: are these correct names?
     val targets = mention.arguments.getOrElse("effect", Nil)
       
     mkType("Directed Relation") ~ // TODO: Is this true?
-    super.toJObject ~
-    ("trigger" -> newJSONMention(mention.trigger).toJObject) ~ // TODO: Why not just id?
-    ("sources" -> sources.map(newJSONMention(_).toJObject)) ~ // TODO: Why not just id?
-    ("destinations" -> targets.map(newJSONMention(_).toJObject)) // TODO: Why not just id?
+    super.toJObject(jsonldPublisher) ~
+    ("trigger" -> newJSONLDMention(mention.trigger).toJObject(jsonldPublisher)) ~ // TODO: Why not just id?
+    ("sources" -> sources.map(newJSONLDMention(_).toJObject(jsonldPublisher))) ~ // TODO: Why not just id?
+    ("destinations" -> targets.map(newJSONLDMention(_).toJObject(jsonldPublisher))) // TODO: Why not just id?
   }
 }
 
-class JSONGraphMapPair(key: String, value: Option[DirectedGraph[String]]) extends JSONObjectProvider {
+class JSONLDGraphMapPair(key: String, value: Option[DirectedGraph[String]]) extends JSONLDObjectProvider {
   
-  def toJObject: JObject =
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
     ("dependencies" ->
       ("key" -> key) // TODO: How are these described?
     )
 }
 
-class JSONWord(sentence: Sentence, index: Int, text: Option[String]) extends JSONObjectProvider {
+class JSONLDWord(sentence: Sentence, index: Int, text: Option[String]) extends JSONLDObjectProvider {
   
-  def toJObject: JObject = {
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject = {
     def getOrNone(optionArray: Option[Array[String]]): Option[String] =
         if (optionArray.isDefined) Option(optionArray.get(index))
         else None
@@ -197,43 +184,94 @@ class JSONWord(sentence: Sentence, index: Int, text: Option[String]) extends JSO
   }
 }
 
-object JSONWord {
+object JSONLDWord {
   val singular = "word"
   val plural = "words"
   val typename = "Word"
 }
 
-class JSONSentence(sentence: Sentence, text: Option[String]) extends JSONObjectProvider {
+class JSONLDSentence(sentence: Sentence, text: Option[String]) extends JSONLDObjectProvider {
   
-  def toJObject: JObject = {
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject = {
     val key = "universal-enhanced"
     val dependencies = sentence.graphs.get(key)
     
     mkType("Sentence") ~
     mkId(sentence) ~
-    (JSONWord.plural -> sentence.words.take(2).indices.map(new JSONWord(sentence, _, text).toJObject).toList) ~
+    (JSONLDWord.plural -> sentence.words.take(2).indices.map(new JSONLDWord(sentence, _, text).toJObject(jsonldPublisher)).toList) ~
     ("text" -> sentence.getSentenceText()) // ~
-    //new JSONGraphMapPair(key, dependencies).toJObject
+    //new JSONLDGraphMapPair(key, dependencies).toJObject
   }
 }
 
-object JSONSentence {
+object JSONLDSentence {
   val singular = "sentence"
   val plural = "sentences"
   val typename = "Sentence"
 }
 
-class JSONDocument(document: Document, mentions: Seq[Mention]) extends JSONObjectProvider {
+class JSONLDDocument(annotatedDocument: JSONLDObjectProvider.AnnotatedDocument) extends JSONLDObjectProvider {
   
-  def toJObject: JObject =
-    mkContext() ~
-    mkType("Document") ~
-    (JSONSentence.plural -> document.sentences.map(new JSONSentence(_, document.text).toJObject).toList) // ~
-//    (JSONMention.plural -> mentions.map(newJSONMention(_).toJObject).toList)
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject =
+    mkType(JSONLDDocument.singular) ~
+    (JSONLDSentence.plural -> annotatedDocument.document.sentences.map(new JSONLDSentence(_, annotatedDocument.document.text).toJObject(jsonldPublisher)).toList) // ~
+//    (JSONLDMention.plural -> mentions.map(newJSONLDMention(_).toJObject).toList)
 }
 
-object JSONDocument {
+object JSONLDDocument {
   val singular = "document"
   val plural = "documents"
   val typename = "Document"
+}
+
+class JSONLDAnthology(anthology: JSONLDObjectProvider.Anthology) extends JSONLDObjectProvider {
+  
+  def toJObject(jsonldPublisher: JSONLDPublisher): JObject = {
+    mkType(JSONLDAnthology.singular) ~
+    (JSONLDDocument.plural -> anthology.map(annotatedDocument => new JSONLDDocument(annotatedDocument).toJObject(jsonldPublisher)).toList) // to document
+    
+    // Maybe have different entity collection, because they could span documents and sentences?
+    // then do entities next
+  }
+}
+
+object JSONLDAnthology {
+  val singular = "anthology"
+  val plural = "anthologies"
+  val typename = "Anthology"
+}
+
+
+class JSONLDPublisher(jsonldObjectProvider: JSONLDObjectProvider) {
+  
+  def mkContext():JObject = {
+    def mkContext(name: String) = (name -> (JSONLDObjectProvider.home + name))
+    // Depends on what kind of objects have been included.
+    ("@context" ->
+        mkContext(JSONLDDocument.typename) ~
+        mkContext(JSONLDSentence.typename) ~
+        mkContext(JSONLDWord.typename) ~
+        mkContext(JSONLDMention.typename) ~
+        mkContext(JSONLDProvenance.typename) ~
+        mkContext(JSONLDInterval.typename) ~
+        mkContext(JSONLDNamedArgument.typename) 
+    )
+  }
+  
+  def register(jsonLDOjectProvider: JSONLDObjectProvider): String = {
+    // gives access to contents which are used to generate IDs
+    // also provides typename for use in generating context
+    // value, typename, 
+    "hello"
+  }
+  
+  def publish(): JValue = {
+    val jObject = jsonldObjectProvider.toJObject(this)
+    
+//    mkContext() ~
+    // Add the context on top
+    // Reset the id map
+
+    jObject
+  }
 }
