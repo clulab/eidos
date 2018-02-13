@@ -3,8 +3,8 @@ package org.clulab.wm.wmutils
 import java.io.File
 import java.util.jar.JarFile
 
-import org.clulab.wm.AgroSystem
-import org.clulab.wm.AgroSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
+import org.clulab.wm.EidosSystem
+import org.clulab.wm.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
 
 import scala.collection.mutable.ListBuffer
 
@@ -88,7 +88,7 @@ object FileUtils {
       }
       filenames.toList
     } else {
-      val url = classOf[AgroSystem].getResource("/" + resourcesPath)
+      val url = classOf[EidosSystem].getResource("/" + resourcesPath)
       val apps = new File(url.toURI)
 
       for (app <- apps.listFiles) {

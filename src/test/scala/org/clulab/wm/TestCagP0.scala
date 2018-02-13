@@ -12,9 +12,9 @@ class TestCagP0 extends Test {
     behavior of "a sentence with a 1:1 edge"
     
     it should "have the correct triples" taggedAs(Somebody) in {
-      val rainfall = newNodeSpec("rainfall", newDecrease("decrease"))
-      val poverty = newNodeSpec("poverty", newIncrease("increased", "significantly"))
-      val edge = newEdgeSpec(rainfall, Causal, poverty)
+      val rainfall = NodeSpec("rainfall", Dec("decrease"))
+      val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
+      val edge = EdgeSpec(rainfall, Causal, poverty)
       
       tester.test(edge) should be (successful)
     }
@@ -27,11 +27,11 @@ class TestCagP0 extends Test {
     behavior of "a sentence with a 1:2 edge"
     
     it should "have the correct triples" taggedAs(Somebody) in {
-      val rainfall = newNodeSpec("rainfall", newDecrease("decrease"))
-      val poverty = newNodeSpec("poverty", newIncrease("increased", "significantly"))
-      val humidity = newNodeSpec("humidity", newDecrease("decreased"))
+      val rainfall = NodeSpec("rainfall", Dec("decrease"))
+      val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
+      val humidity = NodeSpec("humidity", Dec("decreased"))
       
-      val edge = newEdgeSpec(rainfall, Causal, poverty, humidity)
+      val edge = EdgeSpec(rainfall, Causal, poverty, humidity)
       
       tester.test(edge) should be (successful)
     }
