@@ -5,7 +5,7 @@ import TestUtils._
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.serialization.json.JSONLDAnthology
-import org.clulab.wm.serialization.json.JSONLDObjectProvider._
+import org.clulab.wm.serialization.json.JSONLDObject._
 import org.clulab.wm.serialization.json.JSONLDPublisher
 
 class TestJsonSerialization extends Test {
@@ -32,7 +32,7 @@ class TestJsonSerialization extends Test {
     val jsonldAnthology = new JSONLDAnthology(anthology)
     val jsonldPublisher = new JSONLDPublisher(jsonldAnthology)
     val jValue = jsonldPublisher.publish()
-    val json = stringify(jValue, true)
+    val json = stringify(jValue, true) // TODO: hwo to convert in the end?
     
     println(json)
     json should not be empty
