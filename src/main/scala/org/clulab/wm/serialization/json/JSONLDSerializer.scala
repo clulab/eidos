@@ -24,19 +24,30 @@ abstract class JSONLDObjectProvider(val value: Any) {
 
   def toJFields(jsonldPublisher: JSONLDPublisher): List[JsonAST.JField] = List(new JsonAST.JField("nothing", JsonAST.JNothing))
   
-  def toJObject(jsonldPublisher: JSONLDPublisher): JObject
+  // These are placeholder, no-op implementations
+  def toJObject(jsonldPublisher: JSONLDPublisher, asRef: Boolean = false): JsonAST.JObject = new JsonAST.JObject(Nil)
   
-  def newJSONLDMention(mention: Mention): JSONLDMention = mention match {
-    case mention: TextBoundMention => new JSONLDTextBoundMention(mention)
-    case mention: RelationMention => new JSONLDRelationMention(mention)
-    case mention: EventMention => new JSONLDEventMention(mention)
+  // These are placeholder, no-op implementations
+  def toJValue(jsonldPublisher: JSONLDPublisher, asRef: Boolean = false): JsonAST.JValue = JsonAST.JNothing
+  
+  def newJSONLDMention(mention: Mention): JSONLDMention = {
+    val causes = mention.arguments("cause")
+    val effects = mention.arguments("effects")
+    val others = mention.arguments.keySet.exists(key => key != "cause" && key != "effect")
+    
+    if (!causes.isEmpty && !effects.isEmpty)
+      new JSONLDDirectedRelation(mention)
+    else if (others || !causes.isEmpty || !effects.isEmpty)
+      new JSONLDUndirectedRelation(mention)
+    else
+      new JSONLDEntity(mention)
   }      
 
-  def newJSONLDAttachment(attachment: Attachment): JSONLDAttachment = attachment match {
+  def newJSONLDAttachment(attachment: Attachment, mention: Mention): JSONLDAttachment = attachment match {
     // These attachments are the first class in the matching package and could be changed
-    case attachment: Quantification => new JSONLDAttachment("QUANT", attachment.quantifier, None)
-    case attachment: Increase => new JSONLDAttachment("INC", attachment.trigger, attachment.quantifier)
-    case attachment: Decrease => new JSONLDAttachment("DEC", attachment.trigger, attachment.quantifier)
+    case attachment: Quantification => new JSONLDAttachment("QUANT", attachment.quantifier, None, mention: Mention)
+    case attachment: Increase => new JSONLDAttachment("INC", attachment.trigger, attachment.quantifier, mention: Mention)
+    case attachment: Decrease => new JSONLDAttachment("DEC", attachment.trigger, attachment.quantifier, mention: Mention)
   }
 }
 
@@ -47,7 +58,7 @@ object JSONLDObjectProvider {
 
 class JSONLDNamedArgument(name: String, attachments: Seq[Mention]) extends JSONLDObjectProvider {
 
-  def toJObject(publisher: JSONLDPublisher): JObject =
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject =
     (JSONLDNamedArgument.singular ->
         publisher.mkType("Argument") ~
         ("name" -> name) ~
@@ -61,17 +72,50 @@ object JSONLDNamedArgument {
   val typename = "NamedArgument"
 }
 
-class JSONLDAttachment(kind: String, text: String, modifiers: Option[Seq[Quantifier]]) extends JSONLDObjectProvider {
+class JSONLDModifier(text: String, mention: Mention) extends JSONLDObjectProvider {
   
-  def toJObject(publisher: JSONLDPublisher): JObject =
-      publisher.mkType(kind) ~
-          ("text", text) ~
-          ("modifiers", modifiers) // TODO: This is as far as it goes
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
+      publisher.mkType(JSONLDModifier.singular) ~
+      ("text" -> text) ~
+      (JSONLDProvenance.singular -> new JSONLDProvenance(mention).toJObject(publisher)) ~
+      ("intercept" -> None) ~
+      ("mu" -> None) ~
+      ("sigma" -> None)
+      // TODO: Figure out how to get these values
+  }
 }
 
-class JSONLDInterval(interval: Interval) extends JSONLDObjectProvider {
+object JSONLDModifier {
+  val singular = "modifier"
+  val plural = "modifiers"
+  val typename = "Modifier"
+}
 
-  def toJObject(publisher: JSONLDPublisher): JObject =
+class JSONLDAttachment(kind: String, text: String, modifiers: Option[Seq[Quantifier]], mention: Mention) extends JSONLDObjectProvider {
+  
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
+    val mods =
+        if (!modifiers.isDefined) None
+        else Some(modifiers.get.map(new JSONLDModifier(_, mention).toJObject(publisher)).toList)
+    
+    publisher.mkType(JSONLDAttachment.singular) ~
+        publisher.mkId(this, JSONLDAttachment.singular) ~
+        ("type", kind) ~
+        ("text", text) ~
+        (JSONLDProvenance.singular -> new JSONLDProvenance(mention).toJObject(publisher)) ~
+        ("modifiers", mods)
+  }
+}
+
+object JSONLDAttachment {
+  val singular = "state"
+  val plural = "states"
+  val typename = "State"
+}
+
+class JSONLDInterval(interval: Interval, asRef: Boolean = false) extends JSONLDObjectProvider {
+
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject =
       publisher.mkType("Position") ~
           ("start", interval.start) ~
           ("end", interval.end)
@@ -86,13 +130,14 @@ object JSONLDInterval {
 class JSONLDProvenance(mention: Mention) extends JSONLDObjectProvider {
   // Need to know sentences and documents
   
-  def toJObject(publisher: JSONLDPublisher): JObject =
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject =
       publisher.mkType("Provenance") ~
 //      publisher.mkRef(JSONLDDocument.singular, mention.document) ~ // So need to know document!
 //      publisher.mkRef(JSONLDSentence.singular, mention.sentenceObj) ~
       (JSONLDInterval.plural -> Seq(mention.tokenInterval).map(new JSONLDInterval(_).toJObject(publisher))) // TODO: We only have one
 }
 
+// TODO: accept with or without interval in case it is not known
 object JSONLDProvenance {
   val singular = "provenance"
   val plural = "provenances"
@@ -101,13 +146,19 @@ object JSONLDProvenance {
 
 class JSONLDMention(mention: Mention) extends JSONLDObjectProvider {
  
-  def toJObject(publisher: JSONLDPublisher): JObject =
-      publisher.mkType("Entity") ~
-      publisher.mkId(this) ~
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject =
       ("labels" -> mention.labels) ~
       ("text" -> mention.text) ~
+      ("rule" -> mention.foundBy) ~
+      ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
       (JSONLDProvenance.singular -> new JSONLDProvenance(mention).toJObject(publisher)) ~
-      ("rule" -> mention.foundBy)
+      ("states" -> mention.attachments.map(newJSONLDAttachment(_, mention).toJObject(publisher)).toList)
+      
+    def getTrigger() = mention match {
+      case mention: TextBoundMention => None
+      case mention: EventMention => Some(mention.trigger)
+      case mention: RelationMention => None
+    }
 }
 
 object JSONLDMention {
@@ -116,45 +167,62 @@ object JSONLDMention {
   val typename = "Entity"
 }
 
-class JSONLDTextBoundMention(mention: TextBoundMention) extends JSONLDMention(mention) {
+class JSONLDAbbreviatedMention(mention: Mention) extends JSONLDObjectProvider {
   
-  override def toJObject(publisher: JSONLDPublisher): JObject =
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject =
+      ("text" -> mention.text) ~
+      (JSONLDProvenance.singular -> new JSONLDProvenance(mention).toJObject(publisher))
+}
+
+class JSONLDEntity(mention: Mention) extends JSONLDMention(mention) {
+  
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject =
      publisher.mkType("Entity") ~
      super.toJObject(publisher) ~
-     ("states" -> mention.attachments.map(newJSONLDAttachment(_).toJObject(publisher)).toList)
+     ("states" -> mention.attachments.map(newJSONLDAttachment(_, mention).toJObject(publisher)).toList)
 }
 
-class JSONLDRelationMention(mention: RelationMention) extends JSONLDMention(mention) {
+class JSONLDDirectedRelation(mention: Mention) extends JSONLDMention(mention) {
   
-  override def toJObject(publisher: JSONLDPublisher): JObject = 
-    publisher.mkType("Undirected Relation") ~ // TODO: Is this true, see no trigger
-    super.toJObject(publisher) ~
-    // TODO: No trigger
-    // TODO: The picture is vague
-    (JSONLDNamedArgument.plural, mention.arguments.map(item => new JSONLDNamedArgument(item._1, item._2).toJObject(publisher)).toList)
-}
-
-class JSONLDEventMention(mention: EventMention) extends JSONLDMention(mention) {
-  
-  override def toJObject(publisher: JSONLDPublisher): JObject = {
-    val sources = mention.arguments.getOrElse("cause", Nil) // TODO: are these correct names?
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
+    val sources = mention.arguments.getOrElse("cause", Nil)
     val targets = mention.arguments.getOrElse("effect", Nil)
-      
-    publisher.mkType("Directed Relation") ~ // TODO: Is this true?
+    val trigger = getTrigger()
+    val triggerMention =
+        if (trigger.isDefined) Some(new JSONLDAbbreviatedMention(trigger.get).toJObject(publisher))
+        else None
+ 
+    publisher.mkType("DirectedRelation") ~
+    publisher.mkId(this, "DirectedRelation") ~
     super.toJObject(publisher) ~
-    ("trigger" -> newJSONLDMention(mention.trigger).toJObject(publisher)) ~ // TODO: Why not just id?
-    ("sources" -> sources.map(newJSONLDMention(_).toJObject(publisher))) ~ // TODO: Why not just id?
-    ("destinations" -> targets.map(newJSONLDMention(_).toJObject(publisher))) // TODO: Why not just id?
+    ("trigger" -> triggerMention) ~
+    ("sources" -> sources.map(newJSONLDMention(_).toJObject(publisher, true))) ~ // TODO: Instead, ask publisher for ref to mention
+    ("destinations" -> targets.map(newJSONLDMention(_).toJObject(publisher, true)))
+  }
+}
+
+class JSONLDUndirectedRelation(mention: Mention) extends JSONLDMention(mention) {
+  
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
+    val arguments = mention.arguments.values.flatten // The keys are skipped
+    val argumentMentions =
+        if (arguments.isEmpty) None
+        else Some(mention.arguments.map(item => new JSONLDNamedArgument(item._1, item._2).toJObject(publisher)).toList)
+
+    publisher.mkType("UndirectedRelation") ~
+    publisher.mkId(this, "UndirectedRelation") ~
+    super.toJObject(publisher) ~
+    (JSONLDNamedArgument.plural, argumentMentions)
   }
 }
 
 class JSONLDEdge(edge: (Int, Int, String), words: Seq[JSONLDWord]) extends JSONLDObjectProvider {
 
-  def toJObject(publisher: JSONLDPublisher): JObject = {
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
     val source = words(edge._1)
     val destination = words(edge._2)
     
-    publisher.mkType(JSONLDWord.typename) ~
+    //publisher.mkType(JSONLDWord.typename) ~
         publisher.mkRef("source", source) ~
         publisher.mkRef("destination", destination) ~
         ("relation" -> edge._3)
@@ -162,14 +230,18 @@ class JSONLDEdge(edge: (Int, Int, String), words: Seq[JSONLDWord]) extends JSONL
 }
 
 class JSONLDGraphMapPair(key: String, directedGraph: DirectedGraph[String], words: Seq[JSONLDWord]) extends JSONLDObjectProvider {
-  
-  def toJObject(publisher: JSONLDPublisher): JObject = {
+ 
+  override def toJValue(publisher: JSONLDPublisher, asRef: Boolean = false): JValue = {
     val edges = directedGraph.allEdges.map(new JSONLDEdge(_, words))
+    val jsonldEdges = edges.map(_.toJObject(publisher)).toList
     
-    (JSONLDGraphMapPair.plural ->
-        ("kind" -> key) ~
-        (JSONLDGraphMapPair.plural -> edges.map(_.toJObject(publisher)).toList)
-    )
+    new JArray(jsonldEdges) // JSONLDGraphMapPair.plural ->
+//      jsonldEdges
+//    (JSONLDGraphMapPair.plural ->
+//        ("kind" -> key) ~
+//    new JObject(jsonldEdges)
+//    )
+   // jsonldEdges
   }
 }
 
@@ -181,7 +253,7 @@ object JSONLDGraphMapPair {
 
 class JSONLDWord(sentence: Sentence, index: Int, text: Option[String]) extends JSONLDObjectProvider {
   
-  def toJObject(publisher: JSONLDPublisher): JObject = {
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
     def getOrNone(optionArray: Option[Array[String]]): Option[String] =
         if (optionArray.isDefined) Option(optionArray.get(index))
         else None
@@ -189,17 +261,15 @@ class JSONLDWord(sentence: Sentence, index: Int, text: Option[String]) extends J
     val startOffset = sentence.startOffsets(index)
     val endOffset = sentence.endOffsets(index)
 
-    (JSONLDWord.singular ->
-        publisher.mkType(JSONLDWord.typename) ~
-        publisher.mkId(this) ~
-        ("text" -> (if (text.isDefined) Option(text.get.substring(startOffset, endOffset)) else None)) ~
-        ("tag" -> getOrNone(sentence.tags)) ~
-        ("entity" -> getOrNone(sentence.entities)) ~
-        ("startOffset" -> startOffset) ~
-        ("endOffset" -> endOffset) ~
-        ("lemma" -> getOrNone(sentence.lemmas)) ~
-        ("chunk" -> getOrNone(sentence.chunks))
-    )
+    publisher.mkType(JSONLDWord.typename) ~
+    publisher.mkId(this, JSONLDWord.typename) ~
+    ("text" -> (if (text.isDefined) Option(text.get.substring(startOffset, endOffset)) else None)) ~
+    ("tag" -> getOrNone(sentence.tags)) ~
+    ("entity" -> getOrNone(sentence.entities)) ~
+    ("startOffset" -> startOffset) ~
+    ("endOffset" -> endOffset) ~
+    ("lemma" -> getOrNone(sentence.lemmas)) ~
+    ("chunk" -> getOrNone(sentence.chunks))
   }
 }
 
@@ -211,22 +281,21 @@ object JSONLDWord {
 
 class JSONLDSentence(sentence: Sentence, text: Option[String]) extends JSONLDObjectProvider {
   
-  def toJObject(publisher: JSONLDPublisher): JObject = {
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
     val jsonldWords = sentence.words.indices.map(new JSONLDWord(sentence, _, text))
       
     val key = "universal-enhanced"
     val dependencies = sentence.graphs.get(key)
     val jsonldGraphMapPair = // In this case, register the type
-        if (dependencies.isDefined) Some(new JSONLDGraphMapPair(key, dependencies.get, jsonldWords).toJObject(publisher))
+        if (dependencies.isDefined) Some(new JSONLDGraphMapPair(key, dependencies.get, jsonldWords).toJValue(publisher))
         else None
           
-    (JSONLDSentence.singular ->
-        publisher.mkType(JSONLDSentence.typename) ~
-        publisher.mkId(this) ~
+    publisher.mkType(JSONLDSentence.typename) ~
+        publisher.mkId(this, JSONLDSentence.typename) ~
         (JSONLDWord.plural -> jsonldWords.map(_.toJObject(publisher)).toList) ~
         ("text" -> sentence.getSentenceText()) ~
-        ("dependencies" -> jsonldGraphMapPair)
-    )
+        //jsonldGraphMapPair
+        ("dependencies" -> jsonldGraphMapPair) // This is a value, and thus an array
   }
 }
 
@@ -238,11 +307,14 @@ object JSONLDSentence {
 
 class JSONLDDocument(annotatedDocument: JSONLDObjectProvider.AnnotatedDocument) extends JSONLDObjectProvider {
   
-  def toJObject(publisher: JSONLDPublisher): JObject =
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
+    val sentences = annotatedDocument.document.sentences.map(new JSONLDSentence(_, annotatedDocument.document.text))
+    
       publisher.mkType(JSONLDDocument.typename) ~
-      publisher.mkId(this) ~
-      (JSONLDSentence.plural -> annotatedDocument.document.sentences.map(new JSONLDSentence(_, annotatedDocument.document.text).toJObject(publisher)).toList) // ~
-//      (JSONLDMention.plural -> mentions.map(newJSONLDMention(_).toJObject).toList)
+      publisher.mkId(this, JSONLDDocument.typename) ~
+      (JSONLDSentence.plural -> sentences.map(_.toJObject(publisher)).toList) //~
+      //(JSONLDMention.plural -> annotatedDocument.mentions.map(newJSONLDMention(_, this, sentences).toJObject).toList)
+  }
 }
 
 object JSONLDDocument {
@@ -253,12 +325,11 @@ object JSONLDDocument {
 
 class JSONLDAnthology(anthology: JSONLDObjectProvider.Anthology) extends JSONLDObjectProvider {
   
-  def toJObject(publisher: JSONLDPublisher): JObject = {
+  override def toJObject(publisher: JSONLDPublisher, asRef: Boolean = false): JObject = {
     publisher.mkType(JSONLDAnthology.typename) ~
-    publisher.mkId(this) ~
-    (JSONLDDocument.plural -> anthology.map(annotatedDocument => new JSONLDDocument(annotatedDocument).toJObject(publisher)).toList)
-    // Maybe have different entity collection, because they could span documents and sentences?
-    // then do entities next
+    publisher.mkId(this, JSONLDAnthology.typename) ~
+    (JSONLDDocument.plural -> anthology.map(annotatedDocument => new JSONLDDocument(annotatedDocument).toJObject(publisher)).toList) ~
+    (JSONLDMention.plural -> anthology.flatMap(_.mentions).map(newJSONLDMention(_).toJObject(publisher)).toList)
   }
 }
 
@@ -273,13 +344,13 @@ class JSONLDPublisher(jsonldObjectProvider: JSONLDObjectProvider) {
   
   // TODO: Make these nicer by handing out ids from somewhere
   def id(any: Any): String = System.identityHashCode(any).toString
-  
+
   // TODO: Documents may already have some kind of ID.  Should it be used?
   def id(document: Document): String = document.id.getOrElse(id(document.asInstanceOf[Any]))
 
-  def mkId(any: JSONLDObjectProvider) = ("@id" -> (JSONLDPublisher.home + "id/" + id(any)))
+  def mkId(any: JSONLDObjectProvider, typename: String) = ("@id" -> ("_:" + typename + "_" + id(any)))
 
-  def mkId(document: JSONLDDocument) = ("@id" -> id(document))
+  def mkId(document: JSONLDDocument, typename: String) = ("@id" -> ("_:" + id(document)))
   
   def mkType(typename: String) = {
     typenames += typename
@@ -299,7 +370,8 @@ class JSONLDPublisher(jsonldObjectProvider: JSONLDObjectProvider) {
 //  }
 
   def mkContext(): JObject = {
-    def mkContext(name: String): JsonAST.JField = new JsonAST.JField(name, JSONLDPublisher.home + name)
+    // TODO: Alphabetize these
+    def mkContext(name: String): JsonAST.JField = new JsonAST.JField(name, JSONLDPublisher.home + "#user-content-" + name.toLowerCase())
     
     new JObject(typenames.map(mkContext(_)).toList)
   }
@@ -347,5 +419,5 @@ class JSONLDPublisher(jsonldObjectProvider: JSONLDObjectProvider) {
 }
 
 object JSONLDPublisher {
-  val home = "http://www.example.com/"
+  val home = "https://github.com/clulab/eidos/wiki/JSON-LD"
 }
