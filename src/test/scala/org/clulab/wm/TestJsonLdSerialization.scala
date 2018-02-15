@@ -4,9 +4,9 @@ import CAG._
 import TestUtils._
 
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.serialization.json.JSONLDCorpus
-import org.clulab.wm.serialization.json.JSONLDObject._
-import org.clulab.wm.serialization.json.JSONLDPublisher
+import org.clulab.wm.serialization.json.JLDCorpus
+import org.clulab.wm.serialization.json.JLDObject._
+import org.clulab.wm.serialization.json.JLDPublisher
 
 class TestJsonSerialization extends Test {
   
@@ -28,9 +28,9 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument(p1s1 + " " + p1s2, "This is the first document"), 
         newAnnotatedDocument(p2s1 + " " + p2s2, "This is the second document")
     )
-    val jsonldCorpus = new JSONLDCorpus(corpus)
-    val jsonldPublisher = new JSONLDPublisher(jsonldCorpus)
-    val jValue = jsonldPublisher.publish()
+    val jldCorpus = new JLDCorpus(corpus)
+    val jldPublisher = new JLDPublisher(jldCorpus)
+    val jValue = jldPublisher.publish()
     val json = stringify(jValue, true)
     
     println(json)
