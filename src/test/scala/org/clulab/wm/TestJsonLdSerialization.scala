@@ -25,8 +25,8 @@ class TestJsonSerialization extends Test {
   
   it should "serialize" in {
     val corpus = Seq(
-        newAnnotatedDocument(p1s1 + " " + p1s2, "This is the first document"), 
-        newAnnotatedDocument(p2s1 + " " + p2s2, "This is the second document")
+        newAnnotatedDocument("This is a test" /*p1s1 + " " + p1s2*/, "This is the first document"), 
+        newAnnotatedDocument("This is only a test" /*p2s1 + " " + p2s2*/, "This is the second document")
     )
     val jldCorpus = new JLDCorpus(corpus)
     val jldPublisher = new JLDPublisher(jldCorpus)

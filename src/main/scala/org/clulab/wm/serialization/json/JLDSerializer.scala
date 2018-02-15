@@ -1,5 +1,7 @@
 package org.clulab.wm.serialization.json
 
+import java.util.IdentityHashMap
+
 import scala.collection.mutable
 
 import org.clulab.odin.Attachment
@@ -23,6 +25,8 @@ import org.json4s.jackson.JsonMethods._
 // itself in a way that conforms to the JSON-LD standard as well.
 abstract class JLDObject(val value: Any) {
 
+  def this() = this(new Object())
+  
   def typename: String
   
   // This is for individual objects
@@ -64,13 +68,33 @@ object JLDObject {
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
 class JLDPublisher(jldObjectProvider: JLDObject) {
-  val typenames = mutable.HashSet[String]()
+  protected val typenames = mutable.HashSet[String]()
+  protected val typenamesByIdentity = new IdentityHashMap[Any, String]()
+  protected val idsByTypenamesByIdentity: mutable.HashMap[String, IdentityHashMap[Any, Int]] = mutable.HashMap()
   
-  def id(jldObject: JLDObject): String = System.identityHashCode(jldObject.value).toString
-
-  def mkId(jldObject: JLDObject) = ("@id" -> ("_:" + jldObject.typename + "_" + id(jldObject)))
+  protected def mkId(typename: String, id: Int): (String, String) =
+      ("@id" -> ("_:" + typename + "_" + id))
+    
+  def mkId(jldObject: JLDObject): (String, String) = {
+    val identity = jldObject.value
+    val typename = jldObject.typename
+    
+    typenamesByIdentity.put(identity, typename) // So that know which idsByTypenamesByIdentity to look in
+    val idsByIdentity = idsByTypenamesByIdentity.getOrElseUpdate(typename, new IdentityHashMap[Any, Int]())
+    val id = 
+        if (idsByIdentity.containsKey(identity))
+          idsByIdentity.get(identity)
+        else {
+          val newId = idsByIdentity.size() + 1
+          
+          idsByIdentity.put(identity, newId)
+          newId
+        }
+    
+    mkId(typename, id)
+  }
   
-  def mkType(typename: String): (String, String) = {
+  protected def mkType(typename: String): (String, String) = {
     typenames += typename
     ("@type" -> typename)
   }
@@ -86,13 +110,26 @@ class JLDPublisher(jldObjectProvider: JLDObject) {
     new JObject(base +: types)
   }
   
-  def mkRef(name: String, jldObjectProvider: JLDObject): JField = {
-    val ref = "_:5"
+  def mkRef(name: String, identity: Any): JObject = {
+    val typename = typenamesByIdentity.get(identity)
+    if (typename == null)
+      throw new Exception("Cannot make reference named " + name + " to " + identity)
     
-    new JField(name, new JObject(List(new JField("@id", ref))))
+    val id = idsByTypenamesByIdentity(typename).get(identity)
+    
+    (name ->
+        mkId(typename, id)
+    )
+  }
+  
+  protected def clear() = {
+    typenames.clear()
+    typenamesByIdentity.clear()
+    idsByTypenamesByIdentity.clear()
   }
   
   def publish(): JValue = {
+    clear()
     val jObject = jldObjectProvider.toJObject(this)
       
     ("@context" -> mkContext) ~
@@ -104,7 +141,7 @@ object JLDPublisher {
   val base = "https://github.com/clulab/eidos/wiki/JSON-LD"
 }
 
-class JLDArgument(mention: Mention) extends JLDObject {
+class JLDArgument(mention: Mention) extends JLDObject(mention) {
   
   def typename = "Argument"
 
@@ -176,7 +213,7 @@ object JLDInterval {
   val plural = "positions"
 }
 
-class JLDProvenance(mention: Mention, skipPositions: Boolean = false) extends JLDObject {
+class JLDProvenance(mention: Mention, skipPositions: Boolean = false) extends JLDObject(mention) {
   
   def typename = "Provenance"
 
@@ -197,7 +234,7 @@ object JLDProvenance {
   val plural = "provenances"
 }
 
-class JLDTrigger(mention: Mention) extends JLDObject {
+class JLDTrigger(mention: Mention) extends JLDObject(mention) {
   
   def typename = "Trigger"
   
@@ -211,7 +248,7 @@ object JLDTrigger {
   val plural = "triggers"
 }
 
-abstract class JLDExtraction(mention: Mention) extends JLDObject {
+abstract class JLDExtraction(mention: Mention) extends JLDObject(mention) {
  
   override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
     val jldAttachments = mention.attachments.map(newJLDAttachment(_, mention)).toList
@@ -285,13 +322,13 @@ class JLDUndirectedRelation(mention: Mention) extends JLDExtraction(mention) {
   }
 }
 
-class JLDEdge(edge: (Int, Int, String), words: Seq[JLDWord]) extends JLDObject {
+class JLDDependency(edge: (Int, Int, String), words: Seq[JLDWord]) extends JLDObject {
 
-  def typename = "Edge"
+  def typename = "Dependency"
   
   override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
-    val source = words(edge._1)
-    val destination = words(edge._2)
+    val source = words(edge._1).value
+    val destination = words(edge._2).value
     
     publisher.mkType(this) ~
         publisher.mkRef("source", source) ~
@@ -300,20 +337,20 @@ class JLDEdge(edge: (Int, Int, String), words: Seq[JLDWord]) extends JLDObject {
   }  
 }
 
+object JLDDependency {
+  val singular = "dependency"
+  val plural = "dependencies"
+}
+
 class JLDGraphMapPair(key: String, directedGraph: DirectedGraph[String], words: Seq[JLDWord]) extends JLDObject {
  
-  def typename = "Dependency"
+  def typename = "Dependencies"
   
   override def toJValue(publisher: JLDPublisher, asRef: Boolean = false): JValue = {
-    val jldEdges = directedGraph.allEdges.map(new JLDEdge(_, words))
+    val jldEdges = directedGraph.allEdges.map(new JLDDependency(_, words))
     
     new JArray(toJObjects(jldEdges, publisher))
   }
-}
-
-object JLDGraphMapPair {
-  val singular = "dependency"
-  val plural = "dependencies"
 }
 
 class JLDWord(sentence: Sentence, index: Int, text: Option[String]) extends JLDObject {
@@ -356,7 +393,7 @@ class JLDSentence(sentence: Sentence, text: Option[String]) extends JLDObject {
     val key = "universal-enhanced"
     val jldWords = sentence.words.indices.map(new JLDWord(sentence, _, text))
     val dependencies = sentence.graphs.get(key)
-    val jldGraphMapPair = // In this case, register the type
+    lazy val jldGraphMapPair = // Don't evaluate until words are published!
         if (!dependencies.isDefined) None
         else Some(new JLDGraphMapPair(key, dependencies.get, jldWords).toJValue(publisher))
           
@@ -364,7 +401,7 @@ class JLDSentence(sentence: Sentence, text: Option[String]) extends JLDObject {
         publisher.mkId(this) ~
         (JLDWord.plural -> toJObjects(jldWords, publisher)) ~
         ("text" -> sentence.getSentenceText()) ~
-        ("dependencies" -> jldGraphMapPair)
+        (JLDDependency.plural -> jldGraphMapPair)
   }
 }
 
@@ -373,7 +410,7 @@ object JLDSentence {
   val plural = "sentences"
 }
 
-class JLDDocument(annotatedDocument: JLDObject.AnnotatedDocument) extends JLDObject {
+class JLDDocument(annotatedDocument: JLDObject.AnnotatedDocument) extends JLDObject(annotatedDocument) {
   
   def typename = "Document"
   
@@ -391,7 +428,7 @@ object JLDDocument {
   val plural = "documents"
 }
 
-class JLDCorpus(anthology: JLDObject.Anthology) extends JLDObject {
+class JLDCorpus(anthology: JLDObject.Anthology) extends JLDObject(anthology) {
   
   def typename = "Corpus"
   
