@@ -11,7 +11,6 @@
     - Decrease
   - EntityLinker:
     - DirectedRelation:
-      - Affect
       - Causal
       - Correlation
       - IsA
