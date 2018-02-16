@@ -41,8 +41,8 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   
   // TODO: This should use the yaml file to distinguish
   def newJLDExtraction(mention: Mention): JLDExtraction = {
-    val causes = mention.arguments.getOrElse(JLDObject.cause, Seq())
-    val effects = mention.arguments.getOrElse(JLDObject.effect, Seq())
+    val causes = mention.arguments.getOrElse(JLDObject.cause, Nil)
+    val effects = mention.arguments.getOrElse(JLDObject.effect, Nil)
     val others = mention.arguments.keySet.exists(key => key != JLDObject.cause && key != JLDObject.effect)
     
     if (!causes.isEmpty && !effects.isEmpty)
@@ -264,6 +264,8 @@ object JLDTrigger {
 
 abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mention: Mention) extends JLDObject(serializer, typename, mention) {
  
+  def getMentions(): Seq[Mention] = Nil
+  
   override def toJObject(): JObject = {
     val jldAttachments = mention.attachments.map(newJLDAttachment(_, mention)).toList
     
@@ -298,6 +300,17 @@ class JLDEntity(serializer: JLDSerializer, mention: Mention)
 
 class JLDDirectedRelation(serializer: JLDSerializer, mention: Mention)
     extends JLDExtraction(serializer, "DirectedRelation", mention) {
+
+  override def getMentions(): Seq[Mention] = {
+    val trigger = getTrigger()
+    val triggers =
+        if (!trigger.isDefined) Nil
+        else Seq(trigger.get)
+    val sources = mention.arguments.getOrElse(JLDObject.cause, Nil)
+    val targets = mention.arguments.getOrElse(JLDObject.effect, Nil)
+    
+    triggers ++ sources ++ targets
+  }
   
   override def toJObject(): JObject = {
     val trigger = getTrigger()
@@ -317,6 +330,16 @@ class JLDDirectedRelation(serializer: JLDSerializer, mention: Mention)
 class JLDUndirectedRelation(serializer: JLDSerializer, mention: Mention)
     extends JLDExtraction(serializer, "UndirectedRelation", mention) {
   
+  override def getMentions(): Seq[Mention] = {
+    val trigger = getTrigger()
+    val triggers =
+        if (!trigger.isDefined) Nil
+        else Seq(trigger.get)
+    val arguments = mention.arguments.values.flatten
+    
+    triggers ++ arguments
+  }
+
   override def toJObject(): JObject = {
     val trigger = getTrigger()
     val triggerMention =
@@ -443,9 +466,39 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
   
   def this(anthology: JLDObject.Corpus) = this(new JLDSerializer(), anthology)
   
+  
+  protected def collectMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Int]): Seq[JLDExtraction] = {
+    val newMentions = mentions.filter { mention => 
+      if (mapOfMentions.containsKey(mention))
+        false
+      else {
+        mapOfMentions.put(mention, 1)
+        true
+      }
+    }
+    
+    if (!newMentions.isEmpty) {
+      val jldExtractions = newMentions.map(newJLDExtraction(_))
+      val recMentions = jldExtractions.flatMap(_.getMentions())
+      
+      newMentions.foreach(mapOfMentions.put(_, 1))
+      collectMentions(recMentions, mapOfMentions)
+      jldExtractions
+    }
+    else
+      Nil
+  }
+  
+  protected def collectMentions(mentions: Seq[Mention]): Seq[JLDExtraction] =
+    collectMentions(mentions, new IdentityHashMap[Mention, Int]())
+  
   override def toJObject(): JObject = {
     val jldDocuments = anthology.map(new JLDDocument(serializer, _))
-    val jldExtractions = anthology.flatMap(_.mentions).map(newJLDExtraction(_))
+    val mentions = anthology.flatMap(_.mentions)
+    val jldExtractions = collectMentions(mentions)
+    
+    if (mentions.size != jldExtractions.size)
+      println("There were hidden ones!")
 
     serializer.mkType(this) ~
         (JLDDocument.plural -> toJObjects(jldDocuments)) ~
