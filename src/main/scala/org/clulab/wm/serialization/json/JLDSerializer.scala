@@ -19,7 +19,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.Aliases.Quantifier
 import org.clulab.wm.{Quantification, Increase, Decrease}
 
-import org.json4s.JsonAST._
+import org.json4s._
 import org.json4s.JsonDSL._ // ~ comes from here
 import org.json4s.jackson.JsonMethods._
 
@@ -30,18 +30,14 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   
   def serialize() = serializer.serialize(this)
   
-  // This is for individual objects
-  def toJObject(): JObject = ???
-  
-  // This is for arrays of values
-  def toJValue(): JValue = ???
+  def toJObject(): JObject
   
   def noneIfEmpty(values: Seq[JValue]) =
       if (values.isEmpty) None
       else Some(values)
   
-  def toJObjects(jldObjects: Seq[JLDObject]): List[JObject] =
-      jldObjects.map(_.toJObject()).toList
+  def toJObjects(jldObjects: Seq[JLDObject]): Option[Seq[JValue]] =
+      noneIfEmpty(jldObjects.map(_.toJObject()).toList)
   
   // TODO: This should use the yaml file to distinguish
   def newJLDExtraction(mention: Mention): JLDExtraction = {
@@ -280,7 +276,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
         ("rule" -> mention.foundBy) ~
         ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
         (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
-        (JLDAttachment.plural -> noneIfEmpty(toJObjects(jldAttachments)))
+        (JLDAttachment.plural -> toJObjects(jldAttachments))
   }
   
     def getTrigger() = mention match {
@@ -382,10 +378,12 @@ object JLDDependency {
 class JLDGraphMapPair(serializer: JLDSerializer, key: String, directedGraph: DirectedGraph[String], words: Seq[JLDWord])
     extends JLDObject(serializer, "Dependencies") {
  
-  override def toJValue(): JValue = {
-    val jldEdges = directedGraph.allEdges.map(new JLDDependency(serializer, _, words))
+  def toJObject(): JObject = JObject()
+  
+  def toJValue(): JValue = {
+    val jldEdges = directedGraph.allEdges.map(new JLDDependency(serializer, _, words).toJObject())
     
-    new JArray(toJObjects(jldEdges))
+    new JArray(jldEdges)
   }
 }
 
@@ -436,8 +434,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
           
     serializer.mkType(this) ~
         serializer.mkId(this) ~
-        (JLDWord.plural -> noneIfEmpty(toJObjects(jldWords))) ~
-        ("text" -> sentence.getSentenceText()) ~
+        (JLDWord.plural -> toJObjects(jldWords)) ~
+        ("text" -> sentence.getSentenceText()) ~ // change order
         (JLDDependency.plural -> jldGraphMapPair)
   }
 }
@@ -456,7 +454,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: JLDObject.Annota
       serializer.mkType(this) ~
           serializer.mkId(this) ~
           ("title" -> annotatedDocument.document.id) ~
-          (JLDSentence.plural -> noneIfEmpty(toJObjects(jldSentences)))
+          (JLDSentence.plural -> toJObjects(jldSentences))
   }
 }
 
@@ -505,8 +503,8 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
       println("There were hidden ones!")
 
     serializer.mkType(this) ~
-        (JLDDocument.plural -> noneIfEmpty(toJObjects(jldDocuments))) ~
-        (JLDExtraction.plural -> noneIfEmpty(toJObjects(jldExtractions)))
+        (JLDDocument.plural -> toJObjects(jldDocuments)) ~
+        (JLDExtraction.plural -> toJObjects(jldExtractions))
   }
 }
 
