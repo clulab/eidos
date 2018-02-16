@@ -2,14 +2,13 @@ package org.clulab.wm.entities
 
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
-import org.clulab.wm.entities.ResourceUtils
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.wmutils.FileUtils.readRules
 
 import scala.annotation.tailrec
 
-class AgroEntityFinder(
+class EidosEntityFinder(
   entityEngine: ExtractorEngine,
   avoidEngine: ExtractorEngine,
   maxHops: Int
@@ -26,20 +25,13 @@ class AgroEntityFinder(
     val avoid = avoidEngine.extractFrom(doc)
     val stateFromAvoid = State(avoid)
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
-
-
     val expandedEntities: Seq[Mention] = baseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
-
     // split entities on likely coordinations
     val splitEntities = (baseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
-
-
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
     val trimmedEntities = distinctEntities.map(trimEntityEdges)
-
-
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty) {
       trimmedEntities
@@ -48,7 +40,11 @@ class AgroEntityFinder(
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
 
-
+//    println(s"Base-entities  -- ${baseEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"Expanded-entities  -- ${expandedEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"distinct-Entities -- ${distinctEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"trimmed-Entities -- ${trimmedEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"Entities finally returned -- ${res.map(m => m.text).mkString(",\t")}")
     res
   }
 
@@ -167,16 +163,16 @@ class AgroEntityFinder(
 
 }
 
-object AgroEntityFinder extends LazyLogging {
+object EidosEntityFinder extends LazyLogging {
 
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
-  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): AgroEntityFinder = {
-    val entityRules = ResourceUtils.readResource("org/clulab/wm/grammars/entities/grammar/entities.yml")
+  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
+    val entityRules = readRules("/org/clulab/wm/grammars/entities/grammar/entities.yml")
     val avoidRules = readRules("/org/clulab/wm/grammars/avoidLocal.yml")
 
     val avoidEngine = ExtractorEngine(avoidRules)
     val entityEngine = ExtractorEngine(entityRules)
-    new AgroEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
+    new EidosEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
   }
 
 

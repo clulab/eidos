@@ -41,7 +41,18 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case
-      effect: Entity = <case <nmod_due_to? /${agents}/ /${ preps }/{,2}
+      effect: Entity = (<case <nmod_due_to? /${agents}/ /${ preps }/{,2})|(<case <nmod_due_to)
+
+
+  - name: dueToSyntax4-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: "food imports will decrease due to rainfall"
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = <case /${conjunctions}/? /${preps}/ /${conjunctions}/{,2}
+      effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
+
 
   - name: dueToSyntax3-${addlabel}
     priority: ${rulepriority}
@@ -51,6 +62,15 @@ rules:
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
       effect: Entity = <advmod|<amod <nmod_due_to? nsubj
+
+  - name: madeSyntax3-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: "X made JJ by Y"
+    pattern: |
+      trigger = [lemma="make" & tag=/^V/]
+      cause: Entity = nmod_by
+      effect: Entity = ${agents}
 
 
 # ------------------- Explicity Causal REACH --------------------------
