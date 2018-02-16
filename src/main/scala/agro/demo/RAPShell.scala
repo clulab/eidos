@@ -178,11 +178,7 @@ object RAPShell extends App {
   }
 
   def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: EidosSystem): GroundedEntity = {
-    val pseudoStemmed = if (quantifier.endsWith("ly")) convertToAdjective(quantifier) else quantifier
-    val modelRow = ieSystem.grounder.getOrElse(pseudoStemmed, Map.empty[String, Double])
-    val intercept = modelRow.get(EidosSystem.INTERCEPT)
-    val mu = modelRow.get(EidosSystem.MU_COEFF)
-    val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
+    val grounding = ieSystem.ground(mention, quantifier)
 
     // add the calculation
     println("loaded domain params:" + ieSystem.domainParamValues.toString())
@@ -192,12 +188,11 @@ object RAPShell extends App {
     val paramDetails = ieSystem.domainParamValues.get("DEFAULT").get
     val paramMean = paramDetails.get(EidosSystem.PARAM_MEAN)
     val paramStdev = paramDetails.get(EidosSystem.PARAM_STDEV)
+    val predictedDelta =
+      if (!grounding.isGrounded) None
+      else Some(math.pow(math.E, grounding.intercept.get + (grounding.mu.get * paramMean.get) + (grounding.sigma.get * paramStdev.get)) * paramStdev.get)
 
-    val predictedDelta = if (modelRow.nonEmpty && paramDetails.nonEmpty){
-      Some(math.pow(math.E, intercept.get + (mu.get * paramMean.get) + (sigma.get * paramStdev.get)) * paramStdev.get)
-    } else None
-
-    GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, mu, sigma)
+    GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
   }
 
 

@@ -74,15 +74,41 @@ class EidosSystem(
   
   def reload() = loadableAttributes = LoadableAttributes()
   
-  def annotate(text: String): Document = {
-    val doc = proc.annotate(text)
+  def annotate(text: String, keepText: Boolean = false): Document = {
+    val doc = proc.annotate(text, keepText)
     doc.sentences.foreach(s => s.entities = Some(ner.find(s)))
     doc
   }
 
-  def extractFrom(text: String): Vector[Mention] = {
-    val doc = annotate(text)
+  def extractFrom(text: String, keepText: Boolean = false): Vector[Mention] = {
+    val doc = annotate(text, keepText)
     extractFrom(doc)
+  }
+  
+  def ground(mention: Mention, quantifier: Quantifier): EidosSystem.Grounding = {
+    
+    def stemIfAdverb(word: String) = {
+      if (word.endsWith("ly"))
+        if (word.endsWith("ily"))
+          word.slice(0, word.length - 3) ++ "y"
+        else
+          word.slice(0, word.length - 2)
+      else
+        word
+    }
+    
+    val pseudoStemmed = stemIfAdverb(quantifier)
+    val modelRow = grounder.getOrElse(pseudoStemmed, Map())
+    
+    if (modelRow.isEmpty)
+      EidosSystem.Grounding(None, None, None)
+    else {
+      val intercept = modelRow.get(EidosSystem.INTERCEPT)
+      val mu = modelRow.get(EidosSystem.MU_COEFF)
+      val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
+      
+      EidosSystem.Grounding(intercept, mu, sigma)
+    }
   }
 
 //TODO: starting here :)
@@ -120,6 +146,10 @@ class EidosSystem(
 
 object EidosSystem {
 
+  case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
+    def isGrounded = intercept != None && mu != None && sigma != None
+  }
+  
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
   val DEFAULT_DOMAIN_PARAM: String = "DEFAULT"
