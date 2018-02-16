@@ -36,6 +36,10 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   // This is for arrays of values
   def toJValue(): JValue = ???
   
+  def noneIfEmpty(values: Seq[JValue]) =
+      if (values.isEmpty) None
+      else Some(values)
+  
   def toJObjects(jldObjects: Seq[JLDObject]): List[JObject] =
       jldObjects.map(_.toJObject()).toList
   
@@ -187,8 +191,8 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
   
   override def toJObject(): JObject = {
     val jldModifiers =
-        if (!modifiers.isDefined) None
-        else Some(modifiers.get.map(new JLDModifier(serializer, _, mention).toJObject()).toList)
+        if (!modifiers.isDefined) Nil
+        else modifiers.get.map(new JLDModifier(serializer, _, mention).toJObject()).toList
     
     serializer.mkType(this) ~
         serializer.mkId(this) ~
@@ -196,7 +200,7 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
         ("text", text) ~
         // This is also not the mention you are looking for
         //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
-        (JLDModifier.plural -> jldModifiers)
+        (JLDModifier.plural -> noneIfEmpty(jldModifiers))
   }
 }
 
@@ -276,7 +280,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
         ("rule" -> mention.foundBy) ~
         ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
         (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments))
+        (JLDAttachment.plural -> noneIfEmpty(toJObjects(jldAttachments)))
   }
   
     def getTrigger() = mention match {
@@ -347,12 +351,12 @@ class JLDUndirectedRelation(serializer: JLDSerializer, mention: Mention)
         else Some(serializer.mkRef(trigger.get))
     val arguments = mention.arguments.values.flatten // The keys are skipped
     val argumentMentions =
-        if (arguments.isEmpty) None
-        else Some(arguments.map(serializer.mkRef(_)).toList)
+        if (arguments.isEmpty) Nil
+        else arguments.map(serializer.mkRef(_)).toList
 
     super.toJObject() ~
         (JLDTrigger.singular -> triggerMention) ~
-        (JLDArgument.plural -> argumentMentions)
+        (JLDArgument.plural -> noneIfEmpty(argumentMentions))
   }
 }
 
@@ -432,7 +436,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
           
     serializer.mkType(this) ~
         serializer.mkId(this) ~
-        (JLDWord.plural -> toJObjects(jldWords)) ~
+        (JLDWord.plural -> noneIfEmpty(toJObjects(jldWords))) ~
         ("text" -> sentence.getSentenceText()) ~
         (JLDDependency.plural -> jldGraphMapPair)
   }
@@ -452,7 +456,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: JLDObject.Annota
       serializer.mkType(this) ~
           serializer.mkId(this) ~
           ("title" -> annotatedDocument.document.id) ~
-          (JLDSentence.plural -> toJObjects(jldSentences))
+          (JLDSentence.plural -> noneIfEmpty(toJObjects(jldSentences)))
   }
 }
 
@@ -501,8 +505,8 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
       println("There were hidden ones!")
 
     serializer.mkType(this) ~
-        (JLDDocument.plural -> toJObjects(jldDocuments)) ~
-        (JLDExtraction.plural -> toJObjects(jldExtractions))
+        (JLDDocument.plural -> noneIfEmpty(toJObjects(jldDocuments))) ~
+        (JLDExtraction.plural -> noneIfEmpty(toJObjects(jldExtractions)))
   }
 }
 
