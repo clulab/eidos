@@ -54,7 +54,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   }
   
   def newJLDAttachment(attachment: Attachment, mention: Mention): JLDAttachment = attachment match {
-    case attachment: Quantification => new JLDAttachment(serializer, "QUANT", attachment.quantifier, None, mention: Mention)
+    case attachment: Quantification => new JLDAttachment(serializer, "QUANT", attachment.quantifier, attachment.adverbs, mention: Mention)
     case attachment: Increase => new JLDAttachment(serializer, "INC", attachment.trigger, attachment.quantifier, mention: Mention)
     case attachment: Decrease => new JLDAttachment(serializer, "DEC", attachment.trigger, attachment.quantifier, mention: Mention)
   }
@@ -268,7 +268,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
   
   override def toJObject(): JObject = {
     val jldAttachments = mention.attachments.map(newJLDAttachment(_, mention)).toList
-    
+          
     serializer.mkType(this) ~
         serializer.mkId(this) ~
         ("labels" -> mention.labels) ~

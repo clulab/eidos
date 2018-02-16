@@ -15,9 +15,8 @@ class TestJsonSerialization extends Test {
   
   def newAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val system = TestUtils.system
-    val processor = system.proc
-    val document = processor.annotate(text, true)
-    val mentions = system.extractFrom(document)
+    val mentions = system.extractFrom(text, true)
+    val document = mentions(0).document
     
     document.id = Some(title)
     

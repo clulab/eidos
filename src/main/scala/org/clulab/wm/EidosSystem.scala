@@ -74,14 +74,14 @@ class EidosSystem(
   
   def reload() = loadableAttributes = LoadableAttributes()
   
-  def annotate(text: String): Document = {
-    val doc = proc.annotate(text)
+  def annotate(text: String, keepText: Boolean = false): Document = {
+    val doc = proc.annotate(text, keepText)
     doc.sentences.foreach(s => s.entities = Some(ner.find(s)))
     doc
   }
 
-  def extractFrom(text: String): Vector[Mention] = {
-    val doc = annotate(text)
+  def extractFrom(text: String, keepText: Boolean = false): Vector[Mention] = {
+    val doc = annotate(text, keepText)
     extractFrom(doc)
   }
 
