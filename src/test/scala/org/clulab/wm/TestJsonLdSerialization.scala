@@ -3,8 +3,11 @@ package org.clulab.wm
 import CAG._
 import TestUtils._
 
+import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
+import org.clulab.wm.Aliases.Quantifier
 import org.clulab.wm.serialization.json.JLDObject.Corpus
+import org.clulab.wm.serialization.json.JLDObject.Grounding
 import org.clulab.wm.serialization.json.JLDCorpus
 import org.clulab.wm.serialization.json.JLDObject._
 import org.clulab.wm.serialization.json.JLDSerializer
@@ -24,10 +27,33 @@ class TestJsonSerialization extends Test {
   }
   
   def serialize(corpus: Corpus) = {
-    val jldCorpus = new JLDCorpus(corpus)
+    val jldCorpus = new JLDCorpus(corpus, new this.TestEntityGrounder())
     val jValue = jldCorpus.serialize()
     
     stringify(jValue, true)
+  }
+  
+  class TestEntityGrounder extends EntityGrounder {
+    // This was copied from RAPShell.  It needs to be somewhere else
+    def convertToAdjective(adverb: String): String = {
+      // This code is bad!
+      if (adverb.endsWith("ily")) {
+        adverb.slice(0, adverb.length - 3) ++ "y"
+      }
+  
+      adverb.slice(0, adverb.length - 2)
+    }
+    
+    def ground(mention: Mention, quantifier: Quantifier): Grounding = {
+      val system = TestUtils.system
+      val pseudoStemmed = if (quantifier.endsWith("ly")) convertToAdjective(quantifier) else quantifier
+      val modelRow = system.grounder.getOrElse(pseudoStemmed, Map.empty[String, Double])
+      val intercept = modelRow.get(EidosSystem.INTERCEPT)
+      val mu = modelRow.get(EidosSystem.MU_COEFF)
+      val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
+      
+      Grounding(intercept, mu, sigma)
+    }
   }
   
   behavior of "Serializer"
