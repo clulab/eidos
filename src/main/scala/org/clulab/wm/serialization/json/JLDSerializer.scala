@@ -484,7 +484,7 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
       if (mapOfMentions.containsKey(mention))
         false
       else {
-        mapOfMentions.put(mention, 1)
+        mapOfMentions.put(mention, mapOfMentions.size() + 1)
         true
       }
     }
@@ -508,6 +508,11 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     val jldDocuments = anthology.map(new JLDDocument(serializer, _))
     val mentions = anthology.flatMap(_.mentions)
     val jldExtractions = collectMentions(mentions)
+    
+    // TODO: Sort the extractions
+    // Print them all ahead of time
+    // Are there references to ones not printed?
+    
     
     if (mentions.size != jldExtractions.size)
       println("There were hidden ones!")

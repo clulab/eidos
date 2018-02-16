@@ -40,12 +40,13 @@ class TestJsonSerialization extends Test {
       if (adverb.endsWith("ily")) {
         adverb.slice(0, adverb.length - 3) ++ "y"
       }
-  
+     // else
       adverb.slice(0, adverb.length - 2)
     }
     
     def ground(mention: Mention, quantifier: Quantifier): Grounding = {
       val system = TestUtils.system
+      // TODO: Improve this
       val pseudoStemmed = if (quantifier.endsWith("ly")) convertToAdjective(quantifier) else quantifier
       val modelRow = system.grounder.getOrElse(pseudoStemmed, Map.empty[String, Double])
       val intercept = modelRow.get(EidosSystem.INTERCEPT)
@@ -60,7 +61,8 @@ class TestJsonSerialization extends Test {
 
   it should "serialize one simple document" in {
     val json = serialize(Seq(
-        newAnnotatedDocument("This is a test"), 
+//        newAnnotatedDocument("This is a test"), 
+        newAnnotatedDocument("Rainfall significantly increases poverty."), 
     ))
     
     println(json)
