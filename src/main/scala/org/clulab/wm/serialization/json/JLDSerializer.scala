@@ -17,6 +17,7 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
 import org.clulab.wm.Aliases.Quantifier
+import org.clulab.wm.EidosSystem.Grounding
 import org.clulab.wm.{Quantification, Increase, Decrease}
 
 import org.json4s._
@@ -63,8 +64,6 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 object JLDObject {
   case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
   type Corpus = Seq[AnnotatedDocument]
-  
-  case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double])
   
   trait EntityGrounder {
     def ground(mention: Mention, quantifier: Quantifier): Grounding
@@ -153,7 +152,7 @@ class JLDSerializer(val entityGrounder: Some[JLDObject.EntityGrounder]) {
   
   def ground(mention: Mention, quantifier: Quantifier) =
     if (entityGrounder.isDefined) entityGrounder.get.ground(mention, quantifier)
-    else JLDObject.Grounding(None, None, None)
+    else Grounding(None, None, None)
 }
 
 object JLDSerializer {

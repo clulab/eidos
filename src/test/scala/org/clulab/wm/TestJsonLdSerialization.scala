@@ -7,7 +7,6 @@ import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.Aliases.Quantifier
 import org.clulab.wm.serialization.json.JLDObject.Corpus
-import org.clulab.wm.serialization.json.JLDObject.Grounding
 import org.clulab.wm.serialization.json.JLDCorpus
 import org.clulab.wm.serialization.json.JLDObject._
 import org.clulab.wm.serialization.json.JLDSerializer
@@ -34,39 +33,31 @@ class TestJsonSerialization extends Test {
   }
   
   class TestEntityGrounder extends EntityGrounder {
-    // This was copied from RAPShell.  It needs to be somewhere else
-    def convertToAdjective(adverb: String): String = {
-      // This code is bad!
-      if (adverb.endsWith("ily")) {
-        adverb.slice(0, adverb.length - 3) ++ "y"
-      }
-     // else
-      adverb.slice(0, adverb.length - 2)
-    }
-    
-    def ground(mention: Mention, quantifier: Quantifier): Grounding = {
-      val system = TestUtils.system
-      // TODO: Improve this
-      val pseudoStemmed = if (quantifier.endsWith("ly")) convertToAdjective(quantifier) else quantifier
-      val modelRow = system.grounder.getOrElse(pseudoStemmed, Map.empty[String, Double])
-      val intercept = modelRow.get(EidosSystem.INTERCEPT)
-      val mu = modelRow.get(EidosSystem.MU_COEFF)
-      val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
-      
-      Grounding(intercept, mu, sigma)
-    }
+
+    def ground(mention: Mention, quantifier: Quantifier) =
+      TestUtils.system.ground(mention, quantifier)
   }
   
   behavior of "Serializer"
 
   it should "serialize one simple document" in {
     val json = serialize(Seq(
-//        newAnnotatedDocument("This is a test"), 
-        newAnnotatedDocument("Rainfall significantly increases poverty."), 
+        newAnnotatedDocument("This is a test"), 
     ))
     
     println(json)
     json should not be empty
+  }
+
+  it should "be grounded" in {
+    val json = serialize(Seq(
+        newAnnotatedDocument("Rainfall significantly increases poverty."), 
+    ))
+    
+    println(json)
+    json.contains("intercept") should be (true)
+    json.contains("mu") should be (true)
+    json.contains("sigma") should be (true)
   }
   
   it should "serialize two simple documents" in {
