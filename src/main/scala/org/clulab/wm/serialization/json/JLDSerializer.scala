@@ -64,6 +64,12 @@ object JLDObject {
   case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
   type Corpus = Seq[AnnotatedDocument]
   
+  case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double])
+  
+  trait EntityGrounder {
+    def ground(mention: Mention, quantifier: Quantifier): Grounding
+  }
+  
   val cause = "cause"
   val effect = "effect"
 }
@@ -71,7 +77,7 @@ object JLDObject {
 // This class helps serialize/convert a JLDObject to JLD by keeping track of
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
-class JLDSerializer() {
+class JLDSerializer(val entityGrounder: Some[JLDObject.EntityGrounder]) {
   protected val typenames = mutable.HashSet[String]()
   protected val typenamesByIdentity = new IdentityHashMap[Any, String]()
   protected val idsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[Any, Int]] = mutable.HashMap()
@@ -144,6 +150,10 @@ class JLDSerializer() {
     ("@context" -> mkContext) ~
         jObject
   }
+  
+  def ground(mention: Mention, quantifier: Quantifier) =
+    if (entityGrounder.isDefined) entityGrounder.get.ground(mention, quantifier)
+    else JLDObject.Grounding(None, None, None)
 }
 
 object JLDSerializer {
@@ -162,18 +172,19 @@ object JLDArgument {
   val plural = "arguments"
 }
 
-class JLDModifier(serializer: JLDSerializer, text: String, mention: Mention)
+class JLDModifier(serializer: JLDSerializer, quantifier: Quantifier, mention: Mention)
     extends JLDObject(serializer, "Modifier") {
 
   override def toJObject(): JObject = {
-      serializer.mkType(this) ~
-          ("text" -> text) ~
-          // This is not the mention you are looking for
-          //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
-          // TODO: Figure out how to get these values
-          ("intercept" -> None) ~
-          ("mu" -> None) ~
-          ("sigma" -> None)
+    val grounding = serializer.ground(mention, quantifier)
+    
+    serializer.mkType(this) ~
+        ("text" -> quantifier) ~
+        // This is not the mention you are looking for
+        //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
+        ("intercept" -> grounding.intercept) ~
+        ("mu" -> grounding.mu) ~
+        ("sigma" -> grounding.sigma)
   }
 }
 
@@ -466,8 +477,7 @@ object JLDDocument {
 class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     extends JLDObject(serializer, "Corpus", anthology) {
   
-  def this(anthology: JLDObject.Corpus) = this(new JLDSerializer(), anthology)
-  
+  def this(anthology: JLDObject.Corpus, entityGrounder: JLDObject.EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), anthology)
   
   protected def collectMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Int]): Seq[JLDExtraction] = {
     val newMentions = mentions.filter { mention => 
