@@ -62,7 +62,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 
 object JLDObject {
   case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
-  type Anthology = Seq[AnnotatedDocument]
+  type Corpus = Seq[AnnotatedDocument]
   
   val cause = "cause"
   val effect = "effect"
@@ -129,7 +129,8 @@ class JLDSerializer() {
   def mkRef(identity: Any): JObject = {
     val typename = typenamesByIdentity.get(identity)
     if (typename == null)
-      throw new Exception("Cannot make reference to " + identity)
+      return mkId("UnknownType", 0)
+      //throw new Exception("Cannot make reference to " + identity)
     
     val id = idsByTypenameByIdentity(typename).get(identity)
     
@@ -167,7 +168,8 @@ class JLDModifier(serializer: JLDSerializer, text: String, mention: Mention)
   override def toJObject(): JObject = {
       serializer.mkType(this) ~
           ("text" -> text) ~
-          (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
+          // This is not the mention you are looking for
+          //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
           // TODO: Figure out how to get these values
           ("intercept" -> None) ~
           ("mu" -> None) ~
@@ -184,7 +186,7 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
     extends JLDObject(serializer, "State") {
   
   override def toJObject(): JObject = {
-    val mods =
+    val jldModifiers =
         if (!modifiers.isDefined) None
         else Some(modifiers.get.map(new JLDModifier(serializer, _, mention).toJObject()).toList)
     
@@ -192,8 +194,9 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
         serializer.mkId(this) ~
         ("type", kind) ~
         ("text", text) ~
-        (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
-        (JLDModifier.plural -> mods)
+        // This is also not the mention you are looking for
+        //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
+        (JLDModifier.plural -> jldModifiers)
   }
 }
 
@@ -425,6 +428,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: JLDObject.Annota
       
       serializer.mkType(this) ~
           serializer.mkId(this) ~
+          ("title" -> annotatedDocument.document.id) ~
           (JLDSentence.plural -> toJObjects(jldSentences))
   }
 }
@@ -434,10 +438,10 @@ object JLDDocument {
   val plural = "documents"
 }
 
-class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Anthology)
+class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     extends JLDObject(serializer, "Corpus", anthology) {
   
-  def this(anthology: JLDObject.Anthology) = this(new JLDSerializer(), anthology)
+  def this(anthology: JLDObject.Corpus) = this(new JLDSerializer(), anthology)
   
   override def toJObject(): JObject = {
     val jldDocuments = anthology.map(new JLDDocument(serializer, _))
