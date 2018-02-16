@@ -1,7 +1,9 @@
 package org.clulab.wm.serialization.json
 
-import java.util.IdentityHashMap
+import java.util.IdentityHashMap // Unfortunately borrowed from Java
+import java.util.{Set => JavaSet} // Holds keys of IdentityHashMap
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 import org.clulab.odin.Attachment
@@ -23,55 +25,76 @@ import org.json4s.jackson.JsonMethods._
 
 // This is an object than when asked to convert itself a JSON object or value, converts
 // itself in a way that conforms to the JSON-LD standard as well.
-abstract class JLDObject(val value: Any) {
-
-  def this() = this(new Object())
+abstract class JLDObject(val serializer: JLDSerializer, val typename: String, val value: Any = new Object()) {
+  serializer.register(this)
   
-  def typename: String
+  def serialize() = serializer.serialize(this)
   
   // This is for individual objects
-  def toJObject(jldPublisher: JLDPublisher, asRef: Boolean = false): JObject = ???
+  def toJObject(): JObject = ???
   
   // This is for arrays of values
-  def toJValue(jldPublisher: JLDPublisher, asRef: Boolean = false): JValue = ???
+  def toJValue(): JValue = ???
   
-  def toJObjects(jldObjects: Seq[JLDObject], publisher: JLDPublisher): List[JObject] =
-      jldObjects.map(_.toJObject(publisher)).toList
+  def toJObjects(jldObjects: Seq[JLDObject]): List[JObject] =
+      jldObjects.map(_.toJObject()).toList
   
   // TODO: This should use the yaml file to distinguish
   def newJLDExtraction(mention: Mention): JLDExtraction = {
-    val causes = mention.arguments.getOrElse("cause", Seq())
-    val effects = mention.arguments.getOrElse("effects", Seq())
-    val others = mention.arguments.keySet.exists(key => key != "cause" && key != "effect")
+    val causes = mention.arguments.getOrElse(JLDObject.cause, Seq())
+    val effects = mention.arguments.getOrElse(JLDObject.effect, Seq())
+    val others = mention.arguments.keySet.exists(key => key != JLDObject.cause && key != JLDObject.effect)
     
     if (!causes.isEmpty && !effects.isEmpty)
-      new JLDDirectedRelation(mention)
+      new JLDDirectedRelation(serializer, mention)
     else if (others || !causes.isEmpty || !effects.isEmpty)
-      new JLDUndirectedRelation(mention)
+      new JLDUndirectedRelation(serializer, mention)
     else
-      new JLDEntity(mention)
-  }      
-
+      new JLDEntity(serializer, mention)
+  }
+  
   def newJLDAttachment(attachment: Attachment, mention: Mention): JLDAttachment = attachment match {
-    case attachment: Quantification => new JLDAttachment("QUANT", attachment.quantifier, None, mention: Mention)
-    case attachment: Increase => new JLDAttachment("INC", attachment.trigger, attachment.quantifier, mention: Mention)
-    case attachment: Decrease => new JLDAttachment("DEC", attachment.trigger, attachment.quantifier, mention: Mention)
+    case attachment: Quantification => new JLDAttachment(serializer, "QUANT", attachment.quantifier, None, mention: Mention)
+    case attachment: Increase => new JLDAttachment(serializer, "INC", attachment.trigger, attachment.quantifier, mention: Mention)
+    case attachment: Decrease => new JLDAttachment(serializer, "DEC", attachment.trigger, attachment.quantifier, mention: Mention)
   }
 }
 
 object JLDObject {
   case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
-  type Anthology = Seq[AnnotatedDocument]  
+  type Anthology = Seq[AnnotatedDocument]
+  
+  val cause = "cause"
+  val effect = "effect"
 }
 
-// This class helps publish/convert a JLDObject to JLD by keeping track of
+// This class helps serialize/convert a JLDObject to JLD by keeping track of
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
-class JLDPublisher(jldObjectProvider: JLDObject) {
+class JLDSerializer() {
   protected val typenames = mutable.HashSet[String]()
   protected val typenamesByIdentity = new IdentityHashMap[Any, String]()
-  protected val idsByTypenamesByIdentity: mutable.HashMap[String, IdentityHashMap[Any, Int]] = mutable.HashMap()
+  protected val idsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[Any, Int]] = mutable.HashMap()
+  protected val jldObjectsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[JLDObject, Int]] = mutable.HashMap()
   
+  def register(jldObject: JLDObject) = {
+    val identity = jldObject.value
+    val typename = jldObject.typename
+    
+    typenamesByIdentity.put(identity, typename) // So that know which idsByTypenamesByIdentity to look in
+    
+    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, new IdentityHashMap[Any, Int]())
+
+    if (!idsByIdentity.containsKey(identity))
+      idsByIdentity.put(identity, idsByIdentity.size() + 1)
+
+    val jldObjectsByIdentity = jldObjectsByTypenameByIdentity.getOrElseUpdate(typename, new IdentityHashMap[JLDObject,Int]())
+    
+    jldObjectsByIdentity.put(jldObject, 0)    
+  }
+
+  def byTypename(typename: String): JavaSet[JLDObject] = jldObjectsByTypenameByIdentity(typename).keySet()
+      
   protected def mkId(typename: String, id: Int): (String, String) =
       ("@id" -> ("_:" + typename + "_" + id))
     
@@ -80,16 +103,9 @@ class JLDPublisher(jldObjectProvider: JLDObject) {
     val typename = jldObject.typename
     
     typenamesByIdentity.put(identity, typename) // So that know which idsByTypenamesByIdentity to look in
-    val idsByIdentity = idsByTypenamesByIdentity.getOrElseUpdate(typename, new IdentityHashMap[Any, Int]())
-    val id = 
-        if (idsByIdentity.containsKey(identity))
-          idsByIdentity.get(identity)
-        else {
-          val newId = idsByIdentity.size() + 1
-          
-          idsByIdentity.put(identity, newId)
-          newId
-        }
+    
+    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, new IdentityHashMap[Any, Int]())
+    val id = idsByIdentity.get(identity)
     
     mkId(typename, id)
   }
@@ -104,50 +120,40 @@ class JLDPublisher(jldObjectProvider: JLDObject) {
   def mkContext(): JObject = {
     def mkContext(name: String): JField = new JField(name, "#user-content-" + name.toLowerCase())
     
-    val base = new JField("@base", JLDPublisher.base)
+    val base = new JField("@base", JLDSerializer.base)
     val types = typenames.toList.sorted.map(mkContext(_))
     
     new JObject(base +: types)
   }
   
-  def mkRef(name: String, identity: Any): JObject = {
+  def mkRef(identity: Any): JObject = {
     val typename = typenamesByIdentity.get(identity)
     if (typename == null)
-      throw new Exception("Cannot make reference named " + name + " to " + identity)
+      throw new Exception("Cannot make reference to " + identity)
     
-    val id = idsByTypenamesByIdentity(typename).get(identity)
+    val id = idsByTypenameByIdentity(typename).get(identity)
     
-    (name ->
-        mkId(typename, id)
-    )
+    mkId(typename, id)
   }
-  
-  protected def clear() = {
-    typenames.clear()
-    typenamesByIdentity.clear()
-    idsByTypenamesByIdentity.clear()
-  }
-  
-  def publish(): JValue = {
-    clear()
-    val jObject = jldObjectProvider.toJObject(this)
-      
+    
+  def serialize(jldObjectProvider: JLDObject): JValue = {
+    // This must be done first in order to collect the context entries
+    val jObject = jldObjectProvider.toJObject()
+    
     ("@context" -> mkContext) ~
         jObject
   }
 }
 
-object JLDPublisher {
+object JLDSerializer {
   val base = "https://github.com/clulab/eidos/wiki/JSON-LD"
 }
 
-class JLDArgument(mention: Mention) extends JLDObject(mention) {
+class JLDArgument(serializer: JLDSerializer, mention: Mention)
+    extends JLDObject(serializer, "Argument", mention) {
   
-  def typename = "Argument"
-
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject=
-      publisher.mkType(this) ~
-          newJLDExtraction(mention).toJObject(publisher, true) // TODO: Instead, publisher.asRef(mention)
+  override def toJObject(): JObject =
+    serializer.mkRef(mention)
 }
 
 object JLDArgument {
@@ -155,14 +161,13 @@ object JLDArgument {
   val plural = "arguments"
 }
 
-class JLDModifier(text: String, mention: Mention) extends JLDObject {
+class JLDModifier(serializer: JLDSerializer, text: String, mention: Mention)
+    extends JLDObject(serializer, "Modifier") {
 
-  def typename = "Modifier"
-
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
-      publisher.mkType(this) ~
+  override def toJObject(): JObject = {
+      serializer.mkType(this) ~
           ("text" -> text) ~
-          (JLDProvenance.singular -> new JLDProvenance(mention).toJObject(publisher)) ~
+          (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
           // TODO: Figure out how to get these values
           ("intercept" -> None) ~
           ("mu" -> None) ~
@@ -175,20 +180,19 @@ object JLDModifier {
   val plural = "modifiers"
 }
 
-class JLDAttachment(kind: String, text: String, modifiers: Option[Seq[Quantifier]], mention: Mention) extends JLDObject {
+class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modifiers: Option[Seq[Quantifier]], mention: Mention)
+    extends JLDObject(serializer, "State") {
   
-  def typename = "State"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
+  override def toJObject(): JObject = {
     val mods =
         if (!modifiers.isDefined) None
-        else Some(modifiers.get.map(new JLDModifier(_, mention).toJObject(publisher)).toList)
+        else Some(modifiers.get.map(new JLDModifier(serializer, _, mention).toJObject()).toList)
     
-    publisher.mkType(this) ~
-        publisher.mkId(this) ~
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
         ("type", kind) ~
         ("text", text) ~
-        (JLDProvenance.singular -> new JLDProvenance(mention).toJObject(publisher)) ~
+        (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
         (JLDModifier.plural -> mods)
   }
 }
@@ -198,12 +202,11 @@ object JLDAttachment {
   val plural = "states"
 }
 
-class JLDInterval(interval: Interval, asRef: Boolean = false) extends JLDObject {
+class JLDInterval(serializer: JLDSerializer, interval: Interval)
+    extends JLDObject(serializer, "Position") {
 
-  def typename = "Position"
-
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject =
-      publisher.mkType(this) ~
+  override def toJObject(): JObject =
+      serializer.mkType(this) ~
           ("start", interval.start) ~
           ("end", interval.end)
 }
@@ -213,19 +216,28 @@ object JLDInterval {
   val plural = "positions"
 }
 
-class JLDProvenance(mention: Mention, skipPositions: Boolean = false) extends JLDObject(mention) {
+class JLDProvenance(serializer: JLDSerializer, mention: Mention, skipPositions: Boolean = false)
+    extends JLDObject(serializer, "Provenance", mention) {
   
-  def typename = "Provenance"
+  override def toJObject(): JObject = {
+    val document = mention.document
+    val sentence = mention.sentenceObj
 
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
-    val positions =
-        if (skipPositions) None
-        else Some(Seq(mention.tokenInterval).map(new JLDInterval(_).toJObject(publisher)))
+    if (skipPositions) // For the states when we don't have them
+      serializer.mkType(this) ~
+        (JLDDocument.singular -> serializer.mkRef(document)) ~
+        (JLDSentence.singular -> serializer.mkRef(sentence))
+    else {
+      // Try to find the matching ones by document, sentence, and position with eq
+      val allJldWords = serializer.byTypename(JLDWord.typename).asScala.map(_.asInstanceOf[JLDWord])
+      val filteredJldWords = mention.start.until(mention.end).map { i => // This is done to keep the words in order
+        allJldWords.find(jldWord => jldWord.document.eq(document) && jldWord.sentence.eq(sentence) && i == jldWord.index)
+      }.filter(_.isDefined).map(_.get)      
+      val refJldWords = filteredJldWords.map(jldWord => serializer.mkRef(jldWord.value))
             
-      publisher.mkType(this) ~ // TODO: get these references
-//      publisher.mkRef(JLDDocument.singular, mention.document) ~ // So need to know document!
-//      publisher.mkRef(JLDSentence.singular, mention.sentenceObj) ~
-      (JLDInterval.plural -> positions)
+      serializer.mkType(this) ~
+          ("references" -> refJldWords)
+    }
   }
 }
 
@@ -234,13 +246,12 @@ object JLDProvenance {
   val plural = "provenances"
 }
 
-class JLDTrigger(mention: Mention) extends JLDObject(mention) {
+class JLDTrigger(serializer: JLDSerializer, mention: Mention)
+    extends JLDObject(serializer, "Trigger", mention) {
   
-  def typename = "Trigger"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject =
+  override def toJObject(): JObject =
       ("text" -> mention.text) ~
-          (JLDProvenance.singular -> new JLDProvenance(mention).toJObject(publisher))
+          (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject())
 }
 
 object JLDTrigger {
@@ -248,19 +259,19 @@ object JLDTrigger {
   val plural = "triggers"
 }
 
-abstract class JLDExtraction(mention: Mention) extends JLDObject(mention) {
+abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mention: Mention) extends JLDObject(serializer, typename, mention) {
  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
+  override def toJObject(): JObject = {
     val jldAttachments = mention.attachments.map(newJLDAttachment(_, mention)).toList
     
-    publisher.mkType(this) ~
-        publisher.mkId(this) ~
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
         ("labels" -> mention.labels) ~
         ("text" -> mention.text) ~
         ("rule" -> mention.foundBy) ~
         ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
-        (JLDProvenance.singular -> new JLDProvenance(mention).toJObject(publisher)) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments, publisher))
+        (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
+        (JLDAttachment.plural -> toJObjects(jldAttachments))
   }
   
     def getTrigger() = mention match {
@@ -275,64 +286,60 @@ object JLDExtraction {
   val plural = "extractions"
 }
 
-class JLDEntity(mention: Mention) extends JLDExtraction(mention) {
+class JLDEntity(serializer: JLDSerializer, mention: Mention) 
+    extends JLDExtraction(serializer, "Entity", mention) {
   
-  def typename = "Entity"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject =
-     super.toJObject(publisher)
+  override def toJObject(): JObject =
+     super.toJObject()
 }
 
-class JLDDirectedRelation(mention: Mention) extends JLDExtraction(mention) {
+class JLDDirectedRelation(serializer: JLDSerializer, mention: Mention)
+    extends JLDExtraction(serializer, "DirectedRelation", mention) {
   
-  def typename = "DirectedRelation"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
-    val sources = mention.arguments.getOrElse("cause", Nil)
-    val targets = mention.arguments.getOrElse("effect", Nil)
+  override def toJObject(): JObject = {
     val trigger = getTrigger()
     val triggerMention =
         if (!trigger.isDefined) None
-        else Some(new JLDTrigger(trigger.get).toJObject(publisher))
+        else Some(serializer.mkRef(trigger.get))
+    val sources = mention.arguments.getOrElse(JLDObject.cause, Nil)
+    val targets = mention.arguments.getOrElse(JLDObject.effect, Nil)
  
-    super.toJObject(publisher) ~
-        (JLDTrigger.singular -> triggerMention) ~ // TODO: refs
-        ("sources" -> sources.map(newJLDExtraction(_).toJObject(publisher, true))) ~ // TODO: Instead, ask publisher for ref to mention
-        ("destinations" -> targets.map(newJLDExtraction(_).toJObject(publisher, true)))
+    super.toJObject() ~
+        (JLDTrigger.singular -> triggerMention) ~
+        ("sources" -> sources.map(serializer.mkRef(_))) ~
+        ("destinations" -> targets.map(serializer.mkRef(_)))
   }
 }
 
-class JLDUndirectedRelation(mention: Mention) extends JLDExtraction(mention) {
+class JLDUndirectedRelation(serializer: JLDSerializer, mention: Mention)
+    extends JLDExtraction(serializer, "UndirectedRelation", mention) {
   
-  def typename = "UndirectedRelation"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
+  override def toJObject(): JObject = {
+    val trigger = getTrigger()
+    val triggerMention =
+        if (!trigger.isDefined) None
+        else Some(serializer.mkRef(trigger.get))
     val arguments = mention.arguments.values.flatten // The keys are skipped
     val argumentMentions =
         if (arguments.isEmpty) None
-        else Some(arguments.map(new JLDArgument(_).toJObject(publisher)).toList)
-    val trigger = getTrigger()
-    val triggerMention =
-        if (!trigger.isDefined) None
-        else Some(new JLDTrigger(trigger.get).toJObject(publisher))
+        else Some(arguments.map(serializer.mkRef(_)).toList)
 
-    super.toJObject(publisher) ~
+    super.toJObject() ~
         (JLDTrigger.singular -> triggerMention) ~
-        (JLDArgument.plural, argumentMentions)
+        (JLDArgument.plural -> argumentMentions)
   }
 }
 
-class JLDDependency(edge: (Int, Int, String), words: Seq[JLDWord]) extends JLDObject {
+class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
+    extends JLDObject(serializer, "Dependency") {
 
-  def typename = "Dependency"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
+  override def toJObject(): JObject = {
     val source = words(edge._1).value
     val destination = words(edge._2).value
     
-    publisher.mkType(this) ~
-        publisher.mkRef("source", source) ~
-        publisher.mkRef("destination", destination) ~
+    serializer.mkType(this) ~
+        ("source" -> serializer.mkRef(source)) ~
+        ("destination" -> serializer.mkRef(destination)) ~
         ("relation" -> edge._3)
   }  
 }
@@ -342,22 +349,21 @@ object JLDDependency {
   val plural = "dependencies"
 }
 
-class JLDGraphMapPair(key: String, directedGraph: DirectedGraph[String], words: Seq[JLDWord]) extends JLDObject {
+class JLDGraphMapPair(serializer: JLDSerializer, key: String, directedGraph: DirectedGraph[String], words: Seq[JLDWord])
+    extends JLDObject(serializer, "Dependencies") {
  
-  def typename = "Dependencies"
-  
-  override def toJValue(publisher: JLDPublisher, asRef: Boolean = false): JValue = {
-    val jldEdges = directedGraph.allEdges.map(new JLDDependency(_, words))
+  override def toJValue(): JValue = {
+    val jldEdges = directedGraph.allEdges.map(new JLDDependency(serializer, _, words))
     
-    new JArray(toJObjects(jldEdges, publisher))
+    new JArray(toJObjects(jldEdges))
   }
 }
 
-class JLDWord(sentence: Sentence, index: Int, text: Option[String]) extends JLDObject {
+class JLDWord(serializer: JLDSerializer, val document: Document, val sentence: Sentence, val index: Int)
+    // The document, sentence, index above will be used to recognized words.
+    extends JLDObject(serializer, JLDWord.typename) {
   
-  def typename = "Word"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
+  override def toJObject(): JObject = {
     def getOrNone(optionArray: Option[Array[String]]): Option[String] =
         if (!optionArray.isDefined) None
         else Option(optionArray.get(index))
@@ -365,11 +371,11 @@ class JLDWord(sentence: Sentence, index: Int, text: Option[String]) extends JLDO
     val startOffset = sentence.startOffsets(index)
     val endOffset = sentence.endOffsets(index)
     val jldText =
-        if (!text.isDefined) None
-        else Option(text.get.substring(startOffset, endOffset))
+        if (!document.text.isDefined) None
+        else Option(document.text.get.substring(startOffset, endOffset))
 
-    publisher.mkType(this) ~
-        publisher.mkId(this) ~
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
         ("text" -> jldText) ~
         ("tag" -> getOrNone(sentence.tags)) ~
         ("entity" -> getOrNone(sentence.entities)) ~
@@ -383,23 +389,24 @@ class JLDWord(sentence: Sentence, index: Int, text: Option[String]) extends JLDO
 object JLDWord {
   val singular = "word"
   val plural = "words"
+  val typename = "Word"
 }
 
-class JLDSentence(sentence: Sentence, text: Option[String]) extends JLDObject {
+class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
+    extends JLDObject(serializer, "Sentence") {
   
-  def typename = "Sentence"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
+  override def toJObject(): JObject = {
     val key = "universal-enhanced"
-    val jldWords = sentence.words.indices.map(new JLDWord(sentence, _, text))
+    val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
-    lazy val jldGraphMapPair = // Don't evaluate until words are published!
+    // This is given access to the words because they are nicely in order and no searching need be done.
+    val jldGraphMapPair =
         if (!dependencies.isDefined) None
-        else Some(new JLDGraphMapPair(key, dependencies.get, jldWords).toJValue(publisher))
+        else Some(new JLDGraphMapPair(serializer, key, dependencies.get, jldWords).toJValue())
           
-    publisher.mkType(this) ~
-        publisher.mkId(this) ~
-        (JLDWord.plural -> toJObjects(jldWords, publisher)) ~
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
+        (JLDWord.plural -> toJObjects(jldWords)) ~
         ("text" -> sentence.getSentenceText()) ~
         (JLDDependency.plural -> jldGraphMapPair)
   }
@@ -410,16 +417,15 @@ object JLDSentence {
   val plural = "sentences"
 }
 
-class JLDDocument(annotatedDocument: JLDObject.AnnotatedDocument) extends JLDObject(annotatedDocument) {
+class JLDDocument(serializer: JLDSerializer, annotatedDocument: JLDObject.AnnotatedDocument)
+    extends JLDObject(serializer, "Document", annotatedDocument) {
   
-  def typename = "Document"
-  
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
-    val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(_, annotatedDocument.document.text))
+  override def toJObject(): JObject = {
+    val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
       
-      publisher.mkType(this) ~
-          publisher.mkId(this) ~
-          (JLDSentence.plural -> toJObjects(jldSentences, publisher))
+      serializer.mkType(this) ~
+          serializer.mkId(this) ~
+          (JLDSentence.plural -> toJObjects(jldSentences))
   }
 }
 
@@ -428,17 +434,18 @@ object JLDDocument {
   val plural = "documents"
 }
 
-class JLDCorpus(anthology: JLDObject.Anthology) extends JLDObject(anthology) {
+class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Anthology)
+    extends JLDObject(serializer, "Corpus", anthology) {
   
-  def typename = "Corpus"
+  def this(anthology: JLDObject.Anthology) = this(new JLDSerializer(), anthology)
   
-  override def toJObject(publisher: JLDPublisher, asRef: Boolean = false): JObject = {
-    val jldDocuments = anthology.map(new JLDDocument(_))
+  override def toJObject(): JObject = {
+    val jldDocuments = anthology.map(new JLDDocument(serializer, _))
     val jldExtractions = anthology.flatMap(_.mentions).map(newJLDExtraction(_))
 
-    publisher.mkType(this) ~
-        (JLDDocument.plural -> toJObjects(jldDocuments, publisher)) ~
-        (JLDExtraction.plural -> toJObjects(jldExtractions, publisher))
+    serializer.mkType(this) ~
+        (JLDDocument.plural -> toJObjects(jldDocuments)) ~
+        (JLDExtraction.plural -> toJObjects(jldExtractions))
   }
 }
 
