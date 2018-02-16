@@ -12,6 +12,7 @@ object TestUtils {
   
   // This will be a GraphTest in contrast to a RuleTest
   class Test extends FlatSpec with Matchers {
+
     class TesterTag extends Tag("org.clulab.wm.TestUtils")
     
     object Nobody   extends TesterTag
@@ -26,7 +27,7 @@ object TestUtils {
     object Zheng    extends TesterTag
     object Mihai    extends TesterTag
     object Ben      extends TesterTag
-
+    object Heather  extends TesterTag
     
     val passingTest = it
     val failingTest = ignore
@@ -57,7 +58,7 @@ object TestUtils {
     }    
   }
   
-  protected lazy val system = new EidosSystem() // TODO: Change this class name
+  lazy val system = new EidosSystem() // TODO: Change this class name
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text)
 }
