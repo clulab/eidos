@@ -10,7 +10,7 @@ class TestRaps extends Test {
     val sent1 = "Better and well-functioning agricultural credit and market services for both established and emerging farmers."
     val tester = new Tester(sent1)
 
-    val credit = newNodeSpec("well-functioning agricultural credit", newIncrease("Better") )
+    val credit = NodeSpec("well-functioning agricultural credit", Inc("Better") )
 
     behavior of "Raps_sent1"
 
@@ -21,9 +21,8 @@ class TestRaps extends Test {
     }
 
   }
+
   
-
-
 } //END OF TEST BRACE
 
 
