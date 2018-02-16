@@ -71,7 +71,7 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
-      trigger: ${cause_triggers}|${increase_triggers}|${decrease_triggers}
+      trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers}
 
   - import: org/clulab/wm/grammars/reverse_direction_causal.yml
     vars:

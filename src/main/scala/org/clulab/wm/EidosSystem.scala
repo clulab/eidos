@@ -1,19 +1,17 @@
 package org.clulab.wm
 
 import org.clulab.odin._
-
-import org.clulab.processors.{Document, Processor}
 import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
-
-import org.clulab.wm.entities.AgroEntityFinder
-import org.clulab.wm.wmutils.FileUtils.{findFilesFromResources, loadDomainParams, loadGradableAdjGroundingFile, readRules}
-import Aliases._
+import org.clulab.wm.Aliases._
+import org.clulab.wm.entities.EidosEntityFinder
+import org.clulab.wm.wmutils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
 
 /**
   * Handles text processing and information extraction for Agro domain.
   */
-class AgroSystem(
+class EidosSystem(
   // The first three are loaded as resources from URLs, thus the leading /
   // The last two are loaded as resources from files and have no leading /
       masterRulesPath: String = "/org/clulab/wm/grammars/master.yml",
@@ -32,10 +30,10 @@ class AgroSystem(
   val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
 
   class LoadableAttributes(
-      val entityFinder: AgroEntityFinder, 
+      val entityFinder: EidosEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
       val grounder: Map[Quantifier, Map[String, Double]],
-      val actions: AgroActions,
+      val actions: EidosActions,
       val engine: ExtractorEngine,
       val ner: LexiconNER
   )
@@ -43,10 +41,10 @@ class AgroSystem(
   object LoadableAttributes {
     def apply(): LoadableAttributes = {
       val rules = readRules(masterRulesPath)
-      val actions = new AgroActions
+      val actions = new EidosActions
      
       new LoadableAttributes(
-          AgroEntityFinder(maxHops = 5), 
+          EidosEntityFinder(maxHops = 5), 
           // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
           // Load the gradable adj grounding KB file
@@ -100,8 +98,12 @@ class AgroSystem(
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
+//    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
+    val unfilteredEntities = entityFinder.extract(doc).toVector
+//    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
     val res = extractEventsFrom(doc, State(entities)).distinct
+//    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
     res
   }
 
@@ -116,7 +118,7 @@ class AgroSystem(
   }
 }
 
-object AgroSystem {
+object EidosSystem {
 
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"

@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   adverbial_clause: "advcl"
