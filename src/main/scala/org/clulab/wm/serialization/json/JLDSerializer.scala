@@ -484,8 +484,10 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
   
   def this(anthology: JLDObject.Corpus, entityGrounder: JLDObject.EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), anthology)
   
+  val myanthology = anthology
+  
   protected def collectMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Int]): Seq[JLDExtraction] = {
-    val newMentions = mentions.filter { mention => 
+    val newMentions = mentions.filter(isExtractable(_)).filter { mention => 
       if (mapOfMentions.containsKey(mention))
         false
       else {
@@ -495,33 +497,45 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     }
     
     if (!newMentions.isEmpty) {
-      val jldExtractions = newMentions.map(newJLDExtraction(_)).filter(_.isDefined).map(_.get)
+      val jldExtractions = newMentions.map(newJLDExtraction(_).get)
       val recMentions = jldExtractions.flatMap(_.getMentions())
       
-      newMentions.foreach(mapOfMentions.put(_, 1))
-      collectMentions(recMentions, mapOfMentions)
-      jldExtractions
+      jldExtractions ++ collectMentions(recMentions, mapOfMentions)
     }
     else
       Nil
   }
   
-  protected def collectMentions(mentions: Seq[Mention]): Seq[JLDExtraction] =
-    collectMentions(mentions, new IdentityHashMap[Mention, Int]())
+  protected def collectMentions(mentions: Seq[Mention]): Seq[JLDExtraction] = {
+    val ordering = Array(JLDEntity.typename, JLDDirectedRelation.typename, JLDUndirectedRelation.typename)
+    val mapOfMentions = new IdentityHashMap[Mention, Int]()
+
+    def lt(left: JLDExtraction, right: JLDExtraction) = {
+      val leftOrdering = ordering.indexOf(left.typename)
+      val rightOrdering = ordering.indexOf(right.typename)
+      
+      if (leftOrdering != rightOrdering)
+        leftOrdering < rightOrdering
+      else
+        mapOfMentions.get(left.value) < mapOfMentions.get(right.value)
+    }
+
+    collectMentions(mentions, mapOfMentions).sortWith(lt)
+  }
   
   override def toJObject(): JObject = {
     val jldDocuments = anthology.map(new JLDDocument(serializer, _))
     val mentions = anthology.flatMap(_.mentions)
     val jldExtractions = collectMentions(mentions)
     
-    // TODO: Sort the extractions
-    // Print them all ahead of time
-    // Are there references to ones not printed?
-    
-    
-    if (mentions.size != jldExtractions.size)
-      println("There were hidden ones!")
+    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation")).get
+    val position1 = mentions(index1).end
+    println("position1 " + position1)
+    val index2 = index1 + 1
+    val position2 = mentions(index2).end
+    println("position2 " + position2)
 
+    
     serializer.mkType(this) ~
         (JLDDocument.plural -> toJObjects(jldDocuments)) ~
         (JLDExtraction.plural -> toJObjects(jldExtractions))
