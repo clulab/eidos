@@ -15,7 +15,6 @@ import org.clulab.odin.EventMention
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
-import org.clulab.struct.Interval
 import org.clulab.wm.Aliases.Quantifier
 import org.clulab.wm.EidosSystem.Grounding
 import org.clulab.wm.{Quantification, Increase, Decrease}
@@ -137,8 +136,8 @@ class JLDSerializer(val entityGrounder: Some[JLDObject.EntityGrounder]) {
   def mkRef(identity: Any): JObject = {
     val typename = typenamesByIdentity.get(identity)
     if (typename == null)
-      return mkId("UnknownType", 0)
-      //throw new Exception("Cannot make reference to " + identity)
+      //return mkId("UnknownType", 0)
+      throw new Exception("Cannot make reference to unknown identity: " + identity)
     
     val id = idsByTypenameByIdentity(typename).get(identity)
     
@@ -183,6 +182,7 @@ class JLDModifier(serializer: JLDSerializer, quantifier: Quantifier, mention: Me
     serializer.mkType(this) ~
         ("text" -> quantifier) ~
         // This is not the mention you are looking for
+        // See also skipPositions
         //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
         ("intercept" -> grounding.intercept) ~
         ("mu" -> grounding.mu) ~
@@ -218,13 +218,13 @@ object JLDAttachment {
   val plural = "states"
 }
 
-class JLDInterval(serializer: JLDSerializer, interval: Interval)
-    extends JLDObject(serializer, "Position") {
+class JLDInterval(serializer: JLDSerializer, start: Int, end: Int)
+    extends JLDObject(serializer, "Interval") {
 
   override def toJObject(): JObject =
       serializer.mkType(this) ~
-          ("start", interval.start) ~
-          ("end", interval.end)
+          ("start", start + 1) ~ // Start at 1
+          ("end", end) // It is now inclusive
 }
 
 object JLDInterval {
@@ -247,14 +247,17 @@ class JLDProvenance(serializer: JLDSerializer, mention: Mention)
         (JLDSentence.singular -> serializer.mkRef(sentence))
     else {
       // Try to find the matching ones by document, sentence, and position with eq
-      val allJldWords = serializer.byTypename(JLDWord.typename).asScala.map(_.asInstanceOf[JLDWord])
-      val filteredJldWords = mention.start.until(mention.end).map { i => // This is done to keep the words in order
-        allJldWords.find(jldWord => jldWord.document.eq(document) && jldWord.sentence.eq(sentence) && i == jldWord.index)
-      }.filter(_.isDefined).map(_.get)      
-      val refJldWords = filteredJldWords.map(jldWord => serializer.mkRef(jldWord.value))
+//      val allJldWords = serializer.byTypename(JLDWord.typename).asScala.map(_.asInstanceOf[JLDWord])
+//      val filteredJldWords = mention.start.until(mention.end).map { i => // This is done to keep the words in order
+//        allJldWords.find(jldWord => jldWord.document.eq(document) && jldWord.sentence.eq(sentence) && i == jldWord.index)
+//      }.filter(_.isDefined).map(_.get)      
+//      val refJldWords = filteredJldWords.map(jldWord => serializer.mkRef(jldWord.value))
             
       serializer.mkType(this) ~
-          ("references" -> refJldWords)
+          (JLDDocument.singular -> serializer.mkRef(document)) ~
+          (JLDSentence.singular -> serializer.mkRef(sentence)) ~
+          (JLDInterval.plural -> new JLDInterval(serializer, mention.start, mention.end).toJObject())      
+//          ("references" -> refJldWords)
     }
   }
 }
@@ -439,7 +442,7 @@ object JLDWord {
 }
 
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
-    extends JLDObject(serializer, "Sentence") {
+    extends JLDObject(serializer, "Sentence", sentence) {
   
   override def toJObject(): JObject = {
     val key = "universal-enhanced"
@@ -464,7 +467,7 @@ object JLDSentence {
 }
 
 class JLDDocument(serializer: JLDSerializer, annotatedDocument: JLDObject.AnnotatedDocument)
-    extends JLDObject(serializer, "Document", annotatedDocument) {
+    extends JLDObject(serializer, "Document", annotatedDocument.document) {
   
   override def toJObject(): JObject = {
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
