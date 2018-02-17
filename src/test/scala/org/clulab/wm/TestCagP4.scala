@@ -54,17 +54,17 @@ class TestCagP4 extends Test {
     //val repairs    = NodeSpec("Borehole repairs", Dec("inhibit"))
   
     behavior of "p4s4"
-    
-    failingTest should "have correct edges 1" taggedAs(Fan) in {
+
+    passingTest should "have correct edges 1" taggedAs(Fan) in {
       tester.test(EdgeSpec(insecurity, Causal, access)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Fan) in {
+    passingTest should "have correct edges 2" taggedAs(Fan) in {
       tester.test(EdgeSpec(expertise, Causal, repairs)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Fan) in {
+    passingTest should "have correct edges 3" taggedAs(Fan) in {
       tester.test(EdgeSpec(supplies, Causal, repairs)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Fan) in {
+    passingTest should "have correct edges 4" taggedAs(Fan) in {
       tester.test(EdgeSpec(access, Causal, repairs)) should be (successful)
     }
   }

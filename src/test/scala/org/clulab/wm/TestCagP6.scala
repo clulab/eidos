@@ -18,7 +18,7 @@ class TestCagP6 extends Test {
     behavior of "p6s1"
     
     passingTest should "have correct edges 1" taggedAs(Becky) in {
-      tester.test(EdgeSpec(insecurity, Affect, functionality)) should be (successful)
+      tester.test(EdgeSpec(insecurity, Causal, functionality)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(insecurity, Causal, activities)) should be (successful)
@@ -28,7 +28,7 @@ class TestCagP6 extends Test {
     }
     
     passingTest should "have correct edges 4" taggedAs(Becky) in {
-      tester.test(EdgeSpec(conflict, Affect, functionality)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, functionality)) should be (successful)
     }
     passingTest should "have correct edges 5" taggedAs(Becky) in {
       tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
