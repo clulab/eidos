@@ -232,10 +232,12 @@ object JLDInterval {
   val plural = "positions"
 }
 
-class JLDProvenance(serializer: JLDSerializer, mention: Mention, skipPositions: Boolean = false)
-    extends JLDObject(serializer, "Provenance", mention) {
+class JLDProvenance(serializer: JLDSerializer, mention: Mention)
+    // Do not include the mention here because provenances are not to be referenced!
+    extends JLDObject(serializer, "Provenance") {
   
   override def toJObject(): JObject = {
+    val skipPositions = false
     val document = mention.document
     val sentence = mention.sentenceObj
 
