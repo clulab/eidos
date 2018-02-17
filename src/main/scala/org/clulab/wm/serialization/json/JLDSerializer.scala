@@ -40,18 +40,21 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def toJObjects(jldObjects: Seq[JLDObject]): Option[Seq[JValue]] =
       noneIfEmpty(jldObjects.map(_.toJObject()).toList)
   
-  // TODO: This should use the yaml file to distinguish
-  def newJLDExtraction(mention: Mention): JLDExtraction = {
-    val causes = mention.arguments.getOrElse(JLDObject.cause, Nil)
-    val effects = mention.arguments.getOrElse(JLDObject.effect, Nil)
-    val others = mention.arguments.keySet.exists(key => key != JLDObject.cause && key != JLDObject.effect)
-    
-    if (!causes.isEmpty && !effects.isEmpty)
-      new JLDDirectedRelation(serializer, mention)
-    else if (others || !causes.isEmpty || !effects.isEmpty)
-      new JLDUndirectedRelation(serializer, mention)
-    else
-      new JLDEntity(serializer, mention)
+  // See taxonomy.yml for this
+  def newJLDExtraction(mention: Mention): Option[JLDExtraction] =
+      if (mention.matches(JLDDirectedRelation.typename))
+        Some(new JLDDirectedRelation(serializer, mention))
+      else if (mention.matches(JLDUndirectedRelation.typename))
+        Some(new JLDUndirectedRelation(serializer, mention))
+      else if (mention.matches(JLDEntity.typename))
+        Some(new JLDEntity(serializer, mention))
+      else
+        None
+        
+  def isExtractable(mention: Mention) = {
+    mention.matches(JLDDirectedRelation.typename) || 
+        mention.matches(JLDUndirectedRelation.typename) ||
+        mention.matches(JLDEntity.typename)
   }
   
   def newJLDAttachment(attachment: Attachment, mention: Mention): JLDAttachment = attachment match {
@@ -263,7 +266,8 @@ class JLDTrigger(serializer: JLDSerializer, mention: Mention)
     extends JLDObject(serializer, "Trigger", mention) {
   
   override def toJObject(): JObject =
-      ("text" -> mention.text) ~
+      serializer.mkType(this) ~
+          ("text" -> mention.text) ~
           (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject())
 }
 
@@ -302,34 +306,35 @@ object JLDExtraction {
 }
 
 class JLDEntity(serializer: JLDSerializer, mention: Mention) 
-    extends JLDExtraction(serializer, "Entity", mention) {
+    extends JLDExtraction(serializer, JLDEntity.typename, mention) {
   
   override def toJObject(): JObject =
      super.toJObject()
 }
 
+object JLDEntity {
+  val typename = "Entity"
+}
+
 class JLDDirectedRelation(serializer: JLDSerializer, mention: Mention)
-    extends JLDExtraction(serializer, "DirectedRelation", mention) {
+    extends JLDExtraction(serializer, JLDDirectedRelation.typename, mention) {
 
   override def getMentions(): Seq[Mention] = {
-    val trigger = getTrigger()
-    val triggers =
-        if (!trigger.isDefined) Nil
-        else Seq(trigger.get)
-    val sources = mention.arguments.getOrElse(JLDObject.cause, Nil)
-    val targets = mention.arguments.getOrElse(JLDObject.effect, Nil)
+    val sources = mention.arguments.getOrElse(JLDObject.cause, Nil).filter(isExtractable(_))
+    val targets = mention.arguments.getOrElse(JLDObject.effect, Nil).filter(isExtractable(_))
     
-    triggers ++ sources ++ targets
+    sources ++ targets
   }
   
   override def toJObject(): JObject = {
     val trigger = getTrigger()
     val triggerMention =
         if (!trigger.isDefined) None
-        else Some(serializer.mkRef(trigger.get))
+        else Some(new JLDTrigger(serializer, trigger.get).toJObject())
     val sources = mention.arguments.getOrElse(JLDObject.cause, Nil)
     val targets = mention.arguments.getOrElse(JLDObject.effect, Nil)
- 
+ // TODO: filter these to see if valid
+    
     super.toJObject() ~
         (JLDTrigger.singular -> triggerMention) ~
         ("sources" -> sources.map(serializer.mkRef(_))) ~
@@ -337,33 +342,34 @@ class JLDDirectedRelation(serializer: JLDSerializer, mention: Mention)
   }
 }
 
+object JLDDirectedRelation {
+  val typename = "DirectedRelation"
+}
+
 class JLDUndirectedRelation(serializer: JLDSerializer, mention: Mention)
-    extends JLDExtraction(serializer, "UndirectedRelation", mention) {
+    extends JLDExtraction(serializer, JLDUndirectedRelation.typename, mention) {
   
-  override def getMentions(): Seq[Mention] = {
-    val trigger = getTrigger()
-    val triggers =
-        if (!trigger.isDefined) Nil
-        else Seq(trigger.get)
-    val arguments = mention.arguments.values.flatten
-    
-    triggers ++ arguments
-  }
+  override def getMentions(): Seq[Mention] =
+    mention.arguments.values.flatten.toSeq.filter(isExtractable(_))
 
   override def toJObject(): JObject = {
     val trigger = getTrigger()
-    val triggerMention =
+    val jldTrigger =
         if (!trigger.isDefined) None
-        else Some(serializer.mkRef(trigger.get))
+        else Some(new JLDTrigger(serializer, trigger.get).toJObject())
     val arguments = mention.arguments.values.flatten // The keys are skipped
     val argumentMentions =
         if (arguments.isEmpty) Nil
         else arguments.map(serializer.mkRef(_)).toList
 
     super.toJObject() ~
-        (JLDTrigger.singular -> triggerMention) ~
+        (JLDTrigger.singular -> jldTrigger) ~
         (JLDArgument.plural -> noneIfEmpty(argumentMentions))
   }
+}
+
+object JLDUndirectedRelation {
+  val typename = "UndirectedRelation"
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
@@ -489,7 +495,7 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     }
     
     if (!newMentions.isEmpty) {
-      val jldExtractions = newMentions.map(newJLDExtraction(_))
+      val jldExtractions = newMentions.map(newJLDExtraction(_)).filter(_.isDefined).map(_.get)
       val recMentions = jldExtractions.flatMap(_.getMentions())
       
       newMentions.foreach(mapOfMentions.put(_, 1))
