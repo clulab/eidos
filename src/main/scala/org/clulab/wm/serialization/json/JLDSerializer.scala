@@ -450,8 +450,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
           
     serializer.mkType(this) ~
         serializer.mkId(this) ~
+        ("text" -> sentence.getSentenceText()) ~
         (JLDWord.plural -> toJObjects(jldWords)) ~
-        ("text" -> sentence.getSentenceText()) ~ // change order
         (JLDDependency.plural -> jldGraphMapPair)
   }
 }
@@ -528,12 +528,17 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     val mentions = anthology.flatMap(_.mentions)
     val jldExtractions = collectMentions(mentions)
     
-    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation")).get
-    val position1 = mentions(index1).end
-    println("position1 " + position1)
-    val index2 = index1 + 1
-    val position2 = mentions(index2).end
-    println("position2 " + position2)
+    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
+    if (index1.isDefined) {
+      val position1 = mentions(index1.get).end
+      println("position1 " + position1)
+     
+      val index2 = index1.get + 1
+      if (index2 < mentions.size) {
+        val position2 = mentions(index2).end
+        println("position2 " + position2)
+      }
+    }
 
     
     serializer.mkType(this) ~
