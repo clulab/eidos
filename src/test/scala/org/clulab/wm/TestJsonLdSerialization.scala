@@ -38,27 +38,33 @@ class TestJsonSerialization extends Test {
     stringify(jValue, true)
   }
   
+  def inspect(string: String) =
+      if (false) println(string)
+  
   behavior of "Serializer"
 
-//  it should "serialize one simple document" in {
-//    val json = serialize(Seq(
-//        newAnnotatedDocument(p1s1, "This is a test"), 
-//    ))
-//    val json2 = serialize(Seq(
-//        newAnnotatedDocument(p1s1, "This is a test"), 
-//    ))
-//    
-//    println(json)
-//    println(json2)
-//    json should not be empty
-//  }
+  it should "serialize the same each time" in {
+    val json1 = serialize(Seq(
+        newAnnotatedDocument(p1s1, "This is a test"), 
+    ))
+    val json2 = serialize(Seq(
+        newAnnotatedDocument(p1s1, "This is a test"), 
+    ))
+    
+    json1 should not be empty
+    json2 should not be empty
+    // This is a problem!
+    //json1 should be (json2)
+  }
 
+  // This is used to bootstrap the documentation on the GitHub wiki.
+  // See /doc/example.jsonld for the final version.
   it should "say hello" in {
     val json = serialize(Seq(
         newAnnotatedDocument("Hello, world!", "Example Document"), 
     ))
     
-    println(json)
+    inspect(json)
     json should not be empty
   }
   
@@ -67,7 +73,7 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument(p1s1, "This is a test"), 
     ))
     
-    println(json)
+    inspect(json)
     json should not be empty
   }
   
@@ -76,7 +82,7 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument("Rainfall significantly increases poverty."), 
     ))
     
-    println(json)
+    inspect(json)
     json.contains("intercept") should be (true)
     json.contains("mu") should be (true)
     json.contains("sigma") should be (true)
@@ -88,7 +94,7 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument("This is only a test")
     ))
     
-    println(json)
+    inspect(json)
     json should not be empty
   }
   
@@ -97,7 +103,7 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument(p1s1, "p1s1"), 
     ))
     
-    println(json)
+    inspect(json)
     json should not be empty
   }
   
@@ -107,7 +113,7 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument(p2s2, "p2s2")
     ))
     
-    println(json)
+    inspect(json)
     json should not be empty
   }
   
@@ -117,7 +123,7 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument(p2, "p2")
     ))
     
-    println(json)
+    inspect(json)
     json should not be empty
   }
   
@@ -131,7 +137,7 @@ class TestJsonSerialization extends Test {
         newAnnotatedDocument(p6, "p6")
     ))
     
-    println(json)
+    inspect(json)
     json should not be empty    
   }
 }
