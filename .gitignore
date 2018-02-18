@@ -22,9 +22,12 @@ project/plugins/project/
 .idea
 
 # Eclipse
-.classpath 
+.classpath
 .project
 .settings/org.eclipse.core.resources.prefs
+
+# GitKraken
+\.classpath
 
 #resources/
 props/
@@ -46,4 +49,3 @@ scripts/*
 #IML files
 *.iml
 /bin/
-
