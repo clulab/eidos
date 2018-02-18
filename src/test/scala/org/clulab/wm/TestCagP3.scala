@@ -77,7 +77,7 @@ class TestCagP3 extends Test {
     val accessFood  = NodeSpec("access to staple food", Dec("reduction"))
     // becky: with current tokenInterval restrictions, can't have access to clean water (i.e., split interval)
     val accessWater = NodeSpec("clean water", Dec("reduction"))
-    val foods       = NodeSpec("foods", Dec("reduction"))
+    val foods       = NodeSpec("variety of foods", Dec("reduction"))
   
     behavior of "p3s5"
     //waiting on "economic" fix from becky. 
@@ -89,8 +89,8 @@ class TestCagP3 extends Test {
       tester.test(EdgeSpec(economic, Causal, accessWater)) should be (successful)
 
     }
-    //becky said this might need more modifications since there is a det:qmod for "variety of foods"
-    failingTest should "have correct edges 3" taggedAs(Mithun) in {
+    // Becky: sentence modified slightly to provide a more reasonable parse.
+    passingTest should "have correct edges 3" taggedAs(Mithun) in {
       tester.test(EdgeSpec(economic, Causal, foods)) should be (successful)
     }
   }  
