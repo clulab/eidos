@@ -28,7 +28,8 @@ class TestCagP3 extends Test {
   
   { // S2
     val tester = new Tester(p3s2)
-  
+    tester.mentions.foreach(m => println("\t" + m.text))
+
     val impacts = NodeSpec("impacts of flooding")
     val economic = NodeSpec("economic", Dec("collapse"))
     val conflict = NodeSpec("conflict")
@@ -37,10 +38,10 @@ class TestCagP3 extends Test {
     
     behavior of "p3s2"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(impacts, Causal, production)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(economic, Causal, production)) should be (successful)
     }
     failingTest should "have correct edges 3" taggedAs(Egoitz) in {
