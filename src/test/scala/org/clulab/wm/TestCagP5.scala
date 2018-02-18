@@ -19,7 +19,7 @@ class TestCagP5 extends Test {
   
     behavior of "p5s2"
     
-    failingTest should "have correct edges 1" taggedAs(Becky) in {
+    futureWorkTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(attacks, Causal, many)) should be (successful)
     }
   }
