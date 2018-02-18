@@ -24,6 +24,7 @@ project/plugins/project/
 # Eclipse
 .classpath 
 .project
+.settings/org.eclipse.core.resources.prefs
 
 #resources/
 props/
@@ -45,3 +46,4 @@ scripts/*
 #IML files
 *.iml
 /bin/
+
