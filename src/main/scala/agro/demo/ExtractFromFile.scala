@@ -2,12 +2,13 @@ package agro.demo
 
 
 
-import java.io.{File, FilenameFilter, PrintWriter}
+import java.io.PrintWriter
 
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
 import org.clulab.wm.EidosSystem
 import utils.DisplayUtils.printMentions
+import org.clulab.wm.wmutils.FileUtils.findFiles
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -85,13 +86,6 @@ object ExtractFromFile  extends App {
     else return None
 
     Some(s"$t of ${e.arguments.get("theme").get.head.label}")
-  }
-
-  def findFiles(collectionDir: String, extension: String): Seq[File] = {
-    val dir = new File(collectionDir)
-    dir.listFiles(new FilenameFilter {
-      def accept(dir: File, name: String): Boolean = name.endsWith(extension)
-    })
   }
 
 }
