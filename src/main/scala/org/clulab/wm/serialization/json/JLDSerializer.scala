@@ -15,6 +15,7 @@ import org.clulab.odin.EventMention
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
+import org.clulab.struct.Interval
 import org.clulab.wm.Aliases.Quantifier
 import org.clulab.wm.EidosSystem.Grounding
 import org.clulab.wm.{Quantification, Increase, Decrease}
@@ -218,13 +219,13 @@ object JLDAttachment {
   val plural = "states"
 }
 
-class JLDInterval(serializer: JLDSerializer, start: Int, end: Int)
+class JLDInterval(serializer: JLDSerializer, interval: Interval)
     extends JLDObject(serializer, "Interval") {
 
   override def toJObject(): JObject =
       serializer.mkType(this) ~
-          ("start", start + 1) ~ // Start at 1
-          ("end", end) // It is now inclusive
+          ("start", interval.start + 1) ~ // Start at 1.
+          ("end", interval.end) // It is now inclusive.
 }
 
 object JLDInterval {
@@ -256,7 +257,7 @@ class JLDProvenance(serializer: JLDSerializer, mention: Mention)
       serializer.mkType(this) ~
           (JLDDocument.singular -> serializer.mkRef(document)) ~
           (JLDSentence.singular -> serializer.mkRef(sentence)) ~
-          (JLDInterval.plural -> new JLDInterval(serializer, mention.start, mention.end).toJObject())      
+          (JLDInterval.plural -> new JLDInterval(serializer, mention.tokenInterval).toJObject)
 //          ("references" -> refJldWords)
     }
   }
@@ -273,7 +274,7 @@ class JLDTrigger(serializer: JLDSerializer, mention: Mention)
   override def toJObject(): JObject =
       serializer.mkType(this) ~
           ("text" -> mention.text) ~
-          (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject())
+          (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention))))
 }
 
 object JLDTrigger {
@@ -294,7 +295,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
         ("text" -> mention.text) ~
         ("rule" -> mention.foundBy) ~
         ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
-        (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
+        (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention)))) ~
         (JLDAttachment.plural -> toJObjects(jldAttachments))
   }
   
