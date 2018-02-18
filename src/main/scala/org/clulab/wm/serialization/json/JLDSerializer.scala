@@ -41,21 +41,17 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
       noneIfEmpty(jldObjects.map(_.toJObject()).toList)
   
   // See taxonomy.yml for this
-  def newJLDExtraction(mention: Mention): Option[JLDExtraction] =
-      if (mention.matches(JLDDirectedRelation.typename))
-        Some(new JLDDirectedRelation(serializer, mention))
-      else if (mention.matches(JLDUndirectedRelation.typename))
-        Some(new JLDUndirectedRelation(serializer, mention))
-      else if (mention.matches(JLDEntity.typename))
-        Some(new JLDEntity(serializer, mention))
-      else
-        None
-        
-  def isExtractable(mention: Mention) = {
-    mention.matches(JLDDirectedRelation.typename) || 
-        mention.matches(JLDUndirectedRelation.typename) ||
-        mention.matches(JLDEntity.typename)
+  def newJLDExtraction(mention: Mention): Option[JLDExtraction] = mention match {
+    case _ if (mention.matches(JLDDirectedRelation.typename)) => Some(new JLDDirectedRelation(serializer, mention))
+    case _ if (mention.matches(JLDUndirectedRelation.typename)) => Some(new JLDUndirectedRelation(serializer, mention))
+    case _ if (mention.matches(JLDEntity.typename)) => Some(new JLDEntity(serializer, mention))
+    case _ => None
   }
+        
+  def isExtractable(mention: Mention) =
+      mention.matches(JLDDirectedRelation.typename) || 
+          mention.matches(JLDUndirectedRelation.typename) ||
+          mention.matches(JLDEntity.typename)
   
   def newJLDAttachment(attachment: Attachment, mention: Mention): JLDAttachment = attachment match {
     case attachment: Quantification => new JLDAttachment(serializer, "QUANT", attachment.quantifier, attachment.adverbs, mention: Mention)
@@ -72,6 +68,7 @@ object JLDObject {
     def ground(mention: Mention, quantifier: Quantifier): Grounding
   }
   
+  // TODO: These terms need to be looked up somewhere.
   val cause = "cause"
   val effect = "effect"
 }
@@ -126,7 +123,7 @@ class JLDSerializer(val entityGrounder: Some[JLDObject.EntityGrounder]) {
   def mkType(jldObject: JLDObject): (String, String) = mkType(jldObject.typename)
 
   def mkContext(): JObject = {
-    def mkContext(name: String): JField = new JField(name, "#user-content-" + name.toLowerCase())
+    def mkContext(name: String): JField = new JField(name, "#" + name)
     
     val base = new JField("@base", JLDSerializer.base)
     val types = typenames.toList.sorted.map(mkContext(_))
@@ -166,7 +163,7 @@ class JLDArgument(serializer: JLDSerializer, mention: Mention)
     extends JLDObject(serializer, "Argument", mention) {
   
   override def toJObject(): JObject =
-    serializer.mkRef(mention)
+      serializer.mkRef(mention)
 }
 
 object JLDArgument {
@@ -182,8 +179,8 @@ class JLDModifier(serializer: JLDSerializer, quantifier: Quantifier, mention: Me
     
     serializer.mkType(this) ~
         ("text" -> quantifier) ~
-        // This is not the mention you are looking for
-        // See also skipPositions
+        // This is not the mention you are looking for.
+        // See also skipPositions.
         //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
         ("intercept" -> grounding.intercept) ~
         ("mu" -> grounding.mu) ~
@@ -205,7 +202,6 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
         else modifiers.get.map(new JLDModifier(serializer, _, mention).toJObject()).toList
     
     serializer.mkType(this) ~
-        serializer.mkId(this) ~
         ("type", kind) ~
         ("text", text) ~
         // This is also not the mention you are looking for
@@ -299,11 +295,11 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
         (JLDAttachment.plural -> toJObjects(jldAttachments))
   }
   
-    def getTrigger() = mention match {
-      case mention: TextBoundMention => None
-      case mention: EventMention => Some(mention.trigger)
-      case mention: RelationMention => None
-    }
+  def getTrigger() = mention match {
+    case mention: TextBoundMention => None
+    case mention: EventMention => Some(mention.trigger)
+    case mention: RelationMention => None
+  }
 }
 
 object JLDExtraction {
@@ -339,7 +335,6 @@ class JLDDirectedRelation(serializer: JLDSerializer, mention: Mention)
         else Some(new JLDTrigger(serializer, trigger.get).toJObject())
     val sources = mention.arguments.getOrElse(JLDObject.cause, Nil)
     val targets = mention.arguments.getOrElse(JLDObject.effect, Nil)
- // TODO: filter these to see if valid
     
     super.toJObject() ~
         (JLDTrigger.singular -> triggerMention) ~
@@ -384,11 +379,12 @@ class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: 
   override def toJObject(): JObject = {
     val source = words(edge._1).value
     val destination = words(edge._2).value
+    val relation = edge._3
     
     serializer.mkType(this) ~
         ("source" -> serializer.mkRef(source)) ~
         ("destination" -> serializer.mkRef(destination)) ~
-        ("relation" -> edge._3)
+        ("relation" -> relation)
   }  
 }
 
@@ -534,19 +530,18 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     val mentions = anthology.flatMap(_.mentions)
     val jldExtractions = collectMentions(mentions)
     
-    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
-    if (index1.isDefined) {
-      val position1 = mentions(index1.get).end
-      println("position1 " + position1)
-     
-      val index2 = index1.get + 1
-      if (index2 < mentions.size) {
-        val position2 = mentions(index2).end
-        println("position2 " + position2)
-      }
-    }
+//    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
+//    if (index1.isDefined) {
+//      val position1 = mentions(index1.get).end
+//      println("position1 " + position1)
+//     
+//      val index2 = index1.get + 1
+//      if (index2 < mentions.size) {
+//        val position2 = mentions(index2).end
+//        println("position2 " + position2)
+//      }
+//    }
 
-    
     serializer.mkType(this) ~
         (JLDDocument.plural -> toJObjects(jldDocuments)) ~
         (JLDExtraction.plural -> toJObjects(jldExtractions))

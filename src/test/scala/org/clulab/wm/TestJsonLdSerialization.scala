@@ -40,20 +40,29 @@ class TestJsonSerialization extends Test {
   
   behavior of "Serializer"
 
-  it should "serialize one simple document" in {
+//  it should "serialize one simple document" in {
+//    val json = serialize(Seq(
+//        newAnnotatedDocument(p1s1, "This is a test"), 
+//    ))
+//    val json2 = serialize(Seq(
+//        newAnnotatedDocument(p1s1, "This is a test"), 
+//    ))
+//    
+//    println(json)
+//    println(json2)
+//    json should not be empty
+//  }
+
+  it should "say hello" in {
     val json = serialize(Seq(
-        newAnnotatedDocument(p1s1, "This is a test"), 
-    ))
-    val json2 = serialize(Seq(
-        newAnnotatedDocument(p1s1, "This is a test"), 
+        newAnnotatedDocument("Hello, world!", "Example Document"), 
     ))
     
     println(json)
-    println(json2)
     json should not be empty
   }
-
-  it should "as serialize one simple document" in {
+  
+  it should "serialize one simple document" in {
     val json = serialize(Seq(
         newAnnotatedDocument(p1s1, "This is a test"), 
     ))
