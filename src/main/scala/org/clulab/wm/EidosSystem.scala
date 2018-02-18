@@ -98,7 +98,7 @@ class EidosSystem(
     }
     
     val pseudoStemmed = stemIfAdverb(quantifier)
-    val modelRow = grounder.getOrElse(pseudoStemmed, Map())
+    val modelRow = grounder.getOrElse(pseudoStemmed, Map.empty)
     
     if (modelRow.isEmpty)
       EidosSystem.Grounding(None, None, None)
