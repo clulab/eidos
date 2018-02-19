@@ -1,7 +1,9 @@
-package org.clulab.wm
+package org.clulab.wm.eidos.text.cag
 
 import CAG._
-import TestUtils._
+
+import org.clulab.wm.eidos.test.TestUtils._
+import org.scalactic.source.Position.apply
 
 class TestCag extends Test {
   def getSpecialCharsSize(s: String) = s.filter(c => c > 127).size

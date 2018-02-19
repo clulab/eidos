@@ -1,4 +1,4 @@
-package org.clulab.wm
+package org.clulab.wm.eidos.text.cag
 
 object CAG {
   val SINGLE_SENTENCE_SEPARATOR = " "

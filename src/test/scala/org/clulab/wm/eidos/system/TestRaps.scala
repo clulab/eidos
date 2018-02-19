@@ -1,7 +1,9 @@
-package org.clulab.wm
+package org.clulab.wm.eidos.system
 
-import org.scalatest._
-import TestUtils._
+import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.text.NodeSpec
+import org.clulab.wm.eidos.text.Inc
+import org.scalactic.source.Position.apply
 
 class TestRaps extends Test {
 

@@ -1,15 +1,18 @@
-package org.clulab.wm
+package org.clulab.wm.eidos.serialization
 
-import CAG._
-import TestUtils._
 
 import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.test.TestUtils
+import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.text.cag.CAG._
 import org.clulab.wm.Aliases.Quantifier
 import org.clulab.wm.serialization.json.JLDObject.Corpus
 import org.clulab.wm.serialization.json.JLDCorpus
 import org.clulab.wm.serialization.json.JLDObject._
-import org.clulab.wm.serialization.json.JLDSerializer
+import org.clulab.wm.EntityGrounder
+import org.scalactic.source.Position.apply
+import scala.collection.Seq
 
 class TestJsonSerialization extends Test {
   

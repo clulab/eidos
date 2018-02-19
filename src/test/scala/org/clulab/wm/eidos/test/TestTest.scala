@@ -1,6 +1,7 @@
-package org.clulab.wm
+package org.clulab.wm.eidos.test
 
 import TestUtils._
+import org.scalactic.source.Position.apply
 
 class TestTest extends Test {
   

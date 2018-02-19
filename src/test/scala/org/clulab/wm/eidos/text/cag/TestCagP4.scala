@@ -1,7 +1,14 @@
-package org.clulab.wm
+package org.clulab.wm.eidos.text.cag
 
 import CAG._
-import TestUtils._
+
+import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.text.NodeSpec
+import org.clulab.wm.eidos.text.Inc
+import org.clulab.wm.eidos.text.EdgeSpec
+import org.clulab.wm.eidos.text.Dec
+import org.clulab.wm.eidos.text.Causal
+import org.scalactic.source.Position.apply
 
 class TestCagP4 extends Test {
   
