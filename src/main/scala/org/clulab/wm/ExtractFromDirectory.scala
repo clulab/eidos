@@ -1,9 +1,9 @@
 package org.clulab.wm
 import java.io.PrintWriter
 
-import org.clulab.wm.serialization.json.WMJSONSerializer
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.serialization.json.JLDCorpus
 import org.clulab.wm.wmutils.FileUtils.findFiles
-import org.json4s.jackson.JsonMethods._
 
 
 object ExtractFromDirectory extends App {
@@ -18,17 +18,18 @@ object ExtractFromDirectory extends App {
     file <- files
     // 1. Open corresponding output file
     outputFile = file.getName
-    pw = new PrintWriter(s"$outputDir/$outputFile.json")
+    pw = new PrintWriter(s"$outputDir/$outputFile.jsonld")
     // 2. Get the input file contents
     source = scala.io.Source.fromFile(file)
     text <- source.getLines()
     // 3. Extract causal mentions from the text
     annotatedDocument = reader.extractFrom(text)
     // 4. Convert to JSON
-    mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.mentions)
+    corpus = new JLDCorpus(Seq(annotatedDocument), reader)
+    mentionsJSONLD = corpus.serialize()
   } {
     // 5. Write to output file and close
-    pw.println(pretty(render(mentionsJSON)))
+    pw.println(stringify(mentionsJSONLD, pretty = true))
     pw.close()
   }
 

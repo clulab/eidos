@@ -1,4 +1,4 @@
-package agro.demo
+package eidos.demo
 
 import java.io.File
 
@@ -16,7 +16,7 @@ import scala.collection.mutable.ListBuffer
 /**
   * Created by ajaynagesh on 5/31/17.
   */
-object demoWMseed extends App with LazyLogging {
+object WMseed extends App with LazyLogging {
 
   val config = ConfigFactory.load()         // load the configuration file
 
