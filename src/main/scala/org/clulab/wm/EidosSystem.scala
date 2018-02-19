@@ -83,13 +83,16 @@ class EidosSystem (
   def ner = loadableAttributes.ner
   
   def reload() = loadableAttributes = LoadableAttributes()
-  
+
+
+  // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = false): Document = {
     val doc = proc.annotate(text, keepText)
     doc.sentences.foreach(s => s.entities = Some(ner.find(s)))
     doc
   }
 
+  // Extract mentions from a string
   def extractFrom(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     new AnnotatedDocument(doc, extractFrom(doc))
@@ -121,7 +124,6 @@ class EidosSystem (
     }
   }
 
-//TODO: starting here :)
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
@@ -141,6 +143,38 @@ class EidosSystem (
     val res = extractEventsFrom(doc, State(entities)).distinct
 //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
     res
+  }
+
+  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
+
+    // Create an UndirectedRelation Mention to contain the sameAs grounding information
+    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
+      // Build a Relation Mention (no trigger)
+      val sameAsMention = new RelationMention(
+        label = "SameAs",
+        arguments = Map[String, Seq[Mention]](("nodes", Seq(a, b))),
+        sentence = a.sentence,
+        document = a.document,
+        keep = true,
+        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}")
+      
+      // Add the score
+      sameAsMention.withAttachment(new Score(score))
+    }
+
+    // n choose 2
+    val sameAsRelations = for {
+      (m1, i) <- ms.zipWithIndex
+      m2 <- ms.slice(i+1, ms.length)
+      score = calculateSameAs(m1, m2)
+    } yield sameAs(m1, m2, score)
+
+    sameAsRelations
+  }
+
+  // fixme: implement
+  def calculateSameAs (m1: Mention, m2: Mention): Double = {
+    0.0
   }
 
   /*
@@ -170,4 +204,6 @@ object EidosSystem {
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"
   val QUANT_LABEL_AFFIX = "-Quant"
+  // Provenance info for sameAs scoring
+  val SAME_AS_METHOD = "not_yet_implemented"
 }

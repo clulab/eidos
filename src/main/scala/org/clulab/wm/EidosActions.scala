@@ -21,6 +21,8 @@ import scala.io.BufferedSource
 case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends Attachment
 case class Increase(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
 case class Decrease(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
+// todo: add to JSON and JSON-LD
+case class Score(score: Double) extends Attachment
 
 
 class EidosActions extends Actions with LazyLogging {
