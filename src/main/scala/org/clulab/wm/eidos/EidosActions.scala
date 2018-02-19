@@ -1,11 +1,11 @@
-package org.clulab.wm
+package org.clulab.wm.eidos
 
 import java.io.File
 
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
-import org.clulab.wm.Aliases.Quantifier
+import org.clulab.wm.eidos.Aliases.Quantifier
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 

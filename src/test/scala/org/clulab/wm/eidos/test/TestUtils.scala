@@ -1,6 +1,11 @@
 package org.clulab.wm.eidos.test
 
+<<<<<<< Updated upstream:src/test/scala/org/clulab/wm/eidos/test/TestUtils.scala
 import org.clulab.odin.Mention
+=======
+import org.clulab.odin.{Attachment, Mention}
+import org.clulab.wm.eidos.EidosSystem;
+>>>>>>> Stashed changes:src/test/scala/org/clulab/wm/TestUtils.scala
 import org.scalatest._
 import org.clulab.wm.eidos.text.NodeSpec
 import org.clulab.wm.eidos.text.EdgeSpec

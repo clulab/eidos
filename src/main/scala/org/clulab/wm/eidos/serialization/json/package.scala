@@ -1,4 +1,4 @@
-package org.clulab.wm.serialization.json
+package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.odin
 import org.clulab.odin._

@@ -1,10 +1,10 @@
-package org.clulab.wm.entities
+package org.clulab.wm.eidos.entities
 
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.wmutils.FileUtils.readRules
+import org.clulab.wm.eidos.utils.FileUtils.readRules
 
 import scala.annotation.tailrec
 

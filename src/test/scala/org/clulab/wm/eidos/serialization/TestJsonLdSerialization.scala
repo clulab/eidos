@@ -2,12 +2,18 @@ package org.clulab.wm.eidos.serialization
 
 
 import org.clulab.odin.Mention
+<<<<<<< Updated upstream:src/test/scala/org/clulab/wm/eidos/serialization/TestJsonLdSerialization.scala
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
 import org.clulab.wm.Aliases.Quantifier
 import org.clulab.wm.serialization.json.JLDObject.Corpus
+=======
+import org.clulab.serialization.json.stringifytifier
+import org.clulab.wm.serialization.json.JLDObject.
+import org.clulab.wm.eidos.Aliases.Quantifier;Corpus
+>>>>>>> Stashed changes:src/test/scala/org/clulab/wm/TestJsonLdSerialization.scala
 import org.clulab.wm.serialization.json.JLDCorpus
 import org.clulab.wm.serialization.json.JLDObject._
 import org.clulab.wm.EntityGrounder

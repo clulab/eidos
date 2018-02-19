@@ -1,10 +1,8 @@
-package eidos.demo
+package org.clulab.wm.eidos.demo
 
 import org.clulab.wm.EidosSystem
-
-import utils.{CliReader, IdeReader}
-import utils.DisplayUtils.displayMentions
-
+import org.clulab.wm.eidos.utils.{CliReader, IdeReader}
+import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
 import scala.collection.immutable.ListMap
 
 /**
