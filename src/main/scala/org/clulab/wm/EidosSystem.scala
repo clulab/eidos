@@ -150,16 +150,15 @@ class EidosSystem (
     // Create an UndirectedRelation Mention to contain the sameAs grounding information
     def sameAs(a: Mention, b: Mention, score: Double): Mention = {
       // Build a Relation Mention (no trigger)
-      val sameAsMention = new RelationMention(
-        label = "SameAs",
-        arguments = Map[String, Seq[Mention]](("nodes", Seq(a, b))),
-        sentence = a.sentence,  // todo: should we save this as a crossSentenceMention
-        document = a.document,  // see above
+      new CrossSentenceMention(
+        labels = Seq("SameAs"),
+        anchor = a,
+        neighbor = b,
+        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
+        document = a.document,  // todo: change?
         keep = true,
-        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}")
-
-      // Add the score
-      sameAsMention.withAttachment(new Score(score))
+        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
+        attachments = Set(Score(score)))
     }
 
     // n choose 2

@@ -16,7 +16,7 @@ class TestEidosSystem extends Test {
 
     // todo: why does this crash when comparing entities across sentences?
     // works fine with: "The increase in rain causes flooding, conflict, and decreased crop yield."
-    //sameAsRelations.foreach(s => println(utils.DisplayUtils.displayMention(s)))
+    sameAsRelations.foreach(s => println(utils.DisplayUtils.displayMention(s)))
   }
 
 
