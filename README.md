@@ -1,4 +1,6 @@
-# eidos
+[![Build Status](https://travis-ci.org/clulab/eidos.svg?branch=master)](https://travis-ci.org/clulab/eidos)
+
+# Eidos
 
 Machine reading system for World Modelers
 
