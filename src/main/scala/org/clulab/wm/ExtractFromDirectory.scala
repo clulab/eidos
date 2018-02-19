@@ -23,9 +23,9 @@ object ExtractFromDirectory extends App {
     source = scala.io.Source.fromFile(file)
     text <- source.getLines()
     // 3. Extract causal mentions from the text
-    mentions = reader.extractFrom(text)
+    annotatedDocument = reader.extractFrom(text)
     // 4. Convert to JSON
-    mentionsJSON = WMJSONSerializer.jsonAST(mentions)
+    mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.mentions)
   } {
     // 5. Write to output file and close
     pw.println(pretty(render(mentionsJSON)))
