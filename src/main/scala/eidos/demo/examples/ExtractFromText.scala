@@ -1,9 +1,10 @@
-package agro.demo.examples
+package eidos.demo.examples
 
 import org.clulab.wm.EidosSystem
 import org.clulab.wm.serialization.json.{JLDCorpus, WMJSONSerializer}
 import utils.DisplayUtils.displayMention
 import org.clulab.serialization.json.stringify
+import scala.collection.Seq
 
 object ExtractFromText extends App {
 
