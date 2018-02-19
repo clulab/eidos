@@ -2,18 +2,19 @@ package controllers
 
 import javax.inject._
 
-import agro.demo.RAPShell.GroundedEntity
+import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, TextBoundMention}
+import org.clulab.processors.{Document, Sentence}
+import org.clulab.sequences.LexiconNER
+import org.clulab.wm.{EidosSystem, Decrease, Increase, Quantification}
+import org.clulab.wm.Aliases._
+
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
-import org.clulab.processors.{Document, Sentence}
-import agro.demo._
-import org.clulab.odin.{EventMention, Mention, RelationMention, TextBoundMention}
-import org.clulab.sequences.LexiconNER
-import org.clulab.wm.{EidosSystem, Decrease, Increase, Quantification}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+
 /**
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
@@ -23,12 +24,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   // Initialize the EidosSystem
   // -------------------------------------------------
-  println("[EidosSystem] Initializing the AgroSystem ...")
+  println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem = new EidosSystem()
 
   var proc = ieSystem.proc
-  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
-  val grounder = ieSystem.grounder
+//  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
+//  val grounder = ieSystem.grounder
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -43,8 +44,111 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(views.html.index())
   }
 
+  case class GroundedEntity(sentence: String,
+                            quantifier: Quantifier,
+                            entity: Entity,
+                            predictedDelta: Option[Double],
+                            mean: Option[Double],
+                            stdev: Option[Double])
+
+
+
+  // Return the sorted Quantification, Increase, and Decrease modifications
+  def separateAttachments(m: Mention): (Set[Attachment], Set[Attachment], Set[Attachment]) = {
+    val attachments = m.attachments
+    (attachments.filter(_.isInstanceOf[Quantification]),
+      attachments.filter(_.isInstanceOf[Increase]),
+      attachments.filter(_.isInstanceOf[Decrease]))
+  }
+  
+  def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: EidosSystem): GroundedEntity = {
+    val grounding = ieSystem.ground(mention, quantifier)
+
+    // add the calculation
+    println("loaded domain params:" + ieSystem.domainParamValues.toString())
+    println(s"\tkeys: ${ieSystem.domainParamValues.keys.mkString(", ")}")
+    println(s"getting details for: ${mention.text}")
+
+    val paramDetails = ieSystem.domainParamValues.get("DEFAULT").get
+    val paramMean = paramDetails.get(EidosSystem.PARAM_MEAN)
+    val paramStdev = paramDetails.get(EidosSystem.PARAM_STDEV)
+    val predictedDelta =
+        if (!grounding.isGrounded) None
+        else Some(math.pow(math.E, grounding.intercept.get + (grounding.mu.get * paramMean.get) + (grounding.sigma.get * paramStdev.get)) * paramStdev.get)
+
+    GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
+  }
+
+
+  def groundEntities(ieSystem: EidosSystem, mentions: Seq[Mention]): Vector[GroundedEntity] = {
+    val gms = for {
+      m <- mentions
+      (quantifications, increases, decreases) = separateAttachments(m)
+
+      groundedQuantifications = for {
+        q <- quantifications
+        quantTrigger = q.asInstanceOf[Quantification].quantifier
+      } yield groundEntity(m, quantTrigger, ieSystem)
+
+      groundedIncreases = for {
+        inc <- increases
+        quantTrigger <- inc.asInstanceOf[Increase].quantifier.getOrElse(Seq.empty[Quantifier])
+      } yield groundEntity(m, quantTrigger, ieSystem)
+
+      groundedDecreases = for {
+        dec <- decreases
+        quantTrigger <- dec.asInstanceOf[Decrease].quantifier.getOrElse(Seq.empty[Quantifier])
+      } yield groundEntity(m, quantTrigger, ieSystem)
+
+
+      } yield groundedQuantifications ++ groundedIncreases ++ groundedDecreases
+
+    gms.flatten.toVector
+  }
+  
+  
+
+  def getEntityLinkerEvents(mentions: Vector[Mention]): Vector[(Trigger, Map[String, String])] = {
+    val events = mentions.filter(_ matches "Event")
+    val entityLinkingEvents = events.filter(_ matches "EntityLinker").map { e =>
+      val event = e.asInstanceOf[EventMention]
+      val trigger = event.trigger.text
+      val arguments = event.arguments.map { a =>
+        val name = a._1
+        val arg_mentions = a._2.map(_.text).mkString(" ")
+        (name, arg_mentions)
+      }
+      (trigger, arguments)
+    }
+
+    entityLinkingEvents
+  }
+  
+  def processPlaySentence(ieSystem: EidosSystem, text: String): (Sentence, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
+    // preprocessing
+    println(s"Processing sentence : ${text}" )
+    val doc = ieSystem.annotate(text)
+
+    println(s"DOC : ${doc}")
+    // extract mentions from annotated document
+    val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    println(s"Done extracting the mentions ... ")
+    println(s"They are : ${mentions.map(m => m.text).mkString(",\t")}")
+
+    println(s"Grounding the gradable adjectives ... ")
+    val groundedEntities = groundEntities(ieSystem, mentions)
+
+    println(s"Getting entity linking events ... ")
+    val events = getEntityLinkerEvents(mentions)
+
+    println("DONE .... ")
+//    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
+    // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
+    (doc.sentences.head, mentions.sortBy(_.start), groundedEntities, events)
+  }
+  
   def parseSentence(sent: String) = Action {
-    val (procSentence, agroMentions, groundedEntities, causalEvents) = RAPShell.processPlaySentence(ieSystem, sent) // Call the agro.demo.RAPShell.processPlaySentence
+    val (procSentence, agroMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, sent)
     println(s"Sentence returned from processPlaySentence : ${procSentence.getSentenceText()}")
     val json = mkJson(sent, procSentence, agroMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)

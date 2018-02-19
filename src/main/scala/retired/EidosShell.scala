@@ -1,243 +1,99 @@
-package agro.demo
-
-import java.io.File
-
-import org.clulab.odin.{Attachment, EventMention, Mention}
-import org.clulab.processors.Sentence
-import org.clulab.wm.{EidosSystem, Decrease, Increase, Quantification}
-import utils.DisplayUtils.displayMentions
-
-import scala.collection.immutable.ListMap
+// Code after "This code here" was removed from EidosShell and may be reincorporated later.
 
 
-/**
-  * Line reader to use in different environments.  The CliReader works on the command line
-  * and with sbt and supports history.  However, it doesn't work well in the IntelliJ
-  * or Eclipse IDEs (as least not with Windows).  For those, use the IdeReader.  To switch
-  * between the two, add a command line argument to get the IdeReader rather than changing
-  * the code.
-  */
-
-abstract class LineReader {
-  def readLine(): String
-}
-
-class CliReader(prompt: String, parentProperty: String, child: String) extends LineReader {
-  import jline.console.ConsoleReader
-  import jline.console.history.FileHistory
-
-  val reader = new ConsoleReader()
-  val history = new FileHistory(new File(System.getProperty(parentProperty), child))
-
-  reader.setPrompt(prompt)
-  reader.setHistory(history)
-  sys addShutdownHook {
-    reader.getTerminal.restore()
-    reader.shutdown()
-    history.flush() // flush file before exiting
-  }
-
-  override def readLine = reader.readLine
-}
-
-class IdeReader(protected var prompt: String) extends LineReader {
-  import java.util.Scanner
-
-  protected val reader = new Scanner(System.in)
-
-  override def readLine = {
-    print(prompt)
-    Console.flush()
-    reader.nextLine
-  }
-}
-
-/**
-  * Interactive shell for parsing RAPs
-  */
-
-object RAPShell extends App {
-
-  import org.clulab.wm.Aliases._
-
-  //TODO: Load the parameters to the system through a config file
-//  val config = ConfigFactory.load()         // load the configuration file
-//  val quantifierKBFile: String = config[String]("wmseed.quantifierKB")
-//  val domainParamKBFile: String = config[String]("wmseed.domainParamKB")
-
-  val reader = {
-    val prompt = "(RAP)>>> "
-
-    if (args.length == 0) new CliReader(prompt, "user.home", ".agroshellhistory")
-    else new IdeReader(prompt)
-  }
-
-  val commands = ListMap(
-    ":help" -> "show commands",
-    ":reload" -> "reload grammar",
-    ":exit" -> "exit system"
-  )
-
-  // creates an extractor engine using the rules and the default actions
-  val ieSystem = new EidosSystem()
-
-  //var proc = ieSystem.proc // Not used
-
-  println("\nWelcome to the RAPShell!")
-  printCommands()
-
-  var running = true
-
-  while (running) {
-    val line = reader.readLine
-    line match {
-      case ":help" =>
-        printCommands()
-
-      case ":reload" =>
-        ieSystem.reload()
-
-      case ":exit" | null =>
-        running = false
-
-      case text =>
-        extractFrom(text)
-    }
-  }
-
-  // summarize available commands
-  def printCommands(): Unit = {
-    println("\nCOMMANDS:")
-    for ((cmd, msg) <- commands)
-      println(s"\t$cmd\t=> $msg")
-    println()
-  }
-
-  def extractFrom(text:String): Unit = {
-
-    // preprocessing
-    val doc = ieSystem.annotate(text)
-
-    // extract mentions from annotated document
-    val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
-
-    // debug display the mentions
-    displayMentions(mentions, doc, true)
-
-    // pretty display
-//    prettyDisplay(mentions, doc)
-
-  }
-
-  def processPlaySentence(ieSystem: EidosSystem, text: String): (Sentence, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
-    // preprocessing
-    println(s"Processing sentence : ${text}" )
-    val doc = ieSystem.annotate(text)
-
-    println(s"DOC : ${doc}")
-    // extract mentions from annotated document
-    val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
-    println(s"Done extracting the mentions ... ")
-    println(s"They are : ${mentions.map(m => m.text).mkString(",\t")}")
-
-    println(s"Grounding the gradable adjectives ... ")
-    val groundedEntities = groundEntities(ieSystem, mentions)
-
-    println(s"Getting entity linking events ... ")
-    val events = getEntityLinkerEvents(mentions)
-
-    println("DONE .... ")
-//    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
-    // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
-    (doc.sentences.head, mentions.sortBy(_.start), groundedEntities, events)
-  }
-
-  case class GroundedEntity(sentence: String,
-                            quantifier: Quantifier,
-                            entity: Entity,
-                            predictedDelta: Option[Double],
-                            mean: Option[Double],
-                            stdev: Option[Double])
+//package agro.demo
+//
+//import org.clulab.odin.Mention
+//import org.clulab.processors.Sentence
+//import org.clulab.wm.{EidosSystem, Decrease, Increase, Quantification}
+//
+//import utils.CliReader
+//import utils.DisplayUtils.displayMentions
+//import utils.IdeReader
+//
+//import scala.collection.immutable.ListMap
+//
+///**
+//  * Interactive shell for parsing RAPs
+//  */
+//
+//object EidosShell extends App {
+//
+////  import org.clulab.wm.Aliases._
+//
+//  //TODO: Load the parameters to the system through a config file
+////  val config = ConfigFactory.load()         // load the configuration file
+////  val quantifierKBFile: String = config[String]("wmseed.quantifierKB")
+////  val domainParamKBFile: String = config[String]("wmseed.domainParamKB")
+//
+//  val reader = {
+//    val prompt = "(Eidos)>>> "
+//
+//    if (args.length == 0) new CliReader(prompt, "user.home", ".eidosshellhistory")
+//    else new IdeReader(prompt)
+//  }
+//
+//  val commands = ListMap(
+//    ":help" -> "show commands",
+//    ":reload" -> "reload grammar",
+//    ":exit" -> "exit system"
+//  )
+//
+//  // creates an extractor engine using the rules and the default actions
+//  val ieSystem = new EidosSystem()
+//
+//  //var proc = ieSystem.proc // Not used
+//
+//  println("\nWelcome to the Eidos Shell!")
+//  printCommands()
+//
+//  var running = true
+//
+//  while (running) {
+//    val line = reader.readLine
+//    line match {
+//      case ":help" =>
+//        printCommands()
+//
+//      case ":reload" =>
+//        ieSystem.reload()
+//
+//      case ":exit" | null =>
+//        running = false
+//
+//      case text =>
+//        extractFrom(text)
+//    }
+//  }
+//
+//  // summarize available commands
+//  def printCommands(): Unit = {
+//    println("\nCOMMANDS:")
+//    for ((cmd, msg) <- commands)
+//      println(s"\t$cmd\t=> $msg")
+//    println()
+//  }
+//
+//  def extractFrom(text:String): Unit = {
+//
+//    // preprocessing
+//    val doc = ieSystem.annotate(text)
+//
+//    // extract mentions from annotated document
+//    val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
+//
+//    // debug display the mentions
+//    displayMentions(mentions, doc, true)
+//
+//    // pretty display
+////    prettyDisplay(mentions, doc)
+//
+//  }
 
 
-
-  // Return the sorted Quantification, Increase, and Decrease modifications
-  def separateAttachments(m: Mention): (Set[Attachment], Set[Attachment], Set[Attachment]) = {
-    val attachments = m.attachments
-    (attachments.filter(_.isInstanceOf[Quantification]),
-      attachments.filter(_.isInstanceOf[Increase]),
-      attachments.filter(_.isInstanceOf[Decrease]))
-  }
-
-  def convertToAdjective(adverb: String): String = {
-    if (adverb.endsWith("ily")) {
-      adverb.slice(0, adverb.length - 3) ++ "y"
-    }
-
-    adverb.slice(0, adverb.length - 2)
-  }
-
-  def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: EidosSystem): GroundedEntity = {
-    val grounding = ieSystem.ground(mention, quantifier)
-
-    // add the calculation
-    println("loaded domain params:" + ieSystem.domainParamValues.toString())
-    println(s"\tkeys: ${ieSystem.domainParamValues.keys.mkString(", ")}")
-    println(s"getting details for: ${mention.text}")
-
-    val paramDetails = ieSystem.domainParamValues.get("DEFAULT").get
-    val paramMean = paramDetails.get(EidosSystem.PARAM_MEAN)
-    val paramStdev = paramDetails.get(EidosSystem.PARAM_STDEV)
-    val predictedDelta =
-      if (!grounding.isGrounded) None
-      else Some(math.pow(math.E, grounding.intercept.get + (grounding.mu.get * paramMean.get) + (grounding.sigma.get * paramStdev.get)) * paramStdev.get)
-
-    GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
-  }
+// This code here!
 
 
-  def groundEntities(ieSystem: EidosSystem, mentions: Seq[Mention]): Vector[GroundedEntity] = {
-    val gms = for {
-      m <- mentions
-      (quantifications, increases, decreases) = separateAttachments(m)
-
-      groundedQuantifications = for {
-        q <- quantifications
-        quantTrigger = q.asInstanceOf[Quantification].quantifier
-      } yield groundEntity(m, quantTrigger, ieSystem)
-
-      groundedIncreases = for {
-        inc <- increases
-        quantTrigger <- inc.asInstanceOf[Increase].quantifier.getOrElse(Seq.empty[Quantifier])
-      } yield groundEntity(m, quantTrigger, ieSystem)
-
-      groundedDecreases = for {
-        dec <- decreases
-        quantTrigger <- dec.asInstanceOf[Decrease].quantifier.getOrElse(Seq.empty[Quantifier])
-      } yield groundEntity(m, quantTrigger, ieSystem)
-
-
-      } yield groundedQuantifications ++ groundedIncreases ++ groundedDecreases
-
-    gms.flatten.toVector
-  }
-
-
-  def getEntityLinkerEvents(mentions: Vector[Mention]): Vector[(Trigger, Map[String, String])] = {
-    val events = mentions.filter(_ matches "Event")
-    val entityLinkingEvents = events.filter(_ matches "EntityLinker").map { e =>
-      val event = e.asInstanceOf[EventMention]
-      val trigger = event.trigger.text
-      val arguments = event.arguments.map { a =>
-        val name = a._1
-        val arg_mentions = a._2.map(_.text).mkString(" ")
-        (name, arg_mentions)
-      }
-      (trigger, arguments)
-    }
-
-    entityLinkingEvents
-  }
 
   // todo: if you want this functionality you need to actually reimplement it
 //    (groundedParams, new Vector[(String, Map[String, String])] )
@@ -320,8 +176,6 @@ object RAPShell extends App {
 //          }
 //        }
 //      }
-
-
 //  }
 
 //  def prettyDisplay(mentions: Seq[Mention], doc: Document): Unit = {
@@ -399,7 +253,8 @@ object RAPShell extends App {
 //    }
 //  }
 
-
+/* This is not being used
+  
   // Returns Some(string) if there is an INCREASE or DECREASE event with a Param, otherwise None
   def formal(e:Mention):Option[String] = {
     var t = ""
@@ -419,9 +274,9 @@ object RAPShell extends App {
 
     Some(s"$t of ${e.arguments.get("theme").get.head.label}")
   }
-
-
-}
+  
+*/
+//}
 
 //case class ParamInstance(justification: String, sentence: String, quantifiers: Option[Seq[String]], param: Seq[String])
-case class GroundedParamInstance(justification: String, sentence: String, quantifiers: Option[Seq[String]], groundedEntity: Option[String], predictedDelta: Option[Double], mean: Option[Double], stdev: Option[Double], gradableAdj: Option[String])
+//case class GroundedParamInstance(justification: String, sentence: String, quantifiers: Option[Seq[String]], groundedEntity: Option[String], predictedDelta: Option[Double], mean: Option[Double], stdev: Option[Double], gradableAdj: Option[String])

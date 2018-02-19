@@ -19,7 +19,7 @@ case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Optio
 }
 
 /**
-  * Handles text processing and information extraction for Agro domain.
+  * A system for text processing and information extraction
   */
 class EidosSystem (
   // The first three are loaded as resources from URLs, thus the leading /
