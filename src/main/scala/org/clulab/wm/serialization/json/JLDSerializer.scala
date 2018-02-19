@@ -1,9 +1,8 @@
 package org.clulab.wm.serialization.json
 
-import java.util.IdentityHashMap
-import java.util.{Set => JavaSet}
+import java.util.IdentityHashMap  // Unfortunately borrowed from Java
+import java.util.{Set => JavaSet} // Holds keys of IdentityHashMap
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
@@ -19,7 +18,6 @@ import org.clulab.wm.Grounding
 import org.clulab.wm.{Decrease, EntityGrounder, Increase, Quantification}
 import org.json4s._
 import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
 
 // This is an object than when asked to convert itself a JSON object or value, converts
 // itself in a way that conforms to the JSON-LD standard as well.
