@@ -11,7 +11,7 @@ class TestEidosSystem extends Test {
     val entities = tester.mentions.filter(_ matches "Entity")
     entities.length should be (4)
 
-    val sameAsRelations = TestUtils.system.populateSameAsRelations(entities)
+    val sameAsRelations = TestUtils.ieSystem.populateSameAsRelations(entities)
     sameAsRelations.length should be (6)
 
     // todo: why does this crash when comparing entities across sentences?
