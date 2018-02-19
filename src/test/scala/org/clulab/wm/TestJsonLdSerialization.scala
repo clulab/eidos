@@ -17,12 +17,11 @@ class TestJsonSerialization extends Test {
   
   def newAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val system = TestUtils.system
-    val mentions = system.extractFrom(text, true)
-    val document = mentions(0).document
+    val annotatedDocument = system.extractFrom(text, true)
+
+    annotatedDocument.document.id = Some(title)
     
-    document.id = Some(title)
-    
-    new AnnotatedDocument(document, mentions)
+    annotatedDocument
   }
   
   def serialize(corpus: Corpus) = {
