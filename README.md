@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/clulab/eidos.svg?branch=master)](https://travis-ci.org/clulab/eidos)
+
 # Eidos
 
 Eidos is an open domain machine reading system designed by the [Computational Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University of Arizona](http://www.arizona.edu) for the World Modelers program.  Eidos uses an [Odin](https://github.com/clulab/processors) grammar to extract causal events from free text.
@@ -688,7 +690,7 @@ This produces the following JSON serialization (mentions may appear in different
 ``` 
 sbt "runMain org.clulab.wm.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
 ```
-Files in the input directory should end with `txt` and the extracted mentions from each file will be saved in corresponding JSON files.
+Files in the input directory should end with `txt` and the extracted mentions from each file will be saved in corresponding JSON-LD files.
 
 
 
@@ -719,7 +721,7 @@ While we will soon be licensed as Apache, currently one dependency has a GPL lic
 
 ## Related resources
 
-Some materials related to this project can be found at https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A. Access is temporarily limited to UA account holders.  Other documents are included in the /doc directory of the repository.
+If you are working on this project, you may be interested in [additional materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) stored in the cloud. Access is temporarily limited to UA account holders.  Other documents are included in the /doc directory of the repository.
 
 
 ## Notes
