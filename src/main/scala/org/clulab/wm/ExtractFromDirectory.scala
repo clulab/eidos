@@ -1,11 +1,9 @@
 package org.clulab.wm
 import java.io.PrintWriter
 
-import agro.demo.examples.ExtractFromText.{annotatedDocument, reader}
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.serialization.json.{JLDCorpus, WMJSONSerializer}
+import org.clulab.wm.serialization.json.JLDCorpus
 import org.clulab.wm.wmutils.FileUtils.findFiles
-import org.json4s.jackson.JsonMethods._
 
 
 object ExtractFromDirectory extends App {
