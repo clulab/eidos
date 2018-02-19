@@ -61,7 +61,7 @@ object ExtractFromFile  extends App {
     }
 
     if(params.nonEmpty) {
-      println("RAP Parameters:")
+      println("Eidos Parameters:")
       for (k <- params.keySet) {
         val evidence = params.get(k).get
         pw.println(s"$k: ${evidence.size} instances:")
