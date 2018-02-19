@@ -1,27 +1,24 @@
 package org.clulab.wm.serialization.json
 
-import java.util.IdentityHashMap // Unfortunately borrowed from Java
-import java.util.{Set => JavaSet} // Holds keys of IdentityHashMap
+import java.util.IdentityHashMap
+import java.util.{Set => JavaSet}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.EventMention
-
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
 import org.clulab.wm.Aliases.Quantifier
-import org.clulab.wm.EidosSystem.Grounding
-import org.clulab.wm.{Quantification, Increase, Decrease}
-
+import org.clulab.wm.Grounding
+import org.clulab.wm.{Decrease, EntityGrounder, Increase, Quantification}
 import org.json4s._
-import org.json4s.JsonDSL._ // ~ comes from here
+import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
 // This is an object than when asked to convert itself a JSON object or value, converts
@@ -63,10 +60,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 object JLDObject {
   case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
   type Corpus = Seq[AnnotatedDocument]
-  
-  trait EntityGrounder {
-    def ground(mention: Mention, quantifier: Quantifier): Grounding
-  }
+
   
   // TODO: These terms need to be looked up somewhere.
   val cause = "cause"
@@ -76,7 +70,7 @@ object JLDObject {
 // This class helps serialize/convert a JLDObject to JLD by keeping track of
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
-class JLDSerializer(val entityGrounder: Some[JLDObject.EntityGrounder]) {
+class JLDSerializer(val entityGrounder: Some[EntityGrounder]) {
   protected val typenames = mutable.HashSet[String]()
   protected val typenamesByIdentity = new IdentityHashMap[Any, String]()
   protected val idsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[Any, Int]] = mutable.HashMap()
@@ -484,7 +478,7 @@ object JLDDocument {
 class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
     extends JLDObject(serializer, "Corpus", anthology) {
   
-  def this(anthology: JLDObject.Corpus, entityGrounder: JLDObject.EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), anthology)
+  def this(anthology: JLDObject.Corpus, entityGrounder: EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), anthology)
   
   val myanthology = anthology
   
