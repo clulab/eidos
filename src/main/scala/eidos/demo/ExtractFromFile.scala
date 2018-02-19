@@ -1,4 +1,4 @@
-package agro.demo
+package eidos.demo
 
 
 
@@ -14,7 +14,7 @@ import scala.collection.mutable.ListBuffer
 
 object ExtractFromFile  extends App {
 
-  val agroSystem = new EidosSystem()
+  val ieSystem = new EidosSystem()
   val files = findFiles("/Users/bsharp/github/research/wmseed/src/main/resources/org/clulab/wm/rapdocs", "txt")
   val outputDir = "/Users/bsharp"
 
@@ -24,14 +24,14 @@ object ExtractFromFile  extends App {
     if (filename.getName.contains("Example")) {
       val source = scala.io.Source.fromFile(filename)
       val text = source.getLines().toArray.head
-      val doc = agroSystem.proc.annotate(text)
+      val doc = ieSystem.proc.annotate(text)
       val docTexts = doc.sentences.map(_.getSentenceText())
       pw.println(s"Filename: ${filename.getName}\n\tText: ${docTexts.mkString(" ")}")
       for (sentenceText <- docTexts){
         pw.println(s"\nSENTENCE: ${sentenceText}")
-        val sentenceDoc = agroSystem.proc.annotate(sentenceText)
+        val sentenceDoc = ieSystem.proc.annotate(sentenceText)
 
-        val mentions = agroSystem.extractFrom(sentenceDoc).distinct
+        val mentions = ieSystem.extractFrom(sentenceDoc).distinct
         println (s"Number of mentions found: ${mentions.length}")
         printMentions(mentions, sentenceDoc, pw)
         prettyPrint(mentions, sentenceDoc, pw)

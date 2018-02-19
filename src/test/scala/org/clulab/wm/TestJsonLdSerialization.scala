@@ -16,8 +16,8 @@ class TestJsonSerialization extends Test {
   def newAnnotatedDocument(text: String): AnnotatedDocument = newAnnotatedDocument(text, text)
   
   def newAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
-    val system = TestUtils.system
-    val mentions = system.extractFrom(text, true)
+    val ieSystem = TestUtils.ieSystem
+    val mentions = ieSystem.extractFrom(text, true)
     val document = mentions(0).document
     
     document.id = Some(title)
@@ -29,7 +29,7 @@ class TestJsonSerialization extends Test {
     object TestEntityGrounder extends EntityGrounder {
   
       def ground(mention: Mention, quantifier: Quantifier) =
-        TestUtils.system.ground(mention, quantifier)
+        TestUtils.ieSystem.ground(mention, quantifier)
     }
   
     val jldCorpus = new JLDCorpus(corpus, TestEntityGrounder)
