@@ -1,6 +1,6 @@
 package org.clulab.wm.wmutils
 
-import java.io.File
+import java.io.{File, FilenameFilter}
 import java.util.jar.JarFile
 
 import org.clulab.wm.EidosSystem
@@ -108,5 +108,11 @@ object FileUtils {
     }
   }
 
+  def findFiles(collectionDir: String, extension: String): Seq[File] = {
+    val dir = new File(collectionDir)
+    dir.listFiles(new FilenameFilter {
+      def accept(dir: File, name: String): Boolean = name.endsWith(extension)
+    })
+  }
 
 }

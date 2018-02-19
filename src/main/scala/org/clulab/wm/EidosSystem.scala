@@ -6,12 +6,22 @@ import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.Aliases._
 import org.clulab.wm.entities.EidosEntityFinder
+import org.clulab.wm.serialization.json.JLDObject.AnnotatedDocument
 import org.clulab.wm.wmutils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
+
+
+trait EntityGrounder {
+  def ground(mention: Mention, quantifier: Quantifier): Grounding
+}
+
+case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
+  def isGrounded = intercept != None && mu != None && sigma != None
+}
 
 /**
   * Handles text processing and information extraction for Agro domain.
   */
-class EidosSystem(
+class EidosSystem (
   // The first three are loaded as resources from URLs, thus the leading /
   // The last two are loaded as resources from files and have no leading /
       masterRulesPath: String = "/org/clulab/wm/grammars/master.yml",
@@ -21,7 +31,7 @@ class EidosSystem(
 //agrovocLexiconsPath: String =  "org/clulab/wm/agrovoc/lexicons",
   processor: Option[Processor] = None,
   debug: Boolean = true
-) {
+) extends EntityGrounder {
   def this(x:Object) = this()
 
   // Defaults to FastNLPProcessor if no processor is given.  This is the expensive object
@@ -80,12 +90,12 @@ class EidosSystem(
     doc
   }
 
-  def extractFrom(text: String, keepText: Boolean = false): Vector[Mention] = {
+  def extractFrom(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
-    extractFrom(doc)
+    new AnnotatedDocument(doc, extractFrom(doc))
   }
   
-  def ground(mention: Mention, quantifier: Quantifier): EidosSystem.Grounding = {
+  def ground(mention: Mention, quantifier: Quantifier): Grounding = {
     
     def stemIfAdverb(word: String) = {
       if (word.endsWith("ly"))
@@ -101,13 +111,13 @@ class EidosSystem(
     val modelRow = grounder.getOrElse(pseudoStemmed, Map.empty)
     
     if (modelRow.isEmpty)
-      EidosSystem.Grounding(None, None, None)
+      Grounding(None, None, None)
     else {
       val intercept = modelRow.get(EidosSystem.INTERCEPT)
       val mu = modelRow.get(EidosSystem.MU_COEFF)
       val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
       
-      EidosSystem.Grounding(intercept, mu, sigma)
+      Grounding(intercept, mu, sigma)
     }
   }
 
@@ -146,9 +156,7 @@ class EidosSystem(
 
 object EidosSystem {
 
-  case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
-    def isGrounded = intercept != None && mu != None && sigma != None
-  }
+
   
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
