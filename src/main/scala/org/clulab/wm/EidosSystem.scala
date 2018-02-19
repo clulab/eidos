@@ -153,11 +153,11 @@ class EidosSystem (
       val sameAsMention = new RelationMention(
         label = "SameAs",
         arguments = Map[String, Seq[Mention]](("nodes", Seq(a, b))),
-        sentence = a.sentence,
-        document = a.document,
+        sentence = a.sentence,  // todo: should we save this as a crossSentenceMention
+        document = a.document,  // see above
         keep = true,
         foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}")
-      
+
       // Add the score
       sameAsMention.withAttachment(new Score(score))
     }
