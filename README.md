@@ -4,7 +4,7 @@
 
 Machine reading system for World Modelers
 
-Some materials related to this project can be found at https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A. Access is temporarily limited to UA account holders.  Other documents are included in the /doc directory of the repository.
+If you are working on this project, you may be interested in [additional materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) stored in the cloud. Access is temporarily limited to UA account holders.  Other documents are included in the /doc directory of the repository.
 
 
 The RAPShell (RAP = Representative Agricultural Pathway) is an interactive shell
