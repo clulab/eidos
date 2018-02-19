@@ -89,7 +89,7 @@ object WMseed extends App with LazyLogging {
     }
 
     if(params.nonEmpty) {
-      println("RAP Parameters:")
+      println("Eidos Parameters:")
       for (k <- params.keySet) {
         val evidence = params.get(k).get
         println(s"$k: ${evidence.size} instances:")
