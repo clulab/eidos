@@ -58,7 +58,7 @@ object TestUtils {
     }    
   }
   
-  lazy val system = new EidosSystem() // TODO: Change this class name
+  lazy val ieSystem = new EidosSystem()
 
   def extractMentions(text: String): Seq[Mention] = system.extractFrom(text).mentions
 }

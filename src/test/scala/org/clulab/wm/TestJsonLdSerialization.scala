@@ -28,7 +28,7 @@ class TestJsonSerialization extends Test {
     object TestEntityGrounder extends EntityGrounder {
   
       def ground(mention: Mention, quantifier: Quantifier) =
-        TestUtils.system.ground(mention, quantifier)
+        TestUtils.ieSystem.ground(mention, quantifier)
     }
   
     val jldCorpus = new JLDCorpus(corpus, TestEntityGrounder)

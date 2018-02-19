@@ -280,7 +280,7 @@ rules:
 
   # a rule written to catch an example from MITRE
   # currently unclear how common this pattern may be...
-  #For RAPS texts/agro domain, "stimulated" may not be the best word?
+  #For Eidos texts/agro domain, "stimulated" may not be the best word?
   - name: ported_token_experimental_results_1-${addlabel}
     priority: ${ rulepriority }
     #Original example: "Cells were additionally stimulated with 10 ng/ml leptin and cell extracts analyzed for ErbB3 tyrosine phosphorylation."
