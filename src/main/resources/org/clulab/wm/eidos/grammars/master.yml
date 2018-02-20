@@ -55,6 +55,12 @@ rules:
       label: Decrease
       trigger: ${ decrease_triggers }
 
+  - import: org/clulab/wm/eidos/grammars/explicitModifiers.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add Increase/Decrease to state of entity
+
+
   #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
   #Acts upon entities
 

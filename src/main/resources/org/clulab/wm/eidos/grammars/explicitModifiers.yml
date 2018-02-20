@@ -1,0 +1,24 @@
+vars:
+  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  conjunctions: "appos|conj|conj_|cc"
+  complements: "xcomp|ccomp"
+  noun_modifiers: "amod|compound|dep|name"
+  negTriggers: "not"
+  objects: "dobj"
+  preps: "nmod_of|nmod_in|nmod_to"
+  prep_dobjs: "nmod"
+  quant_modifiers: "amod|advmod"
+
+
+rules:
+# ------------------- Specific Decrease --------------------------
+
+  - name: Decrease_explicit_notpossible_1
+    priority: ${ rulepriority }
+    example: "... X has not been possible ..."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(possible)/ & tag=/JJ/ & outgoing=neg]
+      theme: Entity = /${agents}/
+      #quantifier:Quantifier? = ${quant_modifiers}
