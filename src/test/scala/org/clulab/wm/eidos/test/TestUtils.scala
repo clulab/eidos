@@ -43,7 +43,23 @@ object TestUtils {
     val successful = Seq()
     
     class Tester(text: String) {
-      val mentions = extractMentions(text)
+      val mentions = extractMentions(clean(text))
+      
+      def getSpecialChars(s: String) = s.filter(c => c < 32 || 127 < c)
+      
+      def clean(messyText: String): String = {
+        val cleanText = messyText
+            .trim()
+            .replace('\n', ' ')
+            .replace('\r', ' ')
+            .replace('\t', ' ')
+            .replaceAll("  +", " ")
+        val specialChars = getSpecialChars(cleanText)
+        
+        if (!specialChars.isEmpty())
+          throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
+        cleanText
+      }
       
       protected def toString(mentions: Seq[Mention]): String = {
         val stringBuilder = new StringBuilder()

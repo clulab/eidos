@@ -32,4 +32,13 @@ class TestTest extends Test {
     5 should be(successful)
     // 5 should be successful // Doesn't work
   }
+  
+  it should "clean strings properly" in {
+    val tester = new Tester("")
+    
+    tester.clean("  line one\n\nline two \n line three\n\n ") should be ("line one line two line three")
+
+    an [IllegalArgumentException] should be thrownBy
+        tester.clean(" \u2013 ")
+  }
 }
