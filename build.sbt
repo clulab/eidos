@@ -1,3 +1,5 @@
+//import ReleaseTransformations._
+
 name := "eidos"
 
 scalaVersion := "2.12.4"
@@ -33,6 +35,7 @@ assemblyMergeStrategy in assembly := {
 }
 
 // release steps
+/*
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
@@ -50,4 +53,5 @@ releaseProcess := Seq[ReleaseStep](
   // releaseStepCommandAndRemaining("sonatypeReleaseAll"),
   pushChanges
 )
+*/
 
