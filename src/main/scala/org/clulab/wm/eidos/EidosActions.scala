@@ -186,7 +186,7 @@ class EidosActions extends Actions with LazyLogging {
 
 object EidosActions extends Actions {
 
-  val taxonomy = readTaxonomy("org/clulab/wm/grammars/taxonomy.yml")
+  val taxonomy = readTaxonomy("org/clulab/wm/eidos/grammars/taxonomy.yml")
 
   private def readTaxonomy(path: String): Taxonomy = {
     val url = getClass.getClassLoader.getResource(path)

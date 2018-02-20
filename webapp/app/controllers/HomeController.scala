@@ -29,7 +29,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   val ieSystem = new EidosSystem()
 
   var proc = ieSystem.proc
-//  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
+//  val ner = LexiconNER(Seq("org/clulab/wm/eidos/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
 //  val grounder = ieSystem.grounder
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------

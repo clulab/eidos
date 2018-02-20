@@ -23,11 +23,11 @@ case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Optio
 class EidosSystem (
   // The first three are loaded as resources from URLs, thus the leading /
   // The last two are loaded as resources from files and have no leading /
-      masterRulesPath: String = "/org/clulab/wm/grammars/master.yml",
-     quantifierKBPath: String = "/org/clulab/wm/quantifierKB/gradable_adj_fullmodel.kb",
-    domainParamKBPath: String = "/org/clulab/wm/quantifierKB/domain_parameters.kb",
-       quantifierPath: String =  "org/clulab/wm/lexicons/Quantifier.tsv",
-//agrovocLexiconsPath: String =  "org/clulab/wm/agrovoc/lexicons",
+      masterRulesPath: String = "/org/clulab/wm/eidos/grammars/master.yml",
+     quantifierKBPath: String = "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb",
+    domainParamKBPath: String = "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb",
+       quantifierPath: String =  "org/clulab/wm/eidos/lexicons/Quantifier.tsv",
+//agrovocLexiconsPath: String =  "org/clulab/wm/eidos/agrovoc/lexicons",
   processor: Option[Processor] = None,
   debug: Boolean = true
 ) extends EntityGrounder {

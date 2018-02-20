@@ -167,8 +167,8 @@ object EidosEntityFinder extends LazyLogging {
 
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
   def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
-    val entityRules = readRules("/org/clulab/wm/grammars/entities/grammar/entities.yml")
-    val avoidRules = readRules("/org/clulab/wm/grammars/avoidLocal.yml")
+    val entityRules = readRules("/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
+    val avoidRules = readRules("/org/clulab/wm/eidos/grammars/avoidLocal.yml")
 
     val avoidEngine = ExtractorEngine(avoidRules)
     val entityEngine = ExtractorEngine(entityRules)

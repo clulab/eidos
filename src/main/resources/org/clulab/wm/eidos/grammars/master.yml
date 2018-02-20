@@ -1,6 +1,6 @@
-taxonomy: org/clulab/wm/grammars/taxonomy.yml
+taxonomy: org/clulab/wm/eidos/grammars/taxonomy.yml
 
-vars: org/clulab/wm/grammars/triggers.yml
+vars: org/clulab/wm/eidos/grammars/triggers.yml
 
   #correlation_triggers: "associat|correlat"
   #other_triggers: "accept|direct|necess|overexpress|potenti|re-express|rescu|"
@@ -10,12 +10,12 @@ rules:
 
 
   #Quantifiers
-  - import: org/clulab/wm/grammars/quantifiers.yml
+  - import: org/clulab/wm/eidos/grammars/quantifiers.yml
     vars:
       rulepriority: "1"
 
   #Transparent Words
-  - import: org/clulab/wm/grammars/transparent.yml
+  - import: org/clulab/wm/eidos/grammars/transparent.yml
     vars:
       rulepriority: "1"
 
@@ -32,14 +32,14 @@ rules:
 
   #Step 1: find the direct attachments of entities (e.g. "small puppies")
   #TODO: make sure the Increase/Decrease are in avoid.yml
-  - import: org/clulab/wm/grammars/entityQuantification.yml
+  - import: org/clulab/wm/eidos/grammars/entityQuantification.yml
     vars:
       rulepriority: "2"
       action: applyAttachment #Should add quantifier to state of entity
       label: Quantification
 
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
-  - import: org/clulab/wm/grammars/modifiersTemplate.yml
+  - import: org/clulab/wm/eidos/grammars/modifiersTemplate.yml
     vars:
       objrulepriority: "4"
       modrulepriority: "3"
@@ -47,7 +47,7 @@ rules:
       label: Increase
       trigger: ${ increase_triggers }
 
-  - import: org/clulab/wm/grammars/modifiersTemplate.yml
+  - import: org/clulab/wm/eidos/grammars/modifiersTemplate.yml
     vars:
       objrulepriority: "4"
       modrulepriority: "3"
@@ -59,21 +59,21 @@ rules:
   #Acts upon entities
 
   # ------------ Causal ------------
-  - import: org/clulab/wm/grammars/causal.yml
+  - import: org/clulab/wm/eidos/grammars/causal.yml
     vars:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
       trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers}
 
-  - import: org/clulab/wm/grammars/linkersTemplate.yml
+  - import: org/clulab/wm/eidos/grammars/linkersTemplate.yml
     vars:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
       trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers}|${affect_triggers}|${nonavoid_affect_triggers}
 
-  - import: org/clulab/wm/grammars/reverse_direction_causal.yml
+  - import: org/clulab/wm/eidos/grammars/reverse_direction_causal.yml
     vars:
       rulepriority: "6"
       addlabel: "Causal"
@@ -82,7 +82,7 @@ rules:
 
 
   # ------------ Origin ------------
-  - import: org/clulab/wm/grammars/origin.yml
+  - import: org/clulab/wm/eidos/grammars/origin.yml
     vars:
       rulepriority: "6"
       label: Origin
@@ -91,7 +91,7 @@ rules:
 
 
   # ------------ TransparentLinker ------------
-  - import: org/clulab/wm/grammars/transparentLinkers.yml
+  - import: org/clulab/wm/eidos/grammars/transparentLinkers.yml
     vars:
       rulepriority: "6"
       label: TransparentLink

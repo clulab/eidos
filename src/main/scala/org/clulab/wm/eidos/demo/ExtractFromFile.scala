@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 object ExtractFromFile  extends App {
 
   val ieSystem = new EidosSystem()
-  val files = findFiles("/Users/bsharp/github/research/wmseed/src/main/resources/org/clulab/wm/rapdocs", "txt")
+  val files = findFiles("/Users/bsharp/github/research/wmseed/src/main/resources/org/clulab/wm/eidos/rapdocs", "txt")
   val outputDir = "/Users/bsharp"
 
   val pw = new PrintWriter(s"$outputDir/prettyRAPexample.output")
