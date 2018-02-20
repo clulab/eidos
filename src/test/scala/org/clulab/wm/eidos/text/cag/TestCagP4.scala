@@ -55,7 +55,7 @@ class TestCagP4 extends Test {
     val expertise  = NodeSpec("technical expertise", Dec("lack"))
     val supplies   = NodeSpec("supplies", Dec("lack"))
     val access     = NodeSpec("access", Dec("lack"))
-    val repairs    = NodeSpec("Borehole repairs")
+    val repairs    = NodeSpec("Borehole repairs", Dec("possible"))
 
     //TO-DO:  "have not been possible" is not be recognized as "inhibit", it is not currently supported yet
     //val repairs    = NodeSpec("Borehole repairs", Dec("inhibit"))
