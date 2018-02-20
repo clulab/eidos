@@ -24,7 +24,7 @@ The scala API can produce three distinct output formats:
 - a JSON-LD export of the causal graph extracted from the text
 - a JSON serialization (in case you want to later load all of the mentions, including mentions that are not part of the causal graph)
 
-(see [`src/main/scala/org/clulab/wm/eidos/demo/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/demo/examples/ExtractFromText.scala)
+(see [`src/main/scala/org/clulab/wm/eidos/demo/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/demo/examples/ExtractFromText.scala))
 
 #### To produce a pretty display of the extracted mentions
 
