@@ -734,7 +734,7 @@ This causal analysis graph is then converted to a dynamic Bayes network and used
 to make probabilistic predictions. Currently Delphi provides a webapp interface
 for interactive visualizations and simulations. Here is an example:
 
-![alt text](https://github.com/clulab/eidos/raw/adding_indra_delphi_instructions_to_readme/doc/delphi_example.png")
+![alt text](/doc/delphi_example.png")
 
 
 ## License
