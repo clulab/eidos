@@ -1,14 +1,15 @@
 package org.clulab.wm.eidos.text
 
+import scala.collection.Seq
+
 import org.clulab.odin.Attachment
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
-import org.clulab.wm.Aliases.Quantifier
-import org.clulab.wm.Decrease
-import org.clulab.wm.Increase
-import org.clulab.wm.Quantification
-import scala.collection.Seq
+import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.Decrease
+import org.clulab.wm.eidos.Increase
+import org.clulab.wm.eidos.Quantification
 
 case class Unmodified(quantifier: Quantifier) extends Attachment
 

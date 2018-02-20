@@ -1,9 +1,10 @@
-package org.clulab.wm.serialization.json
+package org.clulab.wm.eidos.serialization.json
 
 import java.util.IdentityHashMap  // Unfortunately borrowed from Java
 import java.util.{Set => JavaSet} // Holds keys of IdentityHashMap
 
 import scala.collection.mutable
+
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
@@ -13,9 +14,10 @@ import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
-import org.clulab.wm.Aliases.Quantifier
-import org.clulab.wm.Grounding
-import org.clulab.wm.{Decrease, EntityGrounder, Increase, Quantification}
+import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.Grounding
+import org.clulab.wm.eidos.{Decrease, EntityGrounder, Increase, Quantification}
+
 import org.json4s._
 import org.json4s.JsonDSL._
 

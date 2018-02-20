@@ -1,17 +1,15 @@
-package eidos.demo
-
-
+package org.clulab.wm.eidos.demo
 
 import java.io.PrintWriter
 
-import org.clulab.odin.Mention
-import org.clulab.processors.Document
-import org.clulab.wm.EidosSystem
-import utils.DisplayUtils.printMentions
-import org.clulab.wm.wmutils.FileUtils.findFiles
-
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+
+import org.clulab.odin.Mention
+import org.clulab.processors.Document
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.utils.DisplayUtils.printMentions
+import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 object ExtractFromFile  extends App {
 

@@ -1,9 +1,9 @@
-package utils
+package org.clulab.wm.eidos.utils
 
 import java.io.PrintWriter
-
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
+import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
 
 object DisplayUtils {
 

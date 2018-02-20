@@ -1,4 +1,4 @@
-package org.clulab.wm
+package org.clulab.wm.eidos
 
 object Aliases {
 

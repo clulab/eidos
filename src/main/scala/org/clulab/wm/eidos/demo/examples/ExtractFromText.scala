@@ -1,10 +1,11 @@
-package eidos.demo.examples
+package org.clulab.wm.eidos.demo.examples
 
-import org.clulab.wm.EidosSystem
-import org.clulab.wm.serialization.json.{JLDCorpus, WMJSONSerializer}
-import utils.DisplayUtils.displayMention
-import org.clulab.serialization.json.stringify
 import scala.collection.Seq
+
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.{JLDCorpus, WMJSONSerializer}
+import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
 
 object ExtractFromText extends App {
 

@@ -1,4 +1,4 @@
-package org.clulab.wm.entities
+package org.clulab.wm.eidos.entities
 
 import org.clulab.odin.Mention
 import org.clulab.processors.Document

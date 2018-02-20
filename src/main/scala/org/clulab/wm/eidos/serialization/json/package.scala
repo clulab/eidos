@@ -1,14 +1,15 @@
-package org.clulab.wm.serialization.json
+package org.clulab.wm.eidos.serialization.json
+
+import scala.util.hashing.MurmurHash3._
 
 import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.struct.DirectedGraph
-import org.clulab.wm.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.{Decrease, Increase, Quantification}
+
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.Serialization.write
-
-import scala.util.hashing.MurmurHash3._
 
 // Code ported from ODIN
 

@@ -1,16 +1,17 @@
-package org.clulab.wm.wmutils
+package org.clulab.wm.eidos.utils
 
 import java.io.{File, FilenameFilter}
 import java.util.jar.JarFile
 
-import org.clulab.wm.EidosSystem
-import org.clulab.wm.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
-
 import scala.collection.mutable.ListBuffer
+
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
+import org.clulab.wm.eidos.EidosSystem
 
 object FileUtils {
 
-  import org.clulab.wm.Aliases._
+  import org.clulab.wm.eidos.Aliases._
 
   def readRules(rulesPath: String): String = {
     println(s"rulesPath:\t$rulesPath")

@@ -1,4 +1,4 @@
-package utils
+package org.clulab.wm.eidos.utils
 
 import java.io.File
 

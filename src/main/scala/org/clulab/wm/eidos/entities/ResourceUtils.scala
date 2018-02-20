@@ -1,4 +1,4 @@
-package org.clulab.wm.entities
+package org.clulab.wm.eidos.entities
 
 import java.io.InputStream
 
