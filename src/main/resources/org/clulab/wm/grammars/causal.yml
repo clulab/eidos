@@ -72,6 +72,16 @@ rules:
       cause: Entity = nmod_by
       effect: Entity = ${agents}
 
+  - name: leadToSyntax1-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: "Conflict and economic decline have led to violence and displacement."
+    pattern: |
+      trigger = [lemma="lead" & tag=/^VB/] (?=[word=to])
+      effect: Entity = nmod_to
+      cause: Entity = nsubj /${noun_modifiers}/{,2}
+
+
 
 # ------------------- Explicity Causal REACH --------------------------
 
