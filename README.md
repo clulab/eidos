@@ -81,10 +81,10 @@ List(Causal, DirectedRelation, EntityLinker, Event) => Water trucking has decrea
 
 
 ```scala
-import org.clulab.wm.EidosSystem
-import utils.DisplayUtils.displayMention
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.JLDCorpus
 
-val text = "Water trucking has decreased due to the cost of fuel."
+  val text = "Water trucking has decreased due to the cost of fuel."
 
   // Initialize the reader
   val reader = new EidosSystem()
