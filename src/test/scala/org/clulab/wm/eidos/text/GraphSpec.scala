@@ -104,8 +104,8 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec]) e
     val matches = mentions
         .filter(_.isInstanceOf[TextBoundMention])
         .map(_.asInstanceOf[TextBoundMention])
-        .filter(matchText(_))
-        .filter(matchAttachments(_))
+        .filter(matchText)
+        .filter(matchAttachments)
         
     if (matches.size == 1) Option(matches.head)
     else None
@@ -143,7 +143,7 @@ object NodeSpec {
 class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeSpec]) extends GraphSpec {
   protected def testPattern = testLines(_)
   //protected def testPattern = testStar(_)
-  
+      
   protected def getArgument(mention: EventMention, nodeSpec: NodeSpec, argument: String): Option[Mention] = {
     val tmpMention = nodeSpec.mention.get
 
@@ -184,21 +184,22 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
     val matches = mentions
         .filter(_.isInstanceOf[EventMention])
         .map(_.asInstanceOf[EventMention])
-        .filter(_.labels.contains(event.label))
-        .filter(matchCause(_))
-        .filter(matchEffects(_)) // All of them
+        .filter(_.matches(event.label))
+        .filter(matchCause)
+        .filter(matchEffects) // All of them
     
     if (matches.size == 1) Option(matches.head)
     else None
   }
     
   protected def testLines(mentions: Seq[Mention]): Seq[String] = {
-    val matches = mentions
-        .filter(_.isInstanceOf[EventMention])
-        .map(_.asInstanceOf[EventMention])
-        .filter(_.labels.contains(event.label))
-        .filter(matchCause)
-        .filter(matchEffect(_)) // One of them
+    val matches1 = mentions
+    val matches2 = matches1.filter(_.isInstanceOf[EventMention])
+    val matches3 = matches2.map(_.asInstanceOf[EventMention])
+    val matches4 = matches3.filter(_.matches(event.label))
+    val matches5 = matches4.filter(matchCause)
+    val matches = matches5.filter(matchEffect) // One of them
+    
     val badCause = matches.find(mention => getCause(mention).get != cause.mention.get).isDefined
     val effectResults = effects.toSeq
         .map(effect => (effect, matches.find(mention => matchEffect(mention, effect))))
