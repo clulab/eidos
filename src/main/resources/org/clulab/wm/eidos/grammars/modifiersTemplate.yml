@@ -163,3 +163,4 @@ rules:
       @theme: Entity
       [lemma=have]
       (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=dobj])
+
