@@ -131,15 +131,17 @@ rules:
 
   #NB: In original pos_reg rules, this had a comment: "# remove?"
   #So it may not be a good rule to have. It doesn't look like something we will use...
-  - name: ported_syntax_7_verb-${addlabel}
-    priority: ${ rulepriority }
-    #original example: "ASPP1 aids in the translocation of Kras to the membrane."
-    example: ""
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/] # "aids" is incorrectly tagged as a noun
-      effect: Entity = (nmod_in$ | nmod_to) /${ noun_modifiers }/{,2}
-      cause: Entity = (nsubj | <rcmod) /${ conjunctions }|${ noun_modifiers }|nmod_in/{,2}
+  # Becky: removed b/c of misfiring with our increase/decrease triggers
+  # example of misfire: "Water trucking has decreased due to the increased cost of fuel."
+#  - name: ported_syntax_7_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    #original example: "ASPP1 aids in the translocation of Kras to the membrane."
+#    example: ""
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/] # "aids" is incorrectly tagged as a noun
+#      effect: Entity = (nmod_in$ | nmod_to) /${ noun_modifiers }/{,2}
+#      cause: Entity = (nsubj | <rcmod) /${ conjunctions }|${ noun_modifiers }|nmod_in/{,2}
 
   # todo: I think this is no longer relevant with the new stateful entities
   - name: ported_syntax_8_verb-${addlabel}
