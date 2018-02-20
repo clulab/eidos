@@ -3,13 +3,15 @@ package org.clulab.wm.eidos.serialization.json
 import java.io.File
 
 import scala.io.Source
+
 import org.clulab.processors.Document
 import org.clulab.struct.{DirectedGraph, Edge, Interval}
 import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.serialization.json.DocOps
-import org.clulab.wm.{Decrease, Increase, Quantification}
-import org.clulab.wm.serialization.json.json._
+import org.clulab.wm.eidos.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.serialization.json.json._
+
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -54,9 +56,9 @@ object WMJSONSerializer {
       }
 
       (json \ "type").extract[String] match {
-        case org.clulab.wm.serialization.json.json.Increase.string => parseJValue(json \ "mod").extract[Increase]
-        case org.clulab.wm.serialization.json.json.Decrease.string => parseJValue(json \ "mod").extract[Decrease]
-        case org.clulab.wm.serialization.json.json.Quantification.string => parseJValue(json \ "mod").extract[Quantification]
+        case org.clulab.wm.eidos.serialization.json.json.Increase.string => parseJValue(json \ "mod").extract[Increase]
+        case org.clulab.wm.eidos.serialization.json.json.Decrease.string => parseJValue(json \ "mod").extract[Decrease]
+        case org.clulab.wm.eidos.serialization.json.json.Quantification.string => parseJValue(json \ "mod").extract[Quantification]
       }
     }
 

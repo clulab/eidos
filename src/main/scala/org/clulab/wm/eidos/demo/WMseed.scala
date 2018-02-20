@@ -1,15 +1,18 @@
 package org.clulab.wm.eidos.demo
 
 import java.io.File
+
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
+
 import org.clulab.processors.{Document, Processor}
 import ai.lum.common.ConfigUtils._
 import org.clulab.odin.Mention
-import org.clulab.wm.EidosSystem
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 /**
   * Created by ajaynagesh on 5/31/17.

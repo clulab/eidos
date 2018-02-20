@@ -5,10 +5,9 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.Aliases._
-import org.clulab.wm.entities.EidosEntityFinder
-import org.clulab.wm.serialization.json.JLDObject.AnnotatedDocument
+import org.clulab.wm.eidos.entities.EidosEntityFinder
+import org.clulab.wm.eidos.serialization.json.JLDObject.AnnotatedDocument
 import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
-
 
 trait EntityGrounder {
   def ground(mention: Mention, quantifier: Quantifier): Grounding

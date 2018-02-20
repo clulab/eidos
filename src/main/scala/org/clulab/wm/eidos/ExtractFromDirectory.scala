@@ -1,10 +1,12 @@
 package org.clulab.wm.eidos
+
 import java.io.PrintWriter
-import org.clulab.serialization.json.stringify
-import org.clulab.wm.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.EidosSystem
+
 import scala.collection.Seq
+
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 
 object ExtractFromDirectory extends App {

@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos
+package org.clulab.wm.eidos.utils
 
 
 /**

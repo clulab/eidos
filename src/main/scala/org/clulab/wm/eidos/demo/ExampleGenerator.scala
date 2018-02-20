@@ -1,10 +1,10 @@
 package org.clulab.wm.eidos.demo
 
 import org.json4s.jackson.JsonMethods._
-import org.clulab.wm.EidosSystem
-import org.clulab.wm.serialization.json.WMJSONSerializer
-import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
 
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
+import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
 
 object ExampleGenerator extends App {
 

@@ -1,16 +1,13 @@
 package org.clulab.wm.eidos.test
 
-<<<<<<< Updated upstream:src/test/scala/org/clulab/wm/eidos/test/TestUtils.scala
-import org.clulab.odin.Mention
-=======
+import scala.collection.Seq
+
+import org.scalatest._
+
 import org.clulab.odin.{Attachment, Mention}
 import org.clulab.wm.eidos.EidosSystem;
->>>>>>> Stashed changes:src/test/scala/org/clulab/wm/TestUtils.scala
-import org.scalatest._
 import org.clulab.wm.eidos.text.NodeSpec
 import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.EidosSystem
-import scala.collection.Seq
 
 /**
   * These are the functions that we'll be testing, that import from PaperReader

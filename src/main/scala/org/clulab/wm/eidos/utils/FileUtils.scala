@@ -2,10 +2,12 @@ package org.clulab.wm.eidos.utils
 
 import java.io.{File, FilenameFilter}
 import java.util.jar.JarFile
-import org.clulab.wm.EidosSystem
-import org.clulab.wm.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
+
 import scala.collection.mutable.ListBuffer
-import org.clulab.wm.EidosSystem
+
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
+import org.clulab.wm.eidos.EidosSystem
 
 object FileUtils {
 

@@ -1,9 +1,10 @@
 package org.clulab.wm.eidos.demo
 
-import org.clulab.wm.EidosSystem
+import scala.collection.immutable.ListMap
+
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.{CliReader, IdeReader}
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import scala.collection.immutable.ListMap
 
 /**
   * Interactive shell for demonstrating Eidos
