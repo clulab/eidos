@@ -24,15 +24,15 @@ The scala API can produce three distinct output formats:
 - a JSON-LD export of the causal graph extracted from the text
 - a JSON serialization (in case you want to later load all of the mentions, including mentions that are not part of the causal graph)
 
-(see [`src/main/scala/agro/demo/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/agro/demo/examples/ExtractFromText.scala) for a complete running example)
+(see [`src/main/scala/org/clulab/wm/eidos/demo/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/demo/examples/ExtractFromText.scala)
 
 #### To produce a pretty display of the extracted mentions
 
 ```scala
-import org.clulab.wm.EidosSystem
-import utils.DisplayUtils.displayMention
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
 
-val text = "Water trucking has decreased due to the cost of fuel."
+  val text = "Water trucking has decreased due to the cost of fuel."
 
   // Initialize the reader
   val reader = new EidosSystem()
