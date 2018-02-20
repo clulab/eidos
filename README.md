@@ -687,7 +687,7 @@ This produces the following JSON serialization (mentions may appear in different
 
 ### Extracting causal events from documents in a directory
 
-``` 
+```bash
 sbt "runMain org.clulab.wm.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
 ```
 Files in the input directory should end with `txt` and the extracted mentions from each file will be saved in corresponding JSON-LD files.
@@ -705,12 +705,36 @@ for testing the output of Eidos. To run it, do
 
 To run the webapp version of EidosShell locally, do:
 
-```
+```bash
 sbt webapp/run
 ```
 
 and then navigate to `localhost:9000` in a web browser.
 
+
+
+### Using Eidos output for modeling
+
+Events extracted using Eidos can be converted to
+[INDRA-GEM](https://github.com/sorgerlab/indra) Influence statements, which are
+bespoke data structures designed for modeling causal networks. 
+
+Example usage:
+
+```python
+>>> from indra.sources import eidos
+>>> ep = eidos.process_text("Water trucking has decreased due to the cost of fuel.")
+>>> ep.statements
+[Influence(cost of fuel(), Water trucking(negative))]
+```
+
+[Delphi](https://github.com/ml4ai/delphi) is a framework built on top of INDRA
+that assembles causal fragments extracted by Eidos into a causal analysis graph.
+This causal analysis graph is then converted to a dynamic Bayes network and used
+to make probabilistic predictions. Currently Delphi provides a webapp interface
+for interactive visualizations and simulations. Here is an example:
+
+![alt text](https://github.com/clulab/eidos/raw/adding_indra_delphi_instructions_to_readme/doc/delphi_example.png")
 
 
 ## License
@@ -732,7 +756,7 @@ systems (apparently not Windows), you can increase the
 memory allocation by specifying it in the `.sbtopts` file in the `eidos`
 directory (the one in which this README resides): 
 
-```
+```bash
 echo "-J-Xmx6g" >> .sbtopts
 ```
 
