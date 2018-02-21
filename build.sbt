@@ -83,16 +83,12 @@ releaseProcess := Seq[ReleaseStep](
   inquireVersions,
   runClean,
   runTest,
-  // releaseStepCommandAndRemaining("+test"),
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  ReleaseStep(action = Command.process("publishSigned", _)),
-  // releaseStepCommandAndRemaining("+publishSigned"),
+  publishArtifacts,
   setNextVersion,
   commitNextVersion,
-  ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
-  // releaseStepCommandAndRemaining("sonatypeReleaseAll"),
   pushChanges
 )
 
