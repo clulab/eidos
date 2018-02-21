@@ -155,6 +155,14 @@ rules:
       effect: Entity  = nmod_of compound?
       cause: Entity = nsubj /${ noun_modifiers }|${ conjunctions }|${ preps }|/{,2}
 
+  - name: syntax_9_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
+      effect: Entity  = <ccomp (?=/nmod_since/) nsubj
+      cause: Entity = dobj
 
   # todo: maybe applies only to promotion triggers
   - name: ported_syntax_1_noun-${addlabel}
@@ -176,15 +184,15 @@ rules:
       cause: Entity = /nmod_of/? /nmoc_by|agent/ /${ conjunctions }|${ noun_modifiers }/{,2} # the prep_of may appear due to bad syntax
 
 
-  - name: ported_syntax_3_noun-${addlabel}
-    priority: ${ rulepriority }
-    example: ""
-    label: ${ label }
-    #Original rule had a "downstream" part in the trigger #[lemma=/^(${ auxtriggers })/ & tag=/^N/]? (?! downstream)
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/ & !outgoing=nmod_by]
-      effect: Entity = /${ preps }$/ /${ conjunctions }|${ noun_modifiers }/{,2}
-      cause: Entity = /cc|${ noun_modifiers }/{1,2} | conj_or nmod_by compound?
+#  - name: ported_syntax_3_noun-${addlabel}
+#    priority: ${ rulepriority }
+#    example: ""
+#    label: ${ label }
+#    #Original rule had a "downstream" part in the trigger #[lemma=/^(${ auxtriggers })/ & tag=/^N/]? (?! downstream)
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/ & !outgoing=nmod_by]
+#      effect: Entity = /${ preps }$/ /${ conjunctions }|${ noun_modifiers }/{,2}
+#      cause: Entity = /cc|${ noun_modifiers }/{1,2} | conj_or nmod_by compound?
 
 
   # There is no syntax_4_noun rule!
