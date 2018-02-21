@@ -1,0 +1,209 @@
+{
+  "@context" : {
+    "@base" : "https://github.com/clulab/eidos/wiki/JSON-LD",
+    "Corpus" : "#Corpus",
+    "Dependency" : "#Dependency",
+    "DirectedRelation" : "#DirectedRelation",
+    "Document" : "#Document",
+    "Entity" : "#Entity",
+    "Interval" : "#Interval",
+    "Modifier" : "#Modifier",
+    "Provenance" : "#Provenance",
+    "Sentence" : "#Sentence",
+    "State" : "#State",
+    "Trigger" : "#Trigger",
+    "UndirectedRelation" : "#UndirectedRelation",
+    "Word" : "#Word"
+  },
+  "@type" : "Corpus",
+  "documents" : [ {
+    "@type" : "Document",
+    "@id" : "_:Document_1",
+    "title" : "Example Document",
+    "sentences" : [ {
+      "@type" : "Sentence",
+      "@id" : "_:Sentence_1",
+      "text" : "Hello , world !",
+      "words" : [ {
+        "@type" : "Word",
+        "@id" : "_:Word_1",
+        "text" : "Hello",
+        "tag" : "UH",
+        "entity" : "O",
+        "startOffset": 0,
+        "endOffset" : 5,
+        "lemma" : "hello",
+        "chunk" : "B-ADVP"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_2",
+        "text" : ",",
+        "tag" : ",",
+        "entity" : "O",
+        "startOffset" : 5,
+        "endOffset" : 6,
+        "lemma" : ",",
+        "chunk" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_3",
+        "text" : "world",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 7,
+        "endOffset" : 12,
+        "lemma" : "world",
+        "chunk" : "B-NP"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_4",
+        "text" : "!",
+        "tag" : ".",
+        "entity" : "O",
+        "startOffset" : 12,
+        "endOffset" : 13,
+        "lemma" : "!",
+        "chunk" : "O"
+      } ],
+      "dependencies" : [ {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_3"
+        },
+        "destination" : {
+          "@id" : "_:Word_1"
+        },
+        "relation" : "discourse"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_3"
+        },
+        "destination" : {
+          "@id" : "_:Word_2"
+        },
+        "relation" : "punct"
+      } ]
+    } ]
+  } ],
+  "extractions" : [ {
+    "@type" : "Entity",
+    "@id" : "_:Entity_1",
+    "labels" : [ "NounPhrase", "Entity" ],
+    "text" : "world",
+    "rule" : "simple-np",
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "sentence" : {
+        "@id" : "_:Sentence_1"
+      },
+      "positions" : {
+        "@type" : "Interval",
+        "start" : 3,
+        "end" : 3
+      }
+    } ],
+    "states" : [ {
+      "@type" : "State",
+      "type" : "INC",
+      "text" : "Hello",
+      "modifiers" : [ {
+        "@type" : "Modifier",
+        "text" : "world",
+        "intercept" : 0.6154,
+        "mu" : 1.034E-5,
+        "sigma" : -0.001123
+      } ]
+    } ]
+  }, {
+    "@type" : "DirectedRelation",
+    "@id" : "_:DirectedRelation_1",
+    "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
+    "text" : "Hello",
+    "rule" : "dueToSyntax1-Causal",
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "sentence" : {
+        "@id" : "_:Sentence_1"
+      },
+      "positions" : {
+        "@type" : "Interval",
+        "start" : 1,
+        "end" : 1
+      }
+    } ],
+    "trigger" : {
+      "@type" : "Trigger",
+      "text" : "world",
+      "provenance" : [ {
+        "@type" : "Provenance",
+        "document" : {
+          "@id" : "_:Document_1"
+        },
+        "sentence" : {
+          "@id" : "_:Sentence_1"
+        },
+        "positions" : {
+          "@type" : "Interval",
+          "start" :3,
+          "end" : 3
+        }
+      } ]
+    },
+    "sources" : [ {
+      "@id" : "_:Entity_1"
+    } ],
+    "destinations" : [ {
+      "@id" : "_:UndirectedRelation_1"
+    } ]
+  }, {
+    "@type" : "UndirectedRelation",
+    "@id" : "_:UndirectedRelation_1",
+    "labels" : [ "SameAs", "UndirectedRelation", "EntityLinker", "Event" ],
+    "text" : "world",
+    "rule" : "dueToSyntax1-Causal",
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "sentence" : {
+        "@id" : "_:Sentence_1"
+      },
+      "positions" : {
+        "@type" : "Interval",
+        "start" : 3,
+        "end" : 3
+      }
+    } ],
+    "trigger" : {
+      "@type" : "Trigger",
+      "text" : "Hello",
+      "provenance" : [ {
+        "@type" : "Provenance",
+        "document" : {
+          "@id" : "_:Document_1"
+        },
+        "sentence" : {
+          "@id" : "_:Sentence_1"
+        },
+        "positions" : {
+          "@type" : "Interval",
+          "start" : 1,
+          "end" : 1
+        }
+      } ]
+    },
+    "arguments" : [ {
+      "@id" : "_:Entity_1"
+    }, {
+      "@id" : "_:DirectedRelation_1"
+    } ]
+  } ]
+}

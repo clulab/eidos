@@ -1,1 +1,1 @@
-sbt "run-main agro.demo.RAPShell"
+sbt "run-main org.clulab.wm.eidos.demo.EidosShell"
