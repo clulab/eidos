@@ -29,7 +29,7 @@ object CAG {
   val p2 = p2raw.replaceAll(rsquo, "'")
   
   val p3s1 = "Food insecurity is becoming more severe across a wider area and is deepening for people already made vulnerable by displacement and conflict."
-  val p3s2 = "In 2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical as spikes in conflict, economic collapse and impacts of flooding reduced agricultural production."
+  val p3s2 = "In 2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical as spikes in conflict, economic collapse, and impacts of flooding reduced agricultural production."
   val p3s3 = "About three quarters of counties countrywide are expected to face severe food insecurity in the first quarter of 2018."
   val p3s4 = "Even after the harvest in late 2017, food prices remained high, and the 2018 lean season is projected to begin early and become worse than in 2017."
   val p3s5 = "Particularly for people living in market-dependent urban areas, economic decline has caused a reduction in access to staple food, clean water, and to a variety of foods."
