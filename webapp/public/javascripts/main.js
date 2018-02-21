@@ -7,7 +7,7 @@ var decreaseNounPhraseColor = '#FC5C38';
 var quantifierColor = '#AED6F1';
 var quantifiedNounPhraseColor = '#85C1E9';
 var causalEventColor = '#BB8FCE';
-var affectEventColor = '#F7DC6F';
+var correlationEventColor = '#F7DC6F';
 
 
 head.js(
@@ -353,9 +353,9 @@ var collData = {
       },
 
       {
-        "type": "Affect",
-        "labels": ["AFFECT"],
-        "bgColor": affectEventColor,
+        "type": "Correlation",
+        "labels": ["CORRELATION"],
+        "bgColor": correlationEventColor,
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},

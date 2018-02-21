@@ -103,3 +103,11 @@ rules:
       label: TransparentLink
       trigger: "from"
       #action: ? #
+
+  # ------------ ExplicitLinker ------------
+  - import: org/clulab/wm/eidos/grammars/explicitLinkers.yml
+    vars:
+      rulepriority: "6"
+      trigger: ${increase_triggers}|${decrease_triggers}
+      #action: ? #
+
