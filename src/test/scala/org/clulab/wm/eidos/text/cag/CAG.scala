@@ -23,7 +23,8 @@ object CAG {
   val p2s1 = p2s1raw.replaceAll(rsquo, "'")
   val p2s2 = "Conflict, insecurity, market disruption, economic downturn and localized crop failures have caused record high food prices and hunger has spread to locations that were previously stable."
   val p2s3 = "Conflict and economic decline have led to violence and displacement."
-  val p2s4 = "Violence has caused livestock to be looted, killed and disease-prone and crops destroyed, and displacement has caused delayed planting."
+  // NOTE: changed 'delayed' to 'late' to have accurate parse
+  val p2s4 = "Violence has caused livestock to be looted, killed and disease-prone and crops destroyed, and displacement has caused late planting."
   val p2s5 = "These impacts on livestock and crops have resulted in livelihoods being decimated."
   val p2raw = Array(Array(p2s1raw, p2s2).mkString(SINGLE_SENTENCE_SEPARATOR), p2s3, p2s4, p2s5).mkString(DOUBLE_SENTENCE_SEPARATOR)
   val p2 = p2raw.replaceAll(rsquo, "'")

@@ -102,7 +102,7 @@ class TestCagP2 extends Test {
     val violence = NodeSpec("Violence")
     val livestock = NodeSpec("livestock") //todo: add more modifications when we have that functionality
     val displacement = NodeSpec("displacement")
-    val delayedPlanting = NodeSpec("delayed planting") //todo: adjust when more mods available
+    val delayedPlanting = NodeSpec("late planting") //todo: adjust when more mods available
 
 
     val node1 = NodeSpec(null)
@@ -113,7 +113,7 @@ class TestCagP2 extends Test {
     passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(violence, Causal, livestock)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Fan) in {
+    passingTest should "have correct edges 2" taggedAs(Fan) in {
       tester.test(EdgeSpec(displacement, Causal, delayedPlanting)) should be (successful)
     }
   }
