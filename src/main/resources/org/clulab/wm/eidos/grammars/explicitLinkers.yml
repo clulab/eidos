@@ -13,12 +13,29 @@ vars:
   # Todo: nmod_from "X will follow from Y"
 
 rules:
-  - name: syntax_9_verb-Correlation
+  - name: syntax_1_verb-Correlation
     priority: ${ rulepriority }
-    example: ""
+    example: "In 2017, food insecurity remained critical as spikes in conflict, economic collapse, and impacts of flooding reduced agricultural production."
     label: Correlation
-    #More water resulting in an increase of productivty.
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
       effect: Entity  = <ccomp (?=/nmod_as/) nsubj
       cause: Entity = dobj
+
+  - name: syntax_2_verb-Correlation
+    priority: ${ rulepriority }
+    example: "Food insecurity remained critical as conflict continues."
+    label: Correlation
+    pattern: |
+      trigger = [incoming=advcl_as]
+      effect: Entity  = <advcl_as nsubj
+      cause: Entity = (?![outgoing=/dobj|xcomp/]) nsubj
+
+  - name: syntax_3_verb-Correlation
+    priority: ${ rulepriority }
+    example: "Food insecurity remained critical as conflict continues to increase danger."
+    label: Correlation
+    pattern: |
+      trigger = [incoming=advcl_as]
+      effect: Entity  = <advcl_as nsubj
+      cause: Entity = /(${complements})/? dobj
