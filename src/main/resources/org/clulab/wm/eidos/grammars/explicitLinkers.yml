@@ -1,0 +1,41 @@
+vars:
+  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  conjunctions: "appos|conj|conj_|cc"
+  complements: "xcomp|ccomp"
+  adverbial_clause: "advcl"
+  noun_modifiers: "amod|compound|dep|name"
+  negTriggers: "not"
+  objects: "dobj"
+  preps: "nmod_of|nmod_in|nmod_to"
+  prep_dobjs: "nmod"
+  quant_modifiers: "amod|advmod"
+  passive_agents: "nmod_by|nmod_agent|agent"
+  # Todo: nmod_from "X will follow from Y"
+
+rules:
+  - name: syntax_1_verb-Correlation
+    priority: ${ rulepriority }
+    example: "In 2017, food insecurity remained critical as spikes in conflict, economic collapse, and impacts of flooding reduced agricultural production."
+    label: Correlation
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
+      effect: Entity  = <ccomp (?=/nmod_as/) nsubj
+      cause: Entity = dobj
+
+  - name: syntax_2_verb-Correlation
+    priority: ${ rulepriority }
+    example: "Food insecurity remained critical as conflict continues."
+    label: Correlation
+    pattern: |
+      trigger = [incoming=advcl_as]
+      effect: Entity  = <advcl_as nsubj
+      cause: Entity = (?![outgoing=/dobj|xcomp/]) nsubj
+
+  - name: syntax_3_verb-Correlation
+    priority: ${ rulepriority }
+    example: "Food insecurity remained critical as conflict continues to increase danger."
+    label: Correlation
+    pattern: |
+      trigger = [incoming=advcl_as]
+      effect: Entity  = <advcl_as nsubj
+      cause: Entity = /(${complements})/? dobj

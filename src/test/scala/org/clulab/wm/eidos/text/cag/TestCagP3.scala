@@ -38,25 +38,28 @@ class TestCagP3 extends Test {
   
   { // S2
     val tester = new Tester(p3s2)
-  
+   // tester.mentions.foreach(m => println("\t" + m.text))
+
     val impacts = NodeSpec("impacts of flooding")
     val economic = NodeSpec("economic", Dec("collapse"))
     val conflict = NodeSpec("conflict")
     val production = NodeSpec("agricultural production", Dec("reduced"))
-    val insecurity = NodeSpec("food insecurity", Quant("critical"))
+    val insecurity = NodeSpec("food insecurity in Unity", Quant("critical"))
     
     behavior of "p3s2"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(impacts, Causal, production)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(economic, Causal, production)) should be (successful)
     }
+    // The parse for this sentence is too bad to get this, but as I keep trying to modify the sentence to fix it,
+    // the parse breaks in other ways... hopefully we can fix this with CluProcessor
     failingTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(conflict, Causal, production)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 4" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(production, Correlation, insecurity)) should be (successful)
     }
   }
