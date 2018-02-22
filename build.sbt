@@ -1,6 +1,7 @@
 import ReleaseTransformations._
 
 name := "eidos"
+organization := "org.clulab"
 
 scalaVersion := "2.12.4"
 
