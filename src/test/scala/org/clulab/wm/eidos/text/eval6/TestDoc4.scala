@@ -14,13 +14,14 @@ class TestDoc4 extends Test {
     val text = """
       Copy the text here
       """
-    val tester = new Tester(text)
   
-    val concerns = NodeSpec("Concerns about insufficient food access") // Make some node spece
+    val concerns = NodeSpec("Concerns about insufficient food access") // Make some node spec
     
     behavior of "TestDoc4 Paragraph 1"
 
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
+      val tester = new Tester(text)
+  
       tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful) // Test edges connecting them
     }
   }
