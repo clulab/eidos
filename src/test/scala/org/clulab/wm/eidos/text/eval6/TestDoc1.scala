@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.text.NodeSpec
 import org.clulab.wm.eidos.text.Quant
 
 class TestDoc1 extends Test {
-  
+  // 130035 excerpt BG.pdf
   { // Paragraph 1
     val text = """
       Copy the text here
