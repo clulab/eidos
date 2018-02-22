@@ -24,7 +24,7 @@ as IPC Phase 4: "Emergency".
   
     // Note that the quotes are automatically smarted during processing.
     val conditions = NodeSpec(/*"the number of people facing IPC Phase 5: " +*/ "``Catastrophe'' food security conditions", Dec("declined"))
-    val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations")
+    val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
     
     behavior of "TestDoc4 Paragraph 1"
 
