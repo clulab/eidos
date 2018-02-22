@@ -20,7 +20,7 @@ class TestDoc6 extends Test {
     
     behavior of "TestDoc6.scala Paragraph 1"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful) // Test edges connecting them
     }
   }

@@ -20,7 +20,7 @@ class TestDoc1 extends Test {
     
     behavior of "TestDoc1 Paragraph 1"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful) // Test edges connecting them
     }
   }
