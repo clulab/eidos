@@ -5,7 +5,7 @@ import scala.util.hashing.MurmurHash3._
 import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.struct.DirectedGraph
-import org.clulab.wm.eidos.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 
 import org.json4s.JsonDSL._
 import org.json4s._
