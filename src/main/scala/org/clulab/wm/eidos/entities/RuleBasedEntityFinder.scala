@@ -6,6 +6,7 @@ import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.Interval
 
 import scala.annotation.tailrec
+import org.clulab.wm.eidos.utils.ResourceUtils
 
 
 /**
