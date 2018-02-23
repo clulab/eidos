@@ -81,6 +81,7 @@ List(Causal, DirectedRelation, EntityLinker, Event) => Water trucking has decrea
 
 
 ```scala
+import scala.collection.Seq
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
