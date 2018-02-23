@@ -9,10 +9,10 @@ import org.clulab.wm.eidos.text.NodeSpec
 import org.clulab.wm.eidos.text.Quant
 
 class TestDoc6 extends Test {
-  
+  // FEWSNET South Sudan Outlook January 2018 BG.pdf
   { // Paragraph 1
     val text = """
-      Copy the text here
+
       """
   
     val concerns = NodeSpec("Concerns about insufficient food access") // Make some node spec
