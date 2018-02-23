@@ -7,9 +7,7 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.Decrease
-import org.clulab.wm.eidos.Increase
-import org.clulab.wm.eidos.Quantification
+import org.clulab.wm.eidos.attachments._
 
 case class Unmodified(quantifier: Quantifier) extends Attachment
 

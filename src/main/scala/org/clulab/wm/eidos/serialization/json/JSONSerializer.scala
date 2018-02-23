@@ -9,7 +9,7 @@ import org.clulab.struct.{DirectedGraph, Edge, Interval}
 import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.serialization.json.DocOps
-import org.clulab.wm.eidos.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.json._
 
 import org.json4s.JsonDSL._

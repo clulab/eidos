@@ -6,7 +6,7 @@ import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.Interval
 
 import scala.annotation.tailrec
-
+import org.clulab.wm.eidos.utils.ResourceUtils
 
 /**
   * Finds Open IE-style entities from a [[org.clulab.processors.Document]].
@@ -200,20 +200,19 @@ class RuleBasedEntityFinder(
       incomingDependencies(tokenIdx).forall(pair => ! INVALID_INCOMING.exists(pattern => pattern.findFirstIn(pair._2).nonEmpty))
     } else true
   }
-
 }
 
-
 object RuleBasedEntityFinder extends LazyLogging {
-
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
-  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): RuleBasedEntityFinder = {
-    val entityRules = ResourceUtils.readResource("org/clulab/wm/eidos/entities/grammar/entities.yml")
-    val avoidRules = ResourceUtils.readResource("org/clulab/wm/eidos/entities/grammar/avoid.yml")
-
-    val avoidEngine = ExtractorEngine(avoidRules)
+  
+  def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): RuleBasedEntityFinder = {
+    val entityRules = ResourceUtils.readResource(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
-    new RuleBasedEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
+    
+    val avoidRules = ResourceUtils.readResource(avoidRulesPath)
+    val avoidEngine = ExtractorEngine(avoidRules)
+    
+    new RuleBasedEntityFinder(entityEngine = entityEngine, avoidEngine = avoidEngine, maxHops = maxHops)
   }
 
   /** Keeps the longest mention for each group of overlapping mentions **/
