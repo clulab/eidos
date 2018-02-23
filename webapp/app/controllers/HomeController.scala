@@ -5,7 +5,8 @@ import javax.inject._
 import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, TextBoundMention}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.{EidosSystem, Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.utils.DisplayUtils
 
@@ -27,10 +28,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem = new EidosSystem()
-
   var proc = ieSystem.proc
-//  val ner = LexiconNER(Seq("org/clulab/wm/eidos/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
-//  val grounder = ieSystem.grounder
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
