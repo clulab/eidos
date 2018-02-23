@@ -1,3 +1,5 @@
+package org.clulab.wm.eidos.apps
+
 // Code after "This code here" was removed from EidosShell and may be reincorporated later.
 
 

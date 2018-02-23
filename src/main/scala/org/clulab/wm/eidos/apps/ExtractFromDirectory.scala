@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.demo
+package org.clulab.wm.eidos.apps
 
 import java.io.PrintWriter
 import scala.collection.Seq
