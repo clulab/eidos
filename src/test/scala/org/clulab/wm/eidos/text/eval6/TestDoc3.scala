@@ -25,7 +25,7 @@ class TestDoc3 extends Test {
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Affect, cropActivity)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall2, Causal, floodRisk)) should be (successful) // Test edges connecting them
     }
   }
@@ -60,22 +60,22 @@ class TestDoc3 extends Test {
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(agrConditions)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(flooding)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(rainfall2)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 5" taggedAs(Somebody) in {
       tester.test(rainfall3)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 6" taggedAs(Somebody) in {
       tester.test(sunny)
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 7" taggedAs(Somebody) in {
       tester.test(dry)
     }
   }
@@ -104,7 +104,6 @@ class TestDoc3 extends Test {
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(vegetation2)
     }
-
   }
 
   {
@@ -144,20 +143,18 @@ class TestDoc3 extends Test {
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall2, Affect, cropDevelopment)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(rainfall3)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in { //todo: It is a NoCausal link .. should we differentiate .. how ?
+    failingTest should "have correct edges 2" taggedAs(Somebody) in { //todo: It is a NoCausal link .. should we differentiate .. how ?
       tester.test(EdgeSpec(rainfall4, Causal, moistureStress)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in { //todo: should there be a new type of edge to denote favorable ??
+    failingTest should "have correct edges 3" taggedAs(Somebody) in { //todo: should there be a new type of edge to denote favorable ??
       tester.test(EdgeSpec(rainfall5, Affect, sowing)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(infestation)
     }
-
-
   }
 
   {
@@ -185,10 +182,9 @@ class TestDoc3 extends Test {
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall2, Causal, flood)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(soils, Causal, flood)) should be (successful) // Test edges connecting them
     }
-
   }
 
 }
