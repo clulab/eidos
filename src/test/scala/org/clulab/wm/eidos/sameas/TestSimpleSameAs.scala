@@ -1,8 +1,10 @@
-package org.clulab.wm
+package org.clulab.wm.eidos.sameas
 
-import org.clulab.wm.TestUtils.Test
+import org.clulab.wm.eidos.test.TestUtils
+import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.utils
 
-class TestEidosSystem extends Test {
+class TestSimpleSameAs extends Test {
 
   it should "compare all entities for sameAs" in {
     val tester = new Tester("The increase in rain causes flooding and conflict.  Also, crop yield decreased.")
