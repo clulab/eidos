@@ -82,8 +82,9 @@ class TestDoc3 extends Test {
 
   {
     // Paragraph 3 (Highlighted)
+    // Note: typo 'Vegetatoin' corrected
     val text = """
-        |Vegetatoin conditions remain above average in many northern areas of East Africa,
+        |Vegetation conditions remain above average in many northern areas of East Africa,
         |according to eMODIS/NDVI (Figure 2), likely as a result of ongoing above-average
         |rainfall in Sudan, South Sudan, and parts of western and central Ethiopia, as well
         |as eastern Tanzania. Meanwhile, vegetation conditions remain below average in much
@@ -92,7 +93,7 @@ class TestDoc3 extends Test {
         """
     val tester = new Tester(text)
 
-    val vegetation = NodeSpec("Vegetatoin conditions", Quant("above average")) //todo: Should we correct the typo here ??
+    val vegetation = NodeSpec("Vegetation conditions", Quant("above average"))
     val rainfall = NodeSpec("rainfall", Quant("above-average"))
     val vegetation2 = NodeSpec("vegetation conditions", Quant("below average"))
 
@@ -367,11 +368,12 @@ class TestDoc3 extends Test {
 
   {
     // Paragraph 11
+    // Note: typo "Key agricultural areas areas.." corrected
     val text ="""
         |In Kenya, the shortened length of the main growing season, due in part to a delayed onset of seasonal
         |rainfall, couple diwht long dry spells and below-average rainfall is resulting in below-average production
         |prospects in large parts of the eastern, central, and southern Rift Valley. Key agricultural production
-        |areas areas were also affected by an erratic onset of rainfall, prolonged dry spells in June, and FAW,
+        |areas were also affected by an erratic onset of rainfall, prolonged dry spells in June, and FAW,
         |especially in Uasin-Gishu and parts of Trans-Nzoia counties, where maize yields are expected
         |to be particularly poor.
         """
@@ -384,7 +386,7 @@ class TestDoc3 extends Test {
     val drySpell = NodeSpec("dry spells", Quant("long"))
     val rainfall2 = NodeSpec("rainfall", Quant("below-average"))
     val production = NodeSpec("production prospects", Quant("below-average"))
-    val prodArea = NodeSpec("Key agricultural production areas") //todo: typo here "areas areas" ...
+    val prodArea = NodeSpec("Key agricultural production areas")
     val rainfall3 = NodeSpec("rainfall", Quant("erratic"))
     val drySpell2 = NodeSpec("dry spells", Quant("prolonged"))
     val maize = NodeSpec("maize yields", Quant("poor"))
