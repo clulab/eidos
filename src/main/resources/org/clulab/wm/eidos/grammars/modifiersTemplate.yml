@@ -1,0 +1,166 @@
+vars:
+  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  conjunctions: "appos|conj|conj_|cc"
+  complements: "xcomp|ccomp"
+  noun_modifiers: "amod|compound|dep|name"
+  negTriggers: "not"
+  objects: "dobj"
+  preps: "nmod_of|nmod_in|nmod_to"
+  prep_dobjs: "nmod"
+  quant_modifiers: "amod|advmod"
+
+
+
+#
+# The government promotes improved cultivar to boost agricultural production for ensuring food security.
+# However, the policy to seriously cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, less use of inorganic fertilizer, less water, significantly reduced farm sizes which lead to low benefit from the improved cultivar.
+#
+
+
+#Rules with "ported" in the name means that they are adaped from the positive_regulation_template.yml in REACH
+rules:
+
+# ------------------- Verbal Triggers --------------------------
+  - name: ${ label }_ported_syntax_1_verb
+    priority: ${ objrulepriority }
+    example: "small increase in small puppies"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
+      theme: Entity = nmod_by? (${objects}|${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      quantifier:Quantifier? = ${quant_modifiers}
+
+  - name: ${ label }_syntax_1_verb_edited
+    priority: ${ objrulepriority }
+    example: "Poverty levels continue to increase."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
+      theme: Entity = >${complements} ${ agents }
+      quantifier:Quantifier? = ${quant_modifiers}
+
+  # Note: Captures passive voice; thus verb must be VBD|VBN
+  - name: ${ label }_ported_syntax_2_verb
+    priority: ${ objrulepriority }
+    example: "wheat production in the region will be diminished"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
+      theme: Entity = (?! dobj) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_ported_syntax_6_verb
+    priority: ${ modrulepriority }
+    example: "Better and well-functioning agricultural credit and market services for both established and emerging farmers ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBN|RB/]
+      theme: Entity = (< /amod|xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+  #Trying to capture "improved cultivar" as Increase cultivar
+  - name: ${ label}_rule_1
+    priority: ${ modrulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/VBN/]
+      theme: Entity = <amod
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  #Trying to capture "phase out the fertilizer subsidy"
+  - name: ${ label }_rule_2
+    priority: ${ modrulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/NN/] [word=/out/ & tag=/IN/]
+      theme: Entity = <case
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  - name: ${ label }_rule_3
+    priority: ${ modrulepriority }
+    example: "deteriorating biophysical conditions"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/VBG/]
+      theme: Entity = <amod
+      quantifier: Quantifier? = ${quant_modifiers}
+
+# ------------------- Other Triggers --------------------------
+
+  - name: ${ label}_adjective_rule_1
+    priority:  ${ modrulepriority }
+    example: "less water"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]   #word=/(?i)^(${ trigger })/
+      theme: Entity = <${ noun_modifiers }
+      quantifier: Quantifier? = ${quant_modifiers}
+
+# ------------------- Copular Constructions --------------------------
+
+  - name: ported_copula_mods-${label}
+    priority: ${ modrulepriority }
+    #Original example: "A is an activator of B"
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger =   [lemma=/${ trigger }/]
+      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) nsubj
+      #todo: Quantifiers ?
+
+
+# ------------------- Nominal Triggers --------------------------
+  - name: ${ label }_ported_syntax_1_noun
+    priority: ${ objrulepriority }
+    example: "massive increases in agricultural production"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /${ preps }/{1,2} /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+  - name: ${ label }_ported_syntax_2_noun
+    priority: ${ objrulepriority }
+    example: "technological progress"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /${ preps }$/? /${ noun_modifiers }/{1,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+  - name: ${ label }_ported_syntax_3_noun
+    priority: ${ objrulepriority }
+    example: "exhaustion of copying capacities"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_surface_VBN
+    priority: ${ objrulepriority }
+    example: "exhaustion of copying capacities"
+    label: ${ label }
+    action: ${ action }
+    type: token
+    pattern: |
+      @theme: Entity
+      [lemma=have]
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=dobj])
+

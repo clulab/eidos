@@ -2,9 +2,9 @@
 
 # Eidos
 
-Eidos is an open domain machine reading system designed by the [Computational Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University of Arizona](http://www.arizona.edu) for the World Modelers program.  Eidos uses an [Odin](https://github.com/clulab/processors) grammar to extract causal events from free text.
+Eidos is an open-domain machine reading system designed by the [Computational Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  Eidos uses a cascade of [Odin](https://github.com/clulab/processors) grammars to extract causal events from free text.
 
-Currently we extract entities (and increases/decreases/quantifications of those entities) and directed causal events that occur between entities.  In the near future we plan to expand this to also extract correlation and is-a events. 
+Currently we extract entities such as "food insecurity" (and `increases`/`decreases`/`quantifications` of those entities) and directed causal events that occur between entities such as "food insecurity causes increased migration".  In the near future we plan to expand this to also extract correlation, `same-as`, and `is-a` relations. 
 
 # Usage
 
@@ -24,15 +24,15 @@ The scala API can produce three distinct output formats:
 - a JSON-LD export of the causal graph extracted from the text
 - a JSON serialization (in case you want to later load all of the mentions, including mentions that are not part of the causal graph)
 
-(see [`src/main/scala/agro/demo/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/agro/demo/examples/ExtractFromText.scala) for a complete running example)
+(see [`src/main/scala/org/clulab/wm/eidos/apps/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/apps/examples/ExtractFromText.scala))
 
 #### To produce a pretty display of the extracted mentions
 
 ```scala
-import org.clulab.wm.EidosSystem
-import utils.DisplayUtils.displayMention
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
 
-val text = "Water trucking has decreased due to the cost of fuel."
+  val text = "Water trucking has decreased due to the cost of fuel."
 
   // Initialize the reader
   val reader = new EidosSystem()
@@ -40,7 +40,7 @@ val text = "Water trucking has decreased due to the cost of fuel."
   // Extract the mentions
   val annotatedDocument = reader.extractFrom(text)
 
-  // If you want to have a pretty display:
+  // Display in a pretty way
   annotatedDocument.mentions.foreach(displayMention)
 ```
 
@@ -81,10 +81,12 @@ List(Causal, DirectedRelation, EntityLinker, Event) => Water trucking has decrea
 
 
 ```scala
-import org.clulab.wm.EidosSystem
-import utils.DisplayUtils.displayMention
+import scala.collection.Seq
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.JLDCorpus
 
-val text = "Water trucking has decreased due to the cost of fuel."
+  val text = "Water trucking has decreased due to the cost of fuel."
 
   // Initialize the reader
   val reader = new EidosSystem()
@@ -92,7 +94,7 @@ val text = "Water trucking has decreased due to the cost of fuel."
   // Extract the mentions
   val annotatedDocument = reader.extractFrom(text)
 
-  // You can export to JSON-LD:
+  // Export to JSON-LD
   val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
   val mentionsJSONLD = corpus.serialize()
   println(stringify(mentionsJSONLD, pretty = true))
@@ -425,10 +427,11 @@ This produces the following JSON-LD output (mentions may appear in different ord
 #### To serialize to JSON
 
 ```scala
-import org.clulab.wm.EidosSystem
-import utils.DisplayUtils.displayMention
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 
-val text = "Water trucking has decreased due to the cost of fuel."
+  val text = "Water trucking has decreased due to the cost of fuel."
 
   // Initialize the reader
   val reader = new EidosSystem()
@@ -436,7 +439,8 @@ val text = "Water trucking has decreased due to the cost of fuel."
   // Extract the mentions
   val annotatedDocument = reader.extractFrom(text)
 
-  // Or... optionally you can serialize to regular JSON (e.g., if you want to later reload the mentions for post-processing)
+  // Or... optionally serialize to regular JSON
+  // (e.g., if you want to later reload the mentions for post-processing)
   val mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.mentions)
   println(stringify(mentionsJSON, pretty = true))
 
@@ -687,7 +691,7 @@ This produces the following JSON serialization (mentions may appear in different
 
 ### Extracting causal events from documents in a directory
 
-``` 
+```bash
 sbt "runMain org.clulab.wm.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
 ```
 Files in the input directory should end with `txt` and the extracted mentions from each file will be saved in corresponding JSON-LD files.
@@ -705,12 +709,36 @@ for testing the output of Eidos. To run it, do
 
 To run the webapp version of EidosShell locally, do:
 
-```
+```bash
 sbt webapp/run
 ```
 
 and then navigate to `localhost:9000` in a web browser.
 
+
+
+### Using Eidos output for modeling
+
+Events extracted using Eidos can be converted to
+[INDRA-GEM](https://github.com/sorgerlab/indra) Influence statements, which are
+bespoke data structures designed for modeling causal networks. 
+
+Example usage:
+
+```python
+>>> from indra.sources import eidos
+>>> ep = eidos.process_text("Water trucking has decreased due to the cost of fuel.")
+>>> ep.statements
+[Influence(cost of fuel(), Water trucking(negative))]
+```
+
+[Delphi](https://github.com/ml4ai/delphi) is a framework built on top of INDRA
+that assembles causal fragments extracted by Eidos into a causal analysis graph.
+This causal analysis graph is then converted to a dynamic Bayes network and used
+to make probabilistic predictions. Currently Delphi provides a webapp interface
+for interactive visualizations and simulations. Here is an example:
+
+![alt text](/doc/delphi_example.png?raw=True")
 
 
 ## License
@@ -732,7 +760,7 @@ systems (apparently not Windows), you can increase the
 memory allocation by specifying it in the `.sbtopts` file in the `eidos`
 directory (the one in which this README resides): 
 
-```
+```bash
 echo "-J-Xmx6g" >> .sbtopts
 ```
 

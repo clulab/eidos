@@ -5,8 +5,10 @@ import javax.inject._
 import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, TextBoundMention}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.{EidosSystem, Decrease, Increase, Quantification}
-import org.clulab.wm.Aliases._
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.utils.DisplayUtils
 
 import play.api._
 import play.api.mvc._
@@ -26,10 +28,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem = new EidosSystem()
-
   var proc = ieSystem.proc
-//  val ner = LexiconNER(Seq("org/clulab/wm/lexicons/Quantifier.tsv"), caseInsensitiveMatching = true)
-//  val grounder = ieSystem.grounder
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -156,7 +155,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   def mkJson(sentenceText: String, sent: Sentence, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
     println("Found mentions (in mkJson):")
-    mentions.foreach(utils.DisplayUtils.displayMention)
+    mentions.foreach(DisplayUtils.displayMention)
 
     val syntaxJsonObj = Json.obj(
         "text" -> sentenceText,
@@ -213,7 +212,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     if (entities.nonEmpty){
       objectToReturn += s"""<br><font size="4" color="${HomeController.sectionTitleColor}">Found Entities:</font><br>"""
       for (entity <- entities) {
-        objectToReturn += s"${utils.DisplayUtils.webAppMention(entity)}"
+        objectToReturn += s"${DisplayUtils.webAppMention(entity)}"
       }
     }
 
@@ -222,7 +221,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     if (events.nonEmpty) {
       objectToReturn += s"""<font size="4" color="${HomeController.sectionTitleColor}">Found Events:</font><br>"""
       for (event <- events) {
-        objectToReturn += s"${utils.DisplayUtils.webAppMention(event)}"
+        objectToReturn += s"${DisplayUtils.webAppMention(event)}"
       }
     }
 
