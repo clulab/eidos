@@ -39,15 +39,18 @@ class TestDoc2 extends Test {
 
     ignore should "have correct output #2" taggedAs(Somebody) in {
       val situation = NodeSpec("situation", Dec("deteriorating"))
-      val leanSeason = NodeSpec("annual lean season", Quant("unusually long", "harsh"))
+      val leanSeason = NodeSpec("annual lean season", Quant("long", "unusually"), Quant("harsh"))
       val foodStocks = NodeSpec("food stocks", Dec("depleted"))
-      val foodInsecurity = NodeSpec("food insecurity", Quant("unprecedented"))
+      // TODO: must decide where we handle transparent nouns such as "level"
+      val foodInsecurity = NodeSpec("level of food insecurity", Quant("unprecedented"))
 
       tester.test(situation) should be (successful)
       tester.test(leanSeason) should be (successful)
       tester.test(foodStocks) should be (successful)
       tester.test(foodInsecurity) should be (successful)
       tester.test(EdgeSpec(situation, Correlation, leanSeason)) should be (successful)
+
+      // TODO: must test for the relation "families" => "food stocks" NOT being present!
     }
   }
 
@@ -61,7 +64,7 @@ class TestDoc2 extends Test {
     behavior of "TestDoc2 Paragraph 3"
 
     ignore should "have correct output #3" taggedAs(Somebody) in {
-      val hunger = NodeSpec("hunger", Quant("highest"))
+      val hunger = NodeSpec("level of hunger", Quant("highest"))
 
       tester.test(hunger) should be (successful)
     }
@@ -78,7 +81,20 @@ class TestDoc2 extends Test {
     behavior of "TestDoc2 Paragraph 4"
 
     ignore should "have correct output #4" taggedAs(Somebody) in {
-      // TODO
+      val prices = NodeSpec("prices", Inc("rising"))
+      val roads = NodeSpec("roads", Quant("impassable"))
+      val markets = NodeSpec("markets", Quant("dysfunctional"))
+      val families = NodeSpec("families", Quant("many"), Dec("preventing"))
+
+      tester.test(prices) should be (successful)
+      tester.test(roads) should be (successful)
+      tester.test(markets) should be (successful)
+      tester.test(families) should be (successful)
+
+      // TODO: we really need to decide how to handle nested events!! (we should have "families from accessing food")
+      tester.test(EdgeSpec(prices, Causal, families)) should be (successful)
+      tester.test(EdgeSpec(roads, Causal, families)) should be (successful)
+      tester.test(EdgeSpec(markets, Causal, families)) should be (successful)
     }
   }
 
@@ -91,7 +107,17 @@ class TestDoc2 extends Test {
     behavior of "TestDoc2 Paragraph 5"
 
     ignore should "have correct output #5" taggedAs(Somebody) in {
-      // TODO
+      val foodInsecurity = NodeSpec("Food insecurity")
+      val conflict = NodeSpec("conflict")
+      val fams = NodeSpec("families", Quant("many"))
+
+      tester.test(foodInsecurity) should be (successful)
+      tester.test(conflict) should be (successful)
+      tester.test(fams) should be (successful)
+
+      // TODO: we really need to decide how to handle nested events!! (we should have "families to leave")
+      tester.test(EdgeSpec(foodInsecurity, Causal, fams)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, fams)) should be (successful)
     }
   }
 
