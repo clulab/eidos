@@ -4,22 +4,56 @@ import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.serialization.json.{JLDSerializer, JLDAttachment}
+
+import org.json4s._
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods
+import org.json4s.jackson.Serialization.write
 
 abstract class EidosAttachment extends Attachment {
+  implicit val formats = org.json4s.DefaultFormats
+  
+  // Support for EidosActions
   def argumentSize: Int
   
+  // Support for JLD serialization
+  def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment
+  
+  // Support for JSON serialization
+  def toJson(): JValue
+
+  // Convenience functions
   def argumentSize(optionSeq: Option[Seq[String]]) =
     if (optionSeq.isDefined) optionSeq.size else 0
 }
 
 object EidosAttachment {
+  val TYPE = "type"
+  val MOD = "mod"
   
   def newEidosAttachment(mention: Mention) = mention.label match {
     case Quantification.label => Quantification(mention)
     case Increase.label => Increase(mention)
     case Decrease.label => Decrease(mention)
   }
+
+  def newEidosAttachment(json: JValue) = {
+    implicit val formats = org.json4s.DefaultFormats
+    
+    def parseJValue(jValue: JValue): JValue =
+      JsonMethods.parse((jValue \ MOD).extract[String])
+ 
+    (json \ TYPE).extract[String] match {
+      case Increase.label => parseJValue(json).extract[Increase]
+      case Decrease.label => parseJValue(json).extract[Decrease]
+      case Quantification.label => parseJValue(json).extract[Quantification]
+    }
+  }
   
+  def asEidosAttachment(attachment: Attachment): EidosAttachment =
+      attachment.asInstanceOf[EidosAttachment]
+    
   def getOptionalQuantifiers(mention: Mention): Option[Seq[Quantifier]] =
       mention.asInstanceOf[EventMention]
           .arguments
@@ -29,6 +63,13 @@ object EidosAttachment {
 
 case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(adverbs)
+
+  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
+    new JLDAttachment(serializer, "QUANT", quantifier, adverbs, mention)
+
+  override def toJson(): JValue =
+      (EidosAttachment.TYPE -> Quantification.label) ~
+          (EidosAttachment.MOD -> write(this))
 }
 
 object Quantification {
@@ -50,6 +91,14 @@ object Quantification {
 
 case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(quantifiers)
+
+  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
+      new JLDAttachment(serializer, "INC", trigger, quantifiers, mention)
+
+  // TODO: Send to super instead, with label
+  override def toJson(): JValue =
+      (EidosAttachment.TYPE -> Increase.label) ~
+          (EidosAttachment.MOD -> write(this))
 }
 
 object Increase {
@@ -68,6 +117,13 @@ object Increase {
 
 case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(quantifiers)
+
+  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
+    new JLDAttachment(serializer, "DEC", trigger, quantifiers, mention)
+
+  override def toJson(): JValue = 
+      (EidosAttachment.TYPE -> Decrease.label) ~
+          (EidosAttachment.MOD -> write(this))
 }
 
 object Decrease {
