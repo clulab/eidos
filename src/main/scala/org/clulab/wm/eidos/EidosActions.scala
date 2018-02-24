@@ -3,6 +3,7 @@ package org.clulab.wm.eidos
 import java.io.File
 
 import com.typesafe.scalalogging.LazyLogging
+import org.clulab.wm.eidos.attachments._
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.Aliases.Quantifier
@@ -17,13 +18,7 @@ import scala.io.BufferedSource
 
 //TODO: need to add polarity flipping
 
-
-case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends Attachment
-case class Increase(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
-case class Decrease(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
-
-
-class EidosActions extends Actions with LazyLogging {
+class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   /**
     * @author Gus Hahn-Powell
@@ -180,13 +175,12 @@ class EidosActions extends Actions with LazyLogging {
       .get("quantifier")
       .map(qs => qs.map(_.text))
   }
-
-
 }
 
 object EidosActions extends Actions {
 
-  val taxonomy = readTaxonomy("org/clulab/wm/eidos/grammars/taxonomy.yml")
+  def apply(taxonomyPath: String) =
+    new EidosActions(readTaxonomy(taxonomyPath))
 
   private def readTaxonomy(path: String): Taxonomy = {
     val url = getClass.getClassLoader.getResource(path)
@@ -197,5 +191,4 @@ object EidosActions extends Actions {
     val data = yaml.load(input).asInstanceOf[java.util.Collection[Any]]
     Taxonomy(data)
   }
-
 }

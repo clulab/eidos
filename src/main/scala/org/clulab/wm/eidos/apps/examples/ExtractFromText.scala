@@ -1,7 +1,6 @@
-package org.clulab.wm.eidos.demo.examples
+package org.clulab.wm.eidos.apps.examples
 
 import scala.collection.Seq
-
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus, WMJSONSerializer}
@@ -17,16 +16,16 @@ object ExtractFromText extends App {
   // Extract the mentions
   val annotatedDocument = reader.extractFrom(text)
 
-  // If you want to have a pretty display:
+  // Display in a pretty way
   annotatedDocument.mentions.foreach(displayMention)
 
-  // You can export to JSON-LD:
+  // Export to JSON-LD
   val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
   val mentionsJSONLD = corpus.serialize()
   println(stringify(mentionsJSONLD, pretty = true))
 
-  // Or... optionally you can serialize to regular JSON (e.g., if you want to later reload the mentions for post-processing)
+  // Or... optionally serialize to regular JSON
+  // (e.g., if you want to later reload the mentions for post-processing)
   val mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.mentions)
   println(stringify(mentionsJSON, pretty = true))
-
 }

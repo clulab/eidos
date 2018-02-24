@@ -49,6 +49,7 @@ object TestUtils {
       
       def clean(messyText: String): String = {
         val cleanText = messyText
+            .replace('|', ' ') // before trim so space will be trimmed if necessary
             .trim()
             .replace('\n', ' ')
             .replace('\r', ' ')

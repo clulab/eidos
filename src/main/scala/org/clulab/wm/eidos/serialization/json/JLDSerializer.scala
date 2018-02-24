@@ -15,8 +15,9 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.EntityGrounder
 import org.clulab.wm.eidos.Grounding
-import org.clulab.wm.eidos.{Decrease, EntityGrounder, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 
 import org.json4s._
 import org.json4s.JsonDSL._
