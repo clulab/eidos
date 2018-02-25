@@ -35,7 +35,7 @@ class TestDoc7 extends Test {
     failingTest should "have correct output #1" taggedAs(Somebody) in {
       tester.test(conflict) should be (successful) 
       tester.test(hunger) should be (successful) 
-      tester.test(EdgeSpec(food, Correlation, leanSeason) should be (successful) 
+      tester.test(EdgeSpec(food, Correlation, leanSeason)) should be (successful) 
     }
   }
   { // Paragraph 2
@@ -168,7 +168,7 @@ class TestDoc7 extends Test {
       tester.test(foodAssistance) should be (successful) 
       tester.test(water) should be (successful) 
       tester.test(livelihoodsInterventions) should be (successful) 
-      tester.test(EdgeSpec(agriculturalTraining, IsA, livelihoodsInterventions) should be (successful) 
+      tester.test(EdgeSpec(agriculturalTraining, IsA, livelihoodsInterventions)) should be (successful) 
     }
   }
 }
