@@ -371,7 +371,7 @@ class TestDoc3 extends Test {
     // Note: typo "Key agricultural areas areas.." corrected
     val text ="""
         |In Kenya, the shortened length of the main growing season, due in part to a delayed onset of seasonal
-        |rainfall, couple diwht long dry spells and below-average rainfall is resulting in below-average production
+        |rainfall, coupled with long dry spells and below-average rainfall is resulting in below-average production
         |prospects in large parts of the eastern, central, and southern Rift Valley. Key agricultural production
         |areas were also affected by an erratic onset of rainfall, prolonged dry spells in June, and FAW,
         |especially in Uasin-Gishu and parts of Trans-Nzoia counties, where maize yields are expected
