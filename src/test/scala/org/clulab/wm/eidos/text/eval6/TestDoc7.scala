@@ -2,6 +2,8 @@ package org.clulab.wm.eidos.text.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.Causal
+import org.clulab.wm.eidos.text.Correlation
+import org.clulab.wm.eidos.text.IsA
 import org.clulab.wm.eidos.text.Dec
 import org.clulab.wm.eidos.text.EdgeSpec
 import org.clulab.wm.eidos.text.Inc
