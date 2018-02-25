@@ -26,6 +26,10 @@ abstract class EidosAttachment extends Attachment {
   // Convenience functions
   def argumentSize(optionSeq: Option[Seq[String]]) =
     if (optionSeq.isDefined) optionSeq.size else 0
+    
+  def toJson(label: String): JValue =
+      (EidosAttachment.TYPE -> label) ~
+          (EidosAttachment.MOD -> write(this))
 }
 
 object EidosAttachment {
@@ -67,9 +71,7 @@ case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) 
   override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
     new JLDAttachment(serializer, "QUANT", quantifier, adverbs, mention)
 
-  override def toJson(): JValue =
-      (EidosAttachment.TYPE -> Quantification.label) ~
-          (EidosAttachment.MOD -> write(this))
+  override def toJson(): JValue = toJson(Quantification.label)
 }
 
 object Quantification {
@@ -95,10 +97,7 @@ case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) exten
   override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
       new JLDAttachment(serializer, "INC", trigger, quantifiers, mention)
 
-  // TODO: Send to super instead, with label
-  override def toJson(): JValue =
-      (EidosAttachment.TYPE -> Increase.label) ~
-          (EidosAttachment.MOD -> write(this))
+  override def toJson(): JValue = toJson(Increase.label)
 }
 
 object Increase {
@@ -121,9 +120,7 @@ case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None
   override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
     new JLDAttachment(serializer, "DEC", trigger, quantifiers, mention)
 
-  override def toJson(): JValue = 
-      (EidosAttachment.TYPE -> Decrease.label) ~
-          (EidosAttachment.MOD -> write(this))
+  override def toJson(): JValue = toJson(Decrease.label)
 }
 
 object Decrease {
