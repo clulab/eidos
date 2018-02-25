@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization
+package org.clulab.wm.eidos.serialization.json
 
 import scala.collection.Seq
 
@@ -6,19 +6,16 @@ import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.EntityGrounder
-import org.clulab.wm.eidos.serialization.json.JLDObject.Corpus
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.serialization.json.JLDObject._
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
-import org.scalactic.source.Position.apply
 
-class TestJsonSerialization extends Test {
+class TestJLDSerializer extends Test {
   
-  def newAnnotatedDocument(text: String): AnnotatedDocument = newAnnotatedDocument(text, text)
+  def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
-  def newAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
+  def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val ieSystem = TestUtils.ieSystem
     val annotatedDocument = ieSystem.extractFrom(text, true)
 
@@ -42,14 +39,14 @@ class TestJsonSerialization extends Test {
   def inspect(string: String) =
       if (false) println(string)
   
-  behavior of "Serializer"
+  behavior of "JLDSerializer"
 
   it should "serialize the same each time" in {
     val json1 = serialize(Seq(
-        newAnnotatedDocument(p1s1, "This is a test"), 
+        newTitledAnnotatedDocument(p1s1, "This is a test"), 
     ))
     val json2 = serialize(Seq(
-        newAnnotatedDocument(p1s1, "This is a test"), 
+        newTitledAnnotatedDocument(p1s1, "This is a test"), 
     ))
     
     json1 should not be empty
@@ -62,7 +59,7 @@ class TestJsonSerialization extends Test {
   // See /doc/example.jsonld for the final version.
   it should "say hello" in {
     val json = serialize(Seq(
-        newAnnotatedDocument("Hello, world!", "Example Document"), 
+        newTitledAnnotatedDocument("Hello, world!", "Example Document"), 
     ))
     
     inspect(json)
@@ -71,7 +68,7 @@ class TestJsonSerialization extends Test {
   
   it should "serialize one simple document" in {
     val json = serialize(Seq(
-        newAnnotatedDocument(p1s1, "This is a test"), 
+        newTitledAnnotatedDocument(p1s1, "This is a test"), 
     ))
     
     inspect(json)
@@ -80,7 +77,7 @@ class TestJsonSerialization extends Test {
   
   it should "be grounded" in {
     val json = serialize(Seq(
-        newAnnotatedDocument("Rainfall significantly increases poverty."), 
+        newTitledAnnotatedDocument("Rainfall significantly increases poverty."), 
     ))
     
     inspect(json)
@@ -91,8 +88,8 @@ class TestJsonSerialization extends Test {
   
   it should "serialize two simple documents" in {
     val json = serialize(Seq(
-        newAnnotatedDocument("This is a test"), 
-        newAnnotatedDocument("This is only a test")
+        newTitledAnnotatedDocument("This is a test"), 
+        newTitledAnnotatedDocument("This is only a test")
     ))
     
     inspect(json)
@@ -101,7 +98,7 @@ class TestJsonSerialization extends Test {
   
   it should "serialize one more complex document" in {
     val json = serialize(Seq(
-        newAnnotatedDocument(p1s1, "p1s1"), 
+        newTitledAnnotatedDocument(p1s1, "p1s1"), 
     ))
     
     inspect(json)
@@ -110,8 +107,8 @@ class TestJsonSerialization extends Test {
   
   it should "serialize two more complex documents" in {
     val json = serialize(Seq(
-        newAnnotatedDocument(p1s2, "p1s2"), 
-        newAnnotatedDocument(p2s2, "p2s2")
+        newTitledAnnotatedDocument(p1s2, "p1s2"), 
+        newTitledAnnotatedDocument(p2s2, "p2s2")
     ))
     
     inspect(json)
@@ -120,8 +117,8 @@ class TestJsonSerialization extends Test {
   
   it should "serialize very complex documents" in {
     val json = serialize(Seq(
-        newAnnotatedDocument(p1, "p1"), 
-        newAnnotatedDocument(p2, "p2")
+        newTitledAnnotatedDocument(p1, "p1"), 
+        newTitledAnnotatedDocument(p2, "p2")
     ))
     
     inspect(json)
@@ -130,12 +127,12 @@ class TestJsonSerialization extends Test {
   
   it should "serialize all CAGs in one pass" in {
     val json = serialize(Seq(
-        newAnnotatedDocument(p1, "p1"), 
-        newAnnotatedDocument(p2, "p2"),
-        newAnnotatedDocument(p3, "p3"), 
-        newAnnotatedDocument(p4, "p4"),
-        newAnnotatedDocument(p5, "p5"), 
-        newAnnotatedDocument(p6, "p6")
+        newTitledAnnotatedDocument(p1, "p1"), 
+        newTitledAnnotatedDocument(p2, "p2"),
+        newTitledAnnotatedDocument(p3, "p3"), 
+        newTitledAnnotatedDocument(p4, "p4"),
+        newTitledAnnotatedDocument(p5, "p5"), 
+        newTitledAnnotatedDocument(p6, "p6")
     ))
     
     inspect(json)
