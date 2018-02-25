@@ -20,18 +20,18 @@ class TestDoc7 extends Test {
       After nearly four years of civil conflict, South Sudan remains one of the
       most food-insecure countries in the world. By the end of the 2017 lean
       season in September--the period of the year when food is most
-      scarce--approximately 56 percent of the country’s population was facing
+      scarce--approximately 56 percent of the country's population was facing
       life-threatening hunger and in need of humanitarian assistance, making
-      2017 the most food-insecure year in South Sudan’s history.
+      2017 the most food-insecure year in South Sudan's history.
       """
-  
+
     val tester = new Tester(text)
 
     val conflict = NodeSpec("conflict")
     val food = NodeSpec("food", Quant("scarce", "most"))
     val hunger = NodeSpec("hunger", Quant("life-threatening"))
     val leanSeason = NodeSpec("lean season")
-    
+
     behavior of "TestDoc7 Paragraph 1"
 
     failingTest should "have correct output #1" taggedAs(Somebody) in {
@@ -75,7 +75,7 @@ class TestDoc7 extends Test {
       famine at the household level--meaning that starvation, destitution and
       death are evident
       """
-  
+
     val tester = new Tester(text)
 
     val conflict = NodeSpec("conflict", Quant("ongoing"))
@@ -83,7 +83,7 @@ class TestDoc7 extends Test {
     val starvation = NodeSpec("starvation", Quant("evident"))
     val destitution = NodeSpec("destitution", Quant("evident"))
     val death = NodeSpec("death", Quant("evident"))
-    
+
     behavior of "TestDoc7 Paragraph 3"
 
     failingTest should "have correct output #3" taggedAs(Somebody) in {
@@ -126,10 +126,10 @@ class TestDoc7 extends Test {
     val text = """
       A sustained and unimpeded humanitarian response is critical to saving
       lives and preventing a deterioration to Famine (IPC 5) levels of acute
-      food insecurity. Since the start of the conflict, the USAID’s Office of
+      food insecurity. Since the start of the conflict, the USAID's Office of
       Food for Peace (FFP) and its partners including the UN World Food Program
-      (WFP) and the UN Children’s Fund (UNICEF)-have responded to the needs of
-      South Sudan’s most vulnerable and conflict-affected populations through
+      (WFP) and the UN Children's Fund (UNICEF)-have responded to the needs of
+      South Sudan's most vulnerable and conflict-affected populations through
       emergency food and nutrition interventions. In FY 2017, FFP-supported
       programs provided life-saving food assistance to 1.1 million people per
       month, on average.
@@ -167,7 +167,7 @@ class TestDoc7 extends Test {
     behavior of "TestDoc7 Paragraph 6"
 
     failingTest should "have correct output #6" taggedAs(Somebody) in {
-      tester.test(foodAssistance) should be (successful) 
+      tester.test(foodAssistance) should be (successful)
       tester.test(water) should be (successful) 
       tester.test(livelihoodsInterventions) should be (successful) 
       tester.test(EdgeSpec(agriculturalTraining, IsA, livelihoodsInterventions)) should be (successful) 
