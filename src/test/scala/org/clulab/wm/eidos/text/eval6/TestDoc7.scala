@@ -19,7 +19,7 @@ class TestDoc7 extends Test {
     val text = """
       After nearly four years of civil conflict, South Sudan remains one of the
       most food-insecure countries in the world. By the end of the 2017 lean
-      season in September—the period of the year when food is most
+      season in September--the period of the year when food is most
       scarce--approximately 56 percent of the country’s population was facing
       life-threatening hunger and in need of humanitarian assistance, making
       2017 the most food-insecure year in South Sudan’s history.
@@ -71,8 +71,8 @@ class TestDoc7 extends Test {
     val text = """
       In particular, ongoing conflict has severely affected areas of Western
       Bahr El Ghazal State, resulting in approximately 20,000 people
-      experiencing Humanitarian Catastrophe levels of acute food insecurity—or
-      famine at the household level—meaning that starvation, destitution and
+      experiencing Humanitarian Catastrophe levels of acute food insecurity--or
+      famine at the household level--meaning that starvation, destitution and
       death are evident
       """
   
