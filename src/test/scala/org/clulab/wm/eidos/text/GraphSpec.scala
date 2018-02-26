@@ -47,7 +47,7 @@ object Quant {
 }
 
 class Dec(decrease: Decrease) extends AttachmentSpec(decrease) {
-  override def toString = "+DEC(" + decrease.trigger + toString(decrease.quantifier) + ")"  
+  override def toString = "+DEC(" + decrease.trigger + toString(decrease.quantifiers) + ")"  
 }
 
 object Dec {
@@ -59,7 +59,7 @@ object Dec {
 }
 
 class Inc(increase: Increase) extends AttachmentSpec(increase) {
-  override def toString = "+INC(" + increase.trigger + toString(increase.quantifier) + ")"
+  override def toString = "+INC(" + increase.trigger + toString(increase.quantifiers) + ")"
 }
 
 object Inc {

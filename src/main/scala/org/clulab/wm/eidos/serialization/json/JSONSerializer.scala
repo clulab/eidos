@@ -43,24 +43,13 @@ object WMJSONSerializer {
     parse(contents)
   }
 
-  def toJsonStr(mentions: Seq[Mention]): String = {
-    pretty(render(jsonAST(mentions)))
-    }
+  def toJsonStr(mentions: Seq[Mention]): String =
+      pretty(render(jsonAST(mentions)))
 
   def toAttachments(json: JValue): Set[Attachment] = {
     // Get the Attachment from the json string
-    def findAttachment(json: JValue): Attachment = {
-
-      def parseJValue(js: JValue): JValue = {
-        parse(js.extract[String])
-      }
-
-      (json \ "type").extract[String] match {
-        case org.clulab.wm.eidos.serialization.json.json.Increase.string => parseJValue(json \ "mod").extract[Increase]
-        case org.clulab.wm.eidos.serialization.json.json.Decrease.string => parseJValue(json \ "mod").extract[Decrease]
-        case org.clulab.wm.eidos.serialization.json.json.Quantification.string => parseJValue(json \ "mod").extract[Quantification]
-      }
-    }
+    def findAttachment(json: JValue): Attachment =
+        EidosAttachment.newEidosAttachment(json)
 
     json match {
       case JNothing => Set.empty[Attachment]

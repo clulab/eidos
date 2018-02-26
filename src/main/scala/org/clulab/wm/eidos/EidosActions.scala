@@ -46,23 +46,15 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
                     else
                         0
 
-      val attachmentsList = if (mention.isInstanceOf[TextBoundMention])
-                              Some(mention.attachments)
+      val attachmentsSet = if (mention.isInstanceOf[TextBoundMention])
+                              mention.attachments
                             else if (mention.isInstanceOf[EventMention])
-                              Some(mention.asInstanceOf[EventMention].arguments.values.flatten.map(m => m.attachments).flatten.toSet)
+                              mention.asInstanceOf[EventMention].arguments.values.flatten.map(m => m.attachments).flatten.toSet
                             else
-                              None
+                              Set.empty[Attachment]
 
-      val attachArgumentsSz =  (for (attachment <- attachmentsList.get) yield {
-        val attachmentArgSz = attachment match {
-          case quant: Quantification => if (quant.adverbs.isDefined) quant.adverbs.get.size else 0
-          case inc: Increase => if (inc.quantifier.isDefined) inc.quantifier.get.size else 0
-          case dec: Decrease => if (dec.quantifier.isDefined) dec.quantifier.get.size else 0
-          case _ => 0
-        }
-        attachmentArgSz
-      }).sum
-
+      val attachArgumentsSz = attachmentsSet.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
+      
       (mention, (attachArgumentsSz + modSize + size)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
     }
 
@@ -113,7 +105,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     completeTBMentions.flatten.toSeq ++ relationMentions ++ completeEventMentions.flatten.toSeq
   }
 
-
   //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
   //Rule to add Increase/Decrease to the state of an entity
   //TODO Heather: write toy test for this
@@ -135,46 +126,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
   } yield copyWithMod
 
-
-
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
     ms
   }
 
-
-  def getAttachment(m: Mention): Attachment = {
-    m.label match {
-      case "Quantification" => {
-        val quantifier = m.asInstanceOf[EventMention].trigger.text
-        val adverbs = m.asInstanceOf[EventMention].arguments.get("adverb") match {
-          case Some(found) => Some(found.map(_.text))
-          case None => None
-        }
-        new Quantification(quantifier, adverbs)
-      }
-      case "Increase" => {
-        val quantifiers = getOptionalQuantifiers(m)
-        val trigger = m.asInstanceOf[EventMention].trigger.text
-        new Increase(trigger, quantifiers)
-      }
-      case "Decrease" => {
-        val quantifiers = getOptionalQuantifiers(m)
-        val trigger = m.asInstanceOf[EventMention].trigger.text
-
-        //println(s"Decrease found: ${new Decrease(trigger, quantifiers)}")
-        new Decrease(trigger, quantifiers)
-      }
-    }
-  }
-
-
-  def getOptionalQuantifiers(m: Mention): Option[Seq[Quantifier]] = {
-    m.asInstanceOf[EventMention]
-      .arguments
-      .get("quantifier")
-      .map(qs => qs.map(_.text))
-  }
+  def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 }
 
 object EidosActions extends Actions {
