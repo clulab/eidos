@@ -34,7 +34,7 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 1"
 
-    failingTest should "have correct output #1" taggedAs(Somebody) in {
+    failingTest should "have correct output #1" taggedAs(Adarsh) in {
       tester.test(conflict) should be (successful) 
       tester.test(hunger) should be (successful) 
       tester.test(EdgeSpec(food, Correlation, leanSeason)) should be (successful) 
@@ -61,7 +61,7 @@ class TestDoc7 extends Test {
     
     behavior of "TestDoc7 Paragraph 2"
 
-    failingTest should "have correct output #2" taggedAs(Somebody) in {
+    failingTest should "have correct output #2" taggedAs(Adarsh) in {
       tester.test(foodSecurity) should be (successful) 
       tester.test(foodInsecurity) should be (successful) 
       tester.test(EdgeSpec(seasonalHarvests, Causal, foodAvailability)) should be (successful) 
@@ -86,7 +86,7 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 3"
 
-    failingTest should "have correct output #3" taggedAs(Somebody) in {
+    failingTest should "have correct output #3" taggedAs(Adarsh) in {
       tester.test(conflict) should be (successful) 
       tester.test(EdgeSpec(foodInsecurity, Correlation, starvation)) should be (successful) 
       tester.test(EdgeSpec(foodInsecurity, Correlation, destitution)) should be (successful) 
@@ -114,7 +114,7 @@ class TestDoc7 extends Test {
     
     behavior of "TestDoc7 Paragraph 4"
 
-    failingTest should "have correct output #4" taggedAs(Somebody) in {
+    failingTest should "have correct output #4" taggedAs(Adarsh) in {
       tester.test(refugees) should be (successful) 
       tester.test(EdgeSpec(insecurity, Causal, communities)) should be (successful) 
       tester.test(EdgeSpec(insecurity, Causal, livelihoodActivities)) should be (successful) 
@@ -144,7 +144,7 @@ class TestDoc7 extends Test {
     
     behavior of "TestDoc7 Paragraph 5"
 
-    failingTest should "have correct output #5" taggedAs(Somebody) in {
+    failingTest should "have correct output #5" taggedAs(Adarsh) in {
       tester.test(humanitarianResponse) should be (successful) 
       tester.test(foodInsecurity) should be (successful) 
     }
@@ -166,7 +166,7 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 6"
 
-    failingTest should "have correct output #6" taggedAs(Somebody) in {
+    failingTest should "have correct output #6" taggedAs(Adarsh) in {
       tester.test(foodAssistance) should be (successful)
       tester.test(water) should be (successful) 
       tester.test(livelihoodsInterventions) should be (successful) 
