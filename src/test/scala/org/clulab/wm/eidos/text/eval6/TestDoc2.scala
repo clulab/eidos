@@ -14,13 +14,16 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val food = NodeSpec("food", Dec("shortages", "severe"))
+    val hunger = NodeSpec("hunger", Dec("catastrophe"))
+
     behavior of "TestDoc2 Paragraph 1"
 
-    ignore should "have correct output #1" taggedAs(Somebody) in {
-      val food = NodeSpec("food", Dec("shortages", "severe"))
-      val hunger = NodeSpec("hunger", Dec("catastrophe"))
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+      tester.test(food) should be(successful)
+    }
 
-      tester.test(food) should be (successful)
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(hunger) should be (successful)
     }
   }
@@ -35,23 +38,34 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val situation = NodeSpec("situation", Dec("deteriorating"))
+    val leanSeason = NodeSpec("annual lean season", Quant("long", "unusually"), Quant("harsh"))
+    val foodStocks = NodeSpec("food stocks", Dec("depleted"))
+    val foodInsecurity = NodeSpec("level of food insecurity this year", Quant("unprecedented"))
+
     behavior of "TestDoc2 Paragraph 2"
 
-    ignore should "have correct output #2" taggedAs(Somebody) in {
-      val situation = NodeSpec("situation", Dec("deteriorating"))
-      val leanSeason = NodeSpec("annual lean season", Quant("long", "unusually"), Quant("harsh"))
-      val foodStocks = NodeSpec("food stocks", Dec("depleted"))
-      // TODO: must decide where we handle transparent nouns such as "level"
-      val foodInsecurity = NodeSpec("level of food insecurity", Quant("unprecedented"))
-
-      tester.test(situation) should be (successful)
-      tester.test(leanSeason) should be (successful)
-      tester.test(foodStocks) should be (successful)
-      tester.test(foodInsecurity) should be (successful)
-      tester.test(EdgeSpec(situation, Correlation, leanSeason)) should be (successful)
-
-      // TODO: must test for the relation "families" => "food stocks" NOT being present!
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+      tester.test(situation) should be(successful)
     }
+
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+      tester.test(leanSeason) should be(successful)
+    }
+
+    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+      tester.test(foodStocks) should be(successful)
+    }
+
+    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+      tester.test(foodInsecurity) should be(successful)
+    }
+
+    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(situation, Correlation, leanSeason)) should be(successful)
+    }
+
+    // TODO: must test for the relation "families" => "food stocks" NOT being present!
   }
 
   { // Paragraph 3
@@ -61,11 +75,11 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val hunger = NodeSpec("level of hunger", Quant("highest"))
+
     behavior of "TestDoc2 Paragraph 3"
 
-    ignore should "have correct output #3" taggedAs(Somebody) in {
-      val hunger = NodeSpec("level of hunger", Quant("highest"))
-
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(hunger) should be (successful)
     }
   }
@@ -78,22 +92,38 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val prices = NodeSpec("prices", Inc("rising"))
+    val roads = NodeSpec("roads", Quant("impassable"))
+    val markets = NodeSpec("markets", Quant("dysfunctional"))
+    val families = NodeSpec("families, even those in towns and cities, from accessing food", Quant("many"), Dec("preventing"))
+
     behavior of "TestDoc2 Paragraph 4"
 
-    ignore should "have correct output #4" taggedAs(Somebody) in {
-      val prices = NodeSpec("prices", Inc("rising"))
-      val roads = NodeSpec("roads", Quant("impassable"))
-      val markets = NodeSpec("markets", Quant("dysfunctional"))
-      val families = NodeSpec("families", Quant("many"), Dec("preventing"))
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+      tester.test(prices) should be(successful)
+    }
 
-      tester.test(prices) should be (successful)
-      tester.test(roads) should be (successful)
-      tester.test(markets) should be (successful)
-      tester.test(families) should be (successful)
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+      tester.test(roads) should be(successful)
+    }
 
-      // TODO: we really need to decide how to handle nested events!! (we should have "families from accessing food")
-      tester.test(EdgeSpec(prices, Causal, families)) should be (successful)
-      tester.test(EdgeSpec(roads, Causal, families)) should be (successful)
+    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+      tester.test(markets) should be(successful)
+    }
+
+    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+      tester.test(families) should be(successful)
+    }
+
+    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(prices, Causal, families)) should be(successful)
+    }
+
+    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(roads, Causal, families)) should be(successful)
+    }
+
+    failingTest should "have correct edge 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(markets, Causal, families)) should be (successful)
     }
   }
@@ -104,19 +134,29 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val foodInsecurity = NodeSpec("Food insecurity")
+    val conflict = NodeSpec("conflict")
+    val fams = NodeSpec("families to leave South Sudan for neighbouring countries", Quant("many"))
+
     behavior of "TestDoc2 Paragraph 5"
 
-    ignore should "have correct output #5" taggedAs(Somebody) in {
-      val foodInsecurity = NodeSpec("Food insecurity")
-      val conflict = NodeSpec("conflict")
-      val fams = NodeSpec("families", Quant("many"))
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+      tester.test(foodInsecurity) should be(successful)
+    }
 
-      tester.test(foodInsecurity) should be (successful)
-      tester.test(conflict) should be (successful)
-      tester.test(fams) should be (successful)
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+      tester.test(conflict) should be(successful)
+    }
 
-      // TODO: we really need to decide how to handle nested events!! (we should have "families to leave")
-      tester.test(EdgeSpec(foodInsecurity, Causal, fams)) should be (successful)
+    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+      tester.test(fams) should be(successful)
+    }
+
+    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(foodInsecurity, Causal, fams)) should be(successful)
+    }
+
+    failingTest should "have correct edge 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, fams)) should be (successful)
     }
   }
@@ -128,11 +168,11 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val malnutrition = NodeSpec("levels of malnutrition", Quant("truly", "alarming"))
+
     behavior of "TestDoc2 Paragraph 6"
 
-    ignore should "have correct output #6" taggedAs(Somebody) in {
-      val malnutrition = NodeSpec("levels of malnutrition", Quant("truly", "alarming"))
-
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(malnutrition) should be (successful)
     }
   }
@@ -144,11 +184,11 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val support = NodeSpec("food and nutrition support", Inc("ramping up")) // TODO: how do we capture verbs with particles?
+
     behavior of "TestDoc2 Paragraph 7"
 
-    ignore should "have correct output #7" taggedAs(Somebody) in {
-      val support = NodeSpec("food and nutrition support", Inc("ramping"))
-
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(support) should be (successful)
     }
   }
@@ -160,13 +200,16 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val need = NodeSpec("need in new areas", Inc("spikes", "sharp"))
+    val malnutrition = NodeSpec("malnutrition rates in some places", Quant("dangerous", "levels")) // TODO: must decide what to do with "levels"
+
     behavior of "TestDoc2 Paragraph 8"
 
-    ignore should "have correct output #8" taggedAs(Somebody) in {
-      val need = NodeSpec("need", Inc("sharp", "spikes"))
-      val malnutrition = NodeSpec("malnutrition rates", Quant("dangerous", "levels")) // TODO: must decide what to do with "levels"
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+      tester.test(need) should be(successful)
+    }
 
-      tester.test(need) should be (successful)
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(malnutrition) should be (successful)
     }
   }
@@ -178,11 +221,11 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
+    val malnutrition = NodeSpec("malnutrition rates", Inc("rise", "dramatic"))
+
     behavior of "TestDoc2 Paragraph 9"
 
-    ignore should "have correct output #9" taggedAs(Somebody) in {
-      val malnutrition = NodeSpec("malnutrition rates", Inc("rise"), Quant("dramatic"))
-
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(malnutrition) should be (successful)
     }
   }
