@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, EdgeSpec, NodeSpec}
+import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, TransparentLink, EdgeSpec, NodeSpec}
 
 
 class TestRaps extends Test {
@@ -75,6 +75,84 @@ class TestRaps extends Test {
     futureWorkTest should "have correct edges 3" taggedAs(Heather) in {
       tester.test(EdgeSpec(production, Origin, benefits)) should be (successful)
     }
+
+  }
+
+  { //3 Increase, 7 Decrease Events, N Causal
+    val sent4 = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
+
+    val tester = new Tester(sent4)
+    //increase
+    val cultivar1 = NodeSpec("cultivar", Inc("improved"), Inc("promotes"))
+    val cultivar2 = NodeSpec("cultivar", Inc("improved"))
+    val tech = NodeSpec("climate-smart technologies", Inc("improved"), Inc("promotes"))
+
+    //decrease
+    val fertUse1 = NodeSpec("use of inorganic fertilizer", Dec("cut"))
+    val fertUse2 = NodeSpec("use of inorganic fertilizer", Dec("low"), Quant("low"))
+    val subsidy = NodeSpec("fertilizer subsidy", Dec("phase out"))
+    val conditions = NodeSpec("biophysical conditions", Dec("deteriorating"))
+    val water = NodeSpec("water", Dec("less"))
+    val farmSize = NodeSpec("farm sizes", Dec("reduced"))
+    val benefit = NodeSpec("benefit", Dec("low"), Quant("low"))
+    //other
+    val gov = NodeSpec("government")
+    val policy = NodeSpec("policy")
+
+
+    behavior of "Raps_sent4"
+
+    //The govt promotes improved cultivar
+    passingTest should "have correct edges 1" taggedAs(Heather) in {
+      tester.test(EdgeSpec(gov, Causal, cultivar1)) should be (successful)
+    }
+
+    //The govt promotes improved... climate-smart technologies
+    passingTest should "have correct edges 2" taggedAs(Heather) in {
+      tester.test(EdgeSpec(gov, Causal, tech)) should be (successful)
+    }
+
+    //the policy ... results in deteriorating biophysical conditions
+    futureWorkTest should "have correct edges 3" taggedAs(Heather) in {
+      //unsure why policy node fails, as node appears in Eidos shell
+      //tester.test(policy) should be (successful)//fails
+      //tester.test(conditions) should be (successful)//passes
+      tester.test(EdgeSpec(policy, Causal, conditions)) should be (successful)
+    }
+
+    passingTest should "have correct edges 4" taggedAs(Heather) in {
+      tester.test(EdgeSpec(fertUse2, Causal, farmSize)) should be (successful)
+    }
+
+    // CAUSE-EFFECT EVENTS:
+    //phase out the fertilizer subsidy results in deteriorating biophysical conditions
+    //low use of inorganic fertilizer .. lead to low benefit from the improved cultivar
+    //less water ... lead to low benefit from the improved cultivar
+
+    
+    //
+//    passingTest should "have correct edges 5" taggedAs(Heather) in {
+//      tester.test(EdgeSpec(water, Causal, farmSize)) should be (successful)
+//    }
+
+//    //reduced farm sizes which lead to low benefit from the improved cultivar
+//    passingTest should "have correct edges 6" taggedAs(Heather) in {
+//      tester.test(EdgeSpec(benefit, Causal, farmSize)) should be (successful)
+//    }
+//
+//    futureWorkTest should "have correct edges 7" taggedAs(Heather) in {
+//
+//    }
+//
+//    futureWorkTest should "have correct edges 8" taggedAs(Heather) in {
+//
+//    }
+//
+//    futureWorkTest should "have correct edges 9" taggedAs(Heather) in {
+//
+//    }
+
+
 
   }
 
