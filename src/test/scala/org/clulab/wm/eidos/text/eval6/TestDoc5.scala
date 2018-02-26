@@ -1,12 +1,7 @@
 package org.clulab.wm.eidos.text.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Causal
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Quant
+import org.clulab.wm.eidos.text._
 
 class TestDoc5 extends Test {
   
@@ -76,11 +71,11 @@ class TestDoc5 extends Test {
       tester.test(EdgeSpec(conflict, Correlation, famine)) should be (successful)
     }
 
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 6" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Correlation, famine)) should be (successful)
     }
 
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    failingTest should "have correct edges 7" taggedAs(Somebody) in {
       tester.test(EdgeSpec(famine, Correlation, mortality)) should be (successful)
     }
   }
@@ -164,7 +159,7 @@ class TestDoc5 extends Test {
     val revenue = NodeSpec("oil revenue", Quant("substantial"), Dec("decline"))
     val reserves = NodeSpec("currency reserves", Unmarked("foreign"), Quant("sharp"), Dec("drop"))
     val value = NodeSpec("value of South Sudanese pound", Quant("sharp"), Dec("drop"))
-    val factors = NodeSpec("These factors")
+    val factors2 = NodeSpec("These factors")
     val insecurity = NodeSpec("insecurity")
     val flows = NodeSpec("trade flows", Unmarked("normal"), Dec("restricted"))
     val requirements = NodeSpec("import requirements", Inc("higher"), Quant("higher"))
@@ -197,7 +192,7 @@ class TestDoc5 extends Test {
     }
 
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(factors, Causal, flows)) should be (successful)
+      tester.test(EdgeSpec(factors2, Causal, flows)) should be (successful)
     }
 
     failingTest should "have correct edges 5" taggedAs(Somebody) in {
@@ -275,7 +270,7 @@ class TestDoc5 extends Test {
     val text = """
       |Food security is expected to deteriorate further during the
       |February to July lean season, and to be as severe as, or worse
-      |than, last year’s lean season, when some food security outcomes
+      |than, last year's lean season, when some food security outcomes
       |in Northern Bahr el Ghazal, Western Bahr el Ghazal, and Unity
       |States surpassed Emergency (IPC Phase 4) or Famine (IPC Phase
       |5) thresholds (Figure 2). In a worst-case scenario, where
@@ -332,7 +327,7 @@ class TestDoc5 extends Test {
     val conflict = NodeSpec("Conflict")
     val displacement = NodeSpec("displacement", Unmarked("new"))
     val stress = NodeSpec("stress", Unmarked("additional"))
-    val assitance = NodeSpec("food assistance", Quant("little", "no"))
+    val assistance = NodeSpec("food assistance", Quant("little", "no"))
     val constrains = NodeSpec("access constrains")
 
     behavior of "TestDoc5 Paragraph 6"
@@ -422,7 +417,7 @@ class TestDoc5 extends Test {
     val tester = new Tester(text)
 
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(urgent)
+      tester.test(action)
     }
 
     failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
