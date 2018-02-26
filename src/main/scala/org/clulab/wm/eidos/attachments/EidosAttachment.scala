@@ -11,8 +11,11 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods
 import org.json4s.jackson.Serialization.write
 
-abstract class EidosAttachment extends Attachment {
-  implicit val formats = org.json4s.DefaultFormats
+import scala.beans.BeanProperty
+
+@SerialVersionUID(1L)
+abstract class EidosAttachment extends Attachment with Serializable {
+//  implicit val formats = org.json4s.DefaultFormats
   
   // Support for EidosActions
   def argumentSize: Int
@@ -28,8 +31,9 @@ abstract class EidosAttachment extends Attachment {
     if (optionSeq.isDefined) optionSeq.size else 0
     
   def toJson(label: String): JValue =
-      (EidosAttachment.TYPE -> label) ~
-          (EidosAttachment.MOD -> write(this))
+    JNothing
+//      (EidosAttachment.TYPE -> label) ~
+//          (EidosAttachment.MOD -> write(this))
 }
 
 object EidosAttachment {
@@ -65,7 +69,8 @@ object EidosAttachment {
           .map(qs => qs.map(_.text))
 }
 
-case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends EidosAttachment {
+@SerialVersionUID(1L)
+case class Quantification(@BeanProperty var quantifier: Quantifier, @BeanProperty var adverbs: Option[Seq[String]]) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(adverbs)
 
   override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
@@ -91,6 +96,7 @@ object Quantification {
   }
 }
 
+@SerialVersionUID(1L)
 case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(quantifiers)
 
@@ -107,13 +113,14 @@ object Increase {
     new Increase(trigger, quantifiers)
 
   def apply(mention: Mention): Increase = {
-    val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
     val trigger = mention.asInstanceOf[EventMention].trigger.text
+    val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
     
     Increase(trigger, quantifiers)
   }
 }
 
+@SerialVersionUID(1L)
 case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(quantifiers)
 
@@ -130,8 +137,8 @@ object Decrease {
     new Decrease(trigger, quantifiers)
 
   def apply(mention: Mention): Decrease = {
-    val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
     val trigger = mention.asInstanceOf[EventMention].trigger.text
+    val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
 
     Decrease(trigger, quantifiers)
   }
