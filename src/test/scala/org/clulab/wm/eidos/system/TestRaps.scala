@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, EdgeSpec, NodeSpec, EventSpec}
+import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, EdgeSpec, NodeSpec}
 
 
 class TestRaps extends Test {
@@ -70,14 +70,11 @@ class TestRaps extends Test {
       tester.test(EdgeSpec(education, Causal, ability)) should be (successful)
     }
 
-    passingTest should "have correct node" taggedAs(Heather) in {
-      tester.test(benefits) should be (successful)
+    //The issue is that Origin is an instance of EventSpec, not EdgeSpec,
+    //but EventSpec seemily cannot be use as an object here.
+    futureWorkTest should "have correct edges 3" taggedAs(Heather) in {
+      tester.test(EdgeSpec(production, Origin, benefits)) should be (successful)
     }
-
-    //Its not importing EventSpec boooooo
-//    passingTest should "have correct edges 3" taggedAs(Heather) in {
-//      tester.test(EventSpec(production, Origin, benefits)) should be (successful)
-//    }
 
   }
 
