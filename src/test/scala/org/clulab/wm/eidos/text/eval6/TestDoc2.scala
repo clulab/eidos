@@ -164,7 +164,7 @@ class TestDoc2 extends Test {
 
     ignore should "have correct output #8" taggedAs(Somebody) in {
       val need = NodeSpec("need", Inc("sharp", "spikes"))
-      val malnutrition = NodeSpec("malnutrition rates") // TODO: what does "reaching dangerous levels" mean: Inc or Dec?
+      val malnutrition = NodeSpec("malnutrition rates", Quant("dangerous", "levels")) // TODO: must decide what to do with "levels"
 
       tester.test(need) should be (successful)
       tester.test(malnutrition) should be (successful)
