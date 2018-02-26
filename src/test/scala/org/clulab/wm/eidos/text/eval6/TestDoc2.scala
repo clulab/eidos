@@ -131,7 +131,9 @@ class TestDoc2 extends Test {
     behavior of "TestDoc2 Paragraph 6"
 
     ignore should "have correct output #6" taggedAs(Somebody) in {
-      // TODO
+      val malnutrition = NodeSpec("levels of malnutrition", Quant("truly", "alarming"))
+
+      tester.test(malnutrition) should be (successful)
     }
   }
 
@@ -145,7 +147,9 @@ class TestDoc2 extends Test {
     behavior of "TestDoc2 Paragraph 7"
 
     ignore should "have correct output #7" taggedAs(Somebody) in {
-      // TODO
+      val support = NodeSpec("food and nutrition support", Inc("ramping"))
+
+      tester.test(support) should be (successful)
     }
   }
 
@@ -159,7 +163,11 @@ class TestDoc2 extends Test {
     behavior of "TestDoc2 Paragraph 8"
 
     ignore should "have correct output #8" taggedAs(Somebody) in {
-      // TODO
+      val need = NodeSpec("need", Inc("sharp", "spikes"))
+      val malnutrition = NodeSpec("malnutrition rates") // TODO: what does "reaching dangerous levels" mean: Inc or Dec?
+
+      tester.test(need) should be (successful)
+      tester.test(malnutrition) should be (successful)
     }
   }
 
@@ -173,7 +181,9 @@ class TestDoc2 extends Test {
     behavior of "TestDoc2 Paragraph 9"
 
     ignore should "have correct output #9" taggedAs(Somebody) in {
-      // TODO
+      val malnutrition = NodeSpec("malnutrition rates", Inc("rise"), Quant("dramatic"))
+
+      tester.test(malnutrition) should be (successful)
     }
   }
 
