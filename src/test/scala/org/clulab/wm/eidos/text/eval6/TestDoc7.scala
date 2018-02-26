@@ -13,7 +13,7 @@ import org.clulab.wm.eidos.text.Quant
 class TestDoc7 extends Test {
   
   // Filename: FFP Fact Sheet_South Sudan_2018.01.17 BG.pdf
-  // Unit test designer: Adarsh
+  // Unit test designer: Somebody
 
   { // Paragraph 1
     val text = """
@@ -34,9 +34,13 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 1"
 
-    failingTest should "have correct output #1" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(conflict) should be (successful) 
+    }
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(hunger) should be (successful) 
+    }
+    failingTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(food, Correlation, leanSeason)) should be (successful) 
     }
   }
@@ -57,13 +61,17 @@ class TestDoc7 extends Test {
     val seasonalHarvests = NodeSpec("seasonal harvests")
     val leanSeasons = NodeSpec("lean seasons")
     val foodSecurity = NodeSpec("Food security", Dec("deteriorate"))
-    val foodInsecurity = NodeSpec("levels of acute food insecurity")
+    val foodInsecurity = NodeSpec("levels of acute food insecurity", Quant("worse"))
     
     behavior of "TestDoc7 Paragraph 2"
 
-    failingTest should "have correct output #2" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(foodSecurity) should be (successful) 
+    }
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(foodInsecurity) should be (successful) 
+    }
+    failingTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(seasonalHarvests, Causal, foodAvailability)) should be (successful) 
     }
   }
@@ -86,10 +94,16 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 3"
 
-    failingTest should "have correct output #3" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(conflict) should be (successful) 
+    }
+    failingTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, starvation)) should be (successful) 
+    }
+    failingTest should "have correct edge 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, destitution)) should be (successful) 
+    }
+    failingTest should "have correct edge 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, death)) should be (successful) 
     }
   }
@@ -114,11 +128,19 @@ class TestDoc7 extends Test {
     
     behavior of "TestDoc7 Paragraph 4"
 
-    failingTest should "have correct output #4" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(refugees) should be (successful) 
+    }
+    failingTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, communities)) should be (successful) 
+    }
+    failingTest should "have correct edge 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, livelihoodActivities)) should be (successful) 
+    }
+    failingTest should "have correct edge 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, foodInsecurity)) should be (successful) 
+    }
+    failingTest should "have correct edge 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, humanitarianAccess)) should be (successful) 
     }
   }
@@ -140,12 +162,14 @@ class TestDoc7 extends Test {
     val humanitarianResponse = NodeSpec("humanitarian response",
                                         Quant("sustained", "unimpeded"))
     val foodInsecurity = NodeSpec("levels of acute food insecurity",
-                                  Dec("deterioration"))
+                                  Quant("deterioration"))
     
     behavior of "TestDoc7 Paragraph 5"
 
-    failingTest should "have correct output #5" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(humanitarianResponse) should be (successful) 
+    }
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(foodInsecurity) should be (successful) 
     }
   }
@@ -166,10 +190,16 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 6"
 
-    failingTest should "have correct output #6" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(foodAssistance) should be (successful)
+    }
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(water) should be (successful) 
+    }
+    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(livelihoodsInterventions) should be (successful) 
+    }
+    futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(agriculturalTraining, IsA, livelihoodsInterventions)) should be (successful) 
     }
   }
