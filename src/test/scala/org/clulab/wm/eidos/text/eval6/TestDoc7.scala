@@ -13,7 +13,7 @@ import org.clulab.wm.eidos.text.Quant
 class TestDoc7 extends Test {
   
   // Filename: FFP Fact Sheet_South Sudan_2018.01.17 BG.pdf
-  // Unit test designer: Somebody
+  // Unit test designer: Adarsh
 
   { // Paragraph 1
     val text = """
