@@ -33,27 +33,27 @@ class TestDoc6 extends Test {
     behavior of "TestDoc6 Paragraph 1"
 
     // Requires corss-sentence coref
-    futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
+    futureWorkTest should "have correct edge 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(stocks, Causal, leanSeason)) should be (successful)
     }
     // Requires corss-sentence coref
-    futureWorkTest should "have correct edges 2" taggedAs(Somebody) in {
+    futureWorkTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(stocks, Causal, foodSecurity)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(EdgeSpec(foodAccess, Causal, risk)) should be (successful)
     }
     // Is this get-able?
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Becky) in {
       tester.test(EdgeSpec(risk, Correlation, assistance)) should be (successful)
     }
     // These two should prob really be an EdgeSpec(conflict, Correlation, assistance1) -- 
     // todo: I think we could get this as [if X -> A and X -> B (within a single sentence), then A Corr B]
     // todo: as is, we'll get this as 2 causal events and "action" is likely a stop word here...
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Becky) in {
       tester.test(EdgeSpec(action, Causal, conflict)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 6" taggedAs(Becky) in {
       tester.test(EdgeSpec(action, Causal, assistance1)) should be (successful)
     }
 
@@ -70,15 +70,39 @@ class TestDoc6 extends Test {
      |and movement towards natural food sources.
      """
 
-    val concerns = NodeSpec("Concerns about insufficient food access")
+    val concerns = NodeSpec("concern", Inc("high"))
+    val foodSec = NodeSpec("food security", Inc("improved", "marginally"))
+    val access = NodeSpec("access to sufficient food", Dec("lack"))
+    val catastrophe = NodeSpec("Catastrophe", Quant("likely"))
+    val households = NodeSpec("households did not harvest") // todo -- handle
+    val insecurity = NodeSpec("insecurity", Quant("ongoing"))
+    val assistance = NodeSpec("access to assistance", Dec("limiting"))
+    val movement = NodeSpec("movement towards natural food sources", Dec("limiting"))
+
+
+    val tester = new Tester(text)
 
     behavior of "TestDoc6 Paragraph 2"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      val tester = new Tester(text)
-
-      tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful)
+    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+      tester.test(concerns) should be (successful)
     }
+    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
+      tester.test(foodSec) should be (successful)
+    }
+    failingTest should "have correct singleton node 3" taggedAs(Becky) in {
+      tester.test(access) should be (successful)
+    }
+    failingTest should "have correct edge 1" taggedAs(Becky) in {
+      tester.test(EdgeSpec(catastrophe, Correlation, households)) should be (successful)
+    }
+    failingTest should "have correct edge 2" taggedAs(Becky) in {
+      tester.test(EdgeSpec(insecurity, Causal, assistance)) should be (successful)
+    }
+    failingTest should "have correct edge 3" taggedAs(Becky) in {
+      tester.test(EdgeSpec(insecurity, Causal, movement)) should be (successful)
+    }
+
   }
 
   { // Paragraph 3
@@ -93,14 +117,23 @@ class TestDoc6 extends Test {
      |relocation of the remaining 562 IDPs in Melut PoC prior to the closure of the camp.
      """
 
-    val concerns = NodeSpec("Concerns about insufficient food access")
+    val tension = NodeSpec("tension", Inc("high"))
+    val clashes = NodeSpec("inter-communal clashes have occurred")
+    val armedGroups = NodeSpec("various armed groups", Inc("resurgence"))
+    val cattleRaiding = NodeSpec("cattle raiding", Inc("uptick"))
+
+    val tester = new Tester(text)
 
     behavior of "TestDoc6 Paragraph 3"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      val tester = new Tester(text)
-
-      tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful)
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
+      tester.test(EdgeSpec(tension, Correlation, clashes)) should be (successful)
+    }
+    failingTest should "have correct edges 2" taggedAs(Becky) in {
+      tester.test(EdgeSpec(armedGroups, Causal, tension)) should be (successful)
+    }
+    failingTest should "have correct edges 3" taggedAs(Becky) in {
+      tester.test(EdgeSpec(cattleRaiding, Causal, tension)) should be (successful)
     }
   }
 
@@ -119,11 +152,6 @@ class TestDoc6 extends Test {
 
     behavior of "TestDoc6 Paragraph 4"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      val tester = new Tester(text)
-
-      tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful)
-    }
   }
 
   { // Paragraph 5
@@ -137,14 +165,19 @@ class TestDoc6 extends Test {
      |of coping strategies.
      """
 
-    val concerns = NodeSpec("Concerns about insufficient food access")
+    // Todo: should we get all these measures of Famine as Correlations?
+    val food = NodeSpec("food", Dec("lack", "extreme"))
+    val needs = NodeSpec("basic needs", Dec("lack", "extreme"))
+
+    val tester = new Tester(text)
 
     behavior of "TestDoc6 Paragraph 5"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      val tester = new Tester(text)
-
-      tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful)
+    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+      tester.test(food) should be (successful)
+    }
+    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
+      tester.test(needs) should be (successful)
     }
   }
 }
