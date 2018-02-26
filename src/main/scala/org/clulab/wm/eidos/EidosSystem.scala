@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos
 
+import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
@@ -28,6 +29,7 @@ class EidosSystem (
     entityRulesPath: String = "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml",
      avoidRulesPath: String = "/org/clulab/wm/eidos/grammars/avoidLocal.yml",
        taxonomyPath: String = "org/clulab/wm/eidos/grammars/taxonomy.yml", // skip leading /!
+      wordToVecPath: String = "/Users/ajaynagesh/Research/WorldModelers/eidos/src/main/resources/org/clulab/wm/eidos/word2vec/vectors.txt", // skip leading /!
   processor: Option[Processor] = None,
   debug: Boolean = true
 ) extends EntityGrounder {
@@ -37,6 +39,8 @@ class EidosSystem (
   // that should not be lost on a reload.  The "rules" that the processor follows are
   // not expected to change, or if they do, the processor would be restarted.
   val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
+
+  val w2v = new Word2Vec(wordToVecPath, None)
 
   class LoadableAttributes(
       val entityFinder: EidosEntityFinder, 
@@ -172,7 +176,10 @@ class EidosSystem (
 
   // fixme: implement
   def calculateSameAs (m1: Mention, m2: Mention): Double = {
-    0.0
+    val sanitisedM1 =  m1.text.split(" +").map( Word2Vec.sanitizeWord(_) )
+    val sanitisedM2 =  m2.text.split(" +").map( Word2Vec.sanitizeWord(_) )
+    val score = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
+    score
   }
 
   /*
