@@ -352,13 +352,13 @@ than in the corresponding period two years earlier.
     failingTest should "have correct node 4" taggedAs(Somebody) in {
       tester.test(prices3)
     }
-    failingTest should "have correct node 4" taggedAs(Somebody) in {
+    failingTest should "have correct node 5" taggedAs(Somebody) in {
       tester.test(prices3To)
     }
-    failingTest should "have correct node 5" taggedAs(Somebody) in {
+    failingTest should "have correct node 6" taggedAs(Somebody) in {
       tester.test(prices4)
     }
-    failingTest should "have correct node 6" taggedAs(Somebody) in {
+    failingTest should "have correct node 7" taggedAs(Somebody) in {
       tester.test(prices5)
     }
 
