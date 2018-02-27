@@ -322,7 +322,7 @@ than in the corresponding period two years earlier.
     val situation = NodeSpec("tight supply situation")
     val disruptions = NodeSpec("market disruptions")
     val hyperinflation = NodeSpec("hyperinflation")
-    val depreciation = NodeSpec("depreciation of the local currency", Dec("depreciation"))
+    val depreciation = NodeSpec("depreciation of the local currency", Dec("significant"))
     
     // Sentence 2
     val they = NodeSpec("they", Dec("declined", "by about 12 percent")) // coreference?
@@ -335,7 +335,7 @@ than in the corresponding period two years earlier.
     val prices3To = NodeSpec("prices of wheat flour", Quant("new record highs"))
     
     // Sentence 4
-    val prices4 = NodeSpec("prices of these food staples", Quant("twice as high"))
+    val prices4 = NodeSpec("prices of these food staples", Quant("twice", "more than"))
     val prices5 = NodeSpec("prices of these food staples", Quant("12 times higher"))
     
     behavior of "TestDoc4 Paragraph 7"
@@ -375,10 +375,10 @@ than in the corresponding period two years earlier.
       EdgeSpec(depreciation, Causal, prices)
     }
     failingTest should "have correct edges 5" taggedAs(Somebody) in {
-      EdgeSpec(harvest, Causal, they)
+      EdgeSpec(harvest, Correlation, they)
     }
     failingTest should "have correct edges 6" taggedAs(Somebody) in {
-      EdgeSpec(selling, Causal, they)
+      EdgeSpec(selling, Correlation, they)
     }
   }
 }
