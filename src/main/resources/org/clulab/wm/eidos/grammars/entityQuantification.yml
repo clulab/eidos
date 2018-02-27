@@ -40,3 +40,23 @@ rules:
       trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
       theme: Entity = <xcomp (${agents})
 #      adverbs: Quantifier? = ${quant_modifiers} // todo: we should allow for modification here (e.g. 'more')
+
+  - name: quantification1b
+    priority: ${ rulepriority }
+    example: "moderate to heavy rainfall"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
+      theme: Entity = <amod #Find the entity the quantifier is modifying
+
+  - name: quantification1c
+    priority: ${ rulepriority }
+    example: "heavier than usual rainfall"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      # note: assumes comparative JJ forms of quantifiers are tagged
+      trigger = [mention=Quantifier] than [word=/(usual|typical|average|normal/)] #Find the quantifier
+      theme: Entity = <amod #Find the entity the quantifier is modifying
+
