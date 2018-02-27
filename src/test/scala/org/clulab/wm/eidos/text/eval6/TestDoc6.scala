@@ -25,7 +25,7 @@ class TestDoc6 extends Test {
     val foodSecurity = NodeSpec("food security", Dec("deteriorate"))
     val foodAccess = NodeSpec("food access", Dec("low", "very"))
     val risk = NodeSpec("risk of Famine")
-    val assistance = NodeSpec("assitance", Dec("absence"))
+    val assistance = NodeSpec("assistance", Dec("absence"))
     val action = NodeSpec("urgent action")
     val conflict = NodeSpec("ongoing conflict", Dec("end"))
     val assistance1 = NodeSpec("unhindered delivery of humanitarian assistance")
@@ -75,7 +75,7 @@ class TestDoc6 extends Test {
     val access = NodeSpec("access to sufficient food", Dec("lack"))
     val catastrophe = NodeSpec("Catastrophe", Quant("likely"))
     val households = NodeSpec("households did not harvest") // todo -- handle
-    val insecurity = NodeSpec("insecurity", Quant("ongoing"))
+    val insecurity = NodeSpec("ongoing insecurity")
     val assistance = NodeSpec("access to assistance", Dec("limiting"))
     val movement = NodeSpec("movement towards natural food sources", Dec("limiting"))
 
@@ -166,6 +166,7 @@ class TestDoc6 extends Test {
      """
 
     // Todo: should we get all these measures of Famine as Correlations?
+    // todo: should we have an inferred (neg) correlation with "employment of coping strategies"?
     val food = NodeSpec("food", Dec("lack", "extreme"))
     val needs = NodeSpec("basic needs", Dec("lack", "extreme"))
 
