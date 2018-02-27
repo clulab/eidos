@@ -155,7 +155,22 @@ class TestRaps extends Test {
       tester.test(EdgeSpec(farmSize, Causal, benefit)) should be (successful)
     }
 
-  }s
+  }
+
+  {//1 Increase
+    val sent5 = "With increases in poverty levels people become more vulnerable to climate change and other risks."
+    val tester = new Tester(sent5)
+
+    //increase
+    val poverty = NodeSpec("poverty levels", Inc("increases"))
+
+    behavior of "Raps_sent5"
+
+    passingTest should "have correct edges 1" taggedAs(Heather) in {
+      tester.test(poverty) should be (successful)
+    }
+
+  }
 
   
 } //END OF TEST BRACE
