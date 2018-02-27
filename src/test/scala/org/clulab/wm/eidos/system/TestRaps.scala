@@ -226,7 +226,21 @@ class TestRaps extends Test {
       tester.test(poverty) should be (successful)
     }
 
+  }
 
+  {//1 Increase, 1 (maybe?) Causal
+    val sent9 = "Government puts more emphasis on improving the agricultural water irrigation/management system to cope with drought conditions."
+    val tester = new Tester(sent9)
+
+    val gov = NodeSpec("Government")
+    val waterSystem = NodeSpec("agricultural water irrigation/management system", Inc("improving"))
+
+    behavior of "Raps_sent9"
+
+    //extracts a Causal event, but "puts more emphasis" doesn't seem like a true Causal to me../
+    futureWorkTest should "have correct edge" taggedAs(Heather) in {
+      tester.test(EdgeSpec(gov, Causal, waterSystem)) should be (successful)
+    }
 
   }
 
