@@ -462,13 +462,13 @@ class TestDoc3 extends Test {
     futureWorkTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, cropProd)) should be (successful) // Test edges connecting them
     }
-    futureWorkTest should "have correct edges 1" taggedAs(Somebody) in {
+    futureWorkTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, pastures)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall3, Causal, cropProd)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall3, Causal, pastures)) should be (successful) // Test edges connecting them
     }
     failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
