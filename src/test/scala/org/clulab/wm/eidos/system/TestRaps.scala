@@ -212,6 +212,20 @@ class TestRaps extends Test {
       tester.test(income) should be (successful)
     }
 
+  }
+
+  {//1 Increase Event
+    val sent8 = "Poverty levels continue to increase, people become more vulnerable to food insecurity and other risks."
+    val tester = new Tester(sent8)
+
+    val poverty = NodeSpec("Poverty levels", Inc("increase"))
+
+    behavior of "Raps_sent8"
+
+    passingTest should "have correct node" taggedAs(Heather) in {
+      tester.test(poverty) should be (successful)
+    }
+
 
 
   }
