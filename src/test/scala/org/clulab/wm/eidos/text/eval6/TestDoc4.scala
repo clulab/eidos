@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.text.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Causal
+import org.clulab.wm.eidos.text.{Causal, Correlation, IsA}
 import org.clulab.wm.eidos.text.Dec
 import org.clulab.wm.eidos.text.EdgeSpec
 import org.clulab.wm.eidos.text.Inc
@@ -22,16 +22,23 @@ assistance operations and the two counties are currently classified
 as IPC Phase 4: "Emergency".
       """
   
+    val tester = new Tester(text)
+
+    val conditions1 = NodeSpec("famine conditions", Dec("no longer occuring"))
+    
     // Note that the quotes are automatically smarted during processing.
-    val conditions = NodeSpec(/*"the number of people facing IPC Phase 5: " +*/ "``Catastrophe'' food security conditions", Dec("declined"))
+    val conditions2 = NodeSpec(/*"the number of people facing IPC Phase 5: " +*/ "``Catastrophe'' food security conditions", Dec("declined"))
     val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
     
     behavior of "TestDoc4 Paragraph 1"
 
-    passingTest should "have correct edges 1" taggedAs(Keith) in {
+    failingTest should "have correct node 1" taggedAs(Somebody) in {
+      tester.test(conditions1) should be (successful)
+    }
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       val tester = new Tester(text)
   
-      tester.test(EdgeSpec(operations, Causal, conditions)) should be (successful)
+      tester.test(EdgeSpec(operations, Causal, conditions2)) should be (successful)
     }
   }
   
@@ -50,14 +57,45 @@ Ayod County in Greater Jonglei State and in Leer, Koch and Mayendit
 counties in Unity State.
       """
   
-    val concerns = NodeSpec("Concerns about insufficient food access") // Make some node spec
+    val tester = new Tester(text)
+
+    val caseload = NodeSpec("the food insecure caseload", Inc("increased"))
+    val access = NodeSpec("food access", Quant("constrained", "severly"))
+    val insecurity = NodeSpec("insecurity", Quant("widespread"))
+    val displacements = NodeSpec("displacements", Quant("large scale"))
+    val foodPrices = NodeSpec("food prices", Quant("high"))
+    val marketDisruptions = NodeSpec("market disruptions")
+    val collapse = NodeSpec("macro-economic collapse")
+    val mechanisms = NodeSpec("exhaustion of households' coping mechanisms")
+    
+    val concern = NodeSpec("areas of major concern")
+    val location = NodeSpec("Greater Jonglei and Unity states"))
+    
+    EdgeSpec(concern, IsA, location)
+    
     
     behavior of "TestDoc4 Paragraph 2"
 
-    ignore should "have correct edges 1" taggedAs(Keith) in {
-      val tester = new Tester(text)
-  
-//      tester.test(EdgeSpec(concerns, Causal, concerns)) should be (successful) // Test edges connecting them
+    ignore should "have correct edges 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(caseload, Correlation, access))
+    }
+    ignore should "have correct edges 2" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(access, Causal, insecurity))
+    }
+    ignore should "have correct edges 3" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(access, Causal, displacements))
+    }
+    ignore should "have correct edges 4" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(access, Causal, foodPrices))
+    }
+    ignore should "have correct edges 5" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(access, Causal, marketDisruptions))
+    }
+    ignore should "have correct edges 6" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(access, Causal, collapse))
+    }
+    ignore should "have correct edges 7" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(access, Causal, mechanisms))
     }
   }
 
