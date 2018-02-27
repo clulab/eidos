@@ -22,61 +22,57 @@ class TestDoc5 extends Test {
       |lives over the coming year.
       """
 
-    val security = NodeSpec("food security", Quant("Further"), Dec("deterioration"))
-    val insecurity = NodeSpec("insecurity", Quant("widespread"))
+    val insecurity = NodeSpec("levels of food insecurity", Quant("Extreme"))
+    val security = NodeSpec("food security", Dec("deterioration", "Further"))
+    val insecurity2 = NodeSpec("insecurity", Quant("widespread"))
     val livelihoods = NodeSpec("livelihoods", Dec("limit"))
     val trade = NodeSpec("trade", Dec("disrupt"))
     val access = NodeSpec("humanitarian access", Dec("block"))
     val conflict = NodeSpec("conflict", Inc("intensifies"))
-    val access2 = NodeSpec("humanitarian access", Quant("further"), Dec("limited"))
-    val famine = NodeSpec("Famine")
-    val mortality = NodeSpec("excess mortality", Quant("high levels"))
-    val food = NodeSpec("food", Dec("lack"))
-    val action = NodeSpec("action", Unmarked("Urgent"))
-    val delivery = NodeSpec("emergency assistance delivery", Inc("increase"))
-    
+    val access2 = NodeSpec("humanitarian access", Dec("limited", "further"))
+    val famine = NodeSpec("Famine (IPC Phase 5)")
+    val mortality = NodeSpec("levels of excess mortality", Quant("high"))
+    val food = NodeSpec("food", Dec("lack", "extreme"))
+    val action = NodeSpec("Urgent action to end the conflict")
+    val delivery = NodeSpec("the size and scope of emergency assistance delivery", Inc("increase"))
+    val lives = NodeSpec("lives", Inc("save"))
+
     behavior of "TestDoc5 Paragraph 1"
 
     val tester = new Tester(text)
 
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+      tester.test(insecurity)
+    }
+    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(food)
     }
-
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(action)
-    }
-
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
-      tester.test(delivery)
-    }
-
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(security, Correlation, insecurity)) should be (successful)
+      tester.test(EdgeSpec(security, Correlation, insecurity2)) should be (successful)
     }
-
     failingTest should "have correct edges 2" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(insecurity, Causal, livelihoods)) should be (successful)
+      tester.test(EdgeSpec(insecurity2, Causal, livelihoods)) should be (successful)
     }
-
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(insecurity, Causal, trade)) should be (successful)
+      tester.test(EdgeSpec(insecurity2, Causal, trade)) should be (successful)
     }
-
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(insecurity, Causal, access)) should be (successful)
+      tester.test(EdgeSpec(insecurity2, Causal, access)) should be (successful)
     }
-
     failingTest should "have correct edges 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Correlation, famine)) should be (successful)
     }
-
     failingTest should "have correct edges 6" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Correlation, famine)) should be (successful)
     }
-
     failingTest should "have correct edges 7" taggedAs(Somebody) in {
       tester.test(EdgeSpec(famine, Correlation, mortality)) should be (successful)
+    }
+    failingTest should "have correct edges 8" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(delivery, Causal, lives)) should be (successful)
+    }
+    failingTest should "have correct edges 9" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(action, Causal, lives)) should be (successful)
     }
   }
 
@@ -97,8 +93,8 @@ class TestDoc5 extends Test {
       """
 
     val violence = NodeSpec("violence", Inc("spread"))
-    val regions = NodeSpec("all regions")
-    val access = NodeSpec("household access", Dec("declined"))
+    val regions = NodeSpec("all regions of South Sudan")
+    val access = NodeSpec("household access to food and cash income", Dec("declined"))
     val conflict = NodeSpec("conflict")
     val planting = NodeSpec("planting", Dec("disrupt"))
     val harvesting = NodeSpec("harvesting", Dec("disrupt"))
@@ -112,25 +108,20 @@ class TestDoc5 extends Test {
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(production)
     }
-
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(violence, Affect, regions)) should be (successful)
     }
-
     failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Correlation, conflict)) should be (successful)
     }
-
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, planting)) should be (successful)
     }
-
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(conflict, Affect, harvesting)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, harvesting)) should be (successful)
     }
-
     failingTest should "have correct edges 5" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(conflict, Affect, activities)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
     }
   }
 
@@ -156,20 +147,20 @@ class TestDoc5 extends Test {
 
     val factors = NodeSpec("macroeconomic factors")
     val prices = NodeSpec("staple food prices", Quant("exorbitant"))
-    val revenue = NodeSpec("oil revenue", Quant("substantial"), Dec("decline"))
-    val reserves = NodeSpec("currency reserves", Unmarked("foreign"), Quant("sharp"), Dec("drop"))
-    val value = NodeSpec("value of South Sudanese pound", Quant("sharp"), Dec("drop"))
+    val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"))
+    val reserves = NodeSpec("foreign currency reserves", Dec("drop", "sharp"))
+    val value = NodeSpec("value of South Sudanese pound", Dec("drop", "sharp"))
     val factors2 = NodeSpec("These factors")
-    val insecurity = NodeSpec("insecurity")
-    val flows = NodeSpec("trade flows", Unmarked("normal"), Dec("restricted"))
+    val insecurity = NodeSpec("insecurity along key trade routes")
+    val flows = NodeSpec("normal trade flows", Dec("restricted"))
     val requirements = NodeSpec("import requirements", Inc("higher"), Quant("higher"))
     val harvests = NodeSpec("harvests", Quant("below-average"))
-    val availability = NodeSpec("food availability", Dec("reduction"))
+    val availability = NodeSpec("food availability", Dec("reduction", "subsequent"))
     val prices2 = NodeSpec("prices", Quant("record levels"))
     val prices3 = NodeSpec("retail sorghum prices", Quant("higher"), Inc("higher"))
     val prices4 = NodeSpec("prices", Quant("high"))
     val incomes = NodeSpec("incomes", Dec("declining"))
-    val power = NodeSpec("household purchasing power", Dec("eroded"), Quant("significantly"))
+    val power = NodeSpec("household purchasing power", Dec("eroded", "significantly"))
 
     behavior of "TestDoc5 Paragraph 3"
 
@@ -178,39 +169,30 @@ class TestDoc5 extends Test {
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices3)
     }
-
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(factors, Causal, prices)) should be (successful)
     }
-
     failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(revenue, Causal, reserves)) should be (successful)
     }
-
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(revenue, Causal, value)) should be (successful)
     }
-
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(factors2, Causal, flows)) should be (successful)
     }
-
     failingTest should "have correct edges 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, flows)) should be (successful)
     }
-
     failingTest should "have correct edges 6" taggedAs(Somebody) in {
       tester.test(EdgeSpec(harvests, Causal, requirements)) should be (successful)
     }
-
     failingTest should "have correct edges 7" taggedAs(Somebody) in {
       tester.test(EdgeSpec(availability, Causal, prices2)) should be (successful)
     }
-
     failingTest should "have correct edges 8" taggedAs(Somebody) in {
       tester.test(EdgeSpec(prices4, Causal, power)) should be (successful)
     }
-
     failingTest should "have correct edges 9" taggedAs(Somebody) in {
       tester.test(EdgeSpec(incomes, Causal, power)) should be (successful)
     }
@@ -235,10 +217,10 @@ class TestDoc5 extends Test {
       """ 
 
     val response = NodeSpec("humanitarian response", Quant("significant"))
-    val crisis = NodeSpec("Crisis", Quant("widespread"))
-    val gaps = NodeSpec("gaps", Quant("large"))
-    val risk = NodeSpec("risk of malnutrition and mortality", Quant("elevated"))
-    val malnutrition = NodeSpec("Global Acute Malnutrition", Quant("Serious"))
+    val crisis = NodeSpec("Crisis (IPC Phase 3)", Quant("widespread"))
+    val gaps = NodeSpec("their ability to meet basic food requirements", Dec("gaps", "large"))
+    val risk = NodeSpec("risk of malnutrition and mortality", Quant("elevated", "significantly"))
+    val malnutrition = NodeSpec("Global Acute Malnutrition (GAM)", Quant("Serious"), Quant("worse"), Dec("worse"))
 
     behavior of "TestDoc5 Paragraph 4"
 
@@ -247,23 +229,18 @@ class TestDoc5 extends Test {
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(response)
     }
-
     failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(crisis)
     }
-
     failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(gaps)
     }
-
     failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(risk)
     }
-
     failingTest should "have correct singleton node 5" taggedAs(Somebody) in {
       tester.test(malnutrition)
     }
-
   }
 
   { // Paragraph 5
@@ -279,33 +256,30 @@ class TestDoc5 extends Test {
       |during 2017.
       """
 
-    val security = NodeSpec("Food security", Dec("deteriorate"))
+    val security = NodeSpec("Food security", Dec("deteriorate"), Dec("worse"), Quant("severe"))
+    val outcomes = NodeSpec("some food security outcomes", Inc("surpassed"))
     val conflict = NodeSpec("conflict", Inc("increased"))
     val livelihoods = NodeSpec("livelihoods", Dec("disrupts"))
     val assitance = NodeSpec("humanitarian assitance", Dec("limits"))
-    val famine = NodeSpec("Famine")
+    val famine = NodeSpec("Famine (IPC Phase 5)")
 
     behavior of "TestDoc5 Paragraph 5"
 
     val tester = new Tester(text)
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(security)
-    }
-
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(security, Correlation, outcomes)) should be (successful)
+    }
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, livelihoods)) should be (successful)
     }
-
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(conflict, Causal, assitance)) should be (successful)
-    }
-
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, assitance)) should be (successful)
     }
-
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(conflict, Causal, assitance)) should be (successful)
+    }
+    failingTest should "have correct edges 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Correlation, famine)) should be (successful)
     }
   }
@@ -324,10 +298,12 @@ class TestDoc5 extends Test {
       |access constraints.
       """
 
+    val insecurity = NodeSpec("Emergency (IPC Phase 4) levels of food insecurity")
+    val households = NodeSpec("many households were unable to cultivate")
     val conflict = NodeSpec("Conflict")
-    val displacement = NodeSpec("displacement", Unmarked("new"))
-    val stress = NodeSpec("stress", Unmarked("additional"))
-    val assistance = NodeSpec("food assistance", Quant("little", "no"))
+    val displacement = NodeSpec("new displacement")
+    val stress = NodeSpec("stress on available wild food sources", Inc("additional"))
+    val assistance = NodeSpec("food assistance", Quant("little"), Quant("no"))
     val constrains = NodeSpec("access constrains")
 
     behavior of "TestDoc5 Paragraph 6"
@@ -335,14 +311,15 @@ class TestDoc5 extends Test {
     val tester = new Tester(text)
 
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(insecurity, Correlation, households)) should be (successful)
+    }
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, stress)) should be (successful)
     }
-
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(constrains, Causal, assistance)) should be (successful)
     }
   }
@@ -364,11 +341,11 @@ class TestDoc5 extends Test {
     val conflict = NodeSpec("conflict")
     val activities = NodeSpec("agricultural activities", Dec("limiting"))
     val displacement = NodeSpec("displacement")
-    val functioning = NodeSpec("market functioning", Unmarked("normal"), Dec("disrupting"))
-    val prices = NodeSpec("prices", Quant("extremely", "high"))
+    val functioning = NodeSpec("normal market functioning", Dec("disrupting"))
+    val prices = NodeSpec("prices", Quant("extremely high"))
     val conflict2 = NodeSpec("ongoing conflict")
     val production = NodeSpec("crop production", Dec("disrupted"))
-    val movement = NodeSpec("movement", Dec("restricted"))
+    val movement = NodeSpec("movement of local populations", Dec("restricted"))
 
     behavior of "TestDoc5 Paragraph 7"
 
@@ -377,27 +354,21 @@ class TestDoc5 extends Test {
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices)
     }
-
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
     }
-
     failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, functioning)) should be (successful)
     }
-
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict2, Causal, production)) should be (successful)
     }
-
     failingTest should "have correct edges 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict2, Causal, movement)) should be (successful)
     }
-
   }
 
   { // Paragraph 8
@@ -408,24 +379,23 @@ class TestDoc5 extends Test {
       |lives over the coming year.
       """
 
-    val action = NodeSpec("action", Unmarked("Urgent"))
-    val access = NodeSpec("humanitarian access", Inc("improve"))
-    val assistance = NodeSpec("emergency assitance", Inc("increase"))
-    
+    val action = NodeSpec("Urgent action to end the conflict")
+    val access = NodeSpec("humanitarian access to severely food insecure populations", Inc("improve"))
+    val assistance = NodeSpec("size and scope of emergency assitance", Inc("increase"))
+    val lives = NodeSpec("lives", Inc("save"))
+
     behavior of "TestDoc5 Paragraph 8"
 
     val tester = new Tester(text)
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(action)
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(action, Causal, lives)) should be (successful)
     }
-
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(access)
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(access, Causal, lives)) should be (successful)
     }
-
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
-      tester.test(assistance)
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(assistance, Causal, lives)) should be (successful)
     }
   }
 
