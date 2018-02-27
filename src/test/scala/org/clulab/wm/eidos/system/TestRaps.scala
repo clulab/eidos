@@ -161,14 +161,58 @@ class TestRaps extends Test {
     val sent5 = "With increases in poverty levels people become more vulnerable to climate change and other risks."
     val tester = new Tester(sent5)
 
-    //increase
     val poverty = NodeSpec("poverty levels", Inc("increases"))
 
     behavior of "Raps_sent5"
 
-    passingTest should "have correct edges 1" taggedAs(Heather) in {
+    passingTest should "have correct node" taggedAs(Heather) in {
       tester.test(poverty) should be (successful)
     }
+
+  }
+
+  {//1 Increase
+    val sent6 = "There will be a small increase in crop diversity due to the need to combat the climate and market risks as both of these might become more volatile in the future."
+    val tester = new Tester(sent6)
+
+    val cropDiversity = NodeSpec("crop diversity", Inc("increase"), Quant("small"))
+    //crop diversity Attachments: Increase(increase,Some(ArraySeq(small)))
+    //"small" not added as Quant attachment, however it is identified seperately
+    //List(Quantifier) => small
+
+    behavior of "Raps_sent6"
+
+    futureWorkTest should "have correct node" taggedAs(Heather) in {
+      tester.test(cropDiversity) should be (successful)
+    }
+
+  }
+
+  {//1 Increase, 2 Decrease Events
+    val sent7 = "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income."
+    val tester = new Tester(sent7)
+
+    val poverty = NodeSpec("poverty", Dec("decline"), Quant("Significant"))
+    val familySize = NodeSpec("family size", Dec("decrease"))
+
+    val income = NodeSpec("non-farm income", Inc("increase"))
+
+    behavior of "Raps_sent7"
+
+    //fails for same reason as sent6 test. Quant("Significant") is Some(ArraySeq(Significant))) in Poverty Entity
+    futureWorkTest should "have correct node 1" taggedAs(Heather) in {
+      tester.test(poverty) should be (successful)
+    }
+
+    passingTest should "have correct node 2" taggedAs(Heather) in {
+      tester.test(familySize) should be (successful)
+    }
+
+    passingTest should "have correct node 3" taggedAs(Heather) in {
+      tester.test(income) should be (successful)
+    }
+
+
 
   }
 
