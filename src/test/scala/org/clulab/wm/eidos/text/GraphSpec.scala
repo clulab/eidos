@@ -7,9 +7,7 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.Decrease
-import org.clulab.wm.eidos.Increase
-import org.clulab.wm.eidos.Quantification
+import org.clulab.wm.eidos.attachments._
 
 case class Unmodified(quantifier: Quantifier) extends Attachment
 
@@ -49,7 +47,7 @@ object Quant {
 }
 
 class Dec(decrease: Decrease) extends AttachmentSpec(decrease) {
-  override def toString = "+DEC(" + decrease.trigger + toString(decrease.quantifier) + ")"  
+  override def toString = "+DEC(" + decrease.trigger + toString(decrease.quantifiers) + ")"  
 }
 
 object Dec {
@@ -61,7 +59,7 @@ object Dec {
 }
 
 class Inc(increase: Increase) extends AttachmentSpec(increase) {
-  override def toString = "+INC(" + increase.trigger + toString(increase.quantifier) + ")"
+  override def toString = "+INC(" + increase.trigger + toString(increase.quantifiers) + ")"
 }
 
 object Inc {

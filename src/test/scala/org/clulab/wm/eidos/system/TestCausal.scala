@@ -1,7 +1,5 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.wm.eidos.utils.ReaderUtils
-import org.clulab.wm.eidos.utils.ReaderUtils._
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestCausal extends Test {

@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.demo
+package org.clulab.wm.eidos.apps
 
 import org.json4s.jackson.JsonMethods._
 

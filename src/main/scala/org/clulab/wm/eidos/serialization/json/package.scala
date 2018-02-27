@@ -5,7 +5,7 @@ import scala.util.hashing.MurmurHash3._
 import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.struct.DirectedGraph
-import org.clulab.wm.eidos.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.attachments.EidosAttachment
 
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -17,7 +17,6 @@ package object json {
 
   implicit val formats = org.json4s.DefaultFormats
 
-
   private def argsAST(arguments: Map[String, Seq[Mention]]): JObject = {
     val args = arguments.map {
       case (name, mentions) => name -> JArray(mentions.map(MentionOps.jsonAST(_)).toList)
@@ -25,30 +24,8 @@ package object json {
     JObject(args.toList)
   }
 
-  private def attachmentsAST(attachments: Set[Attachment]): Set[JValue] = {
-
-    def attachmentToJSON(m: Attachment): JValue = {
-      m match {
-        case inc:Increase =>
-        {
-          ("type" -> Increase.string) ~
-          ("mod" -> write(m))
-        }
-        case dec:Decrease =>
-        {
-          ("type" -> Decrease.string) ~
-          ("mod" -> write(m))
-        }
-        case quant:Quantification =>
-        {
-          ("type" -> Quantification.string) ~
-          ("mod" -> write(m))
-        }
-      }
-    }
-
-    attachments.map(a => attachmentToJSON(a))
-  }
+  private def attachmentsAST(attachments: Set[Attachment]): Set[JValue] =
+    attachments.map(EidosAttachment.asEidosAttachment(_).toJson())
 
   /** Hash representing the [[Mention.arguments]] */
   private def argsHash(args: Map[String, Seq[Mention]]): Int = {
@@ -319,18 +296,6 @@ package object json {
   object WMCrossSentenceMention {
     val string = "CrossSentenceMention"
     val shortString = "CS"
-  }
-
-  object Increase {
-    val string = "Increase"
-  }
-
-  object Decrease {
-    val string = "Decrease"
-  }
-
-  object Quantification {
-    val string = "Quantification"
   }
 }
 

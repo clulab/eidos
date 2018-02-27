@@ -15,8 +15,9 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.EntityGrounder
 import org.clulab.wm.eidos.Grounding
-import org.clulab.wm.eidos.{Decrease, EntityGrounder, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -50,11 +51,8 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
           mention.matches(JLDUndirectedRelation.typename) ||
           mention.matches(JLDEntity.typename)
   
-  def newJLDAttachment(attachment: Attachment, mention: Mention): JLDAttachment = attachment match {
-    case attachment: Quantification => new JLDAttachment(serializer, "QUANT", attachment.quantifier, attachment.adverbs, mention: Mention)
-    case attachment: Increase => new JLDAttachment(serializer, "INC", attachment.trigger, attachment.quantifier, mention: Mention)
-    case attachment: Decrease => new JLDAttachment(serializer, "DEC", attachment.trigger, attachment.quantifier, mention: Mention)
-  }
+  def newJLDAttachment(attachment: Attachment, mention: Mention): JLDAttachment =
+      EidosAttachment.asEidosAttachment(attachment).newJLDAttachment(serializer, mention)
 }
 
 object JLDObject {

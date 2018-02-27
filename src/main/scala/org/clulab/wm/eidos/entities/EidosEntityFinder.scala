@@ -8,11 +8,8 @@ import org.clulab.wm.eidos.utils.FileUtils.readRules
 
 import scala.annotation.tailrec
 
-class EidosEntityFinder(
-  entityEngine: ExtractorEngine,
-  avoidEngine: ExtractorEngine,
-  maxHops: Int
- ) extends RuleBasedEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEngine, maxHops: Int) {
+class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEngine, maxHops: Int)
+    extends RuleBasedEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEngine, maxHops: Int) {
 
   /**
     * Task-specific implementation of extract to find entities in documents.  Additions include (TODO) handling of
@@ -160,20 +157,18 @@ class EidosEntityFinder(
     "^TO".r,
     "^DT".r
   )
-
 }
 
 object EidosEntityFinder extends LazyLogging {
-
   val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
-  def apply(maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
-    val entityRules = readRules("/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
-    val avoidRules = readRules("/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-
-    val avoidEngine = ExtractorEngine(avoidRules)
+  
+  def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
+    val entityRules = readRules(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
-    new EidosEntityFinder(avoidEngine = avoidEngine, entityEngine = entityEngine, maxHops = maxHops)
+
+    val avoidRules = readRules(avoidRulesPath)
+    val avoidEngine = ExtractorEngine(avoidRules)
+
+    new EidosEntityFinder(entityEngine = entityEngine, avoidEngine = avoidEngine, maxHops = maxHops)
   }
-
-
 }
