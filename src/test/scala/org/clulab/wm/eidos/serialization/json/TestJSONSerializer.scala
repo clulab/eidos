@@ -22,8 +22,8 @@ class TestJsonSerialization extends Test {
     val json1 = stringify(jValue1, pretty = true)
     val json2 = stringify(jValue2, pretty = true)
 
-    println(json1)
-    println(json2)
+//    println(json1)
+//    println(json2)
 
     json1 should be (json2)
 //    mentionsOut should be (mentionsIn)

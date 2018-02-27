@@ -28,19 +28,19 @@ class TestDoc8 extends Test {
     
     behavior of "TestDoc8 Paragraph 1"
 
-    ignore should "have correct singleton node 1" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Adarsh) in {
       tester.test(famine) should be (successful) 
     }
-    ignore should "have correct singleton node 2" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 2" taggedAs(Adarsh) in {
       tester.test(foodSecurity) should be (successful) 
     }
-    ignore should "have correct singleton node 3" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 3" taggedAs(Adarsh) in {
       tester.test(foodProduction) should be (successful) 
     }
-    ignore should "have correct singleton node 4" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 4" taggedAs(Adarsh) in {
       tester.test(communities) should be (successful) 
     }
-    ignore should "have correct singleton node 5" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 5" taggedAs(Adarsh) in {
       tester.test(selfSufficiency) should be (successful) 
     }
   }
@@ -58,10 +58,10 @@ class TestDoc8 extends Test {
     
     behavior of "TestDoc8 Objective 1"
 
-    ignore should "have correct edge 1" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(emergencySupport, Causal, foodSecurity)) should be (successful) 
     }
-    ignore should "have correct edge 2" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(emergencySupport, Causal, foodGap)) should be (successful) 
     }
   }
@@ -76,7 +76,7 @@ class TestDoc8 extends Test {
     
     behavior of "TestDoc8 Objective 1"
 
-    ignore should "have correct singleton node 1" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Adarsh) in {
       tester.test(agricultureInformation) should be (successful) 
     }
   }
@@ -97,13 +97,13 @@ class TestDoc8 extends Test {
     
     behavior of "TestDoc8 Sidenote"
 
-    ignore should "have correct edge 1" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful) 
     }
-    ignore should "have correct edge 2" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(internalDisplacement, Causal, foodSecurityTrends)) should be (successful) 
     }
-    ignore should "have correct edge 3" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be (successful) 
     }
   }
@@ -140,31 +140,31 @@ class TestDoc8 extends Test {
     
     behavior of "TestDoc8 Impact para 1"
 
-    ignore should "have correct edge 1" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(humanitarianResponse, Causal, famineContainment)) should be (successful) 
     }
-    ignore should "have correct edge 2" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(supportNotContinued, Causal, famineRisk)) should be (successful) 
     }
-    ignore should "have correct singleton node 1" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Adarsh) in {
       tester.test(noOfFIpplClimb) should be (successful) 
     }
-    ignore should "have correct edge 3" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(leanSeason, Causal, foodInsLevels)) should be (successful) 
     }
-    ignore should "have correct edge 4" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 4" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(leanSeason, Correlation, foodStocksDepleted)) should be (successful) 
     }
-    ignore should "have correct edge 5" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 5" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(leanSeason, Correlation, foodPricesHighest)) should be (successful) 
     }
-    ignore should "have correct edge 6" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 6" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(heavyRains, Causal, marketDisruption)) should be (successful) 
     }
-    ignore should "have correct edge 7" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 7" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(heavyRains, Causal, restrictedHumanitarianAccess)) should be (successful) 
     }
-    ignore should "have correct singleton node 2" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 2" taggedAs(Adarsh) in {
       tester.test(malnutritionLevels) should be (successful)
     }
   }
@@ -214,49 +214,49 @@ class TestDoc8 extends Test {
     val foodSecuritySituation = NodeSpec("food security situation", Dec("deteriorating"))
     behavior of "TestDoc8 Impact para 2"
 
-    ignore should "have correct edge 1" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(persistentInsecurity, Causal, livelihoodActivities)) should be (successful) 
     }
-    ignore should "have correct edge 2" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(massiveDisplacement, Causal, livelihoodActivities)) should be (successful) 
     }
-    ignore should "have correct edge 3" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(persistentInsecurity, Causal, accessToMarkets)) should be (successful) 
     }
-    ignore should "have correct edge 4" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 4" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(massiveDisplacement, Causal, accessToMarkets)) should be (successful) 
     }
-    ignore should "have correct edge 5" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 5" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(climateExtremes, Causal, cerealGap)) should be (successful) 
     }
-    ignore should "have correct edge 6" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 6" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(areaPlanted, Causal, cerealGap)) should be (successful) 
     }
-    ignore should "have correct singleton node 1" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 1" taggedAs(Adarsh) in {
       tester.test(routes) should be (successful) 
     }
-    ignore should "have correct singleton node 2" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 2" taggedAs(Adarsh) in {
       tester.test(risk) should be (successful) 
     }
-    ignore should "have correct edge 7" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 7" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(econCrisis, Correlation, hyperinflation)) should be (successful) 
     }
-    ignore should "have correct edge 8" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 8" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(econCrisis, Correlation, marketFailures)) should be (successful) 
     }
-    ignore should "have correct edge 9" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 9" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(econCrisis, Causal, foodSystems)) should be (successful) 
     }
-    ignore should "have correct edge 10" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 10" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(econCrisis, Causal, accessToFoodAndIncome)) should be (successful) 
     }
-    ignore should "have correct edge 11" taggedAs(Adarsh) in {
+    failingTest should "have correct edge 11" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(econCrisis, Causal, accessToFoodAndIncome)) should be (successful) 
     }
-    ignore should "have correct singleton node 3" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 3" taggedAs(Adarsh) in {
       tester.test(localFoodProduction) should be (successful) 
     }
-    ignore should "have correct singleton node 4" taggedAs(Adarsh) in {
+    failingTest should "have correct singleton node 4" taggedAs(Adarsh) in {
       tester.test(foodSecuritySituation) should be (successful) 
     }
   }
