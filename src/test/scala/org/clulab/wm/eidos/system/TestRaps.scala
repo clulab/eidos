@@ -70,16 +70,16 @@ class TestRaps extends Test {
       tester.test(EdgeSpec(education, Causal, ability)) should be (successful)
     }
 
-    //The issue is that Origin is an instance of EventSpec, not EdgeSpec,
-    //but EventSpec seemily cannot be use as an object here.
-    futureWorkTest should "have correct edges 3" taggedAs(Heather) in {
-      tester.test(EdgeSpec(production, Origin, benefits)) should be (successful)
-    }
+    //Origin EventSpec Test
+//    futureWorkTest should "have correct edges 3" taggedAs(Heather) in {
+//      tester.test(EdgeSpec(production, Origin, benefits)) should be (successful)
+//    }
 
   }
 
-  { //3 Increase, 7 Decrease Events, N Causal
-    val sent4 = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
+  { //3 Increase, 7 Decrease Events, 10 Causal
+    val sent4 = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer " +
+      "and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
 
     val tester = new Tester(sent4)
     //increase
@@ -99,7 +99,6 @@ class TestRaps extends Test {
     val gov = NodeSpec("government")
     val policy = NodeSpec("policy")
 
-
     behavior of "Raps_sent4"
 
     //The govt promotes improved cultivar
@@ -113,48 +112,50 @@ class TestRaps extends Test {
     }
 
     //the policy ... results in deteriorating biophysical conditions
+    //unsure why policy node fails, as node appears in Eidos shell
     futureWorkTest should "have correct edges 3" taggedAs(Heather) in {
       //unsure why policy node fails, as node appears in Eidos shell
-      //tester.test(policy) should be (successful)//fails
+      //tester.test(policy) should be (successful)//fails, although policy is an entity in Eidos shell
       //tester.test(conditions) should be (successful)//passes
       tester.test(EdgeSpec(policy, Causal, conditions)) should be (successful)
     }
 
-    passingTest should "have correct edges 4" taggedAs(Heather) in {
-      tester.test(EdgeSpec(fertUse2, Causal, farmSize)) should be (successful)
+    //phase out the fertilizer subsidy results in deteriorating biophysical conditions
+    failingTest should "have correct edges 4" taggedAs(Heather) in {
+      tester.test(EdgeSpec(subsidy, Causal, conditions)) should be (successful)
     }
 
-    // CAUSE-EFFECT EVENTS:
-    //phase out the fertilizer subsidy results in deteriorating biophysical conditions
-    //low use of inorganic fertilizer .. lead to low benefit from the improved cultivar
-    //less water ... lead to low benefit from the improved cultivar
+    //phase out subsidy results in ... low use of inorganic fertilizer
+    failingTest should "have correct edges 5" taggedAs(Heather) in {
+      tester.test(EdgeSpec(subsidy, Causal, fertUse2)) should be (successful)
+    }
 
-    
-    //
-//    passingTest should "have correct edges 5" taggedAs(Heather) in {
-//      tester.test(EdgeSpec(water, Causal, farmSize)) should be (successful)
-//    }
+    //phase out results in ... less water
+    failingTest should "have correct edges 6" taggedAs(Heather) in {
+      tester.test(EdgeSpec(subsidy, Causal, water)) should be (successful)
+    }
 
-//    //reduced farm sizes which lead to low benefit from the improved cultivar
-//    passingTest should "have correct edges 6" taggedAs(Heather) in {
-//      tester.test(EdgeSpec(benefit, Causal, farmSize)) should be (successful)
-//    }
-//
-//    futureWorkTest should "have correct edges 7" taggedAs(Heather) in {
-//
-//    }
-//
-//    futureWorkTest should "have correct edges 8" taggedAs(Heather) in {
-//
-//    }
-//
-//    futureWorkTest should "have correct edges 9" taggedAs(Heather) in {
-//
-//    }
+    //phase out results in ... reduced farm size
+    failingTest should "have correct edges 7" taggedAs(Heather) in {
+      tester.test(EdgeSpec(subsidy, Causal, farmSize)) should be (successful)
+    }
 
+    //low use of inorganic fertilizer... which lead to low benefit
+    failingTest should "have correct edges 8" taggedAs(Heather) in {
+      tester.test(EdgeSpec(fertUse2, Causal, benefit)) should be (successful)
+    }
 
+    //less water ... lead to low benefit
+    failingTest should "have correct edges 9" taggedAs(Heather) in {
+      tester.test(EdgeSpec(water, Causal, benefit)) should be (successful)
+    }
 
-  }
+    //reduced farm sizes which lead to low benefit from the improved cultivar
+    passingTest should "have correct edges 10" taggedAs(Heather) in {
+      tester.test(EdgeSpec(farmSize, Causal, benefit)) should be (successful)
+    }
+
+  }s
 
   
 } //END OF TEST BRACE
