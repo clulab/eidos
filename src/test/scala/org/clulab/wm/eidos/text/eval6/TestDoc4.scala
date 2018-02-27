@@ -28,11 +28,11 @@ as IPC Phase 4: "Emergency".
     val conditions1 = NodeSpec("famine conditions", Dec("no longer occuring"))
     
     // Sentence 2
-    // Note that the quotes are automatically smarted during processing.  Colon probably wrecks parse.
+    // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
     val conditions2 = NodeSpec(/*"the number of people facing IPC Phase 5: " +*/ "``Catastrophe'' food security conditions", Dec("declined"))
+    val fromQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("100 000", "over"))
+    val toQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("45 000"))
     val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
-    val fromQuant = NodeSpec("sustained multi-sectoral humanitarian assistance operations", Quant("100 000", "over"))
-    val toQuant = NodeSpec("sustained multi-sectoral humanitarian assistance operations", Quant("45 000"))
     
     behavior of "TestDoc4 Paragraph 1"
 
@@ -90,6 +90,25 @@ counties in Unity State.
     
     behavior of "TestDoc4 Paragraph 2"
 
+    failingTest should "have correct node 1" taggedAs(Somebody) in {
+      tester.test(fromQuant)
+    }
+    failingTest should "have correct node 2" taggedAs(Somebody) in {
+      tester.test(toQuant)
+    }
+    failingTest should "have correct node 3" taggedAs(Somebody) in {
+      tester.test(concern)
+    }
+    failingTest should "have correct node 4" taggedAs(Somebody) in {
+      tester.test(location)
+    }
+    failingTest should "have correct node 5" taggedAs(Somebody) in {
+      tester.test(foodInsecurity)
+    }
+    failingTest should "have correct node 6" taggedAs(Somebody) in {
+      tester.test(conditions)
+    }
+    
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(caseload, Correlation, access))
     }
@@ -111,22 +130,8 @@ counties in Unity State.
     failingTest should "have correct edges 7" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Causal, mechanisms))
     }
-
-    failingTest should "have correct edges 7" taggedAs(Somebody) in {
-      EdgeSpec(concern, IsA, location)
-    }
-
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
-      tester.test(concern)
-    }
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
-      tester.test(location)
-    }
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
-      tester.test(foodInsecurity)
-    }
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
-      tester.test(conditions)
+    failingTest should "have correct edges 8" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(concern, IsA, location))
     }
   }
 
@@ -177,28 +182,33 @@ benefiting vegetation conditions.
     
     // Sentence 2
     val rains1 = NodeSpec("Seasonal rains", Quant("above average"))
+    val rains2 = NodeSpec("Seasonal rains", Inc("started"))
     
     // Sentence 3
     val harvesting2 = NodeSpec("harvesting", Inc("started", "recently"))
     
     // Sentence 4
     val conditions = NodeSpec("Weather conditions", Quant("favorable", "generally"))
-    val rains2 = NodeSpec("seasonal rains", Quant("average to above average"))
-    val benefiting = NodeSpec("benefiting vegetation conditions")
+    val rains3 = NodeSpec("seasonal rains", Quant("average to above average"))
+    val benefiting = NodeSpec("vegetation conditions", Inc("benefiting"))
     
     behavior of "TestDoc4 Paragraph 4"
 
     failingTest should "have correct node 1" taggedAs(Somebody) in {
       tester.test(rains1)
     }
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
+    failingTest should "have correct node 2" taggedAs(Somebody) in {
+      tester.test(rains2)
+    }
+    failingTest should "have correct node 3" taggedAs(Somebody) in {
       tester.test(harvesting2)
     }
-    failingTest should "have correct node 2" taggedAs(Somebody) in {
+    failingTest should "have correct node 4" taggedAs(Somebody) in {
       tester.test(conditions)
     }
+    
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(rains2, Causal, benefiting))
+      tester.test(EdgeSpec(rains3, Causal, benefiting))
     }
   }
 
@@ -308,7 +318,7 @@ than in the corresponding period two years earlier.
 
     // Sentence 1
     val prices = NodeSpec("prices of maize and sorghum", Inc("doubled", "more than"))
-    val reachingQuant = NodeSpec("prices of maize and sorghum", Quant("record levels"))
+    val pricesTo = NodeSpec("prices of maize and sorghum", Quant("record levels"))
     val situation = NodeSpec("tight supply situation")
     val disruptions = NodeSpec("market disruptions")
     val hyperinflation = NodeSpec("hyperinflation")
@@ -322,7 +332,7 @@ than in the corresponding period two years earlier.
     // Sentence 3
     val prices2 = NodeSpec("prices of groundnuts", Dec("decreased", "by 22 percent"))
     val prices3 = NodeSpec("prices of wheat flour", Quant("soar"))
-    val pricesTo = NodeSpec("prices of wheat flour", Quant("new record highs"))
+    val prices3To = NodeSpec("prices of wheat flour", Quant("new record highs"))
     
     // Sentence 4
     val prices4 = NodeSpec("prices of these food staples", Quant("twice as high"))
@@ -331,7 +341,7 @@ than in the corresponding period two years earlier.
     behavior of "TestDoc4 Paragraph 7"
 
     failingTest should "have correct node 1" taggedAs(Somebody) in {
-      tester.test(reachingQuant)
+      tester.test(pricesTo)
     }
     failingTest should "have correct node 2" taggedAs(Somebody) in {
       tester.test(situation)
@@ -343,7 +353,7 @@ than in the corresponding period two years earlier.
       tester.test(prices3)
     }
     failingTest should "have correct node 4" taggedAs(Somebody) in {
-      tester.test(pricesTo)
+      tester.test(prices3To)
     }
     failingTest should "have correct node 5" taggedAs(Somebody) in {
       tester.test(prices4)
