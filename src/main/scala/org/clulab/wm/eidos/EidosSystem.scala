@@ -30,7 +30,7 @@ class EidosSystem (
     entityRulesPath: String = "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml",
      avoidRulesPath: String = "/org/clulab/wm/eidos/grammars/avoidLocal.yml",
        taxonomyPath: String = "org/clulab/wm/eidos/grammars/taxonomy.yml", // skip leading /!
-      wordToVecPath: String = "/Users/ajaynagesh/Research/WorldModelers/eidos/src/main/resources/org/clulab/wm/eidos/word2vec/vectors.txt", // skip leading /!
+      wordToVecPath: String = "/org/clulab/wm/eidos/word2vec/vectors.txt",
   processor: Option[Processor] = None,
   debug: Boolean = true
 ) extends EntityGrounder {
@@ -41,7 +41,8 @@ class EidosSystem (
   // not expected to change, or if they do, the processor would be restarted.
   val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
 
-  lazy val w2v = new Word2Vec(wordToVecPath, None)
+  val word2vecFile = scala.io.Source.fromURL(getClass.getResource(wordToVecPath))
+  lazy val w2v = new Word2Vec(word2vecFile, None)
 
   class LoadableAttributes(
       val entityFinder: EidosEntityFinder, 
