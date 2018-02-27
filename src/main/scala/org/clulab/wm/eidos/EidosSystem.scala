@@ -212,5 +212,5 @@ object EidosSystem {
   val DEC_LABEL_AFFIX = "-Dec"
   val QUANT_LABEL_AFFIX = "-Quant"
   // Provenance info for sameAs scoring
-  val SAME_AS_METHOD = "not_yet_implemented"
+  val SAME_AS_METHOD = "simple-w2v"
 }
