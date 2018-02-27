@@ -136,3 +136,16 @@ object Decrease {
     Decrease(trigger, quantifiers)
   }
 }
+
+case class Score(score: Double) extends EidosAttachment {
+  override def argumentSize: Int = 0
+
+  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
+    new JLDAttachment(serializer, "SCORE", score.toString, None, mention)
+
+  override def toJson(): JValue = toJson(Score.label)
+}
+
+object Score {
+  val label = "Same-As"
+}

@@ -3,10 +3,9 @@ package org.clulab.wm.eidos
 import java.io.File
 
 import com.typesafe.scalalogging.LazyLogging
-import org.clulab.wm.eidos.attachments._
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
-import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.attachments._
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -18,11 +17,6 @@ import scala.io.BufferedSource
 
 //TODO: need to add polarity flipping
 
-case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends Attachment
-case class Increase(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
-case class Decrease(trigger: String, quantifier: Option[Seq[Quantifier]] = None) extends Attachment
-// todo: add to JSON and JSON-LD
-case class Score(score: Double) extends Attachment
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 

@@ -6,6 +6,7 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.serialization.json.JLDObject.AnnotatedDocument
 import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
@@ -40,7 +41,7 @@ class EidosSystem (
   // not expected to change, or if they do, the processor would be restarted.
   val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
 
-  val w2v = new Word2Vec(wordToVecPath, None)
+  lazy val w2v = new Word2Vec(wordToVecPath, None)
 
   class LoadableAttributes(
       val entityFinder: EidosEntityFinder, 
@@ -96,9 +97,9 @@ class EidosSystem (
   }
 
   // Extract mentions from a string
-  def extractFrom(text: String, keepText: Boolean = false): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = false, populateSameAs: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
-    new AnnotatedDocument(doc, extractFrom(doc))
+    new AnnotatedDocument(doc, extractFrom(doc, populateSameAs = populateSameAs))
   }
   
   def ground(mention: Mention, quantifier: Quantifier): Grounding = {
@@ -136,16 +137,19 @@ class EidosSystem (
     cleanMentions
   }
 
-  def extractFrom(doc: Document): Vector[Mention] = {
+  def extractFrom(doc: Document, populateSameAs: Boolean = false): Vector[Mention] = {
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
     val unfilteredEntities = entityFinder.extract(doc).toVector
 //    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
-    val res = extractEventsFrom(doc, State(entities)).distinct
-//    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
-    res
+    val events = extractEventsFrom(doc, State(entities)).distinct
+    if (!populateSameAs) return events
+    //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
+
+    val sameAs = populateSameAsRelations(entities)
+    events ++ sameAs
   }
 
   def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
