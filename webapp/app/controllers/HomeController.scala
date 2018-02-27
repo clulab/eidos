@@ -91,12 +91,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
       groundedIncreases = for {
         inc <- increases
-        quantTrigger <- inc.asInstanceOf[Increase].quantifier.getOrElse(Seq.empty[Quantifier])
+        quantTrigger <- inc.asInstanceOf[Increase].quantifiers.getOrElse(Seq.empty[Quantifier])
       } yield groundEntity(m, quantTrigger, ieSystem)
 
       groundedDecreases = for {
         dec <- decreases
-        quantTrigger <- dec.asInstanceOf[Decrease].quantifier.getOrElse(Seq.empty[Quantifier])
+        quantTrigger <- dec.asInstanceOf[Decrease].quantifiers.getOrElse(Seq.empty[Quantifier])
       } yield groundEntity(m, quantTrigger, ieSystem)
 
 
