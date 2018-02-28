@@ -445,6 +445,26 @@ class TestRaps extends Test {
 
   }
 
+  { //
+    val sent18 = "However, opportunities for massive increases in agricultural production and productivity exist but " +
+      "are not being exploited."
+    val tester = new Tester(sent18)
+
+    val production = NodeSpec("agricultural production", Inc("increases", "massive"))
+    val productivity = NodeSpec("productivity", Inc("increases", "massive"))
+
+    behavior of "Raps_sent18"
+
+    failingTest should "have correct node 1" in {
+      tester.test(production) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(productivity) should be (successful)
+    }
+
+  }
+
 
   
 } //END OF TEST BRACE
