@@ -386,6 +386,25 @@ class TestRaps extends Test {
     failingTest should "have correct node 2" in {
       tester.test(wageRates) should be (successful)
     }
+  }
+
+  {//2 Increase attachments; same issue as sent14 -- conjunction not captured
+    val sent15 = "Mechanization and energy-use intensity in agriculture will increase."
+    val tester = new Tester(sent15)
+
+    val mechanization = NodeSpec("Mechanization", Inc("increase"))
+    val energy = NodeSpec("energy-use intensity in agriculture", Inc("increase"))
+
+    behavior of "Raps_sent15"
+
+    failingTest should "have correct node 1" in {
+      tester.test(mechanization) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(energy) should be (successful)
+    }
+
 
   }
 
