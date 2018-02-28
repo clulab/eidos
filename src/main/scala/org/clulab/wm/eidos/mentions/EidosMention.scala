@@ -22,9 +22,51 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
       odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, mapOfMentions))
 
   // Some way to calculate or store these, possibly in subclass
-  def canonicalName: String = ???
+  def canonicalName: String = canonicalForm(odinMention)
   def tokenIntervals: Seq[Interval] = ???
   def negation: Boolean = ???
+
+
+  /* Methods for canonicalForms of Mentions */
+
+ private def canonicalForm(mention: Mention): String = {
+    mention match {
+      case tb: TextBoundMention => canonicalFormSimple(tb)
+      case em: EventMention => canonicalFormArgs(em)
+      case _ => throw new NotImplementedError(s"Unsupported mention type: ${mention.getClass}")
+    }
+  }
+
+  private def canonicalFormSimple(m: Mention): String = {
+//    println("-> Using canonical form simple on: " + m.text)
+    val s = m.document.sentences(m.sentence)
+    val tags = s.tags.get.slice(m.start, m.end)
+    val lemmas = s.lemmas.get.slice(m.start, m.end)
+    val contentLemmas = for {
+      (tag, lemma) <- tags.zip(lemmas)
+      if isContentTag(tag)
+    } yield lemma
+
+//    println("  * result: " + contentLemmas.mkString(" "))
+    contentLemmas.mkString(" ")
+  }
+
+  private def canonicalFormArgs(em: EventMention): String = {
+//    println("-> Using canonical form args on: " + em.text)
+
+    val argCanonicalNames = em.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq
+    val argsAndTrigger = argCanonicalNames ++ Seq((canonicalFormSimple(em.trigger), em.trigger.start))
+    val sorted = argsAndTrigger.sortBy(_._2)
+
+//    println("  * result: " + sorted.unzip._1.mkString(" "))
+    sorted.unzip._1.mkString(" ")
+
+  }
+
+  private def isContentTag(tag: String): Boolean = {
+    tag.startsWith("NN") || tag.startsWith("VB")
+  }
+
 }
 
 object EidosMention {
@@ -50,6 +92,9 @@ object EidosMention {
   def asEidosMentions(odinMentions: Seq[Mention]): Seq[EidosMention] =
       // One could optionally keep this map around
       asEidosMentions(odinMentions, new IdentityHashMap[Mention, EidosMention]())
+
+
+
 }
 
 class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, mapOfMentions: IdentityHashMap[Mention, EidosMention])

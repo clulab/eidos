@@ -142,37 +142,6 @@ class EidosSystem (
     res
   }
 
-  /* Methods for canonicalForms of Mentions */
-
-  def canonicalForm(mention: Mention): String = {
-    mention match {
-      case tb: TextBoundMention => canonicalFormSimple(tb)
-      case em: EventMention => canonicalFormArgs(em)
-      case _ => throw new NotImplementedError(s"Unsupported mention type: ${mention.getClass}")
-    }
-  }
-
-  def canonicalFormSimple(m: Mention): String = {
-    val contentLemmas = for {
-      s <- m.document.sentences
-      (tag, lemma) <- s.tags.get.zip(s.lemmas.get)
-      if isContentTag(tag)
-    } yield lemma
-
-    contentLemmas.mkString(" ")
-  }
-
-  def canonicalFormArgs(em: EventMention): String = {
-    val argCanonicalNames = em.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq
-    val argsAndTrigger = argCanonicalNames ++ Seq((canonicalFormSimple(em.trigger), em.trigger.start))
-    val sorted = argsAndTrigger.sortBy(_._2)
-    sorted.unzip._1.mkString(" ")
-  }
-
-  def isContentTag(tag: String): Boolean = {
-    tag.startsWith("NN") || tag.startsWith("VB")
-  }
-
 
   /*
      Debugging Methods
