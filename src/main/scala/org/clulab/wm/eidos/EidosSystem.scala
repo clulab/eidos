@@ -53,7 +53,7 @@ class EidosSystem (
       val actions = EidosActions(taxonomyPath)
      
       new LoadableAttributes(
-          EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = 5), 
+          EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = 15),
           // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
           // Load the gradable adj grounding KB file
@@ -134,7 +134,7 @@ class EidosSystem (
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
-    val unfilteredEntities = entityFinder.extract(doc).toVector
+//    val unfilteredEntities = entityFinder.extract(doc).toVector
 //    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
     val res = extractEventsFrom(doc, State(entities)).distinct
