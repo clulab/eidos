@@ -7,7 +7,7 @@ import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, TransparentLin
 class TestRaps extends Test {
 
 
-  { //One Increase Event
+  { //One Increase attachments
     val sent1 = "Better and well-functioning agricultural credit and market services for both established and emerging farmers."
     val tester = new Tester(sent1)
 
@@ -22,7 +22,7 @@ class TestRaps extends Test {
 
   }
 
-  { //3 Increase events
+  { //3 Increase attachments
     val sent2 = "The support for agricultural research, education, and extension programs will also be increased for developing and disseminating climate change adaptation agricultural technologies to the farmers."
     // Note: parse of sentence makes it "impossible" to extract increase for education and extension programs
     // Maybe a reason to switch to cluprocessor
@@ -49,7 +49,7 @@ class TestRaps extends Test {
 
   }
 
-  { //3 Decrease, 2 Increase Events; 2 Causal Edges, 1 Origin Edge
+  { //3 Decrease, 2 Increase Attachments; 2 Causal Edges, 1 Origin Edge
     val sent3 = "Limited financial capacities and low education levels further restrict farmers' ability for higher benefits from increased agricultural production."
     val tester = new Tester(sent3)
 
@@ -77,7 +77,7 @@ class TestRaps extends Test {
 
   }
 
-  { //3 Increase, 7 Decrease Events, 10 Causal
+  { //3 Increase, 7 Decrease Attachments, 10 Causal
     val sent4 = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer " +
       "and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
 
@@ -185,7 +185,7 @@ class TestRaps extends Test {
 
   }
 
-  {//1 Increase, 2 Decrease Events
+  {//1 Increase, 2 Decrease Attachments
     val sent7 = "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income."
     val tester = new Tester(sent7)
 
@@ -210,7 +210,7 @@ class TestRaps extends Test {
 
   }
 
-  {//1 Increase Event
+  {//1 Increase Attachment
     val sent8 = "Poverty levels continue to increase, people become more vulnerable to food insecurity and other risks."
     val tester = new Tester(sent8)
 
@@ -368,8 +368,24 @@ class TestRaps extends Test {
       tester.test(EdgeSpec(waterEf, Causal, tech)) should be (successful)
     }
 
+  }
 
+  { //2 Increase Attachments
+    val sent14 = "Farm size and wage rates will increase."
+    val tester = new Tester(sent14)
 
+    val farmSize = NodeSpec("Farm size", Inc("increase"))
+    val wageRates = NodeSpec("wage rates", Inc("increase"))
+
+    behavior of "Raps_sent14"
+
+    failingTest should "have correct node 1" in {
+      tester.test(farmSize) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(wageRates) should be (successful)
+    }
 
   }
 
