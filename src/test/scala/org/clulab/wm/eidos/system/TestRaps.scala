@@ -465,6 +465,44 @@ class TestRaps extends Test {
 
   }
 
+  { //5 increase attachments
+    val sent19 = "The governmental policy objective is to achieve food security, ensure adequate raw materials for the manufacturing sector, " +
+      "and increased export earnings through increased productivity, efficient input use, and better market access," +
+      " infrastructure, and service development."
+    val tester = new Tester(sent19)
+
+    val productivity = NodeSpec("productivity", Inc("increased"))
+    val use = NodeSpec("efficient input use", Inc("increased"))
+    val marketAccess = NodeSpec("market access", Inc("increased"), Quant("better"))
+    //instead of attaching "better" as a quant, Eidos makes a 2nd "market access" entity with "better" as Increase attachment
+    //val marketAccess2 = NodeSpec("market access", Inc("better")) //should be quantifier...
+    val infrastructure = NodeSpec("infrastructure", Inc("increased"))
+    val dev = NodeSpec("service development", Inc("increased"))
+
+    behavior of "Raps_sent19"
+
+    passingTest should "have correct node 1" in {
+      tester.test(productivity) should be (successful)
+    }
+
+    passingTest should "have correct node 2" in {
+      tester.test(use) should be (successful)
+    }
+
+    failingTest should "have correct node 3" in {
+      tester.test(marketAccess) should be (successful)
+    }
+
+    passingTest should "have correct node 4" in {
+      tester.test(infrastructure) should be (successful)
+    }
+
+    passingTest should "have correct node 5" in {
+      tester.test(dev) should be (successful)
+    }
+
+  }
+
 
   
 } //END OF TEST BRACE
