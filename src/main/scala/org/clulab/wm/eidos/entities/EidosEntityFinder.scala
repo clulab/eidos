@@ -87,20 +87,6 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid)
   }
 
-  // regexes describing valid outgoing dependencies
-  override val VALID_OUTGOING = Set[scala.util.matching.Regex](
-    "^amod$".r, "^advmod$".r,
-    "^dobj$".r,
-    "^compound".r, // replaces nn
-    "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
-    // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X."
-    "^acl".r, // replaces vmod
-    "xcomp".r, // replaces vmod
-    // Changed from processors......
-    "^nmod".r, // replaces prep_
-//    "case".r
-    "^ccomp".r
-  )
 
   // Todo: currently does not work for cross-sentence mentions, add functionality
   /**
