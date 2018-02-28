@@ -330,6 +330,46 @@ class TestRaps extends Test {
       tester.test(EdgeSpec(gov, Causal, sector)) should be (successful)
     }
 
+  }
+
+  { //2 Dec, 1 Inc, 5 causal
+    //No Inc or Dec attachments are captured here
+    val sent13 = "Water quality and water availability for agriculture will decrease due to pollution of water bodies, and competition for water from other sources," +
+      " but water-use efficiency in agriculture will increase due to technological progress."
+    val tester = new Tester(sent13)
+
+    val waterQuality = NodeSpec("Water quality", Dec("decrease"))
+    val waterAvail = NodeSpec("water availability for agriculture", Dec("decrease"))
+    val waterEf = NodeSpec("water-use efficiency in agriculture", Inc("increase"))
+
+    val competition = NodeSpec("competition for water from other sources")
+    val pollution = NodeSpec("pollution of water bodies")
+    val tech = NodeSpec("technological progress")
+
+    behavior of "Raps_sent13"
+
+    failingTest should "have correct edge 1" in {
+      tester.test(EdgeSpec(waterQuality, Causal, pollution)) should be (successful)
+    }
+
+    failingTest should "have correct edge 2" in {
+      tester.test(EdgeSpec(waterAvail, Causal, pollution)) should be (successful)
+    }
+
+    failingTest should "have correct edge 3" in {
+      tester.test(EdgeSpec(waterQuality, Causal, competition)) should be (successful)
+    }
+
+    failingTest should "have correct edge 4" in {
+      tester.test(EdgeSpec(waterAvail, Causal, competition)) should be (successful)
+    }
+
+    failingTest should "have correct edge 5" in {
+      tester.test(EdgeSpec(waterEf, Causal, tech)) should be (successful)
+    }
+
+
+
 
   }
 
