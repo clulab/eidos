@@ -91,19 +91,22 @@ than in the corresponding period two years earlier.
   }
 
   // Test canonicalFormSimple and canonicalFormArgs
-  val text3 = "The seasonal rainfall in July was decreased by something."
-  val odinMentions3 = TestUtils.extractMentions(text3)
-  val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
+  it should "properly make canonical form" in {
+    val text3 = "The seasonal rainfall in July was decreased by something."
+    val odinMentions3 = TestUtils.extractMentions(text3)
+    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
 
-//  eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
+    //  eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 
-  val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
-  rainfall should have size(1)
-  rainfall.head.canonicalName should be ("rainfall July")
+    val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
+    rainfall should have size(1)
+    rainfall.head.canonicalName should be ("rainfall July")
 
-  val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by something")
-  decrease should have size(1)
-  decrease.head.canonicalName should be ("rainfall July decrease something")
+    val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by something")
+    decrease should have size(1)
+    decrease.head.canonicalName should be ("rainfall July decrease something")
+
+  }
 
 
 }
