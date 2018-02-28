@@ -98,37 +98,40 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec]) e
     success
   }
     
-  protected def testSpec(mentions: Seq[Mention]): Option[Mention] = {
+  protected def testSpec(mentions: Seq[Mention]): Seq[Mention] = {
     val matches = mentions
         .filter(_.isInstanceOf[TextBoundMention])
         .map(_.asInstanceOf[TextBoundMention])
         .filter(matchText)
         .filter(matchAttachments)
         
-    if (matches.size == 1) Option(matches.head)
-    else None
+    matches
   }
   
   def test(mentions: Seq[Mention]): Seq[String] = {
     if (!tested) {
-      mention = testSpec(mentions)
-      if (mention == None)
+      val matches = testSpec(mentions)
+      if (matches.size != 1)
         complaints = Seq("Could not find NodeSpec " + this)
+      else
+        mention = Some(matches.head)
       tested = true
     }
     complaints
   }
   
-  override def toString(): String = {
-    val stringBuilder = new StringBuilder("[")
+  protected def toString(left: String, right: String): String = {
+    val stringBuilder = new StringBuilder(left)
         .append(nodeText)
         .append(if (!attachments.isEmpty) "|" else "")
         
     attachmentSpecs.foreach(attachmentSpec => stringBuilder.append(attachmentSpec.toString))
     stringBuilder
-        .append("]")
+        .append(right)
         .toString()
   }
+  
+  override def toString(): String = toString("[", "]")
 }
 
 object NodeSpec {
@@ -136,6 +139,27 @@ object NodeSpec {
       new NodeSpec(nodeText, attachmentSpecs)
   def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
       new NodeSpec(nodeText, attachmentSpecs.toSet)  
+}
+
+class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
+  override def test(mentions: Seq[Mention]): Seq[String] = {
+    if (!tested) {
+      val matches = testSpec(mentions)
+      if (matches.size != 0)
+        complaints = Seq("Could find AntiNodeSpec " + this)
+      tested = true
+    }
+    complaints
+  }
+
+  override def toString(): String = toString("]", "[")
+}
+
+object AntiNodeSpec {
+  def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
+      new AntiNodeSpec(nodeText, attachmentSpecs)
+  def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
+      new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
 class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeSpec]) extends GraphSpec {
@@ -178,7 +202,7 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
       false 
   }
       
-  protected def testSpec(mentions: Seq[Mention]): Option[Mention] = {
+  protected def testSpec(mentions: Seq[Mention]): Seq[Mention] = {
     val matches = mentions
         .filter(_.isInstanceOf[EventMention])
         .map(_.asInstanceOf[EventMention])
@@ -186,8 +210,7 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
         .filter(matchCause)
         .filter(matchEffects) // All of them
     
-    if (matches.size == 1) Option(matches.head)
-    else None
+    matches
   }
     
   protected def testLines(mentions: Seq[Mention]): Seq[String] = {
@@ -230,11 +253,11 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
     causeComplaints ++ effectComplaints ++ edgeComplaints
   }
   
-  override def toString(): String = {
+  def toString(left: String, right: String): String = {
     new StringBuilder(cause.toString())
-        .append("->(")
+        .append(left)
         .append(event.label)
-        .append(")->")
+        .append(right)
         .append(
             if (effects.isEmpty)
               "NoEdge"
@@ -243,9 +266,39 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
         )
         .toString()
   }
+    
+  override def toString(): String = toString("->(", ")->")
 }
 
 object EdgeSpec {
     def apply(cause: NodeSpec, event: EventSpec, effects: NodeSpec*) =
       new EdgeSpec(cause, event, effects.toSet)
+}
+
+class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effects: Set[NodeSpec]) extends EdgeSpec(cause, event, effects) {
+  override def toString(): String = toString("->)", "(->")
+
+  override def test(mentions: Seq[Mention]): Seq[String] = {
+    val causeComplaints = cause.test(mentions)
+    val effectComplaints = effects.flatMap(_.test(mentions))
+
+    val causeSuccess = causeComplaints.isEmpty
+    val effectSuccess = effectComplaints.isEmpty
+    
+    val edgeComplaints =
+        if (causeSuccess && effectSuccess) testPattern(mentions)
+        else Seq()
+    val antiEdgeComplaints =
+        if (edgeComplaints.isEmpty)
+          Seq("Could find AntiEdgeSpec " + this)
+        else
+          Seq.empty
+
+    causeComplaints ++ effectComplaints ++ antiEdgeComplaints
+  }
+}
+
+object AntiEdgeSpec {
+    def apply(cause: NodeSpec, event: EventSpec, effects: NodeSpec*) =
+      new AntiEdgeSpec(cause, event, effects.toSet)
 }
