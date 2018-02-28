@@ -307,7 +307,33 @@ class TestRaps extends Test {
 
   }
 
-  
+  { //2 Increase, 1 Causal
+    val sent12 = "Therefore, the government is committed to supporting the agriculture sector through increased public investment to fulfill the needs of an increasing population."
+    val tester = new Tester(sent12)
+
+    val gov = NodeSpec("government")
+    val sector = NodeSpec("agriculture sector", Inc("supporting"))
+    val investment = NodeSpec("public investment", Inc("increased"))
+    val population = NodeSpec("population", Inc("increasing"))
+
+    behavior of "Raps_sent12"
+
+    passingTest should "have correct node 1" in {
+      tester.test(population) should be (successful)
+    }
+
+    passingTest should "have correct node 2" in {
+      tester.test(investment) should be (successful)
+    }
+
+    passingTest should "have correct edge" in {
+      tester.test(EdgeSpec(gov, Causal, sector)) should be (successful)
+    }
+
+
+  }
+
+
 
   
 } //END OF TEST BRACE
