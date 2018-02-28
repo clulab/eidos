@@ -407,7 +407,7 @@ class TestRaps extends Test {
 
   }
 
-  {//2 Increase attachments: same issue as sent13 and sent14
+  {//2 Increase attachments: same issue as sent14 and sent15
     val sent16 = "Fertilizer-use intensity and fertilizer productivity will increase."
     val tester = new Tester(sent16)
 
@@ -426,6 +426,24 @@ class TestRaps extends Test {
 
   }
 
+  {//1 Increase, 1 Causal
+    val sent17 = "There will not be significant changes in food imports, while yield of important crops will increase due to technological progress in agriculture."
+    val tester = new Tester(sent17)
+
+    val cropYield = NodeSpec("yield of important crops", Inc("increase"), Quant("important"))
+    val tech = NodeSpec("technological progress in agriculture")
+
+    //Currently, it extracts ("yield", Causal, tech) //tech causes yield
+    //AND it extracts ("crops", Causal, tech) //tech causes important crops
+    //however it really should do ("yield of important crops", Causal, tech)
+
+    behavior of "Raps_sent17"
+
+    failingTest should "have correct edge" in {
+      tester.test(EdgeSpec(cropYield, Causal, tech)) should be (successful)
+    }
+
+  }
 
 
   
