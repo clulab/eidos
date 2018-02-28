@@ -405,6 +405,24 @@ class TestRaps extends Test {
       tester.test(energy) should be (successful)
     }
 
+  }
+
+  {//2 Increase attachments: same issue as sent13 and sent14
+    val sent16 = "Fertilizer-use intensity and fertilizer productivity will increase."
+    val tester = new Tester(sent16)
+
+    val fertUse = NodeSpec("Fertilizer-use intensity", Inc("increase"))
+    val fertProductivity = NodeSpec("fertilizer productivity", Inc("increase"))
+
+    behavior of "Raps_sent16"
+
+    failingTest should "have correct node 1" in {
+      tester.test(fertUse) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(fertProductivity) should be (successful)
+    }
 
   }
 
