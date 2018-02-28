@@ -272,6 +272,43 @@ class TestRaps extends Test {
 
   }
 
+  {//5-ish increase
+  val sent11 = "Use of improved cultivars and mechanization will be increased and use of critical interventions may lead to increases in productivity and efficient use of resources."
+    val tester = new Tester(sent11)
+
+    val use = NodeSpec("Use", Inc("increased"))
+    val cultivars = NodeSpec("cultivars", Inc("improved"))
+    val mechanization = NodeSpec("mechanization", Inc("improved"))
+    val productivity = NodeSpec("productivity", Inc("increases"))
+    val resources = NodeSpec("efficient use of resources", Inc("increases"))
+
+    behavior of "Raps_sent11"
+
+    //This should probably be "Use of improved cultivars" for the NodeSpec
+    passingTest should "have correct node 1" in {
+      tester.test(use) should be (successful)
+    }
+
+    passingTest should "have correct node 2" in {
+      tester.test(cultivars) should be (successful)
+    }
+
+    passingTest should "have correct node 3" in {
+      tester.test(mechanization) should be (successful)
+    }
+
+    passingTest should "have correct node 4" in {
+      tester.test(productivity) should be (successful)
+    }
+
+    passingTest should "have correct node 5" in {
+      tester.test(resources) should be (successful)
+    }
+
+  }
+
+  
+
   
 } //END OF TEST BRACE
 
