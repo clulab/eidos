@@ -225,7 +225,7 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
     val effectResults = effects.toSeq
         .map(effect => (effect, matches.find(mention => matchEffect(mention, effect))))
     val complaints = effectResults.flatMap(effectResult =>
-      if (effectResult._2.isDefined) Seq()
+      if (effectResult._2.isDefined) Seq.empty
       else Seq("Could not find line EdgeSpec " + effectResult._1)
     )
     
@@ -237,9 +237,9 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
     if (testSpec(mentions) == None)
       Seq("Could not find star EdgeSpec " + this)
     else 
-      Seq()
-      
-  def test(mentions: Seq[Mention]): Seq[String] = {
+      Seq.empty
+  
+  protected def getComplaints(mentions: Seq[Mention]): (Seq[String], Set[String], Seq[String]) = {
     val causeComplaints = cause.test(mentions)
     val effectComplaints = effects.flatMap(_.test(mentions))
 
@@ -248,7 +248,13 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
     
     val edgeComplaints =
         if (causeSuccess && effectSuccess) testPattern(mentions)
-        else Seq()            
+        else Seq.empty
+    
+    (causeComplaints, effectComplaints, edgeComplaints)
+  }
+  
+  def test(mentions: Seq[Mention]): Seq[String] = {
+    val (causeComplaints, effectComplaints, edgeComplaints) = getComplaints(mentions)
 
     causeComplaints ++ effectComplaints ++ edgeComplaints
   }
@@ -279,15 +285,7 @@ class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effects: Set[NodeSpec]) ex
   override def toString(): String = toString("->)", "(->")
 
   override def test(mentions: Seq[Mention]): Seq[String] = {
-    val causeComplaints = cause.test(mentions)
-    val effectComplaints = effects.flatMap(_.test(mentions))
-
-    val causeSuccess = causeComplaints.isEmpty
-    val effectSuccess = effectComplaints.isEmpty
-    
-    val edgeComplaints =
-        if (causeSuccess && effectSuccess) testPattern(mentions)
-        else Seq()
+    val (causeComplaints, effectComplaints, edgeComplaints) = getComplaints(mentions)
     val antiEdgeComplaints =
         if (edgeComplaints.isEmpty)
           Seq("Could find AntiEdgeSpec " + this)
