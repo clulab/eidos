@@ -4,10 +4,12 @@ import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
+import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.serialization.json.JLDObject.AnnotatedDocument
 import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
+import com.typesafe.config.{Config, ConfigFactory}
 
 trait EntityGrounder {
   def ground(mention: Mention, quantifier: Quantifier): Grounding
@@ -20,24 +22,12 @@ case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Optio
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem (
-    masterRulesPath: String = "/org/clulab/wm/eidos/grammars/master.yml",
-   quantifierKBPath: String = "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb",
-  domainParamKBPath: String = "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb",
-     quantifierPath: String = "org/clulab/wm/eidos/lexicons/Quantifier.tsv", // skip leading /!
-    entityRulesPath: String = "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml",
-     avoidRulesPath: String = "/org/clulab/wm/eidos/grammars/avoidLocal.yml",
-       taxonomyPath: String = "org/clulab/wm/eidos/grammars/taxonomy.yml", // skip leading /!
-  processor: Option[Processor] = None,
-  debug: Boolean = true
-) extends EntityGrounder {
-  def this(x:Object) = this()
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends EntityGrounder with Configured {
+  val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
+  var debug = true // Allow external control with var
 
-  // Defaults to FastNLPProcessor if no processor is given.  This is the expensive object
-  // that should not be lost on a reload.  The "rules" that the processor follows are
-  // not expected to change, or if they do, the processor would be restarted.
-  val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
-
+  override def getConf: Config = config  
+  
   class LoadableAttributes(
       val entityFinder: EidosEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
@@ -48,12 +38,29 @@ class EidosSystem (
   )
   
   object LoadableAttributes {
+    
+    protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
+    
+    protected def getPath(name: String, defaultValue: String): String =
+        getArgString(getFullName(name), Option(defaultValue))
+      
+    val   masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
+    val  quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
+    val domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
+    val    quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
+    val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
+    val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
+    val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
+    
+    val maxHops: Int = getArgInt(getFullName("maxHops"), Option(5))
+      
+    // Get these instead from the configuration
     def apply(): LoadableAttributes = {
       val rules = readRules(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
      
       new LoadableAttributes(
-          EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = 5), 
+          EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
           // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
           // Load the gradable adj grounding KB file
@@ -142,6 +149,7 @@ class EidosSystem (
     res
   }
 
+
   /*
      Debugging Methods
    */
@@ -154,6 +162,8 @@ class EidosSystem (
 }
 
 object EidosSystem {
+  val PREFIX: String = "EidosSystem"
+  
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
   val DEFAULT_DOMAIN_PARAM: String = "DEFAULT"

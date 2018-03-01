@@ -17,11 +17,11 @@ class TestDoc1 extends Test {
 
     val trade1 = NodeSpec("Trade with Sudan", Dec("decreased", "significantly"))
     val trade2 = NodeSpec("Trade", Unmarked("mainly informal")) // todo: expand Unmarked() to handle quantifiers?
-    val border = NodeSpec("border", Dec("closed"))
+    val border = NodeSpec("border", Unmarked("closed"))
     val supply = NodeSpec("supply", Dec("cut"))
-    val borders = NodeSpec("borders", Inc("reopened"))  // todo: ??
+    val borders = NodeSpec("borders", Unmarked("reopened"))  // todo: ??
     val trade3 = NodeSpec("trade", Unmarked("slow to recover")) // todo
-    
+
     behavior of "TestDoc1 Paragraph 1"
 
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
@@ -30,13 +30,13 @@ class TestDoc1 extends Test {
     futureWorkTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(trade2)
     }
-    failingTest should "have correct edge 1" taggedAs (Somebody) in {
+    futureWorkTest should "have correct edge 1" taggedAs (Somebody) in {
       tester.test(EdgeSpec(border, Correlation, supply)) should be (successful)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    futureWorkTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(borders)
     }
-    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+    futureWorkTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(trade3)
     }
   }
@@ -49,12 +49,13 @@ class TestDoc1 extends Test {
 
     val tester = new Tester(text)
 
-    val crop = NodeSpec("crop cultivation", Unmarked("done on small farms"))
-    val surplus = NodeSpec("marketable surplus", Quant("little"))
+    val futureWorkCrop = NodeSpec("crop cultivation", Unmarked("done on small farms"))
+    val crop = NodeSpec("crop cultivation")
+    val surplus = NodeSpec("marketable surplus", Quant("little if any"))
 
     behavior of "TestDoc1 Paragraph 2"
 
-    futureWorkTest should "have correct edge 1" taggedAs (Somebody) in {
+    failingTest should "have correct edge 1" taggedAs (Somebody) in {
       tester.test(EdgeSpec(crop, Causal, surplus)) should be (successful)
     }
 
@@ -69,12 +70,14 @@ class TestDoc1 extends Test {
 
     val tester = new Tester(text)
 
-    val rainfall = NodeSpec("Rainfall", Quant("sufficient")) // or Unmarked("sufficient to support ...)
+    val rainfall = NodeSpec("Rainfall in the Hills and Mountains region of the northern half of Central Equatoria",
+      Quant("sufficient"))
+    val agriculture = NodeSpec("crop agriculture")
 
     behavior of "TestDoc1 Paragraph 3"
 
     failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(rainfall)
+      tester.test(EdgeSpec(rainfall, Causal, agriculture))
     }
 
   }
@@ -92,7 +95,9 @@ class TestDoc1 extends Test {
 
     val tester = new Tester(text)
 
-    val soilPhosphorous = NodeSpec("phosporous in soils", Dec("low")) // todo: can't do this with curr spans
+    // TODO: for now we are tabling this conversation, but we will need to decide on representations at some point
+    // we will perhaps handle them with canonicalForm
+    val soilPhosphorous = NodeSpec("phosphorous in soils", Dec("low")) // todo: can't do this with curr spans
     val soilOrganicMatter = NodeSpec("organic matter in soils", Dec("low")) // todo: can't do this with curr spans
     // We could maybe resolve something with the "Despite..."
     val soils = NodeSpec("soils", Unmarked("moderately fertile"))
@@ -105,24 +110,24 @@ class TestDoc1 extends Test {
     val fertiizerUse = NodeSpec("fertilizer use", Dec("low"))
     val overfarming = NodeSpec("over-farming")
     val knowledge = NodeSpec("knowledge", Dec("limited"))
-    val roleOfFertilizer = NodeSpec("role of fertilizer in improved crop production", Dec("lack"))
-    val extension = NodeSpec("extension", Dec("have")) // with negation, also todo: I think access is transparent
+    val roleOfFertilizer = NodeSpec("understanding of the role of fertilizer in improved crop production", Dec("lack"))
+    val extension = NodeSpec("access to extension", Dec("have")) // with negation, also todo: I think access is transparent
     val transfer = NodeSpec("transfer services", Dec("have"))
     val soilNutient2 = NodeSpec("soil nutrient", Dec("depletion"))
 
 
     behavior of "TestDoc1 Paragraph 4"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    futureWorkTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(soilPhosphorous)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    futureWorkTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(soilOrganicMatter)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    futureWorkTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(soils)
     }
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(leaching, Causal, soilNutrient))
     }
     failingTest should "have correct edge 2" taggedAs(Somebody) in {
@@ -168,13 +173,18 @@ class TestDoc1 extends Test {
     val livestock = NodeSpec("livestock grazing") // likely should be disagreements over... too, but PP attachment is ambiguous
     val conflict = NodeSpec("conflict")
     val insecurity = NodeSpec("insecurity") // todo: resolve coref "this insecurity"
-    val production = NodeSpec("farmers from expanding production", Dec("discourages")) // fixme!!
-    val building = NodeSpec("traders and retailers from building marketing infrastructure", Dec("discourages")) // todo!!!
-    val publicInvestment = NodeSpec("public investment", Dec("low", "extremely"))
+    val production = NodeSpec("farmers from expanding production", Dec("discourages"))
+    // todo: These next two should be handled better at some point
+    val building = NodeSpec("traders", Dec("discourages"))
+    val building2 = NodeSpec("retailers from building marketing infrastructure", Dec("discourages"))
+    val publicInvestment = NodeSpec("public investment in recent decades", Dec("low", "extremely"))
     val irrigation = NodeSpec("irrigation infrastructure", Dec("exists")) // with Neg of "no"
     val roads = NodeSpec("roads", Unmarked("poorly maintained"), Unmarked("not repaired"), Unmarked("washed out")) // fixme - dec??
     val transportation = NodeSpec("transportation infrastructure", Dec("inadequate"), Quant("inadequate"))
-    val transport = NodeSpec("subsistence farmers to transport surpluses to markets", Unmarked("difficult"), Quant("expensive"))
+    // todo: resolve the Unmarked ones...
+    val transportFutureWork = NodeSpec("subsistence farmers to transport surpluses to markets", Unmarked("difficult"), Quant("expensive"))
+    // todo/fixme : in this domain, does difficult == decrease??
+    val transport = NodeSpec("subsistence farmers to transport surpluses to markets", Dec("difficult"), Quant("expensive"))
 
     behavior of "TestDoc1 Paragraph 5"
 
@@ -182,25 +192,28 @@ class TestDoc1 extends Test {
       tester.test(EdgeSpec(institutional, Causal, development))
     }
     failingTest should "have correct edge 2" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(disagreements, Causal, conflict)) // todo: add State to edge, as in "major source"
+      tester.test(EdgeSpec(disagreements, Causal, conflict))
     }
     failingTest should "have correct edge 3" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(livestock, Causal, conflict)) // todo: add State to edge, as in "major source"
+      tester.test(EdgeSpec(livestock, Causal, conflict))
     }
     failingTest should "have correct edge 4" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(insecurity, Causal, production)) // todo: add State to edge, as in "major source"
+      tester.test(EdgeSpec(insecurity, Causal, production))
     }
     failingTest should "have correct edge 5" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(insecurity, Causal, building)) // todo: add State to edge, as in "major source"
+      tester.test(EdgeSpec(insecurity, Causal, building))
+    }
+    failingTest should "have correct edge 5b" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(insecurity, Causal, building2))
     }
     failingTest should "have correct edge 6" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(publicInvestment, Causal, irrigation)) // todo: add State to edge, as in "major source"
+      tester.test(EdgeSpec(publicInvestment, Correlation, irrigation))
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(roads) // todo: add State to edge, as in "major source"
+    futureWorkTest should "have correct singleton node 2" taggedAs(Somebody) in {
+      tester.test(roads)
     }
     failingTest should "have correct edge 7" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(transportation, Causal, transport)) // todo: add State to edge, as in "major source"
+      tester.test(EdgeSpec(transportation, Causal, transport))
     }
   }
 
@@ -214,6 +227,7 @@ class TestDoc1 extends Test {
 
     val business = NodeSpec("business practices", Dec("poor"), Quant("poor")) // or Unmarked("sufficient to support ...)
     val information = NodeSpec("information about market prices", Dec("lack"))
+    // todo/fixme : in this domain, does difficult == decrease??
     val develop = NodeSpec("businesses to develop", Dec("difficult"))
     behavior of "TestDoc1 Paragraph 6"
 

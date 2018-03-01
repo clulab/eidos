@@ -473,12 +473,10 @@ object JLDDocument {
   val plural = "documents"
 }
 
-class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
-    extends JLDObject(serializer, "Corpus", anthology) {
+class JLDCorpus(serializer: JLDSerializer, corpus: JLDObject.Corpus)
+    extends JLDObject(serializer, "Corpus", corpus) {
   
-  def this(anthology: JLDObject.Corpus, entityGrounder: EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), anthology)
-  
-  val myanthology = anthology
+  def this(corpus: JLDObject.Corpus, entityGrounder: EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
   
   protected def collectMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Int]): Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable(_)).filter { mention => 
@@ -518,8 +516,8 @@ class JLDCorpus(serializer: JLDSerializer, anthology: JLDObject.Corpus)
   }
   
   override def toJObject(): JObject = {
-    val jldDocuments = anthology.map(new JLDDocument(serializer, _))
-    val mentions = anthology.flatMap(_.mentions)
+    val jldDocuments = corpus.map(new JLDDocument(serializer, _))
+    val mentions = corpus.flatMap(_.mentions)
     val jldExtractions = collectMentions(mentions)
     
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
