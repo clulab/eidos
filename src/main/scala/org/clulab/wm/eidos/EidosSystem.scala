@@ -22,7 +22,7 @@ case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Optio
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidosopen")) extends EntityGrounder with Configured {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends EntityGrounder with Configured {
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
 
@@ -161,7 +161,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidosopen")) extends 
 }
 
 object EidosSystem {
-  val PREFIX: String = "Eidos"
+  val PREFIX: String = "EidosSystem"
   
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
