@@ -33,7 +33,8 @@ object WMseed extends App with LazyLogging {
   logger.info(s"Document Path : $documentPath")
 
   // creates an extractor engine using the rules and the default actions
-  val extractor = new EidosSystem(masterRulesPath = entitiesMasterFile)
+  val extractor = new EidosSystem() // masterRulesPath = entitiesMasterFile)
+  // maybe new EidosSystem(ConfigFactory.load("wmseedopen").getConfig("Eidos"))
 
   // create the processor
   val proc: Processor = extractor.proc
