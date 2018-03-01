@@ -81,7 +81,7 @@ class TestJsonSerialization extends Test {
   
   behavior of "Standard Serialzier"
   
-  it should "serialize and deserialize again" in {
+  ignore should "serialize and deserialize again" in {
     val text = "Water trucking has decreased due to the cost of fuel."
     val annotatedDocument = reader.extractFrom(text)
 //    val mentionsOut = "testing"
