@@ -11,7 +11,13 @@ import org.clulab.wm.eidos.text.cag.CAG._
 class TestEidosMention extends Test {
   
   def test(text: String) = {
-    
+    def myprintln(text: String) = {
+      val debug = false
+      
+      if (debug)
+        println(text)
+    }
+      
     def addAllOdinMention(map: IdentityHashMap[Mention, Int], values: Seq[Mention]): Unit =
         values.foreach { value =>
           if (map.containsKey(value))
@@ -32,19 +38,19 @@ class TestEidosMention extends Test {
     val eidosMentions = EidosMention.asEidosMentions(odinMentions)
     val mentionsSize = odinMentions.size
     
-    println("mentionsSize: " + mentionsSize)
+    myprintln("mentionsSize: " + mentionsSize)
     odinMentions.size should be (eidosMentions.size)
     
     val odinArguments = eidosMentions.flatMap(eidosMention => eidosMention.odinArguments.values).flatten
     val eidosArguments = eidosMentions.flatMap(eidosMention => eidosMention.eidosArguments.values).flatten
     val argumentsSize = odinArguments.size
     
-    println("argumentsSize: " + argumentsSize)
+    myprintln("argumentsSize: " + argumentsSize)
     odinArguments.size should be (eidosArguments.size)
     
     // Collect unique values?
-    println("odinMentions: " + odinMentions.size + " eidosMentions " + eidosMentions.size)
-    println("odinArguments: " + odinArguments.size + " eidosArguments " + eidosArguments.size)
+    myprintln("odinMentions: " + odinMentions.size + " eidosMentions " + eidosMentions.size)
+    myprintln("odinArguments: " + odinArguments.size + " eidosArguments " + eidosArguments.size)
     
     val odinUniqueMentions = new IdentityHashMap[Mention, Int]()
     val eidosUniqueMentions = new IdentityHashMap[EidosMention, Int]()
@@ -53,14 +59,15 @@ class TestEidosMention extends Test {
     addAllEidosMention(eidosUniqueMentions, eidosMentions)
     val uniqueSize1 = odinUniqueMentions.size()
     
-    println("uniqueSize1: " + uniqueSize1)
+    
+    myprintln("uniqueSize1: " + uniqueSize1)
     odinUniqueMentions.size should be (eidosUniqueMentions.size)
     
     addAllOdinMention(odinUniqueMentions, odinArguments)
     addAllEidosMention(eidosUniqueMentions, eidosArguments)
     val uniqueSize2 = odinUniqueMentions.size()
 
-    println("uniqueSize2: " + uniqueSize2)
+    myprintln("uniqueSize2: " + uniqueSize2)
     odinUniqueMentions.size should be (eidosUniqueMentions.size)
   }
 
