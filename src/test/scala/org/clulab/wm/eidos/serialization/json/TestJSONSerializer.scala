@@ -67,6 +67,18 @@ class TestJsonSerialization extends Test {
 //    mentionsOut should be (mentionsIn)
   }
   
+  it should "not include duplicates" in {
+    val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security."
+    val annotatedDocument = reader.extractFrom(text)
+    val mentionsOut = annotatedDocument.mentions
+    val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
+    val json1 = stringify(jValue1, pretty = true)
+    val count = mentionsOut.size
+    
+    println(json1)
+    println(json1)
+  }
+  
   behavior of "Standard Serialzier"
   
   it should "serialize and deserialize again" in {
