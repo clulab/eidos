@@ -57,6 +57,6 @@ rules:
     action: ${ action }
     pattern: |
       # note: assumes comparative JJ forms of quantifiers are tagged
-      trigger = [mention=Quantifier] than [word=/(usual|typical|average|normal/)] #Find the quantifier
+      trigger = [mention=Quantifier] than [word=/(usual|typical|average|normal)/] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
 
