@@ -23,6 +23,7 @@ case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Optio
   * A system for text processing and information extraction
   */
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends EntityGrounder with Configured {
+  def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
 
