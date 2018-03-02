@@ -68,14 +68,25 @@ class TestJsonSerialization extends Test {
   }
   
   it should "not include duplicates" in {
+    import org.clulab.wm.eidos.serialization.json.json.MentionOps
+ 
     val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security."
     val annotatedDocument = reader.extractFrom(text)
     val mentionsOut = annotatedDocument.mentions
-    val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
-    val json1 = stringify(jValue1, pretty = true)
     val count = mentionsOut.size
     
-    println(json1)
+    // Are any found by exact same rule?
+    val allDoubles = mentionsOut.map(mention => (MentionOps.id(mention), mention.foundBy))
+    val uniqueDoubles = allDoubles.distinct
+    allDoubles.size should be (uniqueDoubles.size)
+
+    // Are any found by different rules?
+    val allSingles = mentionsOut.map(mention => MentionOps.id(mention))
+    val uniqueSingles = allSingles.distinct
+    allSingles.size should be (uniqueSingles.size)
+    
+    val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
+    val json1 = stringify(jValue1, pretty = true)
     println(json1)
   }
   
