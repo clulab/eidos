@@ -23,6 +23,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     val stateFromAvoid = State(avoid)
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
     val expandedEntities: Seq[Mention] = baseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
+    // debugDisplay("expanded", expandedEntities)
     // split entities on likely coordinations
     val splitEntities = (baseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
     // remove entity duplicates introduced by splitting expanded
@@ -86,18 +87,6 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid)
   }
 
-  // regexes describing valid outgoing dependencies
-  override val VALID_OUTGOING = Set[scala.util.matching.Regex](
-    "^amod$".r, "^advmod$".r,
-    "^dobj$".r,
-    "^compound".r, // replaces nn
-    "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
-    // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X."
-    "^acl".r, // replaces vmod
-    // Changed from processors......
-    "^nmod".r, // replaces prep_
-//    "case".r
-  )
 
   // Todo: currently does not work for cross-sentence mentions, add functionality
   /**
@@ -107,7 +96,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     * @return TextBoundMention with valid interval
     */
   def trimEntityEdges(entity: Mention): Mention = {
-    // println(s"trying to trim entity: ${entity.text}")
+//     println(s"trying to trim entity: ${entity.text}")
     // Check starting tag, get the location of first valid tag
     val tags = entity.document.sentences(entity.sentence).tags.get
     val startToken = entity.tokenInterval.start
@@ -157,10 +146,16 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     "^TO".r,
     "^DT".r
   )
+
+  // Debug Methods
+  private def debugDisplay(s: String, mentions: Seq[Mention]): Unit = {
+    println(s"$s:")
+    mentions.foreach(m => println(s"\t${m.text}"))
+  }
 }
 
 object EidosEntityFinder extends LazyLogging {
-  val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
+  val DEFAULT_MAX_LENGTH = RuleBasedEntityFinder.DEFAULT_MAX_LENGTH // maximum length (in tokens) for an entity
   
   def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
     val entityRules = readRules(entityRulesPath)
