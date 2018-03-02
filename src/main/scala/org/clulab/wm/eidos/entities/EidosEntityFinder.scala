@@ -155,7 +155,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 }
 
 object EidosEntityFinder extends LazyLogging {
-  val DEFAULT_MAX_LENGTH = 50 // maximum length (in tokens) for an entity
+  val DEFAULT_MAX_LENGTH = RuleBasedEntityFinder.DEFAULT_MAX_LENGTH // maximum length (in tokens) for an entity
   
   def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
     val entityRules = readRules(entityRulesPath)
