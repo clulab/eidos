@@ -34,7 +34,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     val mention_attachmentSz = for (mention <- mentions) yield {
 
-      val (size, modSize, attachmentsSet) = mention match {
+      // number of Arguments, number of attachments, the set of all attachments
+      val (numArgs, modSize, attachmentsSet) = mention match {
         case tb: TextBoundMention => {
           val tbModSize = tb.attachments.size * 10
           val tbAttachmentSet = tb.attachments
@@ -55,9 +56,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         case _ => (0, 0,  mention.attachments)
       }
 
-      val attachArgumentsSz = attachmentsSet.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-      
-      (mention, (attachArgumentsSz + modSize + size)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
+      val attachArgumentsSz = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
+
+      (mention, (attachArgumentsSz + modSize + numArgs)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
     }
 
     val maxModAttachSz = mention_attachmentSz.map(_._2).max
