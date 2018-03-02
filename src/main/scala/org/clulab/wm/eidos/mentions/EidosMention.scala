@@ -24,7 +24,7 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
   val canonicalName: String // Determined by subclass
 
   // Some way to calculate or store these, possibly in subclass
-  def tokenIntervals: Seq[Interval] = ???
+  def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
 
 
@@ -45,6 +45,7 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
 //    println("  * result: " + contentLemmas.mkString(" "))
     contentLemmas.mkString(" ")
   }
+
 }
 
 object EidosMention {
@@ -86,13 +87,10 @@ class EidosEventMention(val odinEventMention: EventMention, mapOfMentions: Ident
   
   override val canonicalName = {
     val em = odinEventMention
-//    println("-> Using canonical form args on: " + em.text)
-
     val argCanonicalNames = em.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq
     val argsAndTrigger = argCanonicalNames ++ Seq((canonicalFormSimple(em.trigger), em.trigger.start))
     val sorted = argsAndTrigger.sortBy(_._2)
 
-//    println("  * result: " + sorted.unzip._1.mkString(" "))
     sorted.unzip._1.mkString(" ")
   }
 }
@@ -100,5 +98,11 @@ class EidosEventMention(val odinEventMention: EventMention, mapOfMentions: Ident
 class EidosRelationMention(val odinRelationMention: RelationMention, mapOfMentions: IdentityHashMap[Mention, EidosMention])
     extends EidosMention(odinRelationMention, mapOfMentions) {
   
-  override val canonicalName = "" // TODO: What would this look like?
+  override val canonicalName = {
+    val rm = odinRelationMention
+    val argCanonicalNames = rm.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq
+    val sorted = argCanonicalNames.sortBy(_._2)
+
+    sorted.unzip._1.mkString(" ")
+  }
 }
