@@ -2207,10 +2207,10 @@ Util.profileStart('arcs');
           var dashArray = arcDesc && arcDesc.dashArray;
           var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
                            (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
-                           'triangle,5');
+                           'triangle,6');
           var labelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow) ||
-                                'triangle,5');
+                                'triangle,6');
 
           // set arc-specific styles
           var arcRef = [arc.origin, arc.target, arc.type].join(' ');
@@ -2469,7 +2469,7 @@ Util.profileStart('arcs');
                                    (arcDesc && arcDesc.arrowHead) ||
                                    (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
               var arrowName = (symmetric ? myArrowHead || 'none' :
-                    (leftToRight ? 'none' : myArrowHead || 'triangle,5')
+                    (leftToRight ? 'none' : myArrowHead || 'triangle,6')
                   ) + ',' + color;
               var arrowType = arrows[arrowName];
               var arrowDecl = arrowType && ('url(#' + arrowType + ')');
@@ -2482,7 +2482,7 @@ Util.profileStart('arcs');
               if (myLabelArrowHead) {
                 var labelArrowName = (leftToRight ?
                     symmetric && myLabelArrowHead || 'none' :
-                    myLabelArrowHead || 'triangle,5') + ',' + color;
+                    myLabelArrowHead || 'triangle,6') + ',' + color;
                 var labelArrowSplit = labelArrowName.split(',');
                 arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
                 var labelArrowType = arrows[labelArrowName];
@@ -2558,7 +2558,7 @@ Util.profileStart('arcs');
                 myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
                                (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
                 arrowName = (leftToRight ?
-                    myArrowHead || 'triangle,5' :
+                    myArrowHead || 'triangle,6' :
                     'none') + ',' + color;
               }
               var arrowType = arrows[arrowName];
@@ -2570,7 +2570,7 @@ Util.profileStart('arcs');
                                       (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
               if (myLabelArrowHead) {
                 var labelArrowName = (leftToRight ?
-                    myLabelArrowHead || 'triangle,5' :
+                    myLabelArrowHead || 'triangle,6' :
                     symmetric && myLabelArrowHead || 'none') + ',' + color;
                 var labelArrowSplit = labelArrowName.split(',');
                 arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
