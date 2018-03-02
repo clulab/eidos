@@ -577,7 +577,7 @@ class TestDoc3 extends Test {
 
     // Nodes here
     val rainfall = NodeSpec("seasonal rains", Inc("intensification"))
-    val rainfallDeficit = NodeSpec("rainfall deficits"), Dec("ease"))
+    val rainfallDeficit = NodeSpec("rainfall deficits", Dec("ease"))
     val rainfall2 = NodeSpec("rains", Quant("heavy"))
     val maize = NodeSpec("maize harvesting", Dec("hamper"))
     val drying = NodeSpec("drying activities", Dec("hamper"))
