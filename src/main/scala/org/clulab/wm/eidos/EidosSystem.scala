@@ -52,7 +52,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
     
-    val maxHops: Int = getArgInt(getFullName("maxHops"), Option(5))
+    val maxHops: Int = getArgInt(getFullName("maxHops"), Option(15))
       
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
@@ -141,7 +141,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
-    val unfilteredEntities = entityFinder.extract(doc).toVector
+//    val unfilteredEntities = entityFinder.extract(doc).toVector
 //    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
     val res = extractEventsFrom(doc, State(entities)).distinct
