@@ -7,7 +7,7 @@ import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, TransparentLin
 class TestRaps extends Test {
 
 
-  { //One Increase Event
+  { //One Increase attachments
     val sent1 = "Better and well-functioning agricultural credit and market services for both established and emerging farmers."
     val tester = new Tester(sent1)
 
@@ -22,7 +22,7 @@ class TestRaps extends Test {
 
   }
 
-  { //3 Increase events
+  { //3 Increase attachments
     val sent2 = "The support for agricultural research, education, and extension programs will also be increased for developing and disseminating climate change adaptation agricultural technologies to the farmers."
     // Note: parse of sentence makes it "impossible" to extract increase for education and extension programs
     // Maybe a reason to switch to cluprocessor
@@ -49,7 +49,7 @@ class TestRaps extends Test {
 
   }
 
-  { //3 Decrease, 2 Increase Events; 2 Causal Edges, 1 Origin Edge
+  { //3 Decrease, 2 Increase Attachments; 2 Causal Edges, 1 Origin Edge
     val sent3 = "Limited financial capacities and low education levels further restrict farmers' ability for higher benefits from increased agricultural production."
     val tester = new Tester(sent3)
 
@@ -77,7 +77,7 @@ class TestRaps extends Test {
 
   }
 
-  { //3 Increase, 7 Decrease Events, 10 Causal
+  { //3 Increase, 7 Decrease Attachments, 10 Causal
     val sent4 = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer " +
       "and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
 
@@ -185,7 +185,7 @@ class TestRaps extends Test {
 
   }
 
-  {//1 Increase, 2 Decrease Events
+  {//1 Increase, 2 Decrease Attachments
     val sent7 = "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income."
     val tester = new Tester(sent7)
 
@@ -210,7 +210,7 @@ class TestRaps extends Test {
 
   }
 
-  {//1 Increase Event
+  {//1 Increase Attachment
     val sent8 = "Poverty levels continue to increase, people become more vulnerable to food insecurity and other risks."
     val tester = new Tester(sent8)
 
@@ -263,6 +263,238 @@ class TestRaps extends Test {
     }
 
   }
+
+  {//5-ish increase
+  val sent11 = "Use of improved cultivars and mechanization will be increased and use of critical interventions may lead to increases in productivity and efficient use of resources."
+    val tester = new Tester(sent11)
+
+    val use = NodeSpec("Use", Inc("increased"))
+    val cultivars = NodeSpec("cultivars", Inc("improved"))
+    val mechanization = NodeSpec("mechanization", Inc("improved"))
+    val productivity = NodeSpec("productivity", Inc("increases"))
+    val resources = NodeSpec("efficient use of resources", Inc("increases"))
+
+    behavior of "Raps_sent11"
+
+    //This should probably be "Use of improved cultivars" for the NodeSpec
+    passingTest should "have correct node 1" in {
+      tester.test(use) should be (successful)
+    }
+
+    passingTest should "have correct node 2" in {
+      tester.test(cultivars) should be (successful)
+    }
+
+    passingTest should "have correct node 3" in {
+      tester.test(mechanization) should be (successful)
+    }
+
+    passingTest should "have correct node 4" in {
+      tester.test(productivity) should be (successful)
+    }
+
+    passingTest should "have correct node 5" in {
+      tester.test(resources) should be (successful)
+    }
+
+  }
+
+  { //2 Increase, 1 Causal
+    val sent12 = "Therefore, the government is committed to supporting the agriculture sector through increased public investment to fulfill the needs of an increasing population."
+    val tester = new Tester(sent12)
+
+    val gov = NodeSpec("government")
+    val sector = NodeSpec("agriculture sector", Inc("supporting"))
+    val investment = NodeSpec("public investment", Inc("increased"))
+    val population = NodeSpec("population", Inc("increasing"))
+
+    behavior of "Raps_sent12"
+
+    passingTest should "have correct node 1" in {
+      tester.test(population) should be (successful)
+    }
+
+    passingTest should "have correct node 2" in {
+      tester.test(investment) should be (successful)
+    }
+
+    passingTest should "have correct edge" in {
+      tester.test(EdgeSpec(gov, Causal, sector)) should be (successful)
+    }
+
+  }
+
+  { //2 Dec, 1 Inc, 5 causal
+    //No Inc or Dec attachments are captured here
+    val sent13 = "Water quality and water availability for agriculture will decrease due to pollution of water bodies, and competition for water from other sources," +
+      " but water-use efficiency in agriculture will increase due to technological progress."
+    val tester = new Tester(sent13)
+
+    val waterQuality = NodeSpec("Water quality", Dec("decrease"))
+    val waterAvail = NodeSpec("water availability for agriculture", Dec("decrease"))
+    val waterEf = NodeSpec("water-use efficiency in agriculture", Inc("increase"))
+
+    val competition = NodeSpec("competition for water from other sources")
+    val pollution = NodeSpec("pollution of water bodies")
+    val tech = NodeSpec("technological progress")
+
+    behavior of "Raps_sent13"
+
+    failingTest should "have correct edge 1" in {
+      tester.test(EdgeSpec(waterQuality, Causal, pollution)) should be (successful)
+    }
+
+    failingTest should "have correct edge 2" in {
+      tester.test(EdgeSpec(waterAvail, Causal, pollution)) should be (successful)
+    }
+
+    failingTest should "have correct edge 3" in {
+      tester.test(EdgeSpec(waterQuality, Causal, competition)) should be (successful)
+    }
+
+    failingTest should "have correct edge 4" in {
+      tester.test(EdgeSpec(waterAvail, Causal, competition)) should be (successful)
+    }
+
+    failingTest should "have correct edge 5" in {
+      tester.test(EdgeSpec(waterEf, Causal, tech)) should be (successful)
+    }
+
+  }
+
+  { //2 Increase Attachments
+    val sent14 = "Farm size and wage rates will increase."
+    val tester = new Tester(sent14)
+
+    val farmSize = NodeSpec("Farm size", Inc("increase"))
+    val wageRates = NodeSpec("wage rates", Inc("increase"))
+
+    behavior of "Raps_sent14"
+
+    failingTest should "have correct node 1" in {
+      tester.test(farmSize) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(wageRates) should be (successful)
+    }
+  }
+
+  {//2 Increase attachments; same issue as sent14 -- conjunction not captured
+    val sent15 = "Mechanization and energy-use intensity in agriculture will increase."
+    val tester = new Tester(sent15)
+
+    val mechanization = NodeSpec("Mechanization", Inc("increase"))
+    val energy = NodeSpec("energy-use intensity in agriculture", Inc("increase"))
+
+    behavior of "Raps_sent15"
+
+    failingTest should "have correct node 1" in {
+      tester.test(mechanization) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(energy) should be (successful)
+    }
+
+  }
+
+  {//2 Increase attachments: same issue as sent14 and sent15
+    val sent16 = "Fertilizer-use intensity and fertilizer productivity will increase."
+    val tester = new Tester(sent16)
+
+    val fertUse = NodeSpec("Fertilizer-use intensity", Inc("increase"))
+    val fertProductivity = NodeSpec("fertilizer productivity", Inc("increase"))
+
+    behavior of "Raps_sent16"
+
+    failingTest should "have correct node 1" in {
+      tester.test(fertUse) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(fertProductivity) should be (successful)
+    }
+
+  }
+
+  {//1 Increase, 1 Causal
+    val sent17 = "There will not be significant changes in food imports, while yield of important crops will increase due to technological progress in agriculture."
+    val tester = new Tester(sent17)
+
+    val cropYield = NodeSpec("yield of important crops", Inc("increase"), Quant("important"))
+    val tech = NodeSpec("technological progress in agriculture")
+
+    //Currently, it extracts ("yield", Causal, tech) //tech causes yield
+    //AND it extracts ("crops", Causal, tech) //tech causes important crops
+    //however it really should do ("yield of important crops", Causal, tech)
+
+    behavior of "Raps_sent17"
+
+    failingTest should "have correct edge" in {
+      tester.test(EdgeSpec(cropYield, Causal, tech)) should be (successful)
+    }
+
+  }
+
+  { //
+    val sent18 = "However, opportunities for massive increases in agricultural production and productivity exist but " +
+      "are not being exploited."
+    val tester = new Tester(sent18)
+
+    val production = NodeSpec("agricultural production", Inc("increases", "massive"))
+    val productivity = NodeSpec("productivity", Inc("increases", "massive"))
+
+    behavior of "Raps_sent18"
+
+    failingTest should "have correct node 1" in {
+      tester.test(production) should be (successful)
+    }
+
+    failingTest should "have correct node 2" in {
+      tester.test(productivity) should be (successful)
+    }
+
+  }
+
+  { //5 increase attachments
+    val sent19 = "The governmental policy objective is to achieve food security, ensure adequate raw materials for the manufacturing sector, " +
+      "and increased export earnings through increased productivity, efficient input use, and better market access," +
+      " infrastructure, and service development."
+    val tester = new Tester(sent19)
+
+    val productivity = NodeSpec("productivity", Inc("increased"))
+    val use = NodeSpec("efficient input use", Inc("increased"))
+    val marketAccess = NodeSpec("market access", Inc("increased"), Quant("better"))
+    //instead of attaching "better" as a quant, Eidos makes a 2nd "market access" entity with "better" as Increase attachment
+    //val marketAccess2 = NodeSpec("market access", Inc("better")) //should be quantifier...
+    val infrastructure = NodeSpec("infrastructure", Inc("increased"))
+    val dev = NodeSpec("service development", Inc("increased"))
+
+    behavior of "Raps_sent19"
+
+    passingTest should "have correct node 1" in {
+      tester.test(productivity) should be (successful)
+    }
+
+    passingTest should "have correct node 2" in {
+      tester.test(use) should be (successful)
+    }
+
+    failingTest should "have correct node 3" in {
+      tester.test(marketAccess) should be (successful)
+    }
+
+    passingTest should "have correct node 4" in {
+      tester.test(infrastructure) should be (successful)
+    }
+
+    passingTest should "have correct node 5" in {
+      tester.test(dev) should be (successful)
+    }
+
+  }
+
 
   
 } //END OF TEST BRACE

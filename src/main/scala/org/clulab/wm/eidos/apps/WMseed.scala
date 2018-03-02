@@ -19,21 +19,14 @@ import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
   */
 object WMseed extends App with LazyLogging {
 
-  val config = ConfigFactory.load()         // load the configuration file
+  val config = ConfigFactory.load("wmseed")         // load the configuration file
 
-  val entitiesMasterFile = config[String]("wmseed.entitiesMasterFile")
-  val eventsMasterFile = config[String]("wmseed.eventsMasterFile")
-  val quantifierKB: String = config[String]("wmseed.quantifierKB")
-  val documentPath = config[String]("wmseed.documentPath")
-
+  val documentPath = config[String]("WMseed.documentPath")
   // print the parameters
-  logger.info(s"Entities master file : $entitiesMasterFile")
-  logger.info(s"Events master file : $eventsMasterFile")
-  logger.info(s"Quantifier KB : $quantifierKB")
   logger.info(s"Document Path : $documentPath")
 
   // creates an extractor engine using the rules and the default actions
-  val extractor = new EidosSystem(masterRulesPath = entitiesMasterFile)
+  val extractor = new EidosSystem(config.getConfig("WMseed.EidosSystem"))
 
   // create the processor
   val proc: Processor = extractor.proc
@@ -68,6 +61,7 @@ object WMseed extends App with LazyLogging {
   }
 
   def getListOfFiles(dir: String):List[File] = {
+    val pwd = System.getProperty("user.dir")
     val d = new File(dir)
     if (d.exists && d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
