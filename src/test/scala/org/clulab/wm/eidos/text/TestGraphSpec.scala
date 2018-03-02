@@ -13,6 +13,7 @@ import org.clulab.wm.eidos.text.EdgeSpec
 
 import org.clulab.wm.eidos.text.Dec
 import org.clulab.wm.eidos.text.Inc
+import org.clulab.wm.eidos.text.Quant
 import org.clulab.wm.eidos.text.Unmarked
 
 class TestGraphSpec extends Test {
@@ -23,7 +24,9 @@ class TestGraphSpec extends Test {
   val rainfallNoEventPovertyEdge = EdgeSpec(rainfallNode, NoEvent, povertyNode)
   
   val antiNode = AntiNodeSpec("few", Inc("decreased", "never"))
-  val antiEdge = AntiEdgeSpec(rainfallNode, Affect, povertyNode) 
+  val antiEdge = AntiEdgeSpec(rainfallNode, Affect, povertyNode)
+  
+  val adverbNode = NodeSpec("diet", Dec("poor", "extremely"), Quant("poor", "extremely"))
 
   "rainfallNode" should "have the correct string representation" in {
     rainfallNode.toString() should be ("[in rainfall|+DEC(decrease)]")    
@@ -50,5 +53,9 @@ class TestGraphSpec extends Test {
   }
   "antiEdge" should "have the correct string representation" in {
     antiEdge.toString() should be ("[in rainfall|+DEC(decrease)]->)Affect(->[poverty|+INC(increased, Quant: significantly)]")
+  }
+  
+  "adverbs" should "be shown for Quantizations" in {
+    adverbNode.toString() should be ("[diet|+DEC(poor, Quant: extremely)+QUANT(poor, Quant: extremely)]")
   }
 }
