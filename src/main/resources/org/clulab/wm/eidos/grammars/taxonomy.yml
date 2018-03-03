@@ -12,10 +12,10 @@
   - EntityLinker:
     - DirectedRelation:
       - Causal
-      - Correlation
       - IsA
       - Origin
       - TransparentLink
     - UndirectedRelation:
+      - Correlation
       - SameAs
 

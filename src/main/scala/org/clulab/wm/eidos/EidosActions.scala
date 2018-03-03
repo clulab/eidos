@@ -34,36 +34,31 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     val mention_attachmentSz = for (mention <- mentions) yield {
 
-      val size = if(mention.isInstanceOf[EventMention])
-                    (mention.arguments.values.flatten.size * 100)
-                  else
-                    0
-
-      val modSize = if (mention.isInstanceOf[TextBoundMention])
-                        (mention.attachments.size * 10)
-                    else if (mention.isInstanceOf[EventMention])
-                        (mention.asInstanceOf[EventMention].arguments.values.flatten.map(arg => arg.attachments.size).sum * 10)
-                    else
-                        0
-
-      val attachmentsList = if (mention.isInstanceOf[TextBoundMention])
-                              Some(mention.attachments)
-                            else if (mention.isInstanceOf[EventMention])
-                              Some(mention.asInstanceOf[EventMention].arguments.values.flatten.map(m => m.attachments).flatten.toSet)
-                            else
-                              None
-
-      val attachArgumentsSz =  (for (attachment <- attachmentsList.get) yield {
-        val attachmentArgSz = attachment match {
-          case quant: Quantification => if (quant.adverbs.isDefined) quant.adverbs.get.size else 0
-          case inc: Increase => if (inc.quantifier.isDefined) inc.quantifier.get.size else 0
-          case dec: Decrease => if (dec.quantifier.isDefined) dec.quantifier.get.size else 0
-          case _ => 0
+      // number of Arguments, number of attachments, the set of all attachments
+      val (numArgs, modSize, attachmentsSet) = mention match {
+        case tb: TextBoundMention => {
+          val tbModSize = tb.attachments.size * 10
+          val tbAttachmentSet = tb.attachments
+          (0, tbModSize, tbAttachmentSet)
         }
-        attachmentArgSz
-      }).sum
+        case rm: RelationMention => {
+          val rmSize = rm.arguments.values.flatten.size * 100
+          val rmModSize = rm.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
+          val rmAttachmentSet = rm.arguments.values.flatten.flatMap(m => m.attachments).toSet
+          (rmSize, rmModSize, rmAttachmentSet)
+        }
+        case em: EventMention => {
+          val emSize = em.arguments.values.flatten.size * 100
+          val emModSize = em.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
+          val emAttachmentSet = em.arguments.values.flatten.flatMap(m => m.attachments).toSet
+          (emSize, emModSize, emAttachmentSet)
+        }
+        case _ => (0, 0,  mention.attachments)
+      }
 
-      (mention, (attachArgumentsSz + modSize + size)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
+      val attachArgumentsSz = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
+
+      (mention, (attachArgumentsSz + modSize + numArgs)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
     }
 
     val maxModAttachSz = mention_attachmentSz.map(_._2).max
@@ -87,13 +82,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 //        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
 //        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
         val filteredTBMs = customAttachmentFilter(tbms)
-        filteredTBMs
+        filteredTBMs.head
       }
 
     // We need to remove underspecified EventMentions of near-duplicate groupings
     // (ex. same phospho, but one is missing a site)
     val eventMentionGroupings =
-      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.trigger, m.label, m.tokenInterval))
+      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.label, m.tokenInterval))
 
     // remove incomplete mentions
     val completeEventMentions =
@@ -107,12 +102,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 //        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
 //          m.arguments.values.flatMap(ms => ms.map(_.attachments.size)).sum == maxArgMods)
         val filteredEMs = customAttachmentFilter(ems)
-        filteredEMs
+        filteredEMs.head
       }
 
-    completeTBMentions.flatten.toSeq ++ relationMentions ++ completeEventMentions.flatten.toSeq
+    completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
   }
-
 
   //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
   //Rule to add Increase/Decrease to the state of an entity
@@ -135,46 +129,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
   } yield copyWithMod
 
-
-
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
     ms
   }
 
-
-  def getAttachment(m: Mention): Attachment = {
-    m.label match {
-      case "Quantification" => {
-        val quantifier = m.asInstanceOf[EventMention].trigger.text
-        val adverbs = m.asInstanceOf[EventMention].arguments.get("adverb") match {
-          case Some(found) => Some(found.map(_.text))
-          case None => None
-        }
-        new Quantification(quantifier, adverbs)
-      }
-      case "Increase" => {
-        val quantifiers = getOptionalQuantifiers(m)
-        val trigger = m.asInstanceOf[EventMention].trigger.text
-        new Increase(trigger, quantifiers)
-      }
-      case "Decrease" => {
-        val quantifiers = getOptionalQuantifiers(m)
-        val trigger = m.asInstanceOf[EventMention].trigger.text
-
-        //println(s"Decrease found: ${new Decrease(trigger, quantifiers)}")
-        new Decrease(trigger, quantifiers)
-      }
-    }
-  }
-
-
-  def getOptionalQuantifiers(m: Mention): Option[Seq[Quantifier]] = {
-    m.asInstanceOf[EventMention]
-      .arguments
-      .get("quantifier")
-      .map(qs => qs.map(_.text))
-  }
+  def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 }
 
 object EidosActions extends Actions {

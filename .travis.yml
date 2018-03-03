@@ -1,3 +1,9 @@
 language: scala
 scala:
   - 2.12.4
+cache:
+  directories:
+    - $HOME/.gradle
+    - $HOME/.ivy2
+    - $HOME/.m2
+    - $HOME/.sbt

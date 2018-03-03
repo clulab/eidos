@@ -26,7 +26,8 @@ class RuleBasedEntityFinder(
   // avoid expanding along these dependencies
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](
     "^nmod_including$".r,
-    "^nmod_without$".r
+    "^nmod_without$".r,
+    "^nmod_except".r,
   )
 
   val INVALID_INCOMING = Set[scala.util.matching.Regex](
@@ -43,8 +44,12 @@ class RuleBasedEntityFinder(
     "^compound".r, // replaces nn
     "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
     // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X."
-    "^acl$".r, // replaces vmod
-    "^nmod_".r // replaces prep_
+    "^acl".r, // replaces vmod
+    "xcomp".r, // replaces vmod
+    // Changed from processors......
+    "^nmod".r, // replaces prep_
+    //    "case".r
+    "^ccomp".r
   )
 
   /**
@@ -203,7 +208,7 @@ class RuleBasedEntityFinder(
 }
 
 object RuleBasedEntityFinder extends LazyLogging {
-  val DEFAULT_MAX_LENGTH = 10 // maximum length (in tokens) for an entity
+  val DEFAULT_MAX_LENGTH = 50 // maximum length (in tokens) for an entity
   
   def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): RuleBasedEntityFinder = {
     val entityRules = ResourceUtils.readResource(entityRulesPath)
