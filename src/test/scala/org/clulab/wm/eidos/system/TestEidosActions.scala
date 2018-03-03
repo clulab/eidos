@@ -1,20 +1,25 @@
 package org.clulab.wm.eidos.system
 
 import java.util.IdentityHashMap
+
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.SynPath
 import org.clulab.odin.TextBoundMention
+import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils._
+
 import scala.collection.JavaConverters.asScalaSet
 
 class TestEidosActions extends Test {
   
   def addAllMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Mention]): Unit = {
     def mentionsInPaths(paths: Map[String, Map[Mention, SynPath]]): Seq[Mention] =
-        paths.values.map(_.keys).flatten.toSeq
+        Seq.empty
+//        paths.values.map(_.keys).flatten.toSeq
     
     mentions.foreach { mention =>
       mapOfMentions.put(mention, mention)
@@ -86,12 +91,26 @@ class TestEidosActions extends Test {
   behavior of "EidosActions"
   
   it should "produce not just unique but also distinct mentions" in {
-//    val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security."
-    val text = "This is a test"
+    val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security."
+//    val text = "This is a test"
     val annotatedDocument = reader.extractFrom(text)
     val someMentions = annotatedDocument.mentions
     val uniqueMentions = findUniqueMentions(someMentions)
-    
-    findMatchingPair(uniqueMentions) should be (None)
+    val matchingPair = findMatchingPair(uniqueMentions)
+
+    if (matchingPair.isDefined) {
+      val jValueLeft = WMJSONSerializer.jsonAST(Seq(matchingPair.get._1))
+      val jValueRight = WMJSONSerializer.jsonAST(Seq(matchingPair.get._2))
+      val jsonLeft = stringify(jValueLeft, pretty = true)
+      val jsonRight = stringify(jValueRight, pretty = true)
+
+      println(jsonLeft)
+      println(jsonRight)
+
+      val jValueAll = WMJSONSerializer.jsonAST(someMentions)
+      val jsonAll = stringify(jValueAll, pretty = true)
+      println(jsonAll)
+    }
+    matchingPair should be (None)
   }
 }
