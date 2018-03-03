@@ -13,7 +13,7 @@ class TestConfig extends Test with Configured {
 
   behavior of "testeidos.conf"
   
-  it should "should configure" in {
+  it should "configure" in {
     val testTrue = getArgBoolean("EidosSystem.testTrue", Option(false))
     testTrue should be (true)
     
