@@ -240,10 +240,7 @@ class TestDoc3 extends Test {
     val rainfall = NodeSpec("seasonal rainfall", Quant("moderate to heavy"))
     val flooding = NodeSpec("risk of flooding", Inc("heightened"))
     val rainfall2 = NodeSpec("rainfall", Quant("above-average"))
-    // tip: with a trigger like "deficit" -- to not avoid it (i.e. to allow it to be part of an entity, try moving the trigger to
-    // somethling like nonavoid_causal_triggers, but for decrease.... there would need to be change in master.yml too,
-    // see causal for example
-    val rainfallDeficit = NodeSpec("rainfall deficits", Dec("reduce"))
+    val rainfallDeficit = NodeSpec("rainfall", Dec("deficits"), Dec("reduce"))
 
     behavior of "TestDoc3 Paragraph 7"
 
@@ -307,7 +304,7 @@ class TestDoc3 extends Test {
     val worm = NodeSpec("impact of Fall Armyworm", Dec("reduce"))
     val rainfall4 = NodeSpec("rainfall", Quant("moderate to heavy"))
     val flood2 = NodeSpec("flooding")
-    val rainfallDeficit = NodeSpec("rainfall deficits", Dec("erase"))
+    val rainfallDeficit = NodeSpec("rainfall", Dec("deficits"), Dec("erase"))
 
     // tests here
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
@@ -577,7 +574,7 @@ class TestDoc3 extends Test {
 
     // Nodes here
     val rainfall = NodeSpec("seasonal rains", Inc("intensification"))
-    val rainfallDeficit = NodeSpec("rainfall deficits", Dec("ease"))
+    val rainfallDeficit = NodeSpec("rainfall", Dec("deficits"), Dec("ease"))
     val rainfall2 = NodeSpec("rains", Quant("heavy"))
     val maize = NodeSpec("maize harvesting", Dec("hamper"))
     val drying = NodeSpec("drying activities", Dec("hamper"))
