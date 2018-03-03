@@ -92,7 +92,7 @@ than in the corresponding period two years earlier.
   behavior of "EidosMention"
   
   Seq(p1, p2, p3, p4, p5, p6, fullText, text1, text2).zipWithIndex.foreach { case (text, index) =>
-    it should "should convert text " + index in {
+    it should "convert text " + index in {
       test(text)
     }
   }
