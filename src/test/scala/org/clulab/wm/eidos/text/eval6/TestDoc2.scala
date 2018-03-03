@@ -31,7 +31,7 @@ class TestDoc2 extends Test {
   { // Paragraph 2
     val text = """
                  |The Food and Agriculture Organization of the United Nations (FAO), the United Nations
-                 |Children’s Fund (UNICEF) and the World Food Programme (WFP) stressed that while the
+                 |Children's Fund (UNICEF) and the World Food Programme (WFP) stressed that while the
                  |deteriorating situation coincides with an unusually long and harsh annual lean season, when families
                  |have depleted their food stocks and new harvests are not expected until August, the level of food
                  |insecurity this year is unprecedented.
@@ -164,7 +164,7 @@ class TestDoc2 extends Test {
   { // Paragraph 6
     val text = """
                  |“The levels of malnutrition among children continue to be truly alarming,” said Mahimbo Mdoe,
-                 |UNICEF’s Representative in South Sudan.
+                 |UNICEF's Representative in South Sudan.
                """
     val tester = new Tester(text)
 
