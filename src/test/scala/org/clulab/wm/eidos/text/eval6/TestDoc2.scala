@@ -57,7 +57,7 @@ class TestDoc2 extends Test {
       tester.test(foodStocks) should be(successful)
     }
 
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(foodInsecurity) should be(successful)
     }
 
@@ -86,9 +86,9 @@ class TestDoc2 extends Test {
 
   { // Paragraph 4
     val text = """
-                 |“We are very worried to see that food insecurity is spreading beyond conflict areas as rising prices,
+                 |"We are very worried to see that food insecurity is spreading beyond conflict areas as rising prices,
                  |impassable roads and dysfunctional markets are preventing many families, even those in towns and
-                 |cities, from accessing food,” said FAO Country Representative Serge Tissot.
+                 |cities, from accessing food," said FAO Country Representative Serge Tissot.
                """
     val tester = new Tester(text)
 
@@ -163,7 +163,7 @@ class TestDoc2 extends Test {
 
   { // Paragraph 6
     val text = """
-                 |“The levels of malnutrition among children continue to be truly alarming,” said Mahimbo Mdoe,
+                 |"The levels of malnutrition among children continue to be truly alarming," said Mahimbo Mdoe,
                  |UNICEF's Representative in South Sudan.
                """
     val tester = new Tester(text)
@@ -180,7 +180,7 @@ class TestDoc2 extends Test {
   { // Paragraph 7
     val text = """
                  |We have started ramping up food and nutrition support, but much more is needed to keep things
-                 |from deteriorating even further during the lean season,” said WFP Country Director Joyce Luma.
+                 |from deteriorating even further during the lean season," said WFP Country Director Joyce Luma.
                """
     val tester = new Tester(text)
 
@@ -195,7 +195,7 @@ class TestDoc2 extends Test {
 
   { // Paragraph 8
     val text = """
-                 |“We are now seeing sharp spikes of need in new areas, such as Eastern Equatoria or Western
+                 |"We are now seeing sharp spikes of need in new areas, such as Eastern Equatoria or Western
                  |Bahr el-Ghazal, where malnutrition rates in some places are reaching dangerous levels.
                """
     val tester = new Tester(text)
