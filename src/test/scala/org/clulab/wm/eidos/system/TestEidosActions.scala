@@ -8,7 +8,7 @@ import org.clulab.odin.SynPath
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils._
-import scala.collection.JavaConversions.asScalaSet
+import scala.collection.JavaConverters.asScalaSet
 
 class TestEidosActions extends Test {
   
