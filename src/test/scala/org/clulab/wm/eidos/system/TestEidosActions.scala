@@ -91,8 +91,8 @@ class TestEidosActions extends Test {
   behavior of "EidosActions"
   
   it should "produce not just unique but also distinct mentions" in {
-//    val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security."
-    val text = "This is a test"
+    val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security."
+//    val text = "This is a test"
     val annotatedDocument = reader.extractFrom(text)
     val someMentions = annotatedDocument.mentions
     val uniqueMentions = findUniqueMentions(someMentions)
