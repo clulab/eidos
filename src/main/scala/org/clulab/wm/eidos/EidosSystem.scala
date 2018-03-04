@@ -1,7 +1,11 @@
 package org.clulab.wm.eidos
 
+import java.util.Collection
+
+import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
+import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
@@ -10,8 +14,12 @@ import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.serialization.json.JLDObject.AnnotatedDocument
+import org.clulab.wm.eidos.utils.DomainOntology
 import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
-import com.typesafe.config.{Config, ConfigFactory}
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
+
+import scala.io.Source
 
 trait EntityGrounder {
   def ground(mention: Mention, quantifier: Quantifier): Grounding
@@ -24,37 +32,9 @@ case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Optio
 /**
   * A system for text processing and information extraction
   */
-//<<<<<<< HEAD
-//class EidosSystem (
-//    masterRulesPath: String = "/org/clulab/wm/eidos/grammars/master.yml",
-//   quantifierKBPath: String = "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb",
-//  domainParamKBPath: String = "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb",
-//     quantifierPath: String = "org/clulab/wm/eidos/lexicons/Quantifier.tsv", // skip leading /!
-//    entityRulesPath: String = "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml",
-//     avoidRulesPath: String = "/org/clulab/wm/eidos/grammars/avoidLocal.yml",
-//       taxonomyPath: String = "org/clulab/wm/eidos/grammars/taxonomy.yml", // skip leading /!
-//      wordToVecPath: String = "/org/clulab/wm/eidos/word2vec/vectors.txt",
-//  processor: Option[Processor] = None,
-//  debug: Boolean = true
-//) extends EntityGrounder {
-//  def this(x:Object) = this()
-//
-//  // Defaults to FastNLPProcessor if no processor is given.  This is the expensive object
-//  // that should not be lost on a reload.  The "rules" that the processor follows are
-//  // not expected to change, or if they do, the processor would be restarted.
-//  val proc: Processor = if (processor.nonEmpty) processor.get else new FastNLPProcessor()
-//
-//  val word2vecFile = scala.io.Source.fromURL(getClass.getResource(wordToVecPath))
-//  lazy val w2v = new Word2Vec(word2vecFile, None)
-//
-//=======
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends EntityGrounder with Configured {
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
-
-  val wordToVecPath = "FIXME" // todo: add the right path as a config paramater
-  val word2vecFile = scala.io.Source.fromURL(getClass.getResource(wordToVecPath))
-  lazy val w2v = new Word2Vec(word2vecFile, None)
 
   override def getConf: Config = config  
   
@@ -64,7 +44,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
       val grounder: Map[Quantifier, Map[String, Double]],
       val actions: EidosActions,
       val engine: ExtractorEngine,
-      val ner: LexiconNER
+      val ner: LexiconNER,
+      val w2v: Word2Vec,
+      val ontoW2v: Taxonomy//todo: Need to change it to --> Array[(String, Double)]
   )
   
   object LoadableAttributes {
@@ -81,6 +63,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
+    val     wordToVecPath: String = getPath(    "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
+    val    domainOntoPath: String = getPath(   "domainOntoPath", "/org/clulab/wm/eidos/sameas/toy_taxonomy.yml")
     
     val maxHops: Int = getArgInt(getFullName("maxHops"), Option(5))
       
@@ -88,6 +72,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     def apply(): LoadableAttributes = {
       val rules = readRules(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
+      val (w2v: Word2Vec, taxonomy: Taxonomy) = initSameAsDataStructures(wordToVecPath, domainOntoPath)
      
       new LoadableAttributes(
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
@@ -101,7 +86,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
           //TODO: agrovoc lexicons aren't in this project yet
           // todo: the order matters, we should be taking order into account
           //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
-          LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true) //TODO: keep Quantifier...
+          LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...,
+          w2v,
+          taxonomy
       )
     }
   }
@@ -117,6 +104,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
   protected def actions = loadableAttributes.actions
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
+  def w2v = loadableAttributes.w2v
   
   def reload() = loadableAttributes = LoadableAttributes()
 
@@ -218,6 +206,29 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     score
   }
 
+  // reads a taxonomy from data, where data may be either a forest or a file path
+  private def readTaxonomy(data: Any): DomainOntology = data match {
+    case t: Collection[_] => DomainOntology(t.asInstanceOf[Collection[Any]])
+    case path: String =>
+      val url = getClass.getResource(path)
+      val source = Source.fromURL(url)
+      val input = source.mkString
+      source.close()
+      val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
+      val data = yaml.load(input).asInstanceOf[Collection[Any]]
+      DomainOntology(data)
+  }
+
+  def initSameAsDataStructures (word2VecPath: String, taxonomyPath: String): (Word2Vec, Taxonomy) ={
+    val word2vecFile = scala.io.Source.fromURL(getClass.getResource(word2VecPath))
+    lazy val w2v = new Word2Vec(word2vecFile, None)
+    val taxonomy = readTaxonomy(taxonomyPath)
+    println(taxonomy.toString)
+    val x = taxonomy.hyponymsFor("events")
+    println(x.mkString("\n"))
+    (w2v, taxonomy)
+
+  }
 
   /*
      Debugging Methods
