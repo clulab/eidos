@@ -11,32 +11,40 @@ import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
-<<<<<<<
-import org.clulab.wm.eidos.serialization.json.JLDObject.AnnotatedDocument
-import org.clulab.wm.eidos.utils.DomainOntology
-=======
 import org.clulab.wm.eidos.mentions.EidosMention
->>>>>>>
+import org.clulab.wm.eidos.utils.DomainOntology
 import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
+
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.io.Source
 
-trait EntityGrounder {
-  def ground(mention: Mention, quantifier: Quantifier): Grounding
+case class EntityGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
+  def isGrounded = intercept != None && mu != None && sigma != None
 }
 
-case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
-  def isGrounded = intercept != None && mu != None && sigma != None
+trait EntityGrounder {
+  def ground(mention: Mention, quantifier: Quantifier): EntityGrounding
+}
+
+case class SameAsGrounding(grounding: Seq[(String, Double)])
+
+trait SameAsGrounder {
+  def ground(canonicalName: String): SameAsGrounding
 }
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
+/*
+ * w2v: Word2Vec,
+                 ontology: Map[String, Seq[Double]],
+                 k: Int = 10
+ */
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends EntityGrounder with Configured {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with EntityGrounder with SameAsGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
@@ -129,14 +137,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
   // Extract mentions from a string
   def extractFromText(text: String, keepText: Boolean = false, populateSameAs: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
-    val odinMentions = extractFrom(doc)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val odinMentions = extractFrom(doc, populateSameAs = populateSameAs).toSeq
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions, this)
     
     new AnnotatedDocument(doc, odinMentions, eidosMentions)
-    new AnnotatedDocument(doc, extractFrom(doc, populateSameAs = populateSameAs))
   }
   
-  def ground(mention: Mention, quantifier: Quantifier): Grounding = {
+  def ground(mention: Mention, quantifier: Quantifier): EntityGrounding = {
     
     def stemIfAdverb(word: String) = {
       if (word.endsWith("ly"))
@@ -152,16 +159,24 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     val modelRow = grounder.getOrElse(pseudoStemmed, Map.empty)
     
     if (modelRow.isEmpty)
-      Grounding(None, None, None)
+      EntityGrounding(None, None, None)
     else {
       val intercept = modelRow.get(EidosSystem.INTERCEPT)
       val mu = modelRow.get(EidosSystem.MU_COEFF)
       val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
       
-      Grounding(intercept, mu, sigma)
+      EntityGrounding(intercept, mu, sigma)
     }
   }
 
+  def groundForSameAs(canonicalName: String): SameAsGrounding = {
+    // Make vector for canonicalName
+    val nodeEmbedding = w2v.makeCompositeVector(canonicalName.split(" +"))
+    // Calc dot prods
+    val similarities = conceptEmbeddings.toSeq.map(concept => (concept._1, Word2Vec.dotProduct(concept._2.toArray, nodeEmbedding)))
+    // sort and return top k
+    SameAsGrounding(similarities.sortBy(- _._2).slice(0, topKNodeGroundings))
+  }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
