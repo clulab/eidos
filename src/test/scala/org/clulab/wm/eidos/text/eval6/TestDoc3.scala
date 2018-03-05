@@ -15,17 +15,17 @@ class TestDoc3 extends Test {
 
     val tester = new Tester(text)
 
-    val rainfall = NodeSpec("Rainfall", Quant("average", "above"))
+    val rainfall = NodeSpec("Rainfall", Inc("above"), Quant("average", "above"))
     val cropActivity = NodeSpec("cropping activities")
     val rainfall2 = NodeSpec("rainfall", Quant("heavier than normal"))
     val floodRisk = NodeSpec("risk of flooding in many of the flood-prone areas", Inc("increasing"))
     
     behavior of "TestDoc3 Paragraph 1"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall, Causal, cropActivity)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall2, Causal, floodRisk)) should be (successful) // Test edges connecting them
     }
   }
@@ -47,31 +47,31 @@ class TestDoc3 extends Test {
     val tester = new Tester(text)
 
     // To get "well above" as a single quantifier perhaps add it to Quantifier.tsv ?
-    val rainfall = NodeSpec("rainfall", Quant("heavy", "persistently"), Quant("average", "well above"))
+    val rainfall = NodeSpec("rainfall", Inc("above", "well"), Quant("heavy", "persistently"), Quant("average", "well above"))
     val agrConditions = NodeSpec("agricultural conditions", Quant("favorable"))
     val flooding = NodeSpec("potential for flooding")
     val rainfall2 = NodeSpec("rainfall", Quant("Average to above-average"))
-    val rainfall3 = NodeSpec("rainfall", Quant("below average"))
+    val rainfall3 = NodeSpec("rainfall", Dec("below"), Quant("below average"))
 
     behavior of "TestDoc3 Paragraph 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(agrConditions)
     }
     // Note: Has a causal link across sentences, so a futureWorkTest.
     futureWorkTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, agrConditions)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(flooding)
     }
-    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(rainfall2)
     }
-    failingTest should "have correct singleton node 5" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
       tester.test(rainfall3)
     }
   }
@@ -90,16 +90,16 @@ class TestDoc3 extends Test {
     val tester = new Tester(text)
 
     // To get "above average" as a single quantifier perhaps add it to Quantifier.tsv ?
-    val vegetation = NodeSpec("Vegetation conditions", Quant("above average"))
-    val rainfall = NodeSpec("rainfall", Quant("above-average", "ongoing"))
-    val vegetation2 = NodeSpec("vegetation conditions", Quant("below average"))
+    val vegetation = NodeSpec("Vegetation conditions", Inc("above"), Quant("above average"))
+    val rainfall = NodeSpec("rainfall", Inc("above"), Quant("above-average", "ongoing"))
+    val vegetation2 = NodeSpec("vegetation conditions", Dec("below"), Quant("below average"))
 
     behavior of "TestDoc3 Paragraph 3"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall, Causal, vegetation)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(vegetation2)
     }
   }
@@ -135,22 +135,22 @@ class TestDoc3 extends Test {
 
     behavior of "TestDoc3 Paragraph 4"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall1)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall2, Causal, cropDevelopment)) should be (successful)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(rainfall3)
     }
     futureWorkTest should "have correct edges 2" taggedAs(Somebody) in { //Note: Adding a causal link here. todo: But the issue of noCausal is still present in the system. will be addressed later
       tester.test(EdgeSpec(rainfall4, Causal, moistureStress)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall5, Causal, sowing)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 3" taggedAs(Egoitz) in {
       tester.test(infestation)
     }
   }
@@ -175,14 +175,14 @@ class TestDoc3 extends Test {
 
     behavior of "TestDoc3 Paragraph 5"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
     // todo: when hyperedges added, these tests should prob be combined to make one with 2 causes
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(rainfall2, Causal, flood)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(soils, Causal, flood)) should be (successful) // Test edges connecting them
     }
   }
@@ -209,19 +209,19 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 6"
 
     // tests here
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(season, Causal, cropYield)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(season, Causal, cropProd)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(EdgeSpec(drySpell, Causal, cropYield)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Becky) in {
       tester.test(EdgeSpec(drySpell, Causal, cropProd)) should be (successful) // Test edges connecting them
     }
   }
@@ -239,16 +239,16 @@ class TestDoc3 extends Test {
     // Nodes here
     val rainfall = NodeSpec("seasonal rainfall", Quant("moderate to heavy"))
     val flooding = NodeSpec("risk of flooding", Inc("heightened"))
-    val rainfall2 = NodeSpec("rainfall", Quant("above-average"))
+    val rainfall2 = NodeSpec("rainfall", Inc("above-average"), Quant("above-average"))
     val rainfallDeficit = NodeSpec("rainfall", Dec("deficits"), Dec("reduce"))
 
     behavior of "TestDoc3 Paragraph 7"
 
     // tests here
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall, Correlation, flooding)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall2, Causal, rainfallDeficit)) should be (successful) // Test edges connecting them
     }
   }
@@ -272,10 +272,10 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 8"
 
     // tests here
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(water)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(landTemp)
     }
   }
@@ -298,7 +298,7 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 9"
     val cropCond = NodeSpec("Cropping conditions", Quant("favorable"))
     val rainfall = NodeSpec("performance of seasonal rainfall", Quant("good"))
-    val rainfall2 = NodeSpec("rainfall", Quant("above-average", "well", "persistently"))
+    val rainfall2 = NodeSpec("rainfall", Inc("above", "well"), Quant("above-average", "well", "persistently"))
     val flood = NodeSpec("flooding")
     val rainfall3 = NodeSpec("continued rains")
     val worm = NodeSpec("impact of Fall Armyworm", Dec("reduce"))
@@ -307,19 +307,19 @@ class TestDoc3 extends Test {
     val rainfallDeficit = NodeSpec("rainfall", Dec("deficits"), Dec("erase"))
 
     // tests here
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall, Causal, cropCond)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall2, Causal, flood)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    passingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall3, Causal, worm)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall4, Causal, flood2)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall4, Causal, rainfallDeficit)) should be (successful) // Test edges connecting them
     }
   }
@@ -338,26 +338,26 @@ class TestDoc3 extends Test {
     // Nodes here
     val sunny = NodeSpec("sunny")
     val dry = NodeSpec("dry")
-    val rainfall = NodeSpec("seasonal rains", Quant("light"), Quant("below average")) //Note: Looks like a conj .. so keeping 2 quants
+    val rainfall = NodeSpec("seasonal rains", Dec("below"), Quant("light"), Quant("below average")) //Note: Looks like a conj .. so keeping 2 quants
     val pasture = NodeSpec("Pasture", Dec("decline"))
     val water = NodeSpec("water resources", Dec("decline"))
 
     behavior of "TestDoc3 Paragraph 10"
 
     // tests here
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(sunny)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(dry)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
-    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(pasture)
     }
-    failingTest should "have correct singleton node 5" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
       tester.test(water)
     }
   }
@@ -380,8 +380,8 @@ class TestDoc3 extends Test {
     val growSeason = NodeSpec("length of the main growing season", Dec("shortened"))
     val rainfall = NodeSpec("onset of seasonal rainfall", Quant("delayed"))
     val drySpell = NodeSpec("dry spells", Quant("long"))
-    val rainfall2 = NodeSpec("rainfall", Quant("below-average"))
-    val production = NodeSpec("production prospects", Quant("below-average"))
+    val rainfall2 = NodeSpec("rainfall", Dec("below-average"), Quant("below-average"))
+    val production = NodeSpec("production prospects", Dec("below-average"), Quant("below-average"))
     val prodArea = NodeSpec("Key agricultural production areas")
     val rainfall3 = NodeSpec("onset of rainfall", Quant("erratic"))
     val drySpell2 = NodeSpec("dry spells in June", Quant("prolonged"))
@@ -390,25 +390,25 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 11"
 
     // tests here
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Vikas) in {
       tester.test(EdgeSpec(rainfall, Causal, growSeason)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Vikas) in {
       tester.test(EdgeSpec(growSeason, Causal, production)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Vikas) in {
       tester.test(EdgeSpec(drySpell, Causal, production)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Vikas) in {
       tester.test(EdgeSpec(rainfall2, Causal, production)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Vikas) in {
       tester.test(EdgeSpec(rainfall3, Causal, prodArea)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    failingTest should "have correct edges 6" taggedAs(Vikas) in {
       tester.test(EdgeSpec(drySpell2, Causal, prodArea)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(maize)
     }
   }
@@ -431,8 +431,8 @@ class TestDoc3 extends Test {
 
     // Nodes here
     val rainfall = NodeSpec("rainfall", Quant("average to above average"))
-    val rainfall2 = NodeSpec("rainfall", Quant("below-average"))
-    val rainfall3 = NodeSpec("rainfall forecast", Quant("above-average")) //Note: Adding rainfall forecast here
+    val rainfall2 = NodeSpec("rainfall", Dec("below-average"), Quant("below-average"))
+    val rainfall3 = NodeSpec("rainfall forecast", Inc("above-average"), Quant("above-average")) //Note: Adding rainfall forecast here
     val cropProd = NodeSpec("crop production prospects", Inc("improve"))
     val pastures = NodeSpec("pasture conditions", Inc("improve"))
     val planting = NodeSpec("planting", Quant("delayed", "significantly"))
@@ -444,10 +444,10 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 12"
 
     // tests here
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(rainfall2)
     }
     futureWorkTest should "have correct edges 1" taggedAs(Somebody) in {
@@ -456,16 +456,16 @@ class TestDoc3 extends Test {
     futureWorkTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, pastures)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(EdgeSpec(rainfall3, Causal, cropProd)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Becky) in {
       tester.test(EdgeSpec(rainfall3, Causal, pastures)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(planting)
     }
-    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(crops)
     }
     futureWorkTest should "have correct edges 5" taggedAs(Somebody) in {
@@ -490,10 +490,10 @@ class TestDoc3 extends Test {
     val tester = new Tester(text)
 
     // Nodes here
-    val rainfall = NodeSpec("seasonal rainfall", Quant("above average"))
+    val rainfall = NodeSpec("seasonal rainfall", Inc("above"), Quant("above average"))
     val rainfall2 = NodeSpec("seasonal rainfall", Quant("intensification"))
     val flooding = NodeSpec("likelihood for flooding", Inc("increased"))
-    val rainfall3 = NodeSpec("July rains", Quant("below average"))
+    val rainfall3 = NodeSpec("July rains", Dec("below"), Quant("below average"))
     val vegetation = NodeSpec("vegetation conditions", Quant("drier-than-normal"))
     val rainfall4 = NodeSpec("seasonal rains", Inc("intensify"))
     val dry = NodeSpec("dry conditions", Dec("ease"))
@@ -501,16 +501,16 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 13"
 
     // tests here
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(rainfall) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(rainfall2, Correlation, flooding)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(EdgeSpec(rainfall3, Causal, vegetation)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(EdgeSpec(rainfall4, Causal, dry)) should be (successful) // Test edges connecting them
     }
   }
@@ -529,9 +529,9 @@ class TestDoc3 extends Test {
     val tester = new Tester(text)
 
     // Nodes here
-    val rainfall = NodeSpec("rainfall season", Quant("above average"))
+    val rainfall = NodeSpec("rainfall season", Inc("above"), Quant("above average"))
     val vegetation = NodeSpec("Vegetation conditions", Dec("below"))
-    val vegetation2 = NodeSpec("vegetation", Quant("above-average")) // Increase??
+    val vegetation2 = NodeSpec("vegetation", Inc("above-average"), Quant("above-average")) // Increase??
     val production = NodeSpec("production of most crops", Dec("limited"))
     val insecurity = NodeSpec("insecurity")
     val farmInput = NodeSpec("access to farm inputs", Dec("lack"))
@@ -540,22 +540,22 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 14"
 
     // tests here
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(vegetation)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(vegetation2)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    passingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(farmInput, Causal, production)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(EdgeSpec(conflict, Causal, farmInput)) should be (successful) // Test edges connecting them
     }
   }
@@ -596,7 +596,7 @@ class TestDoc3 extends Test {
     failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall2, Causal, losses)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(dry)
     }
     //todo: "if the rains are sustained without significant dry days in coming weeks." --> future tests with hyper edge and negation
@@ -619,7 +619,7 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 16"
 
     // tests here
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall)
     }
 
