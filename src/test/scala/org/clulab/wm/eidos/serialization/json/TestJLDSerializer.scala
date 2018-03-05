@@ -1,15 +1,15 @@
 package org.clulab.wm.eidos.serialization.json
 
-import scala.collection.Seq
-
 import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.EntityGrounder
 import org.clulab.wm.eidos.serialization.json.JLDObject._
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
+import org.clulab.wm.eidos.{EntityGrounder, Grounding}
+
+import scala.collection.Seq
 
 class TestJLDSerializer extends Test {
   
@@ -17,26 +17,26 @@ class TestJLDSerializer extends Test {
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val ieSystem = TestUtils.ieSystem
-    val annotatedDocument = ieSystem.extractFrom(text, true)
+    val annotatedDocument = ieSystem.extractFrom(text, keepText = true)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
   }
   
-  def serialize(corpus: Corpus) = {
+  def serialize(corpus: Corpus): String = {
     object TestEntityGrounder extends EntityGrounder {
   
-      def ground(mention: Mention, quantifier: Quantifier) =
+      def ground(mention: Mention, quantifier: Quantifier): Grounding =
         TestUtils.ieSystem.ground(mention, quantifier)
     }
   
     val jldCorpus = new JLDCorpus(corpus, TestEntityGrounder)
     val jValue = jldCorpus.serialize()
     
-    stringify(jValue, true)
+    stringify(jValue, pretty = true)
   }
   
-  def inspect(string: String) =
+  def inspect(string: String): Unit =
       if (false) println(string)
   
   behavior of "JLDSerializer"
