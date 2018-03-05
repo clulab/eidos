@@ -1,4 +1,5 @@
 - Entity:
   - NounPhrase
+  - Predicate
 # references, tables, etc.
 - Avoid
