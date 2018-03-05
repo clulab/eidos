@@ -4,7 +4,7 @@
     - "emergency"
   - natural:
     - weather:
-      - preciptation:
+      - precipitation:
         - "precipitation"
         - "rain"
         - "rainfall"
@@ -109,7 +109,7 @@
       - "slugs"
   - human:
     - fertilizer:
-      - "nitrogen fertlizer"
+      - "nitrogen fertilizer"
       - "inorganic fertilizers"
       - "potting composts"
       - "nitrogen potassium fertilizers"
@@ -138,14 +138,12 @@
      - "trickle irrigation"
      - "centre pivot irrigation"
      - "subsurface irrigation"
-
-
     - infrastructure:
       - transportation:
         - transportation_methods:
           - "trucking"
           - "shipping"
-          - "courrier"
+          - "courier"
           - "transportation"
           - "driving"
           - "bus"
@@ -238,7 +236,6 @@
         - "food insecurity"
         - "food gap"
         - "malnutrition"
-
 - temoporal:
   - seasons:
     - crop_season:
@@ -267,5 +264,3 @@
     - "October"
     - "November"
     - "December"
-
-
