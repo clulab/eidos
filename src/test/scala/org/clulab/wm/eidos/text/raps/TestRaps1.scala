@@ -144,5 +144,29 @@ class TestRaps1 extends Test {
 
   }
 
+  {
+    val sent26 = "Labor migration to urban areas, non agricultural activities and impact of HIV/AIDS also leads to labor shortages."
+    val tester = new Tester(sent26)
+
+    val migration = NodeSpec("Labor migration to urban areas")
+    val activities = NodeSpec("non agricultural activities")
+    val hiv = NodeSpec("impact of HIV/AIDS")
+    val shortage = NodeSpec("labor", Dec("shortages"))
+
+    behavior of "Raps_26"
+
+    failingTest should "have correct edge 1" taggedAs(Heather) in {
+      tester.test(EdgeSpec(migration, Causal, shortage)) should be (successful)
+    }
+
+    failingTest should "have correct edge 2" taggedAs(Heather) in {
+      tester.test(EdgeSpec(activities, Causal, shortage)) should be (successful)
+    }
+
+    failingTest should "have correct edge 3" taggedAs(Heather) in {
+      tester.test(EdgeSpec(hiv, Causal, shortage)) should be (successful)
+    }
+  }
+
 
 }
