@@ -105,22 +105,22 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(production)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(violence, Affect, regions)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(access, Correlation, conflict)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(EdgeSpec(conflict, Causal, planting)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Becky) in {
       tester.test(EdgeSpec(conflict, Causal, harvesting)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Becky) in {
       tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
     }
   }
@@ -166,34 +166,34 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices3)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(factors, Causal, prices)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(revenue, Causal, reserves)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Ajay) in {
       tester.test(EdgeSpec(revenue, Causal, value)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(EdgeSpec(factors2, Causal, flows)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Ajay) in {
       tester.test(EdgeSpec(insecurity, Causal, flows)) should be (successful)
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    failingTest should "have correct edges 6" taggedAs(Ajay) in {
       tester.test(EdgeSpec(harvests, Causal, requirements)) should be (successful)
     }
-    failingTest should "have correct edges 7" taggedAs(Somebody) in {
+    failingTest should "have correct edges 7" taggedAs(Ajay) in {
       tester.test(EdgeSpec(availability, Causal, prices2)) should be (successful)
     }
-    failingTest should "have correct edges 8" taggedAs(Somebody) in {
+    failingTest should "have correct edges 8" taggedAs(Ajay) in {
       tester.test(EdgeSpec(prices4, Causal, power)) should be (successful)
     }
-    failingTest should "have correct edges 9" taggedAs(Somebody) in {
+    failingTest should "have correct edges 9" taggedAs(Ajay) in {
       tester.test(EdgeSpec(incomes, Causal, power)) should be (successful)
     }
   }
@@ -226,19 +226,19 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(response)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(crisis)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(gaps)
     }
-    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
       tester.test(risk)
     }
-    failingTest should "have correct singleton node 5" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
       tester.test(malnutrition)
     }
   }
@@ -267,19 +267,19 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(security, Correlation, outcomes)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, livelihoods)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, assitance)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, assitance)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Correlation, famine)) should be (successful)
     }
   }
@@ -310,16 +310,16 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(insecurity, Correlation, households)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, stress)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(constrains, Causal, assistance)) should be (successful)
     }
   }
@@ -351,22 +351,22 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, functioning)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    passingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict2, Causal, production)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict2, Causal, movement)) should be (successful)
     }
   }
@@ -388,13 +388,13 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Mihai) in {
       tester.test(EdgeSpec(action, Causal, lives)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Mihai) in {
       tester.test(EdgeSpec(access, Causal, lives)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Mihai) in {
       tester.test(EdgeSpec(assistance, Causal, lives)) should be (successful)
     }
   }
