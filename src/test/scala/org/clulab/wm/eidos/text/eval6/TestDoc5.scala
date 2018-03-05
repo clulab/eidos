@@ -41,37 +41,37 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(insecurity)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(food)
     }
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Keith) in {
       tester.test(EdgeSpec(security, Correlation, insecurity2)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Keith) in {
       tester.test(EdgeSpec(insecurity2, Causal, livelihoods)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Keith) in {
       tester.test(EdgeSpec(insecurity2, Causal, trade)) should be (successful)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Keith) in {
       tester.test(EdgeSpec(insecurity2, Causal, access)) should be (successful)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    failingTest should "have correct edges 5" taggedAs(Keith) in {
       tester.test(EdgeSpec(conflict, Correlation, famine)) should be (successful)
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    failingTest should "have correct edges 6" taggedAs(Keith) in {
       tester.test(EdgeSpec(access, Correlation, famine)) should be (successful)
     }
-    failingTest should "have correct edges 7" taggedAs(Somebody) in {
+    failingTest should "have correct edges 7" taggedAs(Keith) in {
       tester.test(EdgeSpec(famine, Correlation, mortality)) should be (successful)
     }
-    failingTest should "have correct edges 8" taggedAs(Somebody) in {
+    failingTest should "have correct edges 8" taggedAs(Keith) in {
       tester.test(EdgeSpec(delivery, Causal, lives)) should be (successful)
     }
-    failingTest should "have correct edges 9" taggedAs(Somebody) in {
+    failingTest should "have correct edges 9" taggedAs(Keith) in {
       tester.test(EdgeSpec(action, Causal, lives)) should be (successful)
     }
   }
@@ -214,7 +214,7 @@ class TestDoc5 extends Test {
       |(GAM), recorded by SMART surveys conducted between September
       |and November 2016, remained Serious or worse (10 percent or
       |higher) throughout the country during the harvest period.
-      """ 
+      """
 
     val response = NodeSpec("humanitarian response", Quant("significant"))
     val crisis = NodeSpec("Crisis (IPC Phase 3)", Quant("widespread"))
