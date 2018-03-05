@@ -19,11 +19,11 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 1"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Mithun) in {
       tester.test(food) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
       tester.test(hunger) should be (successful)
     }
   }
@@ -45,23 +45,23 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(situation) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
       tester.test(leanSeason) should be(successful)
     }
 
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(foodStocks) should be(successful)
     }
 
-    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 4" taggedAs(Mithun) in {
       tester.test(foodInsecurity) should be(successful)
     }
 
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    failingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(situation, Correlation, leanSeason)) should be(successful)
     }
 
@@ -79,7 +79,7 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 3"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Mithun) in {
       tester.test(hunger) should be (successful)
     }
   }
@@ -99,31 +99,31 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 4"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Fan) in {
       tester.test(roads) should be(successful)
     }
 
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 3" taggedAs(Fan) in {
       tester.test(markets) should be(successful)
     }
 
-    failingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 4" taggedAs(Fan) in {
       tester.test(families) should be(successful)
     }
 
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    failingTest should "have correct edge 1" taggedAs(Fan) in {
       tester.test(EdgeSpec(prices, Causal, families)) should be(successful)
     }
 
-    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+    failingTest should "have correct edge 2" taggedAs(Fan) in {
       tester.test(EdgeSpec(roads, Causal, families)) should be(successful)
     }
 
-    failingTest should "have correct edge 3" taggedAs(Somebody) in {
+    failingTest should "have correct edge 3" taggedAs(Fan) in {
       tester.test(EdgeSpec(markets, Causal, families)) should be (successful)
     }
   }
@@ -140,23 +140,23 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 5"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(foodInsecurity) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(conflict) should be(successful)
     }
 
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(fams) should be(successful)
     }
 
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    failingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(foodInsecurity, Causal, fams)) should be(successful)
     }
 
-    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+    failingTest should "have correct edge 2" taggedAs(Mithun) in {
       tester.test(EdgeSpec(conflict, Causal, fams)) should be (successful)
     }
   }
@@ -172,7 +172,7 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 6"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Fan) in {
       tester.test(malnutrition) should be (successful)
     }
   }
@@ -188,7 +188,7 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 7"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Fan) in {
       tester.test(support) should be (successful)
     }
   }
@@ -205,11 +205,11 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 8"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Fan) in {
       tester.test(need) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Fan) in {
       tester.test(malnutrition) should be (successful)
     }
   }
@@ -225,7 +225,7 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 9"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Vikas) in {
       tester.test(malnutrition) should be (successful)
     }
   }
