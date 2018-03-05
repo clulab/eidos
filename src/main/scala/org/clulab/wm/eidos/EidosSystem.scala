@@ -5,13 +5,11 @@ import java.util.Collection
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
-import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
-import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.serialization.json.JLDObject.AnnotatedDocument
 import org.clulab.wm.eidos.utils.DomainOntology
@@ -47,7 +45,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
       val engine: ExtractorEngine,
       val ner: LexiconNER,
       val w2v: Word2Vec,
-      val ontoW2v: Taxonomy//todo: Need to change it to --> Array[(String, Double)]
+      val conceptEmbeddings: Map[String, Seq[Double]],
+      val topKNodeGroundings: Int
   )
   
   object LoadableAttributes {
@@ -66,6 +65,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
     val     wordToVecPath: String = getPath(    "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
     val    domainOntoPath: String = getPath(   "domainOntoPath", "/org/clulab/wm/eidos/sameas/toy_taxonomy.yml")
+    val topKNodeGroundings:Int    = getArgInt("topKNodeGroundings", Some(10))
     
     val maxHops: Int = getArgInt(getFullName("maxHops"), Option(15))
       
@@ -73,7 +73,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     def apply(): LoadableAttributes = {
       val rules = readRules(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
-      val (w2v: Word2Vec, taxonomy: Taxonomy) = initSameAsDataStructures(wordToVecPath, domainOntoPath)
+      val (w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]]) = initSameAsDataStructures(wordToVecPath, domainOntoPath)
      
       new LoadableAttributes(
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
@@ -89,7 +89,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
           //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
           LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...,
           w2v,
-          taxonomy
+          conceptEmbeddings,
+          topKNodeGroundings
       )
     }
   }
@@ -106,6 +107,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
   def w2v = loadableAttributes.w2v
+  def conceptEmbeddings = loadableAttributes.conceptEmbeddings
+  def topKNodeGroundings = loadableAttributes.topKNodeGroundings
   
   def reload() = loadableAttributes = LoadableAttributes()
 
@@ -169,46 +172,47 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     if (!populateSameAs) return events
     //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
-    val sameAs = populateSameAsRelations(entities)
-    events ++ sameAs
+//    val sameAs = populateSameAsRelations(entities)
+//    events ++ sameAs
+    events
   }
 
-  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
+//  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
 
-    // Create an UndirectedRelation Mention to contain the sameAs grounding information
-    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
-      // Build a Relation Mention (no trigger)
-      new CrossSentenceMention(
-        labels = Seq("SameAs"),
-        anchor = a,
-        neighbor = b,
-        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
-        document = a.document,  // todo: change?
-        keep = true,
-        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
-        attachments = Set(Score(score)))
-    }
-
-    // n choose 2
-    val sameAsRelations = for {
-      (m1, i) <- ms.zipWithIndex
-      m2 <- ms.slice(i+1, ms.length)
-      score = calculateSameAs(m1, m2)
-    } yield sameAs(m1, m2, score)
-
-    sameAsRelations
-  }
+//    // Create an UndirectedRelation Mention to contain the sameAs grounding information
+//    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
+//      // Build a Relation Mention (no trigger)
+//      new CrossSentenceMention(
+//        labels = Seq("SameAs"),
+//        anchor = a,
+//        neighbor = b,
+//        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
+//        document = a.document,  // todo: change?
+//        keep = true,
+//        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
+//        attachments = Set(Score(score)))
+//    }
+//
+//    // n choose 2
+//    val sameAsRelations = for {
+//      (m1, i) <- ms.zipWithIndex
+//      m2 <- ms.slice(i+1, ms.length)
+//      score = calculateSameAs(m1, m2)
+//    } yield sameAs(m1, m2, score)
+//
+//    sameAsRelations
+//  }
 
   // fixme: implement
-  def calculateSameAs (m1: Mention, m2: Mention): Double = {
-    val sanitisedM1 =  m1.text.split(" +").map( Word2Vec.sanitizeWord(_) )
-    val sanitisedM2 =  m2.text.split(" +").map( Word2Vec.sanitizeWord(_) )
-    val score = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
-    score
-  }
+//  def calculateSameAs (m1: Mention, m2: Mention): Double = {
+//    val sanitisedM1 =  m1.text.split(" +").map( Word2Vec.sanitizeWord(_) )
+//    val sanitisedM2 =  m2.text.split(" +").map( Word2Vec.sanitizeWord(_) )
+//    val score = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
+//    score
+//  }
 
   // reads a taxonomy from data, where data may be either a forest or a file path
-  private def readTaxonomy(data: Any): DomainOntology = data match {
+  private def readOntology(data: Any): DomainOntology = data match {
     case t: Collection[_] => DomainOntology(t.asInstanceOf[Collection[Any]])
     case path: String =>
       val url = getClass.getResource(path)
@@ -220,15 +224,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
       DomainOntology(data)
   }
 
-  def initSameAsDataStructures (word2VecPath: String, taxonomyPath: String): (Word2Vec, Taxonomy) ={
+  def initSameAsDataStructures (word2VecPath: String, ontologyPath: String): (Word2Vec, Map[String, Seq[Double]]) = {
+    println(s"Word2Vec: ${word2VecPath}")
+    println(s"ontology: ${ontologyPath}")
     val word2vecFile = scala.io.Source.fromURL(getClass.getResource(word2VecPath))
     lazy val w2v = new Word2Vec(word2vecFile, None)
-    val taxonomy = readTaxonomy(taxonomyPath)
-    println(taxonomy.toString)
-    val x = taxonomy.hyponymsFor("events")
-    println(x.mkString("\n"))
-    (w2v, taxonomy)
-
+    val ontology = readOntology(ontologyPath)
+    val conceptEmbeddings = ontology.iterateOntology(w2v)
+    (w2v, conceptEmbeddings)
   }
 
   /*

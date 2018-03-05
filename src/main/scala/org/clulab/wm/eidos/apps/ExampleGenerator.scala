@@ -1,10 +1,10 @@
 package org.clulab.wm.eidos.apps
 
-import org.json4s.jackson.JsonMethods._
-
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.mentions.{EidosMention, EidosTextBoundMention}
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
-import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
+import org.clulab.wm.eidos.utils.DisplayUtils.{displayMention, displayMentions}
+import org.json4s.jackson.JsonMethods._
 
 object ExampleGenerator extends App {
 
@@ -20,6 +20,21 @@ object ExampleGenerator extends App {
 
   // extract mentions from annotated document
   val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
+  val eidosMentions = EidosMention.asEidosMentions(
+    odinMentions = mentions,
+    w2v = ieSystem.w2v,
+    ontology = ieSystem.conceptEmbeddings,
+    k = ieSystem.topKNodeGroundings
+  )
+
+  println("~~~~~~~~~~~~~~~~~~~~~~~")
+  for (e <- eidosMentions.filter(_.isInstanceOf[EidosTextBoundMention])) {
+    println("EidosMention:")
+    displayMention(e.odinMention)
+    println("Groundings:")
+    e.asInstanceOf[EidosTextBoundMention].grounding.foreach(g => println(s"\t$g"))
+  }
+  println("~~~~~~~~~~~~~~~~~~~~~~~")
 
   // debug display the mentions
   displayMentions(mentions, doc)
