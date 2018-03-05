@@ -40,18 +40,14 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def toJObjects(jldObjects: Seq[JLDObject]): Option[Seq[JValue]] =
       noneIfEmpty(jldObjects.map(_.toJObject()).toList)
   
-  // See taxonomy.yml for this
   def newJLDExtraction(mention: Mention): Option[JLDExtraction] = mention match {
-    case _ if (mention.matches(JLDDirectedRelation.typename)) => Some(new JLDDirectedRelation(serializer, mention))
-    case _ if (mention.matches(JLDUndirectedRelation.typename)) => Some(new JLDUndirectedRelation(serializer, mention))
-    case _ if (mention.matches(JLDEntity.typename)) => Some(new JLDEntity(serializer, mention))
+    case mention: EventMention => Some(new JLDDirectedRelation(serializer, mention))
+    case mention: RelationMention => Some(new JLDUndirectedRelation(serializer, mention))
+    case mention: TextBoundMention => Some(new JLDEntity(serializer, mention))
     case _ => None
   }
         
-  def isExtractable(mention: Mention) =
-      mention.matches(JLDDirectedRelation.typename) || 
-          mention.matches(JLDUndirectedRelation.typename) ||
-          mention.matches(JLDEntity.typename)
+  def isExtractable(mention: Mention) = true
   
   def newJLDAttachment(attachment: Attachment, mention: Mention): JLDAttachment =
       EidosAttachment.asEidosAttachment(attachment).newJLDAttachment(serializer, mention)

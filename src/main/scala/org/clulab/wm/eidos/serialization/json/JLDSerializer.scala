@@ -41,18 +41,13 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def toJObjects(jldObjects: Seq[JLDObject]): Option[Seq[JValue]] =
       noneIfEmpty(jldObjects.map(_.toJObject()).toList)
   
-  // See taxonomy.yml for this
-  def newJLDExtraction(mention: EidosMention): Option[JLDExtraction] = mention match {
-    case mention: EidosEventMention if (mention.odinMention.matches(JLDDirectedRelation.typename)) => Some(new JLDDirectedRelation(serializer, mention))
-    case mention: EidosRelationMention if (mention.odinMention.matches(JLDUndirectedRelation.typename)) => Some(new JLDUndirectedRelation(serializer, mention))
-    case mention: EidosTextBoundMention if (mention.odinMention.matches(JLDEntity.typename)) => Some(new JLDEntity(serializer, mention))
-    case _ => None
+  def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
+    case mention: EidosEventMention => new JLDDirectedRelation(serializer, mention)
+    case mention: EidosRelationMention => new JLDUndirectedRelation(serializer, mention)
+    case mention: EidosTextBoundMention => new JLDEntity(serializer, mention)
   }
         
-  def isExtractable(mention: EidosMention) =
-      mention.odinMention.matches(JLDDirectedRelation.typename) || 
-          mention.odinMention.matches(JLDUndirectedRelation.typename) ||
-          mention.odinMention.matches(JLDEntity.typename)
+  def isExtractable(mention: EidosMention) = true
   
   def newJLDAttachment(attachment: Attachment, mention: EidosMention): JLDAttachment =
       EidosAttachment.asEidosAttachment(attachment).newJLDAttachment(serializer, mention)
@@ -477,7 +472,7 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
     }
     
     if (!newMentions.isEmpty) {
-      val jldExtractions = newMentions.map(newJLDExtraction(_).get)
+      val jldExtractions = newMentions.map(newJLDExtraction(_))
       val recMentions = jldExtractions.flatMap(_.getMentions())
       
       jldExtractions ++ collectMentions(recMentions, mapOfMentions)

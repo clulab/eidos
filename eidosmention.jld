@@ -7,29 +7,29 @@ rulesPath:	/org/clulab/wm/eidos/grammars/avoidLocal.yml
 Loading domain parameters file from /org/clulab/wm/eidos/quantifierKB/domain_parameters.kb
 loaded domain params:Map(agricultural production -> Map(mean -> 12.4, stdev -> 3.1), DEFAULT -> Map(mean -> 35.76, stdev -> 4.56), subsidies -> Map(mean -> 1200.0, stdev -> 350.0), prices of agricultural commodities -> Map(mean -> 236.0, stdev -> 35.0), poverty -> Map(mean -> 23.2, stdev -> 1.3))
 Loading the gradable adjectives model file from /org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb
-14:03:42.244 [ScalaTest-main-running-TestJLDSerializer] INFO  org.clulab.sequences.LexiconNER - Beginning to load the KBs for the rule-based bio NER...
-14:03:42.263 [ScalaTest-main-running-TestJLDSerializer] INFO  org.clulab.sequences.LexiconNER - Loaded matcher for label Quantifier. This matcher contains 193 unique strings; the size of the first layer is 193.
-14:03:42.263 [ScalaTest-main-running-TestJLDSerializer] INFO  org.clulab.sequences.LexiconNER - KB loading completed.
-14:03:42.414 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator tokenize
-14:03:42.430 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator ssplit
-14:03:42.528 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.AnnotatorPool - Replacing old annotator "ssplit" with signature [tokenize.language:English;] with new annotator with signature []
-14:03:42.528 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.AnnotatorPool - Replacing old annotator "tokenize" with signature [tokenize.language:English;] with new annotator with signature []
-14:03:42.528 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator pos
-14:03:43.370 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.tagger.maxent.MaxentTagger - Loading POS tagger from edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger ... done [0.8 sec].
-14:03:43.409 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator lemma
-14:03:43.474 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator ner
-14:03:46.763 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.ie.AbstractSequenceClassifier - Loading classifier from edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz ... done [3.2 sec].
-14:03:47.560 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.ie.AbstractSequenceClassifier - Loading classifier from edu/stanford/nlp/models/ner/english.muc.7class.distsim.crf.ser.gz ... done [0.8 sec].
-14:03:48.259 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.ie.AbstractSequenceClassifier - Loading classifier from edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz ... done [0.7 sec].
-14:03:48.264 [ScalaTest-main-running-TestJLDSerializer] INFO  e.stanford.nlp.time.JollyDayHolidays - Initializing JollyDayHoliday for SUTime from classpath edu/stanford/nlp/models/sutime/jollyday/Holidays_sutime.xml as sutime.binder.1.
-14:03:49.680 [ScalaTest-main-running-TestJLDSerializer] DEBUG e.s.n.l.t.CoreMapExpressionExtractor - Ignoring inactive rule: null
-14:03:49.681 [ScalaTest-main-running-TestJLDSerializer] DEBUG e.s.n.l.t.CoreMapExpressionExtractor - Ignoring inactive rule: temporal-composite-8:ranges
-14:03:50.037 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.parser.nndep.DependencyParser - Loading depparse model file: edu/stanford/nlp/models/parser/nndep/english_UD.gz ... 
-14:04:09.503 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.parser.nndep.Classifier - PreComputed 99996, Elapsed Time: 15.562 (s)
-14:04:09.503 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.parser.nndep.DependencyParser - Initializing dependency parser ... done [19.5 sec].
-14:04:09.821 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.sequences.SeqClassifierFlags - macro=true
-14:04:09.822 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.sequences.SeqClassifierFlags - featureCountThresh=10
-14:04:09.822 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.sequences.SeqClassifierFlags - featureFactory=org.clulab.processors.corenlp.chunker.ChunkingFeatureFactory
+14:47:24.235 [ScalaTest-main-running-TestJLDSerializer] INFO  org.clulab.sequences.LexiconNER - Beginning to load the KBs for the rule-based bio NER...
+14:47:24.251 [ScalaTest-main-running-TestJLDSerializer] INFO  org.clulab.sequences.LexiconNER - Loaded matcher for label Quantifier. This matcher contains 193 unique strings; the size of the first layer is 193.
+14:47:24.251 [ScalaTest-main-running-TestJLDSerializer] INFO  org.clulab.sequences.LexiconNER - KB loading completed.
+14:47:24.400 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator tokenize
+14:47:24.418 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator ssplit
+14:47:24.513 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.AnnotatorPool - Replacing old annotator "ssplit" with signature [tokenize.language:English;] with new annotator with signature []
+14:47:24.513 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.AnnotatorPool - Replacing old annotator "tokenize" with signature [tokenize.language:English;] with new annotator with signature []
+14:47:24.514 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator pos
+14:47:25.402 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.tagger.maxent.MaxentTagger - Loading POS tagger from edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger ... done [0.8 sec].
+14:47:25.456 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator lemma
+14:47:25.521 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.pipeline.StanfordCoreNLP - Adding annotator ner
+14:47:28.873 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.ie.AbstractSequenceClassifier - Loading classifier from edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz ... done [3.3 sec].
+14:47:29.509 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.ie.AbstractSequenceClassifier - Loading classifier from edu/stanford/nlp/models/ner/english.muc.7class.distsim.crf.ser.gz ... done [0.6 sec].
+14:47:32.176 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.ie.AbstractSequenceClassifier - Loading classifier from edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz ... done [2.7 sec].
+14:47:32.182 [ScalaTest-main-running-TestJLDSerializer] INFO  e.stanford.nlp.time.JollyDayHolidays - Initializing JollyDayHoliday for SUTime from classpath edu/stanford/nlp/models/sutime/jollyday/Holidays_sutime.xml as sutime.binder.1.
+14:47:33.722 [ScalaTest-main-running-TestJLDSerializer] DEBUG e.s.n.l.t.CoreMapExpressionExtractor - Ignoring inactive rule: null
+14:47:33.722 [ScalaTest-main-running-TestJLDSerializer] DEBUG e.s.n.l.t.CoreMapExpressionExtractor - Ignoring inactive rule: temporal-composite-8:ranges
+14:47:34.072 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.parser.nndep.DependencyParser - Loading depparse model file: edu/stanford/nlp/models/parser/nndep/english_UD.gz ... 
+14:47:51.160 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.parser.nndep.Classifier - PreComputed 99996, Elapsed Time: 15.833 (s)
+14:47:51.160 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.n.parser.nndep.DependencyParser - Initializing dependency parser ... done [17.1 sec].
+14:47:51.443 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.sequences.SeqClassifierFlags - macro=true
+14:47:51.444 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.sequences.SeqClassifierFlags - featureCountThresh=10
+14:47:51.444 [ScalaTest-main-running-TestJLDSerializer] INFO  e.s.nlp.sequences.SeqClassifierFlags - featureFactory=org.clulab.processors.corenlp.chunker.ChunkingFeatureFactory
 - should serialize the same each time
 - should say hello
 - should serialize one simple document
@@ -38,21 +38,9 @@ Loading the gradable adjectives model file from /org/clulab/wm/eidos/quantifierK
 - should serialize one more complex document
 - should serialize two more complex documents
 - should serialize very complex documents
-- should serialize all CAGs in one pass *** FAILED ***
-  java.util.NoSuchElementException: None.get
-  at scala.None$.get(Option.scala:349)
-  at scala.None$.get(Option.scala:347)
-  at org.clulab.wm.eidos.serialization.json.JLDCorpus.$anonfun$collectMentions$3(JLDSerializer.scala:480)
-  at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:234)
-  at scala.collection.immutable.List.foreach(List.scala:389)
-  at scala.collection.TraversableLike.map(TraversableLike.scala:234)
-  at scala.collection.TraversableLike.map$(TraversableLike.scala:227)
-  at scala.collection.immutable.List.map(List.scala:295)
-  at org.clulab.wm.eidos.serialization.json.JLDCorpus.collectMentions(JLDSerializer.scala:480)
-  at org.clulab.wm.eidos.serialization.json.JLDCorpus.collectMentions(JLDSerializer.scala:503)
-  ...
-Run completed in 39 seconds, 989 milliseconds.
+- should serialize all CAGs in one pass
+Run completed in 40 seconds, 571 milliseconds.
 Total number of tests run: 9
 Suites: completed 1, aborted 0
-Tests: succeeded 8, failed 1, canceled 0, ignored 0, pending 0
-*** 1 TEST FAILED ***
+Tests: succeeded 9, failed 0, canceled 0, ignored 0, pending 0
+All tests passed.
