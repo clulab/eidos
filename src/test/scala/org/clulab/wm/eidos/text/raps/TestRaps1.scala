@@ -243,7 +243,23 @@ class TestRaps1 extends Test {
     behavior of "Raps_30"
 
     failingTest should "have correct edge" taggedAs(Heather) in {
-      tester.test(EdgeSpec(inequality, Causal, share))
+      tester.test(EdgeSpec(inequality, Causal, share)) should be (successful)
+    }
+
+  }
+
+  {
+    val sent31 = "The adoption process will be instigated due to the anticipated losses in agricultural productivity in the face of climatic uncertainties."
+    val tester = new Tester(sent31)
+
+    val adoption = NodeSpec("adoption process")
+    val losses = NodeSpec("anticipated losses")
+    val prod = NodeSpec("agricultural productivity", Dec("losses"))
+
+    behavior of "Raps_31"
+
+    failingTest should "have correct edge" taggedAs(Heather) in {
+      tester.test(EdgeSpec(losses, Causal, adoption)) should be (successful)
     }
 
   }
