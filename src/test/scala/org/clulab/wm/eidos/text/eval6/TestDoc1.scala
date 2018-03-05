@@ -24,7 +24,7 @@ class TestDoc1 extends Test {
 
     behavior of "TestDoc1 Paragraph 1"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(trade1)
     }
     futureWorkTest should "have correct singleton node 2" taggedAs(Somebody) in {
@@ -55,7 +55,7 @@ class TestDoc1 extends Test {
 
     behavior of "TestDoc1 Paragraph 2"
 
-    failingTest should "have correct edge 1" taggedAs (Somebody) in {
+    failingTest should "have correct edge 1" taggedAs (Becky) in {
       tester.test(EdgeSpec(crop, Causal, surplus)) should be (successful)
     }
 
@@ -76,7 +76,7 @@ class TestDoc1 extends Test {
 
     behavior of "TestDoc1 Paragraph 3"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, agriculture))
     }
 
@@ -130,25 +130,25 @@ class TestDoc1 extends Test {
     futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(leaching, Causal, soilNutrient))
     }
-    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+    passingTest should "have correct edge 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Correlation, leaching))
     }
-    failingTest should "have correct edge 3" taggedAs(Somebody) in {
+    passingTest should "have correct edge 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(fertiizerUse, Causal, soilNutrient))
     }
-    failingTest should "have correct edge 4" taggedAs(Somebody) in {
+    passingTest should "have correct edge 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(overfarming, Causal, soilNutrient))
     }
-    failingTest should "have correct edge 5" taggedAs(Somebody) in {
+    passingTest should "have correct edge 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(knowledge, Causal, soilNutient2))
     }
-    failingTest should "have correct edge 6" taggedAs(Somebody) in {
+    passingTest should "have correct edge 6" taggedAs(Somebody) in {
       tester.test(EdgeSpec(roleOfFertilizer, Causal, soilNutient2))
     }
-    failingTest should "have correct edge 7" taggedAs(Somebody) in {
+    passingTest should "have correct edge 7" taggedAs(Somebody) in {
       tester.test(EdgeSpec(extension, Causal, soilNutient2))
     }
-    failingTest should "have correct edge 8" taggedAs(Somebody) in {
+    passingTest should "have correct edge 8" taggedAs(Somebody) in {
       tester.test(EdgeSpec(transfer, Causal, soilNutient2))
     }
   }
@@ -188,31 +188,31 @@ class TestDoc1 extends Test {
 
     behavior of "TestDoc1 Paragraph 5"
 
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    passingTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(institutional, Causal, development))
     }
-    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+    passingTest should "have correct edge 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(disagreements, Causal, conflict))
     }
-    failingTest should "have correct edge 3" taggedAs(Somebody) in {
+    passingTest should "have correct edge 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(livestock, Causal, conflict))
     }
-    failingTest should "have correct edge 4" taggedAs(Somebody) in {
+    passingTest should "have correct edge 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, production))
     }
-    failingTest should "have correct edge 5" taggedAs(Somebody) in {
+    passingTest should "have correct edge 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, building))
     }
-    failingTest should "have correct edge 5b" taggedAs(Somebody) in {
+    passingTest should "have correct edge 5b" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, building2))
     }
-    failingTest should "have correct edge 6" taggedAs(Somebody) in {
+    passingTest should "have correct edge 6" taggedAs(Somebody) in {
       tester.test(EdgeSpec(publicInvestment, Correlation, irrigation))
     }
     futureWorkTest should "have correct singleton node 2" taggedAs(Somebody) in {
       tester.test(roads)
     }
-    failingTest should "have correct edge 7" taggedAs(Somebody) in {
+    passingTest should "have correct edge 7" taggedAs(Somebody) in {
       tester.test(EdgeSpec(transportation, Causal, transport))
     }
   }
@@ -231,10 +231,10 @@ class TestDoc1 extends Test {
     val develop = NodeSpec("businesses to develop", Dec("difficult"))
     behavior of "TestDoc1 Paragraph 6"
 
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    passingTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(business, Causal, develop))
     }
-    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+    passingTest should "have correct edge 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(information, Causal, develop))
     }
 

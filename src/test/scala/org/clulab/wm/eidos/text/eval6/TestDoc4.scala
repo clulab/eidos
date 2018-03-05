@@ -36,13 +36,13 @@ as IPC Phase 4: "Emergency".
     
     behavior of "TestDoc4 Paragraph 1"
 
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
+    failingTest should "have correct node 1" taggedAs(Vikas) in {
       tester.test(conditions1) should be (successful)
     }
-    failingTest should "have correct node 2" taggedAs(Somebody) in {
+    failingTest should "have correct node 2" taggedAs(Vikas) in {
       tester.test(fromQuant) should be (successful)
     }
-    failingTest should "have correct node 3" taggedAs(Somebody) in {
+    failingTest should "have correct node 3" taggedAs(Vikas) in {
       tester.test(toQuant) should be (successful)
     }
     
@@ -90,47 +90,47 @@ counties in Unity State.
     
     behavior of "TestDoc4 Paragraph 2"
 
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
+    passingTest should "have correct node 1" taggedAs(Somebody) in {
       tester.test(fromQuant)
     }
-    failingTest should "have correct node 2" taggedAs(Somebody) in {
+    passingTest should "have correct node 2" taggedAs(Somebody) in {
       tester.test(toQuant)
     }
-    failingTest should "have correct node 3" taggedAs(Somebody) in {
+    passingTest should "have correct node 3" taggedAs(Somebody) in {
       tester.test(concern)
     }
-    failingTest should "have correct node 4" taggedAs(Somebody) in {
+    passingTest should "have correct node 4" taggedAs(Somebody) in {
       tester.test(location)
     }
-    failingTest should "have correct node 5" taggedAs(Somebody) in {
+    passingTest should "have correct node 5" taggedAs(Somebody) in {
       tester.test(foodInsecurity)
     }
-    failingTest should "have correct node 6" taggedAs(Somebody) in {
+    passingTest should "have correct node 6" taggedAs(Somebody) in {
       tester.test(conditions)
     }
-    
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(caseload, Correlation, access))
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Causal, insecurity))
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    passingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Causal, displacements))
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    passingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Causal, foodPrices))
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    passingTest should "have correct edges 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Causal, marketDisruptions))
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    passingTest should "have correct edges 6" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Causal, collapse))
     }
-    failingTest should "have correct edges 7" taggedAs(Somebody) in {
+    passingTest should "have correct edges 7" taggedAs(Somebody) in {
       tester.test(EdgeSpec(access, Causal, mechanisms))
     }
-    failingTest should "have correct edges 8" taggedAs(Somebody) in {
+    passingTest should "have correct edges 8" taggedAs(Somebody) in {
       tester.test(EdgeSpec(concern, IsA, location))
     }
   }
@@ -152,10 +152,10 @@ Republic of the Congo, Ethiopia and Kenya).
 
     behavior of "TestDoc4 Paragraph 3"
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, flee))
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, soughtRefuge))
     }
   }
@@ -194,20 +194,20 @@ benefiting vegetation conditions.
     
     behavior of "TestDoc4 Paragraph 4"
 
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
+    passingTest should "have correct node 1" taggedAs(Somebody) in {
       tester.test(rains1)
     }
-    failingTest should "have correct node 2" taggedAs(Somebody) in {
+    passingTest should "have correct node 2" taggedAs(Somebody) in {
       tester.test(rains2)
     }
-    failingTest should "have correct node 3" taggedAs(Somebody) in {
+    passingTest should "have correct node 3" taggedAs(Somebody) in {
       tester.test(harvesting2)
     }
-    failingTest should "have correct node 4" taggedAs(Somebody) in {
+    passingTest should "have correct node 4" taggedAs(Somebody) in {
       tester.test(conditions)
     }
-    
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rains3, Causal, benefiting))
     }
   }
@@ -247,26 +247,26 @@ reportedly left their living areas.
     
     behavior of "TestDoc4 Paragraph 5"
 
-    failingTest should "have correct nodes 1" taggedAs(Somebody) in {
+    passingTest should "have correct nodes 1" taggedAs(Somebody) in {
       tester.test(population)
     }
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       EdgeSpec(insecurity, Causal, prospects)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
       EdgeSpec(insecurity, Causal, access)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    passingTest should "have correct edges 3" taggedAs(Somebody) in {
       EdgeSpec(insecurity, Causal, displacement)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    passingTest should "have correct edges 4" taggedAs(Somebody) in {
       EdgeSpec(insecurity, Causal, shortages)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    passingTest should "have correct edges 5" taggedAs(Somebody) in {
       EdgeSpec(insecurity, Causal, damage)
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    passingTest should "have correct edges 6" taggedAs(Somebody) in {
       EdgeSpec(displacements, Causal, production)
     }
 }
@@ -287,11 +287,11 @@ Central Equatoria states.
     
     behavior of "TestDoc4 Paragraph 6"
 
-    failingTest should "have correct nodes 1" taggedAs(Somebody) in {
+    passingTest should "have correct nodes 1" taggedAs(Somebody) in {
       tester.test(regions)
     }
-    
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(infestations, Correlation, damage))
     }
   }
@@ -340,44 +340,44 @@ than in the corresponding period two years earlier.
     
     behavior of "TestDoc4 Paragraph 7"
 
-    failingTest should "have correct node 1" taggedAs(Somebody) in {
+    passingTest should "have correct node 1" taggedAs(Somebody) in {
       tester.test(pricesTo)
     }
-    failingTest should "have correct node 2" taggedAs(Somebody) in {
+    passingTest should "have correct node 2" taggedAs(Somebody) in {
       tester.test(situation)
     }
-    failingTest should "have correct node 3" taggedAs(Somebody) in {
+    passingTest should "have correct node 3" taggedAs(Somebody) in {
       tester.test(prices2)
     }
-    failingTest should "have correct node 4" taggedAs(Somebody) in {
+    passingTest should "have correct node 4" taggedAs(Somebody) in {
       tester.test(prices3)
     }
-    failingTest should "have correct node 5" taggedAs(Somebody) in {
+    passingTest should "have correct node 5" taggedAs(Somebody) in {
       tester.test(prices3To)
     }
-    failingTest should "have correct node 6" taggedAs(Somebody) in {
+    passingTest should "have correct node 6" taggedAs(Somebody) in {
       tester.test(prices4)
     }
-    failingTest should "have correct node 7" taggedAs(Somebody) in {
+    passingTest should "have correct node 7" taggedAs(Somebody) in {
       tester.test(prices5)
     }
 
-    failingTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       EdgeSpec(situation, Causal, prices)
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
       EdgeSpec(disruptions, Causal, prices)
     }
-    failingTest should "have correct edges 3" taggedAs(Somebody) in {
+    passingTest should "have correct edges 3" taggedAs(Somebody) in {
       EdgeSpec(hyperinflation, Causal, prices)
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    passingTest should "have correct edges 4" taggedAs(Somebody) in {
       EdgeSpec(depreciation, Causal, prices)
     }
-    failingTest should "have correct edges 5" taggedAs(Somebody) in {
+    passingTest should "have correct edges 5" taggedAs(Somebody) in {
       EdgeSpec(harvest, Correlation, they)
     }
-    failingTest should "have correct edges 6" taggedAs(Somebody) in {
+    passingTest should "have correct edges 6" taggedAs(Somebody) in {
       EdgeSpec(selling, Correlation, they)
     }
   }

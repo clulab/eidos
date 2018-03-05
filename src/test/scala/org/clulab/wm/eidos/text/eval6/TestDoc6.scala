@@ -33,27 +33,27 @@ class TestDoc6 extends Test {
     behavior of "TestDoc6 Paragraph 1"
 
     // Requires corss-sentence coref
-    futureWorkTest should "have correct edge 1" taggedAs(Becky) in {
+    futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(stocks, Causal, leanSeason)) should be (successful)
     }
     // Requires corss-sentence coref
-    futureWorkTest should "have correct edges 2" taggedAs(Becky) in {
+    futureWorkTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(stocks, Causal, foodSecurity)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Becky) in {
+    failingTest should "have correct edges 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(foodAccess, Causal, risk)) should be (successful)
     }
     // Is this get-able?
-    failingTest should "have correct edges 4" taggedAs(Becky) in {
+    failingTest should "have correct edges 4" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(risk, Correlation, assistance)) should be (successful)
     }
     // These two should prob really be an EdgeSpec(conflict, Correlation, assistance1) -- 
     // todo: I think we could get this as [if X -> A and X -> B (within a single sentence), then A Corr B]
     // todo: as is, we'll get this as 2 causal events and "action" is likely a stop word here...
-    failingTest should "have correct edges 5" taggedAs(Becky) in {
+    failingTest should "have correct edges 5" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(action, Causal, conflict)) should be (successful)
     }
-    failingTest should "have correct edges 6" taggedAs(Becky) in {
+    failingTest should "have correct edges 6" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(action, Causal, assistance1)) should be (successful)
     }
 
@@ -90,7 +90,7 @@ class TestDoc6 extends Test {
     failingTest should "have correct singleton node 2" taggedAs(Becky) in {
       tester.test(foodSec) should be (successful)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Becky) in {
+    passingTest should "have correct singleton node 3" taggedAs(Becky) in {
       tester.test(access) should be (successful)
     }
     failingTest should "have correct edge 1" taggedAs(Becky) in {
@@ -174,10 +174,10 @@ class TestDoc6 extends Test {
 
     behavior of "TestDoc6 Paragraph 5"
 
-    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+    failingTest should "have correct singleton node 1" taggedAs(Mihai) in {
       tester.test(food) should be (successful)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
+    failingTest should "have correct singleton node 2" taggedAs(Mihai) in {
       tester.test(needs) should be (successful)
     }
   }
