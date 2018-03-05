@@ -74,5 +74,52 @@ class TestRaps1 extends Test {
 
   }
 
+  {
+    val sent23 = "The transformation however starts under extremely difficult conditions, characterized by large account deficit and liquidity challenges and limited direct foreign investment due to lack of clarity on investment security and high interest rates."
+    val tester = new Tester(sent23)
+
+    val account = NodeSpec("account", Dec("deficit", "large"))
+    val invest = NodeSpec("direct foreign investment", Dec("limited"))
+    val noClarity = NodeSpec("clarity", Dec("lack"))
+    val interestRates = NodeSpec("interest rates", Quant("high"), Inc("high"))
+
+    val conditions = NodeSpec("difficult conditions", Quant("extremely"))
+
+    behavior of "Raps_sent23"
+
+    passingTest should "have correct node 1" taggedAs(Heather) in {
+      tester.test(conditions) should be (successful)
+    }
+
+    //extracts properly in the Eidos shell
+    failingTest should "have correct node 2" taggedAs(Heather) in {
+      tester.test(account) should be (successful)
+    }
+
+    failingTest should "have correct edge 1" taggedAs(Heather) in {
+      tester.test(EdgeSpec(invest, Causal, noClarity)) should be (successful)
+    }
+
+    failingTest should "have correct edge 2" taggedAs(Heather) in {
+      tester.test(EdgeSpec(invest, Causal, interestRates)) should be (successful)
+    }
+
+  }
+
+  { //TODO: does "adversely" affect mean a decrease?
+    val sent24 = "Global trends suggest that rice wheat production in the region will be adversely affected by climate change."
+    val tester = new Tester(sent24)
+
+    val wheat = NodeSpec("rice wheat production in the region")
+    val climate = NodeSpec("climate")
+
+    behavior of "Raps_24"
+
+    passingTest should "have correct edge" taggedAs(Heather) in {
+      tester.test(EdgeSpec(climate, Causal, wheat)) should be (successful)
+    }
+
+  }
+
 
 }
