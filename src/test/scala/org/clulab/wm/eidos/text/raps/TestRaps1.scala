@@ -121,5 +121,28 @@ class TestRaps1 extends Test {
 
   }
 
+  {
+    val sent25 = "With a high cost of production and degraded natural resources, profitability in agriculture may be further reduced, making agriculture unprofitable."
+    val tester = new Tester(sent25)
+
+    val cost = NodeSpec("cost of production", Quant("high"), Inc("high"))
+    val resources = NodeSpec("natural resources", Dec("degraded"))
+    val profit = NodeSpec("profitability in agriculture", Dec("reduced"))
+
+
+    behavior of "Raps_25"
+
+    failingTest should "have correct edge 1" taggedAs(Heather) in {
+      tester.test(EdgeSpec(cost, Causal, profit)) should be (successful)
+
+    }
+
+    failingTest should "have correct edge 2" taggedAs(Heather) in {
+      tester.test(EdgeSpec(resources, Causal, profit)) should be (successful)
+
+    }
+
+  }
+
 
 }
