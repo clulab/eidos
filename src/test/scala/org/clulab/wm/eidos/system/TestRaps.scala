@@ -477,7 +477,7 @@ class TestRaps extends Test {
       tester.test(productivity) should be (successful)
     }
 
-    passingTest should "have correct node 2" in {
+    failingTest should "have correct node 2" in {
       tester.test(use) should be (successful)
     }
 
