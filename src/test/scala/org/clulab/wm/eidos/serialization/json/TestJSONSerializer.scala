@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import org.clulab.serialization.json.JSONSerializer
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDObject._
+import org.clulab.wm.eidos.serialization.json._
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
 
