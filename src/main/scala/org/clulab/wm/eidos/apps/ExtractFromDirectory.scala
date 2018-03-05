@@ -25,7 +25,7 @@ object ExtractFromDirectory extends App {
     source = scala.io.Source.fromFile(file)
     text <- source.getLines()
     // 3. Extract causal mentions from the text
-    annotatedDocument = reader.extractFrom(text)
+    annotatedDocument = reader.extractFromText(text)
     // 4. Convert to JSON
     corpus = new JLDCorpus(Seq(annotatedDocument), reader)
     mentionsJSONLD = corpus.serialize()
