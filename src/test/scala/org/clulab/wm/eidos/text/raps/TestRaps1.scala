@@ -233,5 +233,20 @@ class TestRaps1 extends Test {
 
   }
 
+  {
+    val sent30 = "Share of agriculture in overall economy will decrease with increase in inequality."
+    val tester = new Tester(sent30)
+
+    val share = NodeSpec("Share of agriculture in overall economy", Dec("decrease"))
+    val inequality = NodeSpec("inequality", Inc("increase"))
+
+    behavior of "Raps_30"
+
+    failingTest should "have correct edge" taggedAs(Heather) in {
+      tester.test(EdgeSpec(inequality, Causal, share))
+    }
+
+  }
+
 
 }
