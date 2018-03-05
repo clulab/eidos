@@ -36,7 +36,7 @@ object TestUtils {
     object Heather  extends TesterTag
     
     val passingTest = it
-    val failingTest = ignore
+    val failingTest = it
     val futureWorkTest = ignore // added to mark the tests that are not currently passing, but with planned changes to the
                                 // framework, they will be achievable
     

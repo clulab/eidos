@@ -24,7 +24,7 @@ class TestDoc1 extends Test {
 
     behavior of "TestDoc1 Paragraph 1"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(trade1)
     }
     futureWorkTest should "have correct singleton node 2" taggedAs(Somebody) in {
