@@ -192,5 +192,26 @@ class TestRaps1 extends Test {
 
   }
 
+  {
+    val sent28 = "Soil quality will decline by a small-to-medium extent, due to pollution, and intensive cultivation will be caused by a shrinking land base for agriculture."
+    val tester = new Tester(sent28)
+
+    val soil = NodeSpec("Soil quality", Dec("decline", "small-to-medium"))
+    val pollution = NodeSpec("pollution")
+    val shrink = NodeSpec("land base for agriculture", Dec("shrinking"))
+    val cultivation = NodeSpec("intensive cultivation")
+
+    behavior of "Raps_28"
+
+    failingTest should "have correct edge 1" taggedAs(Heather) in {
+      tester.test(EdgeSpec(pollution, Causal, soil))
+    }
+
+    passingTest should "have correct edge 2" taggedAs(Heather) in {
+      tester.test(EdgeSpec(shrink, Causal, cultivation))
+    }
+
+  }
+
 
 }
