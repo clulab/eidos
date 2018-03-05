@@ -17,7 +17,7 @@ abstract class EidosMention(
                  k: Int = 10) /* extends Mention if really needs to */ {
   // This must happen before the remap in case arguments point back to this
   mapOfMentions.put(odinMention, this)
-
+  
   // Convenience function for parallel construction
   val odinArguments: Map[String, Seq[Mention]] = odinMention.arguments
   
@@ -38,7 +38,6 @@ abstract class EidosMention(
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
 
-
   /* Methods for canonicalForms of Mentions */
 
   protected def canonicalFormSimple(m: Mention): String = {
@@ -56,7 +55,6 @@ abstract class EidosMention(
 //    println("  * result: " + contentLemmas.mkString(" "))
     contentLemmas.mkString(" ")
   }
-
 }
 
 object EidosMention {
@@ -123,6 +121,14 @@ class EidosEventMention(val odinEventMention: EventMention, mapOfMentions: Ident
                         k: Int = 10)
     extends EidosMention(odinEventMention, mapOfMentions, w2v, ontology, k) {
   
+  val odinTrigger = odinEventMention.trigger
+  
+  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, mapOfMentions)
+  
+  protected def remapOdinTrigger(odinMention: Mention, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
+    if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
+    else EidosMention.asEidosMentions(Seq(odinMention), mapOfMentions)(0)
+
   override val canonicalName = {
     val em = odinEventMention
     val argCanonicalNames = em.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq
