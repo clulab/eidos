@@ -4,7 +4,7 @@ import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.serialization.json.{JLDSerializer, JLDAttachment}
+import org.clulab.wm.eidos.serialization.json.odin.{JLDSerializer, JLDAttachment}
 
 import org.json4s._
 import org.json4s.JsonDSL._

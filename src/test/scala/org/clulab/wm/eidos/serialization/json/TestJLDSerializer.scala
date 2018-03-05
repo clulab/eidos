@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.EntityGrounder
-import org.clulab.wm.eidos.serialization.json.JLDObject._
+import org.clulab.wm.eidos.serialization.json.odin.JLDObject._
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._

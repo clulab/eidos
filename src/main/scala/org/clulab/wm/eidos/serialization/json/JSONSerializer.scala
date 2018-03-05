@@ -6,7 +6,6 @@ import scala.io.Source
 
 import org.clulab.processors.Document
 import org.clulab.struct.{DirectedGraph, Edge, Interval}
-import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.serialization.json.DocOps
 import org.clulab.wm.eidos.attachments._
@@ -107,7 +106,7 @@ object WMJSONSerializer {
 
 
     /** Build mention paths from json */
-    def toPaths(json: JValue, docMap: Map[String, Document]): Map[String, Map[Mention, odin.SynPath]] = {
+    def toPaths(json: JValue, docMap: Map[String, Document]): Map[String, Map[Mention, SynPath]] = {
 
       /** Create mention from args json for given id */
       def findMention(mentionID: String, json: JValue, docMap: Map[String, Document]): Option[Mention] = {
@@ -133,11 +132,11 @@ object WMJSONSerializer {
 
       // build paths
       json \ "paths" match {
-        case JNothing => Map.empty[String, Map[Mention, odin.SynPath]]
+        case JNothing => Map.empty[String, Map[Mention, SynPath]]
         case contents => for {
           (role, innermap) <- contents.extract[Map[String, Map[String, JValue]]]
         } yield {
-          // make inner map (Map[Mention, odin.SynPath])
+          // make inner map (Map[Mention, SynPath])
           val pathMap = for {
             (mentionID: String, pathJSON: JValue) <- innermap.toSeq
             mOp = findMention(mentionID, json, docMap)
@@ -145,7 +144,7 @@ object WMJSONSerializer {
             if mOp.nonEmpty
             m = mOp.get
             edges: Seq[Edge[String]] = pathJSON.extract[Seq[Edge[String]]]
-            synPath: odin.SynPath = DirectedGraph.edgesToTriples[String](edges)
+            synPath: SynPath = DirectedGraph.edgesToTriples[String](edges)
           } yield m -> synPath
           // marry role with (arg -> path) info
           role -> pathMap.toMap

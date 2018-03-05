@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.json
+package org.clulab.wm.eidos.serialization.json.odin
 
 import java.util.IdentityHashMap  // Unfortunately borrowed from Java
 import java.util.{Set => JavaSet} // Holds keys of IdentityHashMap
