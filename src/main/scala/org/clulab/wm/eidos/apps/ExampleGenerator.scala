@@ -27,16 +27,15 @@ object ExampleGenerator extends App {
     k = ieSystem.topKNodeGroundings
   )
 
-  println("~~~~~~~~~~~~~~~~~~~~~~~")
-  for (e <- eidosMentions.filter(_.isInstanceOf[EidosTextBoundMention])) {
+  // Display the groundings for all entities
+  for (e <- eidosMentions.filter(_.odinMention matches "Entity")) {
     println("EidosMention:")
     displayMention(e.odinMention)
     println("Groundings:")
     e.asInstanceOf[EidosTextBoundMention].grounding.foreach(g => println(s"\t$g"))
   }
-  println("~~~~~~~~~~~~~~~~~~~~~~~")
 
-  // debug display the mentions
+  // Default debug display of the mentions
   displayMentions(mentions, doc)
 
   // serialize the mentions to a json file

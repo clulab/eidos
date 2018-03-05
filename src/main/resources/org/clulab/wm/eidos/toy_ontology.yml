@@ -93,6 +93,7 @@
       - "tea"
       - "leaf vegetables"
       - "groundnuts"
+      - "cultivar"
     - pest:
       - "infestation"
       - "armyworm"
@@ -220,6 +221,7 @@
       - "nation-state"
       - "ethic group"
       - "population"
+      - "government"
     - communities:
       - "communities"
       - "people group"

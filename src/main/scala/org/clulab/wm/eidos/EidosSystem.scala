@@ -64,7 +64,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
     val     wordToVecPath: String = getPath(    "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
-    val    domainOntoPath: String = getPath(   "domainOntoPath", "/org/clulab/wm/eidos/sameas/toy_taxonomy.yml")
+    val    domainOntoPath: String = getPath(   "domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
     val topKNodeGroundings:Int    = getArgInt("topKNodeGroundings", Some(10))
     
     val maxHops: Int = getArgInt(getFullName("maxHops"), Option(15))
