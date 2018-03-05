@@ -2,7 +2,7 @@ package org.clulab.wm.eidos
 
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
-import org.clulab.processors.{Document, Processor}
+import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
@@ -93,8 +93,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
   
   def annotate(text: String, keepText: Boolean = false): Document = {
     val doc = proc.annotate(text, keepText)
-    doc.sentences.foreach(s => s.entities = Some(ner.find(s)))
+    doc.sentences.foreach(addLexiconNER)
     doc
+  }
+
+  protected def addLexiconNER(s: Sentence) = {
+    for {
+      (lexiconNERTag, i) <- ner.find(s).zipWithIndex
+      if lexiconNERTag != EidosSystem.NER_OUTSIDE
+    } s.entities.get(i) = lexiconNERTag
   }
 
   def extractFrom(text: String, keepText: Boolean = false): AnnotatedDocument = {
@@ -177,4 +184,5 @@ object EidosSystem {
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"
   val QUANT_LABEL_AFFIX = "-Quant"
+  val NER_OUTSIDE = "O"
 }
