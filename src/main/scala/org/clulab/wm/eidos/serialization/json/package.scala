@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.serialization.json
 
 import scala.util.hashing.MurmurHash3._
 
-import org.clulab.odin
 import org.clulab.odin._
 import org.clulab.struct.DirectedGraph
 import org.clulab.wm.eidos.attachments.EidosAttachment
@@ -38,7 +37,7 @@ package object json {
     finalizeHash(h0, unorderedHash(argHashes))
   }
 
-  private def pathsAST(paths: Map[String, Map[Mention, odin.SynPath]]): JValue = paths match {
+  private def pathsAST(paths: Map[String, Map[Mention, SynPath]]): JValue = paths match {
     case gps if gps.nonEmpty => OdinPathOps.jsonAST(gps)
     case _ => JNothing
   }
@@ -266,10 +265,10 @@ package object json {
   object OdinPathOps {
     import org.clulab.serialization.json.EdgeOps
     // simplify paths by ignoring Mentions
-    def jsonAST(paths: Map[String, Map[Mention, odin.SynPath]]): JValue = {
+    def jsonAST(paths: Map[String, Map[Mention, SynPath]]): JValue = {
       val simplePathMap: Map[String, Map[String, List[JValue]]] = paths.mapValues{ innermap =>
         val pairs = for {
-          (m: Mention, path: odin.SynPath) <- innermap.toList
+          (m: Mention, path: SynPath) <- innermap.toList
           edgeAST = DirectedGraph.triplesToEdges[String](path.toList).map(_.jsonAST)
         } yield (MentionOps.id(m), edgeAST)
         pairs.toMap
