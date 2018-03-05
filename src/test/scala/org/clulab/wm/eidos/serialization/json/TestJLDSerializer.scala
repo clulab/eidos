@@ -39,6 +39,9 @@ class TestJLDSerializer extends Test {
       stringify(jValue, true)
     }
     
+    if (json1 != json2)
+      println(json1 + json2)
+      
     json1 + json2
   }
   
