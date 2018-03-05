@@ -27,6 +27,7 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
 
+  def isExtractable = true
 
   /* Methods for canonicalForms of Mentions */
 

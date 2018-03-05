@@ -8,7 +8,8 @@ import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.EntityGrounder
-import org.clulab.wm.eidos.serialization.json.odin._
+import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
+import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
@@ -26,10 +27,19 @@ class TestJLDSerializer extends Test {
   }
   
   def serialize(corpus: Corpus) = {
-    val jldCorpus = new JLDCorpus(corpus, TestUtils.ieSystem)
-    val jValue = jldCorpus.serialize()
+    val json1 = {
+      val jldCorpus = new JLDOdinCorpus(corpus, TestUtils.ieSystem)
+      val jValue = jldCorpus.serialize()
+      stringify(jValue, true)
+    }
     
-    stringify(jValue, true)
+    val json2 = {
+      val jldCorpus = new JLDEidosCorpus(corpus, TestUtils.ieSystem)
+      val jValue = jldCorpus.serialize()
+      stringify(jValue, true)
+    }
+    
+    json1 + json2
   }
   
   def inspect(string: String) =
