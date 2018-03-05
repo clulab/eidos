@@ -55,5 +55,24 @@ class TestRaps1 extends Test {
 
   }
 
+  {
+    val sent22 = "Along with the support programs such as agricultural insurance and input subsidies, the government efforts and investments will be increased for extending irrigation services, agricultural mechanization, and developing disaster risk-management practices."
+    val tester = new Tester(sent22)
+
+    val gov = NodeSpec("government efforts", Inc("increased"))
+    val investments = NodeSpec("investments", Inc("increased"))
+
+    behavior of "Raps_sent22"
+
+    passingTest should "have correct node 1" taggedAs(Heather) in {
+      tester.test(gov) should be (successful)
+    }
+
+    passingTest should "have correct node 2" taggedAs(Heather) in {
+      tester.test(investments) should be (successful)
+    }
+
+  }
+
 
 }
