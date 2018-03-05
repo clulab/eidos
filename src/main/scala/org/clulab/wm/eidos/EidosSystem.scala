@@ -33,6 +33,7 @@ case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Optio
   * A system for text processing and information extraction
   */
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends EntityGrounder with Configured {
+  def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
 
@@ -66,7 +67,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     val     wordToVecPath: String = getPath(    "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
     val    domainOntoPath: String = getPath(   "domainOntoPath", "/org/clulab/wm/eidos/sameas/toy_taxonomy.yml")
     
-    val maxHops: Int = getArgInt(getFullName("maxHops"), Option(5))
+    val maxHops: Int = getArgInt(getFullName("maxHops"), Option(15))
       
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
@@ -161,7 +162,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
-    val unfilteredEntities = entityFinder.extract(doc).toVector
+//    val unfilteredEntities = entityFinder.extract(doc).toVector
 //    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
     val events = extractEventsFrom(doc, State(entities)).distinct
