@@ -204,11 +204,31 @@ class TestRaps1 extends Test {
     behavior of "Raps_28"
 
     failingTest should "have correct edge 1" taggedAs(Heather) in {
-      tester.test(EdgeSpec(pollution, Causal, soil))
+      tester.test(EdgeSpec(pollution, Causal, soil)) should be (successful)
     }
 
     passingTest should "have correct edge 2" taggedAs(Heather) in {
-      tester.test(EdgeSpec(shrink, Causal, cultivation))
+      tester.test(EdgeSpec(shrink, Causal, cultivation)) should be (successful)
+    }
+
+  }
+
+  {
+    val sent29 = "Labor migration and HIV/AIDS result in labor shortage."
+    val tester = new Tester(sent29)
+
+    val migration = NodeSpec("Labor migration")
+    val hiv = NodeSpec("HIV/AIDS")
+    val labor = NodeSpec("labor", Dec("shortage"))
+
+    behavior of "Raps_29"
+
+    failingTest should "have correct edge 1" taggedAs(Heather) in {
+      tester.test(EdgeSpec(migration, Causal, labor)) should be (successful)
+    }
+
+    failingTest should "have correct edge 2" taggedAs(Heather) in {
+      tester.test(EdgeSpec(hiv, Causal, labor)) should be (successful)
     }
 
   }
