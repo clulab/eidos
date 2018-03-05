@@ -17,7 +17,7 @@ object ExtractFromText extends App {
   val annotatedDocument = reader.extractFrom(text)
 
   // Display in a pretty way
-  annotatedDocument.mentions.foreach(displayMention)
+  annotatedDocument.odinMentions.foreach(displayMention)
 
   // Export to JSON-LD
   val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
@@ -26,6 +26,6 @@ object ExtractFromText extends App {
 
   // Or... optionally serialize to regular JSON
   // (e.g., if you want to later reload the mentions for post-processing)
-  val mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.mentions)
+  val mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.odinMentions)
   println(stringify(mentionsJSON, pretty = true))
 }

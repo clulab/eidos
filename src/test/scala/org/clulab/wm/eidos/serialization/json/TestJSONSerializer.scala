@@ -15,7 +15,7 @@ class TestJsonSerialization extends Test {
     val text = "Water trucking has decreased due to the cost of fuel."
     val reader = new EidosSystem()
     val annotatedDocument = reader.extractFrom(text)
-    val mentionsOut = annotatedDocument.mentions
+    val mentionsOut = annotatedDocument.odinMentions
     val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
     val mentionsIn = WMJSONSerializer.toMentions(jValue1)
     val jValue2 = WMJSONSerializer.jsonAST(mentionsOut)

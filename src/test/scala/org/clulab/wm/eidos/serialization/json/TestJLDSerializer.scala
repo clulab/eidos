@@ -5,6 +5,8 @@ import scala.collection.Seq
 import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.AnnotatedDocument
+import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.EntityGrounder
 import org.clulab.wm.eidos.serialization.json.JLDObject._
 import org.clulab.wm.eidos.test.TestUtils
@@ -24,13 +26,7 @@ class TestJLDSerializer extends Test {
   }
   
   def serialize(corpus: Corpus) = {
-    object TestEntityGrounder extends EntityGrounder {
-  
-      def ground(mention: Mention, quantifier: Quantifier) =
-        TestUtils.ieSystem.ground(mention, quantifier)
-    }
-  
-    val jldCorpus = new JLDCorpus(corpus, TestEntityGrounder)
+    val jldCorpus = new JLDCorpus(corpus, TestUtils.ieSystem)
     val jValue = jldCorpus.serialize()
     
     stringify(jValue, true)

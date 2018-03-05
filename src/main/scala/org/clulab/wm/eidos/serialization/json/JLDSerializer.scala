@@ -15,6 +15,8 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.AnnotatedDocument
+import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.EntityGrounder
 import org.clulab.wm.eidos.Grounding
 import org.clulab.wm.eidos.attachments._
@@ -56,10 +58,6 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 }
 
 object JLDObject {
-  case class AnnotatedDocument(var document: Document, var mentions: Seq[Mention])
-  type Corpus = Seq[AnnotatedDocument]
-
-  
   // TODO: These terms need to be looked up somewhere.
   val cause = "cause"
   val effect = "effect"
@@ -455,7 +453,7 @@ object JLDSentence {
   val plural = "sentences"
 }
 
-class JLDDocument(serializer: JLDSerializer, annotatedDocument: JLDObject.AnnotatedDocument)
+class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocument)
     extends JLDObject(serializer, "Document", annotatedDocument.document) {
   
   override def toJObject(): JObject = {
@@ -473,10 +471,10 @@ object JLDDocument {
   val plural = "documents"
 }
 
-class JLDCorpus(serializer: JLDSerializer, corpus: JLDObject.Corpus)
+class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
     extends JLDObject(serializer, "Corpus", corpus) {
   
-  def this(corpus: JLDObject.Corpus, entityGrounder: EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
+  def this(corpus: Corpus, entityGrounder: EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
   
   protected def collectMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Int]): Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable(_)).filter { mention => 
@@ -517,7 +515,7 @@ class JLDCorpus(serializer: JLDSerializer, corpus: JLDObject.Corpus)
   
   override def toJObject(): JObject = {
     val jldDocuments = corpus.map(new JLDDocument(serializer, _))
-    val mentions = corpus.flatMap(_.mentions)
+    val mentions = corpus.flatMap(_.odinMentions)
     val jldExtractions = collectMentions(mentions)
     
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))

@@ -11,7 +11,7 @@ import org.clulab.struct.Interval
 abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
   // This must happen before the remap in case arguments point back to this
   mapOfMentions.put(odinMention, this)
-
+  
   // Convenience function for parallel construction
   val odinArguments: Map[String, Seq[Mention]] = odinMention.arguments
   
@@ -20,7 +20,7 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
   
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], mapOfMentions: IdentityHashMap[Mention, EidosMention]): Map[String, Seq[EidosMention]] =
       odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, mapOfMentions))
-
+      
   val canonicalName: String // Determined by subclass
 
   // Some way to calculate or store these, possibly in subclass
@@ -45,7 +45,6 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
 //    println("  * result: " + contentLemmas.mkString(" "))
     contentLemmas.mkString(" ")
   }
-
 }
 
 object EidosMention {
@@ -85,6 +84,14 @@ class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, mapOfMen
 class EidosEventMention(val odinEventMention: EventMention, mapOfMentions: IdentityHashMap[Mention, EidosMention])
     extends EidosMention(odinEventMention, mapOfMentions) {
   
+  val odinTrigger = odinEventMention.trigger
+  
+  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, mapOfMentions)
+  
+  protected def remapOdinTrigger(odinMention: Mention, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
+    if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
+    else EidosMention.asEidosMentions(Seq(odinMention), mapOfMentions)(0)
+
   override val canonicalName = {
     val em = odinEventMention
     val argCanonicalNames = em.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq

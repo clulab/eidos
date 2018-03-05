@@ -7,7 +7,7 @@ import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
-import org.clulab.wm.eidos.serialization.json.JLDObject.AnnotatedDocument
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
 import com.typesafe.config.{Config, ConfigFactory}
 
@@ -18,6 +18,8 @@ trait EntityGrounder {
 case class Grounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
   def isGrounded = intercept != None && mu != None && sigma != None
 }
+
+case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
 /**
   * A system for text processing and information extraction
@@ -99,7 +101,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
 
   def extractFrom(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
-    new AnnotatedDocument(doc, extractFrom(doc))
+    val odinMentions = extractFrom(doc)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    
+    new AnnotatedDocument(doc, odinMentions, eidosMentions)
   }
   
   def ground(mention: Mention, quantifier: Quantifier): Grounding = {
@@ -163,6 +168,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
 }
 
 object EidosSystem {
+  type Corpus = Seq[AnnotatedDocument]
+
   val PREFIX: String = "EidosSystem"
   
   val EXPAND_SUFFIX: String = "expandParams"
