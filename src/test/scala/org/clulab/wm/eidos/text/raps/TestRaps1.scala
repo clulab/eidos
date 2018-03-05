@@ -168,5 +168,29 @@ class TestRaps1 extends Test {
     }
   }
 
+  {
+    val sent27 = "Agricultural production and profitability are declining, land is degrading and being underutilized."
+    val tester = new Tester(sent27)
+
+    val prod = NodeSpec("Agricultural production", Dec("declining"))
+    val profits = NodeSpec("profitability", Dec("declining"))
+    val land = NodeSpec("land", Dec("degrading"))
+
+    behavior of "Raps_27"
+
+    passingTest should "have correct node 1" taggedAs(Heather) in {
+      tester.test(prod) should be (successful)
+    }
+
+    passingTest should "have correct node 2" taggedAs(Heather) in {
+      tester.test(profits) should be (successful)
+    }
+
+    failingTest should "have correct node 3" taggedAs(Heather) in {
+      tester.test(land) should be (successful)
+    }
+
+  }
+
 
 }
