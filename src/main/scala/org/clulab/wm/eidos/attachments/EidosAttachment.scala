@@ -150,9 +150,11 @@ object Decrease {
 case class Score(score: Double) extends EidosAttachment {
   override def argumentSize: Int = 0
 
-  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
-    new JLDAttachment(serializer, "SCORE", score.toString, None, mention)
-
+  override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
+    new JLDOdinAttachment(serializer, "SCORE", score.toString, None, mention)
+  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
+    new JLDEidosAttachment(serializer, "SCORE", score.toString, None, mention)
+  
   override def toJson(): JValue = toJson(Score.label)
 }
 

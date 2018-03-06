@@ -36,11 +36,6 @@ trait SameAsGrounder {
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
-/*
- * w2v: Word2Vec,
-                 ontology: Map[String, Seq[Double]],
-                 k: Int = 10
- */
 /**
   * A system for text processing and information extraction
   */
@@ -169,7 +164,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     }
   }
 
-  def groundForSameAs(canonicalName: String): SameAsGrounding = {
+  def ground(canonicalName: String): SameAsGrounding = {
     // Make vector for canonicalName
     val nodeEmbedding = w2v.makeCompositeVector(canonicalName.split(" +"))
     // Calc dot prods
