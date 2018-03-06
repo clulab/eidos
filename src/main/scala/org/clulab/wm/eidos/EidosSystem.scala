@@ -73,17 +73,18 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
 
-    val stopWords: Set[String] = getArgStrings("stopWords", Some(Seq[String]())).toSet
-    val transparentWords: Set[String] = getArgStrings("transparent", Some(Seq[String]())).toSet
-    
-    val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
+      // Do reread these values each time.  Expect those above to stay the same, however.
+      val stopWords: Set[String] = getArgStrings(getFullName("stopWords"), Some(Seq[String]())).toSet
+      val transparentWords: Set[String] = getArgStrings(getFullName("transparent"), Some(Seq[String]())).toSet
+      val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
+
       val rules = readRules(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
-     
+
       new LoadableAttributes(
+          
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
           // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
@@ -95,7 +96,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
           //TODO: agrovoc lexicons aren't in this project yet
           // todo: the order matters, we should be taking order into account
           //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
-         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
+          LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
           stopWords,
           transparentWords
       )
@@ -114,12 +115,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
   def stopWords = loadableAttributes.stopWords
-  def transparentWords = LoadableAttributes.transparentWords
+  def transparentWords = loadableAttributes.transparentWords
 
   // These aren't intended to be (re)loadable.  This only happens once.
-  val  wordToVecPath: String = getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
-  val domainOntoPath: String = getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
-  val topKNodeGroundings: Int = getArgInt("topKNodeGroundings", Some(10))
+  val  wordToVecPath: String = getPath(getFullName( "wordToVecPath"), "/org/clulab/wm/eidos/sameas/vectors.txt")
+  val domainOntoPath: String = getPath(getFullName("domainOntoPath"), "/org/clulab/wm/eidos/toy_ontology.yml")
+  val topKNodeGroundings: Int = getArgInt(getFullName("topKNodeGroundings"), Some(10))
 
   val (w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]]) =
       initSameAsDataStructures(wordToVecPath, domainOntoPath)
