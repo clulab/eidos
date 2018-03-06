@@ -112,11 +112,11 @@ than in the corresponding period two years earlier.
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
-    rainfall.head.canonicalName should be ("rainfall July")
+    rainfall.head.canonicalName should be ("rainfall")
 
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
-    decrease.head.canonicalName should be ("rainfall July decrease government")
+    decrease.head.canonicalName should be ("rainfall decrease government")
 
   }
 

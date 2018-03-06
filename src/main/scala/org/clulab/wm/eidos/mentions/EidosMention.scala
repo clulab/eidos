@@ -37,18 +37,19 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrou
 
   protected def canonicalFormSimple(m: Mention): String = {
     def isContentTag(tag: String) = tag.startsWith("NN") || tag.startsWith("VB")
+    def removeNER(ner: String) = Set("DATE", "PLACE").contains(ner)
     
-//    println("-> Using canonical form simple on: " + m.text)
-    val s = m.document.sentences(m.sentence)
-    val tags = s.tags.get.slice(m.start, m.end)
-    val lemmas = s.lemmas.get.slice(m.start, m.end)
     val contentLemmas = for {
-      (tag, lemma) <- tags.zip(lemmas)
-      if isContentTag(tag) && !sameAsGrounder.getStopwords.contains(lemma)
+      (lemma, i) <- m.lemmas.get.zipWithIndex
+      tag = m.tags.get(i)
+      ner = m.entities.get(i)
+      if isContentTag(tag)
+      if !sameAsGrounder.getStopwords.contains(lemma)
+      if !removeNER(ner)
     } yield lemma
 
 //    println("  * result: " + contentLemmas.mkString(" "))
-    contentLemmas.mkString(" ")
+    contentLemmas.mkString(" ").trim.replaceAll(" +", " ")
   }
 }
 
