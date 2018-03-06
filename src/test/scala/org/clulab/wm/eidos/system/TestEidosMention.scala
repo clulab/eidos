@@ -12,9 +12,9 @@ import org.clulab.wm.eidos.text.cag.CAG._
 
 class TestEidosMention extends Test with SameAsGrounder {
   
-  def ground(canonicalName: String): SameAsGrounding = SameAsGrounding(Seq.empty)
+  def ground(mention: EidosMention): SameAsGrounding = SameAsGrounding(Seq.empty)
   def getStopwords(): Set[String] = Set("policy")
-  
+
   def test(text: String) = {
     def myprintln(text: String) = {
       val debug = false

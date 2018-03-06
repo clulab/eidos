@@ -32,7 +32,7 @@ trait EntityGrounder {
 case class SameAsGrounding(grounding: Seq[(String, Double)])
 
 trait SameAsGrounder {
-  def ground(canonicalName: String): SameAsGrounding
+  def ground(mention: EidosMention): SameAsGrounding
   def getStopwords(): Set[String]
 }
 
@@ -176,13 +176,21 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     }
   }
 
-  def ground(canonicalName: String): SameAsGrounding = {
-    // Make vector for canonicalName
-    val nodeEmbedding = w2v.makeCompositeVector(canonicalName.split(" +"))
-    // Calc dot prods
-    val similarities = conceptEmbeddings.toSeq.map(concept => (concept._1, Word2Vec.dotProduct(concept._2.toArray, nodeEmbedding)))
-    // sort and return top k
-    SameAsGrounding(similarities.sortBy(- _._2).slice(0, topKNodeGroundings))
+  // Be careful, because object may not be completely constructed.
+  def ground(mention: EidosMention): SameAsGrounding = {
+
+    if (word2vec && mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
+      val canonicalName = mention.canonicalName
+      // Make vector for canonicalName
+      val canonicalNameParts = canonicalName.split(" +")
+      val nodeEmbedding = w2v.makeCompositeVector(canonicalNameParts)
+      // Calc dot prods
+      val similarities = conceptEmbeddings.toSeq.map(concept => (concept._1, Word2Vec.dotProduct(concept._2.toArray, nodeEmbedding)))
+      // sort and return top k
+      SameAsGrounding(similarities.sortBy(- _._2).slice(0, topKNodeGroundings))
+    }
+    else
+      SameAsGrounding(Seq.empty)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {

@@ -28,13 +28,13 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrou
   }
   
   val canonicalName: String // Determined by subclass
+  val grounding: SameAsGrounding // Determined by subclass, in part because dependent on canonicalName
 
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
 
   /* Methods for canonicalForms of Mentions */
-
   protected def canonicalFormSimple(m: Mention): String = {
     def isContentTag(tag: String) = tag.startsWith("NN") || tag.startsWith("VB")
     def removeNER(ner: String) = Set("DATE", "PLACE").contains(ner)
@@ -86,8 +86,7 @@ class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, sameAsGr
       extends EidosMention(odinTextBoundMention, sameAsGrounder, mapOfMentions) {
   
   override val canonicalName: String = canonicalFormSimple(odinMention)
-
-  def grounding: SameAsGrounding = sameAsGrounder.ground(canonicalName)
+  override val grounding: SameAsGrounding = sameAsGrounder.ground(this)
 }
 
 class EidosEventMention(val odinEventMention: EventMention, sameAsGrounder: SameAsGrounder,
@@ -110,6 +109,8 @@ class EidosEventMention(val odinEventMention: EventMention, sameAsGrounder: Same
 
     sorted.unzip._1.mkString(" ")
   }
+
+  override val grounding: SameAsGrounding = sameAsGrounder.ground(this)
 }
 
 class EidosRelationMention(val odinRelationMention: RelationMention, sameAsGrounder: SameAsGrounder,
@@ -123,4 +124,6 @@ class EidosRelationMention(val odinRelationMention: RelationMention, sameAsGroun
 
     sorted.unzip._1.mkString(" ")
   }
+
+  override val grounding: SameAsGrounding = sameAsGrounder.ground(this)
 }

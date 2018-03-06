@@ -16,6 +16,7 @@ import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.EntityGrounder
 import org.clulab.wm.eidos.EntityGrounding
+import org.clulab.wm.eidos.SameAsGrounding
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
@@ -157,6 +158,20 @@ object JLDArgument {
   val plural = "arguments"
 }
 
+class JLDSameAsGrounding(serializer: JLDSerializer, name: String, value: Double)
+    extends JLDObject(serializer, "Grounding") {
+  
+  override def toJObject(): JObject =
+      serializer.mkType(this) ~
+          ("ontologyConcept" -> name) ~
+          ("value" -> value)
+}
+
+object JLDSameAsGrounding {
+  val singular = "grounding"
+  val plural = singular // Mass noun
+}
+
 class JLDModifier(serializer: JLDSerializer, quantifier: Quantifier, mention: EidosMention)
     extends JLDObject(serializer, "Modifier") {
 
@@ -270,12 +285,17 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
   
   override def toJObject(): JObject = {
     val jldAttachments = mention.odinMention.attachments.map(newJLDAttachment(_, mention)).toList
-          
+    val sameAsGrounding = mention.grounding.grounding
+    //val sameAsGrounding = new SameAsGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
+    val jldGroundings = toJObjects(sameAsGrounding.map(pair => new JLDSameAsGrounding(serializer, pair._1, pair._2)))
+    
     serializer.mkType(this) ~
         serializer.mkId(this) ~
         ("labels" -> mention.odinMention.labels) ~
         ("text" -> mention.odinMention.text) ~
         ("rule" -> mention.odinMention.foundBy) ~
+        ("canonicalName" -> mention.canonicalName) ~
+        ("grounding" -> jldGroundings) ~
         ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
         (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention)))) ~
         (JLDAttachment.plural -> toJObjects(jldAttachments))
