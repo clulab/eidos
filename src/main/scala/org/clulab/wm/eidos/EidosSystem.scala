@@ -37,7 +37,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
       val grounder: Map[Quantifier, Map[String, Double]],
       val actions: EidosActions,
       val engine: ExtractorEngine,
-      val ner: LexiconNER
+      val ner: LexiconNER,
+      val stopWords: Set[String],
+      val transparentWords: Set[String]
   )
   
   object LoadableAttributes {
@@ -54,6 +56,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
+
+    val stopWords: Set[String] = getArgStrings("stopWords", Some(Seq[String]())).toSet
+    val transparentWords: Set[String] = getArgStrings("transparent", Some(Seq[String]())).toSet
     
     val maxHops: Int = getArgInt(getFullName("maxHops"), Option(15))
       
@@ -74,7 +79,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
           //TODO: agrovoc lexicons aren't in this project yet
           // todo: the order matters, we should be taking order into account
           //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
-          LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true) //TODO: keep Quantifier...
+          LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
+          stopWords,
+          transparentWords
       )
     }
   }
@@ -90,6 +97,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
   protected def actions = loadableAttributes.actions
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
+  def stopWords = loadableAttributes.stopWords
+  def transparentWords = LoadableAttributes.transparentWords
   
   def reload() = loadableAttributes = LoadableAttributes()
   
@@ -153,13 +162,29 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Enti
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
+    // filter entities which are entirely stop or transparent
+    val filtered = filterStopTransparent(entities)
+
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
 //    val unfilteredEntities = entityFinder.extract(doc).toVector
 //    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
     // get events
-    val res = extractEventsFrom(doc, State(entities)).distinct
+    val res = extractEventsFrom(doc, State(filtered)).distinct
 //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
     res
+  }
+
+  /*
+      Filtering
+  */
+  def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] = {
+    // remove mentions which are entirely stop/transparent words
+    mentions.filter(hasContent)
+  }
+
+  def hasContent(m: Mention): Boolean = {
+    val contentfulLemmas = m.lemmas.get.filterNot(lemma => (stopWords ++ transparentWords).contains(lemma))
+    contentfulLemmas.nonEmpty
   }
 
 
