@@ -74,9 +74,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
     val     wordToVecPath: String = getPath(    "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
     val    domainOntoPath: String = getPath(   "domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
-    val topKNodeGroundings:Int    = getArgInt("topKNodeGroundings", Some(10))
     
-    val maxHops: Int = getArgInt(getFullName("maxHops"), Option(15))
+    val topKNodeGroundings: Int = getArgInt("topKNodeGroundings", Some(10))
+    val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
       
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
@@ -249,6 +249,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     println(s"ontology: ${ontologyPath}")
     val word2vecFile = scala.io.Source.fromURL(getClass.getResource(word2VecPath))
     lazy val w2v = new Word2Vec(word2vecFile, None)
+//    val w2v = new Word2Vec(Map[String, Array[Double]]())
     val ontology = readOntology(ontologyPath)
     val conceptEmbeddings = ontology.iterateOntology(w2v)
     (w2v, conceptEmbeddings)
