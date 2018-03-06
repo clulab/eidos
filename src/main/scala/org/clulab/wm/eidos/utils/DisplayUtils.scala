@@ -88,6 +88,11 @@ object DisplayUtils {
         if (rel.attachments.nonEmpty) {
           println(s"\tRelation Attachments: ${attachmentsString(rel.attachments)}")
         }
+      case cs: CrossSentenceMention =>
+        displayArguments(cs)
+        if (cs.attachments.nonEmpty) {
+          println(s"\tCross-sentence Attachments: ${attachmentsString(cs.attachments)}")
+        }
       case _ => ()
     }
     println(s"$boundary\n")

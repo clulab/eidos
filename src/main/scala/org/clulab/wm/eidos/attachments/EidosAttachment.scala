@@ -4,7 +4,9 @@ import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.serialization.json.{JLDSerializer, JLDAttachment}
+import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.serialization.json.odin.{JLDSerializer => JLDOdinSerializer, JLDAttachment => JLDOdinAttachment}
+import org.clulab.wm.eidos.serialization.json.{JLDSerializer => JLDEidosSerializer, JLDAttachment => JLDEidosAttachment}
 
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -18,7 +20,8 @@ abstract class EidosAttachment extends Attachment {
   def argumentSize: Int
   
   // Support for JLD serialization
-  def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment
+  def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment
+  def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment
   
   // Support for JSON serialization
   def toJson(): JValue
@@ -68,8 +71,11 @@ object EidosAttachment {
 case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(adverbs)
 
-  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
-    new JLDAttachment(serializer, "QUANT", quantifier, adverbs, mention)
+  override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
+    new JLDOdinAttachment(serializer, "QUANT", quantifier, adverbs, mention)
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
+    new JLDEidosAttachment(serializer, "QUANT", quantifier, adverbs, mention)
 
   override def toJson(): JValue = toJson(Quantification.label)
 }
@@ -94,8 +100,10 @@ object Quantification {
 case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(quantifiers)
 
-  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
-      new JLDAttachment(serializer, "INC", trigger, quantifiers, mention)
+  override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
+      new JLDOdinAttachment(serializer, "INC", trigger, quantifiers, mention)
+  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
+      new JLDEidosAttachment(serializer, "INC", trigger, quantifiers, mention)
 
   override def toJson(): JValue = toJson(Increase.label)
 }
@@ -117,8 +125,10 @@ object Increase {
 case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None) extends EidosAttachment {
   override def argumentSize: Int = argumentSize(quantifiers)
 
-  override def newJLDAttachment(serializer: JLDSerializer, mention: Mention): JLDAttachment =
-    new JLDAttachment(serializer, "DEC", trigger, quantifiers, mention)
+  override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
+    new JLDOdinAttachment(serializer, "DEC", trigger, quantifiers, mention)
+  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
+    new JLDEidosAttachment(serializer, "DEC", trigger, quantifiers, mention)
 
   override def toJson(): JValue = toJson(Decrease.label)
 }
@@ -135,4 +145,19 @@ object Decrease {
 
     Decrease(trigger, quantifiers)
   }
+}
+
+case class Score(score: Double) extends EidosAttachment {
+  override def argumentSize: Int = 0
+
+  override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
+    new JLDOdinAttachment(serializer, "SCORE", score.toString, None, mention)
+  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
+    new JLDEidosAttachment(serializer, "SCORE", score.toString, None, mention)
+  
+  override def toJson(): JValue = toJson(Score.label)
+}
+
+object Score {
+  val label = "Same-As"
 }

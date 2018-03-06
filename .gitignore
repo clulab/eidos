@@ -36,6 +36,7 @@ nullMODELS_*
 train*.dat
 xgboostOut/
 null_*
+vectors.txt
 
 # Python binary files
 *.pyc
