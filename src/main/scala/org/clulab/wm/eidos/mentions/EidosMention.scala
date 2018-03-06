@@ -1,14 +1,18 @@
 package org.clulab.wm.eidos.mentions
 
-import java.util.IdentityHashMap  // Unfortunately borrowed from Java
+import java.util.IdentityHashMap // Unfortunately borrowed from Java
 
+import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
+import org.clulab.wm.eidos.SameAsGrounder
+import org.clulab.wm.eidos.SameAsGrounding
 import org.clulab.struct.Interval
 
-abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
+abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrounder,
+    mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
   // This must happen before the remap in case arguments point back to this
   mapOfMentions.put(odinMention, this)
   
@@ -16,11 +20,13 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
   val odinArguments: Map[String, Seq[Mention]] = odinMention.arguments
   
   // Access to new and improved Eidos arguments
-  val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, mapOfMentions)
+  val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, sameAsGrounder, mapOfMentions)
   
-  protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], mapOfMentions: IdentityHashMap[Mention, EidosMention]): Map[String, Seq[EidosMention]] =
-      odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, mapOfMentions))
-      
+  protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], sameAsGrounder: SameAsGrounder,
+      mapOfMentions: IdentityHashMap[Mention, EidosMention]): Map[String, Seq[EidosMention]] = {
+    odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, sameAsGrounder, mapOfMentions))
+  }
+  
   val canonicalName: String // Determined by subclass
 
   // Some way to calculate or store these, possibly in subclass
@@ -48,48 +54,52 @@ abstract class EidosMention(val odinMention: Mention, mapOfMentions: IdentityHas
 
 object EidosMention {
   
-  def newEidosMention(odinMention: Mention, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
-      odinMention match {
-        case mention: TextBoundMention => new EidosTextBoundMention(mention, mapOfMentions)
-        case mention: EventMention => new EidosEventMention(mention, mapOfMentions)
-        case mention: RelationMention => new EidosRelationMention(mention, mapOfMentions)
-        case _ => throw new IllegalArgumentException("Unknown Mention: " + odinMention)
-      }
+  def newEidosMention(odinMention: Mention, sameAsGrounder: SameAsGrounder,
+        mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention = {
+    odinMention match {
+      case mention: TextBoundMention => new EidosTextBoundMention(mention, sameAsGrounder, mapOfMentions)
+      case mention: EventMention => new EidosEventMention(mention, sameAsGrounder, mapOfMentions)
+      case mention: RelationMention => new EidosRelationMention(mention, sameAsGrounder, mapOfMentions)
+      case _ => throw new IllegalArgumentException("Unknown Mention: " + odinMention)
+    }
+  }
   
-  def asEidosMentions(odinMentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, EidosMention]): Seq[EidosMention] = {
+  def asEidosMentions(odinMentions: Seq[Mention], sameAsGrounder: SameAsGrounder,
+        mapOfMentions: IdentityHashMap[Mention, EidosMention]): Seq[EidosMention] = {
     val eidosMentions = odinMentions.map { odinMention =>
       if (mapOfMentions.containsKey(odinMention))
         mapOfMentions.get(odinMention)
       else
-        EidosMention.newEidosMention(odinMention, mapOfMentions)
+        EidosMention.newEidosMention(odinMention, sameAsGrounder, mapOfMentions)
     }
     eidosMentions
   }
   
-  def asEidosMentions(odinMentions: Seq[Mention]): Seq[EidosMention] =
+  def asEidosMentions(odinMentions: Seq[Mention], sameAsGrounder: SameAsGrounder): Seq[EidosMention] =
       // One could optionally keep this map around
-      asEidosMentions(odinMentions, new IdentityHashMap[Mention, EidosMention]())
+      asEidosMentions(odinMentions, sameAsGrounder, new IdentityHashMap[Mention, EidosMention]()): Seq[EidosMention]
 }
 
-class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, mapOfMentions: IdentityHashMap[Mention, EidosMention])
-    extends EidosMention(odinTextBoundMention, mapOfMentions) {
+class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, sameAsGrounder: SameAsGrounder,
+      mapOfMentions: IdentityHashMap[Mention, EidosMention])
+      extends EidosMention(odinTextBoundMention, sameAsGrounder, mapOfMentions) {
   
   override val canonicalName: String = canonicalFormSimple(odinMention)
 
-  // Some way to calculate or store this, possibly in superclass
-  def grounding: Unit = ???
+  def grounding: SameAsGrounding = sameAsGrounder.ground(canonicalName)
 }
 
-class EidosEventMention(val odinEventMention: EventMention, mapOfMentions: IdentityHashMap[Mention, EidosMention])
-    extends EidosMention(odinEventMention, mapOfMentions) {
+class EidosEventMention(val odinEventMention: EventMention, sameAsGrounder: SameAsGrounder,
+    mapOfMentions: IdentityHashMap[Mention, EidosMention])
+    extends EidosMention(odinEventMention, sameAsGrounder, mapOfMentions) {
   
   val odinTrigger = odinEventMention.trigger
   
-  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, mapOfMentions)
+  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, sameAsGrounder, mapOfMentions)
   
-  protected def remapOdinTrigger(odinMention: Mention, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
+  protected def remapOdinTrigger(odinMention: Mention, sameAsGrounder: SameAsGrounder, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
     if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
-    else EidosMention.asEidosMentions(Seq(odinMention), mapOfMentions)(0)
+    else EidosMention.asEidosMentions(Seq(odinMention), sameAsGrounder, mapOfMentions)(0)
 
   override val canonicalName = {
     val em = odinEventMention
@@ -101,8 +111,9 @@ class EidosEventMention(val odinEventMention: EventMention, mapOfMentions: Ident
   }
 }
 
-class EidosRelationMention(val odinRelationMention: RelationMention, mapOfMentions: IdentityHashMap[Mention, EidosMention])
-    extends EidosMention(odinRelationMention, mapOfMentions) {
+class EidosRelationMention(val odinRelationMention: RelationMention, sameAsGrounder: SameAsGrounder,
+    mapOfMentions: IdentityHashMap[Mention, EidosMention])
+    extends EidosMention(odinRelationMention, sameAsGrounder, mapOfMentions) {
   
   override val canonicalName = {
     val rm = odinRelationMention
