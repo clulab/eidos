@@ -8,7 +8,7 @@ class TestSimpleSameAs extends Test {
 
   it should "compare all entities for sameAs" in {
     val tester = new Tester("The increase in rain causes flooding and conflict.  Also, crop yield decreased.")
-    println(tester.mentions.map(_.text).mkString("\t"))
+//    println(tester.mentions.map(_.text).mkString("\t"))
 
     val entities = tester.mentions.filter(_ matches "Entity")
     if (TestUtils.ieSystem.word2vec)
@@ -25,7 +25,7 @@ class TestSimpleSameAs extends Test {
 
     // todo: why does this crash when comparing entities across sentences?
     // works fine with: "The increase in rain causes flooding, conflict, and decreased crop yield."
-    sameAsRelations.foreach(s => println(utils.DisplayUtils.displayMention(s)))
+//    sameAsRelations.foreach(s => println(utils.DisplayUtils.displayMention(s)))
   }
 
 
