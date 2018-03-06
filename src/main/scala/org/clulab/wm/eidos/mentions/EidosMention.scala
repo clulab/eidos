@@ -44,7 +44,7 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrou
     val lemmas = s.lemmas.get.slice(m.start, m.end)
     val contentLemmas = for {
       (tag, lemma) <- tags.zip(lemmas)
-      if isContentTag(tag)
+      if isContentTag(tag) && !sameAsGrounder.getStopwords.contains(lemma)
     } yield lemma
 
 //    println("  * result: " + contentLemmas.mkString(" "))

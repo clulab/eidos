@@ -33,6 +33,7 @@ case class SameAsGrounding(grounding: Seq[(String, Double)])
 
 trait SameAsGrounder {
   def ground(canonicalName: String): SameAsGrounding
+  def getStopwords(): Set[String]
 }
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
@@ -193,13 +194,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def extractFrom(doc: Document, populateSameAs: Boolean = false): Vector[Mention] = {
-    println (s"Loaded transparent words: ${transparentWords.mkString(", ")}")
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
-    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
+//    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
     val filtered = filterStopTransparent(entities)
-    println(s"In extractFrom() -- filtered : ${filtered.map(m => m.text).mkString(",\t")}")
+//    println(s"In extractFrom() -- filtered : ${filtered.map(m => m.text).mkString(",\t")}")
     val events = extractEventsFrom(doc, State(filtered)).distinct
 //    if (!populateSameAs) return events
     //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
@@ -282,15 +282,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   /*
       Filtering
   */
+
+  def getStopwords(): Set[String] = (stopWords ++ transparentWords)
+
   def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] = {
     // remove mentions which are entirely stop/transparent words
     mentions.filter(hasContent)
   }
 
   def hasContent(m: Mention): Boolean = {
-    println(s"  * checking mention: ${m.text}")
     val contentfulLemmas = m.lemmas.get.filterNot(lemma => (stopWords ++ transparentWords).contains(lemma))
-    println(s"  * --> contentfulLemmas: ${contentfulLemmas.mkString(", ")}")
     contentfulLemmas.nonEmpty
   }
 
