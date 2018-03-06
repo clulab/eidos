@@ -103,7 +103,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
   
   var loadableAttributes = LoadableAttributes()
-  
+
   // These public variables are accessed directly by clients and
   // the protected variables by local methods, neither of which
   // know they are loadable and which had better not keep copies.
@@ -192,12 +192,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def extractFrom(doc: Document, populateSameAs: Boolean = false): Vector[Mention] = {
+    println (s"Loaded transparent words: ${transparentWords.mkString(", ")}")
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
+    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
     val filtered = filterStopTransparent(entities)
+    println(s"In extractFrom() -- filtered : ${filtered.map(m => m.text).mkString(",\t")}")
     val events = extractEventsFrom(doc, State(filtered)).distinct
-    if (!populateSameAs) return events
+//    if (!populateSameAs) return events
     //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
     //    val sameAs = populateSameAsRelations(entities)
@@ -284,7 +287,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def hasContent(m: Mention): Boolean = {
+    println(s"  * checking mention: ${m.text}")
     val contentfulLemmas = m.lemmas.get.filterNot(lemma => (stopWords ++ transparentWords).contains(lemma))
+    println(s"  * --> contentfulLemmas: ${contentfulLemmas.mkString(", ")}")
     contentfulLemmas.nonEmpty
   }
 
