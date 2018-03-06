@@ -6,7 +6,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
-import org.clulab.processors.{Document, Processor}
+import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
@@ -120,11 +120,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = false): Document = {
     val doc = proc.annotate(text, keepText)
-    doc.sentences.foreach(s => s.entities = Some(ner.find(s)))
+    doc.sentences.foreach(addLexiconNER)
     doc
   }
 
-  // Extract mentions from a string
+  protected def addLexiconNER(s: Sentence) = {
+    for {
+      (lexiconNERTag, i) <- ner.find(s).zipWithIndex
+      if lexiconNERTag != EidosSystem.NER_OUTSIDE
+    } s.entities.get(i) = lexiconNERTag
+  }
+
   def extractFromText(text: String, keepText: Boolean = false, populateSameAs: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc, populateSameAs = populateSameAs).toSeq
@@ -285,6 +291,7 @@ object EidosSystem {
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"
   val QUANT_LABEL_AFFIX = "-Quant"
+  val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
 }
