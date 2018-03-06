@@ -15,7 +15,7 @@ object ExtractFromText extends App {
   val reader = new EidosSystem()
 
   // Extract the mentions
-  val annotatedDocument = reader.extractFrom(text)
+  val annotatedDocument = reader.extractFromText(text)
 
   // Display in a pretty way
   annotatedDocument.odinMentions.foreach(displayMention)

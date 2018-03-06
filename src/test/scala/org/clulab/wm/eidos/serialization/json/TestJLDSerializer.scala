@@ -20,7 +20,7 @@ class TestJLDSerializer extends Test {
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val ieSystem = TestUtils.ieSystem
-    val annotatedDocument = ieSystem.extractFrom(text, true)
+    val annotatedDocument = ieSystem.extractFromText(text, keepText = true)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument

@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.EntityGrounder
-import org.clulab.wm.eidos.Grounding
+import org.clulab.wm.eidos.EntityGrounding
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
@@ -138,7 +138,7 @@ class JLDSerializer(val entityGrounder: Some[EntityGrounder]) {
   
   def ground(mention: EidosMention, quantifier: Quantifier) =
     if (entityGrounder.isDefined) entityGrounder.get.ground(mention.odinMention, quantifier)
-    else Grounding(None, None, None)
+    else EntityGrounding(None, None, None)
 }
 
 object JLDSerializer {
