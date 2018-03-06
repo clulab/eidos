@@ -10,6 +10,7 @@ import org.clulab.processors.{Document, Processor}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainOntology
@@ -43,9 +44,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
+  var word2vec = false // Turn this on and off here
 
   override def getConf: Config = config  
+
+  protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
   
+  protected def getPath(name: String, defaultValue: String): String =
+      getArgString(getFullName(name), Option(defaultValue))
+    
   class LoadableAttributes(
       val entityFinder: EidosEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
@@ -53,18 +60,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val actions: EidosActions,
       val engine: ExtractorEngine,
       val ner: LexiconNER,
-      val w2v: Word2Vec,
-      val conceptEmbeddings: Map[String, Seq[Double]],
-      val topKNodeGroundings: Int
   )
   
   object LoadableAttributes {
-    
-    protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
-    
-    protected def getPath(name: String, defaultValue: String): String =
-        getArgString(getFullName(name), Option(defaultValue))
-      
     val   masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
     val  quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
     val domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
@@ -72,17 +70,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
-    val     wordToVecPath: String = getPath(    "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
-    val    domainOntoPath: String = getPath(   "domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
-    
-    val topKNodeGroundings: Int = getArgInt("topKNodeGroundings", Some(10))
+
     val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
       
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
       val rules = readRules(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
-      val (w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]]) = initSameAsDataStructures(wordToVecPath, domainOntoPath)
      
       new LoadableAttributes(
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
@@ -97,9 +91,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
           // todo: the order matters, we should be taking order into account
           //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
           LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...,
-          w2v,
-          conceptEmbeddings,
-          topKNodeGroundings
       )
     }
   }
@@ -115,12 +106,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected def actions = loadableAttributes.actions
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
-  def w2v = loadableAttributes.w2v
-  def conceptEmbeddings = loadableAttributes.conceptEmbeddings
-  def topKNodeGroundings = loadableAttributes.topKNodeGroundings
+
+  // These aren't intended to be (re)loadable.  This only happens once.
+  val  wordToVecPath: String = getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
+  val domainOntoPath: String = getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
+  val topKNodeGroundings: Int = getArgInt("topKNodeGroundings", Some(10))
+
+  val (w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]]) =
+      initSameAsDataStructures(wordToVecPath, domainOntoPath)
   
   def reload() = loadableAttributes = LoadableAttributes()
-
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = false): Document = {
@@ -197,42 +192,42 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     events
   }
 
-//  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
+  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
 
-//    // Create an UndirectedRelation Mention to contain the sameAs grounding information
-//    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
-//      // Build a Relation Mention (no trigger)
-//      new CrossSentenceMention(
-//        labels = Seq("SameAs"),
-//        anchor = a,
-//        neighbor = b,
-//        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
-//        document = a.document,  // todo: change?
-//        keep = true,
-//        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
-//        attachments = Set(Score(score)))
-//    }
-//
-//    // n choose 2
-//    val sameAsRelations = for {
-//      (m1, i) <- ms.zipWithIndex
-//      m2 <- ms.slice(i+1, ms.length)
-//      score = calculateSameAs(m1, m2)
-//    } yield sameAs(m1, m2, score)
-//
-//    sameAsRelations
-//  }
+    // Create an UndirectedRelation Mention to contain the sameAs grounding information
+    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
+      // Build a Relation Mention (no trigger)
+      new CrossSentenceMention(
+        labels = Seq("SameAs"),
+        anchor = a,
+        neighbor = b,
+        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
+        document = a.document,  // todo: change?
+        keep = true,
+        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
+        attachments = Set(Score(score)))
+    }
+
+    // n choose 2
+    val sameAsRelations = for {
+      (m1, i) <- ms.zipWithIndex
+      m2 <- ms.slice(i+1, ms.length)
+      score = calculateSameAs(m1, m2)
+    } yield sameAs(m1, m2, score)
+
+    sameAsRelations
+  }
 
   // fixme: implement
-//  def calculateSameAs (m1: Mention, m2: Mention): Double = {
-//    val sanitisedM1 =  m1.text.split(" +").map( Word2Vec.sanitizeWord(_) )
-//    val sanitisedM2 =  m2.text.split(" +").map( Word2Vec.sanitizeWord(_) )
-//    val score = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
-//    score
-//  }
+  protected def calculateSameAs (m1: Mention, m2: Mention): Double = {
+    val sanitisedM1 =  m1.text.split(" +").map( Word2Vec.sanitizeWord(_) )
+    val sanitisedM2 =  m2.text.split(" +").map( Word2Vec.sanitizeWord(_) )
+    val score = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
+    score
+  }
 
   // reads a taxonomy from data, where data may be either a forest or a file path
-  private def readOntology(data: Any): DomainOntology = data match {
+  protected def readOntology(data: Any): DomainOntology = data match {
     case t: Collection[_] => DomainOntology(t.asInstanceOf[Collection[Any]])
     case path: String =>
       val url = getClass.getResource(path)
@@ -244,15 +239,22 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       DomainOntology(data)
   }
 
-  def initSameAsDataStructures (word2VecPath: String, ontologyPath: String): (Word2Vec, Map[String, Seq[Double]]) = {
-    println(s"Word2Vec: ${word2VecPath}")
-    println(s"ontology: ${ontologyPath}")
-    val word2vecFile = scala.io.Source.fromURL(getClass.getResource(word2VecPath))
-    lazy val w2v = new Word2Vec(word2vecFile, None)
-//    val w2v = new Word2Vec(Map[String, Array[Double]]())
-    val ontology = readOntology(ontologyPath)
-    val conceptEmbeddings = ontology.iterateOntology(w2v)
-    (w2v, conceptEmbeddings)
+  protected def initSameAsDataStructures (word2VecPath: String, ontologyPath: String): (Word2Vec, Map[String, Seq[Double]]) = {
+    if (word2vec) {
+      println(s"Word2Vec: ${word2VecPath}")
+      println(s"ontology: ${ontologyPath}")
+      val word2vecFile = scala.io.Source.fromURL(getClass.getResource(word2VecPath))
+      lazy val w2v = new Word2Vec(word2vecFile, None)
+      val ontology = readOntology(ontologyPath)
+      val conceptEmbeddings = ontology.iterateOntology(w2v)
+      (w2v, conceptEmbeddings)
+    }
+    else {
+      val w2v = new Word2Vec(Map[String, Array[Double]]())
+      val conceptEmbeddings = Map[String, Seq[Double]]()
+      
+      (w2v, conceptEmbeddings)
+    }
   }
 
   /*
