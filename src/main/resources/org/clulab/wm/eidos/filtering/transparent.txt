@@ -1,0 +1,5 @@
+#
+#      transparent words
+# these should be lemma forms
+#
+
