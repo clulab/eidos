@@ -1,7 +1,7 @@
-package org.clulab.wm.eidos.system
+package org.clulab.wm.eidos.text.raps
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, TransparentLink, EdgeSpec, NodeSpec}
+import org.clulab.wm.eidos.text._
 
 
 class TestRaps extends Test {

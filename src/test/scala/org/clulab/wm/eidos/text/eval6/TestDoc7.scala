@@ -34,13 +34,13 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 1"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(conflict) should be (successful) 
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
       tester.test(hunger) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    failingTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(food, Correlation, leanSeason)) should be (successful) 
     }
   }
@@ -65,13 +65,13 @@ class TestDoc7 extends Test {
     
     behavior of "TestDoc7 Paragraph 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(foodSecurity) should be (successful) 
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
       tester.test(foodInsecurity) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    failingTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(seasonalHarvests, Causal, foodAvailability)) should be (successful) 
     }
   }
@@ -94,16 +94,16 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 3"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(conflict) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    failingTest should "have correct edge 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, starvation)) should be (successful) 
     }
-    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+    failingTest should "have correct edge 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, destitution)) should be (successful) 
     }
-    failingTest should "have correct edge 3" taggedAs(Somebody) in {
+    failingTest should "have correct edge 3" taggedAs(Ajay) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, death)) should be (successful) 
     }
   }
@@ -128,19 +128,19 @@ class TestDoc7 extends Test {
     
     behavior of "TestDoc7 Paragraph 4"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(refugees) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Somebody) in {
+    failingTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, communities)) should be (successful) 
     }
-    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+    failingTest should "have correct edge 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, livelihoodActivities)) should be (successful) 
     }
-    failingTest should "have correct edge 3" taggedAs(Somebody) in {
+    failingTest should "have correct edge 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, foodInsecurity)) should be (successful) 
     }
-    failingTest should "have correct edge 4" taggedAs(Somebody) in {
+    failingTest should "have correct edge 4" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, humanitarianAccess)) should be (successful) 
     }
   }
@@ -166,10 +166,10 @@ class TestDoc7 extends Test {
     
     behavior of "TestDoc7 Paragraph 5"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(humanitarianResponse) should be (successful) 
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Ajay) in {
       tester.test(foodInsecurity) should be (successful) 
     }
   }
@@ -190,13 +190,13 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 6"
 
-    failingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(foodAssistance) should be (successful)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
       tester.test(water) should be (successful) 
     }
-    failingTest should "have correct singleton node 3" taggedAs(Somebody) in {
+    failingTest should "have correct singleton node 3" taggedAs(Becky) in {
       tester.test(livelihoodsInterventions) should be (successful) 
     }
     futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
