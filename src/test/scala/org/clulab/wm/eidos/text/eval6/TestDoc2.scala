@@ -134,7 +134,7 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
-    val foodInsecurity = NodeSpec("Food insecurity")
+    val foodInsecurity = NodeSpec("Food insecurity", NodeSpec.indexOfCount(0, 2))
     val conflict = NodeSpec("conflict")
     val fams = NodeSpec("families to leave South Sudan for neighbouring countries", Quant("many"))
 

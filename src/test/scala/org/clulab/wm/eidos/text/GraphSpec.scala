@@ -145,6 +145,8 @@ object NodeSpec {
   def indexOfCount(outerIndex: Int, outerCount: Int): NodeFilter =
       (mention: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
     
+  def apply(nodeText: String, nodeFilter: NodeFilter) =
+      new NodeSpec(nodeText, Set(), nodeFilter)      
   def apply(nodeText: String, attachmentSpec: AttachmentSpec, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(attachmentSpec), nodeFilter)
   
