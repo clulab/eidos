@@ -45,7 +45,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
-  var word2vec = false // Turn this on and off here
+  var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
 
   override def getConf: Config = config  
 
@@ -119,8 +119,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def transparentWords = loadableAttributes.transparentWords
 
   // These aren't intended to be (re)loadable.  This only happens once.
-  val  wordToVecPath: String = getPath(getFullName( "wordToVecPath"), "/org/clulab/wm/eidos/sameas/vectors.txt")
-  val domainOntoPath: String = getPath(getFullName("domainOntoPath"), "/org/clulab/wm/eidos/toy_ontology.yml")
+  val  wordToVecPath: String = getPath("wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
+  val domainOntoPath: String = getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
   val topKNodeGroundings: Int = getArgInt(getFullName("topKNodeGroundings"), Some(10))
 
   val (w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]]) =
