@@ -79,7 +79,7 @@ object Unmarked {
       new Unmarked(Unmodified(quantifier))
 }
 
-class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec]) extends GraphSpec {
+class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
   val attachments = attachmentSpecs.map(_.attachment)
   var mention: Option[Mention] = None
   var tested = false
@@ -99,13 +99,14 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec]) e
   }
     
   protected def testSpec(mentions: Seq[Mention]): Seq[Mention] = {
-    val matches = mentions
+    val matches1 = mentions
         .filter(_.isInstanceOf[TextBoundMention])
         .map(_.asInstanceOf[TextBoundMention])
         .filter(matchText)
         .filter(matchAttachments)
+    val matches2 = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
         
-    matches
+    matches2
   }
   
   def test(mentions: Seq[Mention]): Seq[String] = {
@@ -135,6 +136,18 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec]) e
 }
 
 object NodeSpec {
+  type NodeFilter = (TextBoundMention, Int, Int) => Boolean
+  
+  def trueFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => true
+  def firstFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => index == 0
+  def lastFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => index == count - 1
+
+  def indexOfCount(outerIndex: Int, outerCount: Int): NodeFilter =
+      (mention: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
+    
+  def apply(nodeText: String, attachmentSpec: AttachmentSpec, nodeFilter: NodeFilter) =
+      new NodeSpec(nodeText, Set(attachmentSpec), nodeFilter)
+  
   def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
       new NodeSpec(nodeText, attachmentSpecs)
   def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
