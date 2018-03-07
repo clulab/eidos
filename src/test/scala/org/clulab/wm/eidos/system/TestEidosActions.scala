@@ -88,13 +88,9 @@ class TestEidosActions extends Test {
   
   val reader = new EidosSystem()
   
-  behavior of "EidosActions"
-  
-  it should "produce not just unique but also distinct mentions" in {
-    val text = "The government promotes improved cultivar to boost agricultural production for ensuring food security."
-//    val text = "This is a test"
-    val annotatedDocument = reader.extractFrom(text)
-    val someMentions = annotatedDocument.mentions
+  protected def test(text: String, index: Int): Unit = {
+    val annotatedDocument = reader.extractFromText(text)
+    val someMentions = annotatedDocument.odinMentions
     val uniqueMentions = findUniqueMentions(someMentions)
     val matchingPair = findMatchingPair(uniqueMentions)
 
@@ -111,6 +107,22 @@ class TestEidosActions extends Test {
       val jsonAll = stringify(jValueAll, pretty = true)
       println(jsonAll)
     }
-    matchingPair should be (None)
+    it should "produce not just unique but also distinct mentions " + index in {
+      matchingPair should be (None)
+    }
   }
+
+  behavior of "EidosActions"
+
+  val texts = Seq(
+    // This is something that Ben found.
+    "The government promotes improved cultivar to boost agricultural production for ensuring food security.",
+    // This one is sent19 in the TestRaps
+    "The governmental policy objective is to achieve food security, ensure adequate raw materials for the manufacturing sector, " +
+        "and increased export earnings through increased productivity, efficient input use, and better market access, " +
+        "infrastructure, and service development.",
+    "This is a test."
+  )
+  
+  texts.zipWithIndex.foreach { case (text, index) => test(text, index) }
 }
