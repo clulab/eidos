@@ -19,6 +19,7 @@ libraryDependencies ++= {
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "com.typesafe"  %  "config"                   % "1.3.1",
+    "net.sf.saxon"  % "saxon-dom"                 % "8.7",
 
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   )
