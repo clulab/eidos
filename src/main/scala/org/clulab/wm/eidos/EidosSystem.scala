@@ -15,6 +15,7 @@ import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainOntology
 import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
+import org.clulab.wm.eidos.utils.Sourcer
 
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -69,7 +70,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val    quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
+    val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
 
     val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
       
@@ -244,8 +245,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected def readOntology(data: Any): DomainOntology = data match {
     case t: Collection[_] => DomainOntology(t.asInstanceOf[Collection[Any]])
     case path: String =>
-      val url = getClass.getResource(path)
-      val source = Source.fromURL(url)
+      val source = Sourcer.fromURL(path)
       val input = source.mkString
       source.close()
       val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
@@ -257,7 +257,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     if (word2vec) {
       println(s"Word2Vec: ${word2VecPath}")
       println(s"ontology: ${ontologyPath}")
-      val word2vecFile = scala.io.Source.fromURL(getClass.getResource(word2VecPath))
+      val word2vecFile = Sourcer.fromURL(word2VecPath)
       lazy val w2v = new Word2Vec(word2vecFile, None)
       val ontology = readOntology(ontologyPath)
       val conceptEmbeddings = ontology.iterateOntology(w2v)

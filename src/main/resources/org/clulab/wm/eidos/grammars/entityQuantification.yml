@@ -29,7 +29,7 @@ rules:
     pattern: |
       @adverb: Quantifier?
       (?<trigger> [mention=Quantifier])  #Find the adverbial quantifier
-      @theme: Entity #Find the adjectival quantifier being quantified :)  
+      @theme: Entity #Find the adjectival quantifier being quantified
 
   - name: quantification_adjective_rule_2
     priority:  ${ rulepriority }
