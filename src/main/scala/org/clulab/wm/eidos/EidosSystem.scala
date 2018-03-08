@@ -70,7 +70,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val    quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    val      taxonomyPath: String = getPath(     "taxonomyPath",  "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
 
     val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
       
