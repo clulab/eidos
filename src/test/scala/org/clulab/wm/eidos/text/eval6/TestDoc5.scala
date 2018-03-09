@@ -317,6 +317,10 @@ class TestDoc5 extends Test {
 
     val tester = new Tester(text)
 
+    /* NOTES:
+     * - Perhaps we should add IPC Phase classifications as quantifiers for food
+     *   security? They are causing problems.
+     * */
     failingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(insecurity, Correlation, households)) should be (successful)
     }
