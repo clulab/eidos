@@ -2,15 +2,28 @@ package org.clulab.wm.eidos.serialization
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 
-import org.clulab.odin.{EventMention, Mention, SynPath}
+import org.clulab.odin.{TextBoundMention, EventMention, Mention, SynPath}
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
+
+@SerialVersionUID(1L)
+class JustAClass(val text: SynPath) extends Serializable {
+}
+
+@SerialVersionUID(1L)
+class NormalClass(val text: SynPath, val recursiveClasses: Map[String, Map[String, SynPath]]) extends Serializable {
+}
+
+@SerialVersionUID(1L)
+class RecursiveClass(val text: SynPath, val recursiveClasses: Map[String, Map[RecursiveClass, SynPath]]) extends Serializable {
+}
 
 class TestSerialization extends Test {
 
   val reader = new EidosSystem()
 
+  
   behavior of "Standard Serializer"
 
   it should "serialize and deserialize again" in {
@@ -25,6 +38,9 @@ class TestSerialization extends Test {
 //    val prementionsOut = annotatedDocument.mentions(2).asInstanceOf[EventMention].paths // 0, 1 serializes but 2 doesn't
 //    val mentionsOut = prementionsOut("cause")
     val mentionsOut = annotatedDocument.mentions
+
+//    val mentionsOut: Seq[Map[String, Seq[String]]] = Seq(Map("a" -> Seq("a", "b", "c"), "b" -> Seq("asdf", "jkl;")))
+    //val mentionsOut: Seq[Map[String, String]] = Seq(Map("a" -> "b", "c" -> "d"))
     // What is in here?
 
    // val mentionsOut: TestSerialization.SynPath = Seq((5, 4, "Testing"), (6, 7, "1, 2, 3"))
@@ -35,15 +51,15 @@ class TestSerialization extends Test {
     val streamOut = new ByteArrayOutputStream()
     val encoder = new ObjectOutputStream(streamOut)
 
-    mentionsOut.indices.foreach { index =>
-      val mention = mentionsOut(index)
-
+    def serialize(any: Any, index: Int): Unit = {
       encoder.reset()
       try {
-        encoder.writeObject(mentionsOut)
+        encoder.writeObject(any)
+        println("Success while writing index " + index)
       }
       catch {
         case exception: Exception => println("Threw exception while writing index " + index)
+            exception.printStackTrace()
       }
 
       val bytes = streamOut.toByteArray
@@ -52,15 +68,68 @@ class TestSerialization extends Test {
 
       try {
         val mentionsIn = decoder.readObject()
+        println("Success while reading index " + index)
       }
       catch {
         case exception: Exception => println("Threw exception while reading index " + index)
       }
-
       decoder.close()
     }
-    encoder.close()
+    
+    val just: JustAClass = new JustAClass(Seq((1, 2, "simple")))
+    serialize(just, -3)
+    
+    val norm1: NormalClass = new NormalClass(Seq((3, 4, "normal")), Map("hello" -> Map("there" -> Seq((3, 4,  "one")), "here" -> Seq((5, 6, "two")))))
+    serialize(norm1, -2)
+    
+    val rec1: RecursiveClass = new RecursiveClass(Seq((1, 2, "simple")), Map.empty)
+    val rec2: RecursiveClass = new RecursiveClass(Seq((1, 2, "simple")), Map("indirection" -> Map(rec1 -> Seq((1, 2, "simple")), rec1 -> Seq((1, 2, "simple")))))
+    val rec3: RecursiveClass = new RecursiveClass(Seq((1, 2, "simple")), Map("doubleindirection" -> Map(rec1 ->Seq((1, 2, "simple")), rec2 -> Seq((1, 2, "simple")))))
+    serialize(rec1, -1);
+    
+    serialize(Seq(just, norm1, rec1, rec1), 0)
 
+    mentionsOut.indices.foreach { index =>
+      val mentionOut = mentionsOut(index)
+     
+      if (mentionOut.isInstanceOf[EventMention]) {
+        val eventMention = mentionOut.asInstanceOf[EventMention]
+        var index = 0
+
+        serialize(eventMention.labels, index); index += 1
+        serialize(eventMention.tokenInterval, index); index += 1
+        serialize(eventMention.trigger, index); index += 1
+        serialize(eventMention.arguments, index); index += 1
+        eventMention.paths.foreach { case (key, value) =>
+          println("See if the values work")
+          serialize(value, index); index += 1
+        }
+        eventMention.paths.keys.foreach { key =>
+          println("See if the parts work")
+          val path = Map(key -> eventMention.paths(key))
+          
+          serialize(path, index); index += 1
+        }
+        println("See if a copy of path works")
+        val path = Map() ++ eventMention.paths
+        serialize(path, index); index += 1
+
+        println("See if a copy of whole works")
+        val copy = eventMention.copy(paths = Map() ++ eventMention.paths)
+        serialize(copy, index); index += 1
+        
+        println("See if the whole works")
+        serialize(eventMention.paths, index); index += 1 // This doesn't work!
+        serialize(eventMention.sentence, index); index += 1
+        serialize(eventMention.document, index); index += 1
+        serialize(eventMention.keep, index); index += 1
+        serialize(eventMention.foundBy, index); index += 1
+        serialize(eventMention.attachments, index); index += 1
+   //     serialize(eventMention, index); index += 1 // because recursive? not right constructor?
+      }
+    }
+    encoder.close()
+    
     //    val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
     //    val jValue2 = WMJSONSerializer.jsonAST(mentionsIn.asInstanceOf[Seq[Mention]])
     //
