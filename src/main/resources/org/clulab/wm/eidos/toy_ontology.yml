@@ -238,7 +238,7 @@
         - "food insecurity"
         - "food gap"
         - "malnutrition"
-- temoporal:
+- temporal:
   - seasons:
     - crop_season:
       - "harvest"
