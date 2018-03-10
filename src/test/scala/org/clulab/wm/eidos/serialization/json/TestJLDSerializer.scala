@@ -11,7 +11,7 @@ import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
-import org.clulab.wm.eidos.{EntityGrounder, Grounding}
+import org.clulab.wm.eidos.{EntityGrounder, EntityGrounding}
 
 import scala.collection.Seq
 

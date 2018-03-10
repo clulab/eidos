@@ -56,8 +56,8 @@ class TestSerialization extends Test {
   it should "serialize and deserialize mentions" in {
     //val text = "Water trucking has decreased due to the cost of fuel."
     val text = "Food shortages cause hunger."
-    val annotatedDocument = reader.extractFrom(text)
-    val mentionsOut = annotatedDocument.mentions
+    val annotatedDocument = reader.extractFromText(text)
+    val mentionsOut = annotatedDocument.odinMentions
 
     mentionsOut.indices.foreach { index =>
       val mentionOut = mentionsOut(index)
