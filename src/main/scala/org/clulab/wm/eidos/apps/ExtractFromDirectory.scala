@@ -4,7 +4,7 @@ import java.io.PrintWriter
 import scala.collection.Seq
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.json.odin.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 object ExtractFromDirectory extends App {
@@ -21,7 +21,7 @@ object ExtractFromDirectory extends App {
     val source = scala.io.Source.fromFile(file)
     source.getLines() foreach { text =>
       // 3. Extract causal mentions from the text
-      val annotatedDocument = reader.extractFrom(text)
+      val annotatedDocument = reader.extractFromText(text)
       // 4. Convert to JSON
       val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
       val mentionsJSONLD = corpus.serialize()

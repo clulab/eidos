@@ -3,12 +3,16 @@ package org.clulab.wm.eidos.text.cag
 import java.util.IdentityHashMap  // Unfortunately borrowed from Java
 
 import org.clulab.odin.Mention
+import org.clulab.wm.eidos.SameAsGrounder
+import org.clulab.wm.eidos.SameAsGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.cag.CAG._
 
-class TestEidosMention extends Test {
+class TestEidosMention extends Test with SameAsGrounder {
+  
+  def ground(mention: EidosMention): SameAsGrounding = SameAsGrounding(Seq.empty)
   
   def test(text: String) = {
     def myprintln(text: String) = {
@@ -35,7 +39,7 @@ class TestEidosMention extends Test {
         }
 
     val odinMentions = TestUtils.extractMentions(text)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions, this)
     val mentionsSize = odinMentions.size
     
     myprintln("mentionsSize: " + mentionsSize)
@@ -92,7 +96,7 @@ than in the corresponding period two years earlier.
   behavior of "EidosMention"
   
   Seq(p1, p2, p3, p4, p5, p6, fullText, text1, text2).zipWithIndex.foreach { case (text, index) =>
-    it should "should convert text " + index in {
+    it should "convert text " + index in {
       test(text)
     }
   }
@@ -101,7 +105,7 @@ than in the corresponding period two years earlier.
   it should "properly make canonical form" in {
     val text3 = "The seasonal rainfall in July was decreased by something."
     val odinMentions3 = TestUtils.extractMentions(text3)
-    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
+    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, this)
 
     //  eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 

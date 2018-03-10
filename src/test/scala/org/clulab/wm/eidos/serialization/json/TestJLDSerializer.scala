@@ -3,7 +3,11 @@ package org.clulab.wm.eidos.serialization.json
 import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.serialization.json.JLDObject._
+import org.clulab.wm.eidos.AnnotatedDocument
+import org.clulab.wm.eidos.EidosSystem.Corpus
+import org.clulab.wm.eidos.EntityGrounder
+import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
+import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
@@ -17,23 +21,29 @@ class TestJLDSerializer extends Test {
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val ieSystem = TestUtils.ieSystem
-    val annotatedDocument = ieSystem.extractFrom(text, keepText = true)
+    val annotatedDocument = ieSystem.extractFromText(text, keepText = true)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
   }
   
-  def serialize(corpus: Corpus): String = {
-    object TestEntityGrounder extends EntityGrounder {
-  
-      def ground(mention: Mention, quantifier: Quantifier): Grounding =
-        TestUtils.ieSystem.ground(mention, quantifier)
+  def serialize(corpus: Corpus) = {
+    val json1 = {
+      val jldCorpus = new JLDOdinCorpus(corpus, TestUtils.ieSystem)
+      val jValue = jldCorpus.serialize()
+      stringify(jValue, true)
     }
-  
-    val jldCorpus = new JLDCorpus(corpus, TestEntityGrounder)
-    val jValue = jldCorpus.serialize()
     
-    stringify(jValue, pretty = true)
+    val json2 = {
+      val jldCorpus = new JLDEidosCorpus(corpus, TestUtils.ieSystem)
+      val jValue = jldCorpus.serialize()
+      stringify(jValue, true)
+    }
+    
+//    if (json1 != json2)
+//      println(json1 + json2)
+      
+    json1 + json2
   }
   
   def inspect(string: String): Unit =

@@ -1,10 +1,10 @@
 package org.clulab.wm.eidos.apps
 
-import scala.collection.immutable.ListMap
-
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.utils.{CliReader, IdeReader}
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
+import org.clulab.wm.eidos.utils.{CliReader, IdeReader}
+
+import scala.collection.immutable.ListMap
 
 /**
   * Interactive shell for demonstrating Eidos
@@ -63,7 +63,8 @@ object EidosShell extends App {
     val doc = ieSystem.annotate(text)
 
     // extract mentions from annotated document
-    val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    val populateSameAs = true
+    val mentions = ieSystem.extractFrom(doc, populateSameAs = populateSameAs).sortBy(m => (m.sentence, m.getClass.getSimpleName))
 
     // debug display the mentions
     displayMentions(mentions, doc, true)

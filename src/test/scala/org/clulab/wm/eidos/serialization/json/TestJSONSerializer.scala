@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json._
 import org.clulab.wm.eidos.test.TestUtils.Test
 
 class TestJSONSerializer extends Test {
@@ -12,8 +13,9 @@ class TestJSONSerializer extends Test {
 
   ignore should "serialize and deserialize again" in {
     val text = "Water trucking has decreased due to the cost of fuel."
-    val annotatedDocument = reader.extractFrom(text)
-    val mentionsOut = annotatedDocument.mentions
+    val reader = new EidosSystem()
+    val annotatedDocument = reader.extractFromText(text)
+    val mentionsOut = annotatedDocument.odinMentions
     val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
     val mentionsIn = WMJSONSerializer.toMentions(jValue1)
     val jValue2 = WMJSONSerializer.jsonAST(mentionsOut)

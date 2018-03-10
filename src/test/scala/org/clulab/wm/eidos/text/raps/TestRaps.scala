@@ -1,7 +1,7 @@
-package org.clulab.wm.eidos.system
+package org.clulab.wm.eidos.text.raps
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{Inc, Dec, Quant, Causal, Origin, TransparentLink, EdgeSpec, NodeSpec}
+import org.clulab.wm.eidos.text._
 
 
 class TestRaps extends Test {
@@ -241,13 +241,13 @@ class TestRaps extends Test {
   }
 
   {//1 Inc, 1 Dec, 2 Causal
-    val sent10 = "The government promotes high-yielding and drought-/flood-tolerant rice varieties with policy to encourage the application of organic fertilizers, decreasing the cost on inorganic fertilizers."
+    // modified sentence to remove "drought-/" and add "a" after "with"
+    val sent10 = "The government promotes high-yielding and flood-tolerant rice varieties with a policy to encourage the application of organic fertilizers, decreasing the cost on inorganic fertilizers."
     val tester = new Tester(sent10)
 
     val gov = NodeSpec("government")
-    //system extracts val drought = NodeSpec("drought", Inc("promotes")), although drought is not Increase
     val rice = NodeSpec("flood-tolerant rice varieties", Inc("high-yielding"), Inc("promotes"))
-    val fertPriceUp = NodeSpec("cost on inorganic fertilizers", Inc("promotes")) //wrong!!!
+    val policy = NodeSpec("policy to encourage the application of organic fertilizers")
     val fertPriceDown = NodeSpec("cost on inorganic fertilizers", Dec("decreasing"))
 
     behavior of "Raps_sent10"
@@ -255,19 +255,11 @@ class TestRaps extends Test {
     passingTest should "have correct edge 1" taggedAs(Heather) in {
       tester.test(EdgeSpec(gov, Causal, rice)) should be (successful)
     }
-
-    //incorrectly says gov causes increase in fertprice
-    failingTest should "have correct edge 2" taggedAs(Heather) in {
-      tester.test(EdgeSpec(gov, Causal, fertPriceUp)) shouldNot be (successful)
-    }
-
-    passingTest should "have correct edge 3" taggedAs(Heather) in {
+    passingTest should "have correct edge 2" taggedAs(Heather) in {
       tester.test(EdgeSpec(gov, Causal, fertPriceDown)) should be (successful)
     }
-
-    //incorrectly says gov causes increase in drought
-    failingTest should "have correct edge 4" taggedAs(Heather) in {
-      tester.test(EdgeSpec(gov, Causal, NodeSpec("drought", Inc("promotes")))) shouldNot be (successful)
+    passingTest should "have correct edge 3" taggedAs(Heather) in {
+      tester.test(EdgeSpec(policy, Causal, rice)) should be (successful)
     }
 
   }

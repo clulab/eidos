@@ -15,7 +15,7 @@ object FileUtils {
 
   def readRules(rulesPath: String): String = {
     println(s"rulesPath:\t$rulesPath")
-    val source = scala.io.Source.fromURL(getClass.getResource(rulesPath))
+    val source = Sourcer.fromURL(rulesPath)
     val rules = source.mkString
     source.close()
     rules
@@ -24,7 +24,7 @@ object FileUtils {
   //Load the domain parameters (such as mean,stdev for parameters in the domain)
   def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
     println(s"Loading domain parameters file from ${domainParamKBFile}")
-    val source = scala.io.Source.fromURL(getClass.getResource(domainParamKBFile))
+    val source = Sourcer.fromURL(domainParamKBFile)
     val domainParams = source
       .getLines //get all the lines
       .toArray
@@ -53,7 +53,7 @@ object FileUtils {
   def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[Quantifier, Map[String, Double]] = {
     println(s"Loading the gradable adjectives model file from ${quantifierKBFile}")
     // adjective -> Map(name:value)
-    val source = scala.io.Source.fromURL(getClass.getResource(quantifierKBFile))
+    val source = Sourcer.fromURL(quantifierKBFile)
     val gradableAdjModel = source
       .getLines //Get all the lines from the model KB file
       .toArray.tail // ignore the header line
