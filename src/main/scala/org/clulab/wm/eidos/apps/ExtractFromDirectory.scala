@@ -6,11 +6,8 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.odin.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.EidosSystem
-
 
 object ExtractFromDirectory extends App {
-
   val reader = new EidosSystem()
   val inputDir = args(0)
   val outputDir = args(1)
@@ -33,5 +30,4 @@ object ExtractFromDirectory extends App {
     }
     pw.close()
   }
-
 }
