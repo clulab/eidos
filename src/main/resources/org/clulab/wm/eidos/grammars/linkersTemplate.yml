@@ -6,7 +6,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to"
+  preps: "nmod_of|nmod_in|nmod_to|_for$"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   passive_agents: "nmod_by|nmod_agent|agent"
@@ -23,7 +23,7 @@ rules:
     example: ""
     label: ${ label }
     pattern: |
-      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
+      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^[N|JJ]/]
       effect: Entity = nsubj
       cause: Entity = /${ preps }$/
 
@@ -71,7 +71,7 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       # Previous -- removed the complements because they were over matching
       #cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
+      cause: Entity = </${adverbial_clause}/? (${ agents }) /nmod_than|${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
       effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
 
 
