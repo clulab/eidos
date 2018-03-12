@@ -14,12 +14,12 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainOntology
-import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
+import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules, loadWords}
+import org.clulab.wm.eidos.utils.Sourcer
 
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
-import scala.io.Source
 
 case class EntityGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
   def isGrounded = intercept != None && mu != None && sigma != None
@@ -79,8 +79,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
       // Do reread these values each time.  Expect those above to stay the same, however.
-      val stopWords: Set[String] = getArgStrings(getFullName("stopWords"), Some(Seq[String]())).toSet
-      val transparentWords: Set[String] = getArgStrings(getFullName("transparent"), Some(Seq[String]())).toSet
+      val stopWords: Set[String] = loadWords(stopwordsPath).toSet
+      val transparentWords: Set[String] = loadWords(transparentPath).toSet
       val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
 
       val rules = readRules(masterRulesPath)
@@ -262,8 +262,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected def readOntology(data: Any): DomainOntology = data match {
     case t: Collection[_] => DomainOntology(t.asInstanceOf[Collection[Any]])
     case path: String =>
-      val url = getClass.getResource(path)
-      val source = Source.fromURL(url)
+      val source = Sourcer.fromURL(path)
       val input = source.mkString
       source.close()
       val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
@@ -275,7 +274,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     if (word2vec) {
       println(s"Word2Vec: ${word2VecPath}")
       println(s"ontology: ${ontologyPath}")
-      val word2vecFile = scala.io.Source.fromURL(getClass.getResource(word2VecPath))
+      val word2vecFile = Sourcer.fromURL(word2VecPath)
       lazy val w2v = new Word2Vec(word2vecFile, None)
       val ontology = readOntology(ontologyPath)
       val conceptEmbeddings = ontology.iterateOntology(w2v)
@@ -288,6 +287,23 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       (w2v, conceptEmbeddings)
     }
   }
+
+  def keepCAGRelavant(mentions: Seq[Mention]): Seq[Mention] = {
+    mentions.filter(isCAGRelevant)
+  }
+
+  def isCAGRelevant(m:Mention): Boolean = {
+    if (m.matches("Entity") && m.attachments.nonEmpty) {
+      true
+    }
+    else if (EidosSystem.CAG_EDGES.contains(m.label)) {
+      true
+    }
+    else {
+      false
+    }
+  }
+
 
   /*
       Filtering
@@ -337,4 +353,6 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
+  // CAG filtering
+  val CAG_EDGES = Set("Causal")
 }
