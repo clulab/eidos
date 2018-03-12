@@ -7,8 +7,8 @@ class TestDoc2 extends Test {
   
   { // Paragraph 1
     val text = """
-                 |Up to 4.8 million people in South Sudan - well over one-third of the
-                 |population - will be facing severe food shortages over the coming months, and the risk of a
+                 |Up to 4.8 million people in South Sudan--well over one-third of the
+                 |population--will be facing severe food shortages over the coming months, and the risk of a
                  |hunger catastrophe continues to threaten parts of the country, three UN agencies warned
                  |today.
                """
