@@ -62,7 +62,7 @@ object MakeRuleTSVs extends App {
   // ok print them
   for ((rule, mentionsForRule) <- byRulesSet) {
     if (rule.contains("Causal")) {
-      val pw = new PrintWriter(s"${outputDir}/ruleFiles/${rule}.tsv")
+      val pw = new PrintWriter(s"${outputDir}/${rule}.tsv")
       pw.println(header)
 //      println(s"MENTIONS for RULE: ${rule}")
       for (m <- mentionsForRule) {
