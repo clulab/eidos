@@ -11,7 +11,7 @@ import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.ForkJoinTaskSupport
 
-object MakeRuleCSV extends App {
+object MakeRuleTSVs extends App {
 
   collection.parallel.ForkJoinTasks.defaultForkJoinPool
 
