@@ -6,7 +6,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 import org.clulab.odin.Mention
-import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
@@ -65,10 +64,6 @@ object ExtractFromFile  extends App {
           pw.println(s"\tJustification: [${e._1}]")
           pw.println(s"""\tSentence: "${e._2}"""")
           pw.println(s"\tQuantifier: ${e._3}")
-//          if (agroSystem.gradableAdjGroundingModel.contains(e._3)) {
-//            val modelRow = agroSystem.gradableAdjGroundingModel(e._3)
-//            pw.println(s"\t\t$modelRow")
-//          }
         }
         pw.println()
       }
