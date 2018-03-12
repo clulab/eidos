@@ -75,7 +75,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // remove incomplete entities (i.e. under specified when more fully specified exists)
 
     val tbMentionGroupings =
-      textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, m.label))
+      textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, m.label, m.sentence))
 
     // remove incomplete mentions
     val completeTBMentions =
@@ -89,7 +89,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // We need to remove underspecified EventMentions of near-duplicate groupings
     // (ex. same phospho, but one is missing a site)
     val eventMentionGroupings =
-      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.label, m.tokenInterval))
+      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.label, m.tokenInterval, m.sentence))
 
     // remove incomplete mentions
     val completeEventMentions =
