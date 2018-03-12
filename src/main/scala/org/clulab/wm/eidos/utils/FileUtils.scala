@@ -4,10 +4,10 @@ import java.io.{File, FilenameFilter}
 import java.util.jar.JarFile
 
 import scala.collection.mutable.ListBuffer
-
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.utils.ResourceUtils.streamFromResource
 
 object FileUtils {
 
@@ -114,6 +114,15 @@ object FileUtils {
     dir.listFiles(new FilenameFilter {
       def accept(dir: File, name: String): Boolean = name.endsWith(extension)
     })
+  }
+
+  def loadWords(path: String, delimiter: String = ","): Seq[String] = {
+    println(s"* Loading words from ${path}")
+    val source = Sourcer.fromURL(path)
+    val data = source.getLines().toArray.filter(line => !line.startsWith("#")).mkString(" ")
+    val words = data.split(delimiter).map(_.trim)
+    source.close()
+    words
   }
 
 }

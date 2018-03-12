@@ -14,13 +14,12 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainOntology
-import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
+import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules, loadWords}
 import org.clulab.wm.eidos.utils.Sourcer
 
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
-import scala.io.Source
 
 case class EntityGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
   def isGrounded = intercept != None && mu != None && sigma != None
@@ -74,12 +73,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    val     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    val   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
 
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
       // Do reread these values each time.  Expect those above to stay the same, however.
-      val stopWords: Set[String] = getArgStrings(getFullName("stopWords"), Some(Seq[String]())).toSet
-      val transparentWords: Set[String] = getArgStrings(getFullName("transparent"), Some(Seq[String]())).toSet
+      val stopWords: Set[String] = loadWords(stopwordsPath).toSet
+      val transparentWords: Set[String] = loadWords(transparentPath).toSet
       val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
 
       val rules = readRules(masterRulesPath)
@@ -287,6 +288,23 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     }
   }
 
+  def keepCAGRelavant(mentions: Seq[Mention]): Seq[Mention] = {
+    mentions.filter(isCAGRelevant)
+  }
+
+  def isCAGRelevant(m:Mention): Boolean = {
+    if (m.matches("Entity") && m.attachments.nonEmpty) {
+      true
+    }
+    else if (EidosSystem.CAG_EDGES.contains(m.label)) {
+      true
+    }
+    else {
+      false
+    }
+  }
+
+
   /*
       Filtering
   */
@@ -335,4 +353,6 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
+  // CAG filtering
+  val CAG_EDGES = Set("Causal")
 }

@@ -19,4 +19,8 @@ object ResourceUtils {
     source.close()
     data
   }
+
+  def readStrings(path: String, delimiter: String = ","): Seq[String] = {
+    readResource(path).split(delimiter).map(_.trim)
+  }
 }

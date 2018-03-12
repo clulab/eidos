@@ -141,11 +141,19 @@ object DisplayUtils {
     mention match {
       case tb: TextBoundMention =>
         pw.println(s"\t${tb.labels.mkString(", ")} => ${tb.text}")
+        if (tb.attachments.nonEmpty) pw.println(s"\t  * Attachments: ${attachmentsString(tb.attachments)}")
       case em: EventMention =>
         pw.println(s"\ttrigger => ${em.trigger.text}")
+        if (em.trigger.attachments.nonEmpty) pw.println(s"\t  * Attachments: ${attachmentsString(em.trigger.attachments)}")
         printArguments(em, pw)
+        if (em.attachments.nonEmpty) {
+          pw.println(s"\tEvent Attachments: ${attachmentsString(em.attachments)}")
+        }
       case rel: RelationMention =>
         printArguments(rel, pw)
+        if (rel.attachments.nonEmpty) {
+          pw.println(s"\tRelation Attachments: ${attachmentsString(rel.attachments)}")
+        }
       case _ => ()
     }
     pw.println(s"$boundary\n")
@@ -180,6 +188,7 @@ object DisplayUtils {
       case (argName, ms) =>
         ms foreach { v =>
           pw.println(s"\t$argName ${v.labels.mkString("(", ", ", ")")} => ${v.text}")
+          if (v.attachments.nonEmpty) pw.println(s"\t  * Attachments: ${attachmentsString(v.attachments)}")
         }
     }
   }
