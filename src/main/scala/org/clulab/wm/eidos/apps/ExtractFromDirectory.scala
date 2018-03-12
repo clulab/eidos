@@ -1,12 +1,12 @@
 package org.clulab.wm.eidos.apps
 
 import java.io.PrintWriter
+
 import scala.collection.Seq
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.odin.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.JLDCorpus
 
 
 object ExtractFromDirectory extends App {
@@ -33,5 +33,4 @@ object ExtractFromDirectory extends App {
     }
     pw.close()
   }
-
 }
