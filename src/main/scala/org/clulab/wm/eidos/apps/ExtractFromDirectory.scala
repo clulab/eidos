@@ -15,7 +15,6 @@ object ExtractFromDirectory extends App {
   val outputDir = args(1)
   val files = findFiles(inputDir, "txt")
 
-
   // For each file in the input directory:
   files foreach { file =>
     // 1. Open corresponding output file
