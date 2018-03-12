@@ -72,9 +72,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val    quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    val      taxonomyPath: String = getPath(     "taxonomyPath",  "org/clulab/wm/eidos/grammars/taxonomy.yml")
-    val     stopwordsPath: String = getPath(    "stopWordsPath",  "org/clulab/wm/eidos/filtering/stops.txt")
-    val   transparentPath: String = getPath(  "transparentPath",  "org/clulab/wm/eidos/filtering/transparent.txt")
+    val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    val     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    val   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
 
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {

@@ -118,8 +118,7 @@ object FileUtils {
 
   def loadWords(path: String, delimiter: String = ","): Seq[String] = {
     println(s"* Loading words from ${path}")
-    val stream = streamFromResource(path)
-    val source = scala.io.Source.fromInputStream(stream)
+    val source = Sourcer.fromURL(path)
     val data = source.getLines().toArray.filter(line => !line.startsWith("#")).mkString(" ")
     val words = data.split(delimiter).map(_.trim)
     source.close()
