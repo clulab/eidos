@@ -4,20 +4,20 @@ import java.io.PrintWriter
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
-object ExtractFromFile  extends App {
+object ExtractFromFile extends App {
+
+  val inputDir = args(0)
+  val outputDir = args(1)
+  val files = findFiles(inputDir, "txt")
+  println(s"There are ${files.length} files...")
+  val pw = new PrintWriter(s"$outputDir/docN.output")
 
   val ieSystem = new EidosSystem()
-  val files = findFiles("/Users/bsharp/WorldModelers/docNExample", "txt")
-  println(s"There are ${files.length} files...")
-  val outputDir = "/Users/bsharp/WorldModelers/docNExample"
-
-  val pw = new PrintWriter(s"$outputDir/docN.output")
 
   for (filename <- files) {
     val source = scala.io.Source.fromFile(filename)
