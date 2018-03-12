@@ -271,6 +271,26 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     }
   }
 
+  def keepCAGRelavant(mentions: Seq[Mention]): Seq[Mention] = {
+    mentions.filter(isCAGRelevant)
+  }
+
+  def isCAGRelevant(m:Mention): Boolean = {
+    if (m.matches("Entity") && m.attachments.nonEmpty) {
+      true
+    }
+    else if (EidosSystem.CAG_EDGES.contains(m.label)) {
+      true
+    }
+    else {
+      false
+    }
+  }
+
+
+
+
+
   /*
      Debugging Methods
    */
@@ -302,4 +322,6 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
+  // CAG filtering
+  val CAG_EDGES = Set("Causal")
 }
