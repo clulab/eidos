@@ -25,6 +25,7 @@ import org.clulab.wm.eidos.mentions.EidosTextBoundMention
 
 import org.json4s._
 import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 
 // This is an object than when asked to convert itself a JSON object or value, converts
 // itself in a way that conforms to the JSON-LD standard as well.
@@ -33,6 +34,9 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   
   def serialize() = serializer.serialize(this)
   
+  def toJsonStr(): String =
+      pretty(render(serialize()))
+
   def toJObject(): JObject
   
   def noneIfEmpty(values: Seq[JValue]) =
