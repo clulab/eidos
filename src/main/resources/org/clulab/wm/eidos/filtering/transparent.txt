@@ -3,3 +3,22 @@
 # these should be lemma forms
 #
 
+"ability", "access", "achievement", "activity", "addition", "adjustment", "administration", "adult", "agent", "aim", "algorithm", "alteration", "amount", "approach", "attempt", "auc", "author", "authors", "availability",
+    "belief", "barrier",
+    "capacity", "case", "category", "child", "childhood", "change" "cohort", "combination", "concentration", "concept", "concern", "conclusion", "condition", "consequence", "consumption", "contrast", "country", "cow", "curve",
+    "datum", "diagnosis", "difference",
+    "effect", "effort", "estimate", "evidence","exacerbation", "exposure", "expression", "extent",
+    "factor", "finding", "form", "formation", "frequency",
+    "gene", "goal", "group", "growth", "guideline",
+    "hour", "human", "hypothesis",
+    "idea", "impact", "importance", "improvement", "incidence", "indication", "individual", "insight", "intake", "intervention",
+    "kind", "level", "lifestyle",
+    "man", "manuscript", "measure", "measurement", "mechanism", "mg", "more", "mouse",
+    "need", "notion", "number",
+    "observation", "occurrence", "odds", "origin",
+    "patient", "part", "percent", "performance", "persistence", "phenotype", "pool", "policy", "possibility", "presence", "prevalence", "priority", "program", "progression", "project", "proliferation", "proposal",
+    "range", "rat", "rate", "recognition", "referral", "risk", "role",
+    "safety", "sample", "series", "size", "state", "status", "step", "strategy", "study", "substance", "susceptibility", "symptom",
+    "technique", "time", "treatment", "turn", "type",
+    "understanding", "use", "view",
+    "way", "woman", "work", "year",
