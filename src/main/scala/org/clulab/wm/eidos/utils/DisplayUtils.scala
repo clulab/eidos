@@ -23,8 +23,7 @@ object DisplayUtils {
       sb.append("Tokens: " + (s.words.indices, s.words, s.tags.get).zipped.mkString(", ") + newline)
       if (printDeps) sb.append(syntacticDependenciesToString(s) + newline)
       sb.append(newline)
-
-
+      
       val sortedMentions = mentionsBySentence(i).sortBy(_.label)
       val (events, entities) = sortedMentions.partition(_ matches "Event")
       val (tbs, rels) = entities.partition(_.isInstanceOf[TextBoundMention])
