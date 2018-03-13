@@ -5,7 +5,7 @@ import java.io.{File, PrintWriter}
 import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
@@ -15,26 +15,16 @@ object MakeRuleTSVs extends App {
 
   collection.parallel.ForkJoinTasks.defaultForkJoinPool
 
-
   val reader = new EidosSystem()
   val inputDir = args(0)
   val outputDir = args(1)
   val nCores = 4
-  val files = findFiles(inputDir, "txt").par
+  val files = FileUtils.findFiles(inputDir, "txt").par
   files.tasksupport = new ForkJoinTaskSupport(new java.util.concurrent.ForkJoinPool(nCores))
-
-
-  def getText(file: File): String = {
-    println(s"Getting text from ${file.getName}")
-    val source = scala.io.Source.fromFile(file)
-    val text = source.getLines().toArray.filter(line => !line.startsWith("#")).mkString(" ")
-    source.close()
-    text
-  }
 
   val annotatedDocuments = for {
       file <- files //foreach { file =>
-      text = getText(file)
+      text = FileUtils.getCommentedTextFromFile(file)
       annotatedDocument = reader.extractFromText(text)
     } yield annotatedDocument
 

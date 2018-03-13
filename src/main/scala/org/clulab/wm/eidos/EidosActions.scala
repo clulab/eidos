@@ -1,12 +1,10 @@
 package org.clulab.wm.eidos
 
-import java.io.File
-
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.FileUtils
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -144,9 +142,7 @@ object EidosActions extends Actions {
     new EidosActions(readTaxonomy(taxonomyPath))
 
   private def readTaxonomy(path: String): Taxonomy = {
-    val source:BufferedSource = Sourcer.fromURL(path)
-    val input = source.mkString
-    source.close()
+    val input = FileUtils.getTextFromResource(path)
     val yaml = new Yaml(new Constructor(classOf[java.util.Collection[Any]]))
     val data = yaml.load(input).asInstanceOf[java.util.Collection[Any]]
     Taxonomy(data)

@@ -2,7 +2,6 @@ package org.clulab.wm.eidos
 
 import java.util.Collection
 
-import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
@@ -14,12 +13,10 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainOntology
-import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules, loadWords}
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.Constructor
-
+import com.typesafe.config.{Config, ConfigFactory}
 
 case class EntityGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
   def isGrounded = intercept != None && mu != None && sigma != None
@@ -51,10 +48,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
   
-  protected def getPath(name: String, defaultValue: String): String =
-      getArgString(getFullName(name), Option(defaultValue))
+  protected def getPath(name: String, defaultValue: String): String = {
+    val path = getArgString(getFullName(name), Option(defaultValue))
     
+    println(name + ": " + path)
+    path
+  }
+  
   class LoadableAttributes(
+      // These are the values which can be reloaded.  Query them for current assignments.
       val entityFinder: EidosEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
       val grounder: Map[Quantifier, Map[String, Double]],
@@ -75,30 +77,51 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
     val     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
     val   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    // This one is needed to construct some of the loadable attributes even though it isn't a path itself.
+    val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
 
-    // Get these instead from the configuration
+    protected def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
+      FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(domainParamKBFile))
+          .map { line => // line = [param]\t[variable]\t[value] => e.g. "rainfall  mean  30.5"
+            val fields = line.split("\t")
+            val param = fields(0)
+            val var_values = fields.tail.map { var_value =>
+              val tmp = var_value.split(":")
+              val variable = tmp(0)
+              val value = tmp(1).toDouble // Assuming the value of the variable is a double. TODO: Change this appropriately
+              variable -> value
+            }.toMap
+            (param -> var_values)
+          }.toMap
+    }
+  
+    protected def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[Quantifier, Map[String, Double]] = {
+      // adjective -> Map(name:value)
+      FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(quantifierKBFile))
+          .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
+            val fields = line.split("\t")
+            val adj = fields(0)
+            val mu_coeff = fields(1).toDouble
+            val sigma_coeff = fields(2).toDouble
+            val intercept = fields(3).toDouble
+            adj -> Map(EidosSystem.MU_COEFF -> mu_coeff, EidosSystem.SIGMA_COEFF -> sigma_coeff, EidosSystem.INTERCEPT -> intercept)
+          }.toMap
+    }
+    
     def apply(): LoadableAttributes = {
-      // Do reread these values each time.  Expect those above to stay the same, however.
-      val stopWords: Set[String] = loadWords(stopwordsPath).toSet
-      val transparentWords: Set[String] = loadWords(transparentPath).toSet
-      val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
+      // Reread these values from their files/resources each time based on paths in the config file.
+      val stopWords: Set[String] = FileUtils.getCommentedTextsFromResource(stopwordsPath).toSet
+      val transparentWords: Set[String] = FileUtils.getCommentedTextsFromResource(transparentPath).toSet
 
-      val rules = readRules(masterRulesPath)
+      val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
 
       new LoadableAttributes(
-          
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
-          // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
-          // Load the gradable adj grounding KB file
           loadGradableAdjGroundingFile(quantifierKBPath), 
           actions, 
-          ExtractorEngine(rules, actions), // ODIN component 
-          // LexiconNER for labeling domain entities
-          //TODO: agrovoc lexicons aren't in this project yet
-          // todo: the order matters, we should be taking order into account
-          //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
+          ExtractorEngine(masterRules, actions), // ODIN component 
           LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
           stopWords,
           transparentWords
@@ -117,11 +140,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected def actions = loadableAttributes.actions
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
-  def stopWords = loadableAttributes.stopWords
-  def transparentWords = loadableAttributes.transparentWords
+  protected def stopWords = loadableAttributes.stopWords
+  protected def transparentWords = loadableAttributes.transparentWords
 
   // These aren't intended to be (re)loadable.  This only happens once.
-  val  wordToVecPath: String = getPath("wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
+  val  wordToVecPath: String = getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
   val domainOntoPath: String = getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
   val topKNodeGroundings: Int = getArgInt(getFullName("topKNodeGroundings"), Some(10))
 
@@ -258,27 +281,19 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     score
   }
 
-  // reads a taxonomy from data, where data may be either a forest or a file path
-  protected def readOntology(data: Any): DomainOntology = data match {
-    case t: Collection[_] => DomainOntology(t.asInstanceOf[Collection[Any]])
-    case path: String =>
-      val source = Sourcer.fromURL(path)
-      val input = source.mkString
-      source.close()
-      val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
-      val data = yaml.load(input).asInstanceOf[Collection[Any]]
-      DomainOntology(data)
-  }
-
   protected def initSameAsDataStructures (word2VecPath: String, ontologyPath: String): (Word2Vec, Map[String, Seq[Double]]) = {
     if (word2vec) {
-      println(s"Word2Vec: ${word2VecPath}")
-      println(s"ontology: ${ontologyPath}")
-      val word2vecFile = Sourcer.fromURL(word2VecPath)
-      lazy val w2v = new Word2Vec(word2vecFile, None)
-      val ontology = readOntology(ontologyPath)
-      val conceptEmbeddings = ontology.iterateOntology(w2v)
-      (w2v, conceptEmbeddings)
+      val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath))
+      val source = Sourcer.sourceFromResource(word2VecPath)
+      try {
+        val w2v = new Word2Vec(source, None)
+        val conceptEmbeddings = ontology.iterateOntology(w2v)
+
+        (w2v, conceptEmbeddings)
+      }
+      finally {
+        source.close()
+      }
     }
     else {
       val w2v = new Word2Vec(Map[String, Array[Double]]())
@@ -331,6 +346,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def debugMentions(mentions: Seq[Mention]): Unit = {
     if (debug) mentions.foreach(m => println(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
   }
+  
 }
 
 object EidosSystem {

@@ -5,16 +5,23 @@
 #   - the system will split on newlines and commas
 #   - any line beginning with # will be ignored as a comment
 #
-
-background,
+background
 common
-fact, first
+fact
+first
 hour
-introduction, invitation, invitee,
+introduction
+invitation
+invitee
 other
-paper, procedure,
+paper
+procedure
 question
 revision
 test
-wide, word,
-xref_bibr, xref_fig, xref_table, xref_supplementary,
+wide
+word
+xref_bibr
+xref_fig
+xref_table
+xref_supplementary
