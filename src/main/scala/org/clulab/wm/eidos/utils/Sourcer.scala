@@ -16,12 +16,12 @@ object Sourcer {
     source
   }
   
-  def sourceFromFile(path: String): BufferedSource = sourceFromFile(new File(path))
-  
   def sourceFromFile(file: File): BufferedSource = {
     val source = Source.fromFile(file, utf8)
-    println("Sourcing file: " + file.getCanonicalPath())
+    println("Sourcing file: " + file.getPath())
 
     source
   }
+
+  def sourceFromFile(path: String): BufferedSource = sourceFromFile(new File(path))
 }

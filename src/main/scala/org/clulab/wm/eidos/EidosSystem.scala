@@ -9,7 +9,6 @@ import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
-import org.clulab.wm.eidos.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.mentions.EidosMention
@@ -57,6 +56,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
   
   class LoadableAttributes(
+      // These are the values which can be reloaded.  Query them for current assignments.
       val entityFinder: EidosEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
       val grounder: Map[Quantifier, Map[String, Double]],
@@ -77,29 +77,51 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
     val     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
     val   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    // This one is needed to construct some of the loadable attributes even though it isn't a path itself.
+    val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
 
-    // Get these instead from the configuration
+    protected def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
+      FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(domainParamKBFile))
+          .map { line => // line = [param]\t[variable]\t[value] => e.g. "rainfall  mean  30.5"
+            val fields = line.split("\t")
+            val param = fields(0)
+            val var_values = fields.tail.map { var_value =>
+              val tmp = var_value.split(":")
+              val variable = tmp(0)
+              val value = tmp(1).toDouble // Assuming the value of the variable is a double. TODO: Change this appropriately
+              variable -> value
+            }.toMap
+            (param -> var_values)
+          }.toMap
+    }
+  
+    protected def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[Quantifier, Map[String, Double]] = {
+      // adjective -> Map(name:value)
+      FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(quantifierKBFile))
+          .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
+            val fields = line.split("\t")
+            val adj = fields(0)
+            val mu_coeff = fields(1).toDouble
+            val sigma_coeff = fields(2).toDouble
+            val intercept = fields(3).toDouble
+            adj -> Map(EidosSystem.MU_COEFF -> mu_coeff, EidosSystem.SIGMA_COEFF -> sigma_coeff, EidosSystem.INTERCEPT -> intercept)
+          }.toMap
+    }
+    
     def apply(): LoadableAttributes = {
-      // Do reread these values each time.  Expect those above to stay the same, however.
+      // Reread these values from their files/resources each time based on paths in the config file.
       val stopWords: Set[String] = FileUtils.getCommentedTextsFromResource(stopwordsPath).toSet
       val transparentWords: Set[String] = FileUtils.getCommentedTextsFromResource(transparentPath).toSet
-      val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
 
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
 
       new LoadableAttributes(
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
-          // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
-          // Load the gradable adj grounding KB file
           loadGradableAdjGroundingFile(quantifierKBPath), 
           actions, 
           ExtractorEngine(masterRules, actions), // ODIN component 
-          // LexiconNER for labeling domain entities
-          //TODO: agrovoc lexicons aren't in this project yet
-          // todo: the order matters, we should be taking order into account
-          //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
           LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
           stopWords,
           transparentWords
@@ -118,11 +140,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected def actions = loadableAttributes.actions
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
-  def stopWords = loadableAttributes.stopWords
-  def transparentWords = loadableAttributes.transparentWords
+  protected def stopWords = loadableAttributes.stopWords
+  protected def transparentWords = loadableAttributes.transparentWords
 
   // These aren't intended to be (re)loadable.  This only happens once.
-  val  wordToVecPath: String = getPath("wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
+  val  wordToVecPath: String = getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
   val domainOntoPath: String = getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
   val topKNodeGroundings: Int = getArgInt(getFullName("topKNodeGroundings"), Some(10))
 
@@ -325,33 +347,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     if (debug) mentions.foreach(m => println(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
   }
   
-  protected def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
-    FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(domainParamKBFile))
-        .map { line => // line = [param]\t[variable]\t[value] => e.g. "rainfall  mean  30.5"
-          val fields = line.split("\t")
-          val param = fields(0)
-          val var_values = fields.tail.map { var_value =>
-            val tmp = var_value.split(":")
-            val variable = tmp(0)
-            val value = tmp(1).toDouble // Assuming the value of the variable is a double. TODO: Change this appropriately
-            variable -> value
-          }.toMap
-          (param -> var_values)
-        }.toMap
-  }
-
-  protected def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[Quantifier, Map[String, Double]] = {
-    // adjective -> Map(name:value)
-    FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(quantifierKBFile))
-        .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
-          val fields = line.split("\t")
-          val adj = fields(0)
-          val mu_coeff = fields(1).toDouble
-          val sigma_coeff = fields(2).toDouble
-          val intercept = fields(3).toDouble
-          adj -> Map(MU_COEFF -> mu_coeff, SIGMA_COEFF -> sigma_coeff, INTERCEPT -> intercept)
-        }.toMap
-  }
 }
 
 object EidosSystem {

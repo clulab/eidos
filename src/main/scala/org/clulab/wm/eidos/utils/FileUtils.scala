@@ -6,12 +6,9 @@ import java.util.Collection
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
-import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 object FileUtils {
-
-  import org.clulab.wm.eidos.Aliases._
 
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)
@@ -27,20 +24,23 @@ object FileUtils {
       source
           .getLines()
           .toArray
-          .filter(line => !line.startsWith("#"))
-          .filter(line => line.nonEmpty)
+          // Skips "empty" lines as well as comments
+          .filter(line => !line.startsWith("#") || line.trim().isEmpty)
     }
     finally {
       source.close()
     }
   }
   
+  // Add FromFile as necessary.  See getText below.
   def getCommentedTextsFromResource(path: String): Seq[String] =
       getCommentedLinesFromSource(Sourcer.sourceFromResource(path))
           .map(_.trim)
  
+  // Add FromResource as necessary.  See getText below,
   def getCommentedTextFromFile(file: File, sep: String = " "): String =
       getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
+          // These haven't been trimmed in case esp. trailing spaces are important.
           .mkString(sep)
   
   protected def getTextFromSource(source: Source): String = {
@@ -57,6 +57,9 @@ object FileUtils {
   
   def getTextFromFile(file: File): String =
       getTextFromSource(Sourcer.sourceFromFile(file))
+      
+  def getTextFromFile(path: String): String =
+      getTextFromSource(Sourcer.sourceFromFile(path))
   
   def loadYamlFromResource(path: String): Collection[Any] = {
     val input = getTextFromResource(path)
