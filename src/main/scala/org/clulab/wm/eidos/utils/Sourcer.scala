@@ -8,8 +8,9 @@ import java.nio.charset.StandardCharsets;
 object Sourcer {
   val utf8 = StandardCharsets.UTF_8.toString
   
-  def sourceFromURL(path: String): BufferedSource = {
+  def sourceFromResource(path: String): BufferedSource = {
     val url = Sourcer.getClass.getResource(path)
+    println("Sourcing resource: " + url.getPath())
     val source = Source.fromURL(url, utf8)
 
     source
@@ -19,7 +20,8 @@ object Sourcer {
   
   def sourceFromFile(file: File): BufferedSource = {
     val source = Source.fromFile(file, utf8)
-    
+    println("Sourcing file: " + file.getCanonicalPath())
+
     source
   }
 }

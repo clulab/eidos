@@ -2,7 +2,6 @@ package org.clulab.wm.eidos
 
 import java.util.Collection
 
-import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
@@ -10,15 +9,15 @@ import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainOntology
-import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules, loadWords}
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
-
+import com.typesafe.config.{Config, ConfigFactory}
 
 case class EntityGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
   def isGrounded = intercept != None && mu != None && sigma != None
@@ -50,9 +49,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
   
-  protected def getPath(name: String, defaultValue: String): String =
-      getArgString(getFullName(name), Option(defaultValue))
+  protected def getPath(name: String, defaultValue: String): String = {
+    val path = getArgString(getFullName(name), Option(defaultValue))
     
+    println(name + ": " + path)
+    path
+  }
+  
   class LoadableAttributes(
       val entityFinder: EidosEntityFinder, 
       val domainParamValues: Map[Param, Map[String, Double]],
@@ -78,22 +81,21 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // Get these instead from the configuration
     def apply(): LoadableAttributes = {
       // Do reread these values each time.  Expect those above to stay the same, however.
-      val stopWords: Set[String] = loadWords(stopwordsPath).toSet
-      val transparentWords: Set[String] = loadWords(transparentPath).toSet
+      val stopWords: Set[String] = FileUtils.getCommentedTextsFromResource(stopwordsPath).toSet
+      val transparentWords: Set[String] = FileUtils.getCommentedTextsFromResource(transparentPath).toSet
       val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
 
-      val rules = readRules(masterRulesPath)
+      val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
 
       new LoadableAttributes(
-          
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
           // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
           loadDomainParams(domainParamKBPath), 
           // Load the gradable adj grounding KB file
           loadGradableAdjGroundingFile(quantifierKBPath), 
           actions, 
-          ExtractorEngine(rules, actions), // ODIN component 
+          ExtractorEngine(masterRules, actions), // ODIN component 
           // LexiconNER for labeling domain entities
           //TODO: agrovoc lexicons aren't in this project yet
           // todo: the order matters, we should be taking order into account
@@ -259,15 +261,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   protected def initSameAsDataStructures (word2VecPath: String, ontologyPath: String): (Word2Vec, Map[String, Seq[Double]]) = {
     if (word2vec) {
-      println(s"Word2Vec: ${word2VecPath}")
-      println(s"ontology: ${ontologyPath}")
-      val source = Sourcer.sourceFromURL(word2VecPath)
-      // Can lazy really help?  Can't close source with it?
-      lazy val w2v = new Word2Vec(source, None)
-      source.close()
-      val ontology = DomainOntology(FileUtils.loadYaml(ontologyPath))
-      val conceptEmbeddings = ontology.iterateOntology(w2v)
-      (w2v, conceptEmbeddings)
+      val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath))
+      val source = Sourcer.sourceFromResource(word2VecPath)
+      try {
+        val w2v = new Word2Vec(source, None)
+        val conceptEmbeddings = ontology.iterateOntology(w2v)
+
+        (w2v, conceptEmbeddings)
+      }
+      finally {
+        source.close()
+      }
     }
     else {
       val w2v = new Word2Vec(Map[String, Array[Double]]())
@@ -319,6 +323,34 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def debugMentions(mentions: Seq[Mention]): Unit = {
     if (debug) mentions.foreach(m => println(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
+  }
+  
+  protected def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
+    FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(domainParamKBFile))
+        .map { line => // line = [param]\t[variable]\t[value] => e.g. "rainfall  mean  30.5"
+          val fields = line.split("\t")
+          val param = fields(0)
+          val var_values = fields.tail.map { var_value =>
+            val tmp = var_value.split(":")
+            val variable = tmp(0)
+            val value = tmp(1).toDouble // Assuming the value of the variable is a double. TODO: Change this appropriately
+            variable -> value
+          }.toMap
+          (param -> var_values)
+        }.toMap
+  }
+
+  protected def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[Quantifier, Map[String, Double]] = {
+    // adjective -> Map(name:value)
+    FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(quantifierKBFile))
+        .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
+          val fields = line.split("\t")
+          val adj = fields(0)
+          val mu_coeff = fields(1).toDouble
+          val sigma_coeff = fields(2).toDouble
+          val intercept = fields(3).toDouble
+          adj -> Map(MU_COEFF -> mu_coeff, SIGMA_COEFF -> sigma_coeff, INTERCEPT -> intercept)
+        }.toMap
   }
 }
 

@@ -211,10 +211,10 @@ object RuleBasedEntityFinder extends LazyLogging {
   val DEFAULT_MAX_LENGTH = 50 // maximum length (in tokens) for an entity
   
   def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): RuleBasedEntityFinder = {
-    val entityRules = FileUtils.readResource(entityRulesPath)
+    val entityRules = FileUtils.getTextFromResource(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
     
-    val avoidRules = FileUtils.readResource(avoidRulesPath)
+    val avoidRules = FileUtils.getTextFromResource(avoidRulesPath)
     val avoidEngine = ExtractorEngine(avoidRules)
     
     new RuleBasedEntityFinder(entityEngine = entityEngine, avoidEngine = avoidEngine, maxHops = maxHops)
