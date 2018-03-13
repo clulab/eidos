@@ -1,30 +1,53 @@
 package org.clulab.wm.eidos.utils
 
 import java.io.{File, FilenameFilter}
+import java.util.Collection
 import java.util.jar.JarFile
 
 import scala.collection.mutable.ListBuffer
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.EidosSystem.{INTERCEPT, MU_COEFF, SIGMA_COEFF}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.utils.ResourceUtils.streamFromResource
+
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 
 object FileUtils {
 
   import org.clulab.wm.eidos.Aliases._
 
+  def findFiles(collectionDir: String, extension: String): Seq[File] = {
+    val dir = new File(collectionDir)
+    val filter = new FilenameFilter {
+      def accept(dir: File, name: String): Boolean = name.endsWith(extension)
+    }
+    
+    dir.listFiles(filter)
+  }
+
   def readRules(rulesPath: String): String = {
     println(s"rulesPath:\t$rulesPath")
-    val source = Sourcer.fromURL(rulesPath)
+    val source = Sourcer.sourceFromURL(rulesPath)
     val rules = source.mkString
     source.close()
     rules
   }
+  
+  def readResource(path: String): String = {
+    val source = Sourcer.sourceFromURL(path)
+    val data = source.mkString
+    source.close()
+    data
+  }
+
+  def readStrings(path: String, delimiter: String = ","): Seq[String] = {
+    readResource(path).split(delimiter).map(_.trim)
+  }  
 
   //Load the domain parameters (such as mean,stdev for parameters in the domain)
   def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
     println(s"Loading domain parameters file from ${domainParamKBFile}")
-    val source = Sourcer.fromURL(domainParamKBFile)
+    val source = Sourcer.sourceFromURL(domainParamKBFile)
     val domainParams = source
       .getLines //get all the lines
       .toArray
@@ -47,13 +70,11 @@ object FileUtils {
     domainParams
   }
 
-
-
   //Load the gradable adjective grounding from file
   def loadGradableAdjGroundingFile(quantifierKBFile: String): Map[Quantifier, Map[String, Double]] = {
     println(s"Loading the gradable adjectives model file from ${quantifierKBFile}")
     // adjective -> Map(name:value)
-    val source = Sourcer.fromURL(quantifierKBFile)
+    val source = Sourcer.sourceFromURL(quantifierKBFile)
     val gradableAdjModel = source
       .getLines //Get all the lines from the model KB file
       .toArray.tail // ignore the header line
@@ -69,60 +90,57 @@ object FileUtils {
     gradableAdjModel
   }
 
-  // Get all files in a directory ending with a given extension
-  def findFilesFromResources(resourcesPath: String, fileExtension:String): Seq[String] = {
-    //    val sdsdj = new File(resourcesPath).list()
-    //    sdsdj.foreach(println)
-    //    println ("resourcesPath: " + resourcesPath)
-    val jarFile = new File(getClass.getProtectionDomain.getCodeSource.getLocation.getPath)
-    if (jarFile.isFile()) {
-      val filenames = new ListBuffer[String]
-      val jarEntries = new JarFile(jarFile).entries()
-
-      while (jarEntries.hasMoreElements) {
-        val nextEntry = jarEntries.nextElement().getName
-        if (nextEntry.startsWith(resourcesPath + "/") && nextEntry.endsWith(fileExtension)) {
-          //        println("next entry name: " + nextEntry)
-          filenames.append(s"${nextEntry}")
-        }
-
-      }
-      filenames.toList
-    } else {
-      val url = classOf[EidosSystem].getResource("/" + resourcesPath)
-      val apps = new File(url.toURI)
-
-      for (app <- apps.listFiles) {
-        System.out.println(app)
-      }
-      val filenames = apps.listFiles.map { file =>
-        // get absolute path
-        val absolutePath = file.getAbsolutePath
-        // find the index of where the relative path starts
-        val locationOfResources = absolutePath.indexOf("org/clulab/wm")
-        // get slice from there on
-        absolutePath.slice(locationOfResources, absolutePath.length)
-      }
-
-      filenames.toSeq
-
-    }
-  }
-
-  def findFiles(collectionDir: String, extension: String): Seq[File] = {
-    val dir = new File(collectionDir)
-    dir.listFiles(new FilenameFilter {
-      def accept(dir: File, name: String): Boolean = name.endsWith(extension)
-    })
-  }
-
   def loadWords(path: String, delimiter: String = ","): Seq[String] = {
     println(s"* Loading words from ${path}")
-    val source = Sourcer.fromURL(path)
+    val source = Sourcer.sourceFromURL(path)
     val data = source.getLines().toArray.filter(line => !line.startsWith("#")).mkString(" ")
     val words = data.split(delimiter).map(_.trim)
     source.close()
     words
   }
 
+  def getCommentedTextFromFile(file: File, sep: String = " "): String = {
+    println(s"Getting text from ${file.getName}")
+    val source = Sourcer.sourceFromFile(file)
+    
+    try {
+      source
+          .getLines()
+          .toArray
+          .filter(line => !line.startsWith("#"))
+          .mkString(sep)
+    }
+    finally {
+      source.close()
+    }
+  }
+  
+  def getTextFromURL(path: String): String = {
+    val source = Sourcer.sourceFromURL(path)
+    
+    try {
+      source.mkString
+    }
+    finally {
+      source.close()
+    }
+  }
+  
+  def getTextFromFile(file: File): String = {
+    val source = Sourcer.sourceFromFile(file)
+    
+    try {
+      source.mkString
+    }
+    finally {
+      source.close()
+    }
+  }
+  
+  def loadYaml(path: String): Collection[Any] = {
+    val input = getTextFromURL(path)
+    val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
+    
+    yaml.load(input).asInstanceOf[Collection[Any]]
+  }
 }
