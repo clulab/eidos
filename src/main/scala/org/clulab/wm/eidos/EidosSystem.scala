@@ -15,6 +15,7 @@ import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, Ei
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding, EidosOntologyGrounder}
 import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.DomainParams
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
@@ -45,7 +46,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   class LoadableAttributes(
       // These are the values which can be reloaded.  Query them for current assignments.
       val entityFinder: EidosEntityFinder, 
-      val domainParamValues: Map[Param, Map[String, Double]],
+      val domainParams: DomainParams,
       val adjectiveGrounder: AdjectiveGrounder,
       val actions: EidosActions,
       val engine: ExtractorEngine,
@@ -65,21 +66,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
     // This one is needed to construct some of the loadable attributes even though it isn't a path itself.
     val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-
-    protected def loadDomainParams(domainParamKBFile: String): Map[Param, Map[String, Double]] = {
-      FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(domainParamKBFile))
-          .map { line => // line = [param]\t[variable]\t[value] => e.g. "rainfall  mean  30.5"
-            val fields = line.split("\t")
-            val param = fields(0)
-            val var_values = fields.tail.map { var_value =>
-              val tmp = var_value.split(":")
-              val variable = tmp(0)
-              val value = tmp(1).toDouble // Assuming the value of the variable is a double. TODO: Change this appropriately
-              variable -> value
-            }.toMap
-            (param -> var_values)
-          }.toMap
-    }
     
     def apply(): LoadableAttributes = {
       // Reread these values from their files/resources each time based on paths in the config file.
@@ -88,7 +74,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
       new LoadableAttributes(
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
-          loadDomainParams(domainParamKBPath), 
+          DomainParams(domainParamKBPath), 
           EidosAdjectiveGrounder(quantifierKBPath), 
           actions, 
           ExtractorEngine(masterRules, actions), // ODIN component 
@@ -104,13 +90,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // the protected variables by local methods, neither of which
   // know they are loadable and which had better not keep copies.
   protected def entityFinder = loadableAttributes.entityFinder
-  def domainParamValues = loadableAttributes.domainParamValues
+  def domainParams = loadableAttributes.domainParams
   protected def actions = loadableAttributes.actions
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
   
   // This isn't intended to be (re)loadable.  This only happens once.
-  val wordToVec = EidosWordToVec(
+  protected val wordToVec = EidosWordToVec(
       word2vec,
       getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt"),
       getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
@@ -196,12 +182,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     sameAsRelations
   }
 
-  def keepCAGRelavant(mentions: Seq[Mention]): Seq[Mention] =
-      mentions.filter(isCAGRelevant)
+  def keepCAGRelavant(mentions: Seq[Mention]): Seq[Mention] = {
+    
+    def isCAGRelevant(m: Mention): Boolean =
+        (m.matches("Entity") && m.attachments.nonEmpty) ||
+            EidosSystem.CAG_EDGES.contains(m.label)
 
-  def isCAGRelevant(m:Mention): Boolean =
-      (m.matches("Entity") && m.attachments.nonEmpty) ||
-          (EidosSystem.CAG_EDGES.contains(m.label))
+    mentions.filter(isCAGRelevant)
+  }
 
   /*
       Grounding
@@ -234,9 +222,6 @@ object EidosSystem {
   
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
-  val DEFAULT_DOMAIN_PARAM: String = "DEFAULT"
-  val PARAM_MEAN: String = "mean"
-  val PARAM_STDEV: String = "stdev"
   // Stateful Labels used by webapp
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"

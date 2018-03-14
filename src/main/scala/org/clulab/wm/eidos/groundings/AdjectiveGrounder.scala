@@ -6,7 +6,11 @@ import org.clulab.wm.eidos.utils.Sourcer
 import org.clulab.odin.Mention
 
 case class AdjectiveGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
-  def isGrounded = intercept != None && mu != None && sigma != None
+  protected def isGrounded = intercept != None && mu != None && sigma != None
+
+  def predictDelta(mean: Double, stdev: Double): Option[Double] =
+      if (!isGrounded) None
+      else Some(math.pow(math.E, intercept.get + (mu.get * mean) + (sigma.get * stdev)) * stdev)
 }
 
 object AdjectiveGrounding {

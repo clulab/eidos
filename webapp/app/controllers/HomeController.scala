@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.utils.DisplayUtils
+import org.clulab.wm.eidos.utils.DomainParams
 
 import play.api._
 import play.api.mvc._
@@ -61,19 +62,16 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
   
   def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: EidosSystem): GroundedEntity = {
-    val grounding = ieSystem.ground(mention, quantifier)
-
     // add the calculation
-    println("loaded domain params:" + ieSystem.domainParamValues.toString())
-    println(s"\tkeys: ${ieSystem.domainParamValues.keys.mkString(", ")}")
+    println("loaded domain params:" + ieSystem.domainParams.toString())
+    println(s"\tkeys: ${ieSystem.domainParams.keys.mkString(", ")}")
     println(s"getting details for: ${mention.text}")
 
-    val paramDetails = ieSystem.domainParamValues.get("DEFAULT").get
-    val paramMean = paramDetails.get(EidosSystem.PARAM_MEAN)
-    val paramStdev = paramDetails.get(EidosSystem.PARAM_STDEV)
-    val predictedDelta =
-        if (!grounding.isGrounded) None
-        else Some(math.pow(math.E, grounding.intercept.get + (grounding.mu.get * paramMean.get) + (grounding.sigma.get * paramStdev.get)) * paramStdev.get)
+    val paramDetails = ieSystem.domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
+    val paramMean = paramDetails.get(DomainParams.PARAM_MEAN).get
+    val paramStdev = paramDetails.get(DomainParams.PARAM_STDEV).get
+    val grounding = ieSystem.groundAdjective(mention, quantifier)
+    val predictedDelta = grounding.predictDelta(paramMean, paramStdev)
 
     GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
   }
