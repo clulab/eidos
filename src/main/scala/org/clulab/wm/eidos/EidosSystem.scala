@@ -86,12 +86,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   
   var loadableAttributes = LoadableAttributes()
 
-  // These public variables are accessed directly by clients and
-  // the protected variables by local methods, neither of which
-  // know they are loadable and which had better not keep copies.
-  protected def entityFinder = loadableAttributes.entityFinder
-  def domainParams = loadableAttributes.domainParams
-  protected def actions = loadableAttributes.actions
+  // These public variables are accessed directly by clients which
+  // don't know they are loadable and which had better not keep copies.
+  def domainParams = loadableAttributes.domainParams 
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
   
@@ -129,7 +126,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
-    val cleanMentions = actions.keepMostCompleteEvents(res, State(res)).toVector
+    val cleanMentions = loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
 //    val longest = actions.keepLongestMentions(cleanMentions, State(cleanMentions)).toVector
 //   longest
     cleanMentions
@@ -137,7 +134,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def extractFrom(doc: Document, populateSameAs: Boolean = false): Vector[Mention] = {
     // get entities
-    val entities = entityFinder.extractAndFilter(doc).toVector
+    val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
     val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
@@ -182,7 +179,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     sameAsRelations
   }
 
-  def keepCAGRelavant(mentions: Seq[Mention]): Seq[Mention] = {
+  def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
     
     def isCAGRelevant(m: Mention): Boolean =
         (m.matches("Entity") && m.attachments.nonEmpty) ||
