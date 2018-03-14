@@ -12,10 +12,10 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 object ExtractFromFile extends App {
 
   val inputDir = args(0)
-  val outputDir = args(1)
+  val outputFile = args(1)
   val files = findFiles(inputDir, "txt")
   println(s"There are ${files.length} files...")
-  val pw = new PrintWriter(s"$outputDir/docN.output")
+  val pw = new PrintWriter(s"$outputFile.output")
 
   val ieSystem = new EidosSystem()
 
@@ -23,16 +23,28 @@ object ExtractFromFile extends App {
     val source = scala.io.Source.fromFile(filename)
     val text = source.getLines().toArray.filter(line => !line.startsWith("#"))
     println(s"There are ${text.length} lines in the file...")
-    val doc = ieSystem.proc.annotate(text.mkString(" "))
+    val annotatedDoc = ieSystem.extractFromText(text.mkString(" "))
+    val doc = annotatedDoc.document
+//    val doc = ieSystem.proc.annotate(text.mkString(" "))
     pw.println(s"Filename: ${filename.getName}")
-    val mentions = ieSystem.extractFrom(doc).distinct
-    val keptMentions = ieSystem.keepCAGRelavant(mentions)
-    val mentionsBySentence = keptMentions.groupBy(_.sentence).toSeq.sortBy(_._1)
+    // keep the EidosMentions that are relevant to the CAG
+    val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention))
+    //val odinmentions = annotatedDoc.odinMentions.distinct
+    //val keptMentions = ieSystem.keepCAGRelavant(odinmentions)
+    val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
     for ((sentence, sentenceMentions) <- mentionsBySentence){
       pw.println(s"\nSENTENCE ${sentence}: ${doc.sentences(sentence).getSentenceText()}")
-      println (s"Number of mentions found: ${sentenceMentions.length}")
-      sentenceMentions.foreach(m => printMention(m, pw))
-      prettyPrint(mentions, pw)
+      println (s"Number of Eidos mentions found: ${sentenceMentions.length}")
+      sentenceMentions.foreach(
+        m => {
+          pw.println(s"CanonicalName: ${m.canonicalName}")
+          pw.println(s"OntologyGrounding: \n\t${m.grounding.grounding.mkString("\n\t")}")
+          printMention(m.odinMention, pw)
+
+        }
+      )
+      pw.println(s"${"=" * 100}")
+//      prettyPrint(sentenceMentions.map(_.odinMention), pw)
     }
 
   }

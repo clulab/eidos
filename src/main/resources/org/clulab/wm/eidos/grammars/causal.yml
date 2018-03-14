@@ -94,3 +94,12 @@ rules:
     pattern: |
       @cause: Entity (?<trigger> [word=/(?i)^(mediat)/ & !tag=/^JJ/]) @effect: Entity /(?i)^(activation)/
 
+  - name: ported_copula_1-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "A is an activator of B"
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
+      effect: Entity = nsubj
+      cause: Entity = /${ preps }$/

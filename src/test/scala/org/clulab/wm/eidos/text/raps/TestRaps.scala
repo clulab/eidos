@@ -246,7 +246,7 @@ class TestRaps extends Test {
     val tester = new Tester(sent10)
 
     val gov = NodeSpec("government")
-    val rice = NodeSpec("flood-tolerant rice varieties", Inc("high-yielding"), Inc("promotes"))
+    val rice = NodeSpec("high-yielding and flood-tolerant rice varieties", Inc("promotes"))
     val policy = NodeSpec("policy to encourage the application of organic fertilizers")
     val fertPriceDown = NodeSpec("cost on inorganic fertilizers", Dec("decreasing"))
 

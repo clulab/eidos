@@ -167,9 +167,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     } s.entities.get(i) = lexiconNERTag
   }
 
-  def extractFromText(text: String, keepText: Boolean = false, populateSameAs: Boolean = false): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
-    val odinMentions = extractFrom(doc, populateSameAs = populateSameAs).toSeq
+    val odinMentions = extractFrom(doc)
     val eidosMentions = EidosMention.asEidosMentions(odinMentions, this)
     
     new AnnotatedDocument(doc, odinMentions, eidosMentions)
@@ -226,7 +226,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     cleanMentions
   }
 
-  def extractFrom(doc: Document, populateSameAs: Boolean = false): Vector[Mention] = {
+  def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities = entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
