@@ -79,7 +79,7 @@ rules:
     pattern: |
       trigger = [lemma="lead" & tag=/^VB/] (?=[word=to])
       effect: Entity = nmod_to
-      cause: Entity = nsubj /${noun_modifiers}/{,2}
+      cause: Entity = nsubj /${noun_modifiers}|${objects}/{,2}
 
 
 
