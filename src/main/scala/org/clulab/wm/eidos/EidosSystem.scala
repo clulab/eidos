@@ -325,6 +325,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   */
 
   def getStopwords(): Set[String] = (stopWords ++ transparentWords)
+  def getFilterPOS(): Set[String] = Set("CD")
 
   def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] = {
     // remove mentions which are entirely stop/transparent words
@@ -332,7 +333,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def hasContent(m: Mention): Boolean = {
-    val contentfulLemmas = m.lemmas.get.filterNot(lemma => (stopWords ++ transparentWords).contains(lemma))
+    val lemmasAndTags =   m.lemmas.get.zip(m.tags.get)
+    val contentfulLemmas = lemmasAndTags.filter(lemmaTag =>
+      !getStopwords.contains(lemmaTag._1) && !getFilterPOS.contains(lemmaTag._2))
+//    val contentfulLemmas = m.lemmas.get.filterNot(lemma => (stopWords ++ transparentWords).contains(lemma))
     contentfulLemmas.nonEmpty
   }
 
