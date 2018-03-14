@@ -26,7 +26,7 @@ object ExtractFromFile extends App {
     val doc = ieSystem.proc.annotate(text.mkString(" "))
     pw.println(s"Filename: ${filename.getName}")
     val mentions = ieSystem.extractFrom(doc).distinct
-    val keptMentions = ieSystem.keepCAGRelavant(mentions)
+    val keptMentions = ieSystem.keepCAGRelevant(mentions)
     val mentionsBySentence = keptMentions.groupBy(_.sentence).toSeq.sortBy(_._1)
     for ((sentence, sentenceMentions) <- mentionsBySentence){
       pw.println(s"\nSENTENCE ${sentence}: ${doc.sentences(sentence).getSentenceText()}")
