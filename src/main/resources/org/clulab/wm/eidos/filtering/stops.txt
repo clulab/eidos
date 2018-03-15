@@ -15,6 +15,7 @@ invitation
 invitee
 other
 paper
+percent
 procedure
 question
 revision
@@ -25,3 +26,31 @@ xref_bibr
 xref_fig
 xref_table
 xref_supplementary
+# Geography
+south
+north
+east
+west
+southern
+northern
+eastern
+western
+southeastern
+northeastern
+southwestern
+southeastern
+southeast
+southwest
+northeast
+northwest
+region
+# Measurements
+mm
+cm
+m
+km
+mg
+g
+kg
+ml
+l

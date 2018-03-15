@@ -18,7 +18,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
-      theme: Entity = <amod #Find the entity the quantifier is modifying
+      theme: Entity = /<amod|nmod_to/ #Find the entity the quantifier is modifying
 
   - name: quantification2
     priority: ${ rulepriority }

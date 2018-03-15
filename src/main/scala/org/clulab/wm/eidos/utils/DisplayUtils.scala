@@ -100,9 +100,9 @@ object DisplayUtils {
 
   /* Wrappers for printing the mention string to a file */
   def printMentions(mentions: Seq[Mention], doc: Document, pw: PrintWriter, printDeps: Boolean = false): Unit = {
-    pw.println(mentionsToDisplayString(mentions, doc, printDeps, "\n", "\t"))
+    pw.print(mentionsToDisplayString(mentions, doc, printDeps, "\n", "\t"))
   }
-  def printMention(mention: Mention, pw: PrintWriter): Unit = pw.println(mentionToDisplayString(mention, "\n", "\t"))
+  def printMention(mention: Mention, pw: PrintWriter): Unit = pw.print(mentionToDisplayString(mention, "\n", "\t"))
 
 
   /* Wrapper for getting html version of the mention string for use in the webapp */

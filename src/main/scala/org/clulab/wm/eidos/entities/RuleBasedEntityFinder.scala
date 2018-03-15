@@ -31,7 +31,7 @@ class RuleBasedEntityFinder(
   )
 
   val INVALID_INCOMING = Set[scala.util.matching.Regex](
-    "^nmod_with$".r,
+    //"^nmod_with$".r,
     "^nmod_without$".r,
     "^nmod_except$".r,
     "^nmod_despite$".r
