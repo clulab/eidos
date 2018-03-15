@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Sourcer
 
 
 object ExtractFromDirectory extends App {
@@ -23,7 +24,7 @@ object ExtractFromDirectory extends App {
     println(s"Extracting from ${file.getName}")
     val pw = new PrintWriter(s"$outputDir/${file.getName}.jsonld")
     // 2. Get the input file contents
-    val lines = FileUtils.getCommentedLinesFromSource(scala.io.Source.fromFile(file))
+    val lines = FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
     // 3. Extract causal mentions from the text
     val annotatedDocuments = lines.map(reader.extractFromText(_))
     // 4. Convert to JSON
