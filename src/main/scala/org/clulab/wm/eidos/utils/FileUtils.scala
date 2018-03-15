@@ -25,7 +25,7 @@ object FileUtils {
           .getLines()
           .toArray
           // Skips "empty" lines as well as comments
-          .filter(line => !line.startsWith("#") || line.trim().isEmpty)
+          .filter(line => !line.startsWith("#") && line.trim().nonEmpty)
     }
     finally {
       source.close()
