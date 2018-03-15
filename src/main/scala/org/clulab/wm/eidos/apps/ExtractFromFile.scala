@@ -15,7 +15,7 @@ object ExtractFromFile extends App {
   val outputDir = args(1)
   val files = findFiles(inputDir, "txt")
   println(s"There are ${files.length} files...")
-  val pw = new PrintWriter(s"$outputDir/docN.output")
+  val pw = new PrintWriter(s"$outputDir/docN.mar14.newer.output")
 
   val ieSystem = new EidosSystem()
 
