@@ -121,6 +121,18 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = false): Document = {
     val doc = proc.annotate(text, keepText)
+    for(s <- doc.sentences){
+      for (c <- s.lemmas) {
+        for (cs <- c) {
+          println(cs)
+        }
+      }
+      for (c <- s.chunks) {
+        for (cs <- c) {
+          println(cs)
+        }
+      }
+    }
     doc.sentences.foreach(addLexiconNER)
     doc
   }

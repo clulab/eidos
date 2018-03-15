@@ -41,6 +41,16 @@ rules:
       theme: Entity = <xcomp (${agents})
 #      adverbs: Quantifier? = ${quant_modifiers} // todo: we should allow for modification here (e.g. 'more')
 
+  - name: quantification_adjective_rule_3
+    priority:  ${ rulepriority }
+    example: "food insecurity is severe"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      theme: Entity = nsubj
+#      adverbs: Quantifier? = ${quant_modifiers} // todo: we should allow for modification here (e.g. 'more')
+
   - name: quantification1b
     priority: ${ rulepriority }
     example: "moderate to heavy rainfall"
