@@ -5,13 +5,12 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.EntityGrounder
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
-import org.clulab.wm.eidos.{EntityGrounder, EntityGrounding}
 
 import scala.collection.Seq
 

@@ -7,11 +7,10 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
-import org.clulab.wm.eidos.SameAsGrounder
-import org.clulab.wm.eidos.SameAsGrounding
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.struct.Interval
 
-abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrounder,
+abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGrounder,
     mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
   // This must happen before the remap in case arguments point back to this
   mapOfMentions.put(odinMention, this)
@@ -22,13 +21,13 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrou
   // Access to new and improved Eidos arguments
   val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, sameAsGrounder, mapOfMentions)
   
-  protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], sameAsGrounder: SameAsGrounder,
+  protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], sameAsGrounder: OntologyGrounder,
       mapOfMentions: IdentityHashMap[Mention, EidosMention]): Map[String, Seq[EidosMention]] = {
     odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, sameAsGrounder, mapOfMentions))
   }
   
   val canonicalName: String // Determined by subclass
-  val grounding: SameAsGrounding // Determined by subclass, in part because dependent on canonicalName
+  val grounding: OntologyGrounding // Determined by subclass, in part because dependent on canonicalName
 
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
@@ -44,7 +43,7 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrou
       tag = m.tags.get(i)
       ner = m.entities.get(i)
       if isContentTag(tag)
-      if !sameAsGrounder.getStopwords.contains(lemma)
+      if !sameAsGrounder.containsStopword(lemma)
       if !removeNER(ner)
     } yield lemma
 
@@ -61,7 +60,7 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: SameAsGrou
 
 object EidosMention {
   
-  def newEidosMention(odinMention: Mention, sameAsGrounder: SameAsGrounder,
+  def newEidosMention(odinMention: Mention, sameAsGrounder: OntologyGrounder,
         mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention = {
     odinMention match {
       case mention: TextBoundMention => new EidosTextBoundMention(mention, sameAsGrounder, mapOfMentions)
@@ -71,7 +70,7 @@ object EidosMention {
     }
   }
   
-  def asEidosMentions(odinMentions: Seq[Mention], sameAsGrounder: SameAsGrounder,
+  def asEidosMentions(odinMentions: Seq[Mention], sameAsGrounder: OntologyGrounder,
         mapOfMentions: IdentityHashMap[Mention, EidosMention]): Seq[EidosMention] = {
     val eidosMentions = odinMentions.map { odinMention =>
       if (mapOfMentions.containsKey(odinMention))
@@ -82,20 +81,20 @@ object EidosMention {
     eidosMentions
   }
   
-  def asEidosMentions(odinMentions: Seq[Mention], sameAsGrounder: SameAsGrounder): Seq[EidosMention] =
+  def asEidosMentions(odinMentions: Seq[Mention], sameAsGrounder: OntologyGrounder): Seq[EidosMention] =
       // One could optionally keep this map around
       asEidosMentions(odinMentions, sameAsGrounder, new IdentityHashMap[Mention, EidosMention]()): Seq[EidosMention]
 }
 
-class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, sameAsGrounder: SameAsGrounder,
+class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, sameAsGrounder: OntologyGrounder,
       mapOfMentions: IdentityHashMap[Mention, EidosMention])
       extends EidosMention(odinTextBoundMention, sameAsGrounder, mapOfMentions) {
   
   override val canonicalName: String = canonicalFormSimple(odinMention)
-  override val grounding: SameAsGrounding = sameAsGrounder.ground(this)
+  override val grounding: OntologyGrounding = sameAsGrounder.groundOntology(this)
 }
 
-class EidosEventMention(val odinEventMention: EventMention, sameAsGrounder: SameAsGrounder,
+class EidosEventMention(val odinEventMention: EventMention, sameAsGrounder: OntologyGrounder,
     mapOfMentions: IdentityHashMap[Mention, EidosMention])
     extends EidosMention(odinEventMention, sameAsGrounder, mapOfMentions) {
   
@@ -103,7 +102,7 @@ class EidosEventMention(val odinEventMention: EventMention, sameAsGrounder: Same
   
   val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, sameAsGrounder, mapOfMentions)
   
-  protected def remapOdinTrigger(odinMention: Mention, sameAsGrounder: SameAsGrounder, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
+  protected def remapOdinTrigger(odinMention: Mention, sameAsGrounder: OntologyGrounder, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
     if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
     else EidosMention.asEidosMentions(Seq(odinMention), sameAsGrounder, mapOfMentions)(0)
 
@@ -116,10 +115,10 @@ class EidosEventMention(val odinEventMention: EventMention, sameAsGrounder: Same
     sorted.unzip._1.mkString(" ")
   }
 
-  override val grounding: SameAsGrounding = sameAsGrounder.ground(this)
+  override val grounding: OntologyGrounding = sameAsGrounder.groundOntology(this)
 }
 
-class EidosRelationMention(val odinRelationMention: RelationMention, sameAsGrounder: SameAsGrounder,
+class EidosRelationMention(val odinRelationMention: RelationMention, sameAsGrounder: OntologyGrounder,
     mapOfMentions: IdentityHashMap[Mention, EidosMention])
     extends EidosMention(odinRelationMention, sameAsGrounder, mapOfMentions) {
   
@@ -131,5 +130,5 @@ class EidosRelationMention(val odinRelationMention: RelationMention, sameAsGroun
     sorted.unzip._1.mkString(" ")
   }
 
-  override val grounding: SameAsGrounding = sameAsGrounder.ground(this)
+  override val grounding: OntologyGrounding = sameAsGrounder.groundOntology(this)
 }
