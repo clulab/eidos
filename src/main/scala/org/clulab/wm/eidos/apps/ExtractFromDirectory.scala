@@ -7,6 +7,7 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.utils.FileUtils
 
 
 object ExtractFromDirectory extends App {
@@ -19,18 +20,17 @@ object ExtractFromDirectory extends App {
   // For each file in the input directory:
   files foreach { file =>
     // 1. Open corresponding output file
+    println(s"Extracting from ${file.getName}")
     val pw = new PrintWriter(s"$outputDir/${file.getName}.jsonld")
     // 2. Get the input file contents
-    val source = scala.io.Source.fromFile(file)
-    source.getLines() foreach { text =>
-      // 3. Extract causal mentions from the text
-      val annotatedDocument = reader.extractFromText(text)
-      // 4. Convert to JSON
-      val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
-      val mentionsJSONLD = corpus.serialize()
-      // 5. Write to output file
-      pw.println(stringify(mentionsJSONLD, pretty = true))
-    }
+    val lines = FileUtils.getCommentedLinesFromSource(scala.io.Source.fromFile(file))
+    // 3. Extract causal mentions from the text
+    val annotatedDocuments = lines.map(reader.extractFromText(_))
+    // 4. Convert to JSON
+    val corpus = new JLDCorpus(annotatedDocuments, reader)
+    val mentionsJSONLD = corpus.serialize()
+    // 5. Write to output file
+    pw.println(stringify(mentionsJSONLD, pretty = true))
     pw.close()
   }
 }
