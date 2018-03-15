@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos
 
+import com.typesafe.config.{Config, ConfigFactory}
+
 import java.util.Collection
 
 import org.clulab.embeddings.word2vec.Word2Vec
@@ -19,7 +21,7 @@ import org.clulab.wm.eidos.utils.DomainParams
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
-import com.typesafe.config.{Config, ConfigFactory}
+import org.slf4j.LoggerFactory
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
@@ -39,7 +41,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected def getPath(name: String, defaultValue: String): String = {
     val path = getArgString(getFullName(name), Option(defaultValue))
     
-    println(name + ": " + path)
+    EidosSystem.logger.info(name + ": " + path)
     path
   }
   
@@ -214,6 +216,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
 object EidosSystem {
   type Corpus = Seq[AnnotatedDocument]
+  
+  val logger = LoggerFactory.getLogger(this.getClass())
 
   val PREFIX: String = "EidosSystem"
   
