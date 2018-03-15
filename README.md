@@ -10,7 +10,11 @@ Currently we extract entities such as "food insecurity" (and `increases`/`decrea
 
 ## How to compile the source code
 
-This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual commands, e.g., `sbt compile` to compile or `sbt assembly` to create a jar file.  `sbt runMain` can be used to run some of the example applications.  To access Eidos from Java, add the generated jar file(s) under `target/` to your $CLASSPATH, along with any other necessary dependency jars. Take a look at `build.sbt` for a list of runtime dependencies.
+This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual commands, e.g., `sbt compile` to compile
+or `sbt assembly` to create a jar file.  `sbt runMain` can be used to run some of the example applications directly, as
+described below.  To access Eidos from Java, add the assembled jar file(s) under `target/` to your $CLASSPATH.  A file
+like `eidos-assembly-0.1.6-SNAPSHOT.jar` may suffice, depending on the build.  If necessary, see `build.sbt` for a
+list of runtime dependencies. 
 
 ## How to use it
 
