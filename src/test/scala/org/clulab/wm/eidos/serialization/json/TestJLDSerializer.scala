@@ -1,18 +1,18 @@
 package org.clulab.wm.eidos.serialization.json
 
-import scala.collection.Seq
-
 import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.EntityGrounder
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
+
+import scala.collection.Seq
 
 class TestJLDSerializer extends Test {
   
@@ -45,7 +45,7 @@ class TestJLDSerializer extends Test {
     json1 + json2
   }
   
-  def inspect(string: String) =
+  def inspect(string: String): Unit =
       if (false) println(string)
   
   behavior of "JLDSerializer"

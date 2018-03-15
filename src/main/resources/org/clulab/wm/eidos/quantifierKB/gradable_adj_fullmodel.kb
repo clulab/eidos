@@ -1,4 +1,4 @@
-adjective	mu_coefficient	sigma_coefficient	intercept
+#adjective	mu_coefficient	sigma_coefficient	intercept
 acceptable	1.034e-05	-0.001123	-0.3804
 adequate	1.034e-05	-0.001123	-0.2031
 aggressive	1.034e-05	-0.001123	0.6596

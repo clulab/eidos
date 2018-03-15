@@ -40,6 +40,8 @@ object TestUtils {
     val failingTest = ignore
     val futureWorkTest = ignore // added to mark the tests that are not currently passing, but with planned changes to the
                                 // framework, they will be achievable
+    val inferenceTest = ignore  // type of futureWorkTest -- added for tests which are now failing because of entity
+                                // filtering, basically because inference or coref would be needed
     
     val successful = Seq()
     

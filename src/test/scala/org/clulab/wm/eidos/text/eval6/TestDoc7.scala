@@ -47,11 +47,11 @@ class TestDoc7 extends Test {
   { // Paragraph 2
     val text = """
       Despite slight improvements in food availability due to seasonal harvests
-      from October to December, the 2018 lean seasons began in January-three
-      months earlier than usual-according to the Integrated Food Security Phase
+      from October to December, the 2018 lean seasons began in January--three
+      months earlier than usual--according to the Integrated Food Security Phase
       Classification (IPC). Food security is expected to deteriorate through
-      March, with an estimated 5.1 million people-nearly half of the
-      population facing Crisis (IPC 3) or worse levels of acute food insecurity.*
+      March, with an estimated 5.1 million people--nearly half of the
+      population--facing Crisis (IPC 3) or worse levels of acute food insecurity.*
       """
   
     val tester = new Tester(text)
@@ -149,8 +149,8 @@ class TestDoc7 extends Test {
       A sustained and unimpeded humanitarian response is critical to saving
       lives and preventing a deterioration to Famine (IPC 5) levels of acute
       food insecurity. Since the start of the conflict, the USAID's Office of
-      Food for Peace (FFP) and its partners including the UN World Food Program
-      (WFP) and the UN Children's Fund (UNICEF)-have responded to the needs of
+      Food for Peace (FFP) and its partners--including the UN World Food Program
+      (WFP) and the UN Children's Fund (UNICEF)--have responded to the needs of
       South Sudan's most vulnerable and conflict-affected populations through
       emergency food and nutrition interventions. In FY 2017, FFP-supported
       programs provided life-saving food assistance to 1.1 million people per

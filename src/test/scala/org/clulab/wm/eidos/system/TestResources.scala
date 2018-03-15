@@ -10,7 +10,7 @@ class TestResources extends Test {
 
   def test(file: File): Unit = {
     val path = file.getCanonicalPath()
-    val stream = Sourcer.fromFile(path)
+    val stream = Sourcer.sourceFromFile(path)
     val contents = stream.mkString
     
     it should "not have any Unicode characters in " + path in {
