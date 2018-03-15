@@ -1,8 +1,9 @@
 package org.clulab.wm.eidos
 
+import com.typesafe.config.{Config, ConfigFactory}
+
 import java.util.Collection
 
-import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
@@ -12,55 +13,47 @@ import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, EidosAdjectiveGrounder}
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding, EidosOntologyGrounder}
+import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.DomainOntology
-import org.clulab.wm.eidos.utils.FileUtils.{loadDomainParams, loadGradableAdjGroundingFile, readRules}
+import org.clulab.wm.eidos.utils.DomainParams
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.Constructor
-
-import scala.io.Source
-
-case class EntityGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
-  def isGrounded = intercept != None && mu != None && sigma != None
-}
-
-trait EntityGrounder {
-  def ground(mention: Mention, quantifier: Quantifier): EntityGrounding
-}
-
-case class SameAsGrounding(grounding: Seq[(String, Double)])
-
-trait SameAsGrounder {
-  def ground(mention: EidosMention): SameAsGrounding
-}
+import org.slf4j.LoggerFactory
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with EntityGrounder with SameAsGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with OntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
-  var word2vec = false // Turn this on and off here
+  var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
 
   override def getConf: Config = config  
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
   
-  protected def getPath(name: String, defaultValue: String): String =
-      getArgString(getFullName(name), Option(defaultValue))
+  protected def getPath(name: String, defaultValue: String): String = {
+    val path = getArgString(getFullName(name), Option(defaultValue))
     
+    EidosSystem.logger.info(name + ": " + path)
+    path
+  }
+  
   class LoadableAttributes(
+      // These are the values which can be reloaded.  Query them for current assignments.
       val entityFinder: EidosEntityFinder, 
-      val domainParamValues: Map[Param, Map[String, Double]],
-      val grounder: Map[Quantifier, Map[String, Double]],
+      val domainParams: DomainParams,
+      val adjectiveGrounder: AdjectiveGrounder,
       val actions: EidosActions,
       val engine: ExtractorEngine,
       val ner: LexiconNER,
+      val ontologyGrounder: EidosOntologyGrounder
   )
   
   object LoadableAttributes {
@@ -71,51 +64,44 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
     val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
     val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
-
+    val     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    val   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    // This one is needed to construct some of the loadable attributes even though it isn't a path itself.
     val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-      
-    // Get these instead from the configuration
+    
     def apply(): LoadableAttributes = {
-      val rules = readRules(masterRulesPath)
+      // Reread these values from their files/resources each time based on paths in the config file.
+      val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
-     
+
       new LoadableAttributes(
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops), 
-          // Load the domain parameters (if param == 'all', apply the same values to all the parameters) //TODO: Change this appropriately
-          loadDomainParams(domainParamKBPath), 
-          // Load the gradable adj grounding KB file
-          loadGradableAdjGroundingFile(quantifierKBPath), 
+          DomainParams(domainParamKBPath), 
+          EidosAdjectiveGrounder(quantifierKBPath), 
           actions, 
-          ExtractorEngine(rules, actions), // ODIN component 
-          // LexiconNER for labeling domain entities
-          //TODO: agrovoc lexicons aren't in this project yet
-          // todo: the order matters, we should be taking order into account
-          //val agrovocLexicons = findFilesFromResources(agrovocLexiconsPath, "tsv")
-          LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...,
+          ExtractorEngine(masterRules, actions), // ODIN component 
+          LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
+          EidosOntologyGrounder(stopwordsPath, transparentPath)
       )
     }
   }
   
   var loadableAttributes = LoadableAttributes()
-  
-  // These public variables are accessed directly by clients and
-  // the protected variables by local methods, neither of which
-  // know they are loadable and which had better not keep copies.
-  protected def entityFinder = loadableAttributes.entityFinder
-  def domainParamValues = loadableAttributes.domainParamValues
-  def grounder = loadableAttributes.grounder
-  protected def actions = loadableAttributes.actions
+
+  // These public variables are accessed directly by clients which
+  // don't know they are loadable and which had better not keep copies.
+  def domainParams = loadableAttributes.domainParams 
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
-
-  // These aren't intended to be (re)loadable.  This only happens once.
-  val  wordToVecPath: String = getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt")
-  val domainOntoPath: String = getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml")
-  val topKNodeGroundings: Int = getArgInt("topKNodeGroundings", Some(10))
-
-  val (w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]]) =
-      initSameAsDataStructures(wordToVecPath, domainOntoPath)
   
+  // This isn't intended to be (re)loadable.  This only happens once.
+  protected val wordToVec = EidosWordToVec(
+      word2vec,
+      getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt"),
+      getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
+      getArgInt(getFullName("topKNodeGroundings"), Some(10))
+  )
+
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
@@ -152,52 +138,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     new AnnotatedDocument(doc, odinMentions, eidosMentions)
   }
   
-  def ground(mention: Mention, quantifier: Quantifier): EntityGrounding = {
-    
-    def stemIfAdverb(word: String) = {
-      if (word.endsWith("ly"))
-        if (word.endsWith("ily"))
-          word.slice(0, word.length - 3) ++ "y"
-        else
-          word.slice(0, word.length - 2)
-      else
-        word
-    }
-    
-    val pseudoStemmed = stemIfAdverb(quantifier)
-    val modelRow = grounder.getOrElse(pseudoStemmed, Map.empty)
-    
-    if (modelRow.isEmpty)
-      EntityGrounding(None, None, None)
-    else {
-      val intercept = modelRow.get(EidosSystem.INTERCEPT)
-      val mu = modelRow.get(EidosSystem.MU_COEFF)
-      val sigma = modelRow.get(EidosSystem.SIGMA_COEFF)
-      
-      EntityGrounding(intercept, mu, sigma)
-    }
-  }
-
-  // Be careful, because object may not be completely constructed.
-  def ground(mention: EidosMention): SameAsGrounding = {
-
-    if (word2vec && mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
-      val canonicalName = mention.canonicalName
-      // Make vector for canonicalName
-      val canonicalNameParts = canonicalName.split(" +")
-      val nodeEmbedding = w2v.makeCompositeVector(canonicalNameParts)
-      // Calc dot prods
-      val similarities = conceptEmbeddings.toSeq.map(concept => (concept._1, Word2Vec.dotProduct(concept._2.toArray, nodeEmbedding)))
-      // sort and return top k
-      SameAsGrounding(similarities.sortBy(- _._2).slice(0, topKNodeGroundings))
-    }
-    else
-      SameAsGrounding(Seq.empty)
-  }
-
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
-    val cleanMentions = actions.keepMostCompleteEvents(res, State(res)).toVector
+    val cleanMentions = loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
 //    val longest = actions.keepLongestMentions(cleanMentions, State(cleanMentions)).toVector
 //   longest
     cleanMentions
@@ -205,19 +148,24 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def extractFrom(doc: Document, populateSameAs: Boolean = false): Vector[Mention] = {
     // get entities
-    val entities = entityFinder.extractAndFilter(doc).toVector
+    val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
+    // filter entities which are entirely stop or transparent
+//    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
+    val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
+//    println(s"In extractFrom() -- filtered : ${filtered.map(m => m.text).mkString(",\t")}")
+    val events = extractEventsFrom(doc, State(filtered)).distinct
+//    if (!populateSameAs) return events
+    //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
+
+    //    val sameAs = populateSameAsRelations(entities)
+    //    events ++ sameAs
+    events
+  }
+
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
 //    val unfilteredEntities = entityFinder.extract(doc).toVector
 //    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
-    // get events
-    val events = extractEventsFrom(doc, State(entities)).distinct
-    if (!populateSameAs) return events
-    //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
-//    val sameAs = populateSameAsRelations(entities)
-//    events ++ sameAs
-    events
-  }
 
   def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
 
@@ -239,49 +187,33 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val sameAsRelations = for {
       (m1, i) <- ms.zipWithIndex
       m2 <- ms.slice(i+1, ms.length)
-      score = calculateSameAs(m1, m2)
+      score = wordToVec.calculateSameAs(m1, m2)
     } yield sameAs(m1, m2, score)
 
     sameAsRelations
   }
 
-  // fixme: implement
-  protected def calculateSameAs (m1: Mention, m2: Mention): Double = {
-    val sanitisedM1 =  m1.text.split(" +").map( Word2Vec.sanitizeWord(_) )
-    val sanitisedM2 =  m2.text.split(" +").map( Word2Vec.sanitizeWord(_) )
-    val score = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
-    score
+  def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
+    
+    def isCAGRelevant(m: Mention): Boolean =
+        (m.matches("Entity") && m.attachments.nonEmpty) ||
+            EidosSystem.CAG_EDGES.contains(m.label)
+
+    mentions.filter(isCAGRelevant)
   }
 
-  // reads a taxonomy from data, where data may be either a forest or a file path
-  protected def readOntology(data: Any): DomainOntology = data match {
-    case t: Collection[_] => DomainOntology(t.asInstanceOf[Collection[Any]])
-    case path: String =>
-      val source = Sourcer.fromURL(path)
-      val input = source.mkString
-      source.close()
-      val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
-      val data = yaml.load(input).asInstanceOf[Collection[Any]]
-      DomainOntology(data)
-  }
+  /*
+      Grounding
+  */
+  
+  def groundOntology(mention: EidosMention): OntologyGrounding =
+      loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
 
-  protected def initSameAsDataStructures (word2VecPath: String, ontologyPath: String): (Word2Vec, Map[String, Seq[Double]]) = {
-    if (word2vec) {
-      println(s"Word2Vec: ${word2VecPath}")
-      println(s"ontology: ${ontologyPath}")
-      val word2vecFile = Sourcer.fromURL(word2VecPath)
-      lazy val w2v = new Word2Vec(word2vecFile, None)
-      val ontology = readOntology(ontologyPath)
-      val conceptEmbeddings = ontology.iterateOntology(w2v)
-      (w2v, conceptEmbeddings)
-    }
-    else {
-      val w2v = new Word2Vec(Map[String, Array[Double]]())
-      val conceptEmbeddings = Map[String, Seq[Double]]()
-      
-      (w2v, conceptEmbeddings)
-    }
-  }
+  def containsStopword(stopword: String) =
+      loadableAttributes.ontologyGrounder.containsStopword(stopword)
+
+  def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
+      loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
 
   /*
      Debugging Methods
@@ -296,17 +228,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
 object EidosSystem {
   type Corpus = Seq[AnnotatedDocument]
+  
+  val logger = LoggerFactory.getLogger(this.getClass())
 
   val PREFIX: String = "EidosSystem"
   
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
-  val DEFAULT_DOMAIN_PARAM: String = "DEFAULT"
-  val MU_COEFF: String = "mu_coeff"
-  val SIGMA_COEFF: String = "sigma_coeff"
-  val INTERCEPT: String = "intercept"
-  val PARAM_MEAN: String = "mean"
-  val PARAM_STDEV: String = "stdev"
   // Stateful Labels used by webapp
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"
@@ -314,4 +242,6 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
+  // CAG filtering
+  val CAG_EDGES = Set("Causal")
 }

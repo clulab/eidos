@@ -37,7 +37,7 @@ class TestCagP1 extends Test {
     passingTest should "have correct edges 4" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall, Causal, foodInsecurityLevels)) should be (successful)
     }
-    passingTest should "have correct edges 5" taggedAs(Egoitz) in {
+    inferenceTest should "have correct edges 5" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(copingCapacities, Causal, foodInsecurityLevels)) should be (successful)
     }
   }

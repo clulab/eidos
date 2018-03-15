@@ -83,7 +83,7 @@ rules:
 
 
 
-# ------------------- Explicity Causal REACH --------------------------
+# ------------------- Explicitly Causal REACH --------------------------
 
   #We may need a better verb than "mediated" and "activation" here
   - name: causeEffect_ported_token_1b_verb-${addlabel}
