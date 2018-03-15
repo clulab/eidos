@@ -25,12 +25,12 @@ object ExtractFromFile extends App {
     println(s"There are ${text.length} lines in the file...")
     val annotatedDoc = ieSystem.extractFromText(text.mkString(" "))
     val doc = annotatedDoc.document
-//    val doc = ieSystem.proc.annotate(text.mkString(" "))
     pw.println(s"Filename: ${filename.getName}")
+
     // keep the EidosMentions that are relevant to the CAG
-    val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention))
-    //val odinmentions = annotatedDoc.odinMentions.distinct
-    //val keptMentions = ieSystem.keepCAGRelavant(odinmentions)
+    val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention, cagEdgeMentions))
+
     val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
     for ((sentence, sentenceMentions) <- mentionsBySentence){
       pw.println(s"\nSENTENCE ${sentence}: ${doc.sentences(sentence).getSentenceText()}")
@@ -44,7 +44,6 @@ object ExtractFromFile extends App {
         }
       )
       pw.println(s"${"=" * 100}")
-//      prettyPrint(sentenceMentions.map(_.odinMention), pw)
     }
 
   }
