@@ -736,7 +736,7 @@ Example usage:
 that assembles causal fragments extracted by Eidos into a causal analysis graph.
 This causal analysis graph is then converted to a dynamic Bayes network and used
 to make probabilistic predictions. Currently Delphi provides a webapp interface
-for interactive visualizations and simulations. Here is an example:
+for interactive visualization of CAGs. Here is an example:
 
 ![alt text](/doc/delphi_example.png?raw=True")
 
