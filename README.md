@@ -10,8 +10,7 @@ Currently we extract entities such as "food insecurity" (and `increases`/`decrea
 
 ## How to compile the source code
 
-This is a standard sbt project, so use the usual commands, e.g., `sbt compile`, `sbt assembly`, to compile.
-Add the generated jar files under `target/` to your $CLASSPATH, along with the other necessary dependency jars. Take a look at `build.sbt` to see which dependencies are necessary at runtime.
+This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual commands, e.g., `sbt compile` to compile or `sbt assembly` to create a jar file.  `sbt runMain` can be used to run some of the example applications.  To access Eidos from Java, add the generated jar file(s) under `target/` to your $CLASSPATH, along with any other necessary dependency jars. Take a look at `build.sbt` for a list of runtime dependencies.
 
 ## How to use it
 
@@ -749,7 +748,9 @@ While we will soon be licensed as Apache, currently one dependency has a GPL lic
 
 ## Related resources
 
-If you are working on this project, you may be interested in [additional materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) stored in the cloud. Access is temporarily limited to UA account holders.  Other documents are included in the /doc directory of the repository.
+If you are working on this project, you may be interested in [additional materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) stored in the cloud. Access may be limited by permission settings.  Other documents are included in the /doc directory of the repository.
+
+There is one [large file of vectors](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) which is useful at runtime if you are interested in ontological grounding.  To use this file, download it and place it in the project's `src/main/resources/org/clulab/wm/eidos/w2v` directory.  Then indicate to Eidos that it should be used by setting `useW2V = true` in `src/main/resources/eidos.conf`.
 
 
 ## Notes
