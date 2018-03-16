@@ -142,6 +142,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 
   // Set of tags that we don't want to begin or end an entity
   val INVALID_EDGE_TAGS = Set[scala.util.matching.Regex](
+    "^PRP".r,
     "^IN".r,
     "^TO".r,
     "^DT".r

@@ -110,4 +110,10 @@ rules:
       rulepriority: "6"
       trigger: ${increase_triggers}|${decrease_triggers}
       #action: ? #
-
+  # ------------ Correlation ------------
+  - import: org/clulab/wm/eidos/grammars/linkersTemplate.yml
+    vars:
+      rulepriority: "6"
+      addlabel: "Correlation"
+      label: Correlation
+      trigger: ${correlation_triggers}

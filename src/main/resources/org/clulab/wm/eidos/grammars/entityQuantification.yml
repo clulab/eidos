@@ -19,6 +19,7 @@ rules:
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
+      adverb: Quantifier? = advmod
 
   - name: quantification2
     priority: ${ rulepriority }
@@ -60,3 +61,12 @@ rules:
       trigger = [mention=Quantifier] than [word=/(usual|typical|average|normal)/] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
 
+
+  - name: quantification_copula_rule_1
+    priority:  ${ rulepriority }
+    example: "food insecurity is becoming severe"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/ & outgoing=cop] #Find the quantifier
+      theme: Entity = >nsubj
