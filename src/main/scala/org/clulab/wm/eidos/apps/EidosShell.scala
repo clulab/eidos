@@ -63,7 +63,6 @@ object EidosShell extends App {
     val doc = ieSystem.annotate(text)
 
     // extract mentions from annotated document
-//    val populateSameAs = true
     val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
 
     // debug display the mentions
