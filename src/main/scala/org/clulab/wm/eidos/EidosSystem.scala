@@ -97,8 +97,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // This isn't intended to be (re)loadable.  This only happens once.
   protected val wordToVec = EidosWordToVec(
       word2vec,
-      getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt"),
-      getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
+      getPath(     "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
+      getPath("domainOntologyPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
       getArgInt(getFullName("topKNodeGroundings"), Some(10))
   )
 
@@ -175,7 +175,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val sameAsRelations = for {
       (m1, i) <- ms.zipWithIndex
       m2 <- ms.slice(i+1, ms.length)
-      score = wordToVec.calculateSameAs(m1, m2)
+      score = wordToVec.calculateSimilarity(m1, m2)
     } yield sameAs(m1, m2, score)
 
     sameAsRelations
