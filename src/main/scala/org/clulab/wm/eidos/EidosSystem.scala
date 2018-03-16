@@ -181,7 +181,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     sameAsRelations
   }
 
-  def keepCAGRelavant(mentions: Seq[Mention]): Seq[Mention] = {
+  def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
     val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
     mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
   }

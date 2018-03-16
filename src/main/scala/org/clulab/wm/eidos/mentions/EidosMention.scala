@@ -9,6 +9,7 @@ import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosSystem
 
 abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGrounder,
     mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
