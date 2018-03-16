@@ -150,14 +150,17 @@ class TestDoc2 extends Test {
       tester.test(conflict) should be(successful)
     }
 
+    //this is dependant on something becky is working on. arbitrary predicates thing
     failingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(fams) should be(successful)
     }
 
+    //this is dependant on something becky is working on. arbitrary predicates thing
     failingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(foodInsecurity, Causal, fams)) should be(successful)
     }
 
+    //this is dependant on something becky is working on. arbitrary predicates thing
     failingTest should "have correct edge 2" taggedAs(Mithun) in {
       tester.test(EdgeSpec(conflict, Causal, fams)) should be (successful)
     }
