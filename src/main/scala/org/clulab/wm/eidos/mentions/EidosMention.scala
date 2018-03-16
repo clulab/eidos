@@ -1,14 +1,14 @@
 package org.clulab.wm.eidos.mentions
 
-import java.util.IdentityHashMap // Unfortunately borrowed from Java
+import java.util.IdentityHashMap
 
-import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosSystem
 
 abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGrounder,
     mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
@@ -36,7 +36,7 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGr
   /* Methods for canonicalForms of Mentions */
   protected def canonicalFormSimple(m: Mention): String = {
     def isContentTag(tag: String) = tag.startsWith("NN") || tag.startsWith("VB")
-    def removeNER(ner: String) = Set("DATE", "PLACE").contains(ner)
+    def removeNER(ner: String) = EidosSystem.STOP_NER.contains(ner)
 
     val contentLemmas = for {
       (lemma, i) <- m.lemmas.get.zipWithIndex
