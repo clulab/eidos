@@ -185,6 +185,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
+    println("After extraction, before keepMostComplete:")
+    res.foreach(m => println(s"\t* ${m.text} ${m.attachments.mkString(", ")}"))
     val cleanMentions = actions.keepMostCompleteEvents(res, State(res)).toVector
 //    val longest = actions.keepLongestMentions(cleanMentions, State(cleanMentions)).toVector
 //   longest

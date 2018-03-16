@@ -230,7 +230,7 @@ class TestDoc3 extends Test {
     // Paragraph 7
     val text ="""
         |During the next two weeks, moderate to heavy seasonal rainfall is expected to continue over
-        |western Ethiopia and eastern Sudan lowlands, with heightened risk of flooding in these regions.Meanwhile,
+        |western Ethiopia and eastern Sudan lowlands, with heightened risk of flooding in these regions. Meanwhile,
         |above-average rainfall is forecast over northern Ethiopia, which could help reduce recent rainfall deficits.
         """
 
