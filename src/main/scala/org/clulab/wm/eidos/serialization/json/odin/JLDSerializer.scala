@@ -17,8 +17,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.EntityGrounder
-import org.clulab.wm.eidos.EntityGrounding
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.attachments._
 
 import org.json4s._
@@ -62,7 +61,7 @@ object JLDObject {
 // This class helps serialize/convert a JLDObject to JLD by keeping track of
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
-class JLDSerializer(val entityGrounder: Some[EntityGrounder]) {
+class JLDSerializer(val entityGrounder: Some[AdjectiveGrounder]) {
   protected val typenames = mutable.HashSet[String]()
   protected val typenamesByIdentity = new IdentityHashMap[Any, String]()
   protected val idsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[Any, Int]] = mutable.HashMap()
@@ -137,8 +136,8 @@ class JLDSerializer(val entityGrounder: Some[EntityGrounder]) {
   }
   
   def ground(mention: Mention, quantifier: Quantifier) =
-    if (entityGrounder.isDefined) entityGrounder.get.ground(mention, quantifier)
-    else EntityGrounding(None, None, None)
+    if (entityGrounder.isDefined) entityGrounder.get.groundAdjective(mention, quantifier)
+    else AdjectiveGrounding(None, None, None)
 }
 
 object JLDSerializer {
@@ -470,7 +469,7 @@ object JLDDocument {
 class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
     extends JLDObject(serializer, "Corpus", corpus) {
   
-  def this(corpus: Corpus, entityGrounder: EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
+  def this(corpus: Corpus, entityGrounder: AdjectiveGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
   
   protected def collectMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Int]): Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable(_)).filter { mention => 
