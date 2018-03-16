@@ -277,7 +277,7 @@ class TestRaps extends Test {
     behavior of "Raps_sent11"
 
     //This should probably be "Use of improved cultivars" for the NodeSpec
-    passingTest should "have correct node 1" in {
+    inferenceTest should "have correct node 1" in {
       tester.test(use) should be (successful)
     }
 

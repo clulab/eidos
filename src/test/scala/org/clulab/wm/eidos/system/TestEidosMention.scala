@@ -3,17 +3,17 @@ package org.clulab.wm.eidos.text.cag
 import java.util.IdentityHashMap  // Unfortunately borrowed from Java
 
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.SameAsGrounder
-import org.clulab.wm.eidos.SameAsGrounding
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.cag.CAG._
 
-class TestEidosMention extends Test with SameAsGrounder {
+class TestEidosMention extends Test with OntologyGrounder {
   
-  def ground(mention: EidosMention): SameAsGrounding = SameAsGrounding(Seq.empty)
-  
+  def groundOntology(mention: EidosMention): OntologyGrounding = OntologyGrounding(Seq.empty)
+  def containsStopword(stopword: String) = stopword == "policy"
+
   def test(text: String) = {
     def myprintln(text: String) = {
       val debug = false
@@ -103,19 +103,19 @@ than in the corresponding period two years earlier.
 
   // Test canonicalFormSimple and canonicalFormArgs
   it should "properly make canonical form" in {
-    val text3 = "The seasonal rainfall in July was decreased by something."
+    val text3 = "The seasonal rainfall in July was decreased by the government policy."
     val odinMentions3 = TestUtils.extractMentions(text3)
     val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, this)
 
-    //  eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
+    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
-    rainfall.head.canonicalName should be ("rainfall July")
+    rainfall.head.canonicalName should be ("rainfall")
 
-    val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by something")
+    val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
-    decrease.head.canonicalName should be ("rainfall July decrease something")
+    decrease.head.canonicalName should be ("rainfall decrease government")
 
   }
 

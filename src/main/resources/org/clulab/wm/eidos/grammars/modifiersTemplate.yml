@@ -116,9 +116,21 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger =   [lemma=/${ trigger }/]
+      trigger =   [lemma=/${ trigger }/ & !outgoing=dobj]
       theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) nsubj
       #todo: Quantifiers ?
+
+  - name: ported_copula_mods-1-${label}
+    priority: ${ modrulepriority }
+    #Original example: "A is lowering the rates of B"
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger =   [lemma=/${ trigger }/ & outgoing=dobj]
+      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) dobj
+      #todo: Quantifiers ?
+
 
 
 # ------------------- Nominal Triggers --------------------------
