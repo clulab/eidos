@@ -11,7 +11,7 @@ rules:
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [tag=CC]
+      (?<![tag=/^JJ/]) [tag=CC]
 
   # the chunker is wont to gobble up verbs with clear arguments as part of NPs, hence this rule
   - name: "verbs-with-args"
