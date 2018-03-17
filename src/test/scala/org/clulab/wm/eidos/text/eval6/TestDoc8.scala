@@ -75,11 +75,11 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val agricultureInformation = NodeSpec("agricultural information")
+    val agricultureInformation = NodeSpec("agriculture information")
     
     behavior of "TestDoc8 Objective 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Keith) in {
+    passingTest should "have correct singleton node 1" taggedAs(Keith) in {
       tester.test(agricultureInformation) should be (successful) 
     }
   }
