@@ -246,19 +246,19 @@ class TestRaps extends Test {
     val tester = new Tester(sent10)
 
     val gov = NodeSpec("government")
-    val rice = NodeSpec("flood-tolerant rice varieties", Inc("high-yielding"), Inc("promotes"))
+    val rice = NodeSpec("high-yielding and flood-tolerant rice varieties", Inc("promotes"))
     val policy = NodeSpec("policy to encourage the application of organic fertilizers")
     val fertPriceDown = NodeSpec("cost on inorganic fertilizers", Dec("decreasing"))
 
     behavior of "Raps_sent10"
 
-    passingTest should "have correct edge 1" taggedAs(Heather) in {
+    failingTest should "have correct edge 1" taggedAs(Heather) in {
       tester.test(EdgeSpec(gov, Causal, rice)) should be (successful)
     }
     passingTest should "have correct edge 2" taggedAs(Heather) in {
       tester.test(EdgeSpec(gov, Causal, fertPriceDown)) should be (successful)
     }
-    passingTest should "have correct edge 3" taggedAs(Heather) in {
+    failingTest should "have correct edge 3" taggedAs(Heather) in {
       tester.test(EdgeSpec(policy, Causal, rice)) should be (successful)
     }
 
