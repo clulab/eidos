@@ -83,9 +83,6 @@ case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) 
 object Quantification {
   val label = "Quantification"
   
-  def apply(quantifier: Quantifier, adverbs: Option[Seq[String]]): Quantification =
-    new Quantification(quantifier, adverbs)
-  
   def apply(mention: Mention): Quantification = {
     val quantifier = mention.asInstanceOf[EventMention].trigger.text
     val adverbs = mention.asInstanceOf[EventMention].arguments.get("adverb") match {
@@ -111,9 +108,6 @@ case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) exten
 object Increase {
   val label = "Increase"
   
-  def apply(trigger: String, quantifiers: Option[Seq[Quantifier]] = None): Increase =
-    new Increase(trigger, quantifiers)
-
   def apply(mention: Mention): Increase = {
     val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
     val trigger = mention.asInstanceOf[EventMention].trigger.text
@@ -136,9 +130,6 @@ case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None
 object Decrease {
   val label = "Decrease"
   
-  def apply(trigger: String, quantifiers: Option[Seq[Quantifier]] = None): Decrease =
-    new Decrease(trigger, quantifiers)
-
   def apply(mention: Mention): Decrease = {
     val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
     val trigger = mention.asInstanceOf[EventMention].trigger.text
