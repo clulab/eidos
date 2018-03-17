@@ -4,7 +4,7 @@ import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text._
 
 class TestDoc2 extends Test {
-  
+
   { // Paragraph 1
     val text = """
                  |Up to 4.8 million people in South Sudan--well over one-third of the
@@ -103,11 +103,11 @@ class TestDoc2 extends Test {
       tester.test(prices) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Fan) in {
+    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
       tester.test(roads) should be(successful)
     }
 
-    failingTest should "have correct singleton node 3" taggedAs(Fan) in {
+    passingTest should "have correct singleton node 3" taggedAs(Fan) in {
       tester.test(markets) should be(successful)
     }
 
@@ -205,7 +205,7 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 8"
 
-    failingTest should "have correct singleton node 1" taggedAs(Fan) in {
+    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
       tester.test(need) should be(successful)
     }
 
