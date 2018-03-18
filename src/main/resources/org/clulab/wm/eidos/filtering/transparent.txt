@@ -122,6 +122,7 @@ sample
 series
 size
 state
+levels
 status
 step
 strategy

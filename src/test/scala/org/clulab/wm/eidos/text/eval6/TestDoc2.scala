@@ -168,7 +168,7 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
-    val malnutrition = NodeSpec("levels of malnutrition", Quant("truly", "alarming"))
+    val malnutrition = NodeSpec("levels of malnutrition among children", Quant("alarming", "truly"))
 
     behavior of "TestDoc2 Paragraph 6"
 

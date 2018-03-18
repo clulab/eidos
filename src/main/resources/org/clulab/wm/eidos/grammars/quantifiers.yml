@@ -5,9 +5,9 @@
 #NB: see research repo, wmseed project, gradable.yml file for lexical patterns if needed
 
 rules:
-    - name: gradable-lexiconner
-      label: Quantifier
-      priority: ${rulepriority}
-      type: token
-      pattern: |
-        [entity="B-Quantifier"] [entity="I-Quantifier"]*
+  - name: gradable-lexiconner
+    label: Quantifier
+    priority: ${rulepriority}
+    type: token
+    pattern: |
+      [entity="B-Quantifier"] [entity="I-Quantifier"]*
