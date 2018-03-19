@@ -27,7 +27,7 @@ class TestDoc7 extends Test {
 
     val tester = new Tester(text)
 
-    val conflict = NodeSpec("conflict")
+    val conflict = NodeSpec("near four years of civil conflict")
     val food = NodeSpec("food", Quant("scarce", "most"))
     val hunger = NodeSpec("hunger", Quant("life-threatening"))
     val leanSeason = NodeSpec("lean season")
