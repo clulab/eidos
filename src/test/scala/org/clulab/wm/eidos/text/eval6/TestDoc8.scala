@@ -204,7 +204,11 @@ class TestDoc8 extends Test {
     val climateExtremes = NodeSpec("climate extremes")
     val areaPlanted = NodeSpec("area planted", Dec("reduction"))
 
-    val routes = NodeSpec("Trade and migration routes", Quant("disrupted"))
+    val routesa = NodeSpec("Trade", Dec("disrupted"))
+    val routesb = NodeSpec("migration routes", Dec("disrupted"))
+    val routesc = NodeSpec("Trade and migration routes", Dec("disrupted"))
+    //val routesd = NodeSpec("Trade routes", Dec("disrupted"))
+
     val risk = NodeSpec("risk and occurrence of livestock disease outbreaks", Inc("increased"))
     
     val econCrisis = NodeSpec("Economic crisis")
@@ -235,8 +239,14 @@ class TestDoc8 extends Test {
     failingTest should "have correct edge 6" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(areaPlanted, Causal, cerealGap)) should be (successful) 
     }
-    failingTest should "have correct singleton node 1" taggedAs(Keith) in {
-      tester.test(routes) should be (successful) 
+    passingTest should "have correct singleton node 1a" taggedAs(Keith) in {
+      tester.test(routesa) should be (successful)
+    }
+    passingTest should "have correct singleton node 1b" taggedAs(Keith) in {
+      tester.test(routesb) should be (successful)
+    }
+    passingTest should "have correct singleton node 1c" taggedAs(Keith) in {
+      tester.test(routesc) should be (successful)
     }
     failingTest should "have correct singleton node 2" taggedAs(Keith) in {
       tester.test(risk) should be (successful) 
