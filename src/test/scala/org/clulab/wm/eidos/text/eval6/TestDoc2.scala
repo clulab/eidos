@@ -63,7 +63,7 @@ class TestDoc2 extends Test {
     }
 
     //this is dependant on the lean season thing above. i.e passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
-    passingTest should "have correct edge 1" taggedAs(Mithun) in {
+    failingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(situation, Correlation, leanSeason)) should be(successful)
     }
 
