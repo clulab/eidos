@@ -206,11 +206,17 @@ class TestDoc8 extends Test {
 
     val routesa = NodeSpec("Trade", Dec("disrupted"))
     val routesb = NodeSpec("migration routes", Dec("disrupted"))
+    // How might this be done?
     val routesc = NodeSpec("Trade and migration routes", Dec("disrupted"))
+    // We're not this smart yet
     //val routesd = NodeSpec("Trade routes", Dec("disrupted"))
 
-    val risk = NodeSpec("risk and occurrence of livestock disease outbreaks", Inc("increased"))
-    
+    // How might this be done?
+    val riska = NodeSpec("risk of livestock disease outbreaks", Inc("increased"))
+    val riskb = NodeSpec("occurrence of livestock disease outbreaks", Inc("increased"))
+    // This is ungrammatical to me.  Risk and occurrence _have_ increased
+    //val riskc = NodeSpec("risk and occurrence of livestock disease outbreaks", Inc("increased"))
+
     val econCrisis = NodeSpec("Economic crisis")
     val hyperinflation = NodeSpec("hyperinflation", Quant("drastic"))
     val marketFailures = NodeSpec("market failures")
@@ -245,11 +251,14 @@ class TestDoc8 extends Test {
     passingTest should "have correct singleton node 1b" taggedAs(Keith) in {
       tester.test(routesb) should be (successful)
     }
-    passingTest should "have correct singleton node 1c" taggedAs(Keith) in {
+    ignore should "have correct singleton node 1c" taggedAs(Keith) in {
       tester.test(routesc) should be (successful)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Keith) in {
-      tester.test(risk) should be (successful) 
+    ignore should "have correct singleton node 2a" taggedAs(Keith) in {
+      tester.test(riska) should be (successful)
+    }
+    passingTest should "have correct singleton node 2b" taggedAs(Keith) in {
+      tester.test(riskb) should be (successful)
     }
     failingTest should "have correct edge 7" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(econCrisis, Correlation, hyperinflation)) should be (successful) 
