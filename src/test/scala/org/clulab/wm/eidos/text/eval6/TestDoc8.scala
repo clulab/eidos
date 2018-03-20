@@ -93,21 +93,33 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val foodSecurityTrends = NodeSpec("worsening food security trends", Dec("compounded"))
-    val conflict = NodeSpec("conflict", Quant("continued"))
-    val marketFailure = NodeSpec("market failure")
+    val foodSecurityTrends = NodeSpec("Worsening food security trends linked to continued conflict", Dec("Worsening"), Inc("compounded"))
+    val marketFailure = NodeSpec("market", Dec("failure"))
     val internalDisplacement = NodeSpec("internal displacement")
-    
+    val access = NodeSpec("humanitarian access", Dec("decreasing"))
+    val conflict = NodeSpec("conflict", Quant("continued"))
+
     behavior of "TestDoc8 Sidenote"
 
-    failingTest should "have correct edge 1" taggedAs(Keith) in {
+    passingTest should "have correct edge 1" taggedAs(Keith) in {
       tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful) 
     }
-    failingTest should "have correct edge 2" taggedAs(Keith) in {
+    passingTest should "have correct edge 2" taggedAs(Keith) in {
       tester.test(EdgeSpec(internalDisplacement, Causal, foodSecurityTrends)) should be (successful) 
     }
+    // This doesn't work because the third nmod_agent points to decreasing instead of access
+    // which it thinks is a VBG instead of JJ.  Worsening food security is right,
+    // decreasing humanitarian access is wrong.
     failingTest should "have correct edge 3" taggedAs(Keith) in {
-      tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be (successful) 
+      tester.test(EdgeSpec(access, Causal, foodSecurityTrends)) should be (successful)
+    }
+    // "continued conflict" doesn't make it as in "They continued conflict"
+    failingTest should "have correct edge 4" taggedAs(Keith) in {
+      tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be (successful)
+    }
+
+    passingTest should "have correct node 1" taggedAs(Keith) in {
+      tester.test(access) should be (successful)
     }
   }
   { // Impact paragraph 1
