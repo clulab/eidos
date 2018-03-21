@@ -154,7 +154,7 @@ rules:
 
   - name: ${ label }_ported_syntax_3_noun
     priority: ${ objrulepriority }
-    example: "exhaustion of copying capacities"
+    example: "exhaustion of coping capacities"
     label: ${ label }
     action: ${ action }
     pattern: |
@@ -165,7 +165,7 @@ rules:
 
   - name: ${ label }_surface_VBN
     priority: ${ objrulepriority }
-    example: "exhaustion of copying capacities"
+    example: "exhaustion of coping capacities"
     label: ${ label }
     action: ${ action }
     type: token
