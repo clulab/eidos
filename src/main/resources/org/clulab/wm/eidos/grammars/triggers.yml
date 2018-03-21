@@ -9,3 +9,5 @@ nonavoid_causal_triggers: "produc"
 affect_triggers: "affect|alter|chang|influenc|modifi|modify"
 
 nonavoid_affect_triggers: "impact"
+
+correlation_triggers: "coincid|link"
