@@ -21,14 +21,14 @@ auc
 author
 authors
 availability
-belief
 barrier
+belief
 capacity
 case
 category
+change cohort
 child
 childhood
-change cohort
 combination
 concentration
 concept
@@ -93,14 +93,14 @@ observation
 occurrence
 odds
 origin
-patient
 part
+patient
 percent
 performance
 persistence
 phenotype
-pool
 policy
+pool
 possibility
 presence
 prevalence
@@ -122,7 +122,6 @@ sample
 series
 size
 state
-levels
 status
 step
 strategy

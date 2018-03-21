@@ -201,7 +201,7 @@ class TestDoc2 extends Test {
     val tester = new Tester(text)
 
     val need = NodeSpec("need in new areas", Inc("spikes", "sharp"))
-    val malnutrition = NodeSpec("malnutrition rates in some places", Quant("dangerous", "levels")) // TODO: must decide what to do with "levels"
+    val malnutrition = NodeSpec("malnutrition rates in some places", Quant("dangerous")) // TODO: must decide what to do with "levels"
 
     behavior of "TestDoc2 Paragraph 8"
 
@@ -209,7 +209,7 @@ class TestDoc2 extends Test {
       tester.test(need) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Fan) in {
+    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
       tester.test(malnutrition) should be (successful)
     }
   }
