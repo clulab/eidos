@@ -93,66 +93,26 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val foodSecurityTrends = NodeSpec("Worsening food security trends linked to continued conflict", Dec("Worsening"), Inc("compounded"))
+    val foodSecurityTrends = NodeSpec("Worsening food security trends", Dec("Worsening"), Inc("compounded"))
+    val conflict = NodeSpec("continued conflict")
+
     val marketFailure = NodeSpec("market", Dec("failure"))
     val internalDisplacement = NodeSpec("internal displacement")
     val access = NodeSpec("humanitarian access", Dec("decreasing"))
-    val conflict = NodeSpec("conflict", Quant("continued"))
 
     behavior of "TestDoc8 Sidenote"
 
     passingTest should "have correct edge 1" taggedAs(Keith) in {
+      tester.test(EdgeSpec(foodSecurityTrends, Correlation, conflict)) should be(successful)
+    }
+    passingTest should "have correct edge 2" taggedAs(Keith) in {
       tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful) 
     }
-    passingTest should "have correct edge 2" taggedAs(Keith) in {
+    passingTest should "have correct edge 3" taggedAs(Keith) in {
       tester.test(EdgeSpec(internalDisplacement, Causal, foodSecurityTrends)) should be (successful) 
     }
-    // This doesn't work because the third nmod_agent points to decreasing instead of access
-    // which it thinks is a VBG instead of JJ.  Worsening food security is right,
-    // decreasing humanitarian access is wrong.
-    failingTest should "have correct edge 3" taggedAs(Keith) in {
-      tester.test(EdgeSpec(access, Causal, foodSecurityTrends)) should be (successful)
-    }
-    // "continued conflict" doesn't make it as in "They continued conflict"
-    failingTest should "have correct edge 4" taggedAs(Keith) in {
-      tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be (successful)
-    }
-
-    passingTest should "have correct node 1" taggedAs(Keith) in {
-      tester.test(access) should be (successful)
-    }
-  }
-
-  { // Sidenote rewritten
-    // Less used to be decreasing, but that causes problems in the processor.
-    // Interminable used to be continued, which wasn't being picked up because of conflicts with other POSes.
-    val text = """
-      Worsening food security trends linked to interminable conflict have been
-      compounded by market failure, internal displacement and precarious
-      humanitarian access. To save lives in the coming year, the most vulnerable
-      households need support to produce nutritious food for consumption and sale.
-      """
-    val tester = new Tester(text)
-    // Where did linked to go?
-    val foodSecurityTrends = NodeSpec("Worsening food security trends", Dec("Worsening"), Inc("compounded"))
-    val marketFailure = NodeSpec("market", Dec("failure"))
-    val internalDisplacement = NodeSpec("internal displacement")
-    val access = NodeSpec("humanitarian access", Quant("precarious")) // decreasing
-    val conflict = NodeSpec("conflict", Quant("interminable"))
-
-    behavior of "TestDoc8 Sidenote rewritten"
-
-    passingTest should "have correct edge 1" taggedAs(Keith) in {
-      tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful)
-    }
-    passingTest should "have correct edge 2" taggedAs(Keith) in {
-      tester.test(EdgeSpec(internalDisplacement, Causal, foodSecurityTrends)) should be (successful)
-    }
-    passingTest should "have correct edge 3" taggedAs(Keith) in {
-      tester.test(EdgeSpec(access, Causal, foodSecurityTrends)) should be (successful)
-    }
     passingTest should "have correct edge 4" taggedAs(Keith) in {
-      tester.test(EdgeSpec(foodSecurityTrends, Correlation, conflict)) should be (successful)
+      tester.test(EdgeSpec(access, Causal, foodSecurityTrends)) should be (successful)
     }
   }
 
