@@ -122,6 +122,40 @@ class TestDoc8 extends Test {
       tester.test(access) should be (successful)
     }
   }
+
+  { // Sidenote rewritten
+    // Less used to be decreasing, but that causes problems in the processor.
+    // Interminable used to be continued, which wasn't being picked up because of conflicts with other POSes.
+    val text = """
+      Worsening food security trends linked to interminable conflict have been
+      compounded by market failure, internal displacement and precarious
+      humanitarian access. To save lives in the coming year, the most vulnerable
+      households need support to produce nutritious food for consumption and sale.
+      """
+    val tester = new Tester(text)
+    // Where did linked to go?
+    val foodSecurityTrends = NodeSpec("Worsening food security trends", Dec("Worsening"), Inc("compounded"))
+    val marketFailure = NodeSpec("market", Dec("failure"))
+    val internalDisplacement = NodeSpec("internal displacement")
+    val access = NodeSpec("humanitarian access", Quant("precarious")) // decreasing
+    val conflict = NodeSpec("conflict", Quant("interminable"))
+
+    behavior of "TestDoc8 Sidenote rewritten"
+
+    passingTest should "have correct edge 1" taggedAs(Keith) in {
+      tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful)
+    }
+    passingTest should "have correct edge 2" taggedAs(Keith) in {
+      tester.test(EdgeSpec(internalDisplacement, Causal, foodSecurityTrends)) should be (successful)
+    }
+    passingTest should "have correct edge 3" taggedAs(Keith) in {
+      tester.test(EdgeSpec(access, Causal, foodSecurityTrends)) should be (successful)
+    }
+    passingTest should "have correct edge 4" taggedAs(Keith) in {
+      tester.test(EdgeSpec(foodSecurityTrends, Correlation, conflict)) should be (successful)
+    }
+  }
+
   { // Impact paragraph 1
     val text = """
       Humanitarian response succeeded in containing famine soon after it was
