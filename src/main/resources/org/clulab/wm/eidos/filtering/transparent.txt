@@ -26,9 +26,10 @@ belief
 capacity
 case
 category
-change cohort
+change
 child
 childhood
+cohort
 combination
 concentration
 concept
