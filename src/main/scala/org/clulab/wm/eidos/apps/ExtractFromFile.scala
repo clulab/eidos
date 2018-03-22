@@ -8,6 +8,7 @@ import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.Sourcer
 
 object ExtractFromFile extends App {
 
@@ -20,7 +21,7 @@ object ExtractFromFile extends App {
   val ieSystem = new EidosSystem()
 
   for (filename <- files) {
-    val source = scala.io.Source.fromFile(filename)
+    val source = Sourcer.sourceFromFile(filename)
     val text = source.getLines().toArray.filter(line => !line.startsWith("#"))
     println(s"There are ${text.length} lines in the file...")
     val annotatedDoc = ieSystem.extractFromText(text.mkString(" "))
