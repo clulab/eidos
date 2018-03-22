@@ -156,7 +156,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       val text = if (option.isEmpty) ""
       else option.get(n)
 
-      "<td>" + text + "</td>"
+      "<td>" + xml.Utility.escape(text) + "</td>"
     }
 
     val header =
@@ -175,7 +175,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     sent.words.indices.foreach { i =>
       sb
           .append("<tr>")
-          .append("<td>" + sent.words(i) + "</td>")
+          .append("<td>" + xml.Utility.escape(sent.words(i)) + "</td>")
           .append(getTdAt(sent.tags, i))
           .append(getTdAt(sent.lemmas, i))
           .append(getTdAt(sent.entities, i))
