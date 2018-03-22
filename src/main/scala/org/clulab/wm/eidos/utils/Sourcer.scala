@@ -16,7 +16,7 @@ object Sourcer {
     val url = Sourcer.getClass.getResource(path)
 
     if (url == null)
-      throw new FileNotFoundException(path + " (The system cannot find the path specified)")
+      throw newFileNotFoundException(path)
     logger.info("Sourcing resource " + url.getPath())
     Source.fromURL(url, utf8)
   }
@@ -27,4 +27,12 @@ object Sourcer {
   }
 
   def sourceFromFile(path: String): BufferedSource = sourceFromFile(new File(path))
+
+  def newFileNotFoundException(path: String): FileNotFoundException = {
+    val message1 = path + " (The system cannot find the path specified"
+    val message2 = message1 + (if (path.startsWith("~")) ".  Make sure to not use the tilde (~) character in paths in lieu of the home directory." else "")
+    val message3 = message2 + ")"
+
+    new FileNotFoundException(message3)
+  }
 }
