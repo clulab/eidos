@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.utils
 
-import java.io.{File, FilenameFilter}
+import java.io.{File, FileNotFoundException, FilenameFilter}
 import java.util.Collection
 
 import org.yaml.snakeyaml.Yaml
@@ -16,7 +16,10 @@ object FileUtils {
       def accept(dir: File, name: String): Boolean = name.endsWith(extension)
     }
     
-    dir.listFiles(filter)
+    val result = dir.listFiles(filter)
+    if (result == null)
+      throw new FileNotFoundException(collectionDir + " (The system cannot find the path specified - make sure to not use the tilde (~) character in paths in lieu of the home directory.")
+    result
   }
 
   def getCommentedLinesFromSource(source: Source): Array[String] = {
