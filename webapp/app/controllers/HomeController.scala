@@ -216,7 +216,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     var objectToReturn = ""
 
     if(groundedEntities.size > 0){
-      objectToReturn += s"""<br><br><font size="4" color="${HomeController.sectionTitleColor}">Grounded Entities:</font>"""
+      objectToReturn += "<h2>Grounded Entities:</h2>"
 
       // Make the string for each grounded entity
       val toPrint = for (grounding <- groundedEntities) yield {
@@ -245,7 +245,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     // Entities
     val entities = mentions.filter(_ matches "Entity")
     if (entities.nonEmpty){
-      objectToReturn += s"""<br><font size="4" color="${HomeController.sectionTitleColor}">Found Entities:</font><br>"""
+      objectToReturn += "<h2>Found Entities:</h2>"
       for (entity <- entities) {
         objectToReturn += s"${DisplayUtils.webAppMention(entity)}"
       }
@@ -254,7 +254,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     val events = mentions.filter(_ matches "Event")
     if (events.nonEmpty) {
-      objectToReturn += s"""<font size="4" color="${HomeController.sectionTitleColor}">Found Events:</font><br>"""
+      objectToReturn += s"<h2>Found Events:</h2>"
       for (event <- events) {
         objectToReturn += s"${DisplayUtils.webAppMention(event)}"
       }
@@ -406,8 +406,6 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 }
 
 object HomeController {
-
-  val sectionTitleColor = "#2471A3"
 
   // fixme: ordering/precedence...
   def statefulRepresentation(m: Mention): Mention = {
