@@ -18,7 +18,7 @@ object FileUtils {
     
     val result = dir.listFiles(filter)
     if (result == null)
-      throw new FileNotFoundException(collectionDir + " (The system cannot find the path specified)")
+      throw new FileNotFoundException(collectionDir + " (The system cannot find the path specified - make sure to not use the tilde (~) character in paths in lieu of the home directory.")
     result
   }
 
