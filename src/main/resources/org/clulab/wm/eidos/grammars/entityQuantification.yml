@@ -60,3 +60,13 @@ rules:
       trigger = [mention=Quantifier] than [word=/(usual|typical|average|normal)/] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
 
+
+  - name: quantification3
+    priority: ${ rulepriority }
+    example: "remain above average"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier] #Find the quantifier
+      theme: Entity = </${ complements }/? >${ agents } #Find the entity the quantifier is modifying
+
