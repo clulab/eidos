@@ -48,3 +48,12 @@ rules:
       trigger = [incoming=dep]
       effect: Entity  = <dep
       cause: Entity = nmod_of
+
+  - name: syntax_5_punct-Correlation
+    priority: ${ rulepriority }
+    example: "Food insecurity remained critical as conflict continues to increase danger."
+    label: Correlation
+    pattern: |
+      trigger = [word="--"]
+      effect: Entity  = <punct
+      cause: Entity = <punct <dep ${preps}

@@ -63,6 +63,16 @@ rules:
       cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
       effect: Entity = <advmod|<amod <nmod_due_to? nsubj
 
+  - name: dueToSyntax5-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: "improvements in food availability due to seasonal harvests"
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = nmod_to (${ conjunctions })?
+      effect: Entity = <advmod|<amod >nmod_in
+
+
   - name: madeSyntax3-${addlabel}
     priority: ${rulepriority}
     label: ${label}
