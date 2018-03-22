@@ -697,7 +697,12 @@ This produces the following JSON serialization (mentions may appear in different
 ```bash
 sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
 ```
-Files in the input directory should end with `txt` and the extracted mentions from each file will be saved in corresponding JSON-LD files.
+Files in the input directory should end with `txt` and the extracted mentions
+from each file will be saved in corresponding JSON-LD files.
+
+**Note**: You cannot use tildes (`~`) in the invocation in lieu of the home
+directory.
+
 
 
 
