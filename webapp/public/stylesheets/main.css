@@ -23,7 +23,7 @@ h2 {
 }
 
 input[type="text"] {
-    font-size: 10pt;
+    font-size: inherit;
     height: 50px;
     width: 800px;
 }
