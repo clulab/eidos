@@ -140,7 +140,7 @@ class TestDoc3 extends Test {
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(rainfall1)
     }
-    failingTest should "have correct edges 1" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall2, Causal, cropDevelopment)) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
