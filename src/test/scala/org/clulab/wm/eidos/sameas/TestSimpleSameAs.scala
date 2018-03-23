@@ -27,7 +27,4 @@ class TestSimpleSameAs extends Test {
     // works fine with: "The increase in rain causes flooding, conflict, and decreased crop yield."
 //    sameAsRelations.foreach(s => println(utils.DisplayUtils.displayMention(s)))
   }
-
-
-
 }

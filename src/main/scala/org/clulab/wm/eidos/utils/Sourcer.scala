@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.utils
 
-import java.io.File
-import java.nio.charset.StandardCharsets;
+import java.io.{File, FileNotFoundException}
+import java.nio.charset.StandardCharsets
 
 import org.slf4j.LoggerFactory
 
@@ -14,18 +14,25 @@ object Sourcer {
   
   def sourceFromResource(path: String): BufferedSource = {
     val url = Sourcer.getClass.getResource(path)
-    logger.info("Sourcing resource " + url.getPath())
-    val source = Source.fromURL(url, utf8)
 
-    source
+    if (url == null)
+      throw newFileNotFoundException(path)
+    logger.info("Sourcing resource " + url.getPath())
+    Source.fromURL(url, utf8)
   }
   
   def sourceFromFile(file: File): BufferedSource = {
-    val source = Source.fromFile(file, utf8)
     logger.info("Sourcing file " + file.getPath())
-
-    source
+    Source.fromFile(file, utf8)
   }
 
   def sourceFromFile(path: String): BufferedSource = sourceFromFile(new File(path))
+
+  def newFileNotFoundException(path: String): FileNotFoundException = {
+    val message1 = path + " (The system cannot find the path specified"
+    val message2 = message1 + (if (path.startsWith("~")) ".  Make sure to not use the tilde (~) character in paths in lieu of the home directory." else "")
+    val message3 = message2 + ")"
+
+    new FileNotFoundException(message3)
+  }
 }

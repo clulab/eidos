@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.mentions
 
 import java.util.IdentityHashMap
 
-import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention

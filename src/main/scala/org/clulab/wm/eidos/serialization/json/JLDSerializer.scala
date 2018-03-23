@@ -160,7 +160,7 @@ object JLDArgument {
   val plural = "arguments"
 }
 
-class JLDSameAsGrounding(serializer: JLDSerializer, name: String, value: Double)
+class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Double)
     extends JLDObject(serializer, "Grounding") {
   
   override def toJObject(): JObject =
@@ -169,7 +169,7 @@ class JLDSameAsGrounding(serializer: JLDSerializer, name: String, value: Double)
           ("value" -> value)
 }
 
-object JLDSameAsGrounding {
+object JLDOntologyGrounding {
   val singular = "grounding"
   val plural = singular // Mass noun
 }
@@ -287,9 +287,9 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
   
   override def toJObject(): JObject = {
     val jldAttachments = mention.odinMention.attachments.map(newJLDAttachment(_, mention)).toList
-    val sameAsGrounding = mention.grounding.grounding
-    //val sameAsGrounding = new SameAsGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = toJObjects(sameAsGrounding.map(pair => new JLDSameAsGrounding(serializer, pair._1, pair._2)))
+    val ontologyGrounding = mention.grounding.grounding
+    //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
+    val jldGroundings = toJObjects(ontologyGrounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
     
     serializer.mkType(this) ~
         serializer.mkId(this) ~
