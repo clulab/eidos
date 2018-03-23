@@ -74,11 +74,3 @@ rules:
       # avoid nmod_during
       [incoming = nmod_during]
 
-  - name: "in"
-    label: Avoid
-    priority: 1
-    type: token
-    pattern: |
-      # avoid nmod_during
-      [incoming = nmod_in]
-

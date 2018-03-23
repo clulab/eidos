@@ -127,7 +127,7 @@ class TestDoc3 extends Test {
 
     val rainfall1 = NodeSpec("rainfall", Quant("average to above average"))
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread") ,Quant("favorable"))
-    val cropDevelopment = NodeSpec("crop development")
+    val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal")
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight")) // todo (temporal?): really should capture the "compared to the previous month"...
     val rainfall4 = NodeSpec("rainfall", Dec("decline"))
     val moistureStress = NodeSpec("moisture stress on crops")
