@@ -38,11 +38,11 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
 
-   println(s"Base-entities  -- ${baseEntities.map(m => m.text).mkString(",\t")}")
-   println(s"Expanded-entities  -- ${expandedEntities.map(m => m.text).mkString(",\t")}")
-   println(s"distinct-Entities -- ${distinctEntities.map(m => m.text).mkString(",\t")}")
-   println(s"trimmed-Entities -- ${trimmedEntities.map(m => m.text).mkString(",\t")}")
-   println(s"Entities finally returned -- ${res.map(m => m.text).mkString(",\t")}")
+//    println(s"Base-entities  -- ${baseEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"Expanded-entities  -- ${expandedEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"distinct-Entities -- ${distinctEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"trimmed-Entities -- ${trimmedEntities.map(m => m.text).mkString(",\t")}")
+//    println(s"Entities finally returned -- ${res.map(m => m.text).mkString(",\t")}")
     res
   }
 
@@ -65,7 +65,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
                                 remainingHops: Int,
                                 sent: Int,
                                 stateFromAvoid: State
-  ): Interval = {
+                              ): Interval = {
     if (remainingHops == 0) {
       val allTokens = tokens ++ newTokens
       Interval(allTokens.min, allTokens.max + 1)
@@ -82,7 +82,6 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     }
   }
   private def traverseOutgoingLocal(m: Mention, numHops: Int, stateFromAvoid: State): Interval = {
-    println(s"${m.text}")
     val outgoing = outgoingEdges(m.sentenceObj)
     val incoming = incomingEdges(m.sentenceObj)
     traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid)

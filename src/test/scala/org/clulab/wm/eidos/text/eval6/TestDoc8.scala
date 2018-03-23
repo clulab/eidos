@@ -26,7 +26,7 @@ class TestDoc8 extends Test {
     val famine = NodeSpec("risk of famine", Quant("elevated"))
     val foodSecurity = NodeSpec("food security", Dec("worsen"))
     val foodProduction = NodeSpec("food production", Quant("rapid"))
-    val communities = NodeSpec("communities", Quant("vulnerable"))
+    val communities = NodeSpec("communities", Quant("vulnerable", "most"))
     val selfSufficiency = NodeSpec("self-sufficiency", Inc("increasing"))
     
     behavior of "TestDoc8 Paragraph 1"

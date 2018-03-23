@@ -6,6 +6,6 @@ cause_triggers: "activat|allow|because|cataly|caus|contribut|driv|due|elicit|ena
 
 nonavoid_causal_triggers: "produc"
 
-affect_triggers: "affect|alter|displac|chang|influenc|modifi|modify"
+affect_triggers: "affect|alter|(displaces?$)|chang|influenc|modifi|modify"
 
 nonavoid_affect_triggers: "impact"
