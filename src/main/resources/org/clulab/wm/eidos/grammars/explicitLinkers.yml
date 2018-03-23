@@ -39,3 +39,12 @@ rules:
       trigger = [incoming=advcl_as]
       effect: Entity  = <advcl_as nsubj
       cause: Entity = /(${complements})/? dobj
+
+  - name: syntax_4_verb-Correlation
+    priority: ${ rulepriority }
+    example: "Economic crisis, marked by drastic hyperinflation and market failures"
+    label: Correlation
+    pattern: |
+      trigger = [word="marked"] [word="by"]
+      effect: Entity  = <acl
+      cause: Entity = nmod_by compound?

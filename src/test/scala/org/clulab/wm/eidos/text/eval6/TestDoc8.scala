@@ -208,13 +208,14 @@ class TestDoc8 extends Test {
     val risk = NodeSpec("risk and occurrence of livestock disease outbreaks", Inc("increased"))
     
     val econCrisis = NodeSpec("Economic crisis")
-    val hyperinflation = NodeSpec("hyperinflation", Quant("drastic"))
-    val marketFailures = NodeSpec("market failures")
-    val foodSystems = NodeSpec("food systems", Quant("destabilized"))
-    val accessToFoodAndIncome = NodeSpec("household access to food and income", Quant("destabilized"))
+    val hyperinflation = NodeSpec("hyperinflation", Quant("drastic")) 
+    val marketFailures = NodeSpec("market", Dec("failures"))
+    val foodSystems = NodeSpec("food systems", Dec("destabilised"))
+    val accessToFood = NodeSpec("household access to food", Dec("destabilised"))
+    val income = NodeSpec("income", Dec("destabilised"))
 
-    val localFoodProduction = NodeSpec("local food production", Inc("Supporting"))
-    val foodSecuritySituation = NodeSpec("food security situation", Dec("deteriorating"))
+    val localFoodProduction = NodeSpec("Supporting local food production", Inc("Supporting"), Quant("critical"))
+    val foodSecuritySituation = NodeSpec("food security situation", Dec("deterioration"),  Dec("preventing"))
     behavior of "TestDoc8 Impact para 2"
 
     failingTest should "have correct edge 1" taggedAs(Ajay) in {
@@ -241,25 +242,25 @@ class TestDoc8 extends Test {
     failingTest should "have correct singleton node 2" taggedAs(Keith) in {
       tester.test(risk) should be (successful) 
     }
-    failingTest should "have correct edge 7" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(econCrisis, Correlation, hyperinflation)) should be (successful) 
+    passingTest should "have correct edge 7" taggedAs(Egoitz) in {
+      tester.test(EdgeSpec(hyperinflation, Correlation, econCrisis)) should be (successful) 
     }
-    failingTest should "have correct edge 8" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(econCrisis, Correlation, marketFailures)) should be (successful) 
+    passingTest should "have correct edge 8" taggedAs(Egoitz) in {
+      tester.test(EdgeSpec(marketFailures, Correlation, econCrisis)) should be (successful) 
     }
-    failingTest should "have correct edge 9" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 9" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(econCrisis, Causal, foodSystems)) should be (successful) 
     }
-    failingTest should "have correct edge 10" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(econCrisis, Causal, accessToFoodAndIncome)) should be (successful) 
+    passingTest should "have correct edge 10" taggedAs(Egoitz) in {
+      tester.test(EdgeSpec(econCrisis, Causal, accessToFood)) should be (successful) 
     }
-    failingTest should "have correct edge 11" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(econCrisis, Causal, accessToFoodAndIncome)) should be (successful) 
+    passingTest should "have correct edge 11" taggedAs(Egoitz) in {
+      tester.test(EdgeSpec(econCrisis, Causal, income)) should be (successful) 
     }
-    failingTest should "have correct singleton node 3" taggedAs(Egoitz) in {
+    passingTest should "have correct singleton node 3" taggedAs(Egoitz) in {
       tester.test(localFoodProduction) should be (successful) 
     }
-    failingTest should "have correct singleton node 4" taggedAs(Egoitz) in {
+    passingTest should "have correct singleton node 4" taggedAs(Egoitz) in {
       tester.test(foodSecuritySituation) should be (successful) 
     }
   }

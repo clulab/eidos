@@ -75,18 +75,26 @@ rules:
       effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
 
 
-
-
-
   #Handles occurrence of prep_by when NOT passive voice
-  - name: ported_syntax_1c_verb-${addlabel}
+  - name: ported_syntax_1d_verb-${addlabel}
     priority: ${ rulepriority }
     example: "The water quality caused poverty by an increase in productivity."
     label: ${ label }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      effect: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
-      cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VBN/]
+      effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+      cause: Entity = nmod_by >nmod_in?
+
+
+  # #Handles occurrence of prep_by when NOT passive voice
+  # - name: ported_syntax_1c_verb-${addlabel}
+  #   priority: ${ rulepriority }
+  #   example: "The water quality caused poverty by an increase in productivity."
+  #   label: ${ label }
+  #   pattern: |
+  #     trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+  #     effect: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+  #     cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
 # BS: removed bc seems that passive voice is consistently captured with nsubjpass, and was mis-labeling some causal events (i.e. their polarity)
