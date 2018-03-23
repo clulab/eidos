@@ -24,7 +24,7 @@ class TestDoc3 extends Test {
     
     behavior of "TestDoc3 Paragraph 1"
 
-    // Note: There is no good path here. This could be solve when Clulab processors are especizalided
+    // Note: There is no good path here. This could be solve when Clulab processors are specialized.
     futureWorkTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall, Causal, cropActivity)) should be (successful) // Test edges connecting them
     }
@@ -100,7 +100,7 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 3"
 
 
-    // Note: There is no good path here. This could be solve when Clulab processors are especizalided
+    // Note: There is no good path here. This could be solve when Clulab processors are specialized
     futureWorkTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall, Causal, vegetation)) should be (successful) // Test edges connecting them
     }
