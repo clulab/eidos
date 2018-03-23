@@ -6,7 +6,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to|nmod_over|_for$"
+  preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   passive_agents: "nmod_by|nmod_agent|agent"
