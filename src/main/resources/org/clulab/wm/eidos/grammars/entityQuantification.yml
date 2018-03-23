@@ -8,6 +8,7 @@ vars:
   preps: "nmod_of|nmod_in|nmod_to"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
+  transparent_nouns: "level|amount|quantit"
 
 rules:
 
@@ -49,6 +50,7 @@ rules:
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
+      adverb: Quantifier? = ${quant_modifiers}
 
   - name: quantification2
     priority: ${ rulepriority }
@@ -69,7 +71,8 @@ rules:
     pattern: |
       trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
       theme: Entity = <xcomp (${agents})
-#     adverbs: Quantifier? = ${quant_modifiers}  # todo: we should allow for modification here (e.g. 'more')
+      adverb: Quantifier? = ${quant_modifiers}  # todo: we should allow for modification here (e.g. 'more')
+
 
   - name: quantification_adjective_rule_3
     priority: ${ rulepriority }
@@ -78,6 +81,5 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [mention=Quantifier & tag=/^JJ/ & incoming=amod]
-      theme: Entity = ((?= <amod [mention=Transparent]) <amod <dobj (?= aux [lemma=/be/ & tag=/^V/]) nsubj)
-
-
+      theme: Entity = ((?= <amod [word=/(?i)^${transparent_nouns}/]) <amod <dobj (?= aux [lemma=/be/ & tag=/^V/]) nsubj)
+      adverb: Quantifier? = ${quant_modifiers}

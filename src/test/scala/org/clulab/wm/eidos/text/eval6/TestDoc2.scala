@@ -95,7 +95,7 @@ class TestDoc2 extends Test {
     val prices = NodeSpec("prices", Inc("rising"))
     val roads = NodeSpec("roads", Quant("impassable"))
     val markets = NodeSpec("markets", Quant("dysfunctional"))
-    val families = NodeSpec("families, even those in towns and cities, from accessing food", Quant("many"), Dec("preventing"))
+    val families = NodeSpec("families", Quant("many"), Dec("preventing"))
 
     behavior of "TestDoc2 Paragraph 4"
 
@@ -111,19 +111,21 @@ class TestDoc2 extends Test {
       tester.test(markets) should be(successful)
     }
 
-    failingTest should "have correct singleton node 4" taggedAs(Fan) in {
+    passingTest should "have correct singleton node 4" taggedAs(Fan) in {
       tester.test(families) should be(successful)
     }
 
-    failingTest should "have correct edge 1" taggedAs(Fan) in {
+    // If the processor improves and is better able to handle long coordinations/conj, then maybe we can get this.
+    // Currently no path exists.
+    futureWorkTest should "have correct edge 1" taggedAs(Fan) in {
       tester.test(EdgeSpec(prices, Causal, families)) should be(successful)
     }
 
-    failingTest should "have correct edge 2" taggedAs(Fan) in {
+    passingTest should "have correct edge 2" taggedAs(Fan) in {
       tester.test(EdgeSpec(roads, Causal, families)) should be(successful)
     }
 
-    failingTest should "have correct edge 3" taggedAs(Fan) in {
+    passingTest should "have correct edge 3" taggedAs(Fan) in {
       tester.test(EdgeSpec(markets, Causal, families)) should be (successful)
     }
   }
@@ -172,7 +174,7 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 6"
 
-    failingTest should "have correct singleton node 1" taggedAs(Fan) in {
+    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
       tester.test(malnutrition) should be (successful)
     }
   }
@@ -184,12 +186,17 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
-    val support = NodeSpec("food and nutrition support", Inc("ramping up")) // TODO: how do we capture verbs with particles?
+    val food = NodeSpec("food", Inc("ramping up"), Inc("support"))
+    val nutrition = NodeSpec("nutrition", Inc("ramping up"), Inc("support"))
 
     behavior of "TestDoc2 Paragraph 7"
 
-    failingTest should "have correct singleton node 1" taggedAs(Fan) in {
-      tester.test(support) should be (successful)
+    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
+      tester.test(food) should be (successful)
+    }
+
+    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
+      tester.test(nutrition) should be (successful)
     }
   }
 
