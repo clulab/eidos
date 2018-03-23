@@ -45,7 +45,7 @@ class TestParallel extends Test {
 
     behavior of "parallel EidosSystem calling of annotate"
 
-    it should "be consistent" in {
+    ignore should "be consistent" in {
       for (i <- 1 to 100) {
         val actuals: Array[String] = new Array(threads)
         // Make this like ExtractFromDirectory
