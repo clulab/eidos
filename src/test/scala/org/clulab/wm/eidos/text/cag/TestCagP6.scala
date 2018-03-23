@@ -52,7 +52,7 @@ class TestCagP6 extends Test {
    val insecurity   = NodeSpec("levels of food insecurity", Inc("high"), Quant("high", "unprecedented"))
     // until we modify the system to (a) not suck up adjectives in the NPs and (b) store adjs as mods on NPs, the test
     // should be modified to the following:
-    val fighting     = NodeSpec("fighting", Quant("widespread"))
+    val fighting     = NodeSpec("fighting", Inc("widespread"))
     //val fighting     = newNodeSpec("fighting", newUnmarked("widespread"))
     val access       = NodeSpec("access to services", Dec("poor"), Quant("poor")) // yes
     val morbidity    = NodeSpec("morbidity", Inc("high"), Quant("high"))
