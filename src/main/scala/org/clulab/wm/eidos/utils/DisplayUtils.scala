@@ -100,14 +100,8 @@ object DisplayUtils {
 
   /* Wrappers for printing the mention string to a file */
   def printMentions(mentions: Seq[Mention], doc: Document, pw: PrintWriter, printDeps: Boolean = false): Unit = {
-    pw.print(mentionsToDisplayString(mentions, doc, printDeps, "\n", "\t"))
+    pw.println(mentionsToDisplayString(mentions, doc, printDeps))
   }
-  def printMention(mention: Mention, pw: PrintWriter): Unit = pw.print(mentionToDisplayString(mention, "\n", "\t"))
-
-
-  /* Wrapper for getting html version of the mention string for use in the webapp */
-  protected val htmltab:String = "&nbsp;&nbsp;&nbsp;&nbsp;"
-  def webAppMention(mention: Mention): String = mentionToDisplayString(mention, "<br>", htmltab)
 
   def printMention(mention: Mention, pw: PrintWriter): Unit = pw.println(mentionToDisplayString(mention))
 
