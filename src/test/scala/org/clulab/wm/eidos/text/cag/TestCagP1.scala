@@ -16,7 +16,7 @@ class TestCagP1 extends Test {
   { // S1
     val tester = new Tester(p1s1)
   
-    val foodInsecurityLevels = NodeSpec("Food insecurity levels") //fixme: add extra mods
+    val foodInsecurityLevels = NodeSpec("Food insecurity levels", Quant("alarming")) //fixme: add extra mods
     val conflict = NodeSpec("conflict")
     val economy = NodeSpec("economy", Dec("collapsing"))
     val cerealProduction = NodeSpec("cereal production", Dec("low"), Quant("low"))

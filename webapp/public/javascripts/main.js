@@ -375,7 +375,7 @@ head.ready(function() {
         $.extend({}, docData),
         webFontURLs
     );
-    var agroMentionsLiveDispatcher = Util.embed('agroMentions',
+    var eidosMentionsLiveDispatcher = Util.embed('eidosMentions',
         $.extend({'collection': null}, collData),
         $.extend({}, docData),
         webFontURLs
@@ -399,8 +399,9 @@ head.ready(function() {
         .done(function (data) {
             console.log(data);
             syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, data.syntax)]);
-            agroMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.agroMentions)]);
+            eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.eidosMentions)]);
             document.getElementById("groundedAdj").innerHTML = data.groundedAdj;
+            document.getElementById("parse").innerHTML = data.parse;
         });
 
         // stop the form from submitting the normal way and refreshing the page

@@ -34,7 +34,7 @@ object TestUtils {
     object Mihai    extends TesterTag
     object Ben      extends TesterTag
     object Heather  extends TesterTag
-    object Vikas  extends TesterTag
+    object Vikas    extends TesterTag
     
     val passingTest = it
     val failingTest = ignore

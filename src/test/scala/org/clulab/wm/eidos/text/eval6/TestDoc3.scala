@@ -19,7 +19,7 @@ class TestDoc3 extends Test {
 
     val rainfall = NodeSpec("Rainfall", Quant("average"), Inc("above average"))
     val cropActivity = NodeSpec("cropping activities")
-    val rainfall2 = NodeSpec("rainfall", Quant("normal"), Inc("heavier than normal"))
+    val rainfall2 = NodeSpec("rainfall", Quant("heavier than normal"), Inc("heavier than normal"))
     val floodRisk = NodeSpec("risk of flooding", Inc("increasing"))
     
     behavior of "TestDoc3 Paragraph 1"

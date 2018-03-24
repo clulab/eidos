@@ -154,8 +154,6 @@ rules:
       theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) dobj
       #todo: Quantifiers ?
 
-
-
 # ------------------- Nominal Triggers --------------------------
   - name: ${ label }_ported_syntax_1_noun
     priority: ${ objrulepriority }
