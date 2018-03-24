@@ -40,7 +40,8 @@ class TestDoc7 extends Test {
     passingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
       tester.test(hunger) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Egoitz) in {
+    // Note: There is not a clear path to connect "season" and "food".
+    futureWorkTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(food, Correlation, leanSeason)) should be (successful) 
     }
   }

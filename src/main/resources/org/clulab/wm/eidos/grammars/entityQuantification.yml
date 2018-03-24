@@ -83,16 +83,16 @@ rules:
       theme: Entity = nsubj
 #      adverbs: Quantifier? = ${quant_modifiers} // todo: we should allow for modification here (e.g. 'more')
 
-  - name: quantification1b
-    priority: ${ rulepriority }
-    example: "moderate to heavy rainfall"
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
-      theme: Entity = <amod #Find the entity the quantifier is modifying
+  # - name: quantification1b
+  #   priority: ${ rulepriority }
+  #   example: "moderate to heavy rainfall"
+  #   label: ${ label }
+  #   action: ${ action }
+  #   pattern: |
+  #     trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
+  #     theme: Entity = <amod #Find the entity the quantifier is modifying
 
-  - name: quantification_adjective_rule_3
+  - name: quantification_adjective_rule_4
     priority: ${ rulepriority }
     example: "where malnutrition rates in some places are reaching dangerous levels."
     label: ${ label }
