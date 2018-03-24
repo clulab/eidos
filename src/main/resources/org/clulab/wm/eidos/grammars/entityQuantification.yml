@@ -73,7 +73,6 @@ rules:
       theme: Entity = <xcomp (${agents})
       adverb: Quantifier? = ${quant_modifiers}  # todo: we should allow for modification here (e.g. 'more')
 
-
   - name: quantification_adjective_rule_3
     priority: ${ rulepriority }
     example: "where malnutrition rates in some places are reaching dangerous levels."
@@ -83,11 +82,6 @@ rules:
       trigger = [mention=Quantifier & tag=/^JJ/ & incoming=amod]
       theme: Entity = ((?= <amod [word=/(?i)^${transparent_nouns}/]) <amod <dobj (?= aux [lemma=/be/ & tag=/^V/]) nsubj)
       adverb: Quantifier? = ${quant_modifiers}
-
-#      # note: assumes comparative JJ forms of quantifiers are tagged
-#      trigger = [mention=Quantifier] than [word=/(usual|typical|average|normal)/] #Find the quantifier
-#      theme: Entity = <amod #Find the entity the quantifier is modifying
-
 
   - name: quantification3
     priority: ${ rulepriority }
