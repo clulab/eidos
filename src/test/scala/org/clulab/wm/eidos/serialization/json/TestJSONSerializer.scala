@@ -1,17 +1,17 @@
 package org.clulab.wm.eidos.serialization.json
 
-import org.clulab.serialization.json.JSONSerializer
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json._
 import org.clulab.wm.eidos.test.TestUtils.Test
-import org.clulab.wm.eidos.text.cag.CAG._
 
-class TestJsonSerialization extends Test {
+class TestJSONSerializer extends Test {
   
+  val reader = new EidosSystem()
+
   behavior of "JSONSerializer"
 
-  it should "serialize and deserialize again" in {
+  ignore should "serialize and deserialize again" in {
     val text = "Water trucking has decreased due to the cost of fuel."
     val reader = new EidosSystem()
     val annotatedDocument = reader.extractFromText(text)

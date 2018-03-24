@@ -116,10 +116,20 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger =   [lemma=/${ trigger }/]
+      trigger =   [lemma=/${ trigger }/ & !outgoing=dobj]
       theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) nsubj
       #todo: Quantifiers ?
 
+  - name: ported_copula_mods-1-${label}
+    priority: ${ modrulepriority }
+    #Original example: "A is lowering the rates of B"
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger =   [lemma=/${ trigger }/ & outgoing=dobj]
+      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) dobj
+      #todo: Quantifiers ?
 
 # ------------------- Nominal Triggers --------------------------
   - name: ${ label }_ported_syntax_1_noun
@@ -144,7 +154,7 @@ rules:
 
   - name: ${ label }_ported_syntax_3_noun
     priority: ${ objrulepriority }
-    example: "exhaustion of copying capacities"
+    example: "exhaustion of coping capacities"
     label: ${ label }
     action: ${ action }
     pattern: |
@@ -155,7 +165,7 @@ rules:
 
   - name: ${ label }_surface_VBN
     priority: ${ objrulepriority }
-    example: "exhaustion of copying capacities"
+    example: "exhaustion of coping capacities"
     label: ${ label }
     action: ${ action }
     type: token

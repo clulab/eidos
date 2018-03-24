@@ -118,7 +118,7 @@ class TestDoc3 extends Test {
         |households to begin sowing. In parts of Central Equatoria (Juba County), Eastern Equatoria
         |(Magwi and Torit counties), Jonglei (Pibor and Pochalla counties), and Western Bahr el
         |Ghazal (Wau County), FAO and the National Ministry of Agriculture and Food Security have
-        |confirm significant infestations of Fall Armyworm.
+        |confirmed significant infestations of Fall Armyworm.
         """
 
     val tester = new Tester(text)
@@ -481,7 +481,7 @@ class TestDoc3 extends Test {
     val text ="""
         |In Sudan, seasonal rainfall has continued to be above average during the past few weeks, which has been
         |favorable in most cropping areas of the country. The weekly forecasts indicate continued intensification
-        |of seasonal rainfall, with increased likelihood for flooding in flood-prone aras of eastern Sudan.
+        |of seasonal rainfall, with increased likelihood for flooding in flood-prone areas of eastern Sudan.
         |However, there are localized areas in western Darfur where July rains were below average, resulting in
         |drier-than-normal vegetation conditions. In the coming weeks, the seasonal rains are expected to intensify
         |and may help ease the current dry conditions in parts of western Darfur.

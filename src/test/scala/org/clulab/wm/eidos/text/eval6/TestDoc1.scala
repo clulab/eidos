@@ -90,7 +90,7 @@ class TestDoc1 extends Test {
      |average only 4 kg per ha of fertilizers are used in South Sudan), and over-farming.
      |Smallholders have limited knowledge and capacity, lack an understanding of the role of
      |fertilizer in improved crop production, and do not have access to extension or transfer
-     |services -- all factors that could lead to further soil nutrient depletion (Kowr 2013).
+     |services--all factors that could lead to further soil nutrient depletion (Kowr 2013).
      """
 
     val tester = new Tester(text)

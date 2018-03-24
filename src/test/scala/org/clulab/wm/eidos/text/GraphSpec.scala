@@ -105,15 +105,17 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
         .filter(matchText)
         .filter(matchAttachments)
     val matches2 = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
-        
+
     matches2
   }
   
   def test(mentions: Seq[Mention]): Seq[String] = {
     if (!tested) {
       val matches = testSpec(mentions)
-      if (matches.size != 1)
+      if (matches.size < 1)
         complaints = Seq("Could not find NodeSpec " + this)
+      else if (matches.size > 1)
+        complaints = Seq("Found to many (" + matches.size + ") instances of NodeSpec " + this)
       else
         mention = Some(matches.head)
       tested = true

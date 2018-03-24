@@ -14,9 +14,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.EntityGrounder
-import org.clulab.wm.eidos.EntityGrounding
-import org.clulab.wm.eidos.SameAsGrounding
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
@@ -25,6 +23,7 @@ import org.clulab.wm.eidos.mentions.EidosTextBoundMention
 
 import org.json4s._
 import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 
 // This is an object than when asked to convert itself a JSON object or value, converts
 // itself in a way that conforms to the JSON-LD standard as well.
@@ -33,6 +32,9 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   
   def serialize() = serializer.serialize(this)
   
+  def toJsonStr(): String =
+      pretty(render(serialize()))
+
   def toJObject(): JObject
   
   def noneIfEmpty(values: Seq[JValue]) =
@@ -63,7 +65,7 @@ object JLDObject {
 // This class helps serialize/convert a JLDObject to JLD by keeping track of
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
-class JLDSerializer(val entityGrounder: Some[EntityGrounder]) {
+class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
   protected val typenames = mutable.HashSet[String]()
   protected val typenamesByIdentity = new IdentityHashMap[Any, String]()
   protected val idsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[Any, Int]] = mutable.HashMap()
@@ -138,8 +140,8 @@ class JLDSerializer(val entityGrounder: Some[EntityGrounder]) {
   }
   
   def ground(mention: EidosMention, quantifier: Quantifier) =
-    if (entityGrounder.isDefined) entityGrounder.get.ground(mention.odinMention, quantifier)
-    else EntityGrounding(None, None, None)
+    if (adjectiveGrounder.isDefined) adjectiveGrounder.get.groundAdjective(mention.odinMention, quantifier)
+    else AdjectiveGrounding.noAdjectiveGrounding
 }
 
 object JLDSerializer {
@@ -158,7 +160,7 @@ object JLDArgument {
   val plural = "arguments"
 }
 
-class JLDSameAsGrounding(serializer: JLDSerializer, name: String, value: Double)
+class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Double)
     extends JLDObject(serializer, "Grounding") {
   
   override def toJObject(): JObject =
@@ -167,7 +169,7 @@ class JLDSameAsGrounding(serializer: JLDSerializer, name: String, value: Double)
           ("value" -> value)
 }
 
-object JLDSameAsGrounding {
+object JLDOntologyGrounding {
   val singular = "grounding"
   val plural = singular // Mass noun
 }
@@ -285,9 +287,9 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
   
   override def toJObject(): JObject = {
     val jldAttachments = mention.odinMention.attachments.map(newJLDAttachment(_, mention)).toList
-    val sameAsGrounding = mention.grounding.grounding
-    //val sameAsGrounding = new SameAsGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = toJObjects(sameAsGrounding.map(pair => new JLDSameAsGrounding(serializer, pair._1, pair._2)))
+    val ontologyGrounding = mention.grounding.grounding
+    //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
+    val jldGroundings = toJObjects(ontologyGrounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
     
     serializer.mkType(this) ~
         serializer.mkId(this) ~
@@ -479,7 +481,7 @@ object JLDDocument {
 class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
     extends JLDObject(serializer, "Corpus", corpus) {
   
-  def this(corpus: Corpus, entityGrounder: EntityGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
+  def this(corpus: Corpus, entityGrounder: AdjectiveGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
   
   protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: IdentityHashMap[EidosMention, Int]): Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable(_)).filter { mention => 

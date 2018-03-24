@@ -1,0 +1,61 @@
+#
+# Transparent Words
+#
+#   - these should be lemma forms
+#   - the system will split on newlines and commas
+#   - any line beginning with # will be ignored as a comment
+#
+background
+common
+fact
+first
+hour
+introduction
+invitation
+invitee
+other
+paper
+percent
+procedure
+question
+revision
+test
+wide
+word
+xref_bibr
+xref_fig
+xref_table
+xref_supplementary
+# Geography
+south
+north
+east
+west
+southern
+northern
+eastern
+western
+southeastern
+northeastern
+southwestern
+southeastern
+southeast
+southwest
+northeast
+northwest
+region
+# Measurements
+mm
+cm
+m
+km
+mg
+g
+kg
+ml
+l
+# Discourse
+further
+however
+additional
+

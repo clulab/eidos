@@ -54,6 +54,16 @@ object EntityConstraints extends LazyLogging {
   }
 
   /** Decide if the sentence element is a conjunction using just the POS tag **/
-  def isCoord(i: Int, m: Mention): Boolean = coordPOS.contains(m.sentenceObj.tags.get(i))
+  def isCoord(i: Int, m: Mention): Boolean = {
+    if (i > 0) {
+      if (m.sentenceObj.tags.get(i - 1).startsWith("JJ")) {
+        return false
+      }
+    }
+    coordPOS.contains(m.sentenceObj.tags.get(i))
+  }
+
+//  def filterStops
+
 
 }

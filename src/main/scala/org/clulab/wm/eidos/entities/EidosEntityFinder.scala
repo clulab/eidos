@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.utils.FileUtils.readRules
+import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.annotation.tailrec
 
@@ -158,10 +158,10 @@ object EidosEntityFinder extends LazyLogging {
   val DEFAULT_MAX_LENGTH = RuleBasedEntityFinder.DEFAULT_MAX_LENGTH // maximum length (in tokens) for an entity
   
   def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): EidosEntityFinder = {
-    val entityRules = readRules(entityRulesPath)
+    val entityRules = FileUtils.getTextFromResource(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
 
-    val avoidRules = readRules(avoidRulesPath)
+    val avoidRules = FileUtils.getTextFromResource(avoidRulesPath)
     val avoidEngine = ExtractorEngine(avoidRules)
 
     new EidosEntityFinder(entityEngine = entityEngine, avoidEngine = avoidEngine, maxHops = maxHops)

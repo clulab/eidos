@@ -245,27 +245,39 @@ class TestDoc5 extends Test {
 
   { // Paragraph 5
     val text = """
-      |Food security is expected to deteriorate further during the
-      |February to July lean season, and to be as severe as, or worse
-      |than, last year's lean season, when some food security outcomes
-      |in Northern Bahr el Ghazal, Western Bahr el Ghazal, and Unity
-      |States surpassed Emergency (IPC Phase 4) or Famine (IPC Phase
-      |5) thresholds (Figure 2). In a worst-case scenario, where
-      |increased conflict further disrupts livelihoods and limits
-      |humanitarian assistance, Famine (IPC Phase 5) could occur
-      |during 2017.
+      Food security is expected to deteriorate further during the February to
+      July lean season, and to be as severe as, or worse than, last year's lean
+      season, when some food security outcomes in Northern Bahr el Ghazal,
+      Western Bahr el Ghazal, and Unity States surpassed Emergency (IPC Phase 4)
+      or Famine (IPC Phase 5) thresholds (Figure 2). In a worst-case scenario,
+      where increased conflict further disrupts livelihoods and limits
+      humanitarian assistance, Famine (IPC Phase 5) could occur during 2017.
       """
 
-    val security = NodeSpec("Food security", Dec("deteriorate"), Dec("worse"), Quant("severe"))
-    val outcomes = NodeSpec("some food security outcomes", Inc("surpassed"))
-    val conflict = NodeSpec("conflict", Inc("increased"))
+    val security    = NodeSpec("Food security", Dec("deteriorate"), Dec("worse"), Quant("severe"))
+    val outcomes    = NodeSpec("some food security outcomes", Inc("surpassed"))
+    val conflict    = NodeSpec("conflict", Inc("increased"))
     val livelihoods = NodeSpec("livelihoods", Dec("disrupts"))
-    val assitance = NodeSpec("humanitarian assitance", Dec("limits"))
-    val famine = NodeSpec("Famine (IPC Phase 5)")
+    val assistance  = NodeSpec("humanitarian assistance", Dec("limits"))
+    val famine      = NodeSpec("Famine (IPC Phase 5)")
 
     behavior of "TestDoc5 Paragraph 5"
 
     val tester = new Tester(text)
+
+    /* NOTES: 
+     * - Food security node not picking up the decrease trigger 'worse' and
+     *   quantifier 'severe'. Can there be multiple Dec's?
+     * - Right now edge 1 seems to say that a decrease in food security is
+     *   correlated with an increase in food security outcomes. However, in
+     *   this case, the 'surpassing' is a negative result, since it refers to
+     *   an increase in IPC level. Should this be picked up by the reader?
+     * - Humanitarian assistance is picking up the decrease attachment
+     *   'disrupt' instead of 'limits'. How to fix this?
+     * - What to pick up: food security outcomes, some food security outcomes,
+     *   or 'food security outcomes in Northern Bahr el Ghazal, ...' (also,
+     *   cartesian product?)
+    */
 
     failingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(security, Correlation, outcomes)) should be (successful)
@@ -274,46 +286,45 @@ class TestDoc5 extends Test {
       tester.test(EdgeSpec(conflict, Causal, livelihoods)) should be (successful)
     }
     failingTest should "have correct edges 3" taggedAs(Adarsh) in {
-      tester.test(EdgeSpec(conflict, Causal, assitance)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, assistance)) should be (successful)
     }
     failingTest should "have correct edges 4" taggedAs(Adarsh) in {
-      tester.test(EdgeSpec(conflict, Causal, assitance)) should be (successful)
-    }
-    failingTest should "have correct edges 5" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Correlation, famine)) should be (successful)
     }
   }
 
   { // Paragraph 6
     val text = """
-      |Of greatest concern are Guit, Koch, Leer, and Panyijiar
-      |counties in Unity State. In these areas, Emergency (IPC Phase
-      |4) levels of food insecurity observed during the 2016 lean
-      |season have likely persisted during the typical harvest period,
-      |as many households were unable to cultivate. Most continue to
-      |rely primarily on fish and wild foods to survive. Conflict is
-      |driving new displacement, putting additional stress on
-      |available wild food sources. Little to no food assistance was
-      |distributed in these counties from August to November due to
-      |access constraints.
+      Of greatest concern are Guit, Koch, Leer, and Panyijiar counties in Unity
+      State. In these areas, Emergency (IPC Phase 4) levels of food insecurity
+      observed during the 2016 lean season have likely persisted during the
+      typical harvest period, as many households were unable to cultivate. Most
+      continue to rely primarily on fish and wild foods to survive. Conflict is
+      driving new displacement, putting additional stress on available wild food
+      sources. Little to no food assistance was distributed in these counties
+      from August to November due to access constraints.
       """
 
-    val insecurity = NodeSpec("Emergency (IPC Phase 4) levels of food insecurity")
-    val households = NodeSpec("many households were unable to cultivate")
-    val conflict = NodeSpec("Conflict")
+    val insecurity   = NodeSpec("Emergency (IPC Phase 4) levels of food insecurity")
+    val households   = NodeSpec("many households were unable to cultivate")
+    val conflict     = NodeSpec("Conflict")
     val displacement = NodeSpec("new displacement")
-    val stress = NodeSpec("stress on available wild food sources", Inc("additional"))
-    val assistance = NodeSpec("food assistance", Quant("little"), Quant("no"))
-    val constrains = NodeSpec("access constrains")
+    val stress       = NodeSpec("stress on available wild food sources", Inc("additional"))
+    val assistance   = NodeSpec("food assistance", Quant("little"), Quant("no"))
+    val constrains   = NodeSpec("access constraints")
 
     behavior of "TestDoc5 Paragraph 6"
 
     val tester = new Tester(text)
 
+    /* NOTES:
+     * - Perhaps we should add IPC Phase classifications as quantifiers for food
+     *   security? They are causing problems.
+     * */
     failingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(insecurity, Correlation, households)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Adarsh) in {
+    passingTest should "have correct edges 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
     failingTest should "have correct edges 3" taggedAs(Adarsh) in {

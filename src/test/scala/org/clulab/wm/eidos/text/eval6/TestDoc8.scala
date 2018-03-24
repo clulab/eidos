@@ -75,11 +75,11 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val agricultureInformation = NodeSpec("agricultural information")
+    val agricultureInformation = NodeSpec("agriculture information")
     
     behavior of "TestDoc8 Objective 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Keith) in {
+    passingTest should "have correct singleton node 1" taggedAs(Keith) in {
       tester.test(agricultureInformation) should be (successful) 
     }
   }
@@ -116,7 +116,7 @@ class TestDoc8 extends Test {
       declared in February 2017. However, there is an elevated risk of famine in
       2018 if widespread support is not continued. From January to March 2018,
       the number of severely food insecure people is likely to climb to 5.1
-      million people. This follows the trend seen since conflict began - rates
+      million people. This follows the trend seen since conflict began--rates
       of food insecurity accelerating even during the harvest season. Food
       insecurity levels worsen further with each lean season, a time of year
       when food stocks are typically depleted, food prices are at their highest

@@ -1,18 +1,18 @@
 package org.clulab.wm.eidos.serialization.json
 
-import scala.collection.Seq
-
 import org.clulab.odin.Mention
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.EntityGrounder
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
+
+import scala.collection.Seq
 
 class TestJLDSerializer extends Test {
   
@@ -45,17 +45,17 @@ class TestJLDSerializer extends Test {
     json1 + json2
   }
   
-  def inspect(string: String) =
+  def inspect(string: String): Unit =
       if (false) println(string)
   
   behavior of "JLDSerializer"
 
   it should "serialize the same each time" in {
     val json1 = serialize(Seq(
-        newTitledAnnotatedDocument(p1s1, "This is a test"), 
+        newTitledAnnotatedDocument(p1s1, "This is a test")
     ))
     val json2 = serialize(Seq(
-        newTitledAnnotatedDocument(p1s1, "This is a test"), 
+        newTitledAnnotatedDocument(p1s1, "This is a test")
     ))
     
     json1 should not be empty
@@ -68,7 +68,7 @@ class TestJLDSerializer extends Test {
   // See /doc/example.jsonld for the final version.
   it should "say hello" in {
     val json = serialize(Seq(
-        newTitledAnnotatedDocument("Hello, world!", "Example Document"), 
+        newTitledAnnotatedDocument("Hello, world!", "Example Document")
     ))
     
     inspect(json)
@@ -77,7 +77,7 @@ class TestJLDSerializer extends Test {
   
   it should "serialize one simple document" in {
     val json = serialize(Seq(
-        newTitledAnnotatedDocument(p1s1, "This is a test"), 
+        newTitledAnnotatedDocument(p1s1, "This is a test")
     ))
     
     inspect(json)
@@ -86,7 +86,7 @@ class TestJLDSerializer extends Test {
   
   it should "be grounded" in {
     val json = serialize(Seq(
-        newTitledAnnotatedDocument("Rainfall significantly increases poverty."), 
+        newTitledAnnotatedDocument("Rainfall significantly increases poverty.")
     ))
     
     inspect(json)
@@ -107,7 +107,7 @@ class TestJLDSerializer extends Test {
   
   it should "serialize one more complex document" in {
     val json = serialize(Seq(
-        newTitledAnnotatedDocument(p1s1, "p1s1"), 
+        newTitledAnnotatedDocument(p1s1, "p1s1")
     ))
     
     inspect(json)

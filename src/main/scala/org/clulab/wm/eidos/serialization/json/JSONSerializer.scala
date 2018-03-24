@@ -2,14 +2,13 @@ package org.clulab.wm.eidos.serialization.json
 
 import java.io.File
 
-import scala.io.Source
-
 import org.clulab.processors.Document
 import org.clulab.struct.{DirectedGraph, Edge, Interval}
 import org.clulab.odin._
 import org.clulab.serialization.json.DocOps
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.json._
+import org.clulab.wm.eidos.utils.FileUtils
 
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -35,12 +34,7 @@ object WMJSONSerializer {
       ("mentions" -> mentionList)
   }
 
-  def jsonAST(f: File): JValue = {
-    val source = Source.fromFile(f)
-    val contents = source.getLines.mkString
-    source.close()
-    parse(contents)
-  }
+  def jsonAST(file: File): JValue = parse(FileUtils.getTextFromFile(file))
 
   def toJsonStr(mentions: Seq[Mention]): String =
       pretty(render(jsonAST(mentions)))
