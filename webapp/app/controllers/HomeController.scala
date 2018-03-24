@@ -145,10 +145,45 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
   
   def parseSentence(sent: String) = Action {
-    val (procSentence, agroMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, sent)
+    val (procSentence, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, sent)
     println(s"Sentence returned from processPlaySentence : ${procSentence.getSentenceText()}")
-    val json = mkJson(sent, procSentence, agroMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    val json = mkJson(sent, procSentence, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
+  }
+
+  def mkParseObj(sent: Sentence): String = {
+    def getTdAt(option: Option[Array[String]], n: Int): String = {
+      val text = if (option.isEmpty) ""
+      else option.get(n)
+
+      "<td>" + xml.Utility.escape(text) + "</td>"
+    }
+
+    val header =
+      """
+        |  <tr>
+        |    <th>Word</th>
+        |    <th>Tag</th>
+        |    <th>Lemma</th>
+        |    <th>Entity</th>
+        |    <th>Norm</th>
+        |    <th>Chunk</th>
+        |  </tr>
+      """.stripMargin
+    val sb = new StringBuilder(header)
+
+    sent.words.indices.foreach { i =>
+      sb
+          .append("<tr>")
+          .append("<td>" + xml.Utility.escape(sent.words(i)) + "</td>")
+          .append(getTdAt(sent.tags, i))
+          .append(getTdAt(sent.lemmas, i))
+          .append(getTdAt(sent.entities, i))
+          .append(getTdAt(sent.norms, i))
+          .append(getTdAt(sent.chunks, i))
+          .append("</tr>")
+    }
+    sb.toString
   }
 
   def mkJson(sentenceText: String, sent: Sentence, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
@@ -160,16 +195,18 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "entities" -> mkJsonFromTokens(sent),
         "relations" -> mkJsonFromDependencies(sent)
       )
-    val agroJsonObj = mkJsonForAgro(sentenceText, sent, mentions)
+    val eidosJsonObj = mkJsonForEidos(sentenceText, sent, mentions)
     val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents)
+    val parseObj = mkParseObj(sent)
 
     // These print the html and it's a mess to look at...
     // println(s"Grounded Gradable Adj: ")
     // println(s"$groundedAdjObj")
     Json.obj(
       "syntax" -> syntaxJsonObj,
-      "agroMentions" -> agroJsonObj,
-      "groundedAdj" -> groundedAdjObj
+      "eidosMentions" -> eidosJsonObj,
+      "groundedAdj" -> groundedAdjObj,
+      "parse" -> parseObj
     )
   }
 
@@ -179,7 +216,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     var objectToReturn = ""
 
     if(groundedEntities.size > 0){
-      objectToReturn += s"""<br><br><font size="4" color="${HomeController.sectionTitleColor}">Grounded Entities:</font>"""
+      objectToReturn += "<h2>Grounded Entities:</h2>"
 
       // Make the string for each grounded entity
       val toPrint = for (grounding <- groundedEntities) yield {
@@ -208,7 +245,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     // Entities
     val entities = mentions.filter(_ matches "Entity")
     if (entities.nonEmpty){
-      objectToReturn += s"""<br><font size="4" color="${HomeController.sectionTitleColor}">Found Entities:</font><br>"""
+      objectToReturn += "<h2>Found Entities:</h2>"
       for (entity <- entities) {
         objectToReturn += s"${DisplayUtils.webAppMention(entity)}"
       }
@@ -217,7 +254,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     val events = mentions.filter(_ matches "Event")
     if (events.nonEmpty) {
-      objectToReturn += s"""<font size="4" color="${HomeController.sectionTitleColor}">Found Events:</font><br>"""
+      objectToReturn += s"<h2>Found Events:</h2>"
       for (event <- events) {
         objectToReturn += s"${DisplayUtils.webAppMention(event)}"
       }
@@ -237,7 +274,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForAgro(sentenceText: String, sent: Sentence, mentions: Vector[Mention]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.flatMap {
       case m: TextBoundMention => Some(m)
       case _ => None
@@ -369,8 +406,6 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 }
 
 object HomeController {
-
-  val sectionTitleColor = "#2471A3"
 
   // fixme: ordering/precedence...
   def statefulRepresentation(m: Mention): Mention = {

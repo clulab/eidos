@@ -1,29 +1,27 @@
 <html>
+    <head>
+        <title>World Modelers Visualizer</title>
+        <link rel="stylesheet" type="text/css" href="assets/stylesheets/main.css"/>
+        <link rel="stylesheet" type="text/css" href="assets/brat/static/style-vis.css"/>
+        <script type="text/javascript" src="assets/brat/client/lib/head.load.min.js"></script>
+        <script type="text/javascript" src="assets/javascripts/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="assets/javascripts/main.js"></script>
+    </head>
 
-<head>
-<title>World Modelers Visualizer</title>
-<link rel="stylesheet" type="text/css" href="assets/brat/static/style-vis.css"/>
-<script type="text/javascript" src="assets/brat/client/lib/head.load.min.js"></script>
-<script type="text/javascript" src="assets/javascripts/jquery-3.2.1.min.js"></script>
-<script type="text/javascript" src="assets/javascripts/main.js"></script>
-</head>
+    <body>
+        <h1> World Modelers &ndash; Eidos Visualizer </h1>
 
-<body>
-    <p> <b> World Modelers -- Eidos Visualizer </b> </p>
-    
-    <form>
-        <input type="text" name="sent" style="font-size:10pt;height:50px;width:800px;">
-        <input type="submit">
-    </form>
+        <form>
+            <input type="text" name="sent">
+            <input type="submit">
+        </form>
 
+        <div id="eidosMentions"></div>
 
-    <div id="agroMentions"></div>
+        <div class="add-info" id="groundedAdj"></div>
 
-    <div class="add-info">
-        <span id="groundedAdj"></span> </span>
-    </div>
+        <div id="syntax"></div>
 
-    <div id="syntax"></div>
-
-</body>
+        <table id="parse"></table>
+    </body>
 </html>
