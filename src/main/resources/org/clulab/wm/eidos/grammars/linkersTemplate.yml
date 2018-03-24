@@ -85,7 +85,7 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      effect: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      effect: Entity = (nmod_by|nmod_to) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
       cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
 
 
@@ -121,7 +121,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
       effect: Entity = (nsubjpass /conj_|${ noun_modifiers }/{,2})
-      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${conjunctions}|${preps}|${ noun_modifiers }/{,2}
+      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${conjunctions}|${preps}|${ noun_modifiers }|${objects}/{,2}
 
 
   - name: ported_syntax_5_verb-${addlabel}
