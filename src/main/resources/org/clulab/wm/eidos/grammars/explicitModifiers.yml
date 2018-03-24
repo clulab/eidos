@@ -23,3 +23,11 @@ rules:
       theme: Entity = /${agents}/
       #quantifier:Quantifier? = ${quant_modifiers}
 
+  - name: increase_explicit_increaseup_1
+    priority: ${ rulepriority }
+    example: "We have started ramping up food and nutrition support, but much more is needed to keep things from deteriorating even further during the lean season"
+    label: Increase
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=/^(ramp|turn)/] up
+      theme: Entity  = dobj compound?
