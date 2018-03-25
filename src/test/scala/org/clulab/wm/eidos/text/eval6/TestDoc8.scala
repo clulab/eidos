@@ -93,7 +93,7 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val foodSecurityTrends = NodeSpec("Worsening food security trends", Dec("Worsening"), Inc("compounded"))
+    val foodSecurityTrends = NodeSpec("food security trends", Dec("Worsening"), Inc("compounded"))
     val conflict = NodeSpec("continued conflict")
 
     val marketFailure = NodeSpec("market", Dec("failure"))
@@ -103,7 +103,7 @@ class TestDoc8 extends Test {
     behavior of "TestDoc8 Sidenote"
 
     passingTest should "have correct edge 1" taggedAs(Keith) in {
-      tester.test(EdgeSpec(foodSecurityTrends, Correlation, conflict)) should be(successful)
+      tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be(successful)
     }
     passingTest should "have correct edge 2" taggedAs(Keith) in {
       tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful) 

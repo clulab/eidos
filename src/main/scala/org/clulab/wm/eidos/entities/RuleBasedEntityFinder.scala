@@ -27,7 +27,8 @@ class RuleBasedEntityFinder(
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](
     "^nmod_including$".r,
     "^nmod_without$".r,
-    "^nmod_except".r
+    "^nmod_except".r,
+    "^nmod_since".r
   )
 
   val INVALID_INCOMING = Set[scala.util.matching.Regex](
@@ -44,7 +45,7 @@ class RuleBasedEntityFinder(
     "^compound".r, // replaces nn
     "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
     // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X."
-    "^acl".r, // replaces vmod
+    "^acl_to".r, // replaces vmod
     "xcomp".r, // replaces vmod
     // Changed from processors......
     "^nmod".r, // replaces prep_
