@@ -144,10 +144,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     (doc, mentions.sortBy(_.start), groundedEntities, events)
   }
 
-  def parseSentence(sent: String) = Action {
-    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, sent)
+  def parseSentence(text: String) = Action {
+    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text)
     println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText()}")
-    val json = mkJson(sent, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
   }
 
@@ -190,17 +190,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       sb.toString
   }
 
-  def mkJson(sentenceText: String, doc: Document, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
+  def mkJson(text: String, doc: Document, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
     println("Found mentions (in mkJson):")
     mentions.foreach(DisplayUtils.displayMention)
 
     val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
-        "text" -> sentenceText,
-        "entities" -> mkJsonFromTokens(sent),
-        "relations" -> mkJsonFromDependencies(sent)
+        "text" -> text,
+        "entities" -> mkJsonFromTokens(doc),
+        "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(sentenceText, sent, mentions)
+    val eidosJsonObj = mkJsonForEidos(text, sent, mentions)
     val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents)
     val parseObj = mkParseObj(doc)
 
@@ -370,33 +370,46 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Json.arr(argRole, id)
   }
 
-  def mkJsonFromTokens(sent: Sentence): Json.JsValueWrapper = {
-    val toks = sent.words.indices.map(i => mkJsonFromToken(sent, i))
-    Json.arr(toks: _*)
+  def mkJsonFromTokens(doc: Document): Json.JsValueWrapper = {
+    var offset = 0
+
+    val tokens = doc.sentences.map { sent =>
+      val tokens = sent.words.indices.map(i => mkJsonFromToken(sent, offset, i))
+      offset += sent.words.size
+      tokens
+    }.flatten
+    Json.arr(tokens: _*)
   }
 
-  def mkJsonFromToken(sent: Sentence, i: Int): Json.JsValueWrapper = {
+  def mkJsonFromToken(sent: Sentence, offset: Int, i: Int): Json.JsValueWrapper = {
     Json.arr(
-      s"T${i + 1}", // token id (starts at one, not zero)
+      s"T${offset + i + 1}", // token id (starts at one, not zero)
       sent.tags.get(i), // lets assume that tags are always available
       Json.arr(Json.arr(sent.startOffsets(i), sent.endOffsets(i)))
     )
   }
 
-  def mkJsonFromDependencies(sent: Sentence): Json.JsValueWrapper = {
-    var relId = 0
-    val deps = sent.dependencies.get // lets assume that dependencies are always available
-    val rels = for {
-      governor <- deps.outgoingEdges.indices
-      (dependent, label) <- deps.outgoingEdges(governor)
-    } yield {
-      relId += 1
-      mkJsonFromDependency(sent, relId, governor + 1, dependent + 1, label)
-    }
+  def mkJsonFromDependencies(doc: Document): Json.JsValueWrapper = {
+    var offset = 0
+
+    val rels = doc.sentences.map { sent =>
+      var relId = 0
+      val deps = sent.dependencies.get // lets assume that dependencies are always available
+      val rels = for {
+        governor <- deps.outgoingEdges.indices
+        (dependent, label) <- deps.outgoingEdges(governor)
+      } yield {
+        val json = mkJsonFromDependency(offset + relId + 1, offset + governor + 1, offset + dependent + 1, label)
+        relId += 1
+        json
+      }
+      offset += rels.size + 1
+      rels
+    }.flatten
     Json.arr(rels: _*)
   }
 
-  def mkJsonFromDependency(sent: Sentence, relId: Int, governor: Int, dependent: Int, label: String): Json.JsValueWrapper = {
+  def mkJsonFromDependency(relId: Int, governor: Int, dependent: Int, label: String): Json.JsValueWrapper = {
     Json.arr(
       s"R$relId",
       label,
