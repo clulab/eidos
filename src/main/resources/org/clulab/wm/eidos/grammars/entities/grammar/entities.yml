@@ -10,3 +10,21 @@ rules:
       [chunk='B-NP' & !mention=Avoid]? [chunk='I-NP' & !mention=Avoid]+
       |
       [chunk='B-NP' & !mention=Avoid]
+
+#  - name: simple-vp
+#    label: Predicate
+#    priority: 1
+#    type: token
+#    pattern: |
+#      # avoids event triggers, coordinations, refs, etc.
+#      [chunk='B-VP' & !mention=Avoid]? [chunk='I-VP' & !mention=Avoid]+
+#      |
+#      [chunk='V-NP' & !mention=Avoid]
+
+  - name: simple-vp
+    label: Predicate
+    priority: 2
+    pattern: |
+      trigger = [tag=/^VB/  & !mention=Avoid]
+      subj: NounPhrase = /^(nsubj|nsubjpass)/
+      obj: NounPhrase = dobj

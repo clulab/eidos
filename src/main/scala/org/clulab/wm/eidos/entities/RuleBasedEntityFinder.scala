@@ -50,7 +50,9 @@ class RuleBasedEntityFinder(
     // Changed from processors......
     "^nmod".r, // replaces prep_
     //    "case".r
-    "^ccomp".r
+    "^ccomp".r,
+    "^nsubj".r,
+    "^dobj".r,
   )
 
   /**

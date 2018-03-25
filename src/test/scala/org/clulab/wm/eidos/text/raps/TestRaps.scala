@@ -464,7 +464,7 @@ class TestRaps extends Test {
     val tester = new Tester(sent19)
 
     val productivity = NodeSpec("productivity", Inc("increased"))
-    val use = NodeSpec("efficient input use", Inc("increased"))
+    val use = NodeSpec("efficient input use", Inc("increased"), NodeSpec.indexOfCount(0, 2)) // Match on the 0th of 2
     val marketAccess = NodeSpec("market access", Inc("increased"), Quant("better"))
     //instead of attaching "better" as a quant, Eidos makes a 2nd "market access" entity with "better" as Increase attachment
     //val marketAccess2 = NodeSpec("market access", Inc("better")) //should be quantifier...

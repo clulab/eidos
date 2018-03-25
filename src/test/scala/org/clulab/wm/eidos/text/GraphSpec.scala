@@ -105,7 +105,7 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
         .filter(matchText)
         .filter(matchAttachments)
     val matches2 = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
-    
+
     matches2
   }
   
@@ -148,7 +148,7 @@ object NodeSpec {
       (mention: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
     
   def apply(nodeText: String, nodeFilter: NodeFilter) =
-      new NodeSpec(nodeText, Set(), nodeFilter)
+      new NodeSpec(nodeText, Set(), nodeFilter)      
   def apply(nodeText: String, attachmentSpec: AttachmentSpec, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(attachmentSpec), nodeFilter)
   
