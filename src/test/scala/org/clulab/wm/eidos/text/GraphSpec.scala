@@ -209,7 +209,13 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
 
   protected def matchEffect(mention: EventMention) =
       getArgument(mention, effect, "effect") != None
-    
+
+  protected def crossMatchCause(mention: EventMention): Boolean =
+    getArgument(mention, cause, "effect") != None
+
+  protected def crossMatchEffect(mention: EventMention) =
+    getArgument(mention, effect, "cause") != None
+
   protected def testSpec(mentions: Seq[Mention]): Seq[Mention] = {
     val matches1 = mentions
     val matches2 = matches1.filter(_.isInstanceOf[EventMention])
@@ -221,8 +227,8 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
       if (event.directed)
         matches6a
       else {
-        val matches5b = matches4.filter(matchEffect)
-        val matches6b = matches5b.filter(matchCause)
+        val matches5b = matches4.filter(crossMatchCause)
+        val matches6b = matches5b.filter(crossMatchEffect)
 
         matches6a ++ matches6b
       }
