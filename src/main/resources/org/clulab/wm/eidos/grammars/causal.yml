@@ -101,5 +101,5 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
-      effect: Entity = nsubj
-      cause: Entity = /${ preps }$/
+      cause: Entity = nsubj
+      effect: Entity = /${ preps }$/
