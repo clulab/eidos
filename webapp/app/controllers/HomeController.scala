@@ -373,11 +373,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def mkJsonFromTokens(doc: Document): Json.JsValueWrapper = {
     var offset = 0
 
-    val tokens = doc.sentences.map { sent =>
+    val tokens = doc.sentences.flatMap { sent =>
       val tokens = sent.words.indices.map(i => mkJsonFromToken(sent, offset, i))
       offset += sent.words.size
       tokens
-    }.flatten
+    }
     Json.arr(tokens: _*)
   }
 
@@ -390,22 +390,22 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def mkJsonFromDependencies(doc: Document): Json.JsValueWrapper = {
-    var offset = 0
+    var offset = 1
 
-    val rels = doc.sentences.map { sent =>
+    val rels = doc.sentences.flatMap { sent =>
       var relId = 0
       val deps = sent.dependencies.get // lets assume that dependencies are always available
       val rels = for {
         governor <- deps.outgoingEdges.indices
         (dependent, label) <- deps.outgoingEdges(governor)
       } yield {
-        val json = mkJsonFromDependency(offset + relId + 1, offset + governor + 1, offset + dependent + 1, label)
+        val json = mkJsonFromDependency(offset + relId, offset + governor, offset + dependent, label)
         relId += 1
         json
       }
-      offset += rels.size + 1
+      offset += sent.words.size
       rels
-    }.flatten
+    }
     Json.arr(rels: _*)
   }
 
