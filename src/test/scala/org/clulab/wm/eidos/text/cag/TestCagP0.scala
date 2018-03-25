@@ -44,9 +44,11 @@ class TestCagP0 extends Test {
       val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
       val humidity = NodeSpec("humidity", Dec("decreased"))
       
-      val edge = EdgeSpec(rainfall, Causal, poverty, humidity)
-      
-      tester.test(edge) should be (successful)
+      val edge1 = EdgeSpec(rainfall, Causal, poverty)
+      tester.test(edge1) should be (successful)
+
+      val edge2 = EdgeSpec(rainfall, Causal, humidity)
+      tester.test(edge2) should be (successful)
     }
   }
   
