@@ -121,7 +121,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     entityLinkingEvents
   }
   
-  def processPlaySentence(ieSystem: EidosSystem, text: String): (Sentence, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
+  def processPlaySentence(ieSystem: EidosSystem, text: String): (Document, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
     // preprocessing
     println(s"Processing sentence : ${text}" )
     val doc = ieSystem.annotate(text)
@@ -141,17 +141,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println("DONE .... ")
 //    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
     // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
-    (doc.sentences.head, mentions.sortBy(_.start), groundedEntities, events)
+    (doc, mentions.sortBy(_.start), groundedEntities, events)
   }
-  
+
   def parseSentence(sent: String) = Action {
-    val (procSentence, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, sent)
-    println(s"Sentence returned from processPlaySentence : ${procSentence.getSentenceText()}")
-    val json = mkJson(sent, procSentence, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, sent)
+    println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText()}")
+    val json = mkJson(sent, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
   }
 
-  def mkParseObj(sent: Sentence): String = {
+  protected def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
     def getTdAt(option: Option[Array[String]], n: Int): String = {
       val text = if (option.isEmpty) ""
       else option.get(n)
@@ -159,7 +159,21 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       "<td>" + xml.Utility.escape(text) + "</td>"
     }
 
-    val header =
+    sentence.words.indices.foreach { i =>
+      sb
+        .append("<tr>")
+        .append("<td>" + xml.Utility.escape(sentence.words(i)) + "</td>")
+        .append(getTdAt(sentence.tags, i))
+        .append(getTdAt(sentence.lemmas, i))
+        .append(getTdAt(sentence.entities, i))
+        .append(getTdAt(sentence.norms, i))
+        .append(getTdAt(sentence.chunks, i))
+        .append("</tr>")
+    }
+  }
+
+  protected def mkParseObj(doc: Document): String = {
+      val header =
       """
         |  <tr>
         |    <th>Word</th>
@@ -170,26 +184,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         |    <th>Chunk</th>
         |  </tr>
       """.stripMargin
-    val sb = new StringBuilder(header)
+      val sb = new StringBuilder(header)
 
-    sent.words.indices.foreach { i =>
-      sb
-          .append("<tr>")
-          .append("<td>" + xml.Utility.escape(sent.words(i)) + "</td>")
-          .append(getTdAt(sent.tags, i))
-          .append(getTdAt(sent.lemmas, i))
-          .append(getTdAt(sent.entities, i))
-          .append(getTdAt(sent.norms, i))
-          .append(getTdAt(sent.chunks, i))
-          .append("</tr>")
-    }
-    sb.toString
+      doc.sentences.foreach(mkParseObj(_, sb))
+      sb.toString
   }
 
-  def mkJson(sentenceText: String, sent: Sentence, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
+  def mkJson(sentenceText: String, doc: Document, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
     println("Found mentions (in mkJson):")
     mentions.foreach(DisplayUtils.displayMention)
 
+    val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
         "text" -> sentenceText,
         "entities" -> mkJsonFromTokens(sent),
@@ -197,7 +202,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       )
     val eidosJsonObj = mkJsonForEidos(sentenceText, sent, mentions)
     val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents)
-    val parseObj = mkParseObj(sent)
+    val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
     // println(s"Grounded Gradable Adj: ")
