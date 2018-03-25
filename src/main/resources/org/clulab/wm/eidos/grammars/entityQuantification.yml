@@ -12,17 +12,6 @@ vars:
 
 rules:
 
-#  - name: collapse_quantifiers
-#    priority: ${ rulepriority }
-#    example: "truly alarming"
-#    label: ${ label }
-#    action: ${ action }
-#    pattern: |
-#      trigger = [mention=Quantifier & tag=JJ]
-#      theme: Quantifier = advmod
-
-
-
   - name: quantification1b
     priority: ${ rulepriority }
     example: "moderate to heavy rainfall"
@@ -49,7 +38,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
-      theme: Entity = <amod #Find the entity the quantifier is modifying
+      theme: Entity = /<amod|nmod_to/ #Find the entity the quantifier is modifying
       adverb: Quantifier? = ${quant_modifiers}
 
   - name: quantification2
