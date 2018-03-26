@@ -90,3 +90,12 @@ rules:
       trigger = [mention=Quantifier & tag=/^JJ/ & incoming=amod]
       theme: Entity = ((?= <amod [word=/(?i)^${transparent_nouns}/]) <amod <dobj (?= aux [lemma=/be/ & tag=/^V/]) nsubj)
       adverb: Quantifier? = ${quant_modifiers}
+
+  - name: quantification3
+    priority: ${ rulepriority }
+    example: "remain above average"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier] #Find the quantifier
+      theme: Entity = </${ complements }/? >${ agents } #Find the entity the quantifier is modifying

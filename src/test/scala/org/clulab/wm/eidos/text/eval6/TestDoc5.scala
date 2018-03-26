@@ -354,7 +354,7 @@ class TestDoc5 extends Test {
     val displacement = NodeSpec("displacement")
     val functioning = NodeSpec("normal market functioning", Dec("disrupting"))
     val prices = NodeSpec("prices", Quant("extremely high"))
-    val conflict2 = NodeSpec("ongoing conflict")
+    val conflict2 = NodeSpec("conflict", Quant("ongoing"))
     val production = NodeSpec("crop production", Dec("disrupted"))
     val movement = NodeSpec("movement of local populations", Dec("restricted"))
 

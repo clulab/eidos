@@ -6,7 +6,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to"
+  preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   passive_agents: "nmod_by|nmod_agent|agent"
@@ -26,7 +26,6 @@ rules:
 #      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
 #      effect: Entity = nsubj
 #      cause: Entity = /${ preps }$/
-
 
 
 # ------------------- Previous Grammar Unsorted --------------------------
@@ -71,11 +70,12 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       # Previous -- removed the complements because they were over matching
       #cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = </${adverbial_clause}/? (${ agents }) /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity = prepc_by? (${objects} | ${complements}) /${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       # previous ones -- removed the preps because they were waaaay over-matching:
       #cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
       #effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+
 
 #  - name: ported_syntax_1_verb_trigger-nmod-${addlabel}
 #    priority: ${ rulepriority }
