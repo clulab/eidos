@@ -1,12 +1,12 @@
 vars:
-  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   adverbial_clause: "advcl"
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to"
+  preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   passive_agents: "nmod_by|nmod_agent|agent"
@@ -17,16 +17,15 @@ rules:
 
 # ------------------- Copular Constructions --------------------------
 
-  - name: ported_copula_1-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "A is an activator of B"
-    example: ""
-    label: ${ label }
-    pattern: |
-      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
-      effect: Entity = nsubj
-      cause: Entity = /${ preps }$/
-
+#  - name: ported_copula_1-${addlabel}
+#    priority: ${ rulepriority }
+#    #Original example: "A is an activator of B"
+#    example: ""
+#    label: ${ label }
+#    pattern: |
+#      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
+#      effect: Entity = nsubj
+#      cause: Entity = /${ preps }$/
 
 
 # ------------------- Previous Grammar Unsorted --------------------------
@@ -71,9 +70,35 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       # Previous -- removed the complements because they were over matching
       #cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
-      effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      cause: Entity = </${adverbial_clause}/? (${ agents }) /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = prepc_by? (${objects} | ${complements}) /${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      # previous ones -- removed the preps because they were waaaay over-matching:
+      #cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
+      #effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
 
+
+#  - name: ported_syntax_1_verb_trigger-nmod-${addlabel}
+#    priority: ${ rulepriority }
+#    #example: "The water quality caused an increase in poverty and a decrease in poverty."
+#    example: "improved economic performance expected to cause a shift from agriculture to service industry."
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
+#      # Previous -- removed the complements because they were over matching
+#      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+#      effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+
+
+  #Handles occurrence of prep_by when NOT passive voice
+  #misfires on "floods caused by rain"
+  - name: ported_syntax_1c_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "The water quality caused poverty by an increase in productivity."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (nmod_by|nmod_to) /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
   #Handles occurrence of prep_by when NOT passive voice
   - name: ported_syntax_1d_verb-${addlabel}
@@ -84,7 +109,6 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VBN/]
       effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
       cause: Entity = nmod_by >nmod_in?
-
 
   # #Handles occurrence of prep_by when NOT passive voice
   # - name: ported_syntax_1c_verb-${addlabel}
@@ -128,9 +152,8 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
-      effect: Entity = (nsubjpass /conj_|${ noun_modifiers }/{,2})
-      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${conjunctions}|${preps}|${ noun_modifiers }/{,2}
-
+      effect: Entity = (/^nsubjpass/ /conj_|${ noun_modifiers }/{,2})
+      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${conjunctions}|${ noun_modifiers }|${objects}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
   - name: ported_syntax_5_verb-${addlabel}
     priority: ${ rulepriority }

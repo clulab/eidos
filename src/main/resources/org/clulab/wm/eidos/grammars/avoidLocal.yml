@@ -40,7 +40,7 @@ rules:
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /^(${increase_triggers}|${decrease_triggers}|${cause_triggers}|${affect_triggers})/] # triggers used downstream
+      [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${cause_triggers}|${affect_triggers}|${correlation_triggers})/] # triggers used downstream
 
   - name: "gradable"
     label: Avoid

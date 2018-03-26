@@ -128,6 +128,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
+
     val cleanMentions = loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
 //    val longest = actions.keepLongestMentions(cleanMentions, State(cleanMentions)).toVector
 //   longest
@@ -145,14 +146,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 //    if (!populateSameAs) return events
     //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
-    //    val sameAs = populateSameAsRelations(entities)
-    //    events ++ sameAs
     events
   }
-
-//    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
-//    val unfilteredEntities = entityFinder.extract(doc).toVector
-//    println(s"In extractFrom() -- entities_unfiltered : ${unfilteredEntities.map(m => m.text).mkString(",\t")}")
 
 
   def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
@@ -211,26 +206,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def groundOntology(mention: EidosMention): OntologyGrounding =
       loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
 
-  def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] = {
-    // remove mentions which are entirely stop/transparent words
-    mentions.filter(hasContent)
-  }
 
-  def hasContent(m: Mention): Boolean = {
-    // println(s"Checking mention: ${m.text}")
-    val lemmas = m.lemmas.get
-    val tags = m.tags.get
-    val entities = m.entities.get
-
-    val contentful = for {
-      (lemma, i) <- lemmas.zipWithIndex
-      if !containsStopword(lemma)
-      if !EidosSystem.STOP_POS.contains(tags(i))
-      if !EidosSystem.STOP_NER.contains(entities(i))
-    } yield lemma
-    // println(s"  * returning: ${contentful.nonEmpty}")
-    contentful.nonEmpty
-  }
   def containsStopword(stopword: String) =
       loadableAttributes.ontologyGrounder.containsStopword(stopword)
 
@@ -264,8 +240,7 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
-  val STOP_POS: Set[String] = Set("CD")
-  val STOP_NER: Set[String] = Set("LOCATION", "PERSON", "DATE", "PLACE", "MONEY", "NUMBER", "ORDINAL", "PERCENT", "TIME", "DURATION", "SET")
+
   // CAG filtering
   val CAG_EDGES = Set("Causal")
 

@@ -4,17 +4,13 @@ import CAG._
 
 import org.clulab.wm.eidos.test.TestUtils._
 
-import org.clulab.wm.eidos.text.Causal
-import org.clulab.wm.eidos.text.Correlation
+import org.clulab.wm.eidos.text.{Causal, Correlation, SameAs}
 
-import org.clulab.wm.eidos.text.AntiEdgeSpec
-import org.clulab.wm.eidos.text.AntiNodeSpec
+import org.clulab.wm.eidos.text.{AntiEdgeSpec, AntiNodeSpec}
 
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.NodeSpec
+import org.clulab.wm.eidos.text.{EdgeSpec, NodeSpec}
 
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.Dec
+import org.clulab.wm.eidos.text.{Dec, Inc}
 
 class TestCagP0 extends Test {
 
@@ -39,14 +35,16 @@ class TestCagP0 extends Test {
     
     behavior of "a sentence with a 1:2 edge"
     
-    it should "have the correct triples" taggedAs(Somebody) in {
+    it should "have the correct triples" taggedAs(Keith) in {
       val rainfall = NodeSpec("rainfall", Dec("decrease"))
       val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
       val humidity = NodeSpec("humidity", Dec("decreased"))
       
-      val edge = EdgeSpec(rainfall, Causal, poverty, humidity)
-      
-      tester.test(edge) should be (successful)
+      val edge1 = EdgeSpec(rainfall, Causal, poverty)
+      tester.test(edge1) should be (successful)
+
+      val edge2 = EdgeSpec(rainfall, Causal, humidity)
+      tester.test(edge2) should be (successful)
     }
   }
   
@@ -56,7 +54,7 @@ class TestCagP0 extends Test {
     
     behavior of "a sentence with anti nodes and edges"
     
-    it should "have the correct triples" taggedAs(Somebody) in {
+    it should "have the correct triples" taggedAs(Keith) in {
       val rainfall = NodeSpec("rainfall", Dec("decrease"))
       val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
       
@@ -92,6 +90,43 @@ class TestCagP0 extends Test {
       tester.test(notEdge1) should not be (successful)
       tester.test(notEdge2) should not be (successful)
       tester.test(notEdge3) should not be (successful)
+    }
+  }
+
+  {
+    val s3 = "Worsening food security trends linked to continued conflict have been compounded by market failure, internal displacement and decreasing humanitarian access."
+    val tester = new Tester(s3)
+
+    behavior of "a correlation edge"
+
+    it should "have the correct triples" taggedAs(Keith) in {
+      val foodSecurityTrends = NodeSpec("food security trends", Dec("Worsening"), Inc("compounded"))
+      val conflict = NodeSpec("continued conflict")
+      val noConflict = NodeSpec("uncontinued conflict")
+
+      val edge1 = EdgeSpec(conflict, Correlation, foodSecurityTrends)
+      val edge2 = EdgeSpec(foodSecurityTrends, Correlation, conflict)
+      val edge3 = EdgeSpec(foodSecurityTrends, Correlation, foodSecurityTrends)
+      val edge4 = EdgeSpec(conflict, Correlation, conflict)
+      val edge5 = EdgeSpec(noConflict, Correlation, foodSecurityTrends)
+
+      tester.test(edge1) should be (successful)
+      tester.test(edge2) should be (successful)
+      tester.test(edge3) should not be (successful)
+      tester.test(edge4) should not be (successful)
+      tester.test(edge5) should not be (successful)
+
+      val antiEdge1 = AntiEdgeSpec(conflict, Correlation, foodSecurityTrends)
+      val antiEdge2 = AntiEdgeSpec(foodSecurityTrends, Correlation, conflict)
+      val antiEdge3 = AntiEdgeSpec(foodSecurityTrends, Correlation, foodSecurityTrends)
+      val antiEdge4 = AntiEdgeSpec(conflict, Correlation, conflict)
+      val antiEdge5 = AntiEdgeSpec(conflict, SameAs, foodSecurityTrends)
+
+      tester.test(antiEdge1) should not be (successful)
+      tester.test(antiEdge2) should not be (successful)
+      tester.test(antiEdge3) should be (successful)
+      tester.test(antiEdge4) should be (successful)
+      tester.test(antiEdge5) should be (successful)
     }
   }
 }
