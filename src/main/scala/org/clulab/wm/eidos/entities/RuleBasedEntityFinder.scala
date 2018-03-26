@@ -35,7 +35,7 @@ class RuleBasedEntityFinder(
     //"^nmod_with$".r,
     "^nmod_without$".r,
     "^nmod_except$".r,
-    "^nmod_despite$".r,
+    "^nmod_despite$".r
   )
 
   // regexes describing valid outgoing dependencies
@@ -224,7 +224,7 @@ object RuleBasedEntityFinder extends LazyLogging {
   /** Keeps the longest mention for each group of overlapping mentions **/
   def keepLongest(mentions: Seq[Mention], state: State = new State()): Seq[Mention] = {
     val mns: Iterable[Mention] = for {
-      // find mentions of the same label and sentence overlap
+    // find mentions of the same label and sentence overlap
       (k, v) <- mentions.groupBy(m => (m.sentence, m.label))
       m <- v
       // for overlapping mentions starting at the same token, keep only the longest

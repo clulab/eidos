@@ -39,12 +39,3 @@ rules:
       trigger = [incoming=advcl_as]
       effect: Entity  = <advcl_as nsubj
       cause: Entity = /(${complements})/? dobj
-
-  - name: syntax_4_punct-Correlation
-    priority: ${ rulepriority }
-    example: "Food insecurity remained critical as conflict continues to increase danger."
-    label: Correlation
-    pattern: |
-      trigger = [incoming=dep]
-      effect: Entity  = <dep
-      cause: Entity = nmod_of

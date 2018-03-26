@@ -21,15 +21,6 @@ rules:
       # avoid verbs with arguments
       [outgoing=/^nsubj/]
 
-  - name: "nums"
-    label: Avoid
-    priority: 1
-    example: "X HINDERS Y."
-    type: token
-    pattern: |
-      # avoid verbs with arguments
-      nmod_of
-
   - name: "references-et-al"
     label: Avoid
     priority: 3
