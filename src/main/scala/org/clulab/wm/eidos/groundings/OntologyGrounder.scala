@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.groundings
 
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.FileUtils
 
@@ -33,10 +34,19 @@ class EidosOntologyGrounder(stopwordsPath: String, transparentPath: String) {
   def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
   
   protected def hasContent(m: Mention): Boolean = {
-    // TODO: make this exists
-    val contentfulLemmas = m.lemmas.get.filterNot(lemma => bothWords.contains(lemma)) 
-    
-    contentfulLemmas.nonEmpty 
+    // println(s"Checking mention: ${m.text}")
+    val lemmas = m.lemmas.get
+    val tags = m.tags.get
+    val entities = m.entities.get
+
+    val contentful = for {
+      (lemma, i) <- lemmas.zipWithIndex
+      if !containsStopword(lemma)
+      if !EidosOntologyGrounder.STOP_POS.contains(tags(i))
+      if !EidosOntologyGrounder.STOP_NER.contains(entities(i))
+    } yield lemma
+    // println(s"  * returning: ${contentful.nonEmpty}")
+    contentful.nonEmpty
   }   
   
   def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] =
@@ -47,4 +57,7 @@ class EidosOntologyGrounder(stopwordsPath: String, transparentPath: String) {
 object EidosOntologyGrounder {
   
   def apply(stopWordsPath: String, transparentPath: String) = new EidosOntologyGrounder(stopWordsPath, transparentPath)
+  val STOP_POS: Set[String] = Set("CD")
+  val STOP_NER: Set[String] = Set("LOCATION", "PERSON", "DATE", "PLACE", "MONEY", "NUMBER", "ORDINAL", "PERCENT", "TIME", "DURATION", "SET")
+
 }
