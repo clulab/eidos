@@ -10,4 +10,3 @@ rules:
       [chunk='B-NP' & !mention=Avoid]? [chunk='I-NP' & !mention=Avoid]+
       |
       [chunk='B-NP' & !mention=Avoid]
-

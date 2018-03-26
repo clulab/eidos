@@ -234,4 +234,3 @@ object RuleBasedEntityFinder extends LazyLogging {
   }
 
 }
-
