@@ -34,20 +34,17 @@ class EidosOntologyGrounder(stopwordsPath: String, transparentPath: String) {
   def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
   
   protected def hasContent(m: Mention): Boolean = {
-    // println(s"Checking mention: ${m.text}")
     val lemmas = m.lemmas.get
     val tags = m.tags.get
     val entities = m.entities.get
 
-    val contentful = for {
-      (lemma, i) <- lemmas.zipWithIndex
-      if !containsStopword(lemma)
-      if !EidosOntologyGrounder.STOP_POS.contains(tags(i))
-      if !EidosOntologyGrounder.STOP_NER.contains(entities(i))
-    } yield lemma
-    // println(s"  * returning: ${contentful.nonEmpty}")
-    contentful.nonEmpty
-  }   
+    // println(s"Checking mention: ${m.text}")
+    lemmas.indices.exists { i =>
+      !containsStopword(lemmas(i)) &&
+      !EidosOntologyGrounder.STOP_POS.contains(tags(i)) &&
+      !EidosOntologyGrounder.STOP_NER.contains(entities(i))
+    }
+  }
   
   def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] =
       // Remove mentions which are entirely stop/transparent words 
@@ -58,6 +55,6 @@ object EidosOntologyGrounder {
   
   def apply(stopWordsPath: String, transparentPath: String) = new EidosOntologyGrounder(stopWordsPath, transparentPath)
   val STOP_POS: Set[String] = Set("CD")
-  val STOP_NER: Set[String] = Set("LOCATION", "PERSON", "DATE", "PLACE", "MONEY", "NUMBER", "ORDINAL", "PERCENT", "TIME", "DURATION", "SET")
+  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "PERSON", "PLACE", "SET", "TIME")
 
 }
