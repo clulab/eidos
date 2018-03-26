@@ -107,6 +107,29 @@ rules:
       theme: Entity = <${ noun_modifiers }
       quantifier: Quantifier? = ${quant_modifiers}
 
+
+  - name: ${ label}_adjective_rule_2
+    priority:  ${ modrulepriority }
+    example: "above average"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/] [mention=Quantifier]
+      theme: Entity = </${ complements }/? >${ agents }
+      quantifier: Quantifier? = ${quant_modifiers}
+
+
+  - name: ${ label}_adjective_rule_3
+    priority:  ${ modrulepriority }
+    example: "heavier than normal"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/] [lemma=/than/] [mention=Quantifier]
+      theme: Entity = >nmod_than
+      quantifier: Quantifier? = ${quant_modifiers}
+
+
 # ------------------- Copular Constructions --------------------------
 
   - name: ported_copula_mods-${label}
