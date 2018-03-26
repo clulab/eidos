@@ -212,26 +212,26 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def groundOntology(mention: EidosMention): OntologyGrounding =
       loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
 
-  def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] = {
-    // remove mentions which are entirely stop/transparent words
-    mentions.filter(hasContent)
-  }
+//  def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] = {
+//    // remove mentions which are entirely stop/transparent words
+//    mentions.filter(hasContent)
+//  }
 
-  def hasContent(m: Mention): Boolean = {
-    // println(s"Checking mention: ${m.text}")
-    val lemmas = m.lemmas.get
-    val tags = m.tags.get
-    val entities = m.entities.get
-
-    val contentful = for {
-      (lemma, i) <- lemmas.zipWithIndex
-      if !containsStopword(lemma)
-      if !EidosSystem.STOP_POS.contains(tags(i))
-      if !EidosSystem.STOP_NER.contains(entities(i))
-    } yield lemma
-    // println(s"  * returning: ${contentful.nonEmpty}")
-    contentful.nonEmpty
-  }
+//  def hasContent(m: Mention): Boolean = {
+//    // println(s"Checking mention: ${m.text}")
+//    val lemmas = m.lemmas.get
+//    val tags = m.tags.get
+//    val entities = m.entities.get
+//
+//    val contentful = for {
+//      (lemma, i) <- lemmas.zipWithIndex
+//      if !containsStopword(lemma)
+//      if !EidosSystem.STOP_POS.contains(tags(i))
+//      if !EidosSystem.STOP_NER.contains(entities(i))
+//    } yield lemma
+//    // println(s"  * returning: ${contentful.nonEmpty}")
+//    contentful.nonEmpty
+//  }
   def containsStopword(stopword: String) =
       loadableAttributes.ontologyGrounder.containsStopword(stopword)
 
@@ -265,8 +265,7 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
-  val STOP_POS: Set[String] = Set("CD")
-  val STOP_NER: Set[String] = Set("LOCATION", "PERSON", "DATE", "PLACE", "MONEY", "NUMBER", "ORDINAL", "PERCENT", "TIME", "DURATION", "SET")
+
   // CAG filtering
   val CAG_EDGES = Set("Causal")
 
