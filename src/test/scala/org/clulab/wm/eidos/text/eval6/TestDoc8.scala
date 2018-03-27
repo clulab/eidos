@@ -230,7 +230,7 @@ class TestDoc8 extends Test {
     val accessToFood = NodeSpec("household access to food", Dec("destabilised"))
     val income = NodeSpec("income", Dec("destabilised"))
 
-    val localFoodProduction = NodeSpec("Supporting local food production", Inc("Supporting"), Quant("critical"))
+    val localFoodProduction = NodeSpec("local food production", Inc("Supporting"), Quant("critical"))
     val foodSecuritySituation = NodeSpec("food security situation", Dec("deterioration"),  Dec("preventing"))
     behavior of "TestDoc8 Impact para 2"
 
