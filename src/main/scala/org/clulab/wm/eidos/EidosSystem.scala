@@ -98,7 +98,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected val wordToVec = EidosWordToVec(
       word2vec,
       getPath(     "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
-      getPath("domainOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml"),
+      getPath("domainOntologyPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
       getArgInt(getFullName("topKNodeGroundings"), Some(10))
   )
 
