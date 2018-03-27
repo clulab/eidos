@@ -91,10 +91,10 @@ rules:
       theme: Entity = </${ complements }/? >${ agents } #Find the entity the quantifier is modifying
 
   - name: quantification3b
-      priority: ${ rulepriority }
-      example: "rainfall is moderate to heavy"
-      label: ${ label }
-      action: ${ action }
-      pattern: |
-        trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
-        theme: Entity = (${agents}) #Find the entity the quantifier is modifying
+    priority: ${ rulepriority }
+    example: "rainfall is moderate to heavy"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
+      theme: Entity = (${agents}) #Find the entity the quantifier is modifying
