@@ -194,10 +194,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       (classType, attachmentsToCondense) <- attachmentGroup
       filtered = filterSubstringTriggers(attachmentsToCondense)
     } yield filtered
-
     // Now that substrings are filtered... keep only most complete of each type-trigger-combo
     val groupedByTriggerToo = filtered.flatten.groupBy(a => typeAndTrigger(a))
-    println(groupedByTriggerToo.toString())
     val mostCompleteAttachments = for {
       (typeAndTrigg, attachmentsToCondense2) <- groupedByTriggerToo
     } yield mostComplete(attachmentsToCondense2.toSeq)
@@ -213,11 +211,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   protected def filterSubstringTriggers(as: Seq[Attachment]): Seq[Attachment] = {
     // sorted longest first
     val sorted = as.sortBy(a => -triggerOf(a).length)
-
     val triggersKept = scala.collection.mutable.Set[String]()
     val out = new ArrayBuffer[Attachment]
 
-    for (a <- as) {
+    for (a <- sorted) {
       if (!isSubstring(triggerOf(a), triggersKept.toSet)) {
         // add this trigger
         triggersKept.add(triggerOf(a))
@@ -225,7 +222,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         out.append(a)
       }
     }
-
     out
   }
   // Check if current string is a subtring in our string set
@@ -235,7 +231,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         return true
       }
     }
-
     false
   }
   // Get trigger from an attachment

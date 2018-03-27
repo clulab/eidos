@@ -11,6 +11,7 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.DisplayUtils
 
 import scala.collection.JavaConverters.asScalaSet
 
@@ -91,21 +92,27 @@ class TestEidosActions extends Test {
   protected def test(text: String, index: Int): Unit = {
     val annotatedDocument = reader.extractFromText(text)
     val someMentions = annotatedDocument.odinMentions
+    println("Some mentions:")
+    someMentions.foreach(m => DisplayUtils.displayMention(m))
     val uniqueMentions = findUniqueMentions(someMentions)
     val matchingPair = findMatchingPair(uniqueMentions)
 
     if (matchingPair.isDefined) {
+      println("***************************")
+      DisplayUtils.displayMention(matchingPair.get._1)
+      DisplayUtils.displayMention(matchingPair.get._2)
+
       val jValueLeft = WMJSONSerializer.jsonAST(Seq(matchingPair.get._1))
       val jValueRight = WMJSONSerializer.jsonAST(Seq(matchingPair.get._2))
       val jsonLeft = stringify(jValueLeft, pretty = true)
       val jsonRight = stringify(jValueRight, pretty = true)
 
-      println(jsonLeft)
-      println(jsonRight)
+//      println(jsonLeft)
+//      println(jsonRight)
 
       val jValueAll = WMJSONSerializer.jsonAST(someMentions)
       val jsonAll = stringify(jValueAll, pretty = true)
-      println(jsonAll)
+//      println(jsonAll)
     }
     it should "produce not just unique but also distinct mentions " + index in {
       matchingPair should be (None)
