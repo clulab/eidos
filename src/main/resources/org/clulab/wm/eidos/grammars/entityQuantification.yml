@@ -72,6 +72,15 @@ rules:
       theme: Entity = ((?= <amod [word=/(?i)^${transparent_nouns}/]) <amod <dobj (?= aux [lemma=/be/ & tag=/^V/]) nsubj)
       adverb: Quantifier? = ${quant_modifiers}
 
+  - name: quantification_adjective_rule_4
+    priority:  ${ rulepriority }
+    example: "food insecurity is severe"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      theme: Entity = nsubj
+
   - name: quantification3
     priority: ${ rulepriority }
     example: "remain above average"

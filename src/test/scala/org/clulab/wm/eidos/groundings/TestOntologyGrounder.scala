@@ -15,7 +15,7 @@ class TestOntologyGrounder extends Test {
         |America causes soybean production.
         |Paper causes cuts.
         |A pair causes a two.
-      """
+      """.stripMargin
 
     val tester = new Tester(text)
 
