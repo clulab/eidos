@@ -23,7 +23,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     * @author Gus Hahn-Powell
     * Copies the label of the lowest overlapping entity in the taxonomy
     */
-
   def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
 
     // --- To distinguish between :
@@ -31,7 +30,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // 2. Attachments: Quantification(high,None), Increase(high,None)
     // --- and select 2.
 
-    val mention_attachmentSz = for (mention <- mentions) yield {
+    val mention_attachmentSz: Seq[(Mention, Int)] = for (mention <- mentions) yield {
 
       // number of Arguments, number of attachments, the set of all attachments
       val (numArgs, modSize, attachmentsSet) = mention match {
@@ -55,14 +54,34 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         case _ => (0, 0,  mention.attachments)
       }
 
-      val attachArgumentsSz = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
+      // disgusting!
+      val attachArgumentsSz = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum + mention.attachments.map(a=> attachmentTriggerLength(a)).sum
+      // smart this up
+      // problem: Quant("moderate to heavy", None) considered the same as Quant("heavy", none)
+      // MAYBE merge them...? here maybe no bc string overlap... keep superset/longest
+      // BUT: what about "persistent and heavy seasonal rainfall" -- Quant("persistent", None),  Quant("heavy", none)
+      // want merged -> Quant("persistent", None), Quant("heavy", None) ??
+
+      // may be helpful
+      //tb.newWithAttachment()
 
       (mention, (attachArgumentsSz + modSize + numArgs)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
     }
 
+
+
     val maxModAttachSz = mention_attachmentSz.map(_._2).max
     val filteredMentions = mention_attachmentSz.filter(m => m._2 == maxModAttachSz).map(_._1)
     filteredMentions
+  }
+
+  def attachmentTriggerLength(a: Attachment): Int = {
+    a match {
+      case inc:Increase => inc.trigger.length
+      case dec: Decrease => dec.trigger.length
+      case quant: Quantification => quant.quantifier.length
+      case _ => throw new UnsupportedClassVersionError("Not a valid Attachment!")
+    }
   }
 
   // remove incomplete EVENT Mentions
@@ -74,13 +93,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     val tbMentionGroupings =
       textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, m.label, m.sentence))
-
     // remove incomplete mentions
     val completeTBMentions =
       for ((k, tbms) <- tbMentionGroupings) yield {
 //        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
 //        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
         val filteredTBMs = customAttachmentFilter(tbms)
+
         filteredTBMs.head
       }
 
@@ -134,6 +153,14 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
+
+  // todo make magic happen
+  def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    println("Merge Mentions")
+    mentions
+  }
+
+
 }
 
 object EidosActions extends Actions {

@@ -79,7 +79,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
           DomainParams(domainParamKBPath), 
           EidosAdjectiveGrounder(quantifierKBPath), 
           actions, 
-          ExtractorEngine(masterRules, actions), // ODIN component 
+          ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
           LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
           EidosOntologyGrounder(stopwordsPath, transparentPath)
       )
@@ -97,8 +97,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // This isn't intended to be (re)loadable.  This only happens once.
   protected val wordToVec = EidosWordToVec(
       word2vec,
-      getPath( "wordToVecPath", "/org/clulab/wm/eidos/sameas/vectors.txt"),
-      getPath("domainOntoPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
+      getPath(     "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
+      getPath("domainOntologyPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
       getArgInt(getFullName("topKNodeGroundings"), Some(10))
   )
 
@@ -118,9 +118,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     } s.entities.get(i) = lexiconNERTag
   }
 
-  def extractFromText(text: String, keepText: Boolean = false, populateSameAs: Boolean = false): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
-    val odinMentions = extractFrom(doc, populateSameAs = populateSameAs).toSeq
+    val odinMentions = extractFrom(doc)
     val eidosMentions = EidosMention.asEidosMentions(odinMentions, this)
     
     new AnnotatedDocument(doc, odinMentions, eidosMentions)
@@ -128,22 +128,23 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
-    println("After extraction, before keepMostComplete:")
-    res.foreach(m => println(s"\t* ${m.text} ${m.attachments.mkString(", ")}"))
+//    println("After extraction, before keepMostComplete:")
+//    res.foreach(m => println(s"\t* ${m.text} ${m.attachments.mkString(", ")}"))
     val cleanMentions = loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
 //    val longest = actions.keepLongestMentions(cleanMentions, State(cleanMentions)).toVector
 //   longest
     cleanMentions
   }
 
-  def extractFrom(doc: Document, populateSameAs: Boolean = false): Vector[Mention] = {
+  def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
 //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
+//    val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
     val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
 //    println(s"In extractFrom() -- filtered : ${filtered.map(m => m.text).mkString(",\t")}")
-    val events = extractEventsFrom(doc, State(filtered)).distinct
+val events = extractEventsFrom(doc, State(filtered)).distinct
 //    if (!populateSameAs) return events
     //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
@@ -177,20 +178,34 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val sameAsRelations = for {
       (m1, i) <- ms.zipWithIndex
       m2 <- ms.slice(i+1, ms.length)
-      score = wordToVec.calculateSameAs(m1, m2)
+      score = wordToVec.calculateSimilarity(m1, m2)
     } yield sameAs(m1, m2, score)
 
     sameAsRelations
   }
 
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-    
-    def isCAGRelevant(m: Mention): Boolean =
-        (m.matches("Entity") && m.attachments.nonEmpty) ||
-            EidosSystem.CAG_EDGES.contains(m.label)
-
-    mentions.filter(isCAGRelevant)
+    val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
+    mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
   }
+
+  def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean = {
+
+    if (m.matches("Entity") && m.attachments.nonEmpty) {
+      true
+    }
+    else if (cagEdgeMentions.exists(cm => cm.arguments.keys.toSeq.contains(m))){
+      true
+    }
+    else if (cagEdgeMentions.contains(m)) {
+      true
+    }
+    else {
+      false
+    }
+  }
+
+
 
   /*
       Grounding
@@ -199,6 +214,26 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def groundOntology(mention: EidosMention): OntologyGrounding =
       loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
 
+  def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] = {
+    // remove mentions which are entirely stop/transparent words
+    mentions.filter(hasContent)
+  }
+
+  def hasContent(m: Mention): Boolean = {
+    // println(s"Checking mention: ${m.text}")
+    val lemmas = m.lemmas.get
+    val tags = m.tags.get
+    val entities = m.entities.get
+
+    val contentful = for {
+      (lemma, i) <- lemmas.zipWithIndex
+      if !containsStopword(lemma)
+      if !EidosSystem.STOP_POS.contains(tags(i))
+      if !EidosSystem.STOP_NER.contains(entities(i))
+    } yield lemma
+    // println(s"  * returning: ${contentful.nonEmpty}")
+    contentful.nonEmpty
+  }
   def containsStopword(stopword: String) =
       loadableAttributes.ontologyGrounder.containsStopword(stopword)
 
@@ -232,6 +267,9 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
+  val STOP_POS: Set[String] = Set("CD")
+  val STOP_NER: Set[String] = Set("LOCATION", "PERSON", "DATE", "PLACE", "MONEY", "NUMBER", "ORDINAL", "PERCENT", "TIME", "DURATION", "SET")
   // CAG filtering
   val CAG_EDGES = Set("Causal")
+
 }

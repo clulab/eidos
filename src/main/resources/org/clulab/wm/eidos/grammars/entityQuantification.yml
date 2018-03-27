@@ -31,6 +31,15 @@ rules:
       (?<trigger> [mention=Quantifier])  #Find the adverbial quantifier
       @theme: Entity #Find the adjectival quantifier being quantified
 
+  - name: quantification3
+    priority: ${ rulepriority }
+    example: "puppies are large"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      theme: Entity = (${agents}) #Find the entity the quantifier is modifying
+
   - name: quantification_adjective_rule_2
     priority:  ${ rulepriority }
     example: "food insecurity is becoming severe"
@@ -49,6 +58,15 @@ rules:
     pattern: |
       trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
       theme: Entity = <amod #Find the entity the quantifier is modifying
+
+  - name: quantification3b
+    priority: ${ rulepriority }
+    example: "rainfall is moderate to heavy"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
+      theme: Entity = (${agents}) #Find the entity the quantifier is modifying
 
   - name: quantification1c
     priority: ${ rulepriority }
