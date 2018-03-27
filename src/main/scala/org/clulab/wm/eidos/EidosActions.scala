@@ -156,7 +156,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   // todo make magic happen
   def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    println("Merge Mentions")
     mentions
   }
 
