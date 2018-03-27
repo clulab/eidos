@@ -98,7 +98,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   protected val wordToVec = EidosWordToVec(
       word2vec,
       getPath(     "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
-      getPath("domainOntologyPath", "/org/clulab/wm/eidos/toy_ontology.yml"),
+      getPath("domainOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml"),
       getArgInt(getFullName("topKNodeGroundings"), Some(10))
   )
 
@@ -118,12 +118,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     } s.entities.get(i) = lexiconNERTag
   }
 
+  // MAIN PIPELINE METHOD
   def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, this)
-    
-    new AnnotatedDocument(doc, odinMentions, eidosMentions)
+    val cagRelevant = keepCAGRelevant(odinMentions)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, this)
+
+    // NOTE: we're returning the filtered Odin Mentions here -- change?
+    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
   
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
