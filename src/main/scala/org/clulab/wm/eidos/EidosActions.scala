@@ -4,10 +4,11 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
+import scala.collection.mutable.ArrayBuffer
 import scala.io.BufferedSource
 
 
@@ -154,11 +155,107 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
-  // todo make magic happen
+  // Currently used as a GLOBAL ACTION in EidosSystem:
+  // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
+  // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
+  // of each other.
   def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    mentions
+    val (entities, nonentities) = mentions.partition(m => m matches "Entity")
+
+    // Get all the entity mentions for this span (i.e. all the "rainfall in Spain" mentions)
+    val spanGroup = entities.groupBy(m => (m.sentence, m.tokenInterval, m.label))
+    val mergedEntities = for {
+      (span, group) <- spanGroup
+      // Get all attachments for these mentions
+      attachments = group.flatMap(m1 => m1.attachments)
+      // filter them
+      filtered = filterAttachments(attachments)
+      // Make a new mention with these attachments
+      exampleMention = group.head
+    } yield copyWithAttachments(exampleMention, filtered)
+
+    mergedEntities.toSeq ++ nonentities
   }
 
+  // Iteratively creates a mention which contains all of the passed in Attachments
+  def copyWithAttachments(m: Mention, attachments: Seq[Attachment]): Mention = {
+    var outMention = m
+    for {
+      a <- attachments
+    } outMention = outMention.withAttachment(a)
+    outMention
+  }
+
+  // Filter out substring attachments, then keep most complete
+  def filterAttachments(attachments: Seq[Attachment]): Seq[Attachment] = {
+    // Filter out substring attachments
+    val attachmentGroup = attachments.groupBy(a => a.getClass)
+    val filtered = for {
+      (classType, attachmentsToCondense) <- attachmentGroup
+      filtered = filterSubstringTriggers(attachmentsToCondense)
+    } yield filtered
+
+    // Now that substrings are filtered... keep only most complete of each type-trigger-combo
+    val groupedByTriggerToo = filtered.flatten.groupBy(a => typeAndTrigger(a))
+    println(groupedByTriggerToo.toString())
+    val mostCompleteAttachments = for {
+      (typeAndTrigg, attachmentsToCondense2) <- groupedByTriggerToo
+    } yield mostComplete(attachmentsToCondense2.toSeq)
+
+    mostCompleteAttachments.toSeq
+  }
+  // Keep the most complete attachment here.
+  protected def mostComplete(as: Seq[Attachment]): Attachment = {
+    val most = as.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
+    most
+  }
+  // Filter out substring attachments
+  protected def filterSubstringTriggers(as: Seq[Attachment]): Seq[Attachment] = {
+    // sorted longest first
+    val sorted = as.sortBy(a => -triggerOf(a).length)
+
+    val triggersKept = scala.collection.mutable.Set[String]()
+    val out = new ArrayBuffer[Attachment]
+
+    for (a <- as) {
+      if (!isSubstring(triggerOf(a), triggersKept.toSet)) {
+        // add this trigger
+        triggersKept.add(triggerOf(a))
+        // keep the attachment
+        out.append(a)
+      }
+    }
+
+    out
+  }
+  // Check if current string is a subtring in our string set
+  def isSubstring(current: String, kept: Set[String]): Boolean = {
+    for (k <- kept) {
+      if (k.contains(current)) {
+        return true
+      }
+    }
+
+    false
+  }
+  // Get trigger from an attachment
+  protected def triggerOf(a: Attachment): String = {
+    a match {
+      case inc: Increase => inc.trigger
+      case dec: Decrease => dec.trigger
+      case quant: Quantification => quant.quantifier
+      case _ => throw new UnsupportedClassVersionError()
+    }
+  }
+  // Get type and trigger of an attachment.
+  protected def typeAndTrigger(a: Attachment): (String, String) = {
+    a match {
+      case inc: Increase => ("Increase", inc.trigger)
+      case dec: Decrease => ("Decrease", dec.trigger)
+      case quant: Quantification => ("Quantification", quant.quantifier)
+      case _ => throw new UnsupportedClassVersionError()
+    }
+  }
 
 }
 
