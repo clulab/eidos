@@ -89,3 +89,13 @@ rules:
     pattern: |
       trigger = [mention=Quantifier] #Find the quantifier
       theme: Entity = </${ complements }/? >${ agents } #Find the entity the quantifier is modifying
+
+  - name: quantification_adjective_rule_5
+    priority:  ${ rulepriority }
+    example: "Supporting local food production will remain critical"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      theme: Entity = <xcomp? (${agents}) ${objects}
+      adverb: Quantifier? = ${quant_modifiers}
