@@ -53,7 +53,7 @@ class TestRaps extends Test {
     val sent3 = "Limited financial capacities and low education levels further restrict farmers' ability for higher benefits from increased agricultural production."
     val tester = new Tester(sent3)
 
-    val financial = NodeSpec("Limited financial capacities", Dec("Limited"))
+    val financial = NodeSpec("financial capacities", Dec("Limited"))
     val ability = NodeSpec("\' ability", Dec("restrict"))
     val education = NodeSpec("education levels", Dec("low"), Quant("low"))
 

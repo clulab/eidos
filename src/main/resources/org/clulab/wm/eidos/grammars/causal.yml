@@ -5,7 +5,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to"
+  preps: "nmod_of|nmod_in|nmod_to|nmod_for"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   # Todo: nmod_from "X will follow from Y"
@@ -63,6 +63,15 @@ rules:
       cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
       effect: Entity = <advmod|<amod <nmod_due_to? nsubj
 
+  - name: dueToSyntax5-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: "improvements in food availability due to seasonal harvests"
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = nmod_to (${ conjunctions })?
+      effect: Entity = <advmod|<amod >nmod_in
+
   - name: madeSyntax3-${addlabel}
     priority: ${rulepriority}
     label: ${label}
@@ -79,7 +88,7 @@ rules:
     pattern: |
       trigger = [lemma="lead" & tag=/^VB/] (?=[word=to])
       effect: Entity = nmod_to
-      cause: Entity = nsubj /${noun_modifiers}/{,2}
+      cause: Entity = nsubj /${noun_modifiers}|${objects}/{,2}
 
 
 
@@ -94,3 +103,12 @@ rules:
     pattern: |
       @cause: Entity (?<trigger> [word=/(?i)^(mediat)/ & !tag=/^JJ/]) @effect: Entity /(?i)^(activation)/
 
+  - name: ported_copula_1-${addlabel}
+    priority: ${ rulepriority }
+    #Original example: "A is an activator of B"
+    example: ""
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N|^JJ/]
+      cause: Entity = nsubj
+      effect: Entity = /${ preps }$/
