@@ -172,8 +172,7 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
-    // removed 'truly' from this test and quantifiers.tsv bc it's not gradable
-    val malnutrition = NodeSpec("levels of malnutrition among children", Quant("alarming"))
+    val malnutrition = NodeSpec("levels of malnutrition among children", Quant("alarming", "truly"))
 
     behavior of "TestDoc2 Paragraph 6"
 
