@@ -58,7 +58,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [mention=Quantifier & tag=/^JJ/]+ #Find the quantifier
+      trigger = [mention=Quantifier & tag=/^JJ/]+  #Find the quantifier
       theme: Entity = <xcomp (${agents})
       adverb: Quantifier? = ${quant_modifiers}  # todo: we should allow for modification here (e.g. 'more')
 

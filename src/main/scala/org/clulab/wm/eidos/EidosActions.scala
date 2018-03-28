@@ -162,18 +162,27 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
     val (entities, nonentities) = mentions.partition(m => m matches "Entity")
 
+//    println("***************************")
+//    println("new ROUND")
+//    println("***************************")
+//
+//    println("Current State:")
+//    state.allMentions.foreach(m => DisplayUtils.displayMention(m))
+//    println("--------------------")
     // Get all the entity mentions for this span (i.e. all the "rainfall in Spain" mentions)
     val spanGroup = entities.groupBy(m => (m.sentence, m.tokenInterval, m.label))
+//    println(spanGroup.size)
     val mergedEntities = for {
       (span, group) <- spanGroup
       // Get all attachments for these mentions
       attachments = group.flatMap(m1 => m1.attachments)
       // filter them
-      filtered = filterAttachments(attachments)
+      // The index is the index of first attachment that survived the filter, so its contents are desired
+      // and then we'll add the other filtered attachments in at the yield step
+      (filtered, index) = filterAttachments(attachments)
       // Make a new mention with these attachments
-      exampleMention = group.head
+      exampleMention = group(index)
     } yield copyWithAttachments(exampleMention, filtered)
-
     mergedEntities.toSeq ++ nonentities
   }
 
@@ -187,7 +196,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Filter out substring attachments, then keep most complete
-  def filterAttachments(attachments: Seq[Attachment]): Seq[Attachment] = {
+  def filterAttachments(attachments: Seq[Attachment]): (Seq[Attachment], Int) = {
     // Filter out substring attachments
     val attachmentGroup = attachments.groupBy(a => a.getClass)
     val filtered = for {
@@ -200,7 +209,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       (typeAndTrigg, attachmentsToCondense2) <- groupedByTriggerToo
     } yield mostComplete(attachmentsToCondense2.toSeq)
 
-    mostCompleteAttachments.toSeq
+    (mostCompleteAttachments.toSeq, attachments.indexOf(mostCompleteAttachments.head))
   }
   // Keep the most complete attachment here.
   protected def mostComplete(as: Seq[Attachment]): Attachment = {
