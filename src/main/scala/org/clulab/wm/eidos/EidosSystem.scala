@@ -187,17 +187,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean = {
 
     if (m.matches("Entity") && m.attachments.nonEmpty) {
-      true
+      return true
     }
-    else if (cagEdgeMentions.exists(cm => cm.arguments.keys.toSeq.contains(m))){
-      true
+    else if (cagEdgeMentions.exists(cm => cm.arguments.values.flatten.toSeq.contains(m))){
+      return true
     }
     else if (cagEdgeMentions.contains(m)) {
-      true
+      return true
     }
-    else {
-      false
-    }
+
+    false
+
   }
 
 
@@ -245,6 +245,6 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES = Set("Causal")
+  val CAG_EDGES = Set("Causal", "Correlation")
 
 }
