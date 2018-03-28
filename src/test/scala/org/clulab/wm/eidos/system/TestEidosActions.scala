@@ -28,7 +28,10 @@ class TestEidosActions extends Test {
        
       mention match {
         case mention: TextBoundMention => addAllMentions(arguments, mapOfMentions)
-        case mention: EventMention => addAllMentions(arguments ++ mentionsInPaths(mention.paths) :+ mention.trigger, mapOfMentions)
+        // One trigger can result in multiple events, so triggers should not be involved in the search for duplicates.
+        // Generally the two trigger instances would have different rules, but even if they were the same, as long as
+        // the resulting EventMentions are different, duplicate triggers are not a problem.
+        case mention: EventMention => addAllMentions(arguments ++ mentionsInPaths(mention.paths) /* :+ mention.trigger */, mapOfMentions)
         case mention: RelationMention => addAllMentions(arguments ++ mentionsInPaths(mention.paths), mapOfMentions)
       }
     }
