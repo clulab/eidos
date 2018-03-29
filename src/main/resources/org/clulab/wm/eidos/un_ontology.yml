@@ -7,12 +7,11 @@
       - "agroforestry"
       - "biodiversity conservation"
       - "climate change mitigation"
-      - "water quality" #todo: neither positive nor negative ?
       - "reforestation"
-      - "climate change adaptation" #todo: adaptation sounds positive ?
-      - "forest management" #todo: management sounds positive ?
-      - "water management" #todo: check
-      - "management forest" #todo: check
+      - "climate change adaptation"
+      - "forest management"
+      - "water management"
+      - "management forest"
     - negative_nature_impact:
       - "pollution"
       - "deforestation"
@@ -23,24 +22,21 @@
       - "climate change"
       - "ghg emission"
       - "contamination"
-      - "forest product" #todo: product sounds like exploitation ?
   - crisis:
     - "crisis"
     - "emergency"
   - natural:
-    - natural_resources:
+    - natural_resources: # todo: to split into multiple categories ?
       - "area"
       - "food"
       - "resource"
       - "land"
       - "water"
       - "biodiversity"
-      - "temperature"
       - "sea"
       - "ecosystem"
       - "river"
       - "forest area"
-      - "weather"
       - "pond"
       - "rain"
       - "water resource"
@@ -87,7 +83,7 @@
       - "conflict"
       - "war"
       - "fighting"
-      - "disarmament"
+      - "disarmament" # todo: fix this ...
       - "infighting"
       - "civil unrest"
       - "genocide"
@@ -126,7 +122,36 @@
       - "morbidity"
       - "decease"
 - entities:
-  - GPE: #todo -- take some from Nation category (or all)
+  - GPE:
+    - "village"
+    - "world"
+    - "district"
+    - "province"
+    - "zone"
+    - "territory"
+    - "city"
+    - "capital"
+    - "States"
+    - "nation"
+    - "regional"
+    - "republic"
+    - "town"
+    - "headquarters"
+    - "settlement"
+    - "subregion"
+    - "continent"
+    - "several countries"
+    - "municipality"
+    - "county"
+    - "urban"
+    - "most countries"
+    - "developed countries"
+    - "sub-region"
+    - "nation"
+    - "country"
+    - "state"
+    - "geopolitical entity"
+    - "nation-state"
   - measurement:
     - distance:
       - "feet"
@@ -309,14 +334,6 @@
           - "revenue"
         - poverty: #todo
           - "poverty"
-    - nation: #todo -- merge or adjust with GPE category
-      - "nation"
-      - "country"
-      - "state"
-      - "geopolitical entity"
-      - "nation-state"
-      - "ethnic group"
-      - "population"
     - government:
       - government_entity:
         - "government"
@@ -331,6 +348,8 @@
       - "people"
       - "community"
       - "family"
+      - "ethnic group"
+      - "population"
     - food:
       - food_security:
         - "food security"
