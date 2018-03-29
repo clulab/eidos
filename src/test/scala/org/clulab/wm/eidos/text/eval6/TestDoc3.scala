@@ -250,12 +250,11 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 7"
 
     // tests here
-    // Do we still have correlation here?
     passingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall, Correlation, flooding)) should be (successful) // Test edges connecting them
     }
     // Dependency Path Error
-    failingTest should "have correct edges 2" taggedAs(Zheng) in {
+    brokenSyntaxTest should "have correct edges 2" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall2, Causal, rainfallDeficit)) should be (successful) // Test edges connecting them
     }
   }
