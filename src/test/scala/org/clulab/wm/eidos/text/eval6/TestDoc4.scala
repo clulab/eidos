@@ -25,28 +25,29 @@ as IPC Phase 4: "Emergency".
     val tester = new Tester(text)
 
     // Sentence 1
-    val conditions1 = NodeSpec("famine conditions", Dec("no longer occuring"))
+    val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"))
     
     // Sentence 2
     // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
     val conditions2 = NodeSpec(/*"the number of people facing IPC Phase 5: " +*/ "``Catastrophe'' food security conditions", Dec("declined"))
-    val fromQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("100 000", "over"))
-    val toQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("45 000"))
+//    val fromQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("100 000", "over"))
+//    val toQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("45 000"))
     val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
     
     behavior of "TestDoc4 Paragraph 1"
 
-    failingTest should "have correct node 1" taggedAs(Vikas) in {
+    passingTest should "have correct node 1" taggedAs(Vikas) in {
       tester.test(conditions1) should be (successful)
     }
-    failingTest should "have correct node 2" taggedAs(Vikas) in {
-      tester.test(fromQuant) should be (successful)
-    }
-    failingTest should "have correct node 3" taggedAs(Vikas) in {
-      tester.test(toQuant) should be (successful)
-    }
-    
-    passingTest should "have correct edges 1" taggedAs(Somebody) in {
+    // Becky: removed for now.  I don't know that we will be capturing explicit quantities, and if so how we will represent them.
+//    futureWorkTest should "have correct node 2" taggedAs(Vikas) in {
+//      tester.test(fromQuant) should be (successful)
+//    }
+//    futureWorkTest should "have correct node 3" taggedAs(Vikas) in {
+//      tester.test(toQuant) should be (successful)
+//    }
+    // The syntax is hopelessly broken, we can removed some of the inner punctuation to try to fix or leave as is.
+    brokenSyntaxTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(operations, Causal, conditions2)) should be (successful)
     }
   }
