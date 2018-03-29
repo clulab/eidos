@@ -3,14 +3,10 @@ package org.clulab.wm.eidos.text.cag
 import CAG._
 
 import org.clulab.wm.eidos.test.TestUtils._
-
 import org.clulab.wm.eidos.text.{Causal, Correlation, SameAs}
-
 import org.clulab.wm.eidos.text.{AntiEdgeSpec, AntiNodeSpec}
-
 import org.clulab.wm.eidos.text.{EdgeSpec, NodeSpec}
-
-import org.clulab.wm.eidos.text.{Dec, Inc}
+import org.clulab.wm.eidos.text.{Dec, Inc, Quant}
 
 class TestCagP0 extends Test {
 
@@ -127,6 +123,31 @@ class TestCagP0 extends Test {
       tester.test(antiEdge3) should be (successful)
       tester.test(antiEdge4) should be (successful)
       tester.test(antiEdge5) should be (successful)
+    }
+  }
+
+  {
+    val text = "X caused record high above-average rainfall"
+
+    val tester = new Tester(text)
+
+    val x = NodeSpec("X")
+    val rainfall1 = NodeSpec("rainfall", Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"), Inc("above-average"))
+    val rainfall2 = NodeSpec("rainfall", Inc("above-average"), Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"))
+    val rainfall3 = NodeSpec("rainfall", Quant("above-average", "high", "record"), Inc("high"), Inc("above-average"), Inc("above-average"))
+
+    behavior of "text"
+
+    it should "find nodes at all" in {
+      tester.test(rainfall1) should be (successful)
+    }
+
+    it should "find nodes independent of attachment order" in {
+      tester.test(rainfall2) should be (successful)
+    }
+
+    it should "find nodes independent of adverb order" in {
+      tester.test(rainfall3) should be (successful)
     }
   }
 }
