@@ -127,14 +127,14 @@ class TestCagP0 extends Test {
   }
 
   {
-    val text = "X caused truly high above-average rainfall"
+    val text = "X caused record high above-average rainfall"
 
     val tester = new Tester(text)
 
     val x = NodeSpec("X")
-    val rainfall1 = NodeSpec("rainfall", Quant("above-average", "truly", "high"), Inc("high", "truly"))
-    val rainfall2 = NodeSpec("rainfall", Inc("high", "truly"), Quant("above-average", "truly", "high"))
-    val rainfall3 = NodeSpec("rainfall", Quant("above-average", "high", "truly"), Inc("high", "truly"))
+    val rainfall1 = NodeSpec("rainfall", Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"), Inc("above-average"))
+    val rainfall2 = NodeSpec("rainfall", Inc("above-average"), Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"))
+    val rainfall3 = NodeSpec("rainfall", Quant("above-average", "high", "record"), Inc("high"), Inc("above-average"), Inc("above-average"))
 
     behavior of "text"
 
