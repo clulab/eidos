@@ -13,7 +13,8 @@ class TestEntityFinder extends Test {
   }
 
   "JJ entity" should "only be kept if following word was avoided as a trigger" in {
-    val text = "Happy "
+    val text1 = "some happy caused the recession."
+    val text1 = "some happy declines caused the recession."
     val mentions = extractMentions(text)
     mentions.filter(_.text == "rainfall") should have size (1)
     mentions.filter(_.text == "in rainfall") should have size (0)
