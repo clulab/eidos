@@ -99,8 +99,19 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (nmod_by|nmod_to) /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+
+#Handles occurrence of prep_by when NOT passive voice
+  #misfires on "floods caused by rain"
+  - name: ported_syntax_1d_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "The water quality contributes to poverty."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
 
 # BS: removed bc seems that passive voice is consistently captured with nsubjpass, and was mis-labeling some causal events (i.e. their polarity)
@@ -142,9 +153,9 @@ rules:
     example: ""
     label: ${ label }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
-      effect: Entity = dobj /${ noun_modifiers }|${ conjunctions }/{,2}
-      cause: Entity = (< /xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
+      trigger = [word=/(?i)^(${ trigger })/]# & tag=/^V|RB/]
+      effect: Entity = acl? dobj /${ noun_modifiers }|${ conjunctions }/{,2}
+      cause: Entity = (< /xcomp|ccomp|rcmod|appos/){1,2} /${agents}|${ conjunctions }|${ noun_modifiers }/{,2}
 
 
   - name: ported_syntax_6_verb-${addlabel}
