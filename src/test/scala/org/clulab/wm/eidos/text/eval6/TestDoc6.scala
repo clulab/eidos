@@ -75,7 +75,7 @@ class TestDoc6 extends Test {
     val access = NodeSpec("access to sufficient food", Dec("lack"))
     val catastrophe = NodeSpec("Catastrophe", Quant("likely"))
     val households = NodeSpec("households did not harvest") // todo -- handle
-    val insecurity = NodeSpec("ongoing insecurity")
+    val insecurity = NodeSpec("insecurity", Quant("ongoing"))
     val assistance = NodeSpec("access to assistance", Dec("limiting"))
     val movement = NodeSpec("movement towards natural food sources", Dec("limiting"))
 
@@ -84,22 +84,24 @@ class TestDoc6 extends Test {
 
     behavior of "TestDoc6 Paragraph 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
-      tester.test(concerns) should be (successful)
-    }
-    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
+    // Removed because concern is considered a transparent word, so it is removed.
+//    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+//      tester.test(concerns) should be (successful)
+//    }
+    brokenSyntaxTest should "have correct singleton node 2" taggedAs(Becky) in {
       tester.test(foodSec) should be (successful)
     }
     passingTest should "have correct singleton node 3" taggedAs(Becky) in {
       tester.test(access) should be (successful)
     }
-    failingTest should "have correct edge 1" taggedAs(Becky) in {
+    // Relies on VP entities
+    futureWorkTest should "have correct edge 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(catastrophe, Correlation, households)) should be (successful)
     }
-    failingTest should "have correct edge 2" taggedAs(Becky) in {
+    passingTest should "have correct edge 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(insecurity, Causal, assistance)) should be (successful)
     }
-    failingTest should "have correct edge 3" taggedAs(Becky) in {
+    passingTest should "have correct edge 3" taggedAs(Becky) in {
       tester.test(EdgeSpec(insecurity, Causal, movement)) should be (successful)
     }
 

@@ -38,11 +38,11 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
 
-//    println(s"Base-entities  -- ${baseEntities.map(m => m.text).mkString(",\t")}")
-//    println(s"Expanded-entities  -- ${expandedEntities.map(m => m.text).mkString(",\t")}")
-//    println(s"distinct-Entities -- ${distinctEntities.map(m => m.text).mkString(",\t")}")
-//    println(s"trimmed-Entities -- ${trimmedEntities.map(m => m.text).mkString(",\t")}")
-//    println(s"Entities finally returned -- ${res.map(m => m.text).mkString(",\t")}")
+//    println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Expanded-entities  -- \n\t${expandedEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Entities finally returned -- \n\t${res.map(m => m.text).mkString("\n\t")}")
     res
   }
 
