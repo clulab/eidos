@@ -2,9 +2,6 @@ package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-import java.util.Collection
-
-import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
@@ -19,7 +16,6 @@ import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainParams
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
 
 import org.slf4j.LoggerFactory
 

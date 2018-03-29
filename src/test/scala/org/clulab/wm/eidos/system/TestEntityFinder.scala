@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.scalactic.source.Position.apply
 
 class TestEntityFinder extends Test {
 
