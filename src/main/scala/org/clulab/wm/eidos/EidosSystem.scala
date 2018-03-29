@@ -118,12 +118,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     } s.entities.get(i) = lexiconNERTag
   }
 
+  // MAIN PIPELINE METHOD
   def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, this)
+    val cagRelevant = keepCAGRelevant(odinMentions)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, this)
 
-    new AnnotatedDocument(doc, odinMentions, eidosMentions)
+    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
@@ -181,24 +183,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
   }
 
-  def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean = {
-
-    if (m.matches("Entity") && m.attachments.nonEmpty) {
-      true
-    }
-    else if (cagEdgeMentions.exists(cm => cm.arguments.keys.toSeq.contains(m))){
-      true
-    }
-    else if (cagEdgeMentions.contains(m)) {
-      true
-    }
-    else {
-      false
-    }
-  }
-
-
-
+  def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean =
+      (m.matches("Entity") && m.attachments.nonEmpty) ||
+          cagEdgeMentions.exists(cm => cm.arguments.values.flatten.toSeq.contains(m)) ||
+          cagEdgeMentions.contains(m)
+  
   /*
       Grounding
   */
@@ -242,6 +231,6 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES = Set("Causal")
+  val CAG_EDGES = Set("Causal", "Correlation")
 
 }
