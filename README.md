@@ -41,10 +41,10 @@ import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
   val reader = new EidosSystem()
 
   // Extract the mentions
-  val annotatedDocument = reader.extractFrom(text)
+  val annotatedDocument = reader.extractFromText(text)
 
   // Display in a pretty way
-  annotatedDocument.mentions.foreach(displayMention)
+  annotatedDocument.odinMentions.foreach(displayMention)
 ```
 
 This produces the following output (mentions may appear in different order):
@@ -95,7 +95,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
   val reader = new EidosSystem()
 
   // Extract the mentions
-  val annotatedDocument = reader.extractFrom(text)
+  val annotatedDocument = reader.extractFromText(text)
 
   // Export to JSON-LD
   val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
@@ -104,7 +104,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 ```
 
 This produces the following JSON-LD output (mentions may appear in different order):
-```
+```jsonld
 {
   "@context" : {
     "@base" : "https://github.com/clulab/eidos/wiki/JSON-LD",
@@ -451,7 +451,7 @@ import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 
 This produces the following JSON serialization (mentions may appear in different order):
 
-```
+```json
 {
   "documents" : {
     "-1501028087" : {
