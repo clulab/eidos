@@ -14,7 +14,7 @@ class TestGlobalAction extends Test {
 
     behavior of "a sentence requiring global action"
 
-    failingTest should "have correct node" taggedAs(Somebody) in {
+    passingTest should "have correct node" taggedAs(Somebody) in {
       tester.test(rainfall) should be (successful)
     }
   }
