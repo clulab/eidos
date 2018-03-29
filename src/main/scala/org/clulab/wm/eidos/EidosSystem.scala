@@ -122,6 +122,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
+    //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = keepCAGRelevant(odinMentions)
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, this)
 
@@ -130,23 +131,18 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
     val res = engine.extractFrom(doc, state).toVector
-
-    val cleanMentions = loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
-    //    val longest = actions.keepLongestMentions(cleanMentions, State(cleanMentions)).toVector
-    //   longest
-    cleanMentions
+    loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
   }
 
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
-    //    println(s"In extractFrom() -- entities : ${entities.map(m => m.text).mkString(",\t")}")
+    //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
     val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
-    //    println(s"In extractFrom() -- filtered : ${filtered.map(m => m.text).mkString(",\t")}")
+    //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
     val events = extractEventsFrom(doc, State(filtered)).distinct
-    //    if (!populateSameAs) return events
-    //    println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
+    //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
     events
   }

@@ -84,9 +84,10 @@ class TestDoc6 extends Test {
 
     behavior of "TestDoc6 Paragraph 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
-      tester.test(concerns) should be (successful)
-    }
+    // Removed because concern is considered a transparent word, so it is removed.
+//    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+//      tester.test(concerns) should be (successful)
+//    }
     failingTest should "have correct singleton node 2" taggedAs(Becky) in {
       tester.test(foodSec) should be (successful)
     }
