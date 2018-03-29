@@ -32,13 +32,9 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     val trimmedEntities = distinctEntities.map(trimEntityEdges)
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty) {
-      println("** avoid.isEmpty == true")
       trimmedEntities
     } else {
-      println("** avoid has content: ")
       val avoidLabel = avoid.head.labels.last
-      println("**** avoid has content: ")
-
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
 
