@@ -183,24 +183,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
   }
 
-  def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean = {
-
-    if (m.matches("Entity") && m.attachments.nonEmpty) {
-      return true
-    }
-    else if (cagEdgeMentions.exists(cm => cm.arguments.values.flatten.toSeq.contains(m))){
-      return true
-    }
-    else if (cagEdgeMentions.contains(m)) {
-      return true
-    }
-
-    false
-
-  }
-
-
-
+  def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean =
+      (m.matches("Entity") && m.attachments.nonEmpty) ||
+          cagEdgeMentions.exists(cm => cm.arguments.values.flatten.toSeq.contains(m)) ||
+          cagEdgeMentions.contains(m)
+  
   /*
       Grounding
   */
