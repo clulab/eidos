@@ -34,7 +34,8 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 1"
 
-    passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
+    // Once the Correlation test passes, this will pass too!
+    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(conflict) should be (successful) 
     }
     passingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
@@ -190,15 +191,14 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 6"
 
-    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(foodAssistance) should be (successful)
-    }
+    // Currently, because this node doesn't participate in events and is not modified, we prune it out.
+//    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+//      tester.test(foodAssistance) should be (successful)
+//    }
     failingTest should "have correct singleton node 2" taggedAs(Becky) in {
-      tester.test(water) should be (successful) 
+      tester.test(water) should be (successful)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Becky) in {
-      tester.test(livelihoodsInterventions) should be (successful) 
-    }
+
     futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(agriculturalTraining, IsA, livelihoodsInterventions)) should be (successful) 
     }

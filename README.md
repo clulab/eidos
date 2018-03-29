@@ -104,7 +104,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 ```
 
 This produces the following JSON-LD output (mentions may appear in different order):
-```
+```jsonld
 {
   "@context" : {
     "@base" : "https://github.com/clulab/eidos/wiki/JSON-LD",
@@ -451,7 +451,7 @@ import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 
 This produces the following JSON serialization (mentions may appear in different order):
 
-```
+```json
 {
   "documents" : {
     "-1501028087" : {

@@ -10,4 +10,4 @@ rules:
       priority: ${rulepriority}
       type: token
       pattern: |
-        [entity="B-Quantifier"] [entity="I-Quantifier"]*
+        [entity="B-Quantifier"] [entity="I-Quantifier"]* (to [entity="B-Quantifier"] [entity="I-Quantifier"]*)?
