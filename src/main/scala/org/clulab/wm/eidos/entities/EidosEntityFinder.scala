@@ -64,12 +64,11 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 
     val sent = entity.sentenceObj
     // If there's a noun in the entity, it's valid
-    if (entity.tags.get.exists(tag => tag.startsWith("NN"))) true
+    entity.tags.get.exists(tag => tag.startsWith("NN")) ||
     // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
     // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
-    else if (entity.tags.get.last.startsWith("JJ") && nextTagNN(entity)) true
+    entity.tags.get.last.startsWith("JJ") && nextTagNN(entity)
     // Otherwise, it's not valid
-    else false
   }
 
 
