@@ -26,7 +26,7 @@ class TestDoc8 extends Test {
     val famine = NodeSpec("risk of famine", Quant("elevated"))
     val foodSecurity = NodeSpec("food security", Dec("worsen"))
     val foodProduction = NodeSpec("food production", Quant("rapid"))
-    val communities = NodeSpec("communities", Quant("vulnerable"))
+    val communities = NodeSpec("communities", Quant("vulnerable", "most"))
     val selfSufficiency = NodeSpec("self-sufficiency", Inc("increasing"))
     
     behavior of "TestDoc8 Paragraph 1"
@@ -75,13 +75,14 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val agricultureInformation = NodeSpec("agricultural information")
+    val agricultureInformation = NodeSpec("agriculture information")
     
     behavior of "TestDoc8 Objective 2"
 
-    failingTest should "have correct singleton node 1" taggedAs(Keith) in {
-      tester.test(agricultureInformation) should be (successful) 
-    }
+    // Removed.  Since it doesn't participate in a causal event and is not modified, we prune the node out.
+//    passingTest should "have correct singleton node 1" taggedAs(Keith) in {
+//      tester.test(agricultureInformation) should be (successful)
+//    }
   }
 
   { // Sidenote
@@ -93,23 +94,29 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val foodSecurityTrends = NodeSpec("worsening food security trends", Dec("compounded"))
-    val conflict = NodeSpec("conflict", Quant("continued"))
-    val marketFailure = NodeSpec("market failure")
+    val foodSecurityTrends = NodeSpec("food security trends", Dec("Worsening"), Inc("compounded"))
+    val conflict = NodeSpec("continued conflict")
+
+    val marketFailure = NodeSpec("market", Dec("failure"))
     val internalDisplacement = NodeSpec("internal displacement")
-    
+    val access = NodeSpec("humanitarian access", Dec("decreasing"))
+
     behavior of "TestDoc8 Sidenote"
 
-    failingTest should "have correct edge 1" taggedAs(Keith) in {
+    passingTest should "have correct edge 1" taggedAs(Keith) in {
+      tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be(successful)
+    }
+    passingTest should "have correct edge 2" taggedAs(Keith) in {
       tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful) 
     }
-    failingTest should "have correct edge 2" taggedAs(Keith) in {
+    passingTest should "have correct edge 3" taggedAs(Keith) in {
       tester.test(EdgeSpec(internalDisplacement, Causal, foodSecurityTrends)) should be (successful) 
     }
-    failingTest should "have correct edge 3" taggedAs(Keith) in {
-      tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be (successful) 
+    passingTest should "have correct edge 4" taggedAs(Keith) in {
+      tester.test(EdgeSpec(access, Causal, foodSecurityTrends)) should be (successful)
     }
   }
+
   { // Impact paragraph 1
     val text = """
       Humanitarian response succeeded in containing famine soon after it was
@@ -204,9 +211,19 @@ class TestDoc8 extends Test {
     val climateExtremes = NodeSpec("climate extremes")
     val areaPlanted = NodeSpec("area planted", Dec("reduction"))
 
-    val routes = NodeSpec("Trade and migration routes", Quant("disrupted"))
-    val risk = NodeSpec("risk and occurrence of livestock disease outbreaks", Inc("increased"))
-    
+    val routesa = NodeSpec("Trade", Dec("disrupted"))
+    val routesb = NodeSpec("migration routes", Dec("disrupted"))
+    // How might this be done?
+    val routesc = NodeSpec("Trade and migration routes", Dec("disrupted"))
+    // We're not this smart yet
+    //val routesd = NodeSpec("Trade routes", Dec("disrupted"))
+
+    // How might this be done?
+    val riska = NodeSpec("risk of livestock disease outbreaks", Inc("increased"))
+    val riskb = NodeSpec("occurrence of livestock disease outbreaks", Inc("increased"))
+    // This is ungrammatical to me.  Risk and occurrence _have_ increased
+    //val riskc = NodeSpec("risk and occurrence of livestock disease outbreaks", Inc("increased"))
+
     val econCrisis = NodeSpec("Economic crisis")
     val hyperinflation = NodeSpec("hyperinflation", Quant("drastic"))
     val marketFailures = NodeSpec("market failures")
@@ -235,11 +252,20 @@ class TestDoc8 extends Test {
     failingTest should "have correct edge 6" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(areaPlanted, Causal, cerealGap)) should be (successful) 
     }
-    failingTest should "have correct singleton node 1" taggedAs(Keith) in {
-      tester.test(routes) should be (successful) 
+    passingTest should "have correct singleton node 1a" taggedAs(Keith) in {
+      tester.test(routesa) should be (successful)
     }
-    failingTest should "have correct singleton node 2" taggedAs(Keith) in {
-      tester.test(risk) should be (successful) 
+    passingTest should "have correct singleton node 1b" taggedAs(Keith) in {
+      tester.test(routesb) should be (successful)
+    }
+    ignore should "have correct singleton node 1c" taggedAs(Keith) in {
+      tester.test(routesc) should be (successful)
+    }
+    ignore should "have correct singleton node 2a" taggedAs(Keith) in {
+      tester.test(riska) should be (successful)
+    }
+    passingTest should "have correct singleton node 2b" taggedAs(Keith) in {
+      tester.test(riskb) should be (successful)
     }
     failingTest should "have correct edge 7" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(econCrisis, Correlation, hyperinflation)) should be (successful) 

@@ -13,15 +13,20 @@ case class Unmodified(quantifier: Quantifier) extends Attachment
 
 abstract class GraphSpec
 
-class EventSpec(val label: String) extends GraphSpec
+class EventSpec(val label: String, val directed: Boolean) extends GraphSpec
 
-object NoEvent extends EventSpec("")
-object Causal extends EventSpec("Causal")
-object Correlation extends EventSpec("Correlation")
-object IsA extends EventSpec("IsA")
-object Origin extends EventSpec("Origin")
-object TransparentLink extends EventSpec("TransparentLink")
-object Affect extends EventSpec("Affect")
+// For testings, should not match anything else
+object NoEvent extends EventSpec("", true)
+// DirectedRelation
+object Causal extends EventSpec("Causal", true)
+object IsA extends EventSpec("IsA", true)
+object Origin extends EventSpec("Origin", true)
+object TransparentLink extends EventSpec("TransparentLink", true)
+// UndirectedReleation
+object Correlation extends EventSpec("Correlation", false)
+object SameAs extends EventSpec("SameAs", false)
+// Not in taxonomy
+object Affect extends EventSpec("Affect", true)
 
 class AttachmentSpec(val attachment: Attachment) extends GraphSpec {
   protected def toString(quantifiers: Option[Seq[Quantifier]]): String = {
@@ -104,9 +109,10 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
         .map(_.asInstanceOf[TextBoundMention])
         .filter(matchText)
         .filter(matchAttachments)
-    val matches2 = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
+
+    val matches = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
     
-    matches2
+    matches
   }
   
   def test(mentions: Seq[Mention]): Seq[String] = {
@@ -115,7 +121,9 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
       if (matches.size < 1)
         complaints = Seq("Could not find NodeSpec " + this)
       else if (matches.size > 1)
-        complaints = Seq("Found to many (" + matches.size + ") instances of NodeSpec " + this)
+
+        complaints = Seq("Found too many (" + matches.size + ") instances of NodeSpec " + this)
+
       else
         mention = Some(matches.head)
       tested = true
@@ -179,10 +187,11 @@ object AntiNodeSpec {
       new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
-class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeSpec]) extends GraphSpec {
-  protected def testPattern = testLines(_)
-  //protected def testPattern = testStar(_)
-      
+class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) extends GraphSpec {
+  var mention: Option[Mention] = None
+  var tested = false
+  var complaints = Seq[String]()
+
   protected def getArgument(mention: EventMention, nodeSpec: NodeSpec, argument: String): Option[Mention] = {
     val tmpMention = nodeSpec.mention.get
 
@@ -201,92 +210,69 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
   protected def matchCause(mention: EventMention): Boolean =
       getArgument(mention, cause, "cause") != None
 
-  protected def matchEffect(mention: EventMention, effect: NodeSpec) =
+  protected def matchEffect(mention: EventMention) =
       getArgument(mention, effect, "effect") != None
-    
-  protected def matchEffect(mention: EventMention): Boolean =
-      effects.exists(matchEffect(mention, _))
-        
-  protected def matchEffects(mention: EventMention): Boolean = { 
-    val tmpEffects = effects.map(_.mention.get) 
- 
-    if (mention.arguments.contains("effect")) 
-      // This has to be all of them at once and only all of them
-      // Both are converted to sets for comparison
-      // If the effects can be a subset, use .sameElements(tmpEfects)
-      mention.arguments("effect").toSet == tmpEffects
-    else  
-      false 
-  }
-      
+
+  protected def crossMatchCause(mention: EventMention): Boolean =
+    getArgument(mention, cause, "effect") != None
+
+  protected def crossMatchEffect(mention: EventMention) =
+    getArgument(mention, effect, "cause") != None
+
   protected def testSpec(mentions: Seq[Mention]): Seq[Mention] = {
-    val matches = mentions
-        .filter(_.isInstanceOf[EventMention])
-        .map(_.asInstanceOf[EventMention])
-        .filter(_.matches(event.label))
-        .filter(matchCause)
-        .filter(matchEffects) // All of them
-    
-    matches
-  }
-    
-  protected def testLines(mentions: Seq[Mention]): Seq[String] = {
     val matches1 = mentions
     val matches2 = matches1.filter(_.isInstanceOf[EventMention])
     val matches3 = matches2.map(_.asInstanceOf[EventMention])
     val matches4 = matches3.filter(_.matches(event.label))
-    val matches5 = matches4.filter(matchCause)
-    val matches = matches5.filter(matchEffect) // One of them
-    
-    val badCause = matches.find(mention => getCause(mention).get != cause.mention.get).isDefined
-    val effectResults = effects.toSeq
-        .map(effect => (effect, matches.find(mention => matchEffect(mention, effect))))
-    val complaints = effectResults.flatMap(effectResult =>
-      if (effectResult._2.isDefined) Seq.empty
-      else Seq("Could not find line EdgeSpec " + effectResult._1)
-    )
-    
-    if (badCause) complaints ++ Seq("Not all effects had same cause")
-    else complaints
-  }
-    
-  protected def testStar(mentions: Seq[Mention]): Seq[String] =
-    if (testSpec(mentions) == None)
-      Seq("Could not find star EdgeSpec " + this)
-    else 
-      Seq.empty
-  
-  protected def getComplaints(mentions: Seq[Mention]): (Seq[String], Set[String], Seq[String]) = {
-    val causeComplaints = cause.test(mentions)
-    val effectComplaints = effects.flatMap(_.test(mentions))
+    val matches5a = matches4.filter(matchCause)
+    val matches6a = matches5a.filter(matchEffect)
+    val matches =
+      if (event.directed)
+        matches6a
+      else {
+        val matches5b = matches4.filter(crossMatchCause)
+        val matches6b = matches5b.filter(crossMatchEffect)
 
-    val causeSuccess = causeComplaints.isEmpty
-    val effectSuccess = effectComplaints.isEmpty
-    
-    val edgeComplaints =
-        if (causeSuccess && effectSuccess) testPattern(mentions)
-        else Seq.empty
-    
-    (causeComplaints, effectComplaints, edgeComplaints)
+        matches6a ++ matches6b
+      }
+
+    matches
   }
   
   def test(mentions: Seq[Mention]): Seq[String] = {
-    val (causeComplaints, effectComplaints, edgeComplaints) = getComplaints(mentions)
+    if (!tested) {
+      val causeComplaints = cause.test(mentions)
+      val effectComplaints = effect.test(mentions)
 
-    causeComplaints ++ effectComplaints ++ edgeComplaints
+      val causeSuccess = causeComplaints.isEmpty
+      val effectSuccess = effectComplaints.isEmpty
+
+      val edgeComplaints =
+          if (causeSuccess && effectSuccess) {
+            val matches = testSpec(mentions)
+
+            tested = true
+            if (matches.size < 1)
+              Seq("Could not find EdgeSpec " + this)
+            else if (matches.size > 1)
+              Seq("Found too many (" + matches.size + ") instances of EdgeSpec " + this)
+            else {
+              mention = Some(matches.head)
+              Seq.empty
+            }
+          }
+          else Seq.empty
+      complaints = causeComplaints ++ effectComplaints ++ edgeComplaints
+    }
+    complaints
   }
-  
+
   def toString(left: String, right: String): String = {
     new StringBuilder(cause.toString())
         .append(left)
         .append(event.label)
         .append(right)
-        .append(
-            if (effects.isEmpty)
-              "NoEdge"
-            else
-              effects.map(_.toString()).mkString("->")
-        )
+        .append(effect.toString())
         .toString()
   }
     
@@ -294,26 +280,39 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effects: Set[NodeS
 }
 
 object EdgeSpec {
-    def apply(cause: NodeSpec, event: EventSpec, effects: NodeSpec*) =
-      new EdgeSpec(cause, event, effects.toSet)
+    def apply(cause: NodeSpec, event: EventSpec, effect: NodeSpec) =
+      new EdgeSpec(cause, event, effect)
 }
 
-class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effects: Set[NodeSpec]) extends EdgeSpec(cause, event, effects) {
+class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends EdgeSpec(cause, event, effect) {
   override def toString(): String = toString("->)", "(->")
 
   override def test(mentions: Seq[Mention]): Seq[String] = {
-    val (causeComplaints, effectComplaints, edgeComplaints) = getComplaints(mentions)
-    val antiEdgeComplaints =
-        if (edgeComplaints.isEmpty)
-          Seq("Could find AntiEdgeSpec " + this)
-        else
-          Seq.empty
+    if (!tested) {
+      val causeComplaints = cause.test(mentions)
+      val effectComplaints = effect.test(mentions)
 
-    causeComplaints ++ effectComplaints ++ antiEdgeComplaints
+      val causeSuccess = causeComplaints.isEmpty
+      val effectSuccess = effectComplaints.isEmpty
+
+      val edgeComplaints =
+        if (causeSuccess && effectSuccess) {
+          val matches = testSpec(mentions)
+
+          tested = true
+          if (matches.size != 0)
+            Seq("Could find AntiEdgeSpec " + this)
+          else
+            Seq.empty
+        }
+        else Seq.empty
+      complaints = causeComplaints ++ effectComplaints ++ edgeComplaints
+    }
+    complaints
   }
 }
 
 object AntiEdgeSpec {
-    def apply(cause: NodeSpec, event: EventSpec, effects: NodeSpec*) =
-      new AntiEdgeSpec(cause, event, effects.toSet)
+    def apply(cause: NodeSpec, event: EventSpec, effect: NodeSpec) =
+      new AntiEdgeSpec(cause, event, effect)
 }

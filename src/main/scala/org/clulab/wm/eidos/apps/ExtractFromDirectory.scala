@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.apps
 
 import java.io.PrintWriter
 
-import scala.collection.Seq
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
@@ -10,16 +9,16 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
+import scala.collection.Seq
 
 object ExtractFromDirectory extends App {
-
-  val reader = new EidosSystem()
   val inputDir = args(0)
   val outputDir = args(1)
   val files = findFiles(inputDir, "txt")
+  val reader = new EidosSystem()
 
   // For each file in the input directory:
-  files foreach { file =>
+  files.par.foreach { file =>
     // 1. Open corresponding output file
     println(s"Extracting from ${file.getName}")
     val pw = new PrintWriter(s"$outputDir/${file.getName}.jsonld")

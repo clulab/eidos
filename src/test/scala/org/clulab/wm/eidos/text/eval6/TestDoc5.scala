@@ -324,7 +324,7 @@ class TestDoc5 extends Test {
     failingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(insecurity, Correlation, households)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Adarsh) in {
+    passingTest should "have correct edges 2" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, displacement)) should be (successful)
     }
     failingTest should "have correct edges 3" taggedAs(Adarsh) in {
@@ -354,7 +354,7 @@ class TestDoc5 extends Test {
     val displacement = NodeSpec("displacement")
     val functioning = NodeSpec("normal market functioning", Dec("disrupting"))
     val prices = NodeSpec("prices", Quant("extremely high"))
-    val conflict2 = NodeSpec("ongoing conflict")
+    val conflict2 = NodeSpec("conflict", Quant("ongoing"))
     val production = NodeSpec("crop production", Dec("disrupted"))
     val movement = NodeSpec("movement of local populations", Dec("restricted"))
 

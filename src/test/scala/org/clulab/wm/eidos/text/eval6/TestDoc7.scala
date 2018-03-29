@@ -27,20 +27,22 @@ class TestDoc7 extends Test {
 
     val tester = new Tester(text)
 
-    val conflict = NodeSpec("conflict")
+    val conflict = NodeSpec("nearly four years of civil conflict")
     val food = NodeSpec("food", Quant("scarce", "most"))
     val hunger = NodeSpec("hunger", Quant("life-threatening"))
     val leanSeason = NodeSpec("lean season")
 
     behavior of "TestDoc7 Paragraph 1"
 
+    // Once the Correlation test passes, this will pass too!
     failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(conflict) should be (successful) 
     }
-    failingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
+    passingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
       tester.test(hunger) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Egoitz) in {
+    // Note: There is not a clear path to connect "season" and "food".
+    futureWorkTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(food, Correlation, leanSeason)) should be (successful) 
     }
   }
@@ -58,20 +60,20 @@ class TestDoc7 extends Test {
 
     val foodAvailability = NodeSpec("food availability",
                                     Inc("improvements", "slight"))
-    val seasonalHarvests = NodeSpec("seasonal harvests")
+    val seasonalHarvests = NodeSpec("seasonal harvests from October")
     val leanSeasons = NodeSpec("lean seasons")
     val foodSecurity = NodeSpec("Food security", Dec("deteriorate"))
-    val foodInsecurity = NodeSpec("levels of acute food insecurity", Quant("worse"))
+    val foodInsecurity = NodeSpec("levels of acute food insecurity", Dec("worse"))
     
     behavior of "TestDoc7 Paragraph 2"
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(foodSecurity) should be (successful) 
     }
-    failingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
+    passingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
       tester.test(foodInsecurity) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(seasonalHarvests, Causal, foodAvailability)) should be (successful) 
     }
   }
@@ -118,29 +120,28 @@ class TestDoc7 extends Test {
   
     val tester = new Tester(text)
 
-    val refugees = NodeSpec("refugees")
-    val insecurity = NodeSpec("insecurity", Quant("Widespread"))
-    val communities = NodeSpec("communities", Quant("displace"))
-    val livelihoodActivities = NodeSpec("livelihood activities", Quant("disrupt"))
-    val foodInsecurity = NodeSpec("food insecurity", Quant("exacerbate"))
-    val humanitarianAccess = NodeSpec(
-      "humanitarian access to vulnerable populations", Quant("impede"))
+    val refugees = NodeSpec("2.4 million refugees", Quant("approximately"))
+    val insecurity = NodeSpec("insecurity", Inc("Widespread"))
+    val communities = NodeSpec("communities")
+    val livelihoodActivities = NodeSpec("livelihood activities", Dec("disrupt"))
+    val foodInsecurity = NodeSpec("food insecurity", Inc("exacerbate"))
+    val humanitarianAccess = NodeSpec("humanitarian access", Dec("impede"))
     
     behavior of "TestDoc7 Paragraph 4"
 
-    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
+    passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(refugees) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, communities)) should be (successful) 
     }
-    failingTest should "have correct edge 2" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, livelihoodActivities)) should be (successful) 
     }
-    failingTest should "have correct edge 3" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, foodInsecurity)) should be (successful) 
     }
-    failingTest should "have correct edge 4" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 4" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, humanitarianAccess)) should be (successful) 
     }
   }
@@ -190,15 +191,14 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 6"
 
-    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(foodAssistance) should be (successful)
-    }
+    // Currently, because this node doesn't participate in events and is not modified, we prune it out.
+//    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+//      tester.test(foodAssistance) should be (successful)
+//    }
     failingTest should "have correct singleton node 2" taggedAs(Becky) in {
-      tester.test(water) should be (successful) 
+      tester.test(water) should be (successful)
     }
-    failingTest should "have correct singleton node 3" taggedAs(Becky) in {
-      tester.test(livelihoodsInterventions) should be (successful) 
-    }
+
     futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(agriculturalTraining, IsA, livelihoodsInterventions)) should be (successful) 
     }

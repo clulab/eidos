@@ -6,7 +6,7 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
-import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder, OntologyGrounder, OntologyGrounding}
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
 
@@ -36,8 +36,7 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGr
   /* Methods for canonicalForms of Mentions */
   protected def canonicalFormSimple(m: Mention): String = {
     def isContentTag(tag: String) = tag.startsWith("NN") || tag.startsWith("VB")
-    def removeNER(ner: String) = EidosSystem.STOP_NER.contains(ner)
-
+    def removeNER(ner: String) = EidosOntologyGrounder.STOP_NER.contains(ner)
     val contentLemmas = for {
       (lemma, i) <- m.lemmas.get.zipWithIndex
       tag = m.tags.get(i)

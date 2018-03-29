@@ -1,14 +1,67 @@
 - events:
+  - nature_impact:
+    - positive_nature_impact:
+      - "conservation"
+      - "sustainable use"
+      - "afforestation"
+      - "agroforestry"
+      - "biodiversity conservation"
+      - "climate change mitigation"
+      - "reforestation"
+      - "climate change adaptation"
+      - "forest management"
+      - "water management"
+      - "management forest"
+    - negative_nature_impact:
+      - "pollution"
+      - "deforestation"
+      - "soil erosion"
+      - "desertification"
+      - "greenhouse gas emission"
+      - "contaminant"
+      - "climate change"
+      - "ghg emission"
+      - "contamination"
   - crisis:
     - "crisis"
     - "emergency"
   - natural:
-    - weather:
-      - precipitation:
-        - "precipitation"
-        - "rain"
-        - "rainfall"
-        - "snow"
+    - natural_resources: # todo: to split into multiple categories ?
+      - "area"
+      - "food"
+      - "resource"
+      - "land"
+      - "water"
+      - "biodiversity"
+      - "sea"
+      - "ecosystem"
+      - "river"
+      - "forest area"
+      - "pond"
+      - "rain"
+      - "water resource"
+      - "forestry sector"
+      - "wetland"
+      - "nAtuRAl ReSouRceS"
+      - "mineral"
+      - "Convention Biological diversity"
+      - "area forest"
+      - "forest sector"
+      - "lake"
+      - "forest land"
+      - "freshwater"
+      - "surface water"
+      - "air"
+      - "charcoal"
+      - "sand"
+      - "plant resource food"
+      - "wildlife"
+      - "groundwater"
+      - "mountain"
+      - "mt"
+      - "iron"
+      - "water body"
+    - natural_disaster:
       - flooding:
         - "flood"
         - "flash flood"
@@ -19,12 +72,18 @@
         - "extreme winds"
         - "cyclone"
         - "tornado"
+    - weather:
+      - precipitation:
+        - "precipitation"
+        - "rain"
+        - "rainfall"
+        - "snow"
   - human:
     - conflict:
       - "conflict"
       - "war"
       - "fighting"
-      - "disarmament"
+      - "disarmament" # todo: fix this ...
       - "infighting"
       - "civil unrest"
       - "genocide"
@@ -37,12 +96,22 @@
       - "refugee migration"
       - "emigration"
     - intervention:
-      - "access"
-      - "humanitarian response"
-      - "humanitarian aid"
-      - "assistance"
-      - "humanitarian support"
-      - "intervention"
+      - intervention:
+        - "access"
+        - "humanitarian response"
+        - "humanitarian aid"
+        - "assistance"
+        - "humanitarian support"
+        - "intervention"
+        - "rehabilitation"
+        - "poverty alleviation"
+     - government_action: #todo
+        - "regulation"
+        - "policy"
+        - "governance"
+      - health_intervention:
+        - "vaccine"
+        #todo
     - famine:
       - "famine"
       - "hunger"
@@ -53,6 +122,36 @@
       - "morbidity"
       - "decease"
 - entities:
+  - GPE:
+    - "village"
+    - "world"
+    - "district"
+    - "province"
+    - "zone"
+    - "territory"
+    - "city"
+    - "capital"
+    - "States"
+    - "nation"
+    - "regional"
+    - "republic"
+    - "town"
+    - "headquarters"
+    - "settlement"
+    - "subregion"
+    - "continent"
+    - "several countries"
+    - "municipality"
+    - "county"
+    - "urban"
+    - "most countries"
+    - "developed countries"
+    - "sub-region"
+    - "nation"
+    - "country"
+    - "state"
+    - "geopolitical entity"
+    - "nation-state"
   - measurement:
     - distance:
       - "feet"
@@ -110,6 +209,17 @@
       - "midges"
       - "slugs"
   - human:
+    - health:
+      - human_health: #todo
+        - "health"
+        - "healthy"
+        - "nutrition"
+      - disease:
+        - "HIV"
+        - "malaraia"
+        - "diabetes"
+        - "anemia"
+        # todo
     - fertilizer:
       - "nitrogen fertilizer"
       - "inorganic fertilizers"
@@ -156,7 +266,9 @@
           - "highways"
         - bridge:
           - "bridge"
-      - other:
+      - other: #todo split out
+        - "infrastructure"
+        - "energy"
         - "border"
         - "building"
         - "monument"
@@ -172,8 +284,8 @@
         - "harbour"
     - livelihood:
       - "livelihood"
-      - "farming"
-      - "fishery"
+      - "farming" # todo move to own pre-terminal
+      - "fishery" # todo move to own pre-terminal
       - "food production"
       - "agriculture"
       - "industry"
@@ -183,6 +295,10 @@
       - "work"
       - "job"
       - "career"
+    - education: #todo
+      - "literacy"
+      - "education"
+      - "school"
     - financial:
       - price:
         - "price"
@@ -205,6 +321,8 @@
           - "economy"
           - "inflation"
           - "depreciation"
+        - technology: #todo -- think about investments in _______
+          - "biofuel"
         - revenue:
           - "livelihood"
           - "income"
@@ -214,31 +332,40 @@
           - "profit"
           - "earning"
           - "revenue"
-    - nation:
-      - "nation"
-      - "country"
-      - "state"
-      - "geopolitical entity"
-      - "nation-state"
-      - "ethic group"
-      - "population"
-      - "government"
+        - poverty: #todo
+          - "poverty"
+    - government:
+      - government_entity:
+        - "government"
+
+
     - communities:
       - "communities"
       - "people group"
       - "households"
       - "families"
       - "villages"
+      - "people"
+      - "community"
+      - "family"
+      - "ethnic group"
+      - "population"
     - food:
       - food_security:
         - "food security"
         - "food access"
         - "food availability"
         - "nutrition"
+        - "nutrition security"
       - food_insecurity:
         - "food insecurity"
         - "food gap"
         - "malnutrition"
+        - "undernutrition"
+        - "undernourishment"
+        - "stunting"
+        - "wasting"
+        - "wasting"
 - temporal:
   - seasons:
     - crop_season:
