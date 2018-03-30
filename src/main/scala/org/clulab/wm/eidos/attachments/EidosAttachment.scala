@@ -13,6 +13,8 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods
 import org.json4s.jackson.Serialization.write
 
+import scala.util.hashing.MurmurHash3.mixLast
+
 abstract class EidosAttachment extends Attachment {
   implicit val formats = org.json4s.DefaultFormats
   
@@ -69,6 +71,24 @@ object EidosAttachment {
 }
 
 case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends EidosAttachment {
+  // We keep the original order in adverbs for printing and things,
+  // but the sorted version will be used for comparison.
+  protected val sortedArguments: Option[Seq[String]] =
+      if (!adverbs.isDefined) None
+      else Some(adverbs.get.sorted)
+
+  override def canEqual(other: Any) = other.isInstanceOf[Quantification]
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case that: Quantification =>
+      that.canEqual(this) &&
+          this.quantifier == that.quantifier &&
+          this.sortedArguments == that.sortedArguments
+    case _ => false
+  }
+
+  override def hashCode = mixLast(quantifier.##, sortedArguments.##)
+
   override def argumentSize: Int = argumentSize(adverbs)
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
@@ -95,6 +115,24 @@ object Quantification {
 }
 
 case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) extends EidosAttachment {
+  // We keep the original order in adverbs for printing and things,
+  // but the sorted version will be used for comparison.
+  protected val sortedArguments: Option[Seq[String]] =
+    if (!quantifiers.isDefined) None
+    else Some(quantifiers.get.sorted)
+
+  override def canEqual(other: Any) = other.isInstanceOf[Increase]
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case that: Increase =>
+      that.canEqual(this) &&
+        this.trigger == that.trigger &&
+        this.sortedArguments == that.sortedArguments
+    case _ => false
+  }
+
+  override def hashCode = mixLast(trigger.##, sortedArguments.##)
+
   override def argumentSize: Int = argumentSize(quantifiers)
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
@@ -117,6 +155,22 @@ object Increase {
 }
 
 case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None) extends EidosAttachment {
+  protected val sortedArguments: Option[Seq[String]] =
+    if (!quantifiers.isDefined) None
+    else Some(quantifiers.get.sorted)
+
+  override def canEqual(other: Any) = other.isInstanceOf[Decrease]
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case that: Decrease =>
+      that.canEqual(this) &&
+        this.trigger == that.trigger &&
+        this.sortedArguments == that.sortedArguments
+    case _ => false
+  }
+
+  override def hashCode = mixLast(trigger.##, sortedArguments.##)
+
   override def argumentSize: Int = argumentSize(quantifiers)
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =

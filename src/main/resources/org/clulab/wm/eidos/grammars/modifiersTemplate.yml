@@ -105,7 +105,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]   #word=/(?i)^(${ trigger })/
       theme: Entity = <${ noun_modifiers }
-      quantifier: Quantifier? = ${quant_modifiers}
+      quantifier: Quantifier* = ${quant_modifiers}
 
 
   - name: ${ label}_adjective_rule_2

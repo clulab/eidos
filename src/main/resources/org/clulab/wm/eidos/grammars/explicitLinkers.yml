@@ -42,9 +42,19 @@ rules:
 
   - name: syntax_4_verb-Correlation
     priority: ${ rulepriority }
+    example: "moderate to heavy seasonal rainfall is expected to continue, with heightened risk of flooding in these regions"
+    label: Correlation
+    pattern: |
+      trigger = [tag=IN & word=with]
+      cause: Entity = <case <nmod_with (${ agents }) (${ preps })?
+      effect: Entity  = <case [incoming=nmod_with] #<advcl_as nsubj
+
+  - name: syntax_5_verb-Correlation
+    priority: ${ rulepriority }
     example: "Economic crisis, marked by drastic hyperinflation and market failures"
     label: Correlation
     pattern: |
       trigger = [word="marked"] [word="by"]
       effect: Entity  = <acl
       cause: Entity = nmod_by compound?
+

@@ -12,14 +12,14 @@ vars:
 
 rules:
 
-  - name: quantification1b
-    priority: ${ rulepriority }
-    example: "moderate to heavy rainfall"
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
-      theme: Entity = <amod #Find the entity the quantifier is modifying
+#  - name: quantification1b
+#    priority: ${ rulepriority }
+#    example: "moderate to heavy rainfall"
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
+#      theme: Entity = <amod #Find the entity the quantifier is modifying
 
   - name: quantification1c
     priority: ${ rulepriority }
@@ -37,7 +37,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [mention=Quantifier] #Find the quantifier
+      trigger = [mention=Quantifier]+ #Find the quantifier
       theme: Entity = /<amod|nmod_to/ #Find the entity the quantifier is modifying
       adverb: Quantifier? = ${quant_modifiers}
 
@@ -49,7 +49,7 @@ rules:
     type: token
     pattern: |
       @adverb:Quantifier*
-      (?<trigger> [mention=Quantifier])  #Find the adverbial quantifier
+      (?<trigger> [mention=Quantifier]+)  #Find the adverbial quantifier
       @theme:Entity #Find the adjectival quantifier being quantified
 
   - name: quantification_adjective_rule_2
@@ -58,7 +58,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      trigger = [mention=Quantifier & tag=/^JJ/]+  #Find the quantifier
       theme: Entity = <xcomp (${agents})
       adverb: Quantifier? = ${quant_modifiers}  # todo: we should allow for modification here (e.g. 'more')
 
@@ -78,7 +78,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      trigger = [mention=Quantifier]+ #Find the quantifier
       theme: Entity = nsubj
 
   - name: quantification3
@@ -87,7 +87,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [mention=Quantifier] #Find the quantifier
+      trigger = [mention=Quantifier]+ #Find the quantifier
       theme: Entity = </${ complements }/? >${ agents } #Find the entity the quantifier is modifying
 
   - name: quantification_adjective_rule_5

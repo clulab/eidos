@@ -109,6 +109,7 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
         .map(_.asInstanceOf[TextBoundMention])
         .filter(matchText)
         .filter(matchAttachments)
+
     val matches = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
     
     matches
@@ -120,7 +121,9 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
       if (matches.size < 1)
         complaints = Seq("Could not find NodeSpec " + this)
       else if (matches.size > 1)
+
         complaints = Seq("Found too many (" + matches.size + ") instances of NodeSpec " + this)
+
       else
         mention = Some(matches.head)
       tested = true

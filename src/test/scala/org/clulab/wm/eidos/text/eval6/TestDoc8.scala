@@ -79,9 +79,10 @@ class TestDoc8 extends Test {
     
     behavior of "TestDoc8 Objective 2"
 
-    passingTest should "have correct singleton node 1" taggedAs(Keith) in {
-      tester.test(agricultureInformation) should be (successful) 
-    }
+    // Removed.  Since it doesn't participate in a causal event and is not modified, we prune the node out.
+//    passingTest should "have correct singleton node 1" taggedAs(Keith) in {
+//      tester.test(agricultureInformation) should be (successful)
+//    }
   }
 
   { // Sidenote

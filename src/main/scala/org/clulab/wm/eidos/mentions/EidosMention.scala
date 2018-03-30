@@ -37,7 +37,6 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGr
   protected def canonicalFormSimple(m: Mention): String = {
     def isContentTag(tag: String) = tag.startsWith("NN") || tag.startsWith("VB")
     def removeNER(ner: String) = EidosOntologyGrounder.STOP_NER.contains(ner)
-
     val contentLemmas = for {
       (lemma, i) <- m.lemmas.get.zipWithIndex
       tag = m.tags.get(i)
