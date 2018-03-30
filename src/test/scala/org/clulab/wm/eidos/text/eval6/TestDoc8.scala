@@ -185,8 +185,8 @@ class TestDoc8 extends Test {
       production, as well as limited access to local food markets among producers,
       traders and consumers. 
 
-      Exacerbated by climate extremes and a reduction in area
-      planted, the national cereal gap has widened.
+      Exacerbated by climate extremes and a reduction in planted
+      area, the national cereal gap has widened.
 
       The shortfall of about half a million tonnes in 2017 is likely to be
       similar in 2018.
@@ -205,12 +205,11 @@ class TestDoc8 extends Test {
     val persistentInsecurity = NodeSpec("insecurity", Quant("Persistent"))
     val massiveDisplacement  = NodeSpec("displacement", Quant("massive"))
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disruption"))
-    //val accessToMarkets = NodeSpec("access to local food markets among producers, traders and consumers", Dec("limited"))
-    val accessToMarkets = NodeSpec("access to local food markets among producers", Dec("limited"))
+    val accessToMarkets = NodeSpec("access to local food markets", Dec("disruption"), Dec("limited"))
 
     val cerealGap = NodeSpec("national cereal gap", Inc("widened"))
     val climateExtremes = NodeSpec("climate extremes")
-    val areaPlanted = NodeSpec("area planted", Dec("reduction"))
+    val areaPlanted = NodeSpec("planted area", Dec("reduction"))
 
     val routesa = NodeSpec("Trade", Dec("disrupted"))
     val routesb = NodeSpec("migration routes", Dec("disrupted"))
@@ -248,10 +247,10 @@ class TestDoc8 extends Test {
     passingTest should "have correct edge 4" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(massiveDisplacement, Causal, accessToMarkets)) should be (successful) 
     }
-    failingTest should "have correct edge 5" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 5" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(climateExtremes, Causal, cerealGap)) should be (successful) 
     }
-    failingTest should "have correct edge 6" taggedAs(Egoitz) in {
+    passingTest should "have correct edge 6" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(areaPlanted, Causal, cerealGap)) should be (successful) 
     }
     passingTest should "have correct singleton node 1a" taggedAs(Keith) in {
