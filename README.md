@@ -107,19 +107,18 @@ This produces the following JSON-LD output (mentions may appear in different ord
 ```jsonld
 {
   "@context" : {
-    "@base" : "https://github.com/clulab/eidos/wiki/JSON-LD",
-    "Corpus" : "#Corpus",
-    "Dependency" : "#Dependency",
-    "DirectedRelation" : "#DirectedRelation",
-    "Document" : "#Document",
-    "Entity" : "#Entity",
-    "Interval" : "#Interval",
-    "Modifier" : "#Modifier",
-    "Provenance" : "#Provenance",
-    "Sentence" : "#Sentence",
-    "State" : "#State",
-    "Trigger" : "#Trigger",
-    "Word" : "#Word"
+    "Corpus" : "https://github.com/clulab/eidos/wiki/JSON-LD#Corpus",
+    "Dependency" : "https://github.com/clulab/eidos/wiki/JSON-LD#Dependency",
+    "DirectedRelation" : "https://github.com/clulab/eidos/wiki/JSON-LD#DirectedRelation",
+    "Document" : "https://github.com/clulab/eidos/wiki/JSON-LD#Document",
+    "Entity" : "https://github.com/clulab/eidos/wiki/JSON-LD#Entity",
+    "Interval" : "https://github.com/clulab/eidos/wiki/JSON-LD#Interval",
+    "Modifier" : "https://github.com/clulab/eidos/wiki/JSON-LD#Modifier",
+    "Provenance" : "https://github.com/clulab/eidos/wiki/JSON-LD#Provenance",
+    "Sentence" : "https://github.com/clulab/eidos/wiki/JSON-LD#Sentence",
+    "State" : "https://github.com/clulab/eidos/wiki/JSON-LD#State",
+    "Trigger" : "https://github.com/clulab/eidos/wiki/JSON-LD#Trigger",
+    "Word" : "https://github.com/clulab/eidos/wiki/JSON-LD#Word"
   },
   "@type" : "Corpus",
   "documents" : [ {
@@ -711,7 +710,7 @@ directory.
 The EidosShell is an interactive shell
 for testing the output of Eidos. To run it, do
 
-```
+```bash
 ./shell
 ```
 
@@ -779,12 +778,12 @@ The flag enclosed in the quotes allocates 6 GB, which should be sufficient.
 For Windows, it may be necessary to set an environment variable that influences how
 much memory is allowed for Java in general.  On the traditional Command Prompt use
 
-```
+```bat
 set JAVA_OPTS=-Xmx6g
 ```
 
 The corresponding command for PowerShell is
 
-```
+```posh
 $env:JAVA_OPTS = "-Xmx6g"
 ```

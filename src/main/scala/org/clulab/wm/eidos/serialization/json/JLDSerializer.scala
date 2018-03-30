@@ -112,12 +112,11 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
   def mkType(jldObject: JLDObject): (String, String) = mkType(jldObject.typename)
 
   def mkContext(): JObject = {
-    def mkContext(name: String): JField = new JField(name, "#" + name)
+    def mkContext(name: String): JField = new JField(name, JLDSerializer.base + "#" + name)
     
-    val base = new JField("@base", JLDSerializer.base)
     val types = typenames.toList.sorted.map(mkContext)
     
-    new JObject(base +: types)
+    new JObject(types)
   }
   
   def mkRef(identity: Any): JObject = {
