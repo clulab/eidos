@@ -5,7 +5,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to|nmod_for"
+  preps: "nmod_of|nmod_in|nmod_to|nmod_for|nmod_among"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   # Todo: nmod_from "X will follow from Y"
@@ -87,7 +87,7 @@ rules:
     example: "Conflict and economic decline have led to violence and displacement."
     pattern: |
       trigger = [lemma="lead" & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to
+      effect: Entity = nmod_to /${preps}/{,4}
       cause: Entity = nsubj /${noun_modifiers}|${objects}/{,2}
 
 
