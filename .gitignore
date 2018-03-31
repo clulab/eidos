@@ -37,6 +37,7 @@ train*.dat
 xgboostOut/
 null_*
 vectors.txt
+3_sent_example*
 
 # Python binary files
 *.pyc
