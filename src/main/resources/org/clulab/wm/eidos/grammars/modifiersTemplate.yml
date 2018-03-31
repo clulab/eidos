@@ -156,7 +156,7 @@ rules:
 
 # ------------------- Nominal Triggers --------------------------
   - name: ${ label }_ported_syntax_1_noun
-    priority: 3 #${ objrulepriority }
+    priority: ${ objrulepriority }
     example: "massive increases in agricultural production"
     label: ${ label }
     action: ${ action }
