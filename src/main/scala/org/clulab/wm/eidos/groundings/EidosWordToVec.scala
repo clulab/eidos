@@ -23,7 +23,7 @@ class RealWordToVec(w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]], 
   }
   
   def calculateSimilarities(canonicalNameParts: Array[String]): Seq[(String, Double)] = {
-    val nodeEmbedding = w2v.makeCompositeVector(canonicalNameParts)
+    val nodeEmbedding = w2v.makeCompositeVector(canonicalNameParts.map(word => Word2Vec.sanitizeWord(word)))
     val similarities = conceptEmbeddings.toSeq.map(concept => (concept._1, Word2Vec.dotProduct(concept._2.toArray, nodeEmbedding)))
     
     similarities.sortBy(- _._2).slice(0, topKNodeGroundings)
