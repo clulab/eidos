@@ -41,11 +41,12 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
       trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
     }
 
-//    println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"Expanded-entities  -- \n\t${expandedEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"Entities finally returned -- \n\t${res.map(m => m.text).mkString("\n\t")}")
+    //println(s"AVOID  -- \n\t${avoid.map(m => m.text + "__" + m.foundBy).mkString("\n\t")}")
+    //println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
+    //println(s"Expanded-entities  -- \n\t${expandedEntities.map(m => m.text).mkString("\n\t")}")
+    //println(s"distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
+    //println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
+    //println(s"Entities finally returned -- \n\t${res.map(m => m.text).mkString("\n\t")}")
     res
   }
 
@@ -59,6 +60,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     // Helper method for determining if the next word after the entity is a noun
     def nextTagNN(entity: Mention): Boolean = {
       val sent = entity.sentenceObj
+      if (entity.end >= sent.tags.get.length){ return false }
       sent.tags.get(entity.end).startsWith("NN")
     }
 
