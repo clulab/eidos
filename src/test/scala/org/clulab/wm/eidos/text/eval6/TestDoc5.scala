@@ -311,7 +311,7 @@ class TestDoc5 extends Test {
     val displacement = NodeSpec("new displacement")
     val stress       = NodeSpec("stress on available wild food sources", Inc("additional"))
     val assistance   = NodeSpec("food assistance", Quant("little"), Quant("no"))
-    val constrains   = NodeSpec("access constraints")
+    val constraints   = NodeSpec("access constraints")
 
     behavior of "TestDoc5 Paragraph 6"
 
@@ -331,7 +331,7 @@ class TestDoc5 extends Test {
       tester.test(EdgeSpec(conflict, Causal, stress)) should be (successful)
     }
     failingTest should "have correct edges 4" taggedAs(Adarsh) in {
-      tester.test(EdgeSpec(constrains, Causal, assistance)) should be (successful)
+      tester.test(EdgeSpec(constraints, Causal, assistance)) should be (successful)
     }
   }
 
