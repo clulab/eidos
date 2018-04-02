@@ -15597,7 +15597,7 @@
         "@type" : "Word",
         "@id" : "_:Word_872",
         "tag" : "JJ",
-        "entity" : "O",
+        "entity" : "B-Quantifier",
         "startOffset" : 222,
         "endOffset" : 226,
         "lemma" : "long",
@@ -15615,7 +15615,7 @@
         "@type" : "Word",
         "@id" : "_:Word_874",
         "tag" : "JJ",
-        "entity" : "O",
+        "entity" : "B-Quantifier",
         "startOffset" : 231,
         "endOffset" : 236,
         "lemma" : "harsh",
@@ -37776,7 +37776,7 @@
         "@type" : "Word",
         "@id" : "_:Word_2061",
         "tag" : "JJ",
-        "entity" : "O",
+        "entity" : "B-Quantifier",
         "startOffset" : 125,
         "endOffset" : 129,
         "lemma" : "long",
@@ -58760,7 +58760,7 @@
         "@type" : "Word",
         "@id" : "_:Word_3189",
         "tag" : "JJ",
-        "entity" : "O",
+        "entity" : "B-Quantifier",
         "startOffset" : 438,
         "endOffset" : 442,
         "lemma" : "long",
@@ -119241,6 +119241,73 @@
     "@type" : "Entity",
     "@id" : "_:Entity_32",
     "labels" : [ "NounPhrase", "Entity" ],
+    "text" : "hunger",
+    "rule" : "simple-np++Decrease_ported_syntax_2_noun",
+    "canonicalName" : "hunger",
+    "grounding" : [ {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/human/famine",
+      "value" : 0.8011714017256808
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/food/food_insecurity",
+      "value" : 0.47556578171357283
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/human/death",
+      "value" : 0.3866848197326016
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/human/human_migration",
+      "value" : 0.3649875235244177
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/natural/weather/drought",
+      "value" : 0.36235459687981775
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/natural/pest",
+      "value" : 0.2894494057455803
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/human/conflict",
+      "value" : 0.25769008260271253
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/food/food_security",
+      "value" : 0.2562158500931287
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/livelihood",
+      "value" : 0.2553838685795797
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/crisis",
+      "value" : 0.23620248219385118
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_7"
+      },
+      "sentence" : {
+        "@id" : "_:Sentence_33"
+      },
+      "positions" : {
+        "@type" : "Interval",
+        "start" : 33,
+        "end" : 33
+      }
+    } ],
+    "states" : [ {
+      "@type" : "State",
+      "type" : "DEC",
+      "text" : "catastrophe"
+    } ]
+  }, {
+    "@type" : "Entity",
+    "@id" : "_:Entity_33",
+    "labels" : [ "NounPhrase", "Entity" ],
     "text" : "level of food insecurity this year",
     "rule" : "simple-np++quantification_adjective_rule_4",
     "canonicalName" : "food insecurity",
@@ -119306,7 +119373,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_33",
+    "@id" : "_:Entity_34",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "situation",
     "rule" : "simple-np++Decrease_rule_3",
@@ -119373,7 +119440,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_34",
+    "@id" : "_:Entity_35",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food stocks",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -119440,9 +119507,9 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_35",
+    "@id" : "_:Entity_36",
     "labels" : [ "NounPhrase", "Entity" ],
-    "text" : "long and harsh annual lean season",
+    "text" : "annual lean season",
     "rule" : "simple-np++quantification2",
     "canonicalName" : "season",
     "grounding" : [ {
@@ -119496,18 +119563,18 @@
       },
       "positions" : {
         "@type" : "Interval",
-        "start" : 41,
+        "start" : 44,
         "end" : 46
       }
     } ],
     "states" : [ {
       "@type" : "State",
       "type" : "QUANT",
-      "text" : "unusually"
+      "text" : "harsh"
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_36",
+    "@id" : "_:Entity_37",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "families",
     "rule" : "simple-np",
@@ -119569,7 +119636,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_37",
+    "@id" : "_:Entity_38",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "level of hunger",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -119636,7 +119703,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_38",
+    "@id" : "_:Entity_39",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "markets",
     "rule" : "simple-np++quantification2",
@@ -119703,7 +119770,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_39",
+    "@id" : "_:Entity_40",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "families",
     "rule" : "simple-np++ported_copula_mods-1-Decrease",
@@ -119774,7 +119841,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_40",
+    "@id" : "_:Entity_41",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "roads",
     "rule" : "simple-np++quantification2",
@@ -119841,7 +119908,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_41",
+    "@id" : "_:Entity_42",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "prices",
     "rule" : "simple-np++Increase_rule_3",
@@ -119908,7 +119975,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_42",
+    "@id" : "_:Entity_43",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food insecurity",
     "rule" : "simple-np++ported_copula_mods-Increase",
@@ -119975,7 +120042,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_43",
+    "@id" : "_:Entity_44",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "families",
     "rule" : "simple-np++quantification2",
@@ -120042,7 +120109,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_44",
+    "@id" : "_:Entity_45",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "cent",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -120109,7 +120176,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_45",
+    "@id" : "_:Entity_46",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "malnutrition",
     "rule" : "simple-np++quantification2",
@@ -120176,7 +120243,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_46",
+    "@id" : "_:Entity_47",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "levels of malnutrition",
     "rule" : "simple-np++quantification_adjective_rule_2",
@@ -120243,7 +120310,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_47",
+    "@id" : "_:Entity_48",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "number of international and local non-governmental organizations",
     "rule" : "simple-np++quantification2",
@@ -120310,7 +120377,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_48",
+    "@id" : "_:Entity_49",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "livelihood",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -120377,7 +120444,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_49",
+    "@id" : "_:Entity_50",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -120448,7 +120515,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_50",
+    "@id" : "_:Entity_51",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "malnutrition rates in some places",
     "rule" : "simple-np++quantification_adjective_rule_3",
@@ -120515,7 +120582,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_51",
+    "@id" : "_:Entity_52",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "nutrition",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -120586,7 +120653,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_52",
+    "@id" : "_:Entity_53",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "need in new areas",
     "rule" : "simple-np++Increase_ported_syntax_1_noun",
@@ -120660,7 +120727,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_53",
+    "@id" : "_:Entity_54",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "emergency livelihood",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -120727,7 +120794,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_54",
+    "@id" : "_:Entity_55",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rise in malnutrition rates",
     "rule" : "simple-np++quantification2",
@@ -120794,7 +120861,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_55",
+    "@id" : "_:Entity_56",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "nutrition",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -120861,7 +120928,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_56",
+    "@id" : "_:Entity_57",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Rainfall in July",
     "rule" : "simple-np++Increase_adjective_rule_2",
@@ -120932,7 +120999,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_57",
+    "@id" : "_:Entity_58",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification1c++Increase_adjective_rule_3",
@@ -121003,7 +121070,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_58",
+    "@id" : "_:Entity_59",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "risk of flooding",
     "rule" : "simple-np++ported_copula_mods-1-Increase",
@@ -121070,7 +121137,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_59",
+    "@id" : "_:Entity_60",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "dry spells",
     "rule" : "simple-np",
@@ -121132,7 +121199,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_60",
+    "@id" : "_:Entity_61",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Rainfall",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -121199,7 +121266,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_61",
+    "@id" : "_:Entity_62",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop production prospects",
     "rule" : "simple-np++Decrease_adjective_rule_3",
@@ -121270,7 +121337,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_62",
+    "@id" : "_:Entity_63",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop yields",
     "rule" : "simple-np++Decrease_ported_syntax_6_verb",
@@ -121337,7 +121404,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_63",
+    "@id" : "_:Entity_64",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "late start to the season",
     "rule" : "simple-np",
@@ -121399,7 +121466,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_64",
+    "@id" : "_:Entity_65",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification2++Increase_adjective_rule_1",
@@ -121470,7 +121537,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_65",
+    "@id" : "_:Entity_66",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "risk of flooding in these regions",
     "rule" : "simple-np++Increase_ported_syntax_6_verb",
@@ -121537,7 +121604,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_66",
+    "@id" : "_:Entity_67",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "recent rainfall",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -121608,7 +121675,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_67",
+    "@id" : "_:Entity_68",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "seasonal rainfall",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -121679,7 +121746,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_68",
+    "@id" : "_:Entity_69",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -121746,7 +121813,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_69",
+    "@id" : "_:Entity_70",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -121813,7 +121880,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_70",
+    "@id" : "_:Entity_71",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "anomalies of between 100 - 300 mm",
     "rule" : "simple-np++quantification2",
@@ -121880,7 +121947,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_71",
+    "@id" : "_:Entity_72",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification1++Increase_adjective_rule_1",
@@ -121951,7 +122018,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_72",
+    "@id" : "_:Entity_73",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "agricultural conditions",
     "rule" : "simple-np++quantification2",
@@ -122018,7 +122085,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_73",
+    "@id" : "_:Entity_74",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall in Sudan",
     "rule" : "simple-np++quantification2++Increase_adjective_rule_1",
@@ -122093,7 +122160,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_74",
+    "@id" : "_:Entity_75",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Vegetation conditions",
     "rule" : "simple-np++Increase_adjective_rule_2",
@@ -122164,7 +122231,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_75",
+    "@id" : "_:Entity_76",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "northern areas of East Africa",
     "rule" : "simple-np++quantification2",
@@ -122231,7 +122298,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_76",
+    "@id" : "_:Entity_77",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "water resources",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -122298,7 +122365,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_77",
+    "@id" : "_:Entity_78",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -122369,7 +122436,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_78",
+    "@id" : "_:Entity_79",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Rainfall",
     "rule" : "simple-np++quantification3",
@@ -122436,7 +122503,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_79",
+    "@id" : "_:Entity_80",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Cropping conditions",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -122503,7 +122570,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_80",
+    "@id" : "_:Entity_81",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "continued rains",
     "rule" : "simple-np",
@@ -122565,7 +122632,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_81",
+    "@id" : "_:Entity_82",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "impact of Fall Armyworm",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -122632,7 +122699,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_82",
+    "@id" : "_:Entity_83",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "flooding",
     "rule" : "simple-np",
@@ -122694,7 +122761,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_83",
+    "@id" : "_:Entity_84",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "performance of seasonal rainfall",
     "rule" : "simple-np++quantification2",
@@ -122761,7 +122828,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_84",
+    "@id" : "_:Entity_85",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall over thewestern Ethiopia highlands",
     "rule" : "simple-np++quantification2++Increase_adjective_rule_1",
@@ -122846,7 +122913,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_85",
+    "@id" : "_:Entity_86",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "potential for flooding",
     "rule" : "simple-np",
@@ -122908,7 +122975,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_86",
+    "@id" : "_:Entity_87",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "water resources",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -122975,7 +123042,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_87",
+    "@id" : "_:Entity_88",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Karan/Xagaa seasonal rains",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -123042,7 +123109,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_88",
+    "@id" : "_:Entity_89",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "erratic onset of rainfall",
     "rule" : "simple-np",
@@ -123104,10 +123171,10 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_89",
+    "@id" : "_:Entity_90",
     "labels" : [ "NounPhrase", "Entity" ],
-    "text" : "long dry spells",
-    "rule" : "simple-np",
+    "text" : "dry spells",
+    "rule" : "simple-np++quantification2",
     "canonicalName" : "spell",
     "grounding" : [ {
       "@type" : "Grounding",
@@ -123160,13 +123227,18 @@
       },
       "positions" : {
         "@type" : "Interval",
-        "start" : 26,
+        "start" : 27,
         "end" : 28
       }
+    } ],
+    "states" : [ {
+      "@type" : "State",
+      "type" : "QUANT",
+      "text" : "long"
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_90",
+    "@id" : "_:Entity_91",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "production prospects",
     "rule" : "simple-np++quantification2++Decrease_adjective_rule_1",
@@ -123237,7 +123309,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_91",
+    "@id" : "_:Entity_92",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "length of the main growing season",
     "rule" : "simple-np++Decrease_ported_syntax_6_verb",
@@ -123304,7 +123376,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_92",
+    "@id" : "_:Entity_93",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification2++Decrease_adjective_rule_1",
@@ -123375,7 +123447,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_93",
+    "@id" : "_:Entity_94",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "maize yields",
     "rule" : "simple-np++quantification_adjective_rule_2++Decrease_adjective_rule_1",
@@ -123446,7 +123518,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_94",
+    "@id" : "_:Entity_95",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Key agricultural production areas",
     "rule" : "simple-np",
@@ -123508,7 +123580,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_95",
+    "@id" : "_:Entity_96",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "dry spells in June",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -123575,7 +123647,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_96",
+    "@id" : "_:Entity_97",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -123642,7 +123714,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_97",
+    "@id" : "_:Entity_98",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification2++Increase_adjective_rule_1",
@@ -123713,7 +123785,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_98",
+    "@id" : "_:Entity_99",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification2++Decrease_adjective_rule_1",
@@ -123784,7 +123856,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_99",
+    "@id" : "_:Entity_100",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "bi-modal areas of central, eastern, south and western Uganda",
     "rule" : "simple-np++quantification2",
@@ -123851,7 +123923,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_100",
+    "@id" : "_:Entity_101",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -123918,7 +123990,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_101",
+    "@id" : "_:Entity_102",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "pasture conditions",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -123985,7 +124057,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_102",
+    "@id" : "_:Entity_103",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop production prospects",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -124052,7 +124124,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_103",
+    "@id" : "_:Entity_104",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "July rains",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -124119,7 +124191,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_104",
+    "@id" : "_:Entity_105",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "seasonal rainfall",
     "rule" : "simple-np++Increase_adjective_rule_2",
@@ -124190,7 +124262,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_105",
+    "@id" : "_:Entity_106",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "cropping areas of the country",
     "rule" : "simple-np++quantification2",
@@ -124257,7 +124329,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_106",
+    "@id" : "_:Entity_107",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "likelihood for flooding in flood-prone areas of eastern Sudan",
     "rule" : "simple-np++Increase_ported_syntax_6_verb",
@@ -124324,7 +124396,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_107",
+    "@id" : "_:Entity_108",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall in July",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -124391,7 +124463,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_108",
+    "@id" : "_:Entity_109",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rains",
     "rule" : "simple-np++quantification_adjective_rule_4++Increase_adjective_rule_1",
@@ -124462,7 +124534,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_109",
+    "@id" : "_:Entity_110",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop development",
     "rule" : "simple-np",
@@ -124524,7 +124596,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_110",
+    "@id" : "_:Entity_111",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -124591,7 +124663,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_111",
+    "@id" : "_:Entity_112",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -124665,7 +124737,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_112",
+    "@id" : "_:Entity_113",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification2",
@@ -124732,7 +124804,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_113",
+    "@id" : "_:Entity_114",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "agricultural households to begin sowing",
     "rule" : "simple-np",
@@ -124794,7 +124866,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_114",
+    "@id" : "_:Entity_115",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "infestations of Fall Armyworm",
     "rule" : "simple-np++quantification2",
@@ -124861,7 +124933,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_115",
+    "@id" : "_:Entity_116",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "vegetation conditions in parts of Ta'izz",
     "rule" : "simple-np++quantification2++Increase_adjective_rule_1",
@@ -124932,7 +125004,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_116",
+    "@id" : "_:Entity_117",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "long-term rainfall forecasts",
     "rule" : "simple-np++quantification_adjective_rule_4++Decrease_adjective_rule_1",
@@ -125003,7 +125075,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_117",
+    "@id" : "_:Entity_118",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "agricultural areas of the western and central highlands",
     "rule" : "simple-np",
@@ -125065,7 +125137,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_118",
+    "@id" : "_:Entity_119",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "western coastal and mountainous areas of the country",
     "rule" : "simple-np++quantification2",
@@ -125132,7 +125204,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_119",
+    "@id" : "_:Entity_120",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "production",
     "rule" : "simple-np++quantification_adjective_rule_4++Decrease_ported_syntax_2_verb",
@@ -125203,7 +125275,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_120",
+    "@id" : "_:Entity_121",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crops",
     "rule" : "simple-np++quantification2",
@@ -125270,7 +125342,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_121",
+    "@id" : "_:Entity_122",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "access to farm inputs",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -125337,7 +125409,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_122",
+    "@id" : "_:Entity_123",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np++quantification2",
@@ -125404,7 +125476,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_123",
+    "@id" : "_:Entity_124",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "insecurity",
     "rule" : "simple-np",
@@ -125466,7 +125538,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_124",
+    "@id" : "_:Entity_125",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification1++Increase_adjective_rule_1",
@@ -125537,7 +125609,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_125",
+    "@id" : "_:Entity_126",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "flooding",
     "rule" : "simple-np",
@@ -125599,7 +125671,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_126",
+    "@id" : "_:Entity_127",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "saturated soils in these areas",
     "rule" : "simple-np++quantification2",
@@ -125666,7 +125738,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_127",
+    "@id" : "_:Entity_128",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rains in the Ethiopian highlands",
     "rule" : "simple-np++quantification_adjective_rule_4++Increase_adjective_rule_1",
@@ -125745,7 +125817,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_128",
+    "@id" : "_:Entity_129",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "maize harvesting",
     "rule" : "simple-np++quantification2",
@@ -125812,7 +125884,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_129",
+    "@id" : "_:Entity_130",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -125879,7 +125951,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_130",
+    "@id" : "_:Entity_131",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rains",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -125950,7 +126022,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_131",
+    "@id" : "_:Entity_132",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "post-harvest",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -126017,7 +126089,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_132",
+    "@id" : "_:Entity_133",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "dry days",
     "rule" : "simple-np++quantification2",
@@ -126084,7 +126156,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_133",
+    "@id" : "_:Entity_134",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "coastal strip of Kenya",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -126151,7 +126223,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_134",
+    "@id" : "_:Entity_135",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rains",
     "rule" : "simple-np++quantification1",
@@ -126218,51 +126290,51 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_135",
+    "@id" : "_:Entity_136",
     "labels" : [ "NounPhrase", "Entity" ],
-    "text" : "``Catastrophe'' food security conditions",
-    "rule" : "simple-np++Decrease_ported_syntax_2_verb",
-    "canonicalName" : "catastrophe food security",
+    "text" : "famine conditions",
+    "rule" : "simple-np++Decrease_explicit_notoccuring_2",
+    "canonicalName" : "famine",
     "grounding" : [ {
       "@type" : "Grounding",
-      "ontologyConcept" : "/entities/human/food/food_security",
-      "value" : 0.7070194462248685
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/entities/human/food/food_insecurity",
-      "value" : 0.6729567043348316
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/intervention",
-      "value" : 0.563844703432452
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/crisis",
-      "value" : 0.5379098646285734
-    }, {
-      "@type" : "Grounding",
       "ontologyConcept" : "/events/human/famine",
-      "value" : 0.44706217354458405
+      "value" : 0.8712212086695282
     }, {
       "@type" : "Grounding",
       "ontologyConcept" : "/events/natural/weather/drought",
-      "value" : 0.4347803457930385
+      "value" : 0.6233284351634223
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/food/food_insecurity",
+      "value" : 0.508478674165546
     }, {
       "@type" : "Grounding",
       "ontologyConcept" : "/events/human/human_migration",
-      "value" : 0.4331347650462582
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/natural/weather/flooding",
-      "value" : 0.432998779617443
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/entities/human/livelihood",
-      "value" : 0.4313293121713988
+      "value" : 0.44810748817115803
     }, {
       "@type" : "Grounding",
       "ontologyConcept" : "/events/human/conflict",
-      "value" : 0.38925727221756945
+      "value" : 0.42603070574407575
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/natural/weather/flooding",
+      "value" : 0.41018320267628705
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/natural/pest",
+      "value" : 0.3514896018693122
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/natural/weather/storm",
+      "value" : 0.33570827578284
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/human/death",
+      "value" : 0.3293056665115034
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/crisis",
+      "value" : 0.31709509353475235
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -126270,22 +126342,22 @@
         "@id" : "_:Document_34"
       },
       "sentence" : {
-        "@id" : "_:Sentence_102"
+        "@id" : "_:Sentence_101"
       },
       "positions" : {
         "@type" : "Interval",
-        "start" : 12,
-        "end" : 17
+        "start" : 8,
+        "end" : 9
       }
     } ],
     "states" : [ {
       "@type" : "State",
       "type" : "DEC",
-      "text" : "declined"
+      "text" : "no longer occurring"
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_136",
+    "@id" : "_:Entity_137",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -126352,7 +126424,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_137",
+    "@id" : "_:Entity_138",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -126419,7 +126491,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_138",
+    "@id" : "_:Entity_139",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "sustained multi-sectoral humanitarian assistance operations",
     "rule" : "simple-np",
@@ -126481,7 +126553,74 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_139",
+    "@id" : "_:Entity_140",
+    "labels" : [ "NounPhrase", "Entity" ],
+    "text" : "'' food security conditions",
+    "rule" : "simple-np++Decrease_ported_syntax_2_verb",
+    "canonicalName" : "food security",
+    "grounding" : [ {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/food/food_security",
+      "value" : 0.8370573863604114
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/food/food_insecurity",
+      "value" : 0.6473342391670505
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/human/intervention",
+      "value" : 0.47112575092753695
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/livelihood",
+      "value" : 0.4655703759008068
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/infrastructure/transportation/transportation_methods",
+      "value" : 0.3759991815289041
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/natural/crop",
+      "value" : 0.37527902113778655
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/human/human_migration",
+      "value" : 0.3240799669968376
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/crisis",
+      "value" : 0.3216477081122434
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/nation",
+      "value" : 0.2941417580643129
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/financial/economic/economy",
+      "value" : 0.2826242656184328
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_34"
+      },
+      "sentence" : {
+        "@id" : "_:Sentence_102"
+      },
+      "positions" : {
+        "@type" : "Interval",
+        "start" : 14,
+        "end" : 17
+      }
+    } ],
+    "states" : [ {
+      "@type" : "State",
+      "type" : "DEC",
+      "text" : "declined"
+    } ]
+  }, {
+    "@type" : "Entity",
+    "@id" : "_:Entity_141",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "macro-economic",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -126548,7 +126687,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_140",
+    "@id" : "_:Entity_142",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "insecurity",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -126615,7 +126754,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_141",
+    "@id" : "_:Entity_143",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food prices",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -126686,7 +126825,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_142",
+    "@id" : "_:Entity_144",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -126753,7 +126892,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_143",
+    "@id" : "_:Entity_145",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "households' coping mechanisms",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -126820,7 +126959,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_144",
+    "@id" : "_:Entity_146",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food insecure caseload",
     "rule" : "simple-np++Increase_ported_syntax_2_verb",
@@ -126887,7 +127026,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_145",
+    "@id" : "_:Entity_147",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "scale displacements",
     "rule" : "simple-np++quantification2",
@@ -126954,7 +127093,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_146",
+    "@id" : "_:Entity_148",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "market",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -127021,7 +127160,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_147",
+    "@id" : "_:Entity_149",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "cycle sorghum",
     "rule" : "simple-np++Decrease_adjective_rule_1",
@@ -127092,7 +127231,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_148",
+    "@id" : "_:Entity_150",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Seasonal rains",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -127159,7 +127298,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_149",
+    "@id" : "_:Entity_151",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "seasonal rains",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -127226,7 +127365,74 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_150",
+    "@id" : "_:Entity_152",
+    "labels" : [ "NounPhrase", "Entity" ],
+    "text" : "cycle sorghum crops",
+    "rule" : "simple-np++quantification2",
+    "canonicalName" : "cycle sorghum crop",
+    "grounding" : [ {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/natural/crop",
+      "value" : 0.720892067772
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/temporal/seasons/crop_season",
+      "value" : 0.6361625865638993
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/fertilizer",
+      "value" : 0.564792626355052
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/natural/pest",
+      "value" : 0.510986154231175
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/events/natural/weather/drought",
+      "value" : 0.49997737759979827
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/temporal/seasons/annual",
+      "value" : 0.4454988561403143
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/livelihood",
+      "value" : 0.41889984738530256
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/food/food_insecurity",
+      "value" : 0.4167859476249763
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/natural/soil/soil_contents",
+      "value" : 0.41328748926636216
+    }, {
+      "@type" : "Grounding",
+      "ontologyConcept" : "/entities/human/irrigation",
+      "value" : 0.36365882871565836
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_37"
+      },
+      "sentence" : {
+        "@id" : "_:Sentence_109"
+      },
+      "positions" : {
+        "@type" : "Interval",
+        "start" : 23,
+        "end" : 25
+      }
+    } ],
+    "states" : [ {
+      "@type" : "State",
+      "type" : "QUANT",
+      "text" : "long"
+    } ]
+  }, {
+    "@type" : "Entity",
+    "@id" : "_:Entity_153",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop production",
     "rule" : "simple-np++Decrease_adjective_rule_1",
@@ -127293,7 +127499,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_151",
+    "@id" : "_:Entity_154",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "agricultural activities",
     "rule" : "simple-np",
@@ -127355,7 +127561,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_152",
+    "@id" : "_:Entity_155",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "input",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -127422,7 +127628,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_153",
+    "@id" : "_:Entity_156",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "surplus-producing areas",
     "rule" : "simple-np++quantification2",
@@ -127489,7 +127695,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_154",
+    "@id" : "_:Entity_157",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "displacements",
     "rule" : "simple-np++quantification2",
@@ -127556,7 +127762,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_155",
+    "@id" : "_:Entity_158",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "damage to households' productive assets",
     "rule" : "simple-np",
@@ -127618,7 +127824,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_156",
+    "@id" : "_:Entity_159",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "2016 output",
     "rule" : "simple-np++quantification2++Decrease_adjective_rule_1",
@@ -127689,7 +127895,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_157",
+    "@id" : "_:Entity_160",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "scale displacement of people",
     "rule" : "simple-np++quantification2",
@@ -127756,7 +127962,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_158",
+    "@id" : "_:Entity_161",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "insecurity",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -127823,7 +128029,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_159",
+    "@id" : "_:Entity_162",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Fall Armyworm infestations",
     "rule" : "simple-np",
@@ -127885,7 +128091,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_160",
+    "@id" : "_:Entity_163",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop damage",
     "rule" : "simple-np++quantification2",
@@ -127952,7 +128158,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_161",
+    "@id" : "_:Entity_164",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Prices of groundnuts",
     "rule" : "simple-np++Decrease_ported_syntax_2_verb",
@@ -128019,7 +128225,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_162",
+    "@id" : "_:Entity_165",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "prices of maize",
     "rule" : "simple-np++Increase_ported_syntax_2_verb",
@@ -128086,7 +128292,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_163",
+    "@id" : "_:Entity_166",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "market",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -128157,7 +128363,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_164",
+    "@id" : "_:Entity_167",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "hyperinflation",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -128224,7 +128430,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_165",
+    "@id" : "_:Entity_168",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "supply situation",
     "rule" : "simple-np++quantification2",
@@ -128291,7 +128497,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_166",
+    "@id" : "_:Entity_169",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "new",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -128358,7 +128564,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_167",
+    "@id" : "_:Entity_170",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "local currency",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -128436,7 +128642,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_168",
+    "@id" : "_:Entity_171",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Urgent action to end conflict",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -128503,7 +128709,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_169",
+    "@id" : "_:Entity_172",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "scope of emergency assistance delivery",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -128570,7 +128776,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_170",
+    "@id" : "_:Entity_173",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "insecurity",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -128641,7 +128847,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_171",
+    "@id" : "_:Entity_174",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -128712,7 +128918,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_172",
+    "@id" : "_:Entity_175",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food security",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -128779,7 +128985,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_173",
+    "@id" : "_:Entity_176",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian access",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -128846,7 +129052,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_174",
+    "@id" : "_:Entity_177",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "levels of excess mortality",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -128917,7 +129123,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_175",
+    "@id" : "_:Entity_178",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "levels of food insecurity",
     "rule" : "simple-np++quantification2",
@@ -128984,7 +129190,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_176",
+    "@id" : "_:Entity_179",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "trade",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -129051,7 +129257,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_177",
+    "@id" : "_:Entity_180",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : ", Famine",
     "rule" : "simple-np",
@@ -129113,7 +129319,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_178",
+    "@id" : "_:Entity_181",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -129180,7 +129386,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_179",
+    "@id" : "_:Entity_182",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "livelihoods",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -129247,7 +129453,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_180",
+    "@id" : "_:Entity_183",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np++Decrease_ported_syntax_2_verb",
@@ -129314,7 +129520,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_181",
+    "@id" : "_:Entity_184",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "surplus-producing areas of Western Equatoria",
     "rule" : "simple-np++quantification2",
@@ -129381,7 +129587,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_182",
+    "@id" : "_:Entity_185",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "violence",
     "rule" : "simple-np++Increase_ported_syntax_2_verb",
@@ -129448,7 +129654,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_183",
+    "@id" : "_:Entity_186",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "regions of South Sudan",
     "rule" : "simple-np",
@@ -129510,7 +129716,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_184",
+    "@id" : "_:Entity_187",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop assessments",
     "rule" : "simple-np++quantification2",
@@ -129581,7 +129787,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_185",
+    "@id" : "_:Entity_188",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "cash income",
     "rule" : "simple-np++Decrease_surface_VBN",
@@ -129648,7 +129854,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_186",
+    "@id" : "_:Entity_189",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "key informant information",
     "rule" : "simple-np++quantification3",
@@ -129715,7 +129921,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_187",
+    "@id" : "_:Entity_190",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "resurgence of conflict in July",
     "rule" : "simple-np++Increase_ported_syntax_2_verb",
@@ -129782,7 +129988,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_188",
+    "@id" : "_:Entity_191",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "2016 staple food production",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -129849,7 +130055,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_189",
+    "@id" : "_:Entity_192",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "household access to food",
     "rule" : "simple-np++Decrease_ported_syntax_2_verb",
@@ -129916,7 +130122,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_190",
+    "@id" : "_:Entity_193",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "other livelihood activities",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -129983,7 +130189,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_191",
+    "@id" : "_:Entity_194",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "macroeconomic factors",
     "rule" : "simple-np",
@@ -130045,7 +130251,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_192",
+    "@id" : "_:Entity_195",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "incomes",
     "rule" : "simple-np++Decrease_rule_3",
@@ -130112,7 +130318,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_193",
+    "@id" : "_:Entity_196",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "oil revenue",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -130186,7 +130392,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_194",
+    "@id" : "_:Entity_197",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "trade",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -130257,7 +130463,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_195",
+    "@id" : "_:Entity_198",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "harvests",
     "rule" : "simple-np++quantification2++Decrease_adjective_rule_1",
@@ -130328,7 +130534,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_196",
+    "@id" : "_:Entity_199",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "49 SSD/kg",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -130395,7 +130601,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_197",
+    "@id" : "_:Entity_200",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "subsequent",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -130462,7 +130668,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_198",
+    "@id" : "_:Entity_201",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "household purchasing power",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -130536,7 +130742,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_199",
+    "@id" : "_:Entity_202",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "drop",
     "rule" : "simple-np++quantification2",
@@ -130603,7 +130809,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_200",
+    "@id" : "_:Entity_203",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "prices",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -130674,7 +130880,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_201",
+    "@id" : "_:Entity_204",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "staple food prices",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -130741,7 +130947,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_202",
+    "@id" : "_:Entity_205",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "prices",
     "rule" : "simple-np",
@@ -130803,7 +131009,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_203",
+    "@id" : "_:Entity_206",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food availability on local markets",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -130870,7 +131076,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_204",
+    "@id" : "_:Entity_207",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -130937,7 +131143,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_205",
+    "@id" : "_:Entity_208",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "risk of malnutrition",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -131011,7 +131217,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_206",
+    "@id" : "_:Entity_209",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian response",
     "rule" : "simple-np++quantification2",
@@ -131078,7 +131284,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_207",
+    "@id" : "_:Entity_210",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -131145,7 +131351,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_208",
+    "@id" : "_:Entity_211",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -131212,7 +131418,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_209",
+    "@id" : "_:Entity_212",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "gaps",
     "rule" : "simple-np++quantification2",
@@ -131279,7 +131485,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_210",
+    "@id" : "_:Entity_213",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -131346,7 +131552,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_211",
+    "@id" : "_:Entity_214",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "prevalence of Global Acute Malnutrition",
     "rule" : "simple-np++quantification_adjective_rule_2",
@@ -131413,7 +131619,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_212",
+    "@id" : "_:Entity_215",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -131480,7 +131686,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_213",
+    "@id" : "_:Entity_216",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -131547,7 +131753,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_214",
+    "@id" : "_:Entity_217",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -131614,7 +131820,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_215",
+    "@id" : "_:Entity_218",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian assistance",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -131681,7 +131887,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_216",
+    "@id" : "_:Entity_219",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Food security",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -131752,7 +131958,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_217",
+    "@id" : "_:Entity_220",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "livelihoods",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -131819,7 +132025,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_218",
+    "@id" : "_:Entity_221",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np++Increase_ported_syntax_6_verb",
@@ -131886,7 +132092,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_219",
+    "@id" : "_:Entity_222",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Famine",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -131953,7 +132159,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_220",
+    "@id" : "_:Entity_223",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "July lean season",
     "rule" : "simple-np",
@@ -132015,7 +132221,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_221",
+    "@id" : "_:Entity_224",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "access constraints",
     "rule" : "simple-np",
@@ -132077,7 +132283,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_222",
+    "@id" : "_:Entity_225",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -132144,7 +132350,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_223",
+    "@id" : "_:Entity_226",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "households",
     "rule" : "simple-np++quantification2",
@@ -132211,7 +132417,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_224",
+    "@id" : "_:Entity_227",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Conflict",
     "rule" : "simple-np",
@@ -132273,7 +132479,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_225",
+    "@id" : "_:Entity_228",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "harvest",
     "rule" : "simple-np++quantification2",
@@ -132340,7 +132546,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_226",
+    "@id" : "_:Entity_229",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food assistance",
     "rule" : "simple-np++quantification1",
@@ -132407,7 +132613,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_227",
+    "@id" : "_:Entity_230",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "new displacement",
     "rule" : "simple-np",
@@ -132469,7 +132675,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_228",
+    "@id" : "_:Entity_231",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "crop production",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -132536,7 +132742,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_229",
+    "@id" : "_:Entity_232",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "market",
     "rule" : "simple-np++quantification2",
@@ -132603,7 +132809,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_230",
+    "@id" : "_:Entity_233",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "and households",
     "rule" : "simple-np++quantification2",
@@ -132674,7 +132880,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_231",
+    "@id" : "_:Entity_234",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "movement of local populations",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -132741,7 +132947,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_232",
+    "@id" : "_:Entity_235",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "prices",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -132808,7 +133014,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_233",
+    "@id" : "_:Entity_236",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "agricultural activities",
     "rule" : "simple-np++ported_copula_mods-1-Decrease",
@@ -132875,7 +133081,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_234",
+    "@id" : "_:Entity_237",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np",
@@ -132937,7 +133143,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_235",
+    "@id" : "_:Entity_238",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np++quantification2",
@@ -133004,7 +133210,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_236",
+    "@id" : "_:Entity_239",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Urgent action to end the conflict",
     "rule" : "simple-np",
@@ -133066,7 +133272,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_237",
+    "@id" : "_:Entity_240",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian access",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -133133,7 +133339,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_238",
+    "@id" : "_:Entity_241",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "scope of emergency assistance delivery",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -133200,7 +133406,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_239",
+    "@id" : "_:Entity_242",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food insecure populations",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -133271,7 +133477,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_240",
+    "@id" : "_:Entity_243",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -133338,7 +133544,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_241",
+    "@id" : "_:Entity_244",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "households",
     "rule" : "simple-np++quantification2",
@@ -133405,7 +133611,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_242",
+    "@id" : "_:Entity_245",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -133472,7 +133678,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_243",
+    "@id" : "_:Entity_246",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np++quantification2",
@@ -133539,7 +133745,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_244",
+    "@id" : "_:Entity_247",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -133606,7 +133812,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_245",
+    "@id" : "_:Entity_248",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "and food security",
     "rule" : "simple-np++quantification2",
@@ -133673,7 +133879,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_246",
+    "@id" : "_:Entity_249",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "stocks",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -133740,7 +133946,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_247",
+    "@id" : "_:Entity_250",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food access",
     "rule" : "simple-np++Decrease_adjective_rule_1",
@@ -133811,7 +134017,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_248",
+    "@id" : "_:Entity_251",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "households in this area",
     "rule" : "simple-np",
@@ -133873,7 +134079,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_249",
+    "@id" : "_:Entity_252",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -133940,7 +134146,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_250",
+    "@id" : "_:Entity_253",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "insecurity",
     "rule" : "simple-np++quantification2",
@@ -134007,69 +134213,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_251",
-    "labels" : [ "NounPhrase", "Entity" ],
-    "text" : "Catastrophe",
-    "rule" : "simple-np",
-    "canonicalName" : "catastrophe",
-    "grounding" : [ {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/crisis",
-      "value" : 0.5715235415301689
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/famine",
-      "value" : 0.5353294130722038
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/natural/weather/drought",
-      "value" : 0.5109852652926742
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/natural/weather/flooding",
-      "value" : 0.49069948825622034
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/natural/weather/storm",
-      "value" : 0.4498710353484875
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/intervention",
-      "value" : 0.40033761715513266
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/conflict",
-      "value" : 0.39060395017728755
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/human_migration",
-      "value" : 0.36365143168301217
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/entities/human/food/food_insecurity",
-      "value" : 0.35165544962170686
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/death",
-      "value" : 0.27618378117798903
-    } ],
-    "provenance" : [ {
-      "@type" : "Provenance",
-      "document" : {
-        "@id" : "_:Document_50"
-      },
-      "sentence" : {
-        "@id" : "_:Sentence_158"
-      },
-      "positions" : {
-        "@type" : "Interval",
-        "start" : 20,
-        "end" : 20
-      }
-    } ]
-  }, {
-    "@type" : "Entity",
-    "@id" : "_:Entity_252",
+    "@id" : "_:Entity_254",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -134136,7 +134280,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_253",
+    "@id" : "_:Entity_255",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "movement towards natural food sources",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -134203,7 +134347,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_254",
+    "@id" : "_:Entity_256",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "access to sufficient food",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -134270,7 +134414,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_255",
+    "@id" : "_:Entity_257",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "households in this area",
     "rule" : "simple-np++quantification2",
@@ -134337,78 +134481,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_256",
-    "labels" : [ "NounPhrase", "Entity" ],
-    "text" : "Catastrophe",
-    "rule" : "simple-np++Decrease_syntax_1_verb_edited",
-    "canonicalName" : "catastrophe",
-    "grounding" : [ {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/crisis",
-      "value" : 0.5715235415301689
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/famine",
-      "value" : 0.5353294130722038
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/natural/weather/drought",
-      "value" : 0.5109852652926742
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/natural/weather/flooding",
-      "value" : 0.49069948825622034
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/natural/weather/storm",
-      "value" : 0.4498710353484875
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/intervention",
-      "value" : 0.40033761715513266
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/conflict",
-      "value" : 0.39060395017728755
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/human_migration",
-      "value" : 0.36365143168301217
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/entities/human/food/food_insecurity",
-      "value" : 0.35165544962170686
-    }, {
-      "@type" : "Grounding",
-      "ontologyConcept" : "/events/human/death",
-      "value" : 0.27618378117798903
-    } ],
-    "provenance" : [ {
-      "@type" : "Provenance",
-      "document" : {
-        "@id" : "_:Document_50"
-      },
-      "sentence" : {
-        "@id" : "_:Sentence_159"
-      },
-      "positions" : {
-        "@type" : "Interval",
-        "start" : 1,
-        "end" : 1
-      }
-    } ],
-    "states" : [ {
-      "@type" : "State",
-      "type" : "DEC",
-      "text" : "limiting"
-    }, {
-      "@type" : "State",
-      "type" : "QUANT",
-      "text" : "likely"
-    } ]
-  }, {
-    "@type" : "Entity",
-    "@id" : "_:Entity_257",
+    "@id" : "_:Entity_258",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "access to assistance",
     "rule" : "simple-np++ported_copula_mods-1-Decrease",
@@ -134475,7 +134548,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_258",
+    "@id" : "_:Entity_259",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "tension",
     "rule" : "simple-np++quantification_adjective_rule_2",
@@ -134542,7 +134615,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_259",
+    "@id" : "_:Entity_260",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np++quantification2",
@@ -134609,7 +134682,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_260",
+    "@id" : "_:Entity_261",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "relocation of the remaining 562 IDPs in Melut PoC",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -134676,7 +134749,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_261",
+    "@id" : "_:Entity_262",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian partners",
     "rule" : "simple-np",
@@ -134738,7 +134811,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_262",
+    "@id" : "_:Entity_263",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "uptick in cattle raiding",
     "rule" : "simple-np",
@@ -134800,7 +134873,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_263",
+    "@id" : "_:Entity_264",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "resurgence of various armed groups",
     "rule" : "simple-np",
@@ -134862,7 +134935,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_264",
+    "@id" : "_:Entity_265",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food security",
     "rule" : "simple-np++quantification2",
@@ -134929,7 +135002,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_265",
+    "@id" : "_:Entity_266",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "counties of South Sudan",
     "rule" : "simple-np++quantification2",
@@ -134996,7 +135069,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_266",
+    "@id" : "_:Entity_267",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -135063,7 +135136,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_267",
+    "@id" : "_:Entity_268",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "other basic needs",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -135134,7 +135207,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_268",
+    "@id" : "_:Entity_269",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -135205,7 +135278,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_269",
+    "@id" : "_:Entity_270",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -135276,7 +135349,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_270",
+    "@id" : "_:Entity_271",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "IPC",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -135343,7 +135416,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_271",
+    "@id" : "_:Entity_272",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "hunger",
     "rule" : "simple-np++quantification2",
@@ -135410,7 +135483,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_272",
+    "@id" : "_:Entity_273",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "56 percent of the country's population",
     "rule" : "simple-np++quantification2",
@@ -135477,7 +135550,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_273",
+    "@id" : "_:Entity_274",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food-insecure year in South Sudan's history",
     "rule" : "simple-np++quantification2",
@@ -135544,7 +135617,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_274",
+    "@id" : "_:Entity_275",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food-insecure countries in the world",
     "rule" : "simple-np++quantification2",
@@ -135611,7 +135684,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_275",
+    "@id" : "_:Entity_276",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Food security",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -135678,7 +135751,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_276",
+    "@id" : "_:Entity_277",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "estimated 5.1 million people",
     "rule" : "simple-np",
@@ -135740,7 +135813,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_277",
+    "@id" : "_:Entity_278",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food availability",
     "rule" : "simple-np++Increase_ported_syntax_1_noun",
@@ -135814,7 +135887,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_278",
+    "@id" : "_:Entity_279",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "levels of acute food insecurity",
     "rule" : "simple-np++Decrease_adjective_rule_1",
@@ -135881,7 +135954,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_279",
+    "@id" : "_:Entity_280",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "seasonal harvests from October",
     "rule" : "simple-np",
@@ -135943,7 +136016,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_280",
+    "@id" : "_:Entity_281",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np++quantification2",
@@ -136010,7 +136083,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_281",
+    "@id" : "_:Entity_282",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "20,000 people",
     "rule" : "simple-np++quantification2",
@@ -136077,7 +136150,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_282",
+    "@id" : "_:Entity_283",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "areas of Western Bahr El Ghazal State",
     "rule" : "simple-np",
@@ -136139,7 +136212,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_283",
+    "@id" : "_:Entity_284",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "insecurity",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -136206,7 +136279,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_284",
+    "@id" : "_:Entity_285",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "livelihood activities",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -136273,7 +136346,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_285",
+    "@id" : "_:Entity_286",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "communities",
     "rule" : "simple-np",
@@ -136335,7 +136408,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_286",
+    "@id" : "_:Entity_287",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "2.4 million refugees",
     "rule" : "simple-np++quantification2",
@@ -136402,7 +136475,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_287",
+    "@id" : "_:Entity_288",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food insecurity",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -136469,7 +136542,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_288",
+    "@id" : "_:Entity_289",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian access",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -136536,7 +136609,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_289",
+    "@id" : "_:Entity_290",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "populations",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -136607,7 +136680,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_290",
+    "@id" : "_:Entity_291",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "and conflict-affected populations",
     "rule" : "simple-np++quantification2",
@@ -136678,7 +136751,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_291",
+    "@id" : "_:Entity_292",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "levels of acute food insecurity",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -136749,7 +136822,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_292",
+    "@id" : "_:Entity_293",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "sustained and unimpeded humanitarian response",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -136816,7 +136889,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_293",
+    "@id" : "_:Entity_294",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Famine",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -136887,7 +136960,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_294",
+    "@id" : "_:Entity_295",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "FFP",
     "rule" : "simple-np",
@@ -136949,7 +137022,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_295",
+    "@id" : "_:Entity_296",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "emergency food assistance",
     "rule" : "simple-np",
@@ -137011,7 +137084,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_296",
+    "@id" : "_:Entity_297",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "self-sufficiency",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -137078,7 +137151,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_297",
+    "@id" : "_:Entity_298",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "communities",
     "rule" : "simple-np++quantification2",
@@ -137149,7 +137222,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_298",
+    "@id" : "_:Entity_299",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food security",
     "rule" : "simple-np++Increase_adjective_rule_1++Decrease_syntax_1_verb_edited",
@@ -137220,7 +137293,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_299",
+    "@id" : "_:Entity_300",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food gap",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -137287,7 +137360,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_300",
+    "@id" : "_:Entity_301",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "emergency",
     "rule" : "simple-np++Increase_ported_syntax_2_noun",
@@ -137354,7 +137427,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_301",
+    "@id" : "_:Entity_302",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "livelihoods",
     "rule" : "simple-np++Increase_ported_syntax_3_noun",
@@ -137421,7 +137494,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_302",
+    "@id" : "_:Entity_303",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "urban and rural populations",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -137492,7 +137565,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_303",
+    "@id" : "_:Entity_304",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food security",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -137559,7 +137632,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_304",
+    "@id" : "_:Entity_305",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food security trends",
     "rule" : "simple-np++Increase_syntax_1_verb_edited",
@@ -137630,7 +137703,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_305",
+    "@id" : "_:Entity_306",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian access",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -137697,7 +137770,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_306",
+    "@id" : "_:Entity_307",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "internal displacement",
     "rule" : "simple-np",
@@ -137759,7 +137832,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_307",
+    "@id" : "_:Entity_308",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "households",
     "rule" : "simple-np++quantification2",
@@ -137830,7 +137903,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_308",
+    "@id" : "_:Entity_309",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "nutritious food for consumption",
     "rule" : "simple-np++Increase_ported_syntax_3_noun",
@@ -137897,7 +137970,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_309",
+    "@id" : "_:Entity_310",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "continued conflict",
     "rule" : "simple-np",
@@ -137959,7 +138032,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_310",
+    "@id" : "_:Entity_311",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "market",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -138026,7 +138099,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_311",
+    "@id" : "_:Entity_312",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "humanitarian access",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -138093,7 +138166,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_312",
+    "@id" : "_:Entity_313",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food insecure people",
     "rule" : "simple-np++quantification2",
@@ -138160,7 +138233,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_313",
+    "@id" : "_:Entity_314",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Food insecurity levels",
     "rule" : "simple-np",
@@ -138222,7 +138295,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_314",
+    "@id" : "_:Entity_315",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "markets",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -138289,7 +138362,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_315",
+    "@id" : "_:Entity_316",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "lean season",
     "rule" : "simple-np",
@@ -138351,7 +138424,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_316",
+    "@id" : "_:Entity_317",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food stocks",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -138425,7 +138498,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_317",
+    "@id" : "_:Entity_318",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rains",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -138500,7 +138573,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_318",
+    "@id" : "_:Entity_319",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "displacement",
     "rule" : "simple-np++quantification2",
@@ -138567,7 +138640,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_319",
+    "@id" : "_:Entity_320",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "access to local food markets",
     "rule" : "simple-np++Decrease_adjective_rule_1++Decrease_ported_syntax_1_noun",
@@ -138638,7 +138711,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_320",
+    "@id" : "_:Entity_321",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "livestock production",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -138705,7 +138778,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_321",
+    "@id" : "_:Entity_322",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "climate extremes",
     "rule" : "simple-np",
@@ -138767,7 +138840,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_322",
+    "@id" : "_:Entity_323",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "insecurity",
     "rule" : "simple-np++quantification2",
@@ -138834,7 +138907,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_323",
+    "@id" : "_:Entity_324",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "market",
     "rule" : "simple-np++Decrease_ported_syntax_2_noun",
@@ -138901,7 +138974,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_324",
+    "@id" : "_:Entity_325",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "occurrence of livestock disease outbreaks",
     "rule" : "simple-np++Increase_ported_syntax_2_verb",
@@ -138968,7 +139041,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_325",
+    "@id" : "_:Entity_326",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Economic crisis",
     "rule" : "simple-np",
@@ -139030,7 +139103,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_326",
+    "@id" : "_:Entity_327",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "hyperinflation",
     "rule" : "simple-np++quantification2",
@@ -139097,7 +139170,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_327",
+    "@id" : "_:Entity_328",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food systems",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -139164,7 +139237,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_328",
+    "@id" : "_:Entity_329",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food security situation",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -139235,7 +139308,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_329",
+    "@id" : "_:Entity_330",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "agricultural, fisheries",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -139302,7 +139375,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_330",
+    "@id" : "_:Entity_331",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "income",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -139369,7 +139442,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_331",
+    "@id" : "_:Entity_332",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "household access to food",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -139436,7 +139509,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_332",
+    "@id" : "_:Entity_333",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Trade",
     "rule" : "simple-np++Decrease_ported_syntax_2_verb",
@@ -139503,7 +139576,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_333",
+    "@id" : "_:Entity_334",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "local food production",
     "rule" : "simple-np++quantification_adjective_rule_5++Increase_ported_syntax_1_verb",
@@ -139574,7 +139647,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_334",
+    "@id" : "_:Entity_335",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "half a million tonnes",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -139641,7 +139714,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_335",
+    "@id" : "_:Entity_336",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "livelihood activities",
     "rule" : "simple-np++Decrease_ported_syntax_1_noun",
@@ -139708,7 +139781,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_336",
+    "@id" : "_:Entity_337",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "migration routes",
     "rule" : "simple-np++Decrease_syntax_1_verb_edited",
@@ -139775,7 +139848,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_337",
+    "@id" : "_:Entity_338",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "national cereal gap",
     "rule" : "simple-np++Increase_ported_syntax_2_verb",
@@ -139842,7 +139915,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_338",
+    "@id" : "_:Entity_339",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "famine conditions",
     "rule" : "simple-np++Increase_syntax_1_verb_edited",
@@ -139909,7 +139982,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_339",
+    "@id" : "_:Entity_340",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "several new locations across the country",
     "rule" : "simple-np",
@@ -139971,7 +140044,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_340",
+    "@id" : "_:Entity_341",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "next lean season",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -140038,7 +140111,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_341",
+    "@id" : "_:Entity_342",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "food insecure",
     "rule" : "simple-np++quantification2",
@@ -140105,7 +140178,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_342",
+    "@id" : "_:Entity_343",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "half of the country's population",
     "rule" : "simple-np++quantification2",
@@ -140172,7 +140245,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_343",
+    "@id" : "_:Entity_344",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "hunger",
     "rule" : "simple-np",
@@ -140234,7 +140307,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_344",
+    "@id" : "_:Entity_345",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "appeal for $1.7 billion to assist up to 6 million people",
     "rule" : "simple-np",
@@ -140296,7 +140369,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_345",
+    "@id" : "_:Entity_346",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "conflict",
     "rule" : "simple-np",
@@ -140358,7 +140431,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_346",
+    "@id" : "_:Entity_347",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "displacement",
     "rule" : "simple-np",
@@ -140420,7 +140493,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_347",
+    "@id" : "_:Entity_348",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "Floods",
     "rule" : "simple-np",
@@ -140482,7 +140555,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_348",
+    "@id" : "_:Entity_349",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rain",
     "rule" : "simple-np",
@@ -140544,7 +140617,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_349",
+    "@id" : "_:Entity_350",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "fears about the devastating impact",
     "rule" : "simple-np++Increase_ported_syntax_1_verb",
@@ -140611,7 +140684,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_350",
+    "@id" : "_:Entity_351",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "figures",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -140682,7 +140755,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_351",
+    "@id" : "_:Entity_352",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "situation",
     "rule" : "simple-np++quantification_adjective_rule_4",
@@ -140749,7 +140822,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_352",
+    "@id" : "_:Entity_353",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "cholera",
     "rule" : "simple-np++Increase_ported_syntax_1_noun",
@@ -140820,7 +140893,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_353",
+    "@id" : "_:Entity_354",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "floods",
     "rule" : "simple-np",
@@ -140882,7 +140955,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_354",
+    "@id" : "_:Entity_355",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "already dire humanitarian situation across the country",
     "rule" : "simple-np++Decrease_ported_syntax_1_verb",
@@ -140949,7 +141022,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_355",
+    "@id" : "_:Entity_356",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "situation",
     "rule" : "simple-np++quantification2",
@@ -141016,7 +141089,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_356",
+    "@id" : "_:Entity_357",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "annual rainfall",
     "rule" : "simple-np++Increase_adjective_rule_1",
@@ -141083,7 +141156,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_357",
+    "@id" : "_:Entity_358",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "potential",
     "rule" : "simple-np++quantification2",
@@ -141150,7 +141223,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_358",
+    "@id" : "_:Entity_359",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "cereal production",
     "rule" : "simple-np++Increase_ported_syntax_6_verb",
@@ -141217,7 +141290,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_359",
+    "@id" : "_:Entity_360",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "uncertainty in estimates",
     "rule" : "simple-np++quantification2",
@@ -141284,7 +141357,7 @@
     } ]
   }, {
     "@type" : "Entity",
-    "@id" : "_:Entity_360",
+    "@id" : "_:Entity_361",
     "labels" : [ "NounPhrase", "Entity" ],
     "text" : "rainfall",
     "rule" : "simple-np++quantification2",
@@ -141659,10 +141732,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_32"
+      "@id" : "_:Entity_33"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_34"
+      "@id" : "_:Entity_35"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -141704,10 +141777,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_36"
+      "@id" : "_:Entity_37"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_34"
+      "@id" : "_:Entity_35"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -141749,10 +141822,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_33"
+      "@id" : "_:Entity_34"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_35"
+      "@id" : "_:Entity_36"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -141794,10 +141867,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_40"
+      "@id" : "_:Entity_41"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_39"
+      "@id" : "_:Entity_40"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -141839,10 +141912,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_38"
+      "@id" : "_:Entity_39"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_39"
+      "@id" : "_:Entity_40"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -141884,10 +141957,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_57"
+      "@id" : "_:Entity_58"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_58"
+      "@id" : "_:Entity_59"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -141929,10 +142002,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_63"
+      "@id" : "_:Entity_64"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_62"
+      "@id" : "_:Entity_63"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -141974,10 +142047,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_59"
+      "@id" : "_:Entity_60"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_62"
+      "@id" : "_:Entity_63"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142019,10 +142092,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_67"
+      "@id" : "_:Entity_68"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_65"
+      "@id" : "_:Entity_66"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142064,10 +142137,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_78"
+      "@id" : "_:Entity_79"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_77"
+      "@id" : "_:Entity_78"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142109,10 +142182,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_80"
+      "@id" : "_:Entity_81"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_81"
+      "@id" : "_:Entity_82"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142154,10 +142227,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_84"
+      "@id" : "_:Entity_85"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_82"
+      "@id" : "_:Entity_83"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142199,10 +142272,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_83"
+      "@id" : "_:Entity_84"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_79"
+      "@id" : "_:Entity_80"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142244,10 +142317,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_78"
+      "@id" : "_:Entity_79"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_85"
+      "@id" : "_:Entity_86"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142289,10 +142362,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_91"
+      "@id" : "_:Entity_92"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_90"
+      "@id" : "_:Entity_91"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142334,10 +142407,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_88"
+      "@id" : "_:Entity_89"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_94"
+      "@id" : "_:Entity_95"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142379,10 +142452,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_95"
+      "@id" : "_:Entity_96"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_94"
+      "@id" : "_:Entity_95"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142424,10 +142497,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_91"
+      "@id" : "_:Entity_92"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_89"
+      "@id" : "_:Entity_90"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142469,10 +142542,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_112"
+      "@id" : "_:Entity_113"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_113"
+      "@id" : "_:Entity_114"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142514,10 +142587,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_108"
+      "@id" : "_:Entity_109"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_109"
+      "@id" : "_:Entity_110"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142559,10 +142632,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_123"
+      "@id" : "_:Entity_124"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_120"
+      "@id" : "_:Entity_121"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142604,10 +142677,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_121"
+      "@id" : "_:Entity_122"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_119"
+      "@id" : "_:Entity_120"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142649,10 +142722,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_116"
+      "@id" : "_:Entity_117"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_117"
+      "@id" : "_:Entity_118"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142694,10 +142767,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_123"
+      "@id" : "_:Entity_124"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_119"
+      "@id" : "_:Entity_120"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142739,10 +142812,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_121"
+      "@id" : "_:Entity_122"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_120"
+      "@id" : "_:Entity_121"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142784,18 +142857,18 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_127"
+      "@id" : "_:Entity_128"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_125"
+      "@id" : "_:Entity_126"
     } ]
   }, {
     "@type" : "DirectedRelation",
     "@id" : "_:DirectedRelation_33",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
-    "text" : "``Catastrophe'' food security conditions declined from over 100 000 in February to about 45 000 in June due to sustained multi-sectoral humanitarian assistance operations",
+    "text" : "'' food security conditions declined from over 100 000 in February to about 45 000 in June due to sustained multi-sectoral humanitarian assistance operations",
     "rule" : "dueToSyntax2-Causal",
-    "canonicalName" : "catastrophe food security due assistance operation",
+    "canonicalName" : "food security due assistance operation",
     "provenance" : [ {
       "@type" : "Provenance",
       "document" : {
@@ -142806,7 +142879,7 @@
       },
       "positions" : {
         "@type" : "Interval",
-        "start" : 12,
+        "start" : 14,
         "end" : 37
       }
     } ],
@@ -142829,10 +142902,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_138"
+      "@id" : "_:Entity_139"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_135"
+      "@id" : "_:Entity_140"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142874,10 +142947,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_158"
+      "@id" : "_:Entity_161"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_155"
+      "@id" : "_:Entity_158"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142919,10 +142992,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_158"
+      "@id" : "_:Entity_161"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_151"
+      "@id" : "_:Entity_154"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -142964,10 +143037,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_158"
+      "@id" : "_:Entity_161"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_157"
+      "@id" : "_:Entity_160"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143009,10 +143082,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_154"
+      "@id" : "_:Entity_157"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_156"
+      "@id" : "_:Entity_159"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143054,10 +143127,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_158"
+      "@id" : "_:Entity_161"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_152"
+      "@id" : "_:Entity_155"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143099,10 +143172,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_159"
+      "@id" : "_:Entity_162"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_160"
+      "@id" : "_:Entity_163"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143144,10 +143217,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_170"
+      "@id" : "_:Entity_173"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_176"
+      "@id" : "_:Entity_179"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143189,10 +143262,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_170"
+      "@id" : "_:Entity_173"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_173"
+      "@id" : "_:Entity_176"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143234,10 +143307,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_172"
+      "@id" : "_:Entity_175"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_176"
+      "@id" : "_:Entity_179"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143279,10 +143352,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_174"
+      "@id" : "_:Entity_177"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_177"
+      "@id" : "_:Entity_180"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143324,10 +143397,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_170"
+      "@id" : "_:Entity_173"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_179"
+      "@id" : "_:Entity_182"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143369,10 +143442,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_172"
+      "@id" : "_:Entity_175"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_173"
+      "@id" : "_:Entity_176"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143414,10 +143487,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_180"
+      "@id" : "_:Entity_183"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_190"
+      "@id" : "_:Entity_193"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143459,10 +143532,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_182"
+      "@id" : "_:Entity_185"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_183"
+      "@id" : "_:Entity_186"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143504,10 +143577,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_187"
+      "@id" : "_:Entity_190"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_183"
+      "@id" : "_:Entity_186"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143549,10 +143622,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_189"
+      "@id" : "_:Entity_192"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_190"
+      "@id" : "_:Entity_193"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143594,10 +143667,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_200"
+      "@id" : "_:Entity_203"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_198"
+      "@id" : "_:Entity_201"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143639,10 +143712,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_203"
+      "@id" : "_:Entity_206"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_202"
+      "@id" : "_:Entity_205"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143684,10 +143757,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_193"
+      "@id" : "_:Entity_196"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_199"
+      "@id" : "_:Entity_202"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143729,10 +143802,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_191"
+      "@id" : "_:Entity_194"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_201"
+      "@id" : "_:Entity_204"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143774,10 +143847,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_197"
+      "@id" : "_:Entity_200"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_202"
+      "@id" : "_:Entity_205"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143819,10 +143892,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_216"
+      "@id" : "_:Entity_219"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_220"
+      "@id" : "_:Entity_223"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143864,10 +143937,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_218"
+      "@id" : "_:Entity_221"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_217"
+      "@id" : "_:Entity_220"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143909,10 +143982,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_218"
+      "@id" : "_:Entity_221"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_215"
+      "@id" : "_:Entity_218"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143954,10 +144027,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_221"
+      "@id" : "_:Entity_224"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_226"
+      "@id" : "_:Entity_229"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -143999,10 +144072,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_224"
+      "@id" : "_:Entity_227"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_227"
+      "@id" : "_:Entity_230"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -144044,10 +144117,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_235"
+      "@id" : "_:Entity_238"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_228"
+      "@id" : "_:Entity_231"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -144089,10 +144162,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_234"
+      "@id" : "_:Entity_237"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_233"
+      "@id" : "_:Entity_236"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -144134,10 +144207,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_236"
+      "@id" : "_:Entity_239"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_237"
+      "@id" : "_:Entity_240"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -144179,10 +144252,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_236"
+      "@id" : "_:Entity_239"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_239"
+      "@id" : "_:Entity_242"
     } ]
   }, {
     "@type" : "DirectedRelation",
@@ -144224,59 +144297,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_241"
+      "@id" : "_:Entity_244"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_246"
+      "@id" : "_:Entity_249"
     } ]
   }, {
     "@type" : "DirectedRelation",
     "@id" : "_:DirectedRelation_65",
-    "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
-    "text" : "Catastrophe -LRB-IPC Phase 5-RRB- also remains likely in parts of Nyirol, Leer, and Ayod, where some households did not harvest and ongoing insecurity is limiting access to assistance and movement towards natural food sources",
-    "rule" : "ported_syntax_1_verb-Causal",
-    "canonicalName" : "catastrophe limit movement food source",
-    "provenance" : [ {
-      "@type" : "Provenance",
-      "document" : {
-        "@id" : "_:Document_50"
-      },
-      "sentence" : {
-        "@id" : "_:Sentence_159"
-      },
-      "positions" : {
-        "@type" : "Interval",
-        "start" : 1,
-        "end" : 39
-      }
-    } ],
-    "trigger" : {
-      "@type" : "Trigger",
-      "text" : "limiting",
-      "provenance" : [ {
-        "@type" : "Provenance",
-        "document" : {
-          "@id" : "_:Document_50"
-        },
-        "sentence" : {
-          "@id" : "_:Sentence_159"
-        },
-        "positions" : {
-          "@type" : "Interval",
-          "start" : 30,
-          "end" : 30
-        }
-      } ]
-    },
-    "sources" : [ {
-      "@id" : "_:Entity_256"
-    } ],
-    "destinations" : [ {
-      "@id" : "_:Entity_253"
-    } ]
-  }, {
-    "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_66",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity is limiting access to assistance",
     "rule" : "token_2_verb-Causal",
@@ -144314,59 +144342,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_250"
+      "@id" : "_:Entity_253"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_257"
+      "@id" : "_:Entity_258"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_67",
-    "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
-    "text" : "Catastrophe -LRB-IPC Phase 5-RRB- also remains likely in parts of Nyirol, Leer, and Ayod, where some households did not harvest and ongoing insecurity is limiting access to assistance",
-    "rule" : "ported_syntax_1_verb-Causal",
-    "canonicalName" : "catastrophe limit assistance",
-    "provenance" : [ {
-      "@type" : "Provenance",
-      "document" : {
-        "@id" : "_:Document_50"
-      },
-      "sentence" : {
-        "@id" : "_:Sentence_159"
-      },
-      "positions" : {
-        "@type" : "Interval",
-        "start" : 1,
-        "end" : 33
-      }
-    } ],
-    "trigger" : {
-      "@type" : "Trigger",
-      "text" : "limiting",
-      "provenance" : [ {
-        "@type" : "Provenance",
-        "document" : {
-          "@id" : "_:Document_50"
-        },
-        "sentence" : {
-          "@id" : "_:Sentence_159"
-        },
-        "positions" : {
-          "@type" : "Interval",
-          "start" : 30,
-          "end" : 30
-        }
-      } ]
-    },
-    "sources" : [ {
-      "@id" : "_:Entity_256"
-    } ],
-    "destinations" : [ {
-      "@id" : "_:Entity_257"
-    } ]
-  }, {
-    "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_68",
+    "@id" : "_:DirectedRelation_66",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity is limiting access to assistance and movement towards natural food sources",
     "rule" : "token_1_verb-Causal",
@@ -144404,14 +144387,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_250"
+      "@id" : "_:Entity_253"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_253"
+      "@id" : "_:Entity_255"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_69",
+    "@id" : "_:DirectedRelation_67",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "households in this area lack access to sufficient food",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144449,14 +144432,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_248"
+      "@id" : "_:Entity_251"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_254"
+      "@id" : "_:Entity_256"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_70",
+    "@id" : "_:DirectedRelation_68",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "IPC Phase 5-RRB- also remains likely in parts of Nyirol, Leer, and Ayod, where some households did not harvest and ongoing insecurity is limiting access to assistance",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144494,59 +144477,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_249"
+      "@id" : "_:Entity_252"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_257"
+      "@id" : "_:Entity_258"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_71",
-    "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
-    "text" : "lack access to sufficient food and could be in Catastrophe",
-    "rule" : "ported_syntax_5_verb-Causal",
-    "canonicalName" : "lack food catastrophe",
-    "provenance" : [ {
-      "@type" : "Provenance",
-      "document" : {
-        "@id" : "_:Document_50"
-      },
-      "sentence" : {
-        "@id" : "_:Sentence_158"
-      },
-      "positions" : {
-        "@type" : "Interval",
-        "start" : 11,
-        "end" : 20
-      }
-    } ],
-    "trigger" : {
-      "@type" : "Trigger",
-      "text" : "lack",
-      "provenance" : [ {
-        "@type" : "Provenance",
-        "document" : {
-          "@id" : "_:Document_50"
-        },
-        "sentence" : {
-          "@id" : "_:Sentence_158"
-        },
-        "positions" : {
-          "@type" : "Interval",
-          "start" : 11,
-          "end" : 11
-        }
-      } ]
-    },
-    "sources" : [ {
-      "@id" : "_:Entity_251"
-    } ],
-    "destinations" : [ {
-      "@id" : "_:Entity_254"
-    } ]
-  }, {
-    "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_72",
+    "@id" : "_:DirectedRelation_69",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "IPC Phase 5-RRB- also remains likely in parts of Nyirol, Leer, and Ayod, where some households did not harvest and ongoing insecurity is limiting access to assistance and movement towards natural food sources",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144584,14 +144522,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_249"
+      "@id" : "_:Entity_252"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_253"
+      "@id" : "_:Entity_255"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_73",
+    "@id" : "_:DirectedRelation_70",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "tension remains high in parts of Jonglei, Lakes, and Warrap, where inter-communal clashes have occurred, and in central and southern Unity, due to the resurgence of various armed groups and an uptick in cattle raiding",
     "rule" : "dueToSyntax4-Causal",
@@ -144629,14 +144567,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_262"
+      "@id" : "_:Entity_263"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_258"
+      "@id" : "_:Entity_259"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_74",
+    "@id" : "_:DirectedRelation_71",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "humanitarian partners supported the relocation of the remaining 562 IDPs in Melut PoC",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144674,14 +144612,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_261"
+      "@id" : "_:Entity_262"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_260"
+      "@id" : "_:Entity_261"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_75",
+    "@id" : "_:DirectedRelation_72",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "tension remains high in parts of Jonglei, Lakes, and Warrap, where inter-communal clashes have occurred, and in central and southern Unity, due to the resurgence of various armed groups",
     "rule" : "dueToSyntax2-Causal",
@@ -144719,14 +144657,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_263"
+      "@id" : "_:Entity_264"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_258"
+      "@id" : "_:Entity_259"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_76",
+    "@id" : "_:DirectedRelation_73",
     "labels" : [ "Correlation", "UndirectedRelation", "EntityLinker", "Event" ],
     "text" : "Food security is expected to deteriorate through March, with an estimated 5.1 million people",
     "rule" : "syntax_4_verb-Correlation",
@@ -144764,14 +144702,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_275"
+      "@id" : "_:Entity_276"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_276"
+      "@id" : "_:Entity_277"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_77",
+    "@id" : "_:DirectedRelation_74",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "food availability due to seasonal harvests from October",
     "rule" : "dueToSyntax5-Causal",
@@ -144809,14 +144747,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_279"
+      "@id" : "_:Entity_280"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_277"
+      "@id" : "_:Entity_278"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_78",
+    "@id" : "_:DirectedRelation_75",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "conflict has severely affected areas of Western Bahr El Ghazal State",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144854,14 +144792,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_280"
+      "@id" : "_:Entity_281"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_282"
+      "@id" : "_:Entity_283"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_79",
+    "@id" : "_:DirectedRelation_76",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity continues to displace communities, disrupt livelihood activities",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144899,14 +144837,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_283"
+      "@id" : "_:Entity_284"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_284"
+      "@id" : "_:Entity_285"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_80",
+    "@id" : "_:DirectedRelation_77",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity continues to displace communities",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144944,14 +144882,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_283"
+      "@id" : "_:Entity_284"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_285"
+      "@id" : "_:Entity_286"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_81",
+    "@id" : "_:DirectedRelation_78",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity continues to displace communities, disrupt livelihood activities, exacerbate food insecurity",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -144989,14 +144927,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_283"
+      "@id" : "_:Entity_284"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_287"
+      "@id" : "_:Entity_288"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_82",
+    "@id" : "_:DirectedRelation_79",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity continues to displace communities, disrupt livelihood activities, exacerbate food insecurity and impede humanitarian access to vulnerable populations",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -145034,14 +144972,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_283"
+      "@id" : "_:Entity_284"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_289"
+      "@id" : "_:Entity_290"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_83",
+    "@id" : "_:DirectedRelation_80",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity continues to displace communities, disrupt livelihood activities, exacerbate food insecurity and impede humanitarian access",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -145079,14 +145017,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_283"
+      "@id" : "_:Entity_284"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_288"
+      "@id" : "_:Entity_289"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_84",
+    "@id" : "_:DirectedRelation_81",
     "labels" : [ "Correlation", "UndirectedRelation", "EntityLinker", "Event" ],
     "text" : "FFP also partners with Catholic Relief Services to provide families in Jonglei State with emergency food assistance",
     "rule" : "syntax_4_verb-Correlation",
@@ -145124,14 +145062,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_294"
+      "@id" : "_:Entity_295"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_295"
+      "@id" : "_:Entity_296"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_85",
+    "@id" : "_:DirectedRelation_82",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "food security trends linked to continued conflict have been compounded by market",
     "rule" : "ported_syntax_4_verb-Causal",
@@ -145169,14 +145107,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_310"
+      "@id" : "_:Entity_311"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_304"
+      "@id" : "_:Entity_305"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_86",
+    "@id" : "_:DirectedRelation_83",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "food security trends linked to continued conflict have been compounded by market failure, internal displacement",
     "rule" : "ported_syntax_4_verb-Causal",
@@ -145214,14 +145152,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_306"
+      "@id" : "_:Entity_307"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_304"
+      "@id" : "_:Entity_305"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_87",
+    "@id" : "_:DirectedRelation_84",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "food security trends linked to continued conflict have been compounded by market failure, internal displacement and decreasing humanitarian access",
     "rule" : "ported_syntax_4_verb-Causal",
@@ -145259,14 +145197,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_305"
+      "@id" : "_:Entity_306"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_304"
+      "@id" : "_:Entity_305"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_88",
+    "@id" : "_:DirectedRelation_85",
     "labels" : [ "Correlation", "UndirectedRelation", "EntityLinker", "Event" ],
     "text" : "food security trends linked to continued conflict",
     "rule" : "ported_syntax_1d_verb-Correlation",
@@ -145304,14 +145242,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_304"
+      "@id" : "_:Entity_305"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_309"
+      "@id" : "_:Entity_310"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_89",
+    "@id" : "_:DirectedRelation_86",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Food insecurity levels worsen further with each lean season",
     "rule" : "with-Causal-1",
@@ -145349,14 +145287,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_315"
+      "@id" : "_:Entity_316"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_313"
+      "@id" : "_:Entity_314"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_90",
+    "@id" : "_:DirectedRelation_87",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "rains disrupt markets",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -145394,14 +145332,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_317"
+      "@id" : "_:Entity_318"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_314"
+      "@id" : "_:Entity_315"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_91",
+    "@id" : "_:DirectedRelation_88",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "rains disrupt markets and restrict humanitarian access",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -145439,14 +145377,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_317"
+      "@id" : "_:Entity_318"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_311"
+      "@id" : "_:Entity_312"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_92",
+    "@id" : "_:DirectedRelation_89",
     "labels" : [ "Correlation", "UndirectedRelation", "EntityLinker", "Event" ],
     "text" : "Food insecurity levels worsen further with each lean season",
     "rule" : "syntax_4_verb-Correlation",
@@ -145484,14 +145422,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_313"
+      "@id" : "_:Entity_314"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_315"
+      "@id" : "_:Entity_316"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_93",
+    "@id" : "_:DirectedRelation_90",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "displacement have led to widespread disruption of livelihood activities, including agricultural, fisheries and livestock production, as well as limited access to local food markets",
     "rule" : "leadToSyntax1-Causal",
@@ -145529,14 +145467,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_318"
+      "@id" : "_:Entity_319"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_319"
+      "@id" : "_:Entity_320"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_94",
+    "@id" : "_:DirectedRelation_91",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Exacerbated by climate extremes and a reduction in area planted, the national cereal gap",
     "rule" : "ported_syntax_1c_verb-Causal",
@@ -145574,14 +145512,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_321"
+      "@id" : "_:Entity_322"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_337"
+      "@id" : "_:Entity_338"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_95",
+    "@id" : "_:DirectedRelation_92",
     "labels" : [ "Correlation", "UndirectedRelation", "EntityLinker", "Event" ],
     "text" : "Economic crisis, marked by drastic hyperinflation and market",
     "rule" : "syntax_5_verb-Correlation",
@@ -145619,14 +145557,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_323"
+      "@id" : "_:Entity_324"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_325"
+      "@id" : "_:Entity_326"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_96",
+    "@id" : "_:DirectedRelation_93",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "displacement have led to widespread disruption of livelihood activities, including agricultural, fisheries and livestock production",
     "rule" : "leadToSyntax1-Causal",
@@ -145664,14 +145602,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_318"
+      "@id" : "_:Entity_319"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_320"
+      "@id" : "_:Entity_321"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_97",
+    "@id" : "_:DirectedRelation_94",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Economic crisis, marked by drastic hyperinflation and market failures, has further destabilised food systems and household access to food",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -145709,14 +145647,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_325"
+      "@id" : "_:Entity_326"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_331"
+      "@id" : "_:Entity_332"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_98",
+    "@id" : "_:DirectedRelation_95",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity and massive displacement have led to widespread disruption of livelihood activities, including agricultural, fisheries and livestock production, as well as limited access to local food markets",
     "rule" : "leadToSyntax1-Causal",
@@ -145754,14 +145692,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_322"
+      "@id" : "_:Entity_323"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_319"
+      "@id" : "_:Entity_320"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_99",
+    "@id" : "_:DirectedRelation_96",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Economic crisis, marked by drastic hyperinflation and market failures, has further destabilised food systems",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -145799,14 +145737,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_325"
+      "@id" : "_:Entity_326"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_327"
+      "@id" : "_:Entity_328"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_100",
+    "@id" : "_:DirectedRelation_97",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity and massive displacement have led to widespread disruption of livelihood activities",
     "rule" : "leadToSyntax1-Causal",
@@ -145844,14 +145782,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_322"
+      "@id" : "_:Entity_323"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_335"
+      "@id" : "_:Entity_336"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_101",
+    "@id" : "_:DirectedRelation_98",
     "labels" : [ "Correlation", "UndirectedRelation", "EntityLinker", "Event" ],
     "text" : "Economic crisis, marked by drastic hyperinflation",
     "rule" : "syntax_5_verb-Correlation",
@@ -145889,14 +145827,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_326"
+      "@id" : "_:Entity_327"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_325"
+      "@id" : "_:Entity_326"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_102",
+    "@id" : "_:DirectedRelation_99",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Economic crisis, marked by drastic hyperinflation and market failures, has further destabilised food systems and household access to food and income",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -145934,14 +145872,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_325"
+      "@id" : "_:Entity_326"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_330"
+      "@id" : "_:Entity_331"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_103",
+    "@id" : "_:DirectedRelation_100",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "insecurity and massive displacement have led to widespread disruption of livelihood activities, including agricultural, fisheries and livestock production",
     "rule" : "leadToSyntax1-Causal",
@@ -145979,14 +145917,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_322"
+      "@id" : "_:Entity_323"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_320"
+      "@id" : "_:Entity_321"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_104",
+    "@id" : "_:DirectedRelation_101",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "displacement have led to widespread disruption of livelihood activities",
     "rule" : "leadToSyntax1-Causal",
@@ -146024,14 +145962,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_318"
+      "@id" : "_:Entity_319"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_335"
+      "@id" : "_:Entity_336"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_105",
+    "@id" : "_:DirectedRelation_102",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "famine conditions spread to several new locations across the country",
     "rule" : "ported_syntax_1d_verb-Causal",
@@ -146069,14 +146007,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_338"
+      "@id" : "_:Entity_339"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_339"
+      "@id" : "_:Entity_340"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_106",
+    "@id" : "_:DirectedRelation_103",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "appeal for $1.7 billion to assist up to 6 million people affected by conflict",
     "rule" : "ported_syntax_1c_verb-Causal",
@@ -146114,14 +146052,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_345"
+      "@id" : "_:Entity_346"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_344"
+      "@id" : "_:Entity_345"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_107",
+    "@id" : "_:DirectedRelation_104",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "appeal for $1.7 billion to assist up to 6 million people affected by conflict, displacement",
     "rule" : "ported_syntax_1c_verb-Causal",
@@ -146159,14 +146097,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_346"
+      "@id" : "_:Entity_347"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_344"
+      "@id" : "_:Entity_345"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_108",
+    "@id" : "_:DirectedRelation_105",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "appeal for $1.7 billion to assist up to 6 million people affected by conflict, displacement and hunger",
     "rule" : "ported_syntax_1c_verb-Causal",
@@ -146204,14 +146142,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_343"
+      "@id" : "_:Entity_344"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_344"
+      "@id" : "_:Entity_345"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_109",
+    "@id" : "_:DirectedRelation_106",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Floods caused by rain",
     "rule" : "ported_syntax_1c_verb-Causal",
@@ -146249,14 +146187,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_348"
+      "@id" : "_:Entity_349"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_347"
+      "@id" : "_:Entity_348"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_110",
+    "@id" : "_:DirectedRelation_107",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Floods caused by rain have displaced more than 100,000 people in South Sudan, an official said, raising fears about the devastating impact",
     "rule" : "ported_syntax_5_verb-Causal",
@@ -146294,14 +146232,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_347"
+      "@id" : "_:Entity_348"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_349"
+      "@id" : "_:Entity_350"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_111",
+    "@id" : "_:DirectedRelation_108",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "floods could worsen the already dire humanitarian situation across the country, including the spread of cholera",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -146339,14 +146277,14 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_353"
+      "@id" : "_:Entity_354"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_352"
+      "@id" : "_:Entity_353"
     } ]
   }, {
     "@type" : "DirectedRelation",
-    "@id" : "_:DirectedRelation_112",
+    "@id" : "_:DirectedRelation_109",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "floods could worsen the already dire humanitarian situation across the country",
     "rule" : "ported_syntax_1_verb-Causal",
@@ -146384,10 +146322,10 @@
       } ]
     },
     "sources" : [ {
-      "@id" : "_:Entity_353"
+      "@id" : "_:Entity_354"
     } ],
     "destinations" : [ {
-      "@id" : "_:Entity_354"
+      "@id" : "_:Entity_355"
     } ]
   } ]
 }
