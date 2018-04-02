@@ -45,7 +45,7 @@ class RuleBasedEntityFinder(
     "^dobj$".r,
     "^compound".r, // replaces nn
     "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
-    // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X."
+    // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X.
     "^acl_to".r, // replaces vmod
     "xcomp".r, // replaces vmod
     // Changed from processors......

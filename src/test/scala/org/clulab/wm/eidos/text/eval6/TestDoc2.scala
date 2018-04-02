@@ -14,16 +14,16 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
-    val food = NodeSpec("food", Dec("shortages", "severe"))
+    val food = NodeSpec("food", Dec("shortages", "severe"), Quant("severe"))
     val hunger = NodeSpec("hunger", Dec("catastrophe"))
 
     behavior of "TestDoc2 Paragraph 1"
 
-    failingTest should "have correct singleton node 1" taggedAs(Mithun) in {
+    passingTest should "have correct singleton node 1" taggedAs(Mithun) in {
       tester.test(food) should be(successful)
     }
 
-    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
+    passingTest should "have correct singleton node 2" taggedAs(Mithun) in {
       tester.test(hunger) should be (successful)
     }
   }
@@ -49,18 +49,20 @@ class TestDoc2 extends Test {
       tester.test(situation) should be(successful)
     }
 
+      //this is passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
     failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
       tester.test(leanSeason) should be(successful)
     }
 
-    failingTest should "have correct singleton node 3" taggedAs(Mithun) in {
+    passingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(foodStocks) should be(successful)
     }
 
-    failingTest should "have correct singleton node 4" taggedAs(Mithun) in {
+    passingTest should "have correct singleton node 4" taggedAs(Mithun) in {
       tester.test(foodInsecurity) should be(successful)
     }
 
+    //this is dependant on the lean season thing above. i.e passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
     failingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(situation, Correlation, leanSeason)) should be(successful)
     }
@@ -152,14 +154,17 @@ class TestDoc2 extends Test {
       tester.test(conflict) should be(successful)
     }
 
+    //this is dependant on something becky is working on. arbitrary predicates thing
     failingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(fams) should be(successful)
     }
 
+    //this is dependant on something becky is working on. arbitrary predicates thing
     failingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(foodInsecurity, Causal, fams)) should be(successful)
     }
 
+    //this is dependant on something becky is working on. arbitrary predicates thing
     failingTest should "have correct edge 2" taggedAs(Mithun) in {
       tester.test(EdgeSpec(conflict, Causal, fams)) should be (successful)
     }
