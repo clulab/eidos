@@ -337,16 +337,16 @@ class TestDoc5 extends Test {
 
   { // Paragraph 7
     val text = """
-      |Other areas of concern include: 1) Western Bahr el Ghazal,
-      |where conflict is also limiting agricultural activities,
-      |driving displacement, and disrupting normal market functioning;
-      |2) Northern Bahr el Ghazal, where prices are extremely high and
-      |households are especially dependent on markets to access food;
-      |and 3) Greater Equatoria where ongoing conflict has disrupted
-      |crop production and restricted the movement of local
-      |populations. The forthcoming multi-partner IPC analysis will
-      |consider a variety of new information and provide an updated
-      |assessment of current and future acute food insecurity.
+      Other areas of concern include: 1) Western Bahr el Ghazal,
+      where conflict is also limiting agricultural activities,
+      driving displacement, and disrupting normal market functioning;
+      2) Northern Bahr el Ghazal, where prices are extremely high and
+      households are especially dependent on markets to access food;
+      and 3) Greater Equatoria where ongoing conflict has disrupted
+      crop production and restricted the movement of local
+      populations. The forthcoming multi-partner IPC analysis will
+      consider a variety of new information and provide an updated
+      assessment of current and future acute food insecurity.
       """
 
     val conflict = NodeSpec("conflict")
@@ -365,7 +365,7 @@ class TestDoc5 extends Test {
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices)
     }
-    failingTest should "have correct edges 1" taggedAs(Adarsh) in {
+    passingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
     }
     failingTest should "have correct edges 2" taggedAs(Adarsh) in {
