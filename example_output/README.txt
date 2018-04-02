@@ -4,3 +4,6 @@ This JSON-LD file contains the actual output of our system on the following 3 se
 
 Please see this page for a description of this format:
 https://github.com/clulab/eidos/wiki/JSON-LD
+
+We also provide a larger example output in the `debug_docs_example` folder.  In that folder is a file containing 10 documents
+provided for debugging the system (DocN.txt) as well as the corresponding jsonld output file (debug_docs_cag.jsonld).
