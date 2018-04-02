@@ -13,6 +13,8 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods
 import org.json4s.jackson.Serialization.write
 
+import scala.util.hashing.MurmurHash3.mixLast
+
 abstract class EidosAttachment extends Attachment {
   implicit val formats = org.json4s.DefaultFormats
   
@@ -85,6 +87,8 @@ case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) 
     case _ => false
   }
 
+  override def hashCode = mixLast(quantifier.##, sortedArguments.##)
+
   override def argumentSize: Int = argumentSize(adverbs)
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
@@ -127,6 +131,8 @@ case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) exten
     case _ => false
   }
 
+  override def hashCode = mixLast(trigger.##, sortedArguments.##)
+
   override def argumentSize: Int = argumentSize(quantifiers)
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
@@ -162,6 +168,8 @@ case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None
         this.sortedArguments == that.sortedArguments
     case _ => false
   }
+
+  override def hashCode = mixLast(trigger.##, sortedArguments.##)
 
   override def argumentSize: Int = argumentSize(quantifiers)
 

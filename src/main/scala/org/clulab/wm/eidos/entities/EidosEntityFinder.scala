@@ -21,11 +21,14 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     // avoid refs, etc.
     val avoid = avoidEngine.extractFrom(doc)
     val stateFromAvoid = State(avoid)
+    // extract the base entities
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
-    val expandedEntities: Seq[Mention] = baseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
-    // debugDisplay("expanded", expandedEntities)
+    // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
+    val validBaseEntities = baseEntities.filter(isValidBaseEntity)
+    // expand the entities
+    val expandedEntities: Seq[Mention] = validBaseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
     // split entities on likely coordinations
-    val splitEntities = (baseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
+    val splitEntities = (validBaseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
@@ -45,6 +48,29 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 //    println(s"Entities finally returned -- \n\t${res.map(m => m.text).mkString("\n\t")}")
     res
   }
+
+
+
+  /**
+    * Determines whether or not an entity is a valid base entity. We want to disallow JJ-only entities except
+    * when they are a result of the head noun being a trigger (i.e. being avoided)
+    */
+  def isValidBaseEntity(entity: Mention): Boolean = {
+    // Helper method for determining if the next word after the entity is a noun
+    def nextTagNN(entity: Mention): Boolean = {
+      val sent = entity.sentenceObj
+      sent.tags.get(entity.end).startsWith("NN")
+    }
+
+    val sent = entity.sentenceObj
+    // If there's a noun in the entity, it's valid
+    entity.tags.get.exists(tag => tag.startsWith("NN")) ||
+    // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
+    // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
+    entity.tags.get.last.startsWith("JJ") && nextTagNN(entity)
+    // Otherwise, it's not valid
+  }
+
 
   /**
     * Expands an entity up to the specified number of hops along valid grammatical relations.

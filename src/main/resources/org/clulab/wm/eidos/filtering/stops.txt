@@ -27,6 +27,7 @@ xref_fig
 xref_table
 xref_supplementary
 # Geography
+central
 south
 north
 east
@@ -44,6 +45,7 @@ southwest
 northeast
 northwest
 region
+area
 # Measurements
 mm
 cm
