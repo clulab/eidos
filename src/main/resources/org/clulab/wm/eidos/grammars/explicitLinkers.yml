@@ -10,6 +10,7 @@ vars:
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   passive_agents: "nmod_by|nmod_agent|agent"
+  passive_mark_verbs: "marked|defined|indicated|characterized"
   # Todo: nmod_from "X will follow from Y"
 
 rules:
@@ -48,3 +49,13 @@ rules:
       trigger = [tag=IN & word=with]
       cause: Entity = <case <nmod_with (${ agents }) (${ preps })?
       effect: Entity  = <case [incoming=nmod_with] #<advcl_as nsubj
+
+  - name: syntax_5_verb-Correlation
+    priority: ${ rulepriority }
+    example: "Economic crisis, marked by drastic hyperinflation and market failures"
+    label: Correlation
+    pattern: |
+      trigger = [word=/${ passive_mark_verbs }/] [word="by"]
+      effect: Entity  = <acl
+      cause: Entity = nmod_by compound?
+

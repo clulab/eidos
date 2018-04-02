@@ -5,6 +5,7 @@ import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
+import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -106,8 +107,14 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     // We need to remove underspecified EventMentions of near-duplicate groupings
     // (ex. same phospho, but one is missing a site)
+    def argTokenInterval(m: EventMention): Interval = {
+      val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
+      val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
+      Interval(start = min, end = max)
+    }
+
     val eventMentionGroupings =
-      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.label, m.tokenInterval, m.sentence))
+      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.label, argTokenInterval(m), m.sentence))
 
     // remove incomplete mentions
     val completeEventMentions =

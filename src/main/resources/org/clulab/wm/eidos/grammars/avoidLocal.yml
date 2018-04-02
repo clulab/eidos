@@ -74,3 +74,10 @@ rules:
       # avoid nmod_during
       [incoming = nmod_during]
 
+  - name: "pasive"
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+      # avoid passive like in "marked by drastic hyperinflation"
+      [tag=VBN] "by"
