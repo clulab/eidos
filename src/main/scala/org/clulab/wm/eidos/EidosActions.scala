@@ -185,9 +185,18 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       // These are now for the same span, so only one should win as the main one.
       flattenedAttachments = entities.zipWithIndex.flatMap { case (entity, index) => entity.attachments.map(attachment => (index, attachment)) }
       filteredAttachments = filterAttachments(flattenedAttachments)
-      index = filteredAttachments.head._1
-      mainEntity = entities(index)
-    } yield copyWithAttachments(mainEntity, filteredAttachments.tail.map(_._2))
+    } yield {
+      if (filteredAttachments.nonEmpty) {
+        val index = filteredAttachments.head._1 // Could be from any of the remaining attachments
+
+        // TODO: What if the mainEntity has attachments that are substrings that should be removed?
+        // This below can only add attachments, not take them away.  Maybe a new Entity is required.
+        // All existing attachments could be first removed.
+        copyWithAttachments(entities(index), filteredAttachments.map(_._2))
+      }
+      else
+        entities.head
+    }
 
     mergedEntities.toSeq ++ nonentities
   }
