@@ -202,7 +202,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         // Filter out substring attachments
         .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
         // Next map based on both class and trigger.
-        .groupBy(classAndTriggerOf)
+        .groupBy(attachment => (attachment.getClass, triggerOf(attachment)))
         // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
         .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
         .toSeq
@@ -236,16 +236,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       case inc: Increase => inc.trigger
       case dec: Decrease => dec.trigger
       case quant: Quantification => quant.quantifier
-      case _ => throw new UnsupportedClassVersionError()
-    }
-  }
-
-  // Get class and trigger of an attachment.
-  protected def classAndTriggerOf(attachment: Attachment): (Class[_], String) = {
-    attachment match {
-      case inc: Increase => (inc.getClass, inc.trigger)
-      case dec: Decrease => (dec.getClass, dec.trigger)
-      case quant: Quantification => (quant.getClass, quant.quantifier)
       case _ => throw new UnsupportedClassVersionError()
     }
   }
