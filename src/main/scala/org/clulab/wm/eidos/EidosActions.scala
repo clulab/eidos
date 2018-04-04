@@ -186,6 +186,14 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       flattenedAttachments = entities.zipWithIndex.flatMap { case (entity, index) => entity.attachments.map(attachment => (index, attachment)) }
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
+      // Test to see if they can be found again
+      filteredAttachments.foreach { case(index, attachment) =>
+        val expectedIndex = index
+        val actualIndex = entities.indexWhere(_.attachments.find(_ eq attachment) != None)
+
+        if (expectedIndex != actualIndex)
+          println("Something bad happened")
+      }
       if (filteredAttachments.nonEmpty) {
         val index = filteredAttachments.head._1 // Could be from any of the remaining attachments
 
