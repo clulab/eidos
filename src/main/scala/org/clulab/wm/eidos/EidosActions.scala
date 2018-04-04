@@ -61,7 +61,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       // disgusting!
 
       val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-      val triggerSize = mention.attachments.map(triggerOf(_).length).sum
+      val triggerSize = mention.attachments.toSeq.map(triggerOf(_).length).sum
       val attachArgumentsSz = argumentSize + triggerSize
       // smart this up
       // problem: Quant("moderate to heavy", None) considered the same as Quant("heavy", none)
