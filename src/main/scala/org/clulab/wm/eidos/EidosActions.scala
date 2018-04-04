@@ -190,16 +190,16 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       filteredAttachments.foreach { case(index, attachment) =>
         val expectedIndex = index
         val actualIndex = entities.indexWhere(_.attachments.find(_ eq attachment) != None)
-
+        // Use find to figure out the head
         if (expectedIndex != actualIndex)
           println("Something bad happened")
       }
       if (filteredAttachments.nonEmpty) {
-        val index = filteredAttachments.head._1 // Could be from any of the remaining attachments
+        val (index, _) = filterMostComplete(filteredAttachments)
 
-        // TODO: What if the mainEntity has attachments that are substrings that should be removed?
-        // This below can only add attachments, not take them away.  Maybe a new Entity is required.
-        // All existing attachments could be first removed.
+        if (index > 0)
+          println("This is a surprise")
+
         copyWithAttachments(entities(index), filteredAttachments.map(_._2))
       }
       else
