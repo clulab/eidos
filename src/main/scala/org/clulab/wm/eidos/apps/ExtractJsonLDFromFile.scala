@@ -11,10 +11,8 @@ import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.Seq
 
-object ExtractFromFile2 extends App {
+object ExtractJsonLDFromFile extends App {
   val inputFile = args(0)
-  //val outputDir = args(1)
-  //val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
    val file = new File(inputFile)
