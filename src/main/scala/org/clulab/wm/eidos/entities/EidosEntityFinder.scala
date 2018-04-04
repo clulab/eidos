@@ -59,9 +59,10 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
   def isValidBaseEntity(entity: Mention): Boolean = {
     // Helper method for determining if the next word after the entity is a noun
     def nextTagNN(entity: Mention): Boolean = {
-      val sent = entity.sentenceObj
-      if (entity.end >= sent.tags.get.length){ return false }
-      sent.tags.get(entity.end).startsWith("NN")
+      val tags = entity.sentenceObj.tags.get
+
+      entity.end < tags.length &&
+          tags(entity.end).startsWith("NN")
     }
 
     val sent = entity.sentenceObj

@@ -18,7 +18,7 @@ object ExtractFromDirectory extends App {
   val reader = new EidosSystem()
 
   // For each file in the input directory:
-  files.par.foreach { file =>
+  files.foreach { file =>
     // 1. Open corresponding output file
     println(s"Extracting from ${file.getName}")
     val pw = new PrintWriter(s"$outputDir/${file.getName}.jsonld")
