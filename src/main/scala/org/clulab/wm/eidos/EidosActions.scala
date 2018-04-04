@@ -209,11 +209,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Keep the most complete attachment here.
-  protected def filterMostComplete(attachments: Seq[Attachment]) =
+  def filterMostComplete(attachments: Seq[Attachment]) =
       attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
 
   // Filter out substring attachments.
-  protected def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
+  def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
