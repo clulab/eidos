@@ -178,7 +178,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
-        val bestAttachment = filterMostComplete(filteredAttachments)
+        val bestAttachment = filteredAttachments.sortWith(gte).head
         val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
 
         copyWithAttachments(bestEntity, filteredAttachments)
@@ -189,10 +189,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     mergedEntities.toSeq ++ nonentities
   }
 
-  // Iteratively creates a mention which contains all of the passed in Attachments
-  def copyWithAttachments(mention: Mention, attachments: Seq[Attachment]): Mention =
-      // This is very inefficient, but the inteface only allows for adding one at a time.
-      attachments.foldLeft(mention)((mention, attachment) => mention.withAttachment(attachment))
+  // Iteratively creates a mention which contains all of the passed in Attachments and no others
+  def copyWithAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
+    // This is very inefficient, but the interface only allows for adding and subtracting one at a time.
+    val attachmentless = mention.attachments.foldLeft(mention)((mention, attachment) => mention.withoutAttachment(attachment))
+
+    attachments.foldLeft(attachmentless)((mention, attachment) => mention.withAttachment(attachment))
+  }
 
   // Filter out substring attachments, then keep most complete.
   def filterAttachments(attachments: Seq[Attachment]) = {
@@ -212,12 +215,29 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def filterMostComplete(attachments: Seq[Attachment]) =
       attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
 
+  // If there is a tie initially, the winner should have more arguments
+  def lt(left: Attachment, right: Attachment): Boolean = {
+    val triggerDiff = triggerOf(left).length - triggerOf(right).length
+
+    if (triggerDiff != 0)
+      triggerDiff < 0
+    else {
+      val argumentsDiff = left.asInstanceOf[EidosAttachment].argumentSize -
+        right.asInstanceOf[EidosAttachment].argumentSize
+
+      argumentsDiff < 0
+    }
+  }
+
+  def gte(left: Attachment, right: Attachment) = !lt(left, right)
+
   // Filter out substring attachments.
   def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
+
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-        .sortBy(attachment => -triggerOf(attachment).length) // Sort longest trigger first.
+        .sortWith(gte)
         .filter { attachment =>
           val trigger = triggerOf(attachment)
 
@@ -231,7 +251,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Get trigger from an attachment
-  protected def triggerOf(attachment: Attachment): String = {
+  def triggerOf(attachment: Attachment): String = {
     attachment match {
       case inc: Increase => inc.trigger
       case dec: Decrease => dec.trigger
