@@ -178,7 +178,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
-        val bestAttachment = filteredAttachments.sortWith(gte).head
+        val bestAttachment = filteredAttachments.sortWith(greaterThanOrEqual).head
         val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
 
         copyWithAttachments(bestEntity, filteredAttachments)
@@ -216,7 +216,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
 
   // If there is a tie initially, the winner should have more arguments
-  protected def lt(left: Attachment, right: Attachment): Boolean = {
+  protected def lessThan(left: Attachment, right: Attachment): Boolean = {
     val triggerDiff = triggerOf(left).length - triggerOf(right).length
 
     if (triggerDiff != 0)
@@ -229,7 +229,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
   }
 
-  protected def gte(left: Attachment, right: Attachment) = !lt(left, right)
+  protected def greaterThanOrEqual(left: Attachment, right: Attachment) = !lessThan(left, right)
 
   // Filter out substring attachments.
   protected def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
@@ -237,7 +237,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-        .sortWith(gte)
+        .sortWith(greaterThanOrEqual)
         .filter { attachment =>
           val trigger = triggerOf(attachment)
 
