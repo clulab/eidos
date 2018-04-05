@@ -30,8 +30,8 @@ abstract class EidosAttachment extends Attachment {
 
   // Convenience functions
   def argumentSize(optionSeq: Option[Seq[String]]) =
-    if (optionSeq.isDefined) optionSeq.size else 0
-    
+    if (optionSeq.isDefined) optionSeq.get.size else 0
+
   def toJson(label: String): JValue =
       (EidosAttachment.TYPE -> label) ~
           (EidosAttachment.MOD -> write(this))

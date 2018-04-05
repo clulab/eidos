@@ -9,7 +9,9 @@ import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
+import scala.Ordering
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{Set => MutableSet}
 import scala.io.BufferedSource
 
 
@@ -57,7 +59,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       }
 
       // disgusting!
-      val attachArgumentsSz = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum + mention.attachments.map(a=> attachmentTriggerLength(a)).sum
+
+      val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
+      val triggerSize = mention.attachments.toSeq.map(triggerOf(_).length).sum
+      val attachArgumentsSz = argumentSize + triggerSize
       // smart this up
       // problem: Quant("moderate to heavy", None) considered the same as Quant("heavy", none)
       // MAYBE merge them...? here maybe no bc string overlap... keep superset/longest
@@ -70,20 +75,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       (mention, (attachArgumentsSz + modSize + numArgs)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
     }
 
-
-
     val maxModAttachSz = mention_attachmentSz.map(_._2).max
     val filteredMentions = mention_attachmentSz.filter(m => m._2 == maxModAttachSz).map(_._1)
     filteredMentions
-  }
-
-  def attachmentTriggerLength(a: Attachment): Int = {
-    a match {
-      case inc:Increase => inc.trigger.length
-      case dec: Decrease => dec.trigger.length
-      case quant: Quantification => quant.quantifier.length
-      case _ => throw new UnsupportedClassVersionError("Not a valid Attachment!")
-    }
   }
 
   // remove incomplete EVENT Mentions
@@ -167,8 +161,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
   // of each other.
   def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    val (entities, nonentities) = mentions.partition(m => m matches "Entity")
-
 //    println("***************************")
 //    println("new ROUND")
 //    println("***************************")
@@ -177,96 +169,96 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 //    state.allMentions.foreach(m => DisplayUtils.displayMention(m))
 //    println("--------------------")
     // Get all the entity mentions for this span (i.e. all the "rainfall in Spain" mentions)
-    val spanGroup = entities.groupBy(m => (m.sentence, m.tokenInterval, m.label))
+    val (entities, nonentities) = mentions.partition(mention => mention matches "Entity")
+    val entitiesBySpan = entities.groupBy(entity => (entity.sentence, entity.tokenInterval, entity.label))
     val mergedEntities = for {
-      (span, group) <- spanGroup
-      // Get all attachments for these mentions
-      attachments = group.flatMap(m1 => m1.attachments)
-      // filter them
-      // The index is the index of first attachment that survived the filter, so its contents are desired
-      // and then we'll add the other filtered attachments in at the yield step
-      (filtered, index) = filterAttachments(attachments)
-      // Make a new mention with these attachments
-      exampleMention = group(index)
-    } yield copyWithAttachments(exampleMention, filtered)
+      (_, entities) <- entitiesBySpan
+      // These are now for the same span, so only one should win as the main one.
+      flattenedAttachments = entities.flatMap(_.attachments)
+      filteredAttachments = filterAttachments(flattenedAttachments)
+    } yield {
+      if (filteredAttachments.nonEmpty) {
+        val bestAttachment = filteredAttachments.sortWith(greaterThanOrEqual).head
+        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
+
+        copyWithAttachments(bestEntity, filteredAttachments)
+      }
+      else
+        entities.head
+    }
     mergedEntities.toSeq ++ nonentities
   }
 
-  // Iteratively creates a mention which contains all of the passed in Attachments
-  def copyWithAttachments(m: Mention, attachments: Seq[Attachment]): Mention = {
-    var outMention = m
-    for {
-      a <- attachments
-    } outMention = outMention.withAttachment(a)
-    outMention
+  // Iteratively creates a mention which contains all of the passed in Attachments and no others
+  def copyWithAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
+    // This is very inefficient, but the interface only allows for adding and subtracting one at a time.
+    val attachmentless = mention.attachments.foldLeft(mention)((mention, attachment) => mention.withoutAttachment(attachment))
+
+    attachments.foldLeft(attachmentless)((mention, attachment) => mention.withAttachment(attachment))
   }
 
-  // Filter out substring attachments, then keep most complete
-  def filterAttachments(attachments: Seq[Attachment]): (Seq[Attachment], Int) = {
-    // Filter out substring attachments
-    val attachmentGroup = attachments.groupBy(a => a.getClass)
-    val filtered = for {
-      (classType, attachmentsToCondense) <- attachmentGroup
-      filtered = filterSubstringTriggers(attachmentsToCondense)
-    } yield filtered
-    // Now that substrings are filtered... keep only most complete of each type-trigger-combo
-    val groupedByTriggerToo = filtered.flatten.groupBy(a => typeAndTrigger(a))
-    val mostCompleteAttachments = for {
-      (typeAndTrigg, attachmentsToCondense2) <- groupedByTriggerToo
-    } yield mostComplete(attachmentsToCondense2.toSeq)
-
-    (mostCompleteAttachments.toSeq, attachments.indexOf(mostCompleteAttachments.head))
+  // Filter out substring attachments, then keep most complete.
+  def filterAttachments(attachments: Seq[Attachment]) = {
+    attachments
+        // Perform first mapping based on class
+        .groupBy(_.getClass)
+        // Filter out substring attachments
+        .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
+        // Next map based on both class and trigger.
+        .groupBy(attachment => (attachment.getClass, triggerOf(attachment)))
+        // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
+        .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
+        .toSeq
   }
+
   // Keep the most complete attachment here.
-  protected def mostComplete(as: Seq[Attachment]): Attachment = {
-    val most = as.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
-    most
-  }
-  // Filter out substring attachments
-  protected def filterSubstringTriggers(as: Seq[Attachment]): Seq[Attachment] = {
-    // sorted longest first
-    val sorted = as.sortBy(a => -triggerOf(a).length)
-    val triggersKept = scala.collection.mutable.Set[String]()
-    val out = new ArrayBuffer[Attachment]
+  protected def filterMostComplete(attachments: Seq[Attachment]) =
+      attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
 
-    for (a <- sorted) {
-      if (!isSubstring(triggerOf(a), triggersKept.toSet)) {
-        // add this trigger
-        triggersKept.add(triggerOf(a))
-        // keep the attachment
-        out.append(a)
-      }
+  // If there is a tie initially, the winner should have more arguments
+  protected def lessThan(left: Attachment, right: Attachment): Boolean = {
+    val triggerDiff = triggerOf(left).length - triggerOf(right).length
+
+    if (triggerDiff != 0)
+      triggerDiff < 0
+    else {
+      val argumentsDiff = left.asInstanceOf[EidosAttachment].argumentSize -
+        right.asInstanceOf[EidosAttachment].argumentSize
+
+      argumentsDiff < 0
     }
-    out
   }
-  // Check if current string is a subtring in our string set
-  def isSubstring(current: String, kept: Set[String]): Boolean = {
-    for (k <- kept) {
-      if (k.contains(current)) {
-        return true
-      }
-    }
-    false
+
+  protected def greaterThanOrEqual(left: Attachment, right: Attachment) = !lessThan(left, right)
+
+  // Filter out substring attachments.
+  protected def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
+
+    val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
+
+    attachments
+        .sortWith(greaterThanOrEqual)
+        .filter { attachment =>
+          val trigger = triggerOf(attachment)
+
+          if (!triggersKept.exists(_.contains(trigger))) {
+            triggersKept.add(trigger) // Add this trigger.
+            true // Keep the attachment.
+          }
+          else
+            false
+        }
   }
+
   // Get trigger from an attachment
-  protected def triggerOf(a: Attachment): String = {
-    a match {
+  protected def triggerOf(attachment: Attachment): String = {
+    attachment match {
       case inc: Increase => inc.trigger
       case dec: Decrease => dec.trigger
       case quant: Quantification => quant.quantifier
       case _ => throw new UnsupportedClassVersionError()
     }
   }
-  // Get type and trigger of an attachment.
-  protected def typeAndTrigger(a: Attachment): (String, String) = {
-    a match {
-      case inc: Increase => ("Increase", inc.trigger)
-      case dec: Decrease => ("Decrease", dec.trigger)
-      case quant: Quantification => ("Quantification", quant.quantifier)
-      case _ => throw new UnsupportedClassVersionError()
-    }
-  }
-
 }
 
 object EidosActions extends Actions {
