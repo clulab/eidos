@@ -2,11 +2,7 @@ package org.clulab.wm.eidos.system
 
 import java.util.IdentityHashMap
 
-import org.clulab.odin.EventMention
-import org.clulab.odin.Mention
-import org.clulab.odin.RelationMention
-import org.clulab.odin.SynPath
-import org.clulab.odin.TextBoundMention
+import org.clulab.odin._
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
@@ -134,7 +130,20 @@ class TestEidosActions extends Test {
 //  }
 
   {
-    val eidosActions = new EidosActions(null)
+    class TestEidosActions extends EidosActions(null) {
+      // Relax some protected functions for testing
+
+      override def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] =
+        super.filterSubstringTriggers(attachments)
+
+      override def filterMostComplete(attachments: Seq[Attachment]) =
+        super.filterMostComplete(attachments)
+
+      override def triggerOf(attachment: Attachment): String =
+        super.triggerOf(attachment)
+    }
+
+    val eidosActions = new TestEidosActions()
 
     behavior of "attachment merging"
 

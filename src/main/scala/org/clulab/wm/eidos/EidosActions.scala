@@ -212,11 +212,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Keep the most complete attachment here.
-  def filterMostComplete(attachments: Seq[Attachment]) =
+  protected def filterMostComplete(attachments: Seq[Attachment]) =
       attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
 
   // If there is a tie initially, the winner should have more arguments
-  def lt(left: Attachment, right: Attachment): Boolean = {
+  protected def lt(left: Attachment, right: Attachment): Boolean = {
     val triggerDiff = triggerOf(left).length - triggerOf(right).length
 
     if (triggerDiff != 0)
@@ -229,10 +229,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
   }
 
-  def gte(left: Attachment, right: Attachment) = !lt(left, right)
+  protected def gte(left: Attachment, right: Attachment) = !lt(left, right)
 
   // Filter out substring attachments.
-  def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
+  protected def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
 
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
@@ -251,7 +251,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Get trigger from an attachment
-  def triggerOf(attachment: Attachment): String = {
+  protected def triggerOf(attachment: Attachment): String = {
     attachment match {
       case inc: Increase => inc.trigger
       case dec: Decrease => dec.trigger
