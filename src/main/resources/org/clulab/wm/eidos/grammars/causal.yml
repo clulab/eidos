@@ -53,7 +53,7 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case
-      effect: Entity = <case <nmod_due_to? /${objects}/ # /${ preps }/{,2})|(<case <nmod_due_to)
+      effect: Entity = <case <nmod_due_to? /${objects}/ 
 
 
   - name: dueToSyntax4-${addlabel}
