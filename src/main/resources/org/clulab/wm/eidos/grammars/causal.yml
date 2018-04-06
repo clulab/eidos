@@ -5,7 +5,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to|nmod_for"
+  preps: "nmod_of|nmod_in|nmod_to|nmod_for|acl_of"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   # Todo: nmod_from "X will follow from Y"
@@ -34,26 +34,30 @@ rules:
       cause: Entity = nmod_to (${ conjunctions })?
       effect: Entity = <advmod|<amod <nmod_due_to? nsubj
 
+  #-----------------------------------------------------------------------------------------
+  # These rules are based on a parse which has 'due' with an incoming 'case' relation:
+  #-----------------------------------------------------------------------------------------
   # Used when the effect text has an agent which is the true effect (i.e., in example this is "food imports")
   # future name? dueTo-caseSyntax-agent_effect-${addlabel}
   - name: dueToSyntax2-${addlabel}
     priority: ${rulepriority}
     label: ${label}
     example: "food imports will decrease due to rainfall"
+    # food imports will decrease due to the exhaustion of coping capacities
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case
+      cause: Entity = <case /${preps}/{,2}
       effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})|(<case <nmod_due_to)
 
-  # Used when the effect text has an agent which is the true effect (i.e., in example this is "food imports")
+  # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
   - name: dueTo-caseSyntax-dobj_effect-${addlabel}
     priority: ${rulepriority}
     label: ${label}
-    example: "food imports will decrease due to rainfall"
+    example: "pastoralists have depleted or lost their livestock assets due to the conflict"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case
-      effect: Entity = <case <nmod_due_to? /${objects}/ 
+      cause: Entity = <case /${preps}/{,2}
+      effect: Entity = <case <nmod_due_to? /${objects}/
 
 
   - name: dueToSyntax4-${addlabel}
@@ -65,6 +69,9 @@ rules:
       cause: Entity = <case /${conjunctions}/? /${preps}/ /${conjunctions}/{,2}
       effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
 
+    #-----------------------------------------------------------------------------------------
+    # These rules are based on a parse which has 'due' with an outgoing 'nmod_to' relation:
+    #-----------------------------------------------------------------------------------------
 
   - name: dueToSyntax3-${addlabel}
     priority: ${rulepriority}
