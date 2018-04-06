@@ -31,14 +31,17 @@ rules:
       theme: Entity = nmod_by? (${objects}|${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
       quantifier:Quantifier? = ${quant_modifiers}
 
-  - name: ${ label }_syntax_1_verb_edited
+  # old name: ${ label }_syntax_1_verb_edited
+  # Used when the thing being modified is the agent of the modification (e.g., nsubj)
+  - name: ${ label }_syntax_verb_agent
     priority: ${ objrulepriority }
-    example: "Poverty levels continue to increase."
+    example: "Poverty levels continue to increase." #(requires the >complement)
+    # food imports will decrease
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
-      theme: Entity = >${complements} ${ agents }
+      theme: Entity = >${complements}? (?! [outgoing=dobj]) ${ agents }
       quantifier:Quantifier? = ${quant_modifiers}
 
   # Note: Captures passive voice; thus verb must be VBD|VBN
