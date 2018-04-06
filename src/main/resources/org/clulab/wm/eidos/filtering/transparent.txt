@@ -96,6 +96,7 @@ occurrence
 odds
 origin
 part
+pastoralist
 patient
 percent
 performance

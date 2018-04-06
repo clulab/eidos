@@ -34,6 +34,8 @@ rules:
       cause: Entity = nmod_to (${ conjunctions })?
       effect: Entity = <advmod|<amod <nmod_due_to? nsubj
 
+  # Used when the effect text has an agent which is the true effect (i.e., in example this is "food imports")
+  # future name? dueTo-caseSyntax-agent_effect-${addlabel}
   - name: dueToSyntax2-${addlabel}
     priority: ${rulepriority}
     label: ${label}
@@ -41,7 +43,17 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case
-      effect: Entity = (<case <nmod_due_to? /${agents}/ /${ preps }/{,2})|(<case <nmod_due_to)
+      effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})|(<case <nmod_due_to)
+
+  # Used when the effect text has an agent which is the true effect (i.e., in example this is "food imports")
+  - name: dueTo-caseSyntax-dobj_effect-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    example: "food imports will decrease due to rainfall"
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = <case
+      effect: Entity = <case <nmod_due_to? /${objects}/ # /${ preps }/{,2})|(<case <nmod_due_to)
 
 
   - name: dueToSyntax4-${addlabel}
