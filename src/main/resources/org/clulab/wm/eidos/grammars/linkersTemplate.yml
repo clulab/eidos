@@ -82,7 +82,7 @@ rules:
     example: "The water quality contributes to poverty."
     label: ${ label }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !tag=/VBN/]
       effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
