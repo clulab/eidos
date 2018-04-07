@@ -44,6 +44,9 @@ rules:
   - name: syntax_4_verb-Correlation
     priority: ${ rulepriority }
     example: "moderate to heavy seasonal rainfall is expected to continue, with heightened risk of flooding in these regions"
+    # todo: this is likely only valid if there's some verb happening in at least one of the entities.  We should check for
+    # that in an action maybe -- look for either a literal verb in the span OR an inc/dec attachment
+    # example of when it *shouldn't* match: "Fields were additionally treated with fertilizer for increased crop yield."
     label: Correlation
     pattern: |
       trigger = [tag=IN & word=with]
