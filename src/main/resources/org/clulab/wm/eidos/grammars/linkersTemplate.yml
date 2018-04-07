@@ -75,7 +75,7 @@ rules:
       cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
-#Handles occurrence of prep_by when NOT passive voice
+  #Handles occurrence of prep_by when NOT passive voice
   #misfires on "floods caused by rain"
   - name: ported_syntax_1d_verb-${addlabel}
     priority: ${ rulepriority }
