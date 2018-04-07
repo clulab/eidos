@@ -213,16 +213,6 @@ rules:
       effect: Entity = /nmod:poss/ # I think this is the UDep version
 
 
-  - name: ported_token_1_noun-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "mTOR activator Rapamycin"
-    example: ""
-    type: token
-    label: ${ label }
-    pattern: |
-      @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
-
-
   # this rule is needed because PP attachment of "by" is often wrong
   - name: ported_token_2_noun-${addlabel}
     priority: ${ rulepriority }
