@@ -365,7 +365,7 @@ class TestDoc5 extends Test {
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices)
     }
-    failingTest should "have correct edges 1" taggedAs(Adarsh) in {
+    passingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
     }
     failingTest should "have correct edges 2" taggedAs(Adarsh) in {
