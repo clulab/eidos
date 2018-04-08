@@ -13,7 +13,8 @@ rules:
       # we want any coordinated entities we might encounter to be split
       (?<![tag=/^JJ/]) [tag=CC]
 
-  # the chunker is wont to gobble up verbs with clear arguments as part of NPs, hence this rule
+  # the chunker is wont to gobble up verbs with clear arguments as part of NPs,
+  # hence this rule
   - name: "verbs-with-args"
     label: Avoid
     priority: 1
@@ -74,7 +75,7 @@ rules:
       # avoid nmod_during
       [incoming = nmod_during]
 
-  - name: "pasive"
+  - name: "passive"
     label: Avoid
     priority: 3
     type: token
