@@ -62,3 +62,11 @@ rules:
       effect: Entity  = <acl
       cause: Entity = nmod_by compound?
 
+  - name: syntax_1d_verb-Correlation
+    priority: ${ rulepriority }
+    example: "Worsening food security trends linked to continued conflict have been causing problems."
+    label: Correlation
+    pattern: |
+      trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/VBN/]
+      effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?

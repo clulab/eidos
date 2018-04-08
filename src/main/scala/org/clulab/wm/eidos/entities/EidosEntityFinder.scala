@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.annotation.tailrec
@@ -65,9 +66,20 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
           tags(entity.end).startsWith("NN")
     }
 
-    val sent = entity.sentenceObj
-    // If there's a noun in the entity, it's valid
-    entity.tags.get.exists(tag => tag.startsWith("NN")) ||
+    def containsVaildNoun(entity: Mention): Boolean = {
+      //val lemmas = entity.lemmas.get
+      val tags = entity.tags.get
+      val entities = entity.entities.get
+
+      // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
+      tags.indices.exists { i =>
+        tags(i).startsWith("NN") &&
+        !EidosOntologyGrounder.STOP_NER.contains(entities(i))
+      }
+    }
+
+    // If there's a non-named entity noun in the entity, it's valid
+    containsVaildNoun(entity) ||
     // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
     // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
     entity.tags.get.last.startsWith("JJ") && nextTagNN(entity)

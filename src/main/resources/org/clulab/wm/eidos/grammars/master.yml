@@ -109,6 +109,7 @@ rules:
     vars:
       rulepriority: "6"
       trigger: ${increase_triggers}|${decrease_triggers}
+      correlation_trigger: ${correlation_triggers}
       #action: ? #
 
   # ------------ Correlation ------------
@@ -118,3 +119,4 @@ rules:
       addlabel: "Correlation"
       label: Correlation
       trigger: ${correlation_triggers}
+
