@@ -21,14 +21,19 @@ rules:
 
   #Events
   # TODO: 'with X, Y...' sentences:
-  # example: "With the high cost of production, food imports will further reduce farmers' chances to make a living from agriculture."
-  # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
+  # example: "With the high cost of production, food imports will further reduce
+  #           farmers' chances to make a living from agriculture."
+  # example: "With increases in poverty levels people become more vulnerable to
+  #           climate change and other risks."
   # TODO: rules for 'become' where do modifications live? causality?
-  # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
-  # example: "There will be a small increase in crop diversity due to the need to combat the climate and market risks
-  #            as both of these might become more volatile in the future."
+  # example: "With increases in poverty levels people become more vulnerable to
+  #           climate change and other risks."
+  # example: "There will be a small increase in crop diversity due to the need
+  #           to combat the climate and market risks as both of these might
+  #           become more volatile in the future."
   # TODO: correlation rules
-  # example: "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income ."
+  # example: "Significant decline in poverty will be associated with a decrease
+  #           in family size and increase in non-farm income ."
 
   #Step 1: find the direct attachments of entities (e.g. "small puppies")
   #TODO: make sure the Increase/Decrease are in avoid.yml
