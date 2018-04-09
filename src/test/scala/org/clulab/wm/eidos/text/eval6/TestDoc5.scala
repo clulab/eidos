@@ -250,15 +250,19 @@ class TestDoc5 extends Test {
       season, when some food security outcomes in Northern Bahr el Ghazal,
       Western Bahr el Ghazal, and Unity States surpassed Emergency (IPC Phase 4)
       or Famine (IPC Phase 5) thresholds (Figure 2). In a worst-case scenario,
-      where increased conflict further disrupts livelihoods and limits
+      where increased conflict further disrupts livelihoods and restricts
       humanitarian assistance, Famine (IPC Phase 5) could occur during 2017.
       """
 
+    // AP: Changing limits to restricts due to broken syntax (limits is being
+    // parsed as a noun phrase).
+    //
     val security    = NodeSpec("Food security", Dec("deteriorate"), Dec("worse"), Quant("severe"))
     val outcomes    = NodeSpec("some food security outcomes", Inc("surpassed"))
     val conflict    = NodeSpec("conflict", Inc("increased"))
     val livelihoods = NodeSpec("livelihoods", Dec("disrupts"))
     val assistance  = NodeSpec("humanitarian assistance", Dec("limits"))
+    val assistance2  = NodeSpec("humanitarian assistance", Dec("restricts"))
     val famine      = NodeSpec("Famine (IPC Phase 5)")
 
     behavior of "TestDoc5 Paragraph 5"
@@ -285,8 +289,11 @@ class TestDoc5 extends Test {
     passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(conflict, Causal, livelihoods)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Adarsh) in {
+    brokenSyntaxTest should "have correct edges 3" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, assistance)) should be (successful)
+    }
+    passingTest should "have correct edges 3 (sentence modified)" taggedAs(Adarsh) in {
+      tester.test(EdgeSpec(conflict, Causal, assistance2)) should be (successful)
     }
     failingTest should "have correct edges 4" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Correlation, famine)) should be (successful)
@@ -311,7 +318,7 @@ class TestDoc5 extends Test {
     val displacement = NodeSpec("new displacement")
     val stress       = NodeSpec("stress on available wild food sources", Inc("additional"))
     val assistance   = NodeSpec("food assistance", Quant("little"), Quant("no"))
-    val constrains   = NodeSpec("access constraints")
+    val constraints   = NodeSpec("access constraints")
 
     behavior of "TestDoc5 Paragraph 6"
 
@@ -331,7 +338,7 @@ class TestDoc5 extends Test {
       tester.test(EdgeSpec(conflict, Causal, stress)) should be (successful)
     }
     failingTest should "have correct edges 4" taggedAs(Adarsh) in {
-      tester.test(EdgeSpec(constrains, Causal, assistance)) should be (successful)
+      tester.test(EdgeSpec(constraints, Causal, assistance)) should be (successful)
     }
   }
 
@@ -365,7 +372,7 @@ class TestDoc5 extends Test {
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices)
     }
-    failingTest should "have correct edges 1" taggedAs(Adarsh) in {
+    passingTest should "have correct edges 1" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(conflict, Causal, activities)) should be (successful)
     }
     failingTest should "have correct edges 2" taggedAs(Adarsh) in {
