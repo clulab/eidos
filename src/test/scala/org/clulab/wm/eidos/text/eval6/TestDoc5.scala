@@ -146,10 +146,10 @@ class TestDoc5 extends Test {
       """
 
     val factors = NodeSpec("macroeconomic factors")
-    val prices = NodeSpec("staple food prices", Quant("exorbitant"), Inc("exorbitant"))
+    val prices = NodeSpec("staple food prices", Inc("exorbitant"))
     val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"))
     val reserves = NodeSpec("foreign currency reserves", Dec("drop", "sharp"))
-    val value = NodeSpec("value of South Sudanese pound", Dec("drop", "sharp"))
+    val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"))
     val factors2 = NodeSpec("These factors")
     val insecurity = NodeSpec("insecurity along key trade routes")
     val flows = NodeSpec("normal trade flows", Dec("restricted"))
@@ -172,7 +172,7 @@ class TestDoc5 extends Test {
     passingTest should "have correct edges 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(factors, Causal, prices)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Ajay) in {
+    passingTest should "have correct edges 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(revenue, Causal, reserves)) should be (successful)
     }
     passingTest should "have correct edges 3" taggedAs(Ajay) in {
