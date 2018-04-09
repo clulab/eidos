@@ -279,6 +279,8 @@
       - "trickle irrigation"
       - "centre pivot irrigation"
       - "subsurface irrigation"
+      - "irrigation system"
+      - "irrigation"
     - infrastructure:
       - transportation:
         - transportation_methods:
@@ -311,6 +313,11 @@
         - "seaport"
         - "marina"
         - "harbour"
+        - "reservoir"
+        - "sanitation"
+        - "dam"
+        - "watershed"
+        - "canal"
     - livelihood:
       - "livelihood"
       - "farming" # todo move to own pre-terminal
@@ -324,6 +331,9 @@
       - "work"
       - "job"
       - "career"
+      - "opportunity"
+      - "employment"
+      - "agribusiness"
     - education: #todo
       - "literacy"
       - "education"
@@ -333,6 +343,9 @@
         - "price"
         - "cost"
         - "expense"
+        - "credit"
+        - "budget"
+        - "cash"
       - economic:
         - market:
           - "market"
@@ -352,6 +365,31 @@
           - "depreciation"
         - technology: #todo -- think about investments in _______
           - "biofuel"
+          - "technology"
+          - "e-mail"
+          - "email"
+          - "network"
+          - "solution"
+          - "transportation"
+          - "internet"
+          - "information system"
+          - "electricity"
+          - "software"
+          - "website"
+          - "vehicle"
+          - "web site"
+          - "machine"
+          - "transport"
+          - "database"
+          - "innovation"
+          - "biofuel"
+          - "technology transfer"
+          - "networking"
+          - "mechanization"
+          - "biotechnology"
+          - "machinery"
+          - "radio"
+          - "programming"
         - revenue:
           - "livelihood"
           - "income"
@@ -361,6 +399,7 @@
           - "profit"
           - "earning"
           - "revenue"
+          - "investment"
         - poverty: #todo
           - "poverty"
     - government:
