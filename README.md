@@ -763,27 +763,17 @@ There is one [large file of vectors](https://drive.google.com/open?id=1tffQuLB5X
 
 ## Notes
 
-The default size of the memory allocation pool for the JVM is 1/4 of your
-physical memory, but Eidos may require more RAM than that.  For some operating
-systems (apparently not Windows), you can increase the
-memory allocation by specifying it in the `.sbtopts` file in the `eidos`
-directory (the one in which this README resides): 
+The default size of the memory allocation pool for the JVM is 1/4 of your physical memory, but Eidos may require
+more RAM than that.  It is currently being developed and tested with a 6GB limit.
 
-```bash
-echo "-J-Xmx6g" >> .sbtopts
-```
+For those using `sbt`, the file `.sbtopts` is included with the source code and arranges for more memory.  No other changes should be necessary.
 
-The flag enclosed in the quotes allocates 6 GB, which should be sufficient.
+IDEs and other development tools are generally unaware of `.sbtopts`, but can be configured via an environment variable instead.
 
-For Windows, it may be necessary to set an environment variable that influences how
-much memory is allowed for Java in general.  On the traditional Command Prompt use
+`JAVA_TOOL_OPTIONS=-Xmx6g`
 
-```bat
-set JAVA_OPTS=-Xmx6g
-```
+Other situations may require a more general setting.
 
-The corresponding command for PowerShell is
+`_JAVA_OPTIONS=-Xmx6g`
 
-```posh
-$env:JAVA_OPTS = "-Xmx6g"
-```
+The procedure for defining these variables is dependent on operating system and shell.
