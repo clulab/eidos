@@ -199,7 +199,7 @@ class TestRaps1 extends Test {
     val soil = NodeSpec("Soil quality", Dec("decline", "small-to-medium"))
     val pollution = NodeSpec("pollution")
     val shrink = NodeSpec("land base for agriculture", Dec("shrinking"))
-    val cultivation = NodeSpec("intensive cultivation")
+    val cultivation = NodeSpec("cultivation", Inc("intensive"))
 
     behavior of "Raps_28"
 
