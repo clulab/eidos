@@ -25,8 +25,8 @@ class TestUnicode extends Test {
       odinMentions.exists(_.text == "conditions in mid May") should be (true)
       eidosMentions.exists(_.canonicalName == "conditions in mid May") should be (true)
 
-      odinMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.text) }
-      eidosMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.canonicalName) }
+//      odinMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.text) }
+//      eidosMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.canonicalName) }
 
 //      eidosMentions.exists(_.canonicalName.contains("\u2022")) should be (false)
         eidosMentions.exists { eidosMention =>
@@ -52,9 +52,10 @@ class TestUnicode extends Test {
       odinMentions.exists(_.text == "snow accumulation") should be (true)
       eidosMentions.exists(_.canonicalName == "snow accumulation") should be (true)
 
-      odinMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.text) }
-      eidosMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.canonicalName) }
+//      odinMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.text) }
+//      eidosMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.canonicalName) }
 
+//      eidosMentions.exists(_.canonicalName.contains("\u27a4")) should be (false)
       eidosMentions.exists { eidosMention =>
         eidosMention.odinMention.isInstanceOf[EventMention] &&
             eidosMention.canonicalName.contains("\u27a4")

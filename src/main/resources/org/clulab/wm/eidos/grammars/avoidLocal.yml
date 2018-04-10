@@ -37,7 +37,7 @@ rules:
     type: token
     pattern: |
       # avoid xrefs
-      [tag=/NN|CD/ & word=/\\/] [word=/^u[0-9]/]
+      [tag=/NN|CD/ & word=/^\u27a4/] | [word=/^\u2022/]
 
 
   # OURS HERE:
