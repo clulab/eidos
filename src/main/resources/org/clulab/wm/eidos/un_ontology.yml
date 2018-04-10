@@ -1,539 +1,539 @@
 - events:
   - nature_impact:
     - positive_nature_impact:
-      - "conservation"
-      - "sustainable use"
-      - "afforestation"
-      - "agroforestry"
-      - "biodiversity conservation"
-      - "climate change mitigation"
-      - "reforestation"
-      - "climate change adaptation"
-      - "forest management"
-      - "water management"
-      - "management forest"
+      - conservation
+      - sustainable use
+      - afforestation
+      - agroforestry
+      - biodiversity conservation
+      - climate change mitigation
+      - reforestation
+      - climate change adaptation
+      - forest management
+      - water management
+      - management forest
     - negative_nature_impact:
-      - "pollution"
-      - "deforestation"
-      - "soil erosion"
-      - "desertification"
-      - "greenhouse gas emission"
-      - "contaminant"
-      - "climate change"
-      - "ghg emission"
-      - "contamination"
+      - pollution
+      - deforestation
+      - soil erosion
+      - desertification
+      - greenhouse gas emission
+      - contaminant
+      - climate change
+      - ghg emission
+      - contamination
   - crisis:
-    - "crisis"
-    - "emergency"
+    - crisis
+    - emergency
   - natural:
     - biology:
       - ecosystem:
-        - "species"
-        - "forest"
-        - "environment"
-        - "habitat"
-        - "life"
-        - "ecology"
-        - "ecosystem service"
+        - species
+        - forest
+        - environment
+        - habitat
+        - life
+        - ecology
+        - ecosystem service
       - flora:
-        - "flora"
-        - "mangrove"
-        - "tree species"
-        - "plant forest"
-        - "shrub"
-        - "tree"
-        - "plant"
-        - "vegetation"
-        - "fuelwood"
+        - flora
+        - mangrove
+        - tree species
+        - plant forest
+        - shrub
+        - tree
+        - plant
+        - vegetation
+        - fuelwood
       - fauna:
-        - "animal"
-        - "bird"
-        - "insect"
-        - "turtle"
-        - "oyster"
-        - "elephant"
-        - "mammal"
-        - "chick"
-        - "duck"
-        - "crustacean"
-        - "buffalo"
-        - "tsetse"
-        - "shark"
+        - animal
+        - bird
+        - insect
+        - turtle
+        - oyster
+        - elephant
+        - mammal
+        - chick
+        - duck
+        - crustacean
+        - buffalo
+        - tsetse
+        - shark
     - natural_resources: # todo: to split into multiple categories ?
-      - "area"
-      - "food"
-      - "resource"
-      - "land"
-      - "water"
-      - "biodiversity"
-      - "sea"
-      - "ecosystem"
-      - "river"
-      - "forest area"
-      - "pond"
-      - "rain"
-      - "water resource"
-      - "forestry sector"
-      - "wetland"
-      - "nAtuRAl ReSouRceS"
-      - "mineral"
-      - "Convention Biological diversity"
-      - "area forest"
-      - "forest sector"
-      - "lake"
-      - "forest land"
-      - "freshwater"
-      - "surface water"
-      - "air"
-      - "charcoal"
-      - "sand"
-      - "plant resource food"
-      - "wildlife"
-      - "groundwater"
-      - "mountain"
-      - "mt"
-      - "iron"
-      - "water body"
+      - area
+      - food
+      - resource
+      - land
+      - water
+      - biodiversity
+      - sea
+      - ecosystem
+      - river
+      - forest area
+      - pond
+      - rain
+      - water resource
+      - forestry sector
+      - wetland
+      - nAtuRAl ReSouRceS
+      - mineral
+      - Convention Biological diversity
+      - area forest
+      - forest sector
+      - lake
+      - forest land
+      - freshwater
+      - surface water
+      - air
+      - charcoal
+      - sand
+      - plant resource food
+      - wildlife
+      - groundwater
+      - mountain
+      - mt
+      - iron
+      - water body
     - natural_disaster:
       - flooding:
-        - "flood"
-        - "flash flood"
+        - flood
+        - flash flood
       - drought:
-        - "drought"
+        - drought
       - storm:
-        - "hurricane"
-        - "extreme winds"
-        - "cyclone"
-        - "tornado"
+        - hurricane
+        - extreme winds
+        - cyclone
+        - tornado
     - weather:
       - precipitation:
-        - "precipitation"
-        - "rain"
-        - "rainfall"
-        - "snow"
+        - precipitation
+        - rain
+        - rainfall
+        - snow
   - human:
     - conflict:
-      - "conflict"
-      - "war"
-      - "fighting"
-      - "disarmament" # todo: fix this ...
-      - "infighting"
-      - "civil unrest"
-      - "genocide"
-      - "clash"
-      - "raid"
+      - conflict
+      - war
+      - fighting
+      - disarmament # todo: fix this ...
+      - infighting
+      - civil unrest
+      - genocide
+      - clash
+      - raid
     - human_migration:
-      - "migration"
-      - "immigration"
-      - "displacement"
-      - "refugee migration"
-      - "emigration"
+      - migration
+      - immigration
+      - displacement
+      - refugee migration
+      - emigration
     - intervention:
       - intervention:
-        - "access"
-        - "humanitarian response"
-        - "humanitarian aid"
-        - "assistance"
-        - "humanitarian support"
-        - "intervention"
-        - "rehabilitation"
-        - "poverty alleviation"
+        - access
+        - humanitarian response
+        - humanitarian aid
+        - assistance
+        - humanitarian support
+        - intervention
+        - rehabilitation
+        - poverty alleviation
     - health_intervention:
-      - "vaccine"
+      - vaccine
       #todo
     - famine:
-      - "famine"
-      - "hunger"
-      - "starvation"
+      - famine
+      - hunger
+      - starvation
     - death:
-      - "death"
-      - "mortality"
-      - "morbidity"
-      - "decease"
+      - death
+      - mortality
+      - morbidity
+      - decease
 - entities:
   - GPE:
-    - "village"
-    - "world"
-    - "district"
-    - "province"
-    - "zone"
-    - "territory"
-    - "city"
-    - "capital"
-    - "States"
-    - "nation"
-    - "regional"
-    - "republic"
-    - "town"
-    - "headquarters"
-    - "settlement"
-    - "subregion"
-    - "continent"
-    - "several countries"
-    - "municipality"
-    - "county"
-    - "urban"
-    - "most countries"
-    - "developed countries"
-    - "sub-region"
-    - "nation"
-    - "country"
-    - "state"
-    - "geopolitical entity"
-    - "nation-state"
+    - village
+    - world
+    - district
+    - province
+    - zone
+    - territory
+    - city
+    - capital
+    - States
+    - nation
+    - regional
+    - republic
+    - town
+    - headquarters
+    - settlement
+    - subregion
+    - continent
+    - several countries
+    - municipality
+    - county
+    - urban
+    - most countries
+    - developed countries
+    - sub-region
+    - nation
+    - country
+    - state
+    - geopolitical entity
+    - nation-state
   - measurement:
     - distance:
-      - "feet"
-      - "meter"
-      - "inch"
-      - "yard"
-      - "mile"
-      - "kilometer"
+      - feet
+      - meter
+      - inch
+      - yard
+      - mile
+      - kilometer
     - area:
-      - "acre"
-      - "hectare"
+      - acre
+      - hectare
     - weight:
-      - "ton"
-      - "tonne"
-      - "gram"
-      - "kilogram"
-      - "pound"
-      - "ounce"
+      - ton
+      - tonne
+      - gram
+      - kilogram
+      - pound
+      - ounce
     - volume:
-      - "liter"
-      - "gallon"
+      - liter
+      - gallon
   - natural:
     - soil:
       - soil_contents:
-        - "phosphorous"
-        - "organic matter"
+        - phosphorous
+        - organic matter
     - crop:
-      - "wheat"
-      - "corn"
-      - "maize"
-      - "rice"
-      - "sorghum"
-      - "barley"
-      - "flax"
-      - "grain"
-      - "beans"
-      - "sugar"
-      - "flour"
-      - "tea"
-      - "leaf vegetables"
-      - "groundnuts"
-      - "cultivar"
+      - wheat
+      - corn
+      - maize
+      - rice
+      - sorghum
+      - barley
+      - flax
+      - grain
+      - beans
+      - sugar
+      - flour
+      - tea
+      - leaf vegetables
+      - groundnuts
+      - cultivar
     - pest:
-      - "infestation"
-      - "armyworm"
-      - "insect"
-      - "swarm"
-      - "locust"
-      - "fungus"
-      - "plant nematodes"
-      - "weeds"
-      - "volunteer plants"
-      - "pests"
-      - "mice"
-      - "midges"
-      - "slugs"
+      - infestation
+      - armyworm
+      - insect
+      - swarm
+      - locust
+      - fungus
+      - plant nematodes
+      - weeds
+      - volunteer plants
+      - pests
+      - mice
+      - midges
+      - slugs
   - human:
     - health:
       - human_health: #todo
-        - "health"
-        - "healthy"
-        - "nutrition"
+        - health
+        - healthy
+        - nutrition
       - disease:
-        - "HIV"
-        - "malaraia"
-        - "diabetes"
-        - "anemia"
+        - HIV
+        - malaraia
+        - diabetes
+        - anemia
         # todo
     - fertilizer:
-      - "nitrogen fertilizer"
-      - "inorganic fertilizers"
-      - "potting composts"
-      - "nitrogen potassium fertilizers"
-      - "superphosphate"
-      - "magnesium fertilizers"
-      - "nitrate fertilizers"
-      - "biofertilizers"
-      - "potash fertilizers"
-      - "fish manure"
-      - "guano"
-      - "nitrophosphates"
-      - "composts"
+      - nitrogen fertilizer
+      - inorganic fertilizers
+      - potting composts
+      - nitrogen potassium fertilizers
+      - superphosphate
+      - magnesium fertilizers
+      - nitrate fertilizers
+      - biofertilizers
+      - potash fertilizers
+      - fish manure
+      - guano
+      - nitrophosphates
+      - composts
     - irrigation:
-      - "localized irrigation"
-      - "capillary irrigation"
-      - "sprinkler irrigation"
-      - "furrow irrigation"
-      - "drip fertigation"
-      - "surface irrigation"
-      - "runoff irrigation"
-      - "fertigation"
-      - "wastewater irrigation"
-      - "watering"
-      - "rotation irrigation"
-      - "flood irrigation"
-      - "trickle irrigation"
-      - "centre pivot irrigation"
-      - "subsurface irrigation"
-      - "irrigation system"
-      - "irrigation"
+      - localized irrigation
+      - capillary irrigation
+      - sprinkler irrigation
+      - furrow irrigation
+      - drip fertigation
+      - surface irrigation
+      - runoff irrigation
+      - fertigation
+      - wastewater irrigation
+      - watering
+      - rotation irrigation
+      - flood irrigation
+      - trickle irrigation
+      - centre pivot irrigation
+      - subsurface irrigation
+      - irrigation system
+      - irrigation
     - infrastructure:
       - transportation:
         - transportation_methods:
-          - "trucking"
-          - "shipping"
-          - "courier"
-          - "transportation"
-          - "driving"
-          - "bus"
-          - "air travel"
-          - "delivery"
+          - trucking
+          - shipping
+          - courier
+          - transportation
+          - driving
+          - bus
+          - air travel
+          - delivery
         - road:
-          - "road"
-          - "highways"
+          - road
+          - highways
         - bridge:
-          - "bridge"
+          - bridge
       - other: #todo split out
-        - "infrastructure"
-        - "energy"
-        - "border"
-        - "building"
-        - "monument"
-        - "utilities"
-        - "electric plant"
-        - "desalination"
-        - "water treatment facility"
-        - "sewage plant"
-        - "drainage ditch"
-        - "airport"
-        - "seaport"
-        - "marina"
-        - "harbour"
-        - "reservoir"
-        - "sanitation"
-        - "dam"
-        - "watershed"
-        - "canal"
+        - infrastructure
+        - energy
+        - border
+        - building
+        - monument
+        - utilities
+        - electric plant
+        - desalination
+        - water treatment facility
+        - sewage plant
+        - drainage ditch
+        - airport
+        - seaport
+        - marina
+        - harbour
+        - reservoir
+        - sanitation
+        - dam
+        - watershed
+        - canal
     - livelihood:
-      - "livelihood"
-      - "farming" # todo move to own pre-terminal
-      - "fishery" # todo move to own pre-terminal
-      - "food production"
-      - "agriculture"
-      - "industry"
-      - "commerce"
-      - "workplace"
-      - "trade"
-      - "work"
-      - "job"
-      - "career"
-      - "opportunity"
-      - "employment"
-      - "agribusiness"
+      - livelihood
+      - farming # todo move to own pre-terminal
+      - fishery # todo move to own pre-terminal
+      - food production
+      - agriculture
+      - industry
+      - commerce
+      - workplace
+      - trade
+      - work
+      - job
+      - career
+      - opportunity
+      - employment
+      - agribusiness
     - education: #todo
-      - "literacy"
-      - "education"
-      - "school"
+      - literacy
+      - education
+      - school
     - financial:
       - price:
-        - "price"
-        - "cost"
-        - "expense"
-        - "credit"
-        - "budget"
-        - "cash"
+        - price
+        - cost
+        - expense
+        - credit
+        - budget
+        - cash
       - economic:
         - market:
-          - "market"
-          - "domestic markets"
-          - "capital market"
-          - "street markets"
+          - market
+          - domestic markets
+          - capital market
+          - street markets
         - economy:
-          - "interest rate"
-          - "investment"
-          - "stipend"
-          - "government spending"
-          - "subsidy"
-          - "finance"
-          - "GDP"
-          - "economy"
-          - "inflation"
-          - "depreciation"
+          - interest rate
+          - investment
+          - stipend
+          - government spending
+          - subsidy
+          - finance
+          - GDP
+          - economy
+          - inflation
+          - depreciation
         - technology: #todo -- think about investments in _______
-          - "biofuel"
-          - "technology"
-          - "e-mail"
-          - "email"
-          - "network"
-          - "solution"
-          - "transportation"
-          - "internet"
-          - "information system"
-          - "electricity"
-          - "software"
-          - "website"
-          - "vehicle"
-          - "web site"
-          - "machine"
-          - "transport"
-          - "database"
-          - "innovation"
-          - "biofuel"
-          - "technology transfer"
-          - "networking"
-          - "mechanization"
-          - "biotechnology"
-          - "machinery"
-          - "radio"
-          - "programming"
+          - biofuel
+          - technology
+          - e-mail
+          - email
+          - network
+          - solution
+          - transportation
+          - internet
+          - information system
+          - electricity
+          - software
+          - website
+          - vehicle
+          - web site
+          - machine
+          - transport
+          - database
+          - innovation
+          - biofuel
+          - technology transfer
+          - networking
+          - mechanization
+          - biotechnology
+          - machinery
+          - radio
+          - programming
         - revenue:
-          - "livelihood"
-          - "income"
-          - "household income"
-          - "take home pay"
-          - "net profit"
-          - "profit"
-          - "earning"
-          - "revenue"
-          - "investment"
+          - livelihood
+          - income
+          - household income
+          - take home pay
+          - net profit
+          - profit
+          - earning
+          - revenue
+          - investment
         - poverty: #todo
-          - "poverty"
+          - poverty
     - government:
       - government_entity:
-        - "ngo"
-        - "agriculture organization UNITED NATIONS"
-        - "agency"
-        - "secretariat"
-        - "industry"
-        - "world bank"
-        - "council"
-        - "representative"
-        - "organisation"
-        - "association"
-        - "institution"
-        - "participant"
-        - "Governing body"
-        - "party"
-        - "un agency"
-        - "member States"
-        - "executive committee"
-        - "establishment"
-        - "agriculture organization UNITED NATIONS rome"
-        - "development agency"
-        - "constitution"
-        - "foundation"
-        - "development partner"
-        - "codex Alimentarius commission"
-        - "Member Nations"
-        - "iotc secretariat"
-        - "fao Regional office"
-        - "finance committee"
-        - "fao headquarters"
-        - "government agency"
-        - "agriculture sector"
-        - "committee"
-        - "ministry"
-        - "board"
-        - "working GROUP"
-        - "contract party"
-        - "department"
-        - "government"
+        - ngo
+        - agriculture organization UNITED NATIONS
+        - agency
+        - secretariat
+        - industry
+        - world bank
+        - council
+        - representative
+        - organisation
+        - association
+        - institution
+        - participant
+        - Governing body
+        - party
+        - un agency
+        - member States
+        - executive committee
+        - establishment
+        - agriculture organization UNITED NATIONS rome
+        - development agency
+        - constitution
+        - foundation
+        - development partner
+        - codex Alimentarius commission
+        - Member Nations
+        - iotc secretariat
+        - fao Regional office
+        - finance committee
+        - fao headquarters
+        - government agency
+        - agriculture sector
+        - committee
+        - ministry
+        - board
+        - working GROUP
+        - contract party
+        - department
+        - government
       - government_actions:
-        - "regulation"
-        - "governance"
-        - "surveillance"
-        - "security"
-        - "commission"
-        - "law"
-        - "meeting"
-        - "session"
-        - "discussion"
-        - "legislation"
-        - "workshop"
-        - "conference"
-        - "partnership"
-        - "decision"
-        - "agreement"
-        - "rule"
-        - "agenda"
-        - "convention"
-        - "recommendation"
-        - "stability"
-        - "compliance"
-        - "tax"
-        - "enforcement"
-        - "census"
-        - "action plan"
-        - "policy"
-        - "development"
-        - "management"
-        - "production"
-        - "organization"
-        - "programme"
-        - "Programme Work"
-        - "development programme"
-        - "Development Goals"
-        - "jurisdiction"
-        - "management plan"
-        - "rights"
-        - "decision-making"
-        - "welfare"
+        - regulation
+        - governance
+        - surveillance
+        - security
+        - commission
+        - law
+        - meeting
+        - session
+        - discussion
+        - legislation
+        - workshop
+        - conference
+        - partnership
+        - decision
+        - agreement
+        - rule
+        - agenda
+        - convention
+        - recommendation
+        - stability
+        - compliance
+        - tax
+        - enforcement
+        - census
+        - action plan
+        - policy
+        - development
+        - management
+        - production
+        - organization
+        - programme
+        - Programme Work
+        - development programme
+        - Development Goals
+        - jurisdiction
+        - management plan
+        - rights
+        - decision-making
+        - welfare
     - communities:
-      - "communities"
-      - "people group"
-      - "households"
-      - "families"
-      - "villages"
-      - "people"
-      - "community"
-      - "family"
-      - "ethnic group"
-      - "population"
+      - communities
+      - people group
+      - households
+      - families
+      - villages
+      - people
+      - community
+      - family
+      - ethnic group
+      - population
     - food:
       - food_security:
-        - "food security"
-        - "food access"
-        - "food availability"
-        - "nutrition"
-        - "nutrition security"
+        - food security
+        - food access
+        - food availability
+        - nutrition
+        - nutrition security
       - food_insecurity:
-        - "food insecurity"
-        - "food gap"
-        - "malnutrition"
-        - "undernutrition"
-        - "undernourishment"
-        - "stunting"
-        - "wasting"
-        - "wasting"
+        - food insecurity
+        - food gap
+        - malnutrition
+        - undernutrition
+        - undernourishment
+        - stunting
+        - wasting
+        - wasting
 - temporal:
   - seasons:
     - crop_season:
-      - "harvest"
-      - "lean season"
-      - "planting season"
-      - "sowing season"
+      - harvest
+      - lean season
+      - planting season
+      - sowing season
     - annual:
-      - "summer"
-      - "winter"
-      - "fall"
-      - "spring"
-      - "dry season"
-      - "rainy season"
-      - "monsoon season"
+      - summer
+      - winter
+      - fall
+      - spring
+      - dry season
+      - rainy season
+      - monsoon season
   - months:
-    - "January"
-    - "February"
-    - "March"
-    - "April"
-    - "May"
-    - "June"
-    - "July"
-    - "August"
-    - "September"
-    - "October"
-    - "November"
-    - "December"
+    - January
+    - February
+    - March
+    - April
+    - May
+    - June
+    - July
+    - August
+    - September
+    - October
+    - November
+    - December
