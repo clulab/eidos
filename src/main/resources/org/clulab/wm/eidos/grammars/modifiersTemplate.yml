@@ -47,11 +47,11 @@ rules:
   # Note: Captures passive voice; thus verb must be VBD|VBN
   - name: ${ label }_ported_syntax_2_verb
     priority: ${ objrulepriority }
-    example: "wheat production in the region will be diminished"
+    example: "wheat production in the region will be diminished .. wheat production in the region are higher."
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB|JJR/]
       theme: Entity = (?! dobj) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
@@ -199,4 +199,3 @@ rules:
       @theme: Entity
       [lemma=have]
       (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=dobj])
-

@@ -57,7 +57,7 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       # Previous -- removed the complements because they were over matching
       #cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = </${adverbial_clause}/? (/(${ agents })|nmod_along_with/) /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity = prepc_by? (${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       # previous ones -- removed the preps because they were waaaay over-matching:
       #cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
@@ -239,3 +239,11 @@ rules:
     # xcomp for "A, leading to B" pattern
     # "leading to activation"
 
+  - name: ${ label }_given_Causal
+    priority: ${ rulepriority }
+    label: ${label}
+    example: "import requirements are higher than usual given below-average harvests"
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      cause: Entity = nmod_given [tag=/^N/] #(${ conjunctions })? #/${noun_modifiers}/{,2} #
+      effect: Entity = nsubj /${noun_modifiers}/{,2}
