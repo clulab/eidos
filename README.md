@@ -766,9 +766,9 @@ There is one [large file of vectors](https://drive.google.com/open?id=1tffQuLB5X
 The default size of the memory allocation pool for the JVM is 1/4 of your physical memory, but Eidos may require
 more RAM than that.  It is currently being developed and tested with a 6GB limit.
 
-For those using `sbt`, the file `.sbtopts` is included with the source code and arranges for more memory.  No other changes should be necessary.
+For those using `sbt`, the file `.jvmopts` is included with the source code to arrange for more memory.  No other changes should be necessary.
 
-IDEs and other development tools are generally unaware of `.sbtopts`, but can be configured via an environment variable instead.
+IDEs and other development tools are generally unaware of `.jvmopts`, but can be configured via an environment variable instead.
 
 `JAVA_TOOL_OPTIONS=-Xmx6g`
 
