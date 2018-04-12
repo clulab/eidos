@@ -16,7 +16,7 @@ import org.json4s.jackson.Serialization.write
 import scala.util.hashing.MurmurHash3.mixLast
 
 abstract class EidosAttachment extends Attachment {
-  implicit val formats = org.json4s.DefaultFormats
+  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
   
   // Support for EidosActions
   def argumentSize: Int
@@ -29,8 +29,8 @@ abstract class EidosAttachment extends Attachment {
   def toJson(): JValue
 
   // Convenience functions
-  def argumentSize(optionSeq: Option[Seq[String]]) =
-    if (optionSeq.isDefined) optionSeq.get.size else 0
+  def argumentSize(optionSeq: Option[Seq[String]]): Int =
+      if (optionSeq.isDefined) optionSeq.get.size else 0
 
   def toJson(label: String): JValue =
       (EidosAttachment.TYPE -> label) ~
@@ -41,14 +41,14 @@ object EidosAttachment {
   val TYPE = "type"
   val MOD = "mod"
   
-  def newEidosAttachment(mention: Mention) = mention.label match {
+  def newEidosAttachment(mention: Mention): TriggeredAttachment = mention.label match {
     case Quantification.label => Quantification(mention)
     case Increase.label => Increase(mention)
     case Decrease.label => Decrease(mention)
   }
 
-  def newEidosAttachment(json: JValue) = {
-    implicit val formats = org.json4s.DefaultFormats
+  def newEidosAttachment(json: JValue): EidosAttachment = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
     
     def parseJValue(jValue: JValue): JValue =
       JsonMethods.parse((jValue \ MOD).extract[String])
@@ -70,39 +70,53 @@ object EidosAttachment {
           .map(qs => qs.map(_.text))
 }
 
-case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends EidosAttachment {
+abstract class TriggeredAttachment(val trigger: String, val quantifiers: Option[Seq[String]]) extends EidosAttachment {
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
   protected val sortedArguments: Option[Seq[String]] =
-      if (!adverbs.isDefined) None
-      else Some(adverbs.get.sorted)
+      if (quantifiers.isEmpty) None
+      else Some(quantifiers.get.sorted)
 
-  override def canEqual(other: Any) = other.isInstanceOf[Quantification]
+  override def argumentSize: Int = argumentSize(quantifiers)
+
+  def canEqual(other: Any): Boolean
 
   override def equals(other: scala.Any): Boolean = other match {
-    case that: Quantification =>
+    case that: TriggeredAttachment =>
       that.canEqual(this) &&
-          this.quantifier == that.quantifier &&
-          this.sortedArguments == that.sortedArguments
+        this.trigger == that.trigger &&
+        this.sortedArguments == that.sortedArguments
     case _ => false
   }
 
-  override def hashCode = mixLast(quantifier.##, sortedArguments.##)
+  override def hashCode: Int = mixLast(trigger.##, sortedArguments.##)
 
-  override def argumentSize: Int = argumentSize(adverbs)
+  def newJLDOdinAttachment(serializer: JLDOdinSerializer, kind: String, mention: Mention): JLDOdinAttachment =
+    new JLDOdinAttachment(serializer, kind, trigger, quantifiers, mention)
+
+  def newJLDEidosAttachment(serializer: JLDEidosSerializer, kind: String, mention: EidosMention): JLDEidosAttachment =
+    new JLDEidosAttachment(serializer, kind, trigger, quantifiers, mention)
+}
+
+class Quantification(quantifier: String, adverbs: Option[Seq[String]]) extends TriggeredAttachment(quantifier, adverbs) {
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Quantification]
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
-    new JLDOdinAttachment(serializer, "QUANT", quantifier, adverbs, mention)
+      super.newJLDOdinAttachment(serializer, Quantification.kind, mention)
 
   override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-    new JLDEidosAttachment(serializer, "QUANT", quantifier, adverbs, mention)
+      super.newJLDEidosAttachment(serializer, Quantification.kind, mention)
 
   override def toJson(): JValue = toJson(Quantification.label)
 }
 
 object Quantification {
   val label = "Quantification"
-  
+  val kind = "QUANT"
+
+  def apply(quantifier: String, adverbs: Option[Seq[String]]) = new Quantification(quantifier, adverbs)
+
   def apply(mention: Mention): Quantification = {
     val quantifier = mention.asInstanceOf[EventMention].trigger.text
     val adverbs = mention.asInstanceOf[EventMention].arguments.get("adverb") match {
@@ -110,85 +124,59 @@ object Quantification {
       case None => None
     }
     
-    Quantification(quantifier, adverbs)
+    new Quantification(quantifier, adverbs)
   }
 }
 
-case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) extends EidosAttachment {
-  // We keep the original order in adverbs for printing and things,
-  // but the sorted version will be used for comparison.
-  protected val sortedArguments: Option[Seq[String]] =
-    if (!quantifiers.isDefined) None
-    else Some(quantifiers.get.sorted)
+class Increase(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachment(trigger, quantifiers) {
 
-  override def canEqual(other: Any) = other.isInstanceOf[Increase]
-
-  override def equals(other: scala.Any): Boolean = other match {
-    case that: Increase =>
-      that.canEqual(this) &&
-        this.trigger == that.trigger &&
-        this.sortedArguments == that.sortedArguments
-    case _ => false
-  }
-
-  override def hashCode = mixLast(trigger.##, sortedArguments.##)
-
-  override def argumentSize: Int = argumentSize(quantifiers)
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Increase]
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
-      new JLDOdinAttachment(serializer, "INC", trigger, quantifiers, mention)
+      super.newJLDOdinAttachment(serializer, Increase.kind, mention)
   override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-      new JLDEidosAttachment(serializer, "INC", trigger, quantifiers, mention)
+      super.newJLDEidosAttachment(serializer, Increase.kind, mention)
 
   override def toJson(): JValue = toJson(Increase.label)
 }
 
 object Increase {
   val label = "Increase"
-  
+  val kind = "INC"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new Increase(trigger, quantifiers)
+
   def apply(mention: Mention): Increase = {
     val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
     val trigger = mention.asInstanceOf[EventMention].trigger.text
-    
-    Increase(trigger, quantifiers)
+
+    new Increase(trigger, quantifiers)
   }
 }
 
-case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None) extends EidosAttachment {
-  protected val sortedArguments: Option[Seq[String]] =
-    if (!quantifiers.isDefined) None
-    else Some(quantifiers.get.sorted)
+class Decrease(trigger: String, quantifiers: Option[Seq[String]] = None) extends TriggeredAttachment(trigger, quantifiers) {
 
-  override def canEqual(other: Any) = other.isInstanceOf[Decrease]
-
-  override def equals(other: scala.Any): Boolean = other match {
-    case that: Decrease =>
-      that.canEqual(this) &&
-        this.trigger == that.trigger &&
-        this.sortedArguments == that.sortedArguments
-    case _ => false
-  }
-
-  override def hashCode = mixLast(trigger.##, sortedArguments.##)
-
-  override def argumentSize: Int = argumentSize(quantifiers)
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Decrease]
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
-    new JLDOdinAttachment(serializer, "DEC", trigger, quantifiers, mention)
+      super.newJLDOdinAttachment(serializer, Decrease.kind, mention)
   override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-    new JLDEidosAttachment(serializer, "DEC", trigger, quantifiers, mention)
+      super.newJLDEidosAttachment(serializer, Decrease.kind, mention)
 
   override def toJson(): JValue = toJson(Decrease.label)
 }
 
 object Decrease {
   val label = "Decrease"
-  
+  val kind= "DEC"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new Decrease(trigger, quantifiers)
+
   def apply(mention: Mention): Decrease = {
     val quantifiers = EidosAttachment.getOptionalQuantifiers(mention)
     val trigger = mention.asInstanceOf[EventMention].trigger.text
 
-    Decrease(trigger, quantifiers)
+    new Decrease(trigger, quantifiers)
   }
 }
 
@@ -196,13 +184,14 @@ case class Score(score: Double) extends EidosAttachment {
   override def argumentSize: Int = 0
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
-    new JLDOdinAttachment(serializer, "SCORE", score.toString, None, mention)
+    new JLDOdinAttachment(serializer, Score.kind, score.toString, None, mention)
   override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-    new JLDEidosAttachment(serializer, "SCORE", score.toString, None, mention)
+    new JLDEidosAttachment(serializer, Score.kind, score.toString, None, mention)
   
   override def toJson(): JValue = toJson(Score.label)
 }
 
 object Score {
   val label = "Same-As"
+  val kind = "SCORE"
 }

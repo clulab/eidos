@@ -41,7 +41,7 @@ class AttachmentSpec(val attachment: Attachment) extends GraphSpec {
 }
 
 class Quant(quantization: Quantification) extends AttachmentSpec(quantization) {
-  override def toString = "+QUANT(" + quantization.quantifier + toString(quantization.adverbs) + ")"
+  override def toString = "+QUANT(" + quantization.trigger + toString(quantization.quantifiers) + ")"
 }
 
 object Quant {

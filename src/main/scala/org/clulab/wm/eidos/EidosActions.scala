@@ -255,7 +255,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     attachment match {
       case inc: Increase => inc.trigger
       case dec: Decrease => dec.trigger
-      case quant: Quantification => quant.quantifier
+      case quant: Quantification => quant.trigger
       case _ => throw new UnsupportedClassVersionError()
     }
   }
