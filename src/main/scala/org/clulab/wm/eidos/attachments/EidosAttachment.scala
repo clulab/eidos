@@ -98,6 +98,20 @@ abstract class TriggeredAttachment(val trigger: String, val quantifiers: Option[
     new JLDEidosAttachment(serializer, kind, trigger, quantifiers, mention)
 }
 
+object TriggeredAttachment {
+
+  implicit def ordering[T <: TriggeredAttachment]: Ordering[T] = new Ordering[T] {
+    def compare(left: T, right: T): Int = {
+      val triggerDiff = left.trigger.length - right.trigger.length
+
+      if (triggerDiff != 0)
+        triggerDiff
+      else
+        left.argumentSize - right.argumentSize
+    }
+  }
+}
+
 class Quantification(quantifier: String, adverbs: Option[Seq[String]]) extends TriggeredAttachment(quantifier, adverbs) {
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Quantification]

@@ -55,13 +55,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
           val emAttachmentSet = em.arguments.values.flatten.flatMap(m => m.attachments).toSet
           (emSize, emModSize, emAttachmentSet)
         }
-        case _ => (0, 0,  mention.attachments)
+        case _ => (0, 0, mention.attachments)
       }
 
       // disgusting!
 
       val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-      val triggerSize = mention.attachments.toSeq.map(triggerOf(_).length).sum
+      val triggerSize = mention.attachments.toSeq.map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
       val attachArgumentsSz = argumentSize + triggerSize
       // smart this up
       // problem: Quant("moderate to heavy", None) considered the same as Quant("heavy", none)
@@ -102,8 +102,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // We need to remove underspecified EventMentions of near-duplicate groupings
     // (ex. same phospho, but one is missing a site)
     def argTokenInterval(m: EventMention): Interval = {
-      val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
-      val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
+      val min = m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
+      val max = m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
       Interval(start = min, end = max)
     }
 
@@ -198,73 +198,47 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Filter out substring attachments, then keep most complete.
-  def filterAttachments(attachments: Seq[Attachment]) = {
+  def filterAttachments(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     attachments
-        // Perform first mapping based on class
-        .groupBy(_.getClass)
-        // Filter out substring attachments
-        .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
-        // Next map based on both class and trigger.
-        .groupBy(attachment => (attachment.getClass, triggerOf(attachment)))
-        // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
-        .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
-        .toSeq
+      // Perform first mapping based on class
+      .groupBy(_.getClass)
+      // Filter out substring attachments
+      .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
+      // Next map based on both class and trigger.
+      .groupBy(attachment => (attachment.getClass, attachment.trigger))
+      // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
+      .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
+      .toSeq
   }
 
   // Keep the most complete attachment here.
-  protected def filterMostComplete(attachments: Seq[Attachment]) =
-      attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
-
-  // If there is a tie initially, the winner should have more arguments
-  protected def lessThan(left: Attachment, right: Attachment): Boolean = {
-    val triggerDiff = triggerOf(left).length - triggerOf(right).length
-
-    if (triggerDiff != 0)
-      triggerDiff < 0
-    else {
-      val argumentsDiff = left.asInstanceOf[EidosAttachment].argumentSize -
-        right.asInstanceOf[EidosAttachment].argumentSize
-
-      argumentsDiff < 0
-    }
-  }
-
-  protected def greaterThanOrEqual(left: Attachment, right: Attachment) = !lessThan(left, right)
+  protected def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
+      attachments.maxBy(_.argumentSize)
 
   // Filter out substring attachments.
-  protected def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
-
+  protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-        .sortWith(greaterThanOrEqual)
-        .filter { attachment =>
-          val trigger = triggerOf(attachment)
+      .sorted
+      .reverse
+      .filter { attachment =>
+        val trigger = attachment.trigger
 
-          if (!triggersKept.exists(_.contains(trigger))) {
-            triggersKept.add(trigger) // Add this trigger.
-            true // Keep the attachment.
-          }
-          else
-            false
+        if (!triggersKept.exists(_.contains(trigger))) {
+          triggersKept.add(trigger) // Add this trigger.
+          true // Keep the attachment.
         }
-  }
-
-  // Get trigger from an attachment
-  protected def triggerOf(attachment: Attachment): String = {
-    attachment match {
-      case inc: Increase => inc.trigger
-      case dec: Decrease => dec.trigger
-      case quant: Quantification => quant.trigger
-      case _ => throw new UnsupportedClassVersionError()
-    }
+        else
+          false
+      }
   }
 }
 
 object EidosActions extends Actions {
 
   def apply(taxonomyPath: String) =
-    new EidosActions(readTaxonomy(taxonomyPath))
+      new EidosActions(readTaxonomy(taxonomyPath))
 
   private def readTaxonomy(path: String): Taxonomy = {
     val input = FileUtils.getTextFromResource(path)
