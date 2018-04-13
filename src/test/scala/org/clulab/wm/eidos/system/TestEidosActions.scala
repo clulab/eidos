@@ -6,7 +6,7 @@ import org.clulab.odin._
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-import org.clulab.wm.eidos.attachments.{Decrease, EidosAttachment, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils._
 
@@ -133,14 +133,11 @@ class TestEidosActions extends Test {
     class TestEidosActions extends EidosActions(null) {
       // Relax some protected functions for testing
 
-      override def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] =
+      override def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] =
         super.filterSubstringTriggers(attachments)
 
-      override def filterMostComplete(attachments: Seq[Attachment]) =
+      override def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
         super.filterMostComplete(attachments)
-
-      override def triggerOf(attachment: Attachment): String =
-        super.triggerOf(attachment)
     }
 
     val eidosActions = new TestEidosActions()
@@ -194,9 +191,9 @@ class TestEidosActions extends Test {
 
       filtered.size should be(2)
       filtered.foreach { attachment =>
-        if (eidosActions.triggerOf(attachment) == "short trigger")
+        if (attachment.trigger == "short trigger")
             attachment.asInstanceOf[EidosAttachment].argumentSize should be(0)
-        if (eidosActions.triggerOf(attachment) == "long trigger")
+        if (attachment.trigger == "long trigger")
           attachment.asInstanceOf[EidosAttachment].argumentSize should be(3)
       }
     }

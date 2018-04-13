@@ -174,11 +174,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val mergedEntities = for {
       (_, entities) <- entitiesBySpan
       // These are now for the same span, so only one should win as the main one.
-      flattenedAttachments = entities.flatMap(_.attachments)
+      flattenedAttachments = entities.flatMap(_.attachments.map(_.asInstanceOf[TriggeredAttachment]))
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
-        val bestAttachment = filteredAttachments.sortWith(greaterThanOrEqual).head
+        val bestAttachment = filteredAttachments.sorted.reverse.head
         val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
 
         copyWithAttachments(bestEntity, filteredAttachments)
@@ -200,15 +200,15 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   // Filter out substring attachments, then keep most complete.
   def filterAttachments(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     attachments
-      // Perform first mapping based on class
-      .groupBy(_.getClass)
-      // Filter out substring attachments
-      .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
-      // Next map based on both class and trigger.
-      .groupBy(attachment => (attachment.getClass, attachment.trigger))
-      // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
-      .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
-      .toSeq
+        // Perform first mapping based on class
+        .groupBy(_.getClass)
+        // Filter out substring attachments
+        .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
+        // Next map based on both class and trigger.
+        .groupBy(attachment => (attachment.getClass, attachment.trigger))
+        // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
+        .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
+        .toSeq
   }
 
   // Keep the most complete attachment here.
@@ -220,18 +220,18 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-      .sorted
-      .reverse
-      .filter { attachment =>
-        val trigger = attachment.trigger
+        .sorted
+        .reverse
+        .filter { attachment =>
+          val trigger = attachment.trigger
 
-        if (!triggersKept.exists(_.contains(trigger))) {
-          triggersKept.add(trigger) // Add this trigger.
-          true // Keep the attachment.
+          if (!triggersKept.exists(_.contains(trigger))) {
+            triggersKept.add(trigger) // Add this trigger.
+            true // Keep the attachment.
+          }
+          else
+            false
         }
-        else
-          false
-      }
   }
 }
 
