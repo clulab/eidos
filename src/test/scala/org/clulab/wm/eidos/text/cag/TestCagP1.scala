@@ -1,15 +1,8 @@
 package org.clulab.wm.eidos.text.cag
 
-import CAG._
-
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Quant
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.Causal
-import org.scalactic.source.Position.apply
+import org.clulab.wm.eidos.text._
+import org.clulab.wm.eidos.text.cag.CAG._
 
 class TestCagP1 extends Test {
   
@@ -70,13 +63,19 @@ class TestCagP1 extends Test {
     behavior of "p1s3"
 
     passingTest should "have correct edges 1" taggedAs(Egoitz) in {
+      tester.test(shock)
+      tester.test(pasture)
       tester.test(EdgeSpec(shock, Causal, pasture)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(shock, Causal, waterAvailability)) should be (successful)
+      tester.test(shock)
+      tester.test(waterAvailability)
+//      tester.test(EdgeSpec(shock, Causal, waterAvailability)) should be (successful)
     }
     passingTest should "have correct edges 3" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(shock, Causal, foodProduction)) should be (successful)
+      tester.test(foodProduction)
+      tester.test(shock)
+//      tester.test(EdgeSpec(shock, Causal, foodProduction)) should be (successful)
     }
     passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(rainfall) should be (successful)
