@@ -4,6 +4,7 @@ name := "eidos"
 organization := "org.clulab"
 
 scalaVersion := "2.12.4"
+crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 //EclipseKeys.withSource := true
 
@@ -87,14 +88,14 @@ releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
   runClean,
-  runTest,
+  releaseStepCommandAndRemaining("+test"),
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  ReleaseStep(action = Command.process("publishSigned", _)),
+  releaseStepCommandAndRemaining("+publishSigned"),
   setNextVersion,
   commitNextVersion,
-  ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+  releaseStepCommandAndRemaining("sonatypeReleaseAll"),
   pushChanges
 )
 
