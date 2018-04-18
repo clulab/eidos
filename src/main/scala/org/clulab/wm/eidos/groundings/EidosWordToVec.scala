@@ -13,6 +13,10 @@ trait EidosWordToVec {
 
 class RealWordToVec(w2v: Word2Vec, conceptEmbeddings: Map[String, Seq[Double]], topKNodeGroundings: Int) extends EidosWordToVec {
 
+  def stringSimilarity(s1: String, s2: String): Double = {
+    w2v.avgSimilarity(s1.split(" +"), s2.split(" +"))
+  }
+
   def calculateSimilarity(m1: Mention, m2: Mention): Double = {
     // avgSimilarity does sanitizeWord itself, so it is unnecessary here.
     val sanitisedM1 =  m1.text.split(" +")

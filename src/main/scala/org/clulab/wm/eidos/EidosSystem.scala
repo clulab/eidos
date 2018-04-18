@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
-
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
@@ -10,13 +9,10 @@ import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, EidosAdjectiveGrounder}
-import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding, EidosOntologyGrounder}
-import org.clulab.wm.eidos.groundings.EidosWordToVec
+import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainParams
 import org.clulab.wm.eidos.utils.FileUtils
-
 import org.slf4j.LoggerFactory
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
@@ -193,6 +189,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
+
+  /*
+      Wrapper for using w2v on some strings
+   */
+  def stringSimilarity(s1: String, s2: String): Double = {
+    wordToVec match {
+      case w2v: RealWordToVec => w2v.stringSimilarity(s1, s2)
+      case _ => throw new RuntimeException("Word2Vec wasn't loaded, please check configurations.")
+    }
+  }
 
   /*
      Debugging Methods
