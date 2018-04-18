@@ -3,6 +3,7 @@ package org.clulab.wm.eidos
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
+import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
 import org.clulab.struct.Interval
@@ -10,9 +11,11 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.Ordering
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Set => MutableSet}
 import scala.io.BufferedSource
+import EidosActions._
 
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
@@ -156,6 +159,37 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
+
+  // New action designed to expand the args of relevant events only...
+  def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
+
+    def getNewTokenInterval(intervals: Seq[Interval]): Interval = new Interval(intervals.minBy(_.start), intervals.maxBy(_.end))
+    def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
+      // All involved token intervals, both for the original event and the expanded arguments
+      val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
+      // Find the largest span from these intervals
+      val newTokenInterval = getNewTokenInterval(allIntervals)
+      // Make the copy based on the type of the Mention
+      orig match {
+        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
+        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
+      }
+    }
+
+    for {
+      mention <- mentions
+      expanded = for {
+        (argType, argMentions) <- mention.arguments
+        expandedMentions = argMentions.map(expand(_, maxHops = 5, new State))
+      } yield (argType, expandedMentions)
+    } yield copyWithExpanded(mention, expanded)
+  }
+
+
+
+
+
   // Currently used as a GLOBAL ACTION in EidosSystem:
   // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
   // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
@@ -259,9 +293,106 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       case _ => throw new UnsupportedClassVersionError()
     }
   }
+
+
+  //-- Entity expansion methods (brought in from EntityFinder)
+  def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
+    val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid)
+    new TextBoundMention(entity.labels, interval, entity.sentence, entity.document, entity.keep, entity.foundBy)
+  }
+
+
+  /** Used by expand to selectively traverse the provided syntactic dependency graph **/
+  @tailrec
+  private def traverseOutgoingLocal(
+                                     tokens: Set[Int],
+                                     newTokens: Set[Int],
+                                     outgoingRelations: Array[Array[(Int, String)]],
+                                     incomingRelations: Array[Array[(Int, String)]],
+                                     remainingHops: Int,
+                                     sent: Int,
+                                     stateFromAvoid: State
+                                   ): Interval = {
+    if (remainingHops == 0) {
+      val allTokens = tokens ++ newTokens
+      Interval(allTokens.min, allTokens.max + 1)
+    } else {
+      val newNewTokens = for{
+        tok <- newTokens
+        if outgoingRelations.nonEmpty && tok < outgoingRelations.length
+        (nextTok, dep) <- outgoingRelations(tok)
+        if isValidOutgoingDependency(dep)
+        if stateFromAvoid.mentionsFor(sent, nextTok).isEmpty
+        if hasValidIncomingDependencies(nextTok, incomingRelations)
+      } yield nextTok
+      traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, stateFromAvoid)
+    }
+  }
+  private def traverseOutgoingLocal(m: Mention, numHops: Int, stateFromAvoid: State): Interval = {
+    val outgoing = outgoingEdges(m.sentenceObj)
+    val incoming = incomingEdges(m.sentenceObj)
+    traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid)
+  }
+
+  def outgoingEdges(s: Sentence): Array[Array[(Int, String)]] = s.dependencies match {
+    case None => sys.error("sentence has no dependencies")
+    case Some(dependencies) => dependencies.outgoingEdges
+  }
+
+  def incomingEdges(s: Sentence): Array[Array[(Int, String)]] = s.dependencies match {
+    case None => sys.error("sentence has no dependencies")
+    case Some(dependencies) => dependencies.incomingEdges
+  }
+
+  /** Ensure dependency may be safely traversed */
+  def isValidOutgoingDependency(dep: String): Boolean = {
+    VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
+      ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
+  }
+
+  /** Ensure current token does not have any incoming dependencies that are invalid **/
+  def hasValidIncomingDependencies(tokenIdx: Int, incomingDependencies: Array[Array[(Int, String)]]): Boolean = {
+    if (incomingDependencies.nonEmpty && tokenIdx < incomingDependencies.length) {
+      incomingDependencies(tokenIdx).forall(pair => ! INVALID_INCOMING.exists(pattern => pattern.findFirstIn(pair._2).nonEmpty))
+    } else true
+  }
+
+
 }
 
 object EidosActions extends Actions {
+
+  // avoid expanding along these dependencies
+  val INVALID_OUTGOING = Set[scala.util.matching.Regex](
+//    "^nmod_including$".r,
+//    "^nmod_without$".r,
+//    "^nmod_except".r,
+//    "^nmod_since".r,
+//    "^nmod_among".r
+  )
+
+  val INVALID_INCOMING = Set[scala.util.matching.Regex](
+    //"^nmod_with$".r,
+//    "^nmod_without$".r,
+//    "^nmod_except$".r
+//    "^nmod_despite$".r
+  )
+
+  // regexes describing valid outgoing dependencies
+  val VALID_OUTGOING = Set[scala.util.matching.Regex](
+//    "^amod$".r, "^advmod$".r,
+//    "^dobj$".r,
+//    "^compound".r, // replaces nn
+//    "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
+//    // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X.
+//    "^acl_to".r, // replaces vmod
+//    "xcomp".r, // replaces vmod
+//    // Changed from processors......
+//    "^nmod".r, // replaces prep_
+//    //    "case".r
+//    "^ccomp".r
+    ".+".r
+  )
 
   def apply(taxonomyPath: String) =
     new EidosActions(readTaxonomy(taxonomyPath))

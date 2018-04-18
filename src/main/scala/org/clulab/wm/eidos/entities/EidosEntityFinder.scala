@@ -26,9 +26,10 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
     val validBaseEntities = baseEntities.filter(isValidBaseEntity)
     // expand the entities
-    val expandedEntities: Seq[Mention] = validBaseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
-    // split entities on likely coordinations
-    val splitEntities = (validBaseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
+//    val expandedEntities: Seq[Mention] = validBaseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
+//    // split entities on likely coordinations
+//    val splitEntities = (validBaseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
+    val splitEntities = validBaseEntities.flatMap(splitCoordinatedEntities)
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
@@ -78,43 +79,43 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
   /**
     * Expands an entity up to the specified number of hops along valid grammatical relations.
     */
-  def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
-    val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid)
-    new TextBoundMention(entity.labels, interval, entity.sentence, entity.document, entity.keep, entity.foundBy)
-  }
-
-
-  /** Used by expand to selectively traverse the provided syntactic dependency graph **/
-  @tailrec
-  private def traverseOutgoingLocal(
-                                tokens: Set[Int],
-                                newTokens: Set[Int],
-                                outgoingRelations: Array[Array[(Int, String)]],
-                                incomingRelations: Array[Array[(Int, String)]],
-                                remainingHops: Int,
-                                sent: Int,
-                                stateFromAvoid: State
-                              ): Interval = {
-    if (remainingHops == 0) {
-      val allTokens = tokens ++ newTokens
-      Interval(allTokens.min, allTokens.max + 1)
-    } else {
-      val newNewTokens = for{
-        tok <- newTokens
-        if outgoingRelations.nonEmpty && tok < outgoingRelations.length
-        (nextTok, dep) <- outgoingRelations(tok)
-        if isValidOutgoingDependency(dep)
-        if stateFromAvoid.mentionsFor(sent, nextTok).isEmpty
-        if hasValidIncomingDependencies(nextTok, incomingRelations)
-      } yield nextTok
-      traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, stateFromAvoid)
-    }
-  }
-  private def traverseOutgoingLocal(m: Mention, numHops: Int, stateFromAvoid: State): Interval = {
-    val outgoing = outgoingEdges(m.sentenceObj)
-    val incoming = incomingEdges(m.sentenceObj)
-    traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid)
-  }
+//  def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
+//    val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid)
+//    new TextBoundMention(entity.labels, interval, entity.sentence, entity.document, entity.keep, entity.foundBy)
+//  }
+//
+//
+//  /** Used by expand to selectively traverse the provided syntactic dependency graph **/
+//  @tailrec
+//  private def traverseOutgoingLocal(
+//                                tokens: Set[Int],
+//                                newTokens: Set[Int],
+//                                outgoingRelations: Array[Array[(Int, String)]],
+//                                incomingRelations: Array[Array[(Int, String)]],
+//                                remainingHops: Int,
+//                                sent: Int,
+//                                stateFromAvoid: State
+//                              ): Interval = {
+//    if (remainingHops == 0) {
+//      val allTokens = tokens ++ newTokens
+//      Interval(allTokens.min, allTokens.max + 1)
+//    } else {
+//      val newNewTokens = for{
+//        tok <- newTokens
+//        if outgoingRelations.nonEmpty && tok < outgoingRelations.length
+//        (nextTok, dep) <- outgoingRelations(tok)
+//        if isValidOutgoingDependency(dep)
+//        if stateFromAvoid.mentionsFor(sent, nextTok).isEmpty
+//        if hasValidIncomingDependencies(nextTok, incomingRelations)
+//      } yield nextTok
+//      traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, stateFromAvoid)
+//    }
+//  }
+//  private def traverseOutgoingLocal(m: Mention, numHops: Int, stateFromAvoid: State): Interval = {
+//    val outgoing = outgoingEdges(m.sentenceObj)
+//    val incoming = incomingEdges(m.sentenceObj)
+//    traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid)
+//  }
 
 
   // Todo: currently does not work for cross-sentence mentions, add functionality
