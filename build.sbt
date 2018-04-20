@@ -8,7 +8,7 @@ scalaVersion := "2.12.4"
 //EclipseKeys.withSource := true
 
 libraryDependencies ++= {
-  val procVer = "7.1.0"
+  val procVer = "7.2.2"
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
