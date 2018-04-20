@@ -49,7 +49,7 @@ class TestParallel extends Test {
     behavior of "parallel EidosSystem calling of annotate"
 
     it should "be consistent" in {
-      for (_ <- 1 to 5) {
+      for (_ <- 1 to 2) {
         val actuals: Array[String] = new Array(threads)
         // Make this like ExtractFromDirectory
         val indexes = 0.until(threads)
