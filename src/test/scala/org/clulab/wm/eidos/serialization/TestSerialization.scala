@@ -2,8 +2,7 @@ package org.clulab.wm.eidos.serialization
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 
-import org.clulab.odin.{TextBoundMention, EventMention, Mention, SynPath}
-import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.odin.{TextBoundMention, EventMention, SynPath}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
 
@@ -28,26 +27,13 @@ class TestSerialization extends Test {
 
   def serialize(any: Any, index: Int): Unit = {
     encoder.reset()
-    try {
-      encoder.writeObject(any)
-      println("Success while writing index " + index)
-    }
-    catch {
-      case exception: Exception => println("Threw exception while writing index " + index)
-          exception.printStackTrace()
-    }
+    encoder.writeObject(any)
 
     val bytes = streamOut.toByteArray
     val streamIn = new ByteArrayInputStream(bytes)
     val decoder = new ObjectInputStream(streamIn)
 
-    try {
-      val mentionsIn = decoder.readObject()
-      println("Success while reading index " + index)
-    }
-    catch {
-      case exception: Exception => println("Threw exception while reading index " + index)
-    }
+    decoder.readObject()
     decoder.close()
   }
   
@@ -59,53 +45,56 @@ class TestSerialization extends Test {
     val annotatedDocument = reader.extractFromText(text)
     val mentionsOut = annotatedDocument.odinMentions
 
-    mentionsOut.indices.foreach { index =>
-      val mentionOut = mentionsOut(index)
-     
-      if (mentionOut.isInstanceOf[EventMention]) {
-        println("Found an EventMention")
-        val eventMention = mentionOut.asInstanceOf[EventMention]
-        var index = 0
+    mentionsOut.foreach {
+        case eventMention: EventMention =>
+          var index = 0
 
-        serialize(eventMention.labels, index); index += 1
-        serialize(eventMention.tokenInterval, index); index += 1
-        serialize(eventMention.trigger, index); index += 1
-        serialize(eventMention.arguments, index); index += 1
-        eventMention.paths.foreach { case (key, value) =>
-          println("See if the values work")
-          serialize(value, index); index += 1
-        }
-        eventMention.paths.keys.foreach { key =>
-          println("See if the parts work")
-          val path = Map(key -> eventMention.paths(key))
-          
-          serialize(path, index); index += 1
-        }
-        println("See if a copy of path works")
-        val path = Map() ++ eventMention.paths
-        serialize(path, index); index += 1
+          serialize(eventMention.labels, index)
+          index += 1
+          serialize(eventMention.tokenInterval, index)
+          index += 1
+          serialize(eventMention.trigger, index)
+          index += 1
+          serialize(eventMention.arguments, index)
+          index += 1
+          eventMention.paths.foreach {
+            case (_, mentionToPath) =>
+              serialize(mentionToPath, index)
+              index += 1
+          }
+          eventMention.paths.keys.foreach { key =>
+            val path = Map(key -> eventMention.paths(key))
 
-        println("See if a copy of whole works")
-        val copy = eventMention.copy(paths = Map() ++ eventMention.paths)
-        serialize(copy, index); index += 1
-        
-        println("See if the whole works")
-        serialize(eventMention.paths, index); index += 1 // This doesn't work!
-        serialize(eventMention.sentence, index); index += 1
-        serialize(eventMention.document, index); index += 1
-        serialize(eventMention.keep, index); index += 1
-        serialize(eventMention.foundBy, index); index += 1
-        serialize(eventMention.attachments, index); index += 1
-        serialize(eventMention, index); index += 1
-      }
-      
-      if (mentionOut.isInstanceOf[TextBoundMention]) {
-        println("Found a TextBoundMention")
-        
-        var index = 0
-        
-        serialize(mentionOut, index); index += 1
-      }
+            serialize(path, index)
+            index += 1
+          }
+          val path = Map() ++ eventMention.paths
+          serialize(path, index)
+          index += 1
+
+          val copy = eventMention.copy(paths = Map() ++ eventMention.paths)
+          serialize(copy, index)
+          index += 1
+
+          serialize(eventMention.paths, index)
+          index += 1
+          serialize(eventMention.sentence, index)
+          index += 1
+          serialize(eventMention.document, index)
+          index += 1
+          serialize(eventMention.keep, index)
+          index += 1
+          serialize(eventMention.foundBy, index)
+          index += 1
+          serialize(eventMention.attachments, index)
+          index += 1
+          serialize(eventMention, index)
+          index += 1
+        case textBoundMention: TextBoundMention =>
+          var index = 0
+
+          serialize(textBoundMention, index)
+          index += 1
     }
   }
   
@@ -122,7 +111,9 @@ class TestSerialization extends Test {
     val rec2: RecursiveClass = new RecursiveClass(Seq((1, 2, "simple")), Map("indirection" -> Map(rec1 -> Seq((1, 2, "simple")), rec1 -> Seq((1, 2, "simple")))))
     val rec3: RecursiveClass = new RecursiveClass(Seq((1, 2, "simple")), Map("doubleindirection" -> Map(rec1 ->Seq((1, 2, "simple")), rec2 -> Seq((1, 2, "simple")))))
     serialize(rec1, index); index += 1
-    
+    serialize(rec2, index); index += 1
+    serialize(rec3, index); index += 1
+
     serialize(Seq(just, norm1, rec1, rec1), index); index += 1
   }
 
