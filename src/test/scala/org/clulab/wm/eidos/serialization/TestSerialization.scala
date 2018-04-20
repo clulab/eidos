@@ -45,25 +45,6 @@ class TestSerialization extends Test {
           index += 1
           serialize(eventMention.arguments, index)
           index += 1
-          eventMention.paths.foreach {
-            case (_, mentionToPath) =>
-              serialize(mentionToPath, index)
-              index += 1
-          }
-          eventMention.paths.keys.foreach { key =>
-            val path = Map(key -> eventMention.paths(key))
-
-            serialize(path, index)
-            index += 1
-          }
-          val path = Map() ++ eventMention.paths
-          serialize(path, index)
-          index += 1
-
-          val copy = eventMention.copy(paths = Map() ++ eventMention.paths)
-          serialize(copy, index)
-          index += 1
-
           serialize(eventMention.paths, index)
           index += 1
           serialize(eventMention.sentence, index)
