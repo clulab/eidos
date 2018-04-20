@@ -107,7 +107,7 @@ than in the corresponding period two years earlier.
     val odinMentions3 = TestUtils.extractMentions(text3)
     val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, this)
 
-    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
+//    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
