@@ -32,6 +32,14 @@ rules:
       # avoid xrefs
       [tag=NNP] "et" "al." @Avoid
 
+  - name: "unicode-icons"
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+      # avoid xrefs
+      [tag=/NN|CD/ & word=/^\u27a4/] | [word=/^\u2022/]
+
 
   # OURS HERE:
   - name: "triggers"

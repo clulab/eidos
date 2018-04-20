@@ -99,6 +99,15 @@ rules:
       trigger = [mention=Quantifier]+ #Find the quantifier
       theme: Entity = </${ complements }/? >${ agents } #Find the entity the quantifier is modifying
 
+  - name: quantification4
+    priority: ${ rulepriority }
+    example: "food shortage to record levels"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier]+ #Find the quantifier
+      theme: Entity = <compound nmod_to #${ noun_modifiers })  #Find the entity the quantifier is modifying
+
   - name: quantification_adjective_rule_5
     priority:  ${ rulepriority }
     example: "Supporting local food production will remain critical"

@@ -1,0 +1,2706 @@
+- events:
+  - Agriculture orientation index:
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Agriculture orientation index Gross Fixed Capital Formation (Agriculture,\
+        \ Forestry and Fishing)"
+    - DFA Commitment to Agriculture, Forestry and Fishing:
+      - "Agriculture orientation index DFA Commitment to Agriculture, Forestry and\
+        \ Fishing"
+  - Agriculture orientation index US$, 2005 prices:
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Agriculture orientation index US$, 2005 prices Gross Fixed Capital Formation\
+        \ (Agriculture, Forestry and Fishing)"
+  - Amount excreted in manure (N content):
+    - Chickens, broilers:
+      - "amount excreted in manure (n content) broiler chickens"
+    - Cattle:
+      - "Amount excreted in manure (N content) Cattle"
+    - Goats:
+      - "Amount excreted in manure (N content) Goats"
+    - Poultry Birds:
+      - "Amount excreted in manure (N content) Poultry Birds"
+    - Sheep:
+      - "Amount excreted in manure (N content) Sheep"
+    - Chickens, layers:
+      - "amount excreted in manure (n content) layer chickens"
+    - Mules and Asses:
+      - "Amount excreted in manure (N content) Mules and Asses"
+    - All Animals:
+      - "Amount excreted in manure (N content) All Animals"
+    - Asses:
+      - "Amount excreted in manure (N content) Asses"
+    - Cattle, dairy:
+      - "amount excreted in manure (n content) dairy cattle"
+    - Chickens:
+      - "Amount excreted in manure (N content) Chickens"
+    - Cattle, non-dairy:
+      - "amount excreted in manure (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Amount excreted in manure (N content) Sheep and Goats"
+  - Annual growth Local Currency:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Annual growth Local Currency Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Domestic Product:
+      - "Annual growth Local Currency Gross Domestic Product"
+    - Value Added (Agriculture):
+      - "Annual growth Local Currency Value Added (Agriculture)"
+    - Gross Output (Agriculture, Forestry and Fishing):
+      - "Annual growth Local Currency Gross Output (Agriculture, Forestry and Fishing)"
+    - Gross Fixed Capital Formation:
+      - "Annual growth Local Currency Gross Fixed Capital Formation"
+    - Gross Output (Agriculture):
+      - "Annual growth Local Currency Gross Output (Agriculture)"
+    - Value Added (Total Manufacturing):
+      - "Annual growth Local Currency Value Added (Total Manufacturing)"
+  - Annual growth US$:
+    - Gross National Income:
+      - "Annual growth US$ Gross National Income"
+    - DFA Commitment to Agriculture, Forestry and Fishing:
+      - "Annual growth US$ DFA Commitment to Agriculture, Forestry and Fishing"
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Annual growth US$ Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Domestic Product:
+      - "Annual growth US$ Gross Domestic Product"
+    - Value Added (Agriculture):
+      - "Annual growth US$ Value Added (Agriculture)"
+    - Gross Output (Agriculture, Forestry and Fishing):
+      - "Annual growth US$ Gross Output (Agriculture, Forestry and Fishing)"
+    - Gross Fixed Capital Formation:
+      - "Annual growth US$ Gross Fixed Capital Formation"
+    - Gross Domestic Product per capita:
+      - "Annual growth US$ Gross Domestic Product per capita"
+    - Agriculture, forestry, fishing (Central Government):
+      - "Annual growth US$ Agriculture, forestry, fishing (Central Government)"
+    - Gross Output (Agriculture):
+      - "Annual growth US$ Gross Output (Agriculture)"
+    - Value Added (Total Manufacturing):
+      - "Annual growth US$ Value Added (Total Manufacturing)"
+  - Annual growth US$, 2005 prices:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Annual growth US$, 2005 prices Value Added (Agriculture, Forestry and Fishing)"
+  - Annual growth, Local Currency, 2010 prices:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Annual growth, Local Currency, 2010 prices Value Added (Agriculture, Forestry\
+        \ and Fishing)"
+    - Gross Domestic Product:
+      - "Annual growth, Local Currency, 2010 prices Gross Domestic Product"
+    - Value Added (Total Manufacturing):
+      - "Annual growth, Local Currency, 2010 prices Value Added (Total Manufacturing)"
+    - Gross Fixed Capital Formation:
+      - "Annual growth, Local Currency, 2010 prices Gross Fixed Capital Formation"
+  - Annual growth, US$, 2010 prices:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Annual growth, US$, 2010 prices Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Domestic Product:
+      - "Annual growth, US$, 2010 prices Gross Domestic Product"
+    - Gross Fixed Capital Formation:
+      - "Annual growth, US$, 2010 prices Gross Fixed Capital Formation"
+    - Gross Domestic Product per capita:
+      - "Annual growth, US$, 2010 prices Gross Domestic Product per capita"
+    - Value Added (Total Manufacturing):
+      - "Annual growth, US$, 2010 prices Value Added (Total Manufacturing)"
+  - Area:
+    - Planted forest:
+      - "Area Planted forest"
+    - Cropland and grassland organic soils:
+      - "Area Cropland and grassland organic soils"
+    - Total area equipped for irrigation:
+      - "Area Total area equipped for irrigation"
+    - Arable land and Permanent crops:
+      - "Area Arable land and Permanent crops"
+    - Agricultural area organic, total:
+      - "Area Agricultural area organic, total"
+    - Other naturally regenerated forest:
+      - "Area Other naturally regenerated forest"
+    - Primary forest:
+      - "Area Primary forest"
+    - Grassland organic soils:
+      - "Area Grassland organic soils"
+    - Agricultural area certified organic:
+      - "Area Agricultural area certified organic"
+    - Permanent meadows and pastures:
+      - "Area Permanent meadows and pastures"
+    - Agricultural area:
+      - "Area Agricultural area"
+    - Cropland organic soils:
+      - "Area Cropland organic soils"
+    - Agricultural area in conversion to organic:
+      - "Area Agricultural area in conversion to organic"
+    - Forest:
+      - "Area Forest"
+  - Area harvested:
+    - Vegetables Primary:
+      - "Area harvested Vegetables Primary"
+    - Mangoes, mangosteens, guavas:
+      - "Area harvested Mangoes, mangosteens, guavas"
+    - Pineapples:
+      - "Area harvested Pineapples"
+    - Rice, paddy:
+      - "area harvested paddy rice"
+    - Pulses, nes:
+      - "area harvested ne pulses"
+    - Cabbages and other brassicas:
+      - "Area harvested Cabbages and other brassicas"
+    - Tangerines, mandarins, clementines, satsumas:
+      - "Area harvested Tangerines, mandarins, clementines, satsumas"
+    - Okra:
+      - "Area harvested Okra"
+    - Cereals,Total:
+      - "Area harvested Cereals,Total"
+    - Fruit, fresh nes:
+      - "Area harvested Fruit, fresh nes"
+    - Sugar cane:
+      - "Area harvested Sugar cane"
+    - Citrus Fruit,Total:
+      - "area harvested total citrus fruit"
+    - Tomatoes:
+      - "Area harvested Tomatoes"
+    - Maize:
+      - "Area harvested Maize"
+    - Carrots and turnips:
+      - "Area harvested Carrots and turnips"
+    - Cauliflowers and broccoli:
+      - "Area harvested Cauliflowers and broccoli"
+    - Onions, dry:
+      - "area harvested dry onions"
+    - Watermelons:
+      - "Area harvested Watermelons"
+    - Broad beans, horse beans, dry:
+      - "Area harvested Broad beans, horse beans, dry"
+    - Bananas:
+      - "Area harvested Bananas"
+    - Coarse Grain, Total:
+      - "Area harvested Coarse Grain, Total"
+    - Melonseed:
+      - "Area harvested Melonseed"
+    - Sesame seed:
+      - "Area harvested Sesame seed"
+    - Melons, other (inc.cantaloupes):
+      - "Area harvested Melons, other (inc.cantaloupes)"
+    - Beans, green:
+      - "area harvested green beans"
+    - Potatoes:
+      - "Area harvested Potatoes"
+    - Pumpkins, squash and gourds:
+      - "Area harvested Pumpkins, squash and gourds"
+    - Castor oil seed:
+      - "Area harvested Castor oil seed"
+    - Cow peas, dry:
+      - "Area harvested Cow peas, dry"
+    - Lemons and limes:
+      - "Area harvested Lemons and limes"
+    - Peas, green:
+      - "area harvested green peas"
+    - Seed cotton:
+      - "Area harvested Seed cotton"
+    - Sweet potatoes:
+      - "Area harvested Sweet potatoes"
+    - Cereals (Rice Milled Eqv):
+      - "Area harvested Cereals (Rice Milled Eqv)"
+    - Chick peas:
+      - "Area harvested Chick peas"
+    - Roots and Tubers,Total:
+      - "Area harvested Roots and Tubers,Total"
+    - Sunflower seed:
+      - "Area harvested Sunflower seed"
+    - Dates:
+      - "Area harvested Dates"
+    - Millet:
+      - "Area harvested Millet"
+    - Chillies and peppers, dry:
+      - "Area harvested Chillies and peppers, dry"
+    - Cucumbers and gherkins:
+      - "Area harvested Cucumbers and gherkins"
+    - Fruit, tropical fresh nes:
+      - "Area harvested Fruit, tropical fresh nes"
+    - Groundnuts, with shell:
+      - "Area harvested Groundnuts, with shell"
+    - Grapefruit (inc. pomelos):
+      - "Area harvested Grapefruit (inc. pomelos)"
+    - Eggplants (aubergines):
+      - "Area harvested Eggplants (aubergines)"
+    - Yams:
+      - "Area harvested Yams"
+    - Wheat:
+      - "Area harvested Wheat"
+    - Beans, dry:
+      - "area harvested dry beans"
+    - Cassava:
+      - "Area harvested Cassava"
+    - Sorghum:
+      - "Area harvested Sorghum"
+    - Pulses,Total:
+      - "Area harvested Pulses,Total"
+    - Chillies and peppers, green:
+      - "Area harvested Chillies and peppers, green"
+    - Garlic:
+      - "Area harvested Garlic"
+    - Oranges:
+      - "Area harvested Oranges"
+    - Vegetables, fresh nes:
+      - "Area harvested Vegetables, fresh nes"
+  - Biomass burned (dry matter):
+    - Savanna:
+      - "Biomass burned (dry matter) Savanna"
+    - Burning - all categories:
+      - "Biomass burned (dry matter) Burning - all categories"
+    - Woody savanna:
+      - "Biomass burned (dry matter) Woody savanna"
+    - Grassland:
+      - "Biomass burned (dry matter) Grassland"
+    - Open shrubland:
+      - "Biomass burned (dry matter) Open shrubland"
+    - Savanna and woody savanna:
+      - "Biomass burned (dry matter) Savanna and woody savanna"
+    - Closed and open shrubland:
+      - "Biomass burned (dry matter) Closed and open shrubland"
+    - Closed shrubland:
+      - "Biomass burned (dry matter) Closed shrubland"
+    - Maize:
+      - "Biomass burned (dry matter) Maize"
+    - All Crops:
+      - "Biomass burned (dry matter) All Crops"
+  - Burned Area:
+    - Savanna:
+      - "Burned Area Savanna"
+    - Burning - all categories:
+      - "Burned Area Burning - all categories"
+    - Woody savanna:
+      - "Burned Area Woody savanna"
+    - Grassland:
+      - "Burned Area Grassland"
+    - Open shrubland:
+      - "Burned Area Open shrubland"
+    - Savanna and woody savanna:
+      - "Burned Area Savanna and woody savanna"
+    - Closed and open shrubland:
+      - "Burned Area Closed and open shrubland"
+    - Closed shrubland:
+      - "Burned Area Closed shrubland"
+  - Carbon stock in living biomass:
+    - Forest:
+      - "Carbon stock in living biomass Forest"
+  - Density of livestock in the agricultural area:
+    - Cattle and Buffaloes:
+      - "Density of livestock in the agricultural area Cattle and Buffaloes"
+    - Cattle:
+      - "Density of livestock in the agricultural area Cattle"
+    - Goats:
+      - "Density of livestock in the agricultural area Goats"
+    - Sheep:
+      - "Density of livestock in the agricultural area Sheep"
+    - Major livestock types:
+      - "Density of livestock in the agricultural area Major livestock types"
+    - Equidae:
+      - "Density of livestock in the agricultural area Equidae"
+    - Asses:
+      - "Density of livestock in the agricultural area Asses"
+    - Chickens:
+      - "Density of livestock in the agricultural area Chickens"
+    - Sheep and Goats:
+      - "Density of livestock in the agricultural area Sheep and Goats"
+  - Direct emissions (CO2eq) (Crop residues):
+    - Beans, dry:
+      - "direct emissions (co2eq) (crop residues) dry beans"
+    - Sorghum:
+      - "Direct emissions (CO2eq) (Crop residues) Sorghum"
+    - Millet:
+      - "Direct emissions (CO2eq) (Crop residues) Millet"
+    - Maize:
+      - "Direct emissions (CO2eq) (Crop residues) Maize"
+    - All Crops:
+      - "Direct emissions (CO2eq) (Crop residues) All Crops"
+  - Direct emissions (CO2eq) (Manure applied):
+    - Chickens, broilers:
+      - "direct emissions (co2eq) (manure applied) broiler chickens"
+    - Cattle:
+      - "Direct emissions (CO2eq) (Manure applied) Cattle"
+    - Goats:
+      - "Direct emissions (CO2eq) (Manure applied) Goats"
+    - Poultry Birds:
+      - "Direct emissions (CO2eq) (Manure applied) Poultry Birds"
+    - Sheep:
+      - "Direct emissions (CO2eq) (Manure applied) Sheep"
+    - Chickens, layers:
+      - "direct emissions (co2eq) (manure applied) layer chickens"
+    - Mules and Asses:
+      - "Direct emissions (CO2eq) (Manure applied) Mules and Asses"
+    - All Animals:
+      - "Direct emissions (CO2eq) (Manure applied) All Animals"
+    - Asses:
+      - "Direct emissions (CO2eq) (Manure applied) Asses"
+    - Cattle, dairy:
+      - "direct emissions (co2eq) (manure applied) dairy cattle"
+    - Chickens:
+      - "Direct emissions (CO2eq) (Manure applied) Chickens"
+    - Cattle, non-dairy:
+      - "direct emissions (co2eq) (manure applied) non-dairy cattle"
+    - Sheep and Goats:
+      - "Direct emissions (CO2eq) (Manure applied) Sheep and Goats"
+  - Direct emissions (CO2eq) (Manure management):
+    - Chickens, broilers:
+      - "direct emissions (co2eq) (manure management) broiler chickens"
+    - Cattle:
+      - "Direct emissions (CO2eq) (Manure management) Cattle"
+    - Goats:
+      - "Direct emissions (CO2eq) (Manure management) Goats"
+    - Poultry Birds:
+      - "Direct emissions (CO2eq) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Direct emissions (CO2eq) (Manure management) Sheep"
+    - Chickens, layers:
+      - "direct emissions (co2eq) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Direct emissions (CO2eq) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Direct emissions (CO2eq) (Manure management) All Animals"
+    - Asses:
+      - "Direct emissions (CO2eq) (Manure management) Asses"
+    - Cattle, dairy:
+      - "direct emissions (co2eq) (manure management) dairy cattle"
+    - Chickens:
+      - "Direct emissions (CO2eq) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "direct emissions (co2eq) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Direct emissions (CO2eq) (Manure management) Sheep and Goats"
+  - Direct emissions (CO2eq) (Manure on pasture):
+    - Chickens, broilers:
+      - "direct emissions (co2eq) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Direct emissions (CO2eq) (Manure on pasture) Cattle"
+    - Goats:
+      - "Direct emissions (CO2eq) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Direct emissions (CO2eq) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Direct emissions (CO2eq) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "direct emissions (co2eq) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Direct emissions (CO2eq) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Direct emissions (CO2eq) (Manure on pasture) All Animals"
+    - Asses:
+      - "Direct emissions (CO2eq) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "direct emissions (co2eq) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Direct emissions (CO2eq) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "direct emissions (co2eq) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Direct emissions (CO2eq) (Manure on pasture) Sheep and Goats"
+  - Direct emissions (N2O) (Crop residues):
+    - Beans, dry:
+      - "direct emissions (n2o) (crop residues) dry beans"
+    - Sorghum:
+      - "Direct emissions (N2O) (Crop residues) Sorghum"
+    - Millet:
+      - "Direct emissions (N2O) (Crop residues) Millet"
+    - Maize:
+      - "Direct emissions (N2O) (Crop residues) Maize"
+    - All Crops:
+      - "Direct emissions (N2O) (Crop residues) All Crops"
+  - Direct emissions (N2O) (Manure applied):
+    - Chickens, broilers:
+      - "direct emissions (n2o) (manure applied) broiler chickens"
+    - Cattle:
+      - "Direct emissions (N2O) (Manure applied) Cattle"
+    - Goats:
+      - "Direct emissions (N2O) (Manure applied) Goats"
+    - Poultry Birds:
+      - "Direct emissions (N2O) (Manure applied) Poultry Birds"
+    - Sheep:
+      - "Direct emissions (N2O) (Manure applied) Sheep"
+    - Chickens, layers:
+      - "direct emissions (n2o) (manure applied) layer chickens"
+    - Mules and Asses:
+      - "Direct emissions (N2O) (Manure applied) Mules and Asses"
+    - All Animals:
+      - "Direct emissions (N2O) (Manure applied) All Animals"
+    - Asses:
+      - "Direct emissions (N2O) (Manure applied) Asses"
+    - Cattle, dairy:
+      - "direct emissions (n2o) (manure applied) dairy cattle"
+    - Chickens:
+      - "Direct emissions (N2O) (Manure applied) Chickens"
+    - Cattle, non-dairy:
+      - "direct emissions (n2o) (manure applied) non-dairy cattle"
+    - Sheep and Goats:
+      - "Direct emissions (N2O) (Manure applied) Sheep and Goats"
+  - Direct emissions (N2O) (Manure management):
+    - Chickens, broilers:
+      - "direct emissions (n2o) (manure management) broiler chickens"
+    - Cattle:
+      - "Direct emissions (N2O) (Manure management) Cattle"
+    - Goats:
+      - "Direct emissions (N2O) (Manure management) Goats"
+    - Poultry Birds:
+      - "Direct emissions (N2O) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Direct emissions (N2O) (Manure management) Sheep"
+    - Chickens, layers:
+      - "direct emissions (n2o) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Direct emissions (N2O) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Direct emissions (N2O) (Manure management) All Animals"
+    - Asses:
+      - "Direct emissions (N2O) (Manure management) Asses"
+    - Cattle, dairy:
+      - "direct emissions (n2o) (manure management) dairy cattle"
+    - Chickens:
+      - "Direct emissions (N2O) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "direct emissions (n2o) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Direct emissions (N2O) (Manure management) Sheep and Goats"
+  - Direct emissions (N2O) (Manure on pasture):
+    - Chickens, broilers:
+      - "direct emissions (n2o) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Direct emissions (N2O) (Manure on pasture) Cattle"
+    - Goats:
+      - "Direct emissions (N2O) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Direct emissions (N2O) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Direct emissions (N2O) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "direct emissions (n2o) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Direct emissions (N2O) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Direct emissions (N2O) (Manure on pasture) All Animals"
+    - Asses:
+      - "Direct emissions (N2O) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "direct emissions (n2o) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Direct emissions (N2O) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "direct emissions (n2o) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Direct emissions (N2O) (Manure on pasture) Sheep and Goats"
+  - Emissions (CH4) (Burning - savanna):
+    - Savanna:
+      - "Emissions (CH4) (Burning - savanna) Savanna"
+    - Burning - all categories:
+      - "Emissions (CH4) (Burning - savanna) Burning - all categories"
+    - Woody savanna:
+      - "Emissions (CH4) (Burning - savanna) Woody savanna"
+    - Grassland:
+      - "Emissions (CH4) (Burning - savanna) Grassland"
+    - Open shrubland:
+      - "Emissions (CH4) (Burning - savanna) Open shrubland"
+    - Savanna and woody savanna:
+      - "Emissions (CH4) (Burning - savanna) Savanna and woody savanna"
+    - Closed and open shrubland:
+      - "Emissions (CH4) (Burning - savanna) Closed and open shrubland"
+    - Closed shrubland:
+      - "Emissions (CH4) (Burning - savanna) Closed shrubland"
+  - Emissions (CH4) (Burning crop residues):
+    - Maize:
+      - "Emissions (CH4) (Burning crop residues) Maize"
+    - All Crops:
+      - "Emissions (CH4) (Burning crop residues) All Crops"
+  - Emissions (CH4) (Enteric):
+    - Cattle:
+      - "Emissions (CH4) (Enteric) Cattle"
+    - Goats:
+      - "Emissions (CH4) (Enteric) Goats"
+    - Sheep:
+      - "Emissions (CH4) (Enteric) Sheep"
+    - Mules and Asses:
+      - "Emissions (CH4) (Enteric) Mules and Asses"
+    - All Animals:
+      - "Emissions (CH4) (Enteric) All Animals"
+    - Asses:
+      - "Emissions (CH4) (Enteric) Asses"
+    - Cattle, dairy:
+      - "emissions (ch4) (enteric) dairy cattle"
+    - Cattle, non-dairy:
+      - "emissions (ch4) (enteric) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CH4) (Enteric) Sheep and Goats"
+  - Emissions (CH4) (Manure management):
+    - Chickens, broilers:
+      - "emissions (ch4) (manure management) broiler chickens"
+    - Cattle:
+      - "Emissions (CH4) (Manure management) Cattle"
+    - Goats:
+      - "Emissions (CH4) (Manure management) Goats"
+    - Poultry Birds:
+      - "Emissions (CH4) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Emissions (CH4) (Manure management) Sheep"
+    - Chickens, layers:
+      - "emissions (ch4) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Emissions (CH4) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Emissions (CH4) (Manure management) All Animals"
+    - Asses:
+      - "Emissions (CH4) (Manure management) Asses"
+    - Cattle, dairy:
+      - "emissions (ch4) (manure management) dairy cattle"
+    - Chickens:
+      - "Emissions (CH4) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (ch4) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CH4) (Manure management) Sheep and Goats"
+  - Emissions (CO2eq):
+    - Milk, whole fresh goat:
+      - "Emissions (CO2eq) Milk, whole fresh goat"
+    - Meat, chicken:
+      - "emissions (co2eq) chicken meat"
+    - Crop Residues:
+      - "Emissions (CO2eq) Crop Residues"
+    - Enteric Fermentation:
+      - "Emissions (CO2eq) Enteric Fermentation"
+    - Cultivation of Organic Soils:
+      - "Emissions (CO2eq) Cultivation of Organic Soils"
+    - Agriculture total:
+      - "Emissions (CO2eq) Agriculture total"
+    - Meat, sheep:
+      - "emissions (co2eq) sheep meat"
+    - Manure left on Pasture:
+      - "Emissions (CO2eq) Manure left on Pasture"
+    - Manure Management:
+      - "Emissions (CO2eq) Manure Management"
+    - Manure applied to Soils:
+      - "Emissions (CO2eq) Manure applied to Soils"
+    - Burning - Crop residues:
+      - "Emissions (CO2eq) Burning - Crop residues"
+    - Agricultural Soils:
+      - "Emissions (CO2eq) Agricultural Soils"
+    - Meat, cattle:
+      - "emissions (co2eq) cattle meat"
+    - Cereals excluding rice:
+      - "Emissions (CO2eq) Cereals excluding rice"
+    - Burning - Savanna:
+      - "Emissions (CO2eq) Burning - Savanna"
+    - Milk, whole fresh sheep:
+      - "Emissions (CO2eq) Milk, whole fresh sheep"
+    - Milk, whole fresh cow:
+      - "Emissions (CO2eq) Milk, whole fresh cow"
+    - Meat, goat:
+      - "emissions (co2eq) goat meat"
+  - Emissions (CO2eq) (Burning - savanna):
+    - Savanna:
+      - "Emissions (CO2eq) (Burning - savanna) Savanna"
+    - Burning - all categories:
+      - "Emissions (CO2eq) (Burning - savanna) Burning - all categories"
+    - Woody savanna:
+      - "Emissions (CO2eq) (Burning - savanna) Woody savanna"
+    - Grassland:
+      - "Emissions (CO2eq) (Burning - savanna) Grassland"
+    - Open shrubland:
+      - "Emissions (CO2eq) (Burning - savanna) Open shrubland"
+    - Savanna and woody savanna:
+      - "Emissions (CO2eq) (Burning - savanna) Savanna and woody savanna"
+    - Closed and open shrubland:
+      - "Emissions (CO2eq) (Burning - savanna) Closed and open shrubland"
+    - Closed shrubland:
+      - "Emissions (CO2eq) (Burning - savanna) Closed shrubland"
+  - Emissions (CO2eq) (Burning crop residues):
+    - Maize:
+      - "Emissions (CO2eq) (Burning crop residues) Maize"
+    - All Crops:
+      - "Emissions (CO2eq) (Burning crop residues) All Crops"
+  - Emissions (CO2eq) (Crop residues):
+    - Beans, dry:
+      - "emissions (co2eq) (crop residues) dry beans"
+    - Sorghum:
+      - "Emissions (CO2eq) (Crop residues) Sorghum"
+    - Millet:
+      - "Emissions (CO2eq) (Crop residues) Millet"
+    - Maize:
+      - "Emissions (CO2eq) (Crop residues) Maize"
+    - All Crops:
+      - "Emissions (CO2eq) (Crop residues) All Crops"
+  - Emissions (CO2eq) (Cultivation of organic soils):
+    - Grassland organic soils:
+      - "Emissions (CO2eq) (Cultivation of organic soils) Grassland organic soils"
+    - Cropland and grassland organic soils:
+      - "Emissions (CO2eq) (Cultivation of organic soils) Cropland and grassland organic\
+        \ soils"
+    - Cropland organic soils:
+      - "Emissions (CO2eq) (Cultivation of organic soils) Cropland organic soils"
+  - Emissions (CO2eq) (Enteric):
+    - Cattle:
+      - "Emissions (CO2eq) (Enteric) Cattle"
+    - Goats:
+      - "Emissions (CO2eq) (Enteric) Goats"
+    - Sheep:
+      - "Emissions (CO2eq) (Enteric) Sheep"
+    - Mules and Asses:
+      - "Emissions (CO2eq) (Enteric) Mules and Asses"
+    - All Animals:
+      - "Emissions (CO2eq) (Enteric) All Animals"
+    - Asses:
+      - "Emissions (CO2eq) (Enteric) Asses"
+    - Cattle, dairy:
+      - "emissions (co2eq) (enteric) dairy cattle"
+    - Cattle, non-dairy:
+      - "emissions (co2eq) (enteric) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CO2eq) (Enteric) Sheep and Goats"
+  - Emissions (CO2eq) (Manure applied):
+    - Chickens, broilers:
+      - "emissions (co2eq) (manure applied) broiler chickens"
+    - Cattle:
+      - "Emissions (CO2eq) (Manure applied) Cattle"
+    - Goats:
+      - "Emissions (CO2eq) (Manure applied) Goats"
+    - Poultry Birds:
+      - "Emissions (CO2eq) (Manure applied) Poultry Birds"
+    - Sheep:
+      - "Emissions (CO2eq) (Manure applied) Sheep"
+    - Chickens, layers:
+      - "emissions (co2eq) (manure applied) layer chickens"
+    - Mules and Asses:
+      - "Emissions (CO2eq) (Manure applied) Mules and Asses"
+    - All Animals:
+      - "Emissions (CO2eq) (Manure applied) All Animals"
+    - Asses:
+      - "Emissions (CO2eq) (Manure applied) Asses"
+    - Cattle, dairy:
+      - "emissions (co2eq) (manure applied) dairy cattle"
+    - Chickens:
+      - "Emissions (CO2eq) (Manure applied) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (co2eq) (manure applied) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CO2eq) (Manure applied) Sheep and Goats"
+  - Emissions (CO2eq) (Manure management):
+    - Chickens, broilers:
+      - "emissions (co2eq) (manure management) broiler chickens"
+    - Cattle:
+      - "Emissions (CO2eq) (Manure management) Cattle"
+    - Goats:
+      - "Emissions (CO2eq) (Manure management) Goats"
+    - Poultry Birds:
+      - "Emissions (CO2eq) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Emissions (CO2eq) (Manure management) Sheep"
+    - Chickens, layers:
+      - "emissions (co2eq) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Emissions (CO2eq) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Emissions (CO2eq) (Manure management) All Animals"
+    - Asses:
+      - "Emissions (CO2eq) (Manure management) Asses"
+    - Cattle, dairy:
+      - "emissions (co2eq) (manure management) dairy cattle"
+    - Chickens:
+      - "Emissions (CO2eq) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (co2eq) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CO2eq) (Manure management) Sheep and Goats"
+  - Emissions (CO2eq) (Manure on pasture):
+    - Chickens, broilers:
+      - "emissions (co2eq) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Emissions (CO2eq) (Manure on pasture) Cattle"
+    - Goats:
+      - "Emissions (CO2eq) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Emissions (CO2eq) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Emissions (CO2eq) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "emissions (co2eq) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Emissions (CO2eq) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Emissions (CO2eq) (Manure on pasture) All Animals"
+    - Asses:
+      - "Emissions (CO2eq) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "emissions (co2eq) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Emissions (CO2eq) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (co2eq) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CO2eq) (Manure on pasture) Sheep and Goats"
+  - Emissions (CO2eq) from CH4:
+    - Enteric Fermentation:
+      - "Emissions (CO2eq) from CH4 Enteric Fermentation"
+    - Agriculture total:
+      - "Emissions (CO2eq) from CH4 Agriculture total"
+    - Manure Management:
+      - "Emissions (CO2eq) from CH4 Manure Management"
+    - Burning - Crop residues:
+      - "Emissions (CO2eq) from CH4 Burning - Crop residues"
+    - Burning - Savanna:
+      - "Emissions (CO2eq) from CH4 Burning - Savanna"
+  - Emissions (CO2eq) from CH4 (Burning - savanna):
+    - Savanna:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Savanna"
+    - Burning - all categories:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Burning - all categories"
+    - Woody savanna:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Woody savanna"
+    - Grassland:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Grassland"
+    - Open shrubland:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Open shrubland"
+    - Savanna and woody savanna:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Savanna and woody savanna"
+    - Closed and open shrubland:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Closed and open shrubland"
+    - Closed shrubland:
+      - "Emissions (CO2eq) from CH4 (Burning - savanna) Closed shrubland"
+  - Emissions (CO2eq) from CH4 (Burning crop residues):
+    - Maize:
+      - "Emissions (CO2eq) from CH4 (Burning crop residues) Maize"
+    - All Crops:
+      - "Emissions (CO2eq) from CH4 (Burning crop residues) All Crops"
+  - Emissions (CO2eq) from CH4 (Manure management):
+    - Chickens, broilers:
+      - "emissions (co2eq) from ch4 (manure management) broiler chickens"
+    - Cattle:
+      - "Emissions (CO2eq) from CH4 (Manure management) Cattle"
+    - Goats:
+      - "Emissions (CO2eq) from CH4 (Manure management) Goats"
+    - Poultry Birds:
+      - "Emissions (CO2eq) from CH4 (Manure management) Poultry Birds"
+    - Sheep:
+      - "Emissions (CO2eq) from CH4 (Manure management) Sheep"
+    - Chickens, layers:
+      - "emissions (co2eq) from ch4 (manure management) layer chickens"
+    - Mules and Asses:
+      - "Emissions (CO2eq) from CH4 (Manure management) Mules and Asses"
+    - All Animals:
+      - "Emissions (CO2eq) from CH4 (Manure management) All Animals"
+    - Asses:
+      - "Emissions (CO2eq) from CH4 (Manure management) Asses"
+    - Cattle, dairy:
+      - "emissions (co2eq) from ch4 (manure management) dairy cattle"
+    - Chickens:
+      - "Emissions (CO2eq) from CH4 (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (co2eq) from ch4 (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CO2eq) from CH4 (Manure management) Sheep and Goats"
+  - Emissions (CO2eq) from N2O:
+    - Crop Residues:
+      - "Emissions (CO2eq) from N2O Crop Residues"
+    - Cultivation of Organic Soils:
+      - "Emissions (CO2eq) from N2O Cultivation of Organic Soils"
+    - Agriculture total:
+      - "Emissions (CO2eq) from N2O Agriculture total"
+    - Manure left on Pasture:
+      - "Emissions (CO2eq) from N2O Manure left on Pasture"
+    - Manure Management:
+      - "Emissions (CO2eq) from N2O Manure Management"
+    - Manure applied to Soils:
+      - "Emissions (CO2eq) from N2O Manure applied to Soils"
+    - Burning - Crop residues:
+      - "Emissions (CO2eq) from N2O Burning - Crop residues"
+    - Agricultural Soils:
+      - "Emissions (CO2eq) from N2O Agricultural Soils"
+    - Burning - Savanna:
+      - "Emissions (CO2eq) from N2O Burning - Savanna"
+  - Emissions (CO2eq) from N2O (Burning - savanna):
+    - Savanna:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Savanna"
+    - Burning - all categories:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Burning - all categories"
+    - Woody savanna:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Woody savanna"
+    - Grassland:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Grassland"
+    - Open shrubland:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Open shrubland"
+    - Savanna and woody savanna:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Savanna and woody savanna"
+    - Closed and open shrubland:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Closed and open shrubland"
+    - Closed shrubland:
+      - "Emissions (CO2eq) from N2O (Burning - savanna) Closed shrubland"
+  - Emissions (CO2eq) from N2O (Burning crop residues):
+    - Maize:
+      - "Emissions (CO2eq) from N2O (Burning crop residues) Maize"
+    - All Crops:
+      - "Emissions (CO2eq) from N2O (Burning crop residues) All Crops"
+  - Emissions (CO2eq) from N2O (Manure management):
+    - Chickens, broilers:
+      - "emissions (co2eq) from n2o (manure management) broiler chickens"
+    - Cattle:
+      - "Emissions (CO2eq) from N2O (Manure management) Cattle"
+    - Goats:
+      - "Emissions (CO2eq) from N2O (Manure management) Goats"
+    - Poultry Birds:
+      - "Emissions (CO2eq) from N2O (Manure management) Poultry Birds"
+    - Sheep:
+      - "Emissions (CO2eq) from N2O (Manure management) Sheep"
+    - Chickens, layers:
+      - "emissions (co2eq) from n2o (manure management) layer chickens"
+    - Mules and Asses:
+      - "Emissions (CO2eq) from N2O (Manure management) Mules and Asses"
+    - All Animals:
+      - "Emissions (CO2eq) from N2O (Manure management) All Animals"
+    - Asses:
+      - "Emissions (CO2eq) from N2O (Manure management) Asses"
+    - Cattle, dairy:
+      - "emissions (co2eq) from n2o (manure management) dairy cattle"
+    - Chickens:
+      - "Emissions (CO2eq) from N2O (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (co2eq) from n2o (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (CO2eq) from N2O (Manure management) Sheep and Goats"
+  - Emissions (N2O) (Burning - savanna):
+    - Savanna:
+      - "Emissions (N2O) (Burning - savanna) Savanna"
+    - Burning - all categories:
+      - "Emissions (N2O) (Burning - savanna) Burning - all categories"
+    - Woody savanna:
+      - "Emissions (N2O) (Burning - savanna) Woody savanna"
+    - Grassland:
+      - "Emissions (N2O) (Burning - savanna) Grassland"
+    - Open shrubland:
+      - "Emissions (N2O) (Burning - savanna) Open shrubland"
+    - Savanna and woody savanna:
+      - "Emissions (N2O) (Burning - savanna) Savanna and woody savanna"
+    - Closed and open shrubland:
+      - "Emissions (N2O) (Burning - savanna) Closed and open shrubland"
+    - Closed shrubland:
+      - "Emissions (N2O) (Burning - savanna) Closed shrubland"
+  - Emissions (N2O) (Burning crop residues):
+    - Maize:
+      - "Emissions (N2O) (Burning crop residues) Maize"
+    - All Crops:
+      - "Emissions (N2O) (Burning crop residues) All Crops"
+  - Emissions (N2O) (Crop residues):
+    - Beans, dry:
+      - "emissions (n2o) (crop residues) dry beans"
+    - Sorghum:
+      - "Emissions (N2O) (Crop residues) Sorghum"
+    - Millet:
+      - "Emissions (N2O) (Crop residues) Millet"
+    - Maize:
+      - "Emissions (N2O) (Crop residues) Maize"
+    - All Crops:
+      - "Emissions (N2O) (Crop residues) All Crops"
+  - Emissions (N2O) (Cultivation of organic soils):
+    - Grassland organic soils:
+      - "Emissions (N2O) (Cultivation of organic soils) Grassland organic soils"
+    - Cropland and grassland organic soils:
+      - "Emissions (N2O) (Cultivation of organic soils) Cropland and grassland organic\
+        \ soils"
+    - Cropland organic soils:
+      - "Emissions (N2O) (Cultivation of organic soils) Cropland organic soils"
+  - Emissions (N2O) (Manure applied):
+    - Chickens, broilers:
+      - "emissions (n2o) (manure applied) broiler chickens"
+    - Cattle:
+      - "Emissions (N2O) (Manure applied) Cattle"
+    - Goats:
+      - "Emissions (N2O) (Manure applied) Goats"
+    - Poultry Birds:
+      - "Emissions (N2O) (Manure applied) Poultry Birds"
+    - Sheep:
+      - "Emissions (N2O) (Manure applied) Sheep"
+    - Chickens, layers:
+      - "emissions (n2o) (manure applied) layer chickens"
+    - Mules and Asses:
+      - "Emissions (N2O) (Manure applied) Mules and Asses"
+    - All Animals:
+      - "Emissions (N2O) (Manure applied) All Animals"
+    - Asses:
+      - "Emissions (N2O) (Manure applied) Asses"
+    - Cattle, dairy:
+      - "emissions (n2o) (manure applied) dairy cattle"
+    - Chickens:
+      - "Emissions (N2O) (Manure applied) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (n2o) (manure applied) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (N2O) (Manure applied) Sheep and Goats"
+  - Emissions (N2O) (Manure management):
+    - Chickens, broilers:
+      - "emissions (n2o) (manure management) broiler chickens"
+    - Cattle:
+      - "Emissions (N2O) (Manure management) Cattle"
+    - Goats:
+      - "Emissions (N2O) (Manure management) Goats"
+    - Poultry Birds:
+      - "Emissions (N2O) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Emissions (N2O) (Manure management) Sheep"
+    - Chickens, layers:
+      - "emissions (n2o) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Emissions (N2O) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Emissions (N2O) (Manure management) All Animals"
+    - Asses:
+      - "Emissions (N2O) (Manure management) Asses"
+    - Cattle, dairy:
+      - "emissions (n2o) (manure management) dairy cattle"
+    - Chickens:
+      - "Emissions (N2O) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (n2o) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (N2O) (Manure management) Sheep and Goats"
+  - Emissions (N2O) (Manure on pasture):
+    - Chickens, broilers:
+      - "emissions (n2o) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Emissions (N2O) (Manure on pasture) Cattle"
+    - Goats:
+      - "Emissions (N2O) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Emissions (N2O) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Emissions (N2O) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "emissions (n2o) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Emissions (N2O) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Emissions (N2O) (Manure on pasture) All Animals"
+    - Asses:
+      - "Emissions (N2O) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "emissions (n2o) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Emissions (N2O) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "emissions (n2o) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Emissions (N2O) (Manure on pasture) Sheep and Goats"
+  - Emissions intensity:
+    - Milk, whole fresh goat:
+      - "Emissions intensity Milk, whole fresh goat"
+    - Meat, chicken:
+      - "emissions intensity chicken meat"
+    - Meat, cattle:
+      - "emissions intensity cattle meat"
+    - Milk, whole fresh sheep:
+      - "Emissions intensity Milk, whole fresh sheep"
+    - Meat, sheep:
+      - "emissions intensity sheep meat"
+    - Cereals excluding rice:
+      - "Emissions intensity Cereals excluding rice"
+    - Milk, whole fresh cow:
+      - "Emissions intensity Milk, whole fresh cow"
+    - Meat, goat:
+      - "emissions intensity goat meat"
+  - Export Quantity:
+    - Industrial roundwood:
+      - "Export Quantity Industrial roundwood"
+    - Industrial roundwood, non-coniferous tropical (export/import):
+      - "Export Quantity Industrial roundwood, non-coniferous tropical (export/import)"
+    - Industrial roundwood, non-coniferous:
+      - "Export Quantity Industrial roundwood, non-coniferous"
+    - Sawnwood:
+      - "Export Quantity Sawnwood"
+    - Roundwood:
+      - "Export Quantity Roundwood"
+    - Sawnwood, non-coniferous all:
+      - "Export Quantity Sawnwood, non-coniferous all"
+  - Export Value:
+    - Industrial roundwood:
+      - "Export Value Industrial roundwood"
+    - Industrial roundwood, non-coniferous tropical (export/import):
+      - "Export Value Industrial roundwood, non-coniferous tropical (export/import)"
+    - Industrial roundwood, non-coniferous:
+      - "Export Value Industrial roundwood, non-coniferous"
+    - Sawnwood:
+      - "Export Value Sawnwood"
+    - Roundwood:
+      - "Export Value Roundwood"
+    - Sawnwood, non-coniferous all:
+      - "Export Value Sawnwood, non-coniferous all"
+    - Forest products (export/import):
+      - "Export Value Forest products (export/import)"
+  - Food aid shipments:
+    - Edible Fat Total:
+      - "Food aid shipments Edible Fat Total"
+    - Other Non-Cereals:
+      - "Food aid shipments Other Non-Cereals"
+    - Milk,Total:
+      - "Food aid shipments Milk,Total"
+    - Cereals:
+      - "Food aid shipments Cereals"
+    - Non-Cereals:
+      - "Food aid shipments Non-Cereals"
+    - Coarse Grains:
+      - "Food aid shipments Coarse Grains"
+    - Blended And Mix:
+      - "Food aid shipments Blended And Mix"
+    - Rice Total:
+      - "Food aid shipments Rice Total"
+    - Vegetable Oils:
+      - "Food aid shipments Vegetable Oils"
+    - Sugar Total:
+      - "Food aid shipments Sugar Total"
+    - Pulses,Total:
+      - "Food aid shipments Pulses,Total"
+  - Gross Production Value (constant 2004-2006 1000 I$):
+    - Pineapples:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Pineapples"
+    - Tangerines, mandarins, clementines, satsumas:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Tangerines, mandarins,\
+        \ clementines, satsumas"
+    - Pulses, nes:
+      - "gross production value (constant 2004-2006 1000 i$) ne pulses"
+    - Oilcrops Primary:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Oilcrops Primary"
+    - Cereals,Total:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Cereals,Total"
+    - Livestock (PIN):
+      - "Gross Production Value (constant 2004-2006 1000 I$) Livestock (PIN)"
+    - Fruit, fresh nes:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Fruit, fresh nes"
+    - Meat, game:
+      - "gross production value (constant 2004-2006 1000 i$) game meat"
+    - Onions, shallots, green:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Onions, shallots, green"
+    - Maize:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Maize"
+    - Food (PIN):
+      - "Gross Production Value (constant 2004-2006 1000 I$) Food (PIN)"
+    - Honey, natural:
+      - "gross production value (constant 2004-2006 1000 i$) natural honey"
+    - Meat indigenous, total:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Meat indigenous, total"
+    - Melonseed:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Melonseed"
+    - Milk,Total:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Milk,Total"
+    - Sesame seed:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Sesame seed"
+    - Beeswax:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Beeswax"
+    - Oilseeds nes:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Oilseeds nes"
+    - Melons, other (inc.cantaloupes):
+      - "Gross Production Value (constant 2004-2006 1000 I$) Melons, other (inc.cantaloupes)"
+    - Beans, green:
+      - "gross production value (constant 2004-2006 1000 i$) green beans"
+    - Non Food (PIN):
+      - "Gross Production Value (constant 2004-2006 1000 I$) Non Food (PIN)"
+    - Pumpkins, squash and gourds:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Pumpkins, squash and\
+        \ gourds"
+    - Milk, whole fresh cow:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Milk, whole fresh cow"
+    - Peas, green:
+      - "gross production value (constant 2004-2006 1000 i$) green peas"
+    - Crops (PIN):
+      - "Gross Production Value (constant 2004-2006 1000 I$) Crops (PIN)"
+    - Milk, whole fresh goat:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Milk, whole fresh goat"
+    - Agriculture (PIN):
+      - "Gross Production Value (constant 2004-2006 1000 I$) Agriculture (PIN)"
+    - Vegetables and Fruit Primary:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Vegetables and Fruit\
+        \ Primary"
+    - Roots and Tubers,Total:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Roots and Tubers,Total"
+    - Sunflower seed:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Sunflower seed"
+    - Jute:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Jute"
+    - Millet:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Millet"
+    - Cottonseed:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Cottonseed"
+    - Chillies and peppers, dry:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Chillies and peppers,\
+        \ dry"
+    - Fruit, tropical fresh nes:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Fruit, tropical fresh\
+        \ nes"
+    - Groundnuts, with shell:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Groundnuts, with shell"
+    - Yams:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Yams"
+    - Cotton lint:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Cotton lint"
+    - Beans, dry:
+      - "gross production value (constant 2004-2006 1000 i$) dry beans"
+    - Cassava:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Cassava"
+    - Sorghum:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Sorghum"
+    - Milk, whole fresh sheep:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Milk, whole fresh sheep"
+    - Vegetables, fresh nes:
+      - "Gross Production Value (constant 2004-2006 1000 I$) Vegetables, fresh nes"
+  - Implied emission factor for CH4 (Burning - savanna):
+    - Savanna:
+      - "Implied emission factor for CH4 (Burning - savanna) Savanna"
+    - Woody savanna:
+      - "Implied emission factor for CH4 (Burning - savanna) Woody savanna"
+    - Grassland:
+      - "Implied emission factor for CH4 (Burning - savanna) Grassland"
+    - Open shrubland:
+      - "Implied emission factor for CH4 (Burning - savanna) Open shrubland"
+    - Closed shrubland:
+      - "Implied emission factor for CH4 (Burning - savanna) Closed shrubland"
+  - Implied emission factor for CH4 (Burning crop residues):
+    - Maize:
+      - "Implied emission factor for CH4 (Burning crop residues) Maize"
+  - Implied emission factor for CH4 (Enteric):
+    - Goats:
+      - "Implied emission factor for CH4 (Enteric) Goats"
+    - Sheep:
+      - "Implied emission factor for CH4 (Enteric) Sheep"
+    - Asses:
+      - "Implied emission factor for CH4 (Enteric) Asses"
+    - Cattle, dairy:
+      - "implied emission factor for ch4 (enteric) dairy cattle"
+    - Cattle, non-dairy:
+      - "implied emission factor for ch4 (enteric) non-dairy cattle"
+  - Implied emission factor for CH4 (Manure management):
+    - Chickens, broilers:
+      - "implied emission factor for ch4 (manure management) broiler chickens"
+    - Goats:
+      - "Implied emission factor for CH4 (Manure management) Goats"
+    - Sheep:
+      - "Implied emission factor for CH4 (Manure management) Sheep"
+    - Chickens, layers:
+      - "implied emission factor for ch4 (manure management) layer chickens"
+    - Asses:
+      - "Implied emission factor for CH4 (Manure management) Asses"
+    - Cattle, dairy:
+      - "implied emission factor for ch4 (manure management) dairy cattle"
+    - Cattle, non-dairy:
+      - "implied emission factor for ch4 (manure management) non-dairy cattle"
+  - Implied emission factor for N2O (Burning - savanna):
+    - Savanna:
+      - "Implied emission factor for N2O (Burning - savanna) Savanna"
+    - Woody savanna:
+      - "Implied emission factor for N2O (Burning - savanna) Woody savanna"
+    - Grassland:
+      - "Implied emission factor for N2O (Burning - savanna) Grassland"
+    - Open shrubland:
+      - "Implied emission factor for N2O (Burning - savanna) Open shrubland"
+    - Closed shrubland:
+      - "Implied emission factor for N2O (Burning - savanna) Closed shrubland"
+  - Implied emission factor for N2O (Burning crop residues):
+    - Maize:
+      - "Implied emission factor for N2O (Burning crop residues) Maize"
+  - Implied emission factor for N2O (Crop residues):
+    - Millet:
+      - "Implied emission factor for N2O (Crop residues) Millet"
+    - Maize:
+      - "Implied emission factor for N2O (Crop residues) Maize"
+    - Sorghum:
+      - "Implied emission factor for N2O (Crop residues) Sorghum"
+    - Beans, dry:
+      - "implied emission factor for n2o (crop residues) dry beans"
+  - Implied emission factor for N2O (Cultivation of organic soils):
+    - Grassland organic soils:
+      - "Implied emission factor for N2O (Cultivation of organic soils) Grassland\
+        \ organic soils"
+    - Cropland organic soils:
+      - "Implied emission factor for N2O (Cultivation of organic soils) Cropland organic\
+        \ soils"
+  - Implied emission factor for N2O (Manure applied):
+    - Chickens, broilers:
+      - "implied emission factor for n2o (manure applied) broiler chickens"
+    - Goats:
+      - "Implied emission factor for N2O (Manure applied) Goats"
+    - Sheep:
+      - "Implied emission factor for N2O (Manure applied) Sheep"
+    - Chickens, layers:
+      - "implied emission factor for n2o (manure applied) layer chickens"
+    - Asses:
+      - "Implied emission factor for N2O (Manure applied) Asses"
+    - Cattle, dairy:
+      - "implied emission factor for n2o (manure applied) dairy cattle"
+    - Cattle, non-dairy:
+      - "implied emission factor for n2o (manure applied) non-dairy cattle"
+  - Implied emission factor for N2O (Manure management):
+    - Chickens, broilers:
+      - "implied emission factor for n2o (manure management) broiler chickens"
+    - Goats:
+      - "Implied emission factor for N2O (Manure management) Goats"
+    - Sheep:
+      - "Implied emission factor for N2O (Manure management) Sheep"
+    - Chickens, layers:
+      - "implied emission factor for n2o (manure management) layer chickens"
+    - Asses:
+      - "Implied emission factor for N2O (Manure management) Asses"
+    - Cattle, dairy:
+      - "implied emission factor for n2o (manure management) dairy cattle"
+    - Cattle, non-dairy:
+      - "implied emission factor for n2o (manure management) non-dairy cattle"
+  - Implied emission factor for N2O (Manure on pasture):
+    - Chickens, broilers:
+      - "implied emission factor for n2o (manure on pasture) broiler chickens"
+    - Goats:
+      - "Implied emission factor for N2O (Manure on pasture) Goats"
+    - Sheep:
+      - "Implied emission factor for N2O (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "implied emission factor for n2o (manure on pasture) layer chickens"
+    - Asses:
+      - "Implied emission factor for N2O (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "implied emission factor for n2o (manure on pasture) dairy cattle"
+    - Cattle, non-dairy:
+      - "implied emission factor for n2o (manure on pasture) non-dairy cattle"
+  - Import Quantity:
+    - Paper and paperboard:
+      - "Import Quantity Paper and paperboard"
+    - Graphic papers:
+      - "Import Quantity Graphic papers"
+    - Plywood:
+      - "Import Quantity Plywood"
+    - Other paper and paperboard n.e.s. (not elsewhere specified):
+      - "Import Quantity Other paper and paperboard n.e.s. (not elsewhere specified)"
+    - Printing and writing papers, uncoated, wood free:
+      - "Import Quantity Printing and writing papers, uncoated, wood free"
+    - Printing and writing papers, coated:
+      - "Import Quantity Printing and writing papers, coated"
+    - Other paper and paperboard:
+      - "Import Quantity Other paper and paperboard"
+    - Sawnwood:
+      - "Import Quantity Sawnwood"
+    - Household and sanitary papers:
+      - "Import Quantity Household and sanitary papers"
+    - Wood-based panels:
+      - "Import Quantity Wood-based panels"
+    - Fibreboard:
+      - "Import Quantity Fibreboard"
+    - Sawnwood, coniferous:
+      - "import quantity coniferou sawnwood"
+    - Printing and writing papers, uncoated, mechanical:
+      - "Import Quantity Printing and writing papers, uncoated, mechanical"
+    - Paper and paperboard, excluding newsprint:
+      - "Import Quantity Paper and paperboard, excluding newsprint"
+    - MDF/HDF:
+      - "Import Quantity MDF/HDF"
+    - Printing and writing papers:
+      - "Import Quantity Printing and writing papers"
+  - Import Value:
+    - Paper and paperboard:
+      - "Import Value Paper and paperboard"
+    - Graphic papers:
+      - "Import Value Graphic papers"
+    - Plywood:
+      - "Import Value Plywood"
+    - Other paper and paperboard n.e.s. (not elsewhere specified):
+      - "Import Value Other paper and paperboard n.e.s. (not elsewhere specified)"
+    - Printing and writing papers, uncoated, wood free:
+      - "Import Value Printing and writing papers, uncoated, wood free"
+    - Printing and writing papers, coated:
+      - "Import Value Printing and writing papers, coated"
+    - Other paper and paperboard:
+      - "Import Value Other paper and paperboard"
+    - Sawnwood:
+      - "Import Value Sawnwood"
+    - Household and sanitary papers:
+      - "Import Value Household and sanitary papers"
+    - Wood-based panels:
+      - "Import Value Wood-based panels"
+    - Fibreboard:
+      - "Import Value Fibreboard"
+    - Sawnwood, coniferous:
+      - "import value coniferou sawnwood"
+    - Printing and writing papers, uncoated, mechanical:
+      - "Import Value Printing and writing papers, uncoated, mechanical"
+    - Paper and paperboard, excluding newsprint:
+      - "Import Value Paper and paperboard, excluding newsprint"
+    - MDF/HDF:
+      - "Import Value MDF/HDF"
+    - Forest products (export/import):
+      - "Import Value Forest products (export/import)"
+    - Printing and writing papers:
+      - "Import Value Printing and writing papers"
+  - Indirect emissions (CO2eq) (Crop residues):
+    - Beans, dry:
+      - "indirect emissions (co2eq) (crop residues) dry beans"
+    - Sorghum:
+      - "Indirect emissions (CO2eq) (Crop residues) Sorghum"
+    - Millet:
+      - "Indirect emissions (CO2eq) (Crop residues) Millet"
+    - Maize:
+      - "Indirect emissions (CO2eq) (Crop residues) Maize"
+    - All Crops:
+      - "Indirect emissions (CO2eq) (Crop residues) All Crops"
+  - Indirect emissions (CO2eq) (Manure applied):
+    - Chickens, broilers:
+      - "indirect emissions (co2eq) (manure applied) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (CO2eq) (Manure applied) Cattle"
+    - Goats:
+      - "Indirect emissions (CO2eq) (Manure applied) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (CO2eq) (Manure applied) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (CO2eq) (Manure applied) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (co2eq) (manure applied) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (CO2eq) (Manure applied) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (CO2eq) (Manure applied) All Animals"
+    - Asses:
+      - "Indirect emissions (CO2eq) (Manure applied) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (co2eq) (manure applied) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (CO2eq) (Manure applied) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (co2eq) (manure applied) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (CO2eq) (Manure applied) Sheep and Goats"
+  - Indirect emissions (CO2eq) (Manure management):
+    - Chickens, broilers:
+      - "indirect emissions (co2eq) (manure management) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (CO2eq) (Manure management) Cattle"
+    - Goats:
+      - "Indirect emissions (CO2eq) (Manure management) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (CO2eq) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (CO2eq) (Manure management) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (co2eq) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (CO2eq) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (CO2eq) (Manure management) All Animals"
+    - Asses:
+      - "Indirect emissions (CO2eq) (Manure management) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (co2eq) (manure management) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (CO2eq) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (co2eq) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (CO2eq) (Manure management) Sheep and Goats"
+  - Indirect emissions (CO2eq) (Manure on pasture):
+    - Chickens, broilers:
+      - "indirect emissions (co2eq) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Cattle"
+    - Goats:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (co2eq) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (CO2eq) (Manure on pasture) All Animals"
+    - Asses:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (co2eq) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (co2eq) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (CO2eq) (Manure on pasture) Sheep and Goats"
+  - Indirect emissions (N2O that leaches) (Manure on pasture):
+    - Chickens, broilers:
+      - "indirect emissions (n2o that leaches) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Cattle"
+    - Goats:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (n2o that leaches) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) All Animals"
+    - Asses:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (n2o that leaches) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (n2o that leaches) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (N2O that leaches) (Manure on pasture) Sheep and Goats"
+  - Indirect emissions (N2O that volatilises) (Manure on pasture):
+    - Chickens, broilers:
+      - "indirect emissions (n2o that volatilises) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Cattle"
+    - Goats:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (n2o that volatilises) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) All Animals"
+    - Asses:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (n2o that volatilises) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (n2o that volatilises) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (N2O that volatilises) (Manure on pasture) Sheep and Goats"
+  - Indirect emissions (N2O) (Crop residues):
+    - Beans, dry:
+      - "indirect emissions (n2o) (crop residues) dry beans"
+    - Sorghum:
+      - "Indirect emissions (N2O) (Crop residues) Sorghum"
+    - Millet:
+      - "Indirect emissions (N2O) (Crop residues) Millet"
+    - Maize:
+      - "Indirect emissions (N2O) (Crop residues) Maize"
+    - All Crops:
+      - "Indirect emissions (N2O) (Crop residues) All Crops"
+  - Indirect emissions (N2O) (Manure applied):
+    - Chickens, broilers:
+      - "indirect emissions (n2o) (manure applied) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (N2O) (Manure applied) Cattle"
+    - Goats:
+      - "Indirect emissions (N2O) (Manure applied) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (N2O) (Manure applied) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (N2O) (Manure applied) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (n2o) (manure applied) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (N2O) (Manure applied) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (N2O) (Manure applied) All Animals"
+    - Asses:
+      - "Indirect emissions (N2O) (Manure applied) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (n2o) (manure applied) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (N2O) (Manure applied) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (n2o) (manure applied) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (N2O) (Manure applied) Sheep and Goats"
+  - Indirect emissions (N2O) (Manure management):
+    - Chickens, broilers:
+      - "indirect emissions (n2o) (manure management) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (N2O) (Manure management) Cattle"
+    - Goats:
+      - "Indirect emissions (N2O) (Manure management) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (N2O) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (N2O) (Manure management) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (n2o) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (N2O) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (N2O) (Manure management) All Animals"
+    - Asses:
+      - "Indirect emissions (N2O) (Manure management) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (n2o) (manure management) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (N2O) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (n2o) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (N2O) (Manure management) Sheep and Goats"
+  - Indirect emissions (N2O) (Manure on pasture):
+    - Chickens, broilers:
+      - "indirect emissions (n2o) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Indirect emissions (N2O) (Manure on pasture) Cattle"
+    - Goats:
+      - "Indirect emissions (N2O) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Indirect emissions (N2O) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Indirect emissions (N2O) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "indirect emissions (n2o) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Indirect emissions (N2O) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Indirect emissions (N2O) (Manure on pasture) All Animals"
+    - Asses:
+      - "Indirect emissions (N2O) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "indirect emissions (n2o) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Indirect emissions (N2O) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "indirect emissions (n2o) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Indirect emissions (N2O) (Manure on pasture) Sheep and Goats"
+  - Laying:
+    - Eggs, hen, in shell:
+      - "Laying Eggs, hen, in shell"
+    - Eggs Primary:
+      - "Laying Eggs Primary"
+  - Losses from manure treated (N content):
+    - Chickens, broilers:
+      - "losses from manure treated (n content) broiler chickens"
+    - Cattle:
+      - "Losses from manure treated (N content) Cattle"
+    - Goats:
+      - "Losses from manure treated (N content) Goats"
+    - Poultry Birds:
+      - "Losses from manure treated (N content) Poultry Birds"
+    - Sheep:
+      - "Losses from manure treated (N content) Sheep"
+    - Chickens, layers:
+      - "losses from manure treated (n content) layer chickens"
+    - Mules and Asses:
+      - "Losses from manure treated (N content) Mules and Asses"
+    - All Animals:
+      - "Losses from manure treated (N content) All Animals"
+    - Asses:
+      - "Losses from manure treated (N content) Asses"
+    - Cattle, dairy:
+      - "losses from manure treated (n content) dairy cattle"
+    - Chickens:
+      - "Losses from manure treated (N content) Chickens"
+    - Cattle, non-dairy:
+      - "losses from manure treated (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Losses from manure treated (N content) Sheep and Goats"
+  - Manure (N content that leaches) (Manure on pasture):
+    - Chickens, broilers:
+      - "manure (n content that leaches) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Manure (N content that leaches) (Manure on pasture) Cattle"
+    - Goats:
+      - "Manure (N content that leaches) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Manure (N content that leaches) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Manure (N content that leaches) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "manure (n content that leaches) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Manure (N content that leaches) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Manure (N content that leaches) (Manure on pasture) All Animals"
+    - Asses:
+      - "Manure (N content that leaches) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "manure (n content that leaches) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Manure (N content that leaches) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "manure (n content that leaches) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure (N content that leaches) (Manure on pasture) Sheep and Goats"
+  - Manure (N content that volatilises) (Manure on pasture):
+    - Chickens, broilers:
+      - "manure (n content that volatilises) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Manure (N content that volatilises) (Manure on pasture) Cattle"
+    - Goats:
+      - "Manure (N content that volatilises) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Manure (N content that volatilises) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Manure (N content that volatilises) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "manure (n content that volatilises) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Manure (N content that volatilises) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Manure (N content that volatilises) (Manure on pasture) All Animals"
+    - Asses:
+      - "Manure (N content that volatilises) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "manure (n content that volatilises) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Manure (N content that volatilises) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "manure (n content that volatilises) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure (N content that volatilises) (Manure on pasture) Sheep and Goats"
+  - Manure (N content) (Manure applied):
+    - Chickens, broilers:
+      - "manure (n content) (manure applied) broiler chickens"
+    - Cattle:
+      - "Manure (N content) (Manure applied) Cattle"
+    - Goats:
+      - "Manure (N content) (Manure applied) Goats"
+    - Poultry Birds:
+      - "Manure (N content) (Manure applied) Poultry Birds"
+    - Sheep:
+      - "Manure (N content) (Manure applied) Sheep"
+    - Chickens, layers:
+      - "manure (n content) (manure applied) layer chickens"
+    - Mules and Asses:
+      - "Manure (N content) (Manure applied) Mules and Asses"
+    - All Animals:
+      - "Manure (N content) (Manure applied) All Animals"
+    - Asses:
+      - "Manure (N content) (Manure applied) Asses"
+    - Cattle, dairy:
+      - "manure (n content) (manure applied) dairy cattle"
+    - Chickens:
+      - "Manure (N content) (Manure applied) Chickens"
+    - Cattle, non-dairy:
+      - "manure (n content) (manure applied) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure (N content) (Manure applied) Sheep and Goats"
+  - Manure (N content) (Manure management):
+    - Chickens, broilers:
+      - "manure (n content) (manure management) broiler chickens"
+    - Cattle:
+      - "Manure (N content) (Manure management) Cattle"
+    - Goats:
+      - "Manure (N content) (Manure management) Goats"
+    - Poultry Birds:
+      - "Manure (N content) (Manure management) Poultry Birds"
+    - Sheep:
+      - "Manure (N content) (Manure management) Sheep"
+    - Chickens, layers:
+      - "manure (n content) (manure management) layer chickens"
+    - Mules and Asses:
+      - "Manure (N content) (Manure management) Mules and Asses"
+    - All Animals:
+      - "Manure (N content) (Manure management) All Animals"
+    - Asses:
+      - "Manure (N content) (Manure management) Asses"
+    - Cattle, dairy:
+      - "manure (n content) (manure management) dairy cattle"
+    - Chickens:
+      - "Manure (N content) (Manure management) Chickens"
+    - Cattle, non-dairy:
+      - "manure (n content) (manure management) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure (N content) (Manure management) Sheep and Goats"
+  - Manure (N content) (Manure on pasture):
+    - Chickens, broilers:
+      - "manure (n content) (manure on pasture) broiler chickens"
+    - Cattle:
+      - "Manure (N content) (Manure on pasture) Cattle"
+    - Goats:
+      - "Manure (N content) (Manure on pasture) Goats"
+    - Poultry Birds:
+      - "Manure (N content) (Manure on pasture) Poultry Birds"
+    - Sheep:
+      - "Manure (N content) (Manure on pasture) Sheep"
+    - Chickens, layers:
+      - "manure (n content) (manure on pasture) layer chickens"
+    - Mules and Asses:
+      - "Manure (N content) (Manure on pasture) Mules and Asses"
+    - All Animals:
+      - "Manure (N content) (Manure on pasture) All Animals"
+    - Asses:
+      - "Manure (N content) (Manure on pasture) Asses"
+    - Cattle, dairy:
+      - "manure (n content) (manure on pasture) dairy cattle"
+    - Chickens:
+      - "Manure (N content) (Manure on pasture) Chickens"
+    - Cattle, non-dairy:
+      - "manure (n content) (manure on pasture) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure (N content) (Manure on pasture) Sheep and Goats"
+  - Manure applied to soils (N content):
+    - Chickens, broilers:
+      - "manure applied to soils (n content) broiler chickens"
+    - Cattle:
+      - "Manure applied to soils (N content) Cattle"
+    - Goats:
+      - "Manure applied to soils (N content) Goats"
+    - Poultry Birds:
+      - "Manure applied to soils (N content) Poultry Birds"
+    - Sheep:
+      - "Manure applied to soils (N content) Sheep"
+    - Chickens, layers:
+      - "manure applied to soils (n content) layer chickens"
+    - Mules and Asses:
+      - "Manure applied to soils (N content) Mules and Asses"
+    - All Animals:
+      - "Manure applied to soils (N content) All Animals"
+    - Asses:
+      - "Manure applied to soils (N content) Asses"
+    - Cattle, dairy:
+      - "manure applied to soils (n content) dairy cattle"
+    - Chickens:
+      - "Manure applied to soils (N content) Chickens"
+    - Cattle, non-dairy:
+      - "manure applied to soils (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure applied to soils (N content) Sheep and Goats"
+  - Manure applied to soils that leaches (N content):
+    - Chickens, broilers:
+      - "manure applied to soils that leaches (n content) broiler chickens"
+    - Cattle:
+      - "Manure applied to soils that leaches (N content) Cattle"
+    - Goats:
+      - "Manure applied to soils that leaches (N content) Goats"
+    - Poultry Birds:
+      - "Manure applied to soils that leaches (N content) Poultry Birds"
+    - Sheep:
+      - "Manure applied to soils that leaches (N content) Sheep"
+    - Chickens, layers:
+      - "manure applied to soils that leaches (n content) layer chickens"
+    - Mules and Asses:
+      - "Manure applied to soils that leaches (N content) Mules and Asses"
+    - All Animals:
+      - "Manure applied to soils that leaches (N content) All Animals"
+    - Asses:
+      - "Manure applied to soils that leaches (N content) Asses"
+    - Cattle, dairy:
+      - "manure applied to soils that leaches (n content) dairy cattle"
+    - Chickens:
+      - "Manure applied to soils that leaches (N content) Chickens"
+    - Cattle, non-dairy:
+      - "manure applied to soils that leaches (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure applied to soils that leaches (N content) Sheep and Goats"
+  - Manure applied to soils that volatilises (N content):
+    - Chickens, broilers:
+      - "manure applied to soils that volatilises (n content) broiler chickens"
+    - Cattle:
+      - "Manure applied to soils that volatilises (N content) Cattle"
+    - Goats:
+      - "Manure applied to soils that volatilises (N content) Goats"
+    - Poultry Birds:
+      - "Manure applied to soils that volatilises (N content) Poultry Birds"
+    - Sheep:
+      - "Manure applied to soils that volatilises (N content) Sheep"
+    - Chickens, layers:
+      - "manure applied to soils that volatilises (n content) layer chickens"
+    - Mules and Asses:
+      - "Manure applied to soils that volatilises (N content) Mules and Asses"
+    - All Animals:
+      - "Manure applied to soils that volatilises (N content) All Animals"
+    - Asses:
+      - "Manure applied to soils that volatilises (N content) Asses"
+    - Cattle, dairy:
+      - "manure applied to soils that volatilises (n content) dairy cattle"
+    - Chickens:
+      - "Manure applied to soils that volatilises (N content) Chickens"
+    - Cattle, non-dairy:
+      - "manure applied to soils that volatilises (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure applied to soils that volatilises (N content) Sheep and Goats"
+  - Manure left on pasture (N content):
+    - Chickens, broilers:
+      - "manure left on pasture (n content) broiler chickens"
+    - Cattle:
+      - "Manure left on pasture (N content) Cattle"
+    - Goats:
+      - "Manure left on pasture (N content) Goats"
+    - Poultry Birds:
+      - "Manure left on pasture (N content) Poultry Birds"
+    - Sheep:
+      - "Manure left on pasture (N content) Sheep"
+    - Chickens, layers:
+      - "manure left on pasture (n content) layer chickens"
+    - Mules and Asses:
+      - "Manure left on pasture (N content) Mules and Asses"
+    - All Animals:
+      - "Manure left on pasture (N content) All Animals"
+    - Asses:
+      - "Manure left on pasture (N content) Asses"
+    - Cattle, dairy:
+      - "manure left on pasture (n content) dairy cattle"
+    - Chickens:
+      - "Manure left on pasture (N content) Chickens"
+    - Cattle, non-dairy:
+      - "manure left on pasture (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure left on pasture (N content) Sheep and Goats"
+  - Manure left on pasture that leaches (N content):
+    - Chickens, broilers:
+      - "manure left on pasture that leaches (n content) broiler chickens"
+    - Cattle:
+      - "Manure left on pasture that leaches (N content) Cattle"
+    - Goats:
+      - "Manure left on pasture that leaches (N content) Goats"
+    - Poultry Birds:
+      - "Manure left on pasture that leaches (N content) Poultry Birds"
+    - Sheep:
+      - "Manure left on pasture that leaches (N content) Sheep"
+    - Chickens, layers:
+      - "manure left on pasture that leaches (n content) layer chickens"
+    - Mules and Asses:
+      - "Manure left on pasture that leaches (N content) Mules and Asses"
+    - All Animals:
+      - "Manure left on pasture that leaches (N content) All Animals"
+    - Asses:
+      - "Manure left on pasture that leaches (N content) Asses"
+    - Cattle, dairy:
+      - "manure left on pasture that leaches (n content) dairy cattle"
+    - Chickens:
+      - "Manure left on pasture that leaches (N content) Chickens"
+    - Cattle, non-dairy:
+      - "manure left on pasture that leaches (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure left on pasture that leaches (N content) Sheep and Goats"
+  - Manure left on pasture that volatilises (N content):
+    - Chickens, broilers:
+      - "manure left on pasture that volatilises (n content) broiler chickens"
+    - Cattle:
+      - "Manure left on pasture that volatilises (N content) Cattle"
+    - Goats:
+      - "Manure left on pasture that volatilises (N content) Goats"
+    - Poultry Birds:
+      - "Manure left on pasture that volatilises (N content) Poultry Birds"
+    - Sheep:
+      - "Manure left on pasture that volatilises (N content) Sheep"
+    - Chickens, layers:
+      - "manure left on pasture that volatilises (n content) layer chickens"
+    - Mules and Asses:
+      - "Manure left on pasture that volatilises (N content) Mules and Asses"
+    - All Animals:
+      - "Manure left on pasture that volatilises (N content) All Animals"
+    - Asses:
+      - "Manure left on pasture that volatilises (N content) Asses"
+    - Cattle, dairy:
+      - "manure left on pasture that volatilises (n content) dairy cattle"
+    - Chickens:
+      - "Manure left on pasture that volatilises (N content) Chickens"
+    - Cattle, non-dairy:
+      - "manure left on pasture that volatilises (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure left on pasture that volatilises (N content) Sheep and Goats"
+  - Manure treated (N content):
+    - Chickens, broilers:
+      - "manure treated (n content) broiler chickens"
+    - Cattle:
+      - "Manure treated (N content) Cattle"
+    - Goats:
+      - "Manure treated (N content) Goats"
+    - Poultry Birds:
+      - "Manure treated (N content) Poultry Birds"
+    - Sheep:
+      - "Manure treated (N content) Sheep"
+    - Chickens, layers:
+      - "manure treated (n content) layer chickens"
+    - Mules and Asses:
+      - "Manure treated (N content) Mules and Asses"
+    - All Animals:
+      - "Manure treated (N content) All Animals"
+    - Asses:
+      - "Manure treated (N content) Asses"
+    - Cattle, dairy:
+      - "manure treated (n content) dairy cattle"
+    - Chickens:
+      - "Manure treated (N content) Chickens"
+    - Cattle, non-dairy:
+      - "manure treated (n content) non-dairy cattle"
+    - Sheep and Goats:
+      - "Manure treated (N content) Sheep and Goats"
+  - Milk Animals:
+    - Milk, whole fresh camel:
+      - "Milk Animals Milk, whole fresh camel"
+    - Milk, whole fresh goat:
+      - "Milk Animals Milk, whole fresh goat"
+    - Milk,Total:
+      - "Milk Animals Milk,Total"
+    - Milk, whole fresh sheep:
+      - "Milk Animals Milk, whole fresh sheep"
+    - Milk, whole fresh cow:
+      - "Milk Animals Milk, whole fresh cow"
+  - Net Production Value (constant 2004-2006 1000 I$):
+    - Pineapples:
+      - "Net Production Value (constant 2004-2006 1000 I$) Pineapples"
+    - Tangerines, mandarins, clementines, satsumas:
+      - "Net Production Value (constant 2004-2006 1000 I$) Tangerines, mandarins,\
+        \ clementines, satsumas"
+    - Pulses, nes:
+      - "net production value (constant 2004-2006 1000 i$) ne pulses"
+    - Oilcrops Primary:
+      - "Net Production Value (constant 2004-2006 1000 I$) Oilcrops Primary"
+    - Cereals,Total:
+      - "Net Production Value (constant 2004-2006 1000 I$) Cereals,Total"
+    - Livestock (PIN):
+      - "Net Production Value (constant 2004-2006 1000 I$) Livestock (PIN)"
+    - Fruit, fresh nes:
+      - "Net Production Value (constant 2004-2006 1000 I$) Fruit, fresh nes"
+    - Meat, game:
+      - "net production value (constant 2004-2006 1000 i$) game meat"
+    - Onions, shallots, green:
+      - "Net Production Value (constant 2004-2006 1000 I$) Onions, shallots, green"
+    - Maize:
+      - "Net Production Value (constant 2004-2006 1000 I$) Maize"
+    - Food (PIN):
+      - "Net Production Value (constant 2004-2006 1000 I$) Food (PIN)"
+    - Honey, natural:
+      - "net production value (constant 2004-2006 1000 i$) natural honey"
+    - Meat indigenous, total:
+      - "Net Production Value (constant 2004-2006 1000 I$) Meat indigenous, total"
+    - Melonseed:
+      - "Net Production Value (constant 2004-2006 1000 I$) Melonseed"
+    - Milk,Total:
+      - "Net Production Value (constant 2004-2006 1000 I$) Milk,Total"
+    - Sesame seed:
+      - "Net Production Value (constant 2004-2006 1000 I$) Sesame seed"
+    - Beeswax:
+      - "Net Production Value (constant 2004-2006 1000 I$) Beeswax"
+    - Oilseeds nes:
+      - "Net Production Value (constant 2004-2006 1000 I$) Oilseeds nes"
+    - Melons, other (inc.cantaloupes):
+      - "Net Production Value (constant 2004-2006 1000 I$) Melons, other (inc.cantaloupes)"
+    - Beans, green:
+      - "net production value (constant 2004-2006 1000 i$) green beans"
+    - Non Food (PIN):
+      - "Net Production Value (constant 2004-2006 1000 I$) Non Food (PIN)"
+    - Pumpkins, squash and gourds:
+      - "Net Production Value (constant 2004-2006 1000 I$) Pumpkins, squash and gourds"
+    - Milk, whole fresh cow:
+      - "Net Production Value (constant 2004-2006 1000 I$) Milk, whole fresh cow"
+    - Peas, green:
+      - "net production value (constant 2004-2006 1000 i$) green peas"
+    - Crops (PIN):
+      - "Net Production Value (constant 2004-2006 1000 I$) Crops (PIN)"
+    - Milk, whole fresh goat:
+      - "Net Production Value (constant 2004-2006 1000 I$) Milk, whole fresh goat"
+    - Agriculture (PIN):
+      - "Net Production Value (constant 2004-2006 1000 I$) Agriculture (PIN)"
+    - Vegetables and Fruit Primary:
+      - "Net Production Value (constant 2004-2006 1000 I$) Vegetables and Fruit Primary"
+    - Roots and Tubers,Total:
+      - "Net Production Value (constant 2004-2006 1000 I$) Roots and Tubers,Total"
+    - Sunflower seed:
+      - "Net Production Value (constant 2004-2006 1000 I$) Sunflower seed"
+    - Jute:
+      - "Net Production Value (constant 2004-2006 1000 I$) Jute"
+    - Millet:
+      - "Net Production Value (constant 2004-2006 1000 I$) Millet"
+    - Cottonseed:
+      - "Net Production Value (constant 2004-2006 1000 I$) Cottonseed"
+    - Chillies and peppers, dry:
+      - "Net Production Value (constant 2004-2006 1000 I$) Chillies and peppers, dry"
+    - Fruit, tropical fresh nes:
+      - "Net Production Value (constant 2004-2006 1000 I$) Fruit, tropical fresh nes"
+    - Groundnuts, with shell:
+      - "Net Production Value (constant 2004-2006 1000 I$) Groundnuts, with shell"
+    - Yams:
+      - "Net Production Value (constant 2004-2006 1000 I$) Yams"
+    - Cotton lint:
+      - "Net Production Value (constant 2004-2006 1000 I$) Cotton lint"
+    - Beans, dry:
+      - "net production value (constant 2004-2006 1000 i$) dry beans"
+    - Cassava:
+      - "Net Production Value (constant 2004-2006 1000 I$) Cassava"
+    - Sorghum:
+      - "Net Production Value (constant 2004-2006 1000 I$) Sorghum"
+    - Milk, whole fresh sheep:
+      - "Net Production Value (constant 2004-2006 1000 I$) Milk, whole fresh sheep"
+    - Vegetables, fresh nes:
+      - "Net Production Value (constant 2004-2006 1000 I$) Vegetables, fresh nes"
+  - Producing Animals/Slaughtered:
+    - Skins, sheep, with wool:
+      - "Producing Animals/Slaughtered Skins, sheep, with wool"
+    - Skins, goat, fresh:
+      - "Producing Animals/Slaughtered Skins, goat, fresh"
+    - Meat, chicken:
+      - "producing animals/slaughtered chicken meat"
+    - Sheep and Goat Meat:
+      - "Producing Animals/Slaughtered Sheep and Goat Meat"
+    - Meat, Poultry:
+      - "producing animals/slaughtered poultry meat"
+    - Hides, cattle, fresh:
+      - "Producing Animals/Slaughtered Hides, cattle, fresh"
+    - Beef and Buffalo Meat:
+      - "Producing Animals/Slaughtered Beef and Buffalo Meat"
+    - Meat, camel:
+      - "producing animals/slaughtered camel meat"
+    - Meat, cattle:
+      - "producing animals/slaughtered cattle meat"
+    - Meat, sheep:
+      - "producing animals/slaughtered sheep meat"
+    - Skins, sheep, fresh:
+      - "Producing Animals/Slaughtered Skins, sheep, fresh"
+    - Meat, goat:
+      - "producing animals/slaughtered goat meat"
+  - Production:
+    - Vegetables Primary:
+      - "Production Vegetables Primary"
+    - Wool, greasy:
+      - "production greasy wool"
+    - Meat, chicken:
+      - "production chicken meat"
+    - Oilcrops, Oil Equivalent:
+      - "Production Oilcrops, Oil Equivalent"
+    - Meat, game:
+      - "production game meat"
+    - Onions, shallots, green:
+      - "Production Onions, shallots, green"
+    - Maize:
+      - "Production Maize"
+    - Carrots and turnips:
+      - "Production Carrots and turnips"
+    - Wood fuel, non-coniferous (production):
+      - "Production Wood fuel, non-coniferous (production)"
+    - Coarse Grain, Total:
+      - "Production Coarse Grain, Total"
+    - Meat indigenous, goat:
+      - "Production Meat indigenous, goat"
+    - Cheese, sheep milk:
+      - "Production Cheese, sheep milk"
+    - Milk, whole fresh cow:
+      - "Production Milk, whole fresh cow"
+    - Cow peas, dry:
+      - "Production Cow peas, dry"
+    - Hides, cattle, fresh:
+      - "Production Hides, cattle, fresh"
+    - Beer of barley:
+      - "Production Beer of barley"
+    - Cheese of goat mlk:
+      - "Production Cheese of goat mlk"
+    - Millet:
+      - "Production Millet"
+    - Milk, skimmed cow:
+      - "Production Milk, skimmed cow"
+    - Meat, goat:
+      - "production goat meat"
+    - Roundwood, coniferous (production):
+      - "Production Roundwood, coniferous (production)"
+    - Eggplants (aubergines):
+      - "Production Eggplants (aubergines)"
+    - Meat indigenous, chicken:
+      - "Production Meat indigenous, chicken"
+    - Oil, cottonseed:
+      - "production cottonseed oil"
+    - Sorghum:
+      - "Production Sorghum"
+    - Chillies and peppers, green:
+      - "Production Chillies and peppers, green"
+    - Sheep and Goat Meat:
+      - "Production Sheep and Goat Meat"
+    - Garlic:
+      - "Production Garlic"
+    - Meat indigenous, poultry:
+      - "Production Meat indigenous, poultry"
+    - Mangoes, mangosteens, guavas:
+      - "Production Mangoes, mangosteens, guavas"
+    - Pineapples:
+      - "Production Pineapples"
+    - Cabbages and other brassicas:
+      - "Production Cabbages and other brassicas"
+    - Okra:
+      - "Production Okra"
+    - Meat, camel:
+      - "production camel meat"
+    - Meat, cattle:
+      - "production cattle meat"
+    - Citrus Fruit,Total:
+      - "production total citrus fruit"
+    - Roundwood, non-coniferous (production):
+      - "Production Roundwood, non-coniferous (production)"
+    - Cauliflowers and broccoli:
+      - "Production Cauliflowers and broccoli"
+    - Onions, dry:
+      - "production dry onions"
+    - Honey, natural:
+      - "production natural honey"
+    - Oil, sesame:
+      - "production sesame oil"
+    - Meat indigenous, total:
+      - "Production Meat indigenous, total"
+    - Melonseed:
+      - "Production Melonseed"
+    - Oilseeds nes:
+      - "Production Oilseeds nes"
+    - Meat indigenous, camel:
+      - "Production Meat indigenous, camel"
+    - Roundwood:
+      - "Production Roundwood"
+    - Peas, green:
+      - "production green peas"
+    - Sweet potatoes:
+      - "Production Sweet potatoes"
+    - Milk, whole fresh camel:
+      - "Production Milk, whole fresh camel"
+    - Sugar Raw Centrifugal:
+      - "Production Sugar Raw Centrifugal"
+    - Meat, sheep:
+      - "production sheep meat"
+    - Cereals excluding rice:
+      - "Production Cereals excluding rice"
+    - Fibre Crops Primary:
+      - "Production Fibre Crops Primary"
+    - Fruit, tropical fresh nes:
+      - "Production Fruit, tropical fresh nes"
+    - Groundnuts, with shell:
+      - "Production Groundnuts, with shell"
+    - Wood fuel, coniferous (production):
+      - "Production Wood fuel, coniferous (production)"
+    - Pulses,Total:
+      - "Production Pulses,Total"
+    - Vegetables, fresh nes:
+      - "Production Vegetables, fresh nes"
+    - Meat, Total:
+      - "production total meat"
+    - Tangerines, mandarins, clementines, satsumas:
+      - "Production Tangerines, mandarins, clementines, satsumas"
+    - Pulses, nes:
+      - "production ne pulses"
+    - Fruit, fresh nes:
+      - "Production Fruit, fresh nes"
+    - Sugar cane:
+      - "Production Sugar cane"
+    - Eggs Primary:
+      - "Production Eggs Primary"
+    - Tomatoes:
+      - "Production Tomatoes"
+    - Skins, sheep, with wool:
+      - "Production Skins, sheep, with wool"
+    - Butter and Ghee:
+      - "Production Butter and Ghee"
+    - Broad beans, horse beans, dry:
+      - "Production Broad beans, horse beans, dry"
+    - Plantains and others:
+      - "Production Plantains and others"
+    - Milk,Total:
+      - "Production Milk,Total"
+    - Meat, Poultry:
+      - "production poultry meat"
+    - Beeswax:
+      - "Production Beeswax"
+    - Beans, green:
+      - "production green beans"
+    - Seed cotton:
+      - "Production Seed cotton"
+    - Beef and Buffalo Meat:
+      - "Production Beef and Buffalo Meat"
+    - Roots and Tubers,Total:
+      - "Production Roots and Tubers,Total"
+    - Sunflower seed:
+      - "Production Sunflower seed"
+    - Dates:
+      - "Production Dates"
+    - Jute:
+      - "Production Jute"
+    - Butter, cow milk:
+      - "Production Butter, cow milk"
+    - Cottonseed:
+      - "Production Cottonseed"
+    - Meat indigenous, sheep:
+      - "Production Meat indigenous, sheep"
+    - Yams:
+      - "Production Yams"
+    - Milk, whole fresh sheep:
+      - "Production Milk, whole fresh sheep"
+    - Oranges:
+      - "Production Oranges"
+    - Rice, paddy:
+      - "production paddy rice"
+    - Cereals,Total:
+      - "Production Cereals,Total"
+    - Cheese, whole cow milk:
+      - "Production Cheese, whole cow milk"
+    - Skins, sheep, fresh:
+      - "Production Skins, sheep, fresh"
+    - Watermelons:
+      - "Production Watermelons"
+    - Bananas:
+      - "Production Bananas"
+    - Skins, goat, fresh:
+      - "Production Skins, goat, fresh"
+    - Sesame seed:
+      - "Production Sesame seed"
+    - Cheese (All Kinds):
+      - "Production Cheese (All Kinds)"
+    - Molasses:
+      - "Production Molasses"
+    - Wood charcoal:
+      - "Production Wood charcoal"
+    - Melons, other (inc.cantaloupes):
+      - "Production Melons, other (inc.cantaloupes)"
+    - Wood fuel:
+      - "Production Wood fuel"
+    - Potatoes:
+      - "Production Potatoes"
+    - Castor oil seed:
+      - "Production Castor oil seed"
+    - Pumpkins, squash and gourds:
+      - "Production Pumpkins, squash and gourds"
+    - Lemons and limes:
+      - "Production Lemons and limes"
+    - Meat indigenous, cattle:
+      - "Production Meat indigenous, cattle"
+    - Milk, whole fresh goat:
+      - "Production Milk, whole fresh goat"
+    - Oil, sunflower:
+      - "production sunflower oil"
+    - Chick peas:
+      - "Production Chick peas"
+    - Chillies and peppers, dry:
+      - "Production Chillies and peppers, dry"
+    - Cucumbers and gherkins:
+      - "Production Cucumbers and gherkins"
+    - Oil, groundnut:
+      - "production groundnut oil"
+    - Grapefruit (inc. pomelos):
+      - "Production Grapefruit (inc. pomelos)"
+    - Cotton lint:
+      - "Production Cotton lint"
+    - Wheat:
+      - "Production Wheat"
+    - Beans, dry:
+      - "production dry beans"
+    - Cassava:
+      - "Production Cassava"
+    - Oilcrops, Cake Equivalent:
+      - "Production Oilcrops, Cake Equivalent"
+    - Eggs, hen, in shell:
+      - "Production Eggs, hen, in shell"
+  - Ratio:
+    - Gross Fixed Capital Formation as a share of Value Added  (Agriculture, Forestry and Fishing):
+      - "Ratio Gross Fixed Capital Formation as a share of Value Added  (Agriculture,\
+        \ Forestry and Fishing)"
+    - Gross Fixed Capital Formation to GDP ratio:
+      - "Ratio Gross Fixed Capital Formation to GDP ratio"
+  - Ratio, 2005 prices:
+    - Gross Fixed Capital Formation as a share of Value Added  (Agriculture, Forestry and Fishing):
+      - "Ratio, 2005 prices Gross Fixed Capital Formation as a share of Value Added\
+        \  (Agriculture, Forestry and Fishing)"
+    - Gross Fixed Capital Formation to GDP ratio:
+      - "Ratio, 2005 prices Gross Fixed Capital Formation to GDP ratio"
+  - Residues (Crop residues):
+    - Beans, dry:
+      - "residues (crop residues) dry beans"
+    - Sorghum:
+      - "Residues (Crop residues) Sorghum"
+    - Millet:
+      - "Residues (Crop residues) Millet"
+    - Maize:
+      - "Residues (Crop residues) Maize"
+    - All Crops:
+      - "Residues (Crop residues) All Crops"
+  - Rural population:
+    - Population - Est. & Proj.:
+      - "Rural population Population - Est. & Proj."
+  - Share in Agricultural area:
+    - Permanent meadows and pastures:
+      - "Share in Agricultural area Permanent meadows and pastures"
+    - Total area equipped for irrigation:
+      - "Share in Agricultural area Total area equipped for irrigation"
+  - Share in Forest area:
+    - Planted forest:
+      - "Share in Forest area Planted forest"
+    - Primary forest:
+      - "Share in Forest area Primary forest"
+    - Other naturally regenerated forest:
+      - "Share in Forest area Other naturally regenerated forest"
+  - Share in total livestock:
+    - Cattle and Buffaloes:
+      - "Share in total livestock Cattle and Buffaloes"
+    - Cattle:
+      - "Share in total livestock Cattle"
+    - Goats:
+      - "Share in total livestock Goats"
+    - Sheep:
+      - "Share in total livestock Sheep"
+    - Major livestock types:
+      - "Share in total livestock Major livestock types"
+    - Equidae:
+      - "Share in total livestock Equidae"
+    - Asses:
+      - "Share in total livestock Asses"
+    - Chickens:
+      - "Share in total livestock Chickens"
+    - Sheep and Goats:
+      - "Share in total livestock Sheep and Goats"
+  - Share of GDP in Local Currency:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Share of GDP in Local Currency Value Added (Agriculture, Forestry and Fishing)"
+    - Value Added (Total Manufacturing):
+      - "Share of GDP in Local Currency Value Added (Total Manufacturing)"
+    - Gross Fixed Capital Formation:
+      - "Share of GDP in Local Currency Gross Fixed Capital Formation"
+  - Share of GDP in US$:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Share of GDP in US$ Value Added (Agriculture, Forestry and Fishing)"
+    - Value Added (Total Manufacturing):
+      - "Share of GDP in US$ Value Added (Total Manufacturing)"
+    - Gross Fixed Capital Formation:
+      - "Share of GDP in US$ Gross Fixed Capital Formation"
+    - Value Added (Agriculture):
+      - "Share of GDP in US$ Value Added (Agriculture)"
+  - Share of GDP, Local Currency, 2010 prices:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Share of GDP, Local Currency, 2010 prices Value Added (Agriculture, Forestry\
+        \ and Fishing)"
+    - Value Added (Total Manufacturing):
+      - "Share of GDP, Local Currency, 2010 prices Value Added (Total Manufacturing)"
+    - Gross Fixed Capital Formation:
+      - "Share of GDP, Local Currency, 2010 prices Gross Fixed Capital Formation"
+  - Share of GDP, US$, 2010 prices:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Share of GDP, US$, 2010 prices Value Added (Agriculture, Forestry and Fishing)"
+    - Value Added (Total Manufacturing):
+      - "Share of GDP, US$, 2010 prices Value Added (Total Manufacturing)"
+    - Gross Fixed Capital Formation:
+      - "Share of GDP, US$, 2010 prices Gross Fixed Capital Formation"
+  - Share of Gross Output (Agriculture, Forestry and Fisheries):
+    - Gross Output (Agriculture):
+      - "Share of Gross Output (Agriculture, Forestry and Fisheries) Gross Output\
+        \ (Agriculture)"
+  - Share of Total:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Share of Total Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Share of Total Gross Fixed Capital Formation (Agriculture, Forestry and Fishing)"
+    - DFA Commitment to Agriculture, Forestry and Fishing:
+      - "Share of Total DFA Commitment to Agriculture, Forestry and Fishing"
+  - Share of Value Added:
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Share of Value Added Gross Fixed Capital Formation (Agriculture, Forestry\
+        \ and Fishing)"
+  - Share of Value Added (Agriculture, Forestry and Fishing):
+    - Value Added (Agriculture):
+      - "Share of Value Added (Agriculture, Forestry and Fishing) Value Added (Agriculture)"
+    - Value Added (Total Manufacturing):
+      - "Share of Value Added (Agriculture, Forestry and Fishing) Value Added (Total\
+        \ Manufacturing)"
+  - Share of Value Added US$:
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Share of Value Added US$ Gross Fixed Capital Formation (Agriculture, Forestry\
+        \ and Fishing)"
+  - Share of Value Added US$, 2005 prices:
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Share of Value Added US$, 2005 prices Gross Fixed Capital Formation (Agriculture,\
+        \ Forestry and Fishing)"
+  - Standard local currency units per USD:
+    - South Sudanese Pound:
+      - "Standard local currency units per USD South Sudanese Pound"
+  - Stocks:
+    - Chickens, broilers:
+      - "stocks broiler chickens"
+    - Cattle and Buffaloes:
+      - "Stocks Cattle and Buffaloes"
+    - Cattle:
+      - "Stocks Cattle"
+    - Camels:
+      - "Stocks Camels"
+    - Goats:
+      - "Stocks Goats"
+    - Poultry Birds:
+      - "Stocks Poultry Birds"
+    - Sheep:
+      - "Stocks Sheep"
+    - Chickens, layers:
+      - "stocks layer chickens"
+    - Mules and Asses:
+      - "Stocks Mules and Asses"
+    - Horses:
+      - "Stocks Horses"
+    - Major livestock types:
+      - "Stocks Major livestock types"
+    - Mules:
+      - "Stocks Mules"
+    - Equidae:
+      - "Stocks Equidae"
+    - Asses:
+      - "Stocks Asses"
+    - Cattle, dairy:
+      - "stocks dairy cattle"
+    - Chickens:
+      - "Stocks Chickens"
+    - Cattle, non-dairy:
+      - "stocks non-dairy cattle"
+    - Sheep and Goats:
+      - "Stocks Sheep and Goats"
+  - Total Population - Both sexes:
+    - Population - Est. & Proj.:
+      - "Total Population - Both sexes Population - Est. & Proj."
+  - Total Population - Female:
+    - Population - Est. & Proj.:
+      - "Total Population - Female Population - Est. & Proj."
+  - Total Population - Male:
+    - Population - Est. & Proj.:
+      - "Total Population - Male Population - Est. & Proj."
+  - Urban population:
+    - Population - Est. & Proj.:
+      - "Urban population Population - Est. & Proj."
+  - Value:
+    - Per capita food supply variability (kcal/capita/day):
+      - "Value Per capita food supply variability (kcal/capita/day)"
+    - Average value of food production (constant I$ per person) (3-year average):
+      - "Value Average value of food production (constant I$ per person) (3-year average)"
+    - Number of severely food insecure people:
+      - "Value Number of severely food insecure people"
+    - Prevalence of undernourishment (%) (3-year average):
+      - "Value Prevalence of undernourishment (%) (3-year average)"
+    - Percentage of children under 5 years of age who are overweight:
+      - "Value Percentage of children under 5 years of age who are overweight"
+    - Cereal import dependency ratio (%) (3-year average):
+      - "Value Cereal import dependency ratio (%) (3-year average)"
+    - Average protein supply (g/capita/day) (3-year average):
+      - "Value Average protein supply (g/capita/day) (3-year average)"
+    - Value of food imports over total merchandise exports (%) (3-year average):
+      - "Value Value of food imports over total merchandise exports (%) (3-year average)"
+    - Access to improved water sources (%):
+      - "Value Access to improved water sources (%)"
+    - Depth of the food deficit (kcal/capita/day) (3-year average):
+      - "Value Depth of the food deficit (kcal/capita/day) (3-year average)"
+    - Average supply of protein of animal origin (g/capita/day) (3-year average):
+      - "Value Average supply of protein of animal origin (g/capita/day) (3-year average)"
+    - Share of dietary energy supply derived from cereals, roots and tubers (%) (3-year average):
+      - "Value Share of dietary energy supply derived from cereals, roots and tubers\
+        \ (%) (3-year average)"
+    - Political stability and absence of violence/terrorism (index):
+      - "Value Political stability and absence of violence/terrorism (index)"
+    - Percentage of children under 5 years of age who are stunted (%):
+      - "Value Percentage of children under 5 years of age who are stunted (%)"
+    - Access to improved sanitation facilities (%):
+      - "Value Access to improved sanitation facilities (%)"
+    - Gross domestic product per capita, PPP (constant 2011 international $):
+      - "Value Gross domestic product per capita, PPP (constant 2011 international\
+        \ $)"
+    - Prevalence of anemia among women of reproductive age (15-49 years):
+      - "Value Prevalence of anemia among women of reproductive age (15-49 years)"
+    - Per capita food production variability (I$ per person constant 2004-06):
+      - "Value Per capita food production variability (I$ per person constant 2004-06)"
+    - Prevalence of severe food insecurity in the total population:
+      - "Value Prevalence of severe food insecurity in the total population"
+    - Average dietary energy supply adequacy (%) (3-year average):
+      - "Value Average dietary energy supply adequacy (%) (3-year average)"
+    - Percentage of children under 5 years of age affected by wasting (%):
+      - "Value Percentage of children under 5 years of age affected by wasting (%)"
+    - Number of people undernourished (millions) (3-year average):
+      - "Value Number of people undernourished (millions) (3-year average)"
+    - Percentage of arable land equipped for irrigation (%) (3-year average):
+      - "Value Percentage of arable land equipped for irrigation (%) (3-year average)"
+    - Prevalence of exclusive breastfeeding among infants (0-5 months):
+      - "Value Prevalence of exclusive breastfeeding among infants (0-5 months)"
+    - Rail-lines density (per 100 square km of land area):
+      - "Value Rail-lines density (per 100 square km of land area)"
+  - Value Local Currency:
+    - Gross National Income:
+      - "Value Local Currency Gross National Income"
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Value Local Currency Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Domestic Product:
+      - "Value Local Currency Gross Domestic Product"
+    - Value Added (Agriculture):
+      - "Value Local Currency Value Added (Agriculture)"
+    - Gross Output (Agriculture, Forestry and Fishing):
+      - "Value Local Currency Gross Output (Agriculture, Forestry and Fishing)"
+    - Gross Fixed Capital Formation:
+      - "Value Local Currency Gross Fixed Capital Formation"
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Value Local Currency Gross Fixed Capital Formation (Agriculture, Forestry\
+        \ and Fishing)"
+    - Agriculture, forestry, fishing, Capital (Central Government):
+      - "Value Local Currency Agriculture, forestry, fishing, Capital (Central Government)"
+    - Agriculture, forestry, fishing (Central Government):
+      - "Value Local Currency Agriculture, forestry, fishing (Central Government)"
+    - Gross Output (Agriculture):
+      - "Value Local Currency Gross Output (Agriculture)"
+    - Value Added (Total Manufacturing):
+      - "Value Local Currency Value Added (Total Manufacturing)"
+    - Agriculture, forestry, fishing, Recurrent (Central Government):
+      - "Value Local Currency Agriculture, forestry, fishing, Recurrent (Central Government)"
+  - Value Local Currency, 2010 base year:
+    - Gross Fixed Capital Formation Deflator:
+      - "Value Local Currency, 2010 base year Gross Fixed Capital Formation Deflator"
+    - GDP Deflator:
+      - "Value Local Currency, 2010 base year GDP Deflator"
+    - Value Added Deflator (Manufacturing):
+      - "Value Local Currency, 2010 base year Value Added Deflator (Manufacturing)"
+    - Value Added Deflator (Agriculture, forestry and fishery):
+      - "Value Local Currency, 2010 base year Value Added Deflator (Agriculture, forestry\
+        \ and fishery)"
+  - Value Local Currency, 2010 prices:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Value Local Currency, 2010 prices Value Added (Agriculture, Forestry and\
+        \ Fishing)"
+    - Gross Domestic Product:
+      - "Value Local Currency, 2010 prices Gross Domestic Product"
+    - Value Added (Total Manufacturing):
+      - "Value Local Currency, 2010 prices Value Added (Total Manufacturing)"
+    - Gross Fixed Capital Formation:
+      - "Value Local Currency, 2010 prices Gross Fixed Capital Formation"
+  - Value US$:
+    - Gross National Income:
+      - "Value US$ Gross National Income"
+    - DFA Commitment to Agriculture, Forestry and Fishing:
+      - "Value US$ DFA Commitment to Agriculture, Forestry and Fishing"
+    - Total FDI inflows:
+      - "Value US$ Total FDI inflows"
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Value US$ Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Domestic Product:
+      - "Value US$ Gross Domestic Product"
+    - Value Added (Agriculture):
+      - "Value US$ Value Added (Agriculture)"
+    - Gross Output (Agriculture, Forestry and Fishing):
+      - "Value US$ Gross Output (Agriculture, Forestry and Fishing)"
+    - Gross Fixed Capital Formation:
+      - "Value US$ Gross Fixed Capital Formation"
+    - Gross Domestic Product per capita:
+      - "Value US$ Gross Domestic Product per capita"
+    - Gross National Income per capita:
+      - "Value US$ Gross National Income per capita"
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Value US$ Gross Fixed Capital Formation (Agriculture, Forestry and Fishing)"
+    - Agriculture, forestry, fishing, Capital (Central Government):
+      - "Value US$ Agriculture, forestry, fishing, Capital (Central Government)"
+    - Agriculture, forestry, fishing (Central Government):
+      - "Value US$ Agriculture, forestry, fishing (Central Government)"
+    - Gross Output (Agriculture):
+      - "Value US$ Gross Output (Agriculture)"
+    - Value Added (Total Manufacturing):
+      - "Value US$ Value Added (Total Manufacturing)"
+    - Agriculture, forestry, fishing, Recurrent (Central Government):
+      - "Value US$ Agriculture, forestry, fishing, Recurrent (Central Government)"
+  - Value US$, 2005 prices:
+    - Total FDI inflows:
+      - "Value US$, 2005 prices Total FDI inflows"
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Value US$, 2005 prices Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Domestic Product:
+      - "Value US$, 2005 prices Gross Domestic Product"
+    - Value Added (Agriculture):
+      - "Value US$, 2005 prices Value Added (Agriculture)"
+    - Gross Output (Agriculture, Forestry and Fishing):
+      - "Value US$, 2005 prices Gross Output (Agriculture, Forestry and Fishing)"
+    - Gross Fixed Capital Formation:
+      - "Value US$, 2005 prices Gross Fixed Capital Formation"
+    - Gross Fixed Capital Formation (Agriculture, Forestry and Fishing):
+      - "Value US$, 2005 prices Gross Fixed Capital Formation (Agriculture, Forestry\
+        \ and Fishing)"
+    - Agriculture, forestry, fishing, Capital (Central Government):
+      - "Value US$, 2005 prices Agriculture, forestry, fishing, Capital (Central Government)"
+    - Agriculture, forestry, fishing (Central Government):
+      - "Value US$, 2005 prices Agriculture, forestry, fishing (Central Government)"
+    - Gross Output (Agriculture):
+      - "Value US$, 2005 prices Gross Output (Agriculture)"
+    - Value Added (Total Manufacturing):
+      - "Value US$, 2005 prices Value Added (Total Manufacturing)"
+    - Agriculture, forestry, fishing, Recurrent (Central Government):
+      - "Value US$, 2005 prices Agriculture, forestry, fishing, Recurrent (Central\
+        \ Government)"
+  - Value US$, 2010 base year:
+    - Gross Fixed Capital Formation Deflator:
+      - "Value US$, 2010 base year Gross Fixed Capital Formation Deflator"
+    - GDP Deflator:
+      - "Value US$, 2010 base year GDP Deflator"
+    - Value Added Deflator (Manufacturing):
+      - "Value US$, 2010 base year Value Added Deflator (Manufacturing)"
+    - Value Added Deflator (Agriculture, forestry and fishery):
+      - "Value US$, 2010 base year Value Added Deflator (Agriculture, forestry and\
+        \ fishery)"
+  - Value US$, 2010 prices:
+    - Value Added (Agriculture, Forestry and Fishing):
+      - "Value US$, 2010 prices Value Added (Agriculture, Forestry and Fishing)"
+    - Gross Domestic Product:
+      - "Value US$, 2010 prices Gross Domestic Product"
+    - Gross Fixed Capital Formation:
+      - "Value US$, 2010 prices Gross Fixed Capital Formation"
+    - Gross Domestic Product per capita:
+      - "Value US$, 2010 prices Gross Domestic Product per capita"
+    - Value Added (Total Manufacturing):
+      - "Value US$, 2010 prices Value Added (Total Manufacturing)"
+  - Yield:
+    - Vegetables Primary:
+      - "Yield Vegetables Primary"
+    - Pineapples:
+      - "Yield Pineapples"
+    - Tangerines, mandarins, clementines, satsumas:
+      - "Yield Tangerines, mandarins, clementines, satsumas"
+    - Pulses, nes:
+      - "yield ne pulses"
+    - Cereals,Total:
+      - "Yield Cereals,Total"
+    - Fruit, fresh nes:
+      - "Yield Fruit, fresh nes"
+    - Citrus Fruit,Total:
+      - "yield total citrus fruit"
+    - Skins, sheep, fresh:
+      - "Yield Skins, sheep, fresh"
+    - Maize:
+      - "Yield Maize"
+    - Skins, sheep, with wool:
+      - "Yield Skins, sheep, with wool"
+    - Coarse Grain, Total:
+      - "Yield Coarse Grain, Total"
+    - Melonseed:
+      - "Yield Melonseed"
+    - Sesame seed:
+      - "Yield Sesame seed"
+    - Milk,Total:
+      - "Yield Milk,Total"
+    - Melons, other (inc.cantaloupes):
+      - "Yield Melons, other (inc.cantaloupes)"
+    - Beans, green:
+      - "yield green beans"
+    - Pumpkins, squash and gourds:
+      - "Yield Pumpkins, squash and gourds"
+    - Milk, whole fresh cow:
+      - "Yield Milk, whole fresh cow"
+    - Milk, whole fresh goat:
+      - "Yield Milk, whole fresh goat"
+    - Hides, cattle, fresh:
+      - "Yield Hides, cattle, fresh"
+    - Roots and Tubers,Total:
+      - "Yield Roots and Tubers,Total"
+    - Sunflower seed:
+      - "Yield Sunflower seed"
+    - Millet:
+      - "Yield Millet"
+    - Chillies and peppers, dry:
+      - "Yield Chillies and peppers, dry"
+    - Fruit, tropical fresh nes:
+      - "Yield Fruit, tropical fresh nes"
+    - Groundnuts, with shell:
+      - "Yield Groundnuts, with shell"
+    - Yams:
+      - "Yield Yams"
+    - Cassava:
+      - "Yield Cassava"
+    - Beans, dry:
+      - "yield dry beans"
+    - Sorghum:
+      - "Yield Sorghum"
+    - Pulses,Total:
+      - "Yield Pulses,Total"
+    - Milk, whole fresh sheep:
+      - "Yield Milk, whole fresh sheep"
+    - Vegetables, fresh nes:
+      - "Yield Vegetables, fresh nes"
+  - Yield/Carcass Weight:
+    - Meat, chicken:
+      - "yield/carcass weight chicken meat"
+    - Sheep and Goat Meat:
+      - "Yield/Carcass Weight Sheep and Goat Meat"
+    - Meat, Poultry:
+      - "yield/carcass weight poultry meat"
+    - Beef and Buffalo Meat:
+      - "Yield/Carcass Weight Beef and Buffalo Meat"
+    - Meat, cattle:
+      - "yield/carcass weight cattle meat"
+    - Meat, sheep:
+      - "yield/carcass weight sheep meat"
+    - Meat, goat:
+      - "yield/carcass weight goat meat"
