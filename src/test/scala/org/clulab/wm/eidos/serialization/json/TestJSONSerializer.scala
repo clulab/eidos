@@ -11,7 +11,7 @@ class TestJSONSerializer extends Test {
 
   behavior of "JSONSerializer"
 
-  ignore should "serialize and deserialize again" in {
+  it should "serialize and deserialize again" in {
     val text = "Water trucking has decreased due to the cost of fuel."
     val reader = new EidosSystem()
     val annotatedDocument = reader.extractFromText(text)
@@ -22,10 +22,7 @@ class TestJSONSerializer extends Test {
     val json1 = stringify(jValue1, pretty = true)
     val json2 = stringify(jValue2, pretty = true)
 
-//    println(json1)
-//    println(json2)
-
     json1 should be (json2)
-//    mentionsOut should be (mentionsIn)
+    mentionsOut should be (mentionsIn)
   }
 }
