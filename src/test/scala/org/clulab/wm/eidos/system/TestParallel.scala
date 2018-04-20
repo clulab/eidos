@@ -40,62 +40,25 @@ class TestParallel extends Test {
   }
 
   {
-    val expected = toText(ieSystem)
+    def innerToText = toText(ieSystem)
+//    def innerToText = toText(new EidosSystem())
+
+    val expected = innerToText
     val threads = 8
 
     behavior of "parallel EidosSystem calling of annotate"
 
-    ignore should "be consistent" in {
-      for (i <- 1 to 100) {
+    it should "be consistent" in {
+      for (_ <- 1 to 2) {
         val actuals: Array[String] = new Array(threads)
         // Make this like ExtractFromDirectory
         val indexes = 0.until(threads)
 
         indexes.par.foreach { index =>
-          println("Trial " + i + " thread " + index)
-          actuals(index) = toText(ieSystem)
+          actuals(index) = innerToText
         }
 
         indexes.foreach { index =>
-          if (expected != actuals(index)) {
-            println("----- Expected -----")
-            println(expected)
-            println("----- Actual (" + index + ") -----")
-            println(actuals(index))
-          }
-          expected should be(actuals(index))
-        }
-      }
-    }
-  }
-
-  {
-    val expected = toText(ieSystem)
-    val threads = 8
-
-    println("Hash code for this run: " + expected.hashCode())
-
-    behavior of "parallel new EidosSystem calling of annotate"
-
-    ignore should "be consistent" in {
-      for (i <- 1 to 100) {
-        val eidosSystem = new EidosSystem()
-        val actuals: Array[String] = new Array(threads)
-        // Make this like ExtractFromDirectory
-        val indexes = 0.until(threads)
-
-        indexes.par.foreach { index =>
-          println("Trial " + i + " thread " + index)
-          actuals(index) = toText(eidosSystem)
-        }
-
-        indexes.foreach { index =>
-          if (expected != actuals(index)) {
-            println("----- Expected -----")
-            println(expected)
-            println("----- Actual (" + index + ") -----")
-            println(actuals(index))
-          }
           expected should be(actuals(index))
         }
       }
