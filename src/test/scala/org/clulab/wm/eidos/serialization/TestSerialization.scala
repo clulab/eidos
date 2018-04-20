@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.serialization
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 
-import org.clulab.odin.{TextBoundMention, EventMention, SynPath}
+import org.clulab.odin.{EventMention, Mention, SynPath, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
 
@@ -19,22 +19,22 @@ class RecursiveClass(val text: SynPath, val recursiveClasses: Map[String, Map[Re
 }
 
 class TestSerialization extends Test {
-
   val reader = new EidosSystem()
 
-  val streamOut = new ByteArrayOutputStream()
-  val encoder = new ObjectOutputStream(streamOut)
-
-  def serialize(any: Any, index: Int): Unit = {
-    encoder.reset()
-    encoder.writeObject(any)
+  def serialize(original: Any, index: Int): Unit = {
+    val streamOut = new ByteArrayOutputStream()
+    val encoder = new ObjectOutputStream(streamOut)
+    encoder.writeObject(original)
+    encoder.close()
 
     val bytes = streamOut.toByteArray
     val streamIn = new ByteArrayInputStream(bytes)
     val decoder = new ObjectInputStream(streamIn)
-
-    decoder.readObject()
+    val copy = decoder.readObject()
     decoder.close()
+
+    if (original.isInstanceOf[Mention])
+      require(original == copy)
   }
   
   behavior of "Standard Serializer"
@@ -116,6 +116,4 @@ class TestSerialization extends Test {
 
     serialize(Seq(just, norm1, rec1, rec1), index); index += 1
   }
-
-  encoder.close()
 }
