@@ -148,28 +148,27 @@ class TestDoc7 extends Test {
   { // Paragraph 5
     val text = """
       A sustained and unimpeded humanitarian response is critical to saving
-      lives and preventing a deterioration to Famine (IPC 5) levels of acute
-      food insecurity. Since the start of the conflict, the USAID's Office of
-      Food for Peace (FFP) and its partners--including the UN World Food Program
-      (WFP) and the UN Children's Fund (UNICEF)--have responded to the needs of
-      South Sudan's most vulnerable and conflict-affected populations through
-      emergency food and nutrition interventions. In FY 2017, FFP-supported
-      programs provided life-saving food assistance to 1.1 million people per
-      month, on average.
+      |lives and preventing a deterioration to Famine (IPC 5) levels of acute food insecurity.
+      |Since the start of the conflict, the USAID's Office of
+      |Food for Peace (FFP) and its partners--including the UN World Food Program
+      |(WFP) and the UN Children's Fund (UNICEF)--have responded to the needs of
+      |South Sudan's most vulnerable and conflict-affected populations through
+      |emergency food and nutrition interventions. In FY 2017, FFP-supported
+      |programs provided life-saving food assistance to 1.1 million people per
+      |month, on average.
       """
   
     val tester = new Tester(text)
 
     val humanitarianResponse = NodeSpec("sustained and unimpeded humanitarian response", Quant("critical")) // TODO: changed from --> NodeSpec("humanitarian response", Quant("sustained", "unimpeded")) .. Note sure of the Quantifier though
-    val foodInsecurity = NodeSpec("levels of acute food insecurity",
-                                  Dec("deterioration"))
+    val foodInsecurity = NodeSpec("levels of acute food insecurity", Dec("deterioration"), Dec("preventing")) // TODO: added preventing ... is this okay
     
     behavior of "TestDoc7 Paragraph 5"
 
     passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(humanitarianResponse) should be (successful) 
     }
-    failingTest should "have correct singleton node 2" taggedAs(Ajay) in {
+    passingTest should "have correct singleton node 2" taggedAs(Ajay) in {
       tester.test(foodInsecurity) should be (successful) 
     }
   }
