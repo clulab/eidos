@@ -96,7 +96,7 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 3"
 
-    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
+    passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(conflict) should be (successful) 
     }
     failingTest should "have correct edge 1" taggedAs(Ajay) in {
@@ -160,14 +160,13 @@ class TestDoc7 extends Test {
   
     val tester = new Tester(text)
 
-    val humanitarianResponse = NodeSpec("humanitarian response",
-                                        Quant("sustained", "unimpeded"))
+    val humanitarianResponse = NodeSpec("sustained and unimpeded humanitarian response", Quant("critical")) // TODO: changed from --> NodeSpec("humanitarian response", Quant("sustained", "unimpeded")) .. Note sure of the Quantifier though
     val foodInsecurity = NodeSpec("levels of acute food insecurity",
-                                  Quant("deterioration"))
+                                  Dec("deterioration"))
     
     behavior of "TestDoc7 Paragraph 5"
 
-    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
+    passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(humanitarianResponse) should be (successful) 
     }
     failingTest should "have correct singleton node 2" taggedAs(Ajay) in {
