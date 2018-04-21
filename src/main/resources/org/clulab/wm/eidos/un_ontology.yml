@@ -26,6 +26,8 @@
     - crisis
     - emergency
   - natural:
+    - chemical:
+    #todo -- O2, N, CO2 etc ...
     - biology:
       - ecosystem:
         - species
@@ -293,6 +295,10 @@
         - health
         - healthy
         - nutrition
+      - nutrients:
+        - diet
+        - vitamin a
+        #todo
       - disease:
         - HIV
         - malaraia
@@ -302,7 +308,7 @@
         - anaemia
         - hiv/aids
         - outbreak
-    - fertilizer:
+    - fertilizer: #todo: move this to crop_technology
       - nitrogen fertilizer
       - inorganic fertilizers
       - potting composts
