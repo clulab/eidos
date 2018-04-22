@@ -1,15 +1,8 @@
 package org.clulab.wm.eidos.text.cag
 
-import CAG._
-
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Quant
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.Causal
-import org.scalactic.source.Position.apply
+import org.clulab.wm.eidos.text._
+import org.clulab.wm.eidos.text.cag.CAG._
 
 class TestCagP1 extends Test {
   

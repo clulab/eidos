@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   adverbial_clause: "advcl"
@@ -239,3 +239,11 @@ rules:
     # xcomp for "A, leading to B" pattern
     # "leading to activation"
 
+  - name: ${ label }_given_Causal
+    priority: ${ rulepriority }
+    label: ${label}
+    example: "import requirements are higher than usual given below-average harvests"
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      cause: Entity = nmod_given [tag=/^N/] #(${ conjunctions })? #/${noun_modifiers}/{,2} #
+      effect: Entity = nsubj /${noun_modifiers}/{,2}

@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.test.TestUtils.{ieSystem, _}
@@ -34,113 +33,22 @@ class TestSerial extends Test {
     val corpus = new JLDCorpus(annotatedDocuments, ieSystem)
     val result = corpus.toJsonStr()
 
-    // Pick a random batch to do
     Random.shuffle(altTexts.toList).map(eidosSystem.extractFromText(_))
-
     result
   }
 
-//  {
-//    behavior of "processors itself"
-//
-//    val processor = new FastNLPProcessor()
-//
-//    def toText(): String = {
-//      val result = texts.map { text =>
-//        val doc = processor.annotate(text)
-//        doc.sentences.foreach(ieSystem.addLexiconNER)
-//        val mentions = ieSystem.extractFrom(doc)
-//
-//        val result = doc.sentences.map(_.equivalenceHash).sum.toString
-//      }.mkString(" ")
-//
-//      Random.shuffle(altTexts.toList).map { text =>
-//        // Adding this line will fix it!
-//        //val doc = processor.annotate(text)
-////        doc.sentences.foreach(ieSystem.addLexiconNER)
-////        val mentions = ieSystem.extractFrom(doc)
-//
-////        val result = doc.sentences.map(_.equivalenceHash).sum.toString
-//      }.mkString(" ")
-//
-//      result
-//    }
-//
-//    val expected = toText()
-//
-//    ignore should "be consistent" in {
-//      for (i <- 1 to 100) {
-//        println("Trial " + i)
-//        val actual = toText()
-//
-//        if (expected != actual) {
-//          println("----- Expected -----")
-//          println(expected)
-//          println("----- Actual -----")
-//          println(actual)
-//        }
-//        expected should be(actual)
-//      }
-//    }
-//  }
-
   {
+    def innerToText = toText(ieSystem)
+//    def innerToText = toText(new EidosSystem())
 
-//    {
-//      val processor = new FastNLPProcessor()
-//
-//      texts.foreach { text =>
-//        val doc = processor.annotate(text)
-//        doc.sentences.foreach(ieSystem.addLexiconNER)
-//        ieSystem.extractFrom(doc)
-//      }
-//      //Adding this will fix it!
-//      texts.reverse.foreach { text =>
-//        val doc = processor.annotate(text)
-//        doc.sentences.foreach(ieSystem.addLexiconNER)
-//        ieSystem.extractFrom(doc)
-//      }
-//    }
-
-    val expected = toText(ieSystem)
+    val expected = innerToText
 
     behavior of "serial EidosSystem calling of annotate"
 
-    // This test can fail!
-    ignore should "be consistent" in {
-      for (i <- 1 to 100) {
-        println("Trial " + i)
-        val actual = toText(ieSystem)
+    it should "be consistent" in {
+      for (_ <- 1 to 5) {
+        val actual = innerToText
 
-        if (expected != actual) {
-          println("----- Expected -----")
-          println(expected)
-          println("----- Actual -----")
-          println(actual)
-        }
-        expected should be(actual)
-      }
-    }
-  }
-
-  {
-    def toNewText() = toText(new EidosSystem())
-
-    val expected = toNewText()
-
-    behavior of "serial new EidosSystem calling of annotate"
-
-    ignore should "be consistent" in {
-      for (i <- 1 to 100) {
-        println("Trial " + i)
-        val actual = toNewText()
-
-        if (expected != actual) {
-          println("----- Expected -----")
-          println(expected)
-          println("----- Actual -----")
-          println(actual)
-        }
         expected should be(actual)
       }
     }
