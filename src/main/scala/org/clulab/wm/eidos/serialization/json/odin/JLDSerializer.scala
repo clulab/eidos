@@ -268,6 +268,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
   def getMentions(): Seq[Mention] = Nil
   
   override def toJObject(): JObject = {
+    // kwa sort
     val jldAttachments = mention.attachments.map(newJLDAttachment(_, mention)).toList
           
     serializer.mkType(this) ~

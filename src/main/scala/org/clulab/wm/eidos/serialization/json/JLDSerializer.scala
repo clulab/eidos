@@ -283,9 +283,14 @@ object JLDTrigger {
 abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mention: EidosMention) extends JLDObject(serializer, typename, mention) {
  
   def getMentions(): Seq[EidosMention] = Nil
-  
+
+  // kwa: do this!
+  protected def lessThan(left: Attachment, right: Attachment): Boolean = true
+
   override def toJObject(): JObject = {
-    val jldAttachments = mention.odinMention.attachments.map(newJLDAttachment(_, mention)).toList
+    // kwa: Sort them here, maybe before conversion
+
+    val jldAttachments = mention.odinMention.attachments.toList.sortWith(lessThan).map(newJLDAttachment(_, mention)).toList
     val ontologyGrounding = mention.grounding.grounding
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
     val jldGroundings = toJObjects(ontologyGrounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
