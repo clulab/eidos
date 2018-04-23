@@ -80,16 +80,16 @@ class TestDoc7 extends Test {
   { // Paragraph 3
     val text = """
       In particular, ongoing conflict has severely affected areas of Western
-      Bahr El Ghazal State, resulting in approximately 20,000 people
-      experiencing Humanitarian Catastrophe levels of acute food insecurity--or
-      famine at the household level--meaning that starvation, destitution and
-      death are evident
+      |Bahr El Ghazal State, resulting in approximately 20,000 people
+      |experiencing Humanitarian Catastrophe levels of acute food insecurity--or
+      |famine at the household level--meaning that starvation, destitution and
+      |death are evident
       """
 
     val tester = new Tester(text)
 
     val conflict = NodeSpec("conflict", Quant("ongoing"))
-    val foodInsecurity = NodeSpec("levels of acute food insecurity")
+    val foodInsecurity = NodeSpec("acute food insecurity") // NodeSpec("levels of acute food insecurity")
     val starvation = NodeSpec("starvation", Quant("evident"))
     val destitution = NodeSpec("destitution", Quant("evident"))
     val death = NodeSpec("death", Quant("evident"))
