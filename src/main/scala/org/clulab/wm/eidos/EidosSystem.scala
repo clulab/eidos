@@ -193,12 +193,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(s1: String, s2: String): Double = {
-    wordToVec match {
-      case w2v: RealWordToVec => w2v.stringSimilarity(s1, s2)
-      case _ => throw new RuntimeException("Word2Vec wasn't loaded, please check configurations.")
-    }
-  }
+  def stringSimilarity(s1: String, s2: String): Double = wordToVec.stringSimilarity(s1, s2)
 
   /*
      Debugging Methods
