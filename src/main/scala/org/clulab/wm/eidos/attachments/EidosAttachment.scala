@@ -35,6 +35,16 @@ abstract class EidosAttachment extends Attachment {
   def toJson(label: String): JValue =
       (EidosAttachment.TYPE -> label) ~
           (EidosAttachment.MOD -> write(this))
+
+  def lessThan(other: EidosAttachment): Boolean
+
+  def lessThan(left: Seq[String], right: Seq[String]): Boolean = {
+    val result = left.indices.foldLeft(0) { (sign, i) =>
+      if (sign != 0) sign
+      else left(i).compareTo(right(i))
+    }
+    result < 0
+  }
 }
 
 object EidosAttachment {
@@ -68,6 +78,13 @@ object EidosAttachment {
           .arguments
           .get("quantifier")
           .map(qs => qs.map(_.text))
+
+  def lessThan(left: EidosAttachment, right: EidosAttachment): Boolean = {
+    if (left.getClass().getName() != right.getClass().getName())
+      left.getClass().getName().compareTo(right.getClass().getName()) < 0
+    else
+      left.lessThan(right)
+  }
 }
 
 case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends EidosAttachment {
@@ -98,6 +115,25 @@ case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) 
     new JLDEidosAttachment(serializer, "QUANT", quantifier, adverbs, mention)
 
   override def toJson(): JValue = toJson(Quantification.label)
+
+  def lessThan(other: EidosAttachment): Boolean = {
+    val that = other.asInstanceOf[Quantification]
+
+    if (this.quantifier != that.quantifier)
+      this.quantifier.compareTo(that.quantifier) < 0
+    else if (this.adverbs != that.adverbs) {
+      if (this.adverbs.isEmpty)
+        true
+      else if (that.adverbs.isEmpty)
+        false
+      else if (this.adverbs.get.length != that.adverbs.get.length)
+        this.adverbs.get.length - that.adverbs.get.length < 0
+      else
+        lessThan(this.adverbs.get, that.adverbs.get)
+    }
+    else
+      false
+  }
 }
 
 object Quantification {
@@ -141,6 +177,25 @@ case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) exten
       new JLDEidosAttachment(serializer, "INC", trigger, quantifiers, mention)
 
   override def toJson(): JValue = toJson(Increase.label)
+
+  def lessThan(other: EidosAttachment): Boolean = {
+    val that = other.asInstanceOf[Increase]
+
+    if (this.trigger != that.trigger)
+      this.trigger.compareTo(that.trigger) < 0
+    else if (this.quantifiers != that.quantifiers) {
+      if (this.quantifiers.isEmpty)
+        true
+      else if (that.quantifiers.isEmpty)
+        false
+      else if (this.quantifiers.get.length != that.quantifiers.get.length)
+        this.quantifiers.get.length - that.quantifiers.get.length < 0
+      else
+        lessThan(this.quantifiers.get, that.quantifiers.get)
+    }
+    else
+      false
+  }
 }
 
 object Increase {
@@ -156,7 +211,7 @@ object Increase {
 
 case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None) extends EidosAttachment {
   protected val sortedArguments: Option[Seq[String]] =
-    if (!quantifiers.isDefined) None
+    if (quantifiers.isEmpty) None
     else Some(quantifiers.get.sorted)
 
   override def canEqual(other: Any) = other.isInstanceOf[Decrease]
@@ -179,6 +234,25 @@ case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None
     new JLDEidosAttachment(serializer, "DEC", trigger, quantifiers, mention)
 
   override def toJson(): JValue = toJson(Decrease.label)
+
+  def lessThan(other: EidosAttachment): Boolean = {
+    val that = other.asInstanceOf[Decrease]
+
+    if (this.trigger != that.trigger)
+      this.trigger.compareTo(that.trigger) < 0
+    else if (this.quantifiers != that.quantifiers) {
+      if (this.quantifiers.isEmpty)
+        true
+      else if (that.quantifiers.isEmpty)
+        false
+      else if (this.quantifiers.get.length != that.quantifiers.get.length)
+        this.quantifiers.get.length - that.quantifiers.get.length < 0
+      else
+        lessThan(this.quantifiers.get, that.quantifiers.get)
+    }
+    else
+      false
+  }
 }
 
 object Decrease {
@@ -192,7 +266,7 @@ object Decrease {
   }
 }
 
-case class Score(score: Double) extends EidosAttachment {
+case class Score(val score: Double) extends EidosAttachment {
   override def argumentSize: Int = 0
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
@@ -201,6 +275,8 @@ case class Score(score: Double) extends EidosAttachment {
     new JLDEidosAttachment(serializer, "SCORE", score.toString, None, mention)
   
   override def toJson(): JValue = toJson(Score.label)
+
+  def lessThan(other: EidosAttachment): Boolean = score - other.asInstanceOf[Score].score < 0
 }
 
 object Score {
