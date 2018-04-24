@@ -55,7 +55,7 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val emergencySupport = NodeSpec("emergency support")) //NOTE: As support is an increase trigger .. else how to identify 'emergency support' as single entity (Becky's comment here: https://github.com/clulab/eidos/pull/285)
+    val emergencySupport = NodeSpec("emergency support") //NOTE: As support is an increase trigger .. else how to identify 'emergency support' as single entity (Becky's comment here: https://github.com/clulab/eidos/pull/285)
     val foodSecurity = NodeSpec("food security", Inc("improve")) //NOTE: Changing this from 'food security of vulnerable urban and rural populations", Inc("improve")'
     val foodGap = NodeSpec("food gap", Dec("reduce"))
     
