@@ -53,12 +53,13 @@ rules:
     #example: "The water quality caused an increase in poverty and a decrease in poverty."
     example: "improved economic performance expected to cause a shift from agriculture to service industry."
     label: ${ label }
+    action: expandArguments
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       # Previous -- removed the complements because they were over matching
       #cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
       cause: Entity = </${adverbial_clause}/? (${ agents }) /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_by? (${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       # previous ones -- removed the preps because they were waaaay over-matching:
       #cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
       #effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
@@ -91,6 +92,7 @@ rules:
     priority: ${ rulepriority }
     example: "Intensive cultivation will be caused by a shrinking agriculture land base"
     label: ${ label }
+    action: expandArguments
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
       effect: Entity = (/^nsubjpass/ /conj_|${ noun_modifiers }/{,2})

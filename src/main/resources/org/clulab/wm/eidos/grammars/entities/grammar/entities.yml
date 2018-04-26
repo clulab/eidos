@@ -10,3 +10,13 @@ rules:
       [chunk='B-NP' & !mention=Avoid]? [chunk='I-NP' & !mention=Avoid]+
       |
       [chunk='B-NP' & !mention=Avoid]
+
+  - name: simple-vp
+    label: NounPhrase
+    priority: 1
+    type: token
+    pattern: |
+      # avoids event triggers, coordinations, refs, etc.
+      [chunk='B-VP' & !mention=Avoid]? [chunk='I-VP' & !mention=Avoid]+
+      |
+      [chunk='B-VP' & !mention=Avoid]

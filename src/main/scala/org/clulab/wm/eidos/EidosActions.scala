@@ -15,7 +15,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Set => MutableSet}
 import scala.io.BufferedSource
-import EidosActions._
+import utils.DisplayUtils.displayMention
+import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
 
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
@@ -26,10 +27,7 @@ import EidosActions._
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
-  /**
-    * @author Gus Hahn-Powell
-    * Copies the label of the lowest overlapping entity in the taxonomy
-    */
+
   def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
 
     // --- To distinguish between :
@@ -82,6 +80,15 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val filteredMentions = mention_attachmentSz.filter(m => m._2 == maxModAttachSz).map(_._1)
     filteredMentions
   }
+
+  def filterSubstringArgumentEvents(events: Seq[EventMention]): Seq[Mention] = {
+    val triggerGroups = events.groupBy(event => (event.label, event.trigger))
+    for ((_, eventsInGroup) <- triggerGroups) {
+      val sortedByLength = eventsInGroup.sortBy(e => e.tokenInterval.length)
+    }
+    ???
+  }
+
 
   // remove incomplete EVENT Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
@@ -163,10 +170,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
 
-    def getNewTokenInterval(intervals: Seq[Interval]): Interval = new Interval(intervals.minBy(_.start), intervals.maxBy(_.end))
+    mentions.map(m => displayMention(m))
+    def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
     def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
       // All involved token intervals, both for the original event and the expanded arguments
       val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
+      println("allIntervals: " + allIntervals.mkString(", "))
       // Find the largest span from these intervals
       val newTokenInterval = getNewTokenInterval(allIntervals)
       // Make the copy based on the type of the Mention
@@ -184,6 +193,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         expandedMentions = argMentions.map(expand(_, maxHops = 5, new State))
       } yield (argType, expandedMentions)
     } yield copyWithExpanded(mention, expanded)
+
   }
 
 
@@ -369,6 +379,10 @@ object EidosActions extends Actions {
 //    "^nmod_except".r,
 //    "^nmod_since".r,
 //    "^nmod_among".r
+    "^conj".r,
+    "^cc".r,
+    "^punct".r
+
   )
 
   val INVALID_INCOMING = Set[scala.util.matching.Regex](
