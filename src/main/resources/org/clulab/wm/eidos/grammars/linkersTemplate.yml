@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   adverbial_clause: "advcl"
@@ -75,14 +75,14 @@ rules:
       cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
-#Handles occurrence of prep_by when NOT passive voice
+  #Handles occurrence of prep_by when NOT passive voice
   #misfires on "floods caused by rain"
   - name: ported_syntax_1d_verb-${addlabel}
     priority: ${ rulepriority }
     example: "The water quality contributes to poverty."
     label: ${ label }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !tag=/VBN/]
       effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
@@ -213,16 +213,6 @@ rules:
       effect: Entity = /nmod:poss/ # I think this is the UDep version
 
 
-  - name: ported_token_1_noun-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "mTOR activator Rapamycin"
-    example: ""
-    type: token
-    label: ${ label }
-    pattern: |
-      @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
-
-
   # this rule is needed because PP attachment of "by" is often wrong
   - name: ported_token_2_noun-${addlabel}
     priority: ${ rulepriority }
@@ -249,3 +239,11 @@ rules:
     # xcomp for "A, leading to B" pattern
     # "leading to activation"
 
+  - name: ${ label }_given_Causal
+    priority: ${ rulepriority }
+    label: ${label}
+    example: "import requirements are higher than usual given below-average harvests"
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      cause: Entity = nmod_given [tag=/^N/] #(${ conjunctions })? #/${noun_modifiers}/{,2} #
+      effect: Entity = nsubj /${noun_modifiers}/{,2}

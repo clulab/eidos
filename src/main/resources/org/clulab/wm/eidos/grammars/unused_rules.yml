@@ -133,3 +133,17 @@
     #      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
     #      effect: Entity = < ${noun_modifiers} > /nmod_/ /${ conjunctions }|${ noun_modifiers }/{,2}
     #      cause: Entity = < ${noun_modifiers} /${ conjunctions }|${ noun_modifiers }/{,2}
+
+    # removed because it was matching inappropriately:
+    # exs:
+    #   social support networks
+    #   climate change impacts
+    #   etc.
+    - name: ported_token_1_noun-${addlabel}
+      priority: ${ rulepriority }
+      #Original example: "mTOR activator Rapamycin"
+      example: ""
+      type: token
+      label: ${ label }
+      pattern: |
+        @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity

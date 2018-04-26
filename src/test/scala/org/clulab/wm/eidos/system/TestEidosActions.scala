@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.system
 
 import java.util.IdentityHashMap
-
+import scala.collection.JavaConverters._
 import org.clulab.odin._
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
@@ -9,8 +9,6 @@ import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.attachments.{Decrease, EidosAttachment, Increase, Quantification}
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils._
-
-import scala.collection.JavaConverters.asScalaSet
 
 class TestEidosActions extends Test {
 
@@ -39,7 +37,7 @@ class TestEidosActions extends Test {
     val mapOfMentions = new IdentityHashMap[Mention, Mention]()
 
     addAllMentions(mentions, mapOfMentions)
-    asScalaSet(mapOfMentions.keySet()).toSeq
+    mapOfMentions.keySet.asScala.toSeq
   }
 
   def areMatching(left: Mention, right: Mention): Boolean = {
