@@ -30,14 +30,14 @@ import org.json4s.jackson.JsonMethods._
 abstract class JLDObject(val serializer: JLDSerializer, val typename: String, val value: Any = new Object()) {
   serializer.register(this)
   
-  def serialize() = serializer.serialize(this)
+  def serialize(): JValue = serializer.serialize(this)
   
   def toJsonStr(): String =
       pretty(render(serialize()))
 
   def toJObject(): JObject
   
-  def noneIfEmpty(values: Seq[JValue]) =
+  def noneIfEmpty(values: Seq[JValue]): Option[Seq[JValue]] =
       if (values.isEmpty) None
       else Some(values)
   
@@ -138,9 +138,9 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
         jObject
   }
   
-  def ground(mention: EidosMention, quantifier: Quantifier) =
-    if (adjectiveGrounder.isDefined) adjectiveGrounder.get.groundAdjective(mention.odinMention, quantifier)
-    else AdjectiveGrounding.noAdjectiveGrounding
+  def ground(mention: EidosMention, quantifier: Quantifier): AdjectiveGrounding =
+      if (adjectiveGrounder.isDefined) adjectiveGrounder.get.groundAdjective(mention.odinMention, quantifier)
+      else AdjectiveGrounding.noAdjectiveGrounding
 }
 
 object JLDSerializer {
@@ -200,7 +200,7 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
   
   override def toJObject(): JObject = {
     val jldModifiers =
-        if (!modifiers.isDefined) Nil
+        if (modifiers.isEmpty) Nil
         else modifiers.get.map(new JLDModifier(serializer, _, mention).toJObject()).toList
     
     serializer.mkType(this) ~
@@ -283,9 +283,9 @@ object JLDTrigger {
 abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mention: EidosMention) extends JLDObject(serializer, typename, mention) {
  
   def getMentions(): Seq[EidosMention] = Nil
-  
+
   override def toJObject(): JObject = {
-    val jldAttachments = mention.odinMention.attachments.map(newJLDAttachment(_, mention)).toList
+    val jldAttachments = mention.odinMention.attachments.toList.map(_.asInstanceOf[EidosAttachment]).sortWith(EidosAttachment.lessThan).map(newJLDAttachment(_, mention))
     val ontologyGrounding = mention.grounding.grounding
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
     val jldGroundings = toJObjects(ontologyGrounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
@@ -407,13 +407,13 @@ class JLDWord(serializer: JLDSerializer, val document: Document, val sentence: S
   
   override def toJObject(): JObject = {
     def getOrNone(optionArray: Option[Array[String]]): Option[String] =
-        if (!optionArray.isDefined) None
+        if (optionArray.isEmpty) None
         else Option(optionArray.get(index))
      
     val startOffset = sentence.startOffsets(index)
     val endOffset = sentence.endOffsets(index)
     val jldText =
-        if (!document.text.isDefined) None
+        if (document.text.isEmpty) None
         else Option(document.text.get.substring(startOffset, endOffset))
 
     serializer.mkType(this) ~
@@ -443,7 +443,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val dependencies = sentence.graphs.get(key)
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair =
-        if (!dependencies.isDefined) None
+        if (dependencies.isEmpty) None
         else Some(new JLDGraphMapPair(serializer, key, dependencies.get, jldWords).toJValue())
           
     serializer.mkType(this) ~
