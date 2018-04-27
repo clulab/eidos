@@ -13,6 +13,7 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods
 import org.json4s.jackson.Serialization.write
 
+import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.mixLast
 
 abstract class EidosAttachment extends Attachment {
@@ -38,13 +39,22 @@ abstract class EidosAttachment extends Attachment {
 
   def lessThan(other: EidosAttachment): Boolean
 
-  def lessThan(left: Seq[String], right: Seq[String]): Boolean = {
-    val result = left.indices.foldLeft(0) { (sign, i) =>
-      if (sign != 0) sign
-      else left(i).compareTo(right(i))
-    }
-    result < 0
-  }
+  @tailrec
+  final def recLessThan(left: Seq[String], right: Seq[String]): Boolean =
+      if (left.length == 0 && right.length == 0)
+        false
+      else {
+        val sign = left.head.compareTo(right.head)
+
+        if (sign != 0) sign < 0
+        else recLessThan(left.tail, right.tail)
+      }
+
+  def lessThan(left: Seq[String], right: Seq[String]): Boolean =
+      if (left.length != right.length)
+        left.length - right.length < 0
+      else
+        recLessThan(left, right)
 }
 
 object EidosAttachment {
@@ -91,7 +101,7 @@ case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) 
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
   protected val sortedArguments: Seq[String] =
-      if (!adverbs.isDefined) Seq.empty
+      if (adverbs.isEmpty) Seq.empty
       else adverbs.get.sorted
 
   override def canEqual(other: Any) = other.isInstanceOf[Quantification]
@@ -121,8 +131,6 @@ case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) 
 
     if (this.quantifier != that.quantifier)
       this.quantifier.compareTo(that.quantifier) < 0
-    else if (this.sortedArguments.length != that.sortedArguments.length)
-      this.sortedArguments.length - that.sortedArguments.length < 0
     else
       lessThan(this.sortedArguments, that.sortedArguments)
   }
@@ -146,7 +154,7 @@ case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) exten
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
   protected val sortedArguments: Seq[String] =
-    if (!quantifiers.isDefined) Seq.empty
+    if (quantifiers.isEmpty) Seq.empty
     else quantifiers.get.sorted
 
   override def canEqual(other: Any) = other.isInstanceOf[Increase]
@@ -175,8 +183,6 @@ case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) exten
 
     if (this.trigger != that.trigger)
       this.trigger.compareTo(that.trigger) < 0
-    else if (this.sortedArguments.length != that.sortedArguments.length)
-      this.sortedArguments.length - that.sortedArguments.length < 0
     else
       lessThan(this.sortedArguments, that.sortedArguments)
   }
@@ -224,8 +230,6 @@ case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None
 
     if (this.trigger != that.trigger)
       this.trigger.compareTo(that.trigger) < 0
-    else if (this.sortedArguments.length != that.sortedArguments.length)
-      this.sortedArguments.length - that.sortedArguments.length < 0
     else
       lessThan(this.sortedArguments, that.sortedArguments)
   }
