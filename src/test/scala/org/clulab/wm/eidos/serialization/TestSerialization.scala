@@ -18,11 +18,11 @@ class TestSerialization extends Test {
     val bytes = streamOut.toByteArray
     val streamIn = new ByteArrayInputStream(bytes)
     val decoder = new ObjectInputStream(streamIn)
-//    val copy = decoder.readObject()
+    val copy = decoder.readObject()
     decoder.close()
 
-//    if (original.isInstanceOf[Mention])
-//      require(original == copy)
+    if (original.isInstanceOf[Mention])
+      require(original == copy)
   }
   
   behavior of "Standard Serializer"
