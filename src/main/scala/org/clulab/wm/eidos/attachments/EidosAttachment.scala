@@ -10,6 +10,7 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods
 import org.json4s.jackson.Serialization.write
 
+import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.mixLast
 
 abstract class EidosAttachment extends Attachment {
@@ -62,6 +63,12 @@ object EidosAttachment {
   
   def asEidosAttachment(attachment: Attachment): EidosAttachment =
       attachment.asInstanceOf[EidosAttachment]
+    
+  def getOptionalQuantifiers(mention: Mention): Option[Seq[Quantifier]] =
+      mention.asInstanceOf[EventMention]
+          .arguments
+          .get("quantifier")
+          .map(qs => qs.map(_.text))
 }
 
 abstract class TriggeredAttachment(val trigger: String, val quantifiers: Option[Seq[String]],
@@ -69,8 +76,8 @@ abstract class TriggeredAttachment(val trigger: String, val quantifiers: Option[
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
   protected val sortedArguments: Option[Seq[String]] =
-      if (quantifiers.isEmpty) None
-      else Some(quantifiers.get.sorted)
+      if (!adverbs.isDefined) None
+      else Some(adverbs.get.sorted)
 
   override def argumentSize: Int = argumentSize(quantifiers)
 
@@ -141,6 +148,15 @@ class Quantification(quantifier: String, adverbs: Option[Seq[String]], quantifie
       super.newJLDEidosAttachment(serializer, Quantification.kind)
 
   override def toJson(): JValue = toJson(Quantification.label)
+
+  def lessThan(other: EidosAttachment): Boolean = {
+    val that = other.asInstanceOf[Quantification]
+
+    if (this.quantifier != that.quantifier)
+      this.quantifier.compareTo(that.quantifier) < 0
+    else
+      lessThan(this.sortedArguments, that.sortedArguments)
+  }
 }
 
 object Quantification {
@@ -148,7 +164,12 @@ object Quantification {
   val kind = "QUANT"
   val argument = "adverb"
 
-  def apply(quantifier: String, adverbs: Option[Seq[String]]) = new Quantification(quantifier, adverbs)
+case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) extends EidosAttachment {
+  // We keep the original order in adverbs for printing and things,
+  // but the sorted version will be used for comparison.
+  protected val sortedArguments: Option[Seq[String]] =
+    if (!quantifiers.isDefined) None
+    else Some(quantifiers.get.sorted)
 
   def apply(mention: Mention): Quantification = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
@@ -168,6 +189,15 @@ class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention
       super.newJLDEidosAttachment(serializer, Increase.kind)
 
   override def toJson(): JValue = toJson(Increase.label)
+
+  def lessThan(other: EidosAttachment): Boolean = {
+    val that = other.asInstanceOf[Increase]
+
+    if (this.trigger != that.trigger)
+      this.trigger.compareTo(that.trigger) < 0
+    else
+      lessThan(this.sortedArguments, that.sortedArguments)
+  }
 }
 
 object Increase {
@@ -195,6 +225,15 @@ class Decrease(trigger: String, quantifiers: Option[Seq[String]] = None, trigger
       super.newJLDEidosAttachment(serializer, Decrease.kind)
 
   override def toJson(): JValue = toJson(Decrease.label)
+
+  def lessThan(other: EidosAttachment): Boolean = {
+    val that = other.asInstanceOf[Decrease]
+
+    if (this.trigger != that.trigger)
+      this.trigger.compareTo(that.trigger) < 0
+    else
+      lessThan(this.sortedArguments, that.sortedArguments)
+  }
 }
 
 object Decrease {
@@ -219,6 +258,8 @@ case class Score(score: Double) extends EidosAttachment {
     new JLDEidosAttachment(serializer, Score.kind, score.toString, None)
   
   override def toJson(): JValue = toJson(Score.label)
+
+  def lessThan(other: EidosAttachment): Boolean = score - other.asInstanceOf[Score].score < 0
 }
 
 object Score {
