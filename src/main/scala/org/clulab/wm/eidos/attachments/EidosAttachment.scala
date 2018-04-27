@@ -90,9 +90,9 @@ object EidosAttachment {
 case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) extends EidosAttachment {
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
-  protected val sortedArguments: Option[Seq[String]] =
-      if (!adverbs.isDefined) None
-      else Some(adverbs.get.sorted)
+  protected val sortedArguments: Seq[String] =
+      if (!adverbs.isDefined) Seq.empty
+      else adverbs.get.sorted
 
   override def canEqual(other: Any) = other.isInstanceOf[Quantification]
 
@@ -121,18 +121,10 @@ case class Quantification(quantifier: Quantifier, adverbs: Option[Seq[String]]) 
 
     if (this.quantifier != that.quantifier)
       this.quantifier.compareTo(that.quantifier) < 0
-    else if (this.adverbs != that.adverbs) {
-      if (this.adverbs.isEmpty)
-        true
-      else if (that.adverbs.isEmpty)
-        false
-      else if (this.adverbs.get.length != that.adverbs.get.length)
-        this.adverbs.get.length - that.adverbs.get.length < 0
-      else
-        lessThan(this.adverbs.get, that.adverbs.get)
-    }
+    else if (this.sortedArguments.length != that.sortedArguments.length)
+      this.sortedArguments.length - that.sortedArguments.length < 0
     else
-      false
+      lessThan(this.sortedArguments, that.sortedArguments)
   }
 }
 
@@ -153,9 +145,9 @@ object Quantification {
 case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) extends EidosAttachment {
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
-  protected val sortedArguments: Option[Seq[String]] =
-    if (!quantifiers.isDefined) None
-    else Some(quantifiers.get.sorted)
+  protected val sortedArguments: Seq[String] =
+    if (!quantifiers.isDefined) Seq.empty
+    else quantifiers.get.sorted
 
   override def canEqual(other: Any) = other.isInstanceOf[Increase]
 
@@ -183,18 +175,10 @@ case class Increase(trigger: String, quantifiers: Option[Seq[Quantifier]]) exten
 
     if (this.trigger != that.trigger)
       this.trigger.compareTo(that.trigger) < 0
-    else if (this.quantifiers != that.quantifiers) {
-      if (this.quantifiers.isEmpty)
-        true
-      else if (that.quantifiers.isEmpty)
-        false
-      else if (this.quantifiers.get.length != that.quantifiers.get.length)
-        this.quantifiers.get.length - that.quantifiers.get.length < 0
-      else
-        lessThan(this.quantifiers.get, that.quantifiers.get)
-    }
+    else if (this.sortedArguments.length != that.sortedArguments.length)
+      this.sortedArguments.length - that.sortedArguments.length < 0
     else
-      false
+      lessThan(this.sortedArguments, that.sortedArguments)
   }
 }
 
@@ -210,9 +194,9 @@ object Increase {
 }
 
 case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None) extends EidosAttachment {
-  protected val sortedArguments: Option[Seq[String]] =
-    if (quantifiers.isEmpty) None
-    else Some(quantifiers.get.sorted)
+  protected val sortedArguments: Seq[String] =
+    if (quantifiers.isEmpty) Seq.empty
+    else quantifiers.get.sorted
 
   override def canEqual(other: Any) = other.isInstanceOf[Decrease]
 
@@ -240,18 +224,10 @@ case class Decrease(trigger: String, quantifiers: Option[Seq[Quantifier]] = None
 
     if (this.trigger != that.trigger)
       this.trigger.compareTo(that.trigger) < 0
-    else if (this.quantifiers != that.quantifiers) {
-      if (this.quantifiers.isEmpty)
-        true
-      else if (that.quantifiers.isEmpty)
-        false
-      else if (this.quantifiers.get.length != that.quantifiers.get.length)
-        this.quantifiers.get.length - that.quantifiers.get.length < 0
-      else
-        lessThan(this.quantifiers.get, that.quantifiers.get)
-    }
+    else if (this.sortedArguments.length != that.sortedArguments.length)
+      this.sortedArguments.length - that.sortedArguments.length < 0
     else
-      false
+      lessThan(this.sortedArguments, that.sortedArguments)
   }
 }
 
