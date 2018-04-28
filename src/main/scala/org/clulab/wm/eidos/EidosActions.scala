@@ -185,7 +185,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 //        val bestAttachment = filteredAttachments.sorted.reverse.head
 //        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
 
-        val bestAttachment = filteredAttachments.sortWith(lessThan).reverse.head
+        val bestAttachment = filteredAttachments.sorted.reverse.head
         // Since head was used above and there could have been a tie, == should be used below
         // The tie can be broken afterwards.
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
@@ -225,46 +225,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   protected def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
       attachments.maxBy(_.argumentSize)
 
-  // If there is a tie initially, the winner should have more arguments
-  protected def lessThan(leftAttachment: Attachment, rightAttachment: Attachment): Boolean = {
-    val left = leftAttachment.asInstanceOf[TriggeredAttachment]
-    val right = rightAttachment.asInstanceOf[TriggeredAttachment]
-    val triggerDiff = left.trigger.length - right.trigger.length
-
-    if (triggerDiff != 0)
-      triggerDiff < 0
-    else {
-      val argumentsDiff = left.asInstanceOf[EidosAttachment].argumentSize -
-        right.asInstanceOf[EidosAttachment].argumentSize
-
-      if (argumentsDiff != 0)
-        argumentsDiff < 0
-      else {
-        val triggerDiff2 = left.trigger.compareTo(right.trigger)
-
-        if (triggerDiff2 != 0)
-          triggerDiff2 < 0
-        else {
-          // They could be of different classes and then the first picked would depend on order.
-          // This would result in a different mention being picked as best.  It happens!
-          val classesDiff = left.getClass().getName().compareTo(right.getClass.getName())
-
-          if (classesDiff != 0)
-            classesDiff < 0
-          else
-            false // Hope for the best
-        }
-      }
-    }
-  }
-
   // Filter out substring attachments.
   protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-        // kwa .sorted
-        .sortWith(lessThan)
+        .sorted
         .reverse
         .filter { attachment =>
           val trigger = attachment.trigger

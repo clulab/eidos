@@ -33,8 +33,6 @@ abstract class EidosAttachment extends Attachment {
 
   // Support for EidosMention which returns any mentions hiding in the attachments
   def attachmentMentions: Seq[Mention] = Seq.empty
-
-  def lessThan(other: EidosAttachment): Boolean
 }
 
 object EidosAttachment {
@@ -91,7 +89,9 @@ abstract class TriggeredAttachment(val trigger: String, val quantifiers: Option[
   }
 
   // kwa: need to include name of class
-  override def hashCode: Int = mixLast(trigger.##, sortedArguments.##)
+  override def hashCode: Int = {
+    mixLast(trigger.##, sortedArguments.##)
+  }
 
   def newJLDOdinAttachment(serializer: JLDOdinSerializer, kind: String, mention: Mention): JLDOdinAttachment =
     new JLDOdinAttachment(serializer, kind, trigger, quantifiers, mention)
@@ -109,48 +109,63 @@ abstract class TriggeredAttachment(val trigger: String, val quantifiers: Option[
 
     someTriggerMentions ++ someQuantifierMentions
   }
-
-  @tailrec
-  final def recLessThan(left: Seq[String], right: Seq[String]): Boolean =
-    if (left.length == 0 && right.length == 0)
-      false
-    else {
-      val sign = left.head.compareTo(right.head)
-
-      if (sign != 0) sign < 0
-      else recLessThan(left.tail, right.tail)
-    }
-
-  def lessThan(left: Seq[String], right: Seq[String]): Boolean =
-    if (left.length != right.length)
-      left.length - right.length < 0
-    else
-      recLessThan(left, right)
-
-  def lessThan(other: EidosAttachment): Boolean = {
-    val that = other.asInstanceOf[TriggeredAttachment]
-
-    if (this.trigger != that.trigger)
-      this.trigger.compareTo(that.trigger) < 0
-    else
-      lessThan(this.sortedArguments, that.sortedArguments)
-  }
 }
 
 case class AttachmentInfo(triggerMention: TextBoundMention, triggerText: String, quantifierMentions: Option[Seq[Mention]], quantifierTexts: Option[Seq[String]])
 
 object TriggeredAttachment {
 
-//  implicit def ordering[T <: TriggeredAttachment]: Ordering[T] = new Ordering[T] {
-//    def compare(left: T, right: T): Int = {
-//      val triggerDiff = left.trigger.length - right.trigger.length
-//
-//      if (triggerDiff != 0)
-//        triggerDiff
-//      else
-//        left.argumentSize - right.argumentSize
-//    }
-//  }
+  // For output, arrange first by class to match gold output.
+  def lessThan(left: TriggeredAttachment, right: TriggeredAttachment): Boolean = {
+    if (left.getClass().getName() != right.getClass().getName())
+      left.getClass().getName().compareTo(right.getClass().getName()) < 0
+    else
+      compare(left, right) < 0
+  }
+
+  @tailrec
+  final def recCompareTo(left: Seq[String], right: Seq[String]): Int =
+    if (left.length == 0 || right.length == 0)
+      0
+    else {
+      val headDiff = left.head.compareTo(right.head)
+
+      if (headDiff != 0) headDiff
+      else recCompareTo(left.tail, right.tail)
+    }
+
+  def compare(left: TriggeredAttachment, right: TriggeredAttachment): Int = {
+    val triggerDiff = left.trigger.length - right.trigger.length
+
+    if (triggerDiff != 0)
+      triggerDiff
+    else {
+      val argumentsDiff = left.argumentSize - right.argumentSize
+
+      if (argumentsDiff != 0)
+        argumentsDiff
+      else {
+        val triggerDiff2 = left.trigger.compareTo(right.trigger)
+
+        if (triggerDiff2 != 0)
+          triggerDiff2
+        else {
+          // They could be of different classes and then the first picked would depend on order.
+          // This would result in a different mention being picked as best.  It happens!
+          val classDiff = left.getClass().getName().compareTo(right.getClass.getName())
+
+          if (classDiff != 0)
+            classDiff
+          else
+            recCompareTo(left.sortedArguments, right.sortedArguments)
+        }
+      }
+    }
+  }
+
+  implicit def ordering[T <: TriggeredAttachment]: Ordering[T] = new Ordering[T] {
+    def compare(left: T, right: T): Int = TriggeredAttachment.compare(left, right)
+  }
 
   def getAttachmentInfo(mention: Mention, key: String): AttachmentInfo = {
     val triggerMention: TextBoundMention = mention.asInstanceOf[EventMention].trigger
@@ -160,19 +175,10 @@ object TriggeredAttachment {
 
     AttachmentInfo(triggerMention, triggerText, quantifierMentions, quantifierTexts)
   }
-
-  def lessThan(left: EidosAttachment, right: EidosAttachment): Boolean = {
-    if (left.getClass().getName() != right.getClass().getName())
-      left.getClass().getName().compareTo(right.getClass().getName()) < 0
-    else
-      left.lessThan(right)
-  }
 }
 
 class Quantification(quantifier: String, adverbs: Option[Seq[String]], quantifierMention: Option[TextBoundMention] = None, adverbMentions: Option[Seq[Mention]] = None)
     extends TriggeredAttachment(quantifier, adverbs, quantifierMention, adverbMentions) {
-
-  override def hashCode = mixLast(quantifier.##, sortedArguments.##)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Quantification]
 
@@ -202,8 +208,6 @@ object Quantification {
 class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None)
     extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
-  override def hashCode = mixLast(trigger.##, sortedArguments.##)
-
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Increase]
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
@@ -231,8 +235,6 @@ object Increase {
 
 class Decrease(trigger: String, quantifiers: Option[Seq[String]] = None, triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None)
     extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
-
-  override def hashCode = mixLast(trigger.##, sortedArguments.##)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Decrease]
 
@@ -267,8 +269,6 @@ case class Score(score: Double) extends EidosAttachment {
     new JLDEidosAttachment(serializer, Score.kind, score.toString, None, mention)
 
   override def toJson(): JValue = toJson(Score.label)
-
-  def lessThan(other: EidosAttachment): Boolean = score - other.asInstanceOf[Score].score < 0
 }
 
 object Score {
