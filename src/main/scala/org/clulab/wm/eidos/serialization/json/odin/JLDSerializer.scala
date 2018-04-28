@@ -268,7 +268,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
   def getMentions(): Seq[Mention] = Nil
   
   override def toJObject(): JObject = {
-    val jldAttachments = mention.attachments.toList.map(_.asInstanceOf[EidosAttachment]).sortWith(EidosAttachment.lessThan).map(newJLDAttachment(_, mention))
+    val jldAttachments = mention.attachments.toList.map(_.asInstanceOf[EidosAttachment]).sortWith(TriggeredAttachment.lessThan).map(newJLDAttachment(_, mention))
 
           
     serializer.mkType(this) ~

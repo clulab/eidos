@@ -52,8 +52,8 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
         
   def isExtractable(mention: EidosMention) = true
   
-  def newJLDAttachment(attachment: Attachment): JLDTriggeredAttachment =
-      EidosAttachment.asEidosAttachment(attachment).newJLDAttachment(serializer)
+  def newJLDAttachment(attachment: Attachment, mention: EidosMention): JLDAttachment =
+      EidosAttachment.asEidosAttachment(attachment).newJLDAttachment(serializer, mention)
 }
 
 object JLDObject {
@@ -138,8 +138,8 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
         jObject
   }
   
-  def ground(mention: EidosMention, quantifier: Quantifier): AdjectiveGrounding =
-      if (adjectiveGrounder.isDefined) adjectiveGrounder.get.groundAdjective(mention.odinMention, quantifier)
+  def ground(mention: Option[EidosMention], quantifier: Quantifier): AdjectiveGrounding =
+      if (mention.isDefined && adjectiveGrounder.isDefined) adjectiveGrounder.get.groundAdjective(mention.get.odinMention, quantifier)
       else AdjectiveGrounding.noAdjectiveGrounding
 }
 
@@ -177,7 +177,7 @@ class JLDModifier(serializer: JLDSerializer, quantifier: Quantifier, mention: Ei
     extends JLDObject(serializer, "Modifier") {
 
   override def toJObject(): JObject = {
-    val grounding = serializer.ground(mention, quantifier)
+    val grounding = serializer.ground(Some(mention), quantifier)
 
     serializer.mkType(this) ~
         ("text" -> quantifier) ~
@@ -195,7 +195,7 @@ object JLDModifier {
   val plural = "modifiers"
 }
 
-class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, text: String, modifiers: Option[Seq[Quantifier]])
+class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modifiers: Option[Seq[Quantifier]], mention: EidosMention)
     extends JLDObject(serializer, "State") {
 
   override def toJObject(): JObject = {
@@ -210,12 +210,12 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, text: Stri
         ("type", kind) ~
         ("text", text) ~
         // This is also not the mention you are looking for
-        (JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
+        //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
         (JLDModifier.plural -> noneIfEmpty(jldModifiers))
   }
 }
 
-object JLDTriggeredAttachment {
+object JLDAttachment {
   val singular = "state"
   val plural = "states"
 }
@@ -288,7 +288,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
   def getMentions(): Seq[EidosMention] = Seq.empty // TODO Get the attributes out of this?
 
   override def toJObject(): JObject = {
-    val jldAttachments = mention.odinMention.attachments.toList.map(_.asInstanceOf[EidosAttachment]).sortWith(EidosAttachment.lessThan).map(newJLDAttachment(_, mention))
+    val jldAttachments = mention.odinMention.attachments.toList.map(_.asInstanceOf[TriggeredAttachment]).sortWith(TriggeredAttachment.lessThan).map(newJLDAttachment(_, mention))
     val ontologyGrounding = mention.grounding.grounding
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
     val jldGroundings = toJObjects(ontologyGrounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
@@ -303,7 +303,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
     // kwa: This isn't where a score attachment would go
         ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
         (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention)))) ~
-        (JLDTriggeredAttachment.plural -> toJObjects(jldAttachments))
+        (JLDAttachment.plural -> toJObjects(jldAttachments))
   }
 }
 

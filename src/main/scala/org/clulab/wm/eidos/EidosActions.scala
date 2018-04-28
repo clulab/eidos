@@ -4,23 +4,17 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
-import scala.Ordering
-import scala.collection.immutable
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Set => MutableSet}
-import scala.io.BufferedSource
-
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
 
 //TODO: need to add polarity flipping
-
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
@@ -68,8 +62,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         }
         case _ => (0, 0, mention.attachments)
       }
-
-      // disgusting!
 
       val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
       val triggerSize = mention.attachments.toSeq.map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
@@ -189,8 +181,15 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
-        val bestAttachment = filteredAttachments.sorted.reverse.head
-        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
+        // use old version for now
+//        val bestAttachment = filteredAttachments.sorted.reverse.head
+//        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
+
+        val bestAttachment = filteredAttachments.sortWith(lessThan).reverse.head
+        // Since head was used above and there could have been a tie, == should be used below
+        // The tie can be broken afterwards.
+        val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
+        val bestEntity = tieBreaker(bestEntities)
 
         copyWithAttachments(bestEntity, filteredAttachments)
       }
@@ -227,8 +226,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       attachments.maxBy(_.argumentSize)
 
   // If there is a tie initially, the winner should have more arguments
-  protected def lessThan(left: Attachment, right: Attachment): Boolean = {
-    val triggerDiff = triggerOf(left).length - triggerOf(right).length
+  protected def lessThan(leftAttachment: Attachment, rightAttachment: Attachment): Boolean = {
+    val left = leftAttachment.asInstanceOf[TriggeredAttachment]
+    val right = rightAttachment.asInstanceOf[TriggeredAttachment]
+    val triggerDiff = left.trigger.length - right.trigger.length
 
     if (triggerDiff != 0)
       triggerDiff < 0
@@ -239,7 +240,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       if (argumentsDiff != 0)
         argumentsDiff < 0
       else {
-        val triggerDiff2 = triggerOf(left).compareTo(triggerOf(right))
+        val triggerDiff2 = left.trigger.compareTo(right.trigger)
 
         if (triggerDiff2 != 0)
           triggerDiff2 < 0
@@ -257,14 +258,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
   }
 
-  protected def greaterThanOrEqual(left: Attachment, right: Attachment) = !lessThan(left, right)
-
   // Filter out substring attachments.
   protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-        .sorted
+        // kwa .sorted
+        .sortWith(lessThan)
         .reverse
         .filter { attachment =>
           val trigger = attachment.trigger
