@@ -4,6 +4,7 @@ import java.io.PrintWriter
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
+import org.clulab.wm.eidos.document.EidosDocument
 
 object DisplayUtils {
   protected val nl = "\n"
@@ -15,11 +16,15 @@ object DisplayUtils {
     printDeps: Boolean = false): String = {
 
     val sb = new StringBuffer()
+    val time = doc.asInstanceOf[EidosDocument].time
     val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
     for ((s, i) <- doc.sentences.zipWithIndex) {
       sb.append(s"sentence #$i $nl")
       sb.append(s.getSentenceText + nl)
       sb.append("Tokens: " + (s.words.indices, s.words, s.tags.get).zipped.mkString(", ") + nl)
+      sb.append(s.startOffsets.mkString(" ") + nl)
+      sb.append(s.endOffsets.mkString(" ") + nl)
+      sb.append("TimeExpressions: " + (time(i).topEntities.map(e => s"${e.expandedSpan(time(i))._1},${e.expandedSpan(time(i))._2}").mkString(" ")) + nl)
       if (printDeps) sb.append(syntacticDependenciesToString(s) + nl)
       sb.append(nl)
       

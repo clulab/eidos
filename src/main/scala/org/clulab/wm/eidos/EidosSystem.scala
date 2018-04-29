@@ -16,6 +16,8 @@ import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DomainParams
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.timenorm.TemporalCharbasedParser
 
 import org.slf4j.LoggerFactory
 
@@ -27,6 +29,7 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with OntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
+  val timenorm: TemporalCharbasedParser = new TemporalCharbasedParser("/home/egoitz/Tools/time/timenorm/src/main/resources/org/clulab/timenorm/model/char-3softmax-extra/lstm_models_2features.hdf5")
   var debug = true // Allow external control with var
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
 
@@ -102,8 +105,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = false): Document = {
-    val doc = proc.annotate(text, keepText)
+    val doc = new EidosDocument(proc.annotate(text, keepText).sentences)
     doc.sentences.foreach(addLexiconNER)
+    doc.parseTime(timenorm, text)
     doc
   }
 
