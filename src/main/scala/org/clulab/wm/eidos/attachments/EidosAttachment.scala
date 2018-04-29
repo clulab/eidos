@@ -79,17 +79,17 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
   // kwa: this is hopefully not used yet
-  @BeanProperty protected val sortedArguments: Seq[String] =
+  @BeanProperty val sortedQuantifiers: Seq[String] =
       if (quantifiers.isEmpty) Seq.empty
       else quantifiers.get.sorted
 
   def canEqual(other: Any): Boolean
 
-  override def equals(other: scala.Any): Boolean = other match {
+  override def equals(other: Any): Boolean = other match {
     case that: TriggeredAttachment =>
       that.canEqual(this) &&
         this.trigger == that.trigger &&
-        this.sortedArguments == that.sortedArguments
+        this.sortedQuantifiers == that.sortedQuantifiers
     case _ => false
   }
 
@@ -97,7 +97,7 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
     val h0 = getClass().getName().##
     val h1 = mix(h0, trigger.##)
 
-    mixLast(h1, sortedArguments.##)
+    mixLast(h1, sortedQuantifiers.##)
   }
 
   def newJLDOdinAttachment(serializer: JLDOdinSerializer, kind: String, mention: Mention): JLDOdinAttachment =
@@ -164,7 +164,7 @@ object TriggeredAttachment {
           if (classDiff != 0)
             classDiff
           else
-            recCompareTo(left.sortedArguments, right.sortedArguments)
+            recCompareTo(left.sortedQuantifiers, right.sortedQuantifiers)
         }
       }
     }

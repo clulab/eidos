@@ -37,7 +37,7 @@ class TestGraphSpec extends Test {
   }
 
   "manyNode" should "have the correct string representation" in {
-    manyNode.toString() should be ("[many|+displaced]")
+    manyNode.toString() should be ("[many|+(displaced)]")
   }
   
   "rainfallPovertyEdge" should "have the correct string representation" in {
