@@ -10,6 +10,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.Ordering
+import scala.collection.immutable
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Set => MutableSet}
 import scala.io.BufferedSource
@@ -23,9 +24,19 @@ import scala.io.BufferedSource
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
+  // This was essentially .head before, but that is dependent on order.
+  protected def tieBreaker(mentions: Seq[Mention]): Mention = {
+    val oldBest = mentions.head
+    val newBest = mentions.minBy(_.foundBy)
+
+//    if (!oldBest.eq(newBest))
+//      println("Changed answer")
+    newBest
+  }
+
   /**
     * @author Gus Hahn-Powell
-    * Copies the label of the lowest overlapping entity in the taxonomy
+    *         Copies the label of the lowest overlapping entity in the taxonomy
     */
   def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
 
@@ -55,7 +66,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
           val emAttachmentSet = em.arguments.values.flatten.flatMap(m => m.attachments).toSet
           (emSize, emModSize, emAttachmentSet)
         }
-        case _ => (0, 0,  mention.attachments)
+        case _ => (0, 0, mention.attachments)
       }
 
       // disgusting!
@@ -92,18 +103,19 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // remove incomplete mentions
     val completeTBMentions =
       for ((k, tbms) <- tbMentionGroupings) yield {
-//        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
-//        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
-        val filteredTBMs = customAttachmentFilter(tbms)
+        //        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
+        //        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
 
-        filteredTBMs.head
+        val filteredTBMs = customAttachmentFilter(tbms)
+        // In case there are several, use the one one smallest according to the rule.
+        tieBreaker(filteredTBMs)
       }
 
     // We need to remove underspecified EventMentions of near-duplicate groupings
     // (ex. same phospho, but one is missing a site)
     def argTokenInterval(m: EventMention): Interval = {
-      val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
-      val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
+      val min = m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
+      val max = m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
       Interval(start = min, end = max)
     }
 
@@ -117,14 +129,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         val maxSize: Int = ems.map(_.arguments.values.flatten.size).max
         // max number of argument modifications
         // todo not all attachments are equal
-//        val maxArgMods = ems.map(em => em.arguments.values.flatten.map(arg => arg.attachments.size).sum).max
-//        val maxModSize: Int = ems.map(em => em.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max).max
-//        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
-//          m.arguments.values.flatMap(ms => ms.map(_.attachments.size)).sum == maxArgMods)
+        //        val maxArgMods = ems.map(em => em.arguments.values.flatten.map(arg => arg.attachments.size).sum).max
+        //        val maxModSize: Int = ems.map(em => em.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max).max
+        //        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
+        //          m.arguments.values.flatMap(ms => ms.map(_.attachments.size)).sum == maxArgMods)
         val filteredEMs = customAttachmentFilter(ems)
-        filteredEMs.head
+        tieBreaker(filteredEMs)
       }
-
     completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
   }
 
@@ -141,10 +152,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
       // Here, we want to keep the theme that is being modified, not the modification event itself
       case rm: RelationMention =>
-        val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
+        val theme = tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
         theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
       case em: EventMention =>
-        val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
+        val theme = tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
         theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
     }
   } yield copyWithMod
@@ -179,12 +190,15 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     } yield {
       if (filteredAttachments.nonEmpty) {
         val bestAttachment = filteredAttachments.sortWith(greaterThanOrEqual).head
-        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
+        // Since head was used above and there could have been a tie, == should be used below
+        // The tie can be broken afterwards.
+        val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
+        val bestEntity = tieBreaker(bestEntities)
 
         copyWithAttachments(bestEntity, filteredAttachments)
       }
       else
-        entities.head
+        tieBreaker(entities)
     }
     mergedEntities.toSeq ++ nonentities
   }
@@ -225,7 +239,24 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       val argumentsDiff = left.asInstanceOf[EidosAttachment].argumentSize -
         right.asInstanceOf[EidosAttachment].argumentSize
 
-      argumentsDiff < 0
+      if (argumentsDiff != 0)
+        argumentsDiff < 0
+      else {
+        val triggerDiff2 = triggerOf(left).compareTo(triggerOf(right))
+
+        if (triggerDiff2 != 0)
+          triggerDiff2 < 0
+        else {
+          // They could be of different classes and then the first picked would depend on order.
+          // This would result in a different mention being picked as best.  It happens!
+          val classesDiff = left.getClass().getName().compareTo(right.getClass.getName())
+
+          if (classesDiff != 0)
+            classesDiff < 0
+          else
+            false // Hope for the best
+        }
+      }
     }
   }
 
