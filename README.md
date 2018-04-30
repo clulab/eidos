@@ -2,19 +2,49 @@
 
 # Eidos
 
-Eidos is an open-domain machine reading system designed by the [Computational Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  Eidos uses a cascade of [Odin](https://github.com/clulab/processors) grammars to extract causal events from free text.
+Eidos is an open-domain machine reading system designed by the [Computational
+Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University
+of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  Eidos
+uses a cascade of [Odin](https://github.com/clulab/processors) grammars to
+extract causal events from free text.
 
-Currently we extract entities such as "food insecurity" (and `increases`/`decreases`/`quantifications` of those entities) and directed causal events that occur between entities such as "food insecurity causes increased migration".  In the near future we plan to expand this to also extract correlation, `same-as`, and `is-a` relations. 
+Currently we extract entities such as "food insecurity" (and
+`increases`/`decreases`/`quantifications` of those entities) and directed causal
+events that occur between entities such as "food insecurity causes increased
+migration".  In the near future we plan to expand this to also extract
+correlation, `same-as`, and `is-a` relations. 
+
+**Contents**
+
+- [Usage](#usage)
+  - [How to compile the source code](#how-to-compile-the-source-code)
+  - [How to use it](#how-to-use-it)
+    - [Using the Scala API](#using-the-scala-api)
+      - [Prettified display](#to-produce-a-pretty-display-of-the-extracted-mentions)
+      - [Export to JSON-LD](#to-export-extractions-as-json-ld)
+      - [Export to JSON](#to-serialize-to-json)
+      - [Export to JSON](#to-serialize-to-json)
+    - [Command Line Usage](#command-line-usage)
+      - [Interactive shell](#running-an-interactive-shell)
+      - [Webapp](#running-the-webapp)
+    - [Visualizing Eidos output](#visualizing-eidos-output)
+    - [Using Eidos output for modeling](#using-eidos-output-for-modeling)
+  - [License](#license)
+  - [Related Resources](#related-resources)
+  - [Notes](#notes)
+
 
 # Usage
 
 ## How to compile the source code
 
-This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual commands, e.g., `sbt compile` to compile
-or `sbt assembly` to create a jar file.  `sbt runMain` can be used to run some of the example applications directly, as
-described below.  To access Eidos from Java, add the assembled jar file(s) under `target/` to your $CLASSPATH.  A file
-like `eidos-assembly-0.1.6-SNAPSHOT.jar` may suffice, depending on the build.  If necessary, see `build.sbt` for a
-list of runtime dependencies. 
+This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual
+commands, e.g., `sbt compile` to compile or `sbt assembly` to create a jar file.
+`sbt runMain` can be used to run some of the example applications directly, as
+described below.  To access Eidos from Java, add the assembled jar file(s) under
+`target/` to your $CLASSPATH.  A file like `eidos-assembly-0.1.6-SNAPSHOT.jar`
+may suffice, depending on the build.  If necessary, see `build.sbt` for a list
+of runtime dependencies. 
 
 ## How to use it
 
@@ -25,7 +55,8 @@ The Eidos system is designed to be used in several ways:
 The scala API can produce three distinct output formats:
 - a pretty display
 - a JSON-LD export of the causal graph extracted from the text
-- a JSON serialization (in case you want to later load all of the mentions, including mentions that are not part of the causal graph)
+- a JSON serialization (in case you want to later load all of the mentions,
+  including mentions that are not part of the causal graph)
 
 (see [`src/main/scala/org/clulab/wm/eidos/apps/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/apps/examples/ExtractFromText.scala))
 
@@ -691,11 +722,15 @@ This produces the following JSON serialization (mentions may appear in different
 }
 ```
 
-### Extracting causal events from documents in a directory
+
+### Command line usage
+
+## Extracting causal events from documents in a directory
 
 ```bash
 sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
 ```
+
 Files in the input directory should end with `txt` and the extracted mentions
 from each file will be saved in corresponding JSON-LD files.
 
@@ -704,8 +739,7 @@ directory.
 
 
 
-
-### Running an interactive shell
+## Running an interactive shell
 
 The EidosShell is an interactive shell
 for testing the output of Eidos. To run it, do
@@ -713,6 +747,8 @@ for testing the output of Eidos. To run it, do
 ```bash
 ./shell
 ```
+
+## Running the webapp
 
 To run the webapp version of EidosShell locally, do:
 
@@ -755,25 +791,38 @@ to make probabilistic predictions.
 
 ## License
 
-While we will soon be licensed as Apache, currently one dependency has a GPL licence.  This will be removed very soon and the license will be updated.
+While we will soon be licensed as Apache, currently one dependency has a GPL
+licence.  This will be removed very soon and the license will be updated.
 
 
 
 ## Related resources
 
-If you are working on this project, you may be interested in [additional materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) stored in the cloud. Access may be limited by permission settings.  Other documents are included in the /doc directory of the repository.
+If you are working on this project, you may be interested in [additional
+materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A)
+stored in the cloud. Access may be limited by permission settings.  Other
+documents are included in the /doc directory of the repository.
 
-There is one [large file of vectors](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) which is useful at runtime if you are interested in ontological grounding.  To use this file, download it and place it in the project's `src/main/resources/org/clulab/wm/eidos/w2v` directory.  Then indicate to Eidos that it should be used by setting `useW2V = true` in `src/main/resources/eidos.conf`.
+There is one [large file of
+vectors](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS)
+which is useful at runtime if you are interested in ontological grounding.  To
+use this file, download it and place it in the project's
+`src/main/resources/org/clulab/wm/eidos/w2v` directory.  Then indicate to Eidos
+that it should be used by setting `useW2V = true` in
+`src/main/resources/eidos.conf`.
 
 
 ## Notes
 
-The default size of the memory allocation pool for the JVM is 1/4 of your physical memory, but Eidos may require
+The default size of the memory allocation pool for the JVM is 1/4 of your
+physical memory, but Eidos may require
 more RAM than that.  It is currently being developed and tested with a 6GB limit.
 
-For those using `sbt`, the file `.jvmopts` is included with the source code to arrange for more memory.  No other changes should be necessary.
+For those using `sbt`, the file `.jvmopts` is included with the source code to
+arrange for more memory.  No other changes should be necessary.
 
-IDEs and other development tools are generally unaware of `.jvmopts`, but can be configured via an environment variable instead.
+IDEs and other development tools are generally unaware of `.jvmopts`, but can be
+configured via an environment variable instead.
 
 `JAVA_TOOL_OPTIONS=-Xmx6g`
 
@@ -781,4 +830,5 @@ Other situations may require a more general setting.
 
 `_JAVA_OPTIONS=-Xmx6g`
 
-The procedure for defining these variables is dependent on operating system and shell.
+The procedure for defining these variables is dependent on operating system and
+shell.
