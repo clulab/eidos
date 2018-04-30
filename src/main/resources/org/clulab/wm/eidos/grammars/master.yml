@@ -31,7 +31,6 @@ rules:
   # example: "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income ."
 
   #Step 1: find the direct attachments of entities (e.g. "small puppies")
-  #TODO: make sure the Increase/Decrease are in avoid.yml
   - import: org/clulab/wm/eidos/grammars/entityQuantification.yml
     vars:
       rulepriority: "2"
@@ -41,16 +40,14 @@ rules:
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
   - import: org/clulab/wm/eidos/grammars/modifiersTemplate.yml
     vars:
-      objrulepriority: "4"
-      modrulepriority: "3"
+      rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Increase
       trigger: ${ increase_triggers }
 
   - import: org/clulab/wm/eidos/grammars/modifiersTemplate.yml
     vars:
-      objrulepriority: "4"
-      modrulepriority: "3"
+      rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Decrease
       trigger: ${ decrease_triggers }
