@@ -789,14 +789,14 @@ to make probabilistic predictions.
 
 
 
-## License
+# License
 
 While we will soon be licensed as Apache, currently one dependency has a GPL
 licence.  This will be removed very soon and the license will be updated.
 
 
 
-## Related resources
+# Related resources
 
 If you are working on this project, you may be interested in [additional
 materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A)
@@ -812,7 +812,7 @@ that it should be used by setting `useW2V = true` in
 `src/main/resources/eidos.conf`.
 
 
-## Notes
+# Notes
 
 The default size of the memory allocation pool for the JVM is 1/4 of your
 physical memory, but Eidos may require
