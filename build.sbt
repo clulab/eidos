@@ -19,6 +19,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
+    "commons-io"    %  "commons-io"               % "2.5",
     "com.typesafe"  %  "config"                   % "1.3.1",
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
