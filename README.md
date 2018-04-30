@@ -725,7 +725,7 @@ This produces the following JSON serialization (mentions may appear in different
 
 ### Command line usage
 
-## Extracting causal events from documents in a directory
+#### Extracting causal events from documents in a directory
 
 ```bash
 sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
@@ -739,7 +739,7 @@ directory.
 
 
 
-## Running an interactive shell
+#### Running an interactive shell
 
 The EidosShell is an interactive shell
 for testing the output of Eidos. To run it, do
@@ -748,7 +748,7 @@ for testing the output of Eidos. To run it, do
 ./shell
 ```
 
-## Running the webapp
+#### Running the webapp
 
 To run the webapp version of EidosShell locally, do:
 
