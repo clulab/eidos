@@ -207,6 +207,29 @@
       - soil_contents:
         - phosphorous
         - organic matter
+        - soil
+    - crop_technology:
+      - pesticide
+      - cultivation
+      - harvesting
+      - post-harvest
+      - food system
+      - farmer organization
+      - department agriculture
+      - aquaculture sector
+      - food product
+      - Peoples food system
+      - farming
+      - harvest
+      - rice production
+      - farming system
+      - agriculture organization
+      - soil fertility
+      - planting
+      - fertility
+      - horticulture
+      - tillage
+      - investment agriculture
     - crop:
       - wheat
       - corn
@@ -223,6 +246,32 @@
       - leaf vegetables
       - groundnuts
       - cultivar
+      - potato
+      - bean
+      - cassava
+      - banana
+      - coffee
+      - soybean
+      - groundnut
+      - oilseed
+      - bamboo
+      - tomato
+      - mango
+      - cereal
+      - cocoa
+      - coconut
+      - rubber
+      - onion
+      - tea
+      - tobacco
+      - crop
+      - vegetable
+      - rice
+      - feed
+      - food crop
+      - legume
+      - grain
+      - tuber
     - pest:
       - infestation
       - armyworm
@@ -237,6 +286,7 @@
       - mice
       - midges
       - slugs
+      - pest
   - human:
     - health:
       - human_health: #todo
@@ -248,7 +298,10 @@
         - malaraia
         - diabetes
         - anemia
-        # todo
+        - hiv
+        - anaemia
+        - hiv/aids
+        - outbreak
     - fertilizer:
       - nitrogen fertilizer
       - inorganic fertilizers
@@ -263,6 +316,7 @@
       - guano
       - nitrophosphates
       - composts
+      - fertilizer
     - irrigation:
       - localized irrigation
       - capillary irrigation
