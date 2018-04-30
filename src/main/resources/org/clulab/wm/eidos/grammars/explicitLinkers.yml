@@ -18,6 +18,7 @@ rules:
     priority: ${ rulepriority }
     example: "In 2017, food insecurity remained critical as spikes in conflict, economic collapse, and impacts of flooding reduced agricultural production."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
       effect: Entity  = <ccomp (?=/nmod_as/) nsubj
@@ -27,6 +28,7 @@ rules:
     priority: ${ rulepriority }
     example: "Food insecurity remained critical as conflict continues."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [incoming=advcl_as]
       effect: Entity  = <advcl_as nsubj
@@ -36,6 +38,7 @@ rules:
     priority: ${ rulepriority }
     example: "Food insecurity remained critical as conflict continues to increase danger."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [incoming=advcl_as]
       effect: Entity  = <advcl_as nsubj
@@ -48,6 +51,7 @@ rules:
     # that in an action maybe -- look for either a literal verb in the span OR an inc/dec attachment
     # example of when it *shouldn't* match: "Fields were additionally treated with fertilizer for increased crop yield."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [tag=IN & word=with]
       cause: Entity = <case <nmod_with (${ agents }) (${ preps })?
@@ -57,6 +61,7 @@ rules:
     priority: ${ rulepriority }
     example: "Economic crisis, marked by drastic hyperinflation and market failures"
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [word=/${ passive_mark_verbs }/] [word="by"]
       effect: Entity  = <acl
@@ -66,6 +71,7 @@ rules:
     priority: ${ rulepriority }
     example: "Worsening food security trends linked to continued conflict have been causing problems."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/VBN/]
       effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?

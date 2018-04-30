@@ -23,6 +23,7 @@ rules:
   - name: with-${addlabel}-1
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: ""
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !outgoing=/dobj/]
@@ -35,6 +36,7 @@ rules:
   - name: with-${addlabel}-2
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: ""
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & outgoing=/dobj/]
@@ -53,7 +55,7 @@ rules:
     #example: "The water quality caused an increase in poverty and a decrease in poverty."
     example: "improved economic performance expected to cause a shift from agriculture to service industry."
     label: ${ label }
-    action: expandArguments
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
       # Previous -- removed the complements because they were over matching
@@ -71,6 +73,7 @@ rules:
     priority: ${ rulepriority }
     example: "The water quality caused poverty by an increase in productivity."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
@@ -82,6 +85,7 @@ rules:
     priority: ${ rulepriority }
     example: "The water quality contributes to poverty."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !tag=/VBN/]
       effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
@@ -92,7 +96,7 @@ rules:
     priority: ${ rulepriority }
     example: "Intensive cultivation will be caused by a shrinking agriculture land base"
     label: ${ label }
-    action: expandArguments
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
       effect: Entity = (/^nsubjpass/ /conj_|${ noun_modifiers }/{,2})
@@ -102,6 +106,7 @@ rules:
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]# & tag=/^V|RB/]
       effect: Entity = acl? dobj /${ noun_modifiers }|${ conjunctions }/{,2}
@@ -112,6 +117,7 @@ rules:
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/VBN|RB/]
       effect: Entity = (< /xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
@@ -124,6 +130,7 @@ rules:
     #Original example: "We found that prolonged expression of active Ras resulted in up-regulation of the MKP3 gene"
     example: ""
     label: ${ label }
+    action: ${ action }
     #More water resulting in an increase of productivty.
     pattern: |
       trigger = [lemma=result] in [word=/(?i)^(${ trigger })/]
@@ -134,6 +141,7 @@ rules:
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
       effect: Entity  = <ccomp (?=/nmod_since/) nsubj
@@ -145,6 +153,7 @@ rules:
     example: "ongoing insecurity is limiting access to assistance and movement towards natural food sources"
     type: token
     label: ${ label }
+    action: ${ action }
     pattern: |
       @cause: Entity is (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^VBG/]) [mention=Entity]+ and @effect: Entity
 
@@ -155,6 +164,7 @@ rules:
     example: "ongoing insecurity is limiting access to assistance and movement towards natural food sources"
     type: token
     label: ${ label }
+    action: ${ action }
     pattern: |
       @cause: Entity is (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^VBG/]) @effect: Entity
 
@@ -165,6 +175,7 @@ rules:
     priority: ${ rulepriority }
     example: "The cause of increasing poverty by bad water quality is the worst."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       effect: Entity = /${ preps }/ /${ noun_modifiers }|${ conjunctions }/{,2}
@@ -175,6 +186,7 @@ rules:
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       effect: Entity = /${ preps }$/? /${ conjunctions }|${ noun_modifiers }/{1,2}
@@ -185,6 +197,7 @@ rules:
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       effect: Entity = (/${ preps }$/ /${ conjunctions }|${ noun_modifiers }/{,2}){1,2}
@@ -197,6 +210,7 @@ rules:
     #Original example: "Rapamycin, an activator of the mTOR kinase,"
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       effect: Entity = <dep /${ conjunctions }|${ noun_modifiers }/{,2}
@@ -209,6 +223,7 @@ rules:
     #Original example: "ASPP1 is common, as is its activation by ASPP2."
     example: "Displacement's promotion by conflict"
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=/${ trigger }/ & tag=/^N/]
       cause: Entity = /nmod_by|agent/
@@ -222,6 +237,7 @@ rules:
     example: ""
     type: token
     label: ${ label }
+    action: ${ action }
     pattern: |
       (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) of @effect: Entity by  @cause: Entity (?! [lemma=/${ negTriggers }/ ])
 
@@ -231,6 +247,7 @@ rules:
     #Original example: "We also demonstrate that tyrosine phosphorylation of ErbB3 may lead to recruitment and activation of PI-3 kinase."
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=lead] to
       cause: Entity = nsubj|xcomp
@@ -244,6 +261,7 @@ rules:
   - name: ${ label }_given_Causal
     priority: ${ rulepriority }
     label: ${label}
+    action: ${ action }
     example: "import requirements are higher than usual given below-average harvests"
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]

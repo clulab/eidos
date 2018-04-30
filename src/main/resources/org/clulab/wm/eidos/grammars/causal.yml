@@ -22,12 +22,14 @@ rules:
     priority: ${rulepriority}
     type: token
     label: ${label}
+    action: ${ action }
     pattern: |
       @effect:Event [lemma="due"] [lemma="to"] @cause:Entity
 
   - name: dueToSyntax1-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "food imports will decrease due to rainfall today"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
@@ -42,6 +44,7 @@ rules:
   - name: dueToSyntax2-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "food imports will decrease due to rainfall"
     # food imports will decrease due to the exhaustion of coping capacities
     pattern: |
@@ -53,6 +56,7 @@ rules:
   - name: dueTo-caseSyntax-dobj_effect-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "pastoralists have depleted or lost their livestock assets due to the conflict"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
@@ -63,6 +67,7 @@ rules:
   - name: dueToSyntax4-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "food imports will decrease due to rainfall"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
@@ -76,6 +81,7 @@ rules:
   - name: dueToSyntax3-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "food imports will decrease due to the exhaustion of coping capacities"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
@@ -85,6 +91,7 @@ rules:
   - name: dueToSyntax5-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "improvements in food availability due to seasonal harvests"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
@@ -94,6 +101,7 @@ rules:
   - name: madeSyntax3-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "X made JJ by Y"
     pattern: |
       trigger = [lemma="make" & tag=/^V/]
@@ -103,6 +111,7 @@ rules:
   - name: leadToSyntax1-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "Conflict and economic decline have led to violence and displacement."
     pattern: |
       trigger = [lemma="lead" & tag=/^VB/] (?=[word=to])
@@ -112,6 +121,7 @@ rules:
   - name: contribToSyntax1-${addlabel}
     priority: ${rulepriority}
     label: ${label}
+    action: ${ action }
     example: "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
     pattern: |
       trigger = [lemma="contribute" & tag=/^VB/] (?=[word=to])
@@ -126,6 +136,7 @@ rules:
     priority: ${ rulepriority }
     type: token
     label: ${ label }
+    action: ${ action }
     #Original example: "Interacting proteins that facilitate FGFR3 mediated STAT1 activation could exist in cells."
     pattern: |
       @cause: Entity (?<trigger> [word=/(?i)^(mediat)/ & !tag=/^JJ/]) @effect: Entity /(?i)^(activation)/
@@ -135,6 +146,7 @@ rules:
     #Original example: "A is an activator of B"
     example: ""
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N|^JJ/]
       cause: Entity = nsubj

@@ -70,6 +70,7 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
+      action: expandArguments
       trigger: ${cause_triggers}|${nonavoid_causal_triggers} #|${increase_triggers}|${decrease_triggers}
 
   - import: org/clulab/wm/eidos/grammars/linkersTemplate.yml
@@ -77,6 +78,7 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
+      action: expandArguments
       trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers}|${affect_triggers}|${nonavoid_affect_triggers}
 
   - import: org/clulab/wm/eidos/grammars/reverse_direction_causal.yml
@@ -84,25 +86,10 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
+      action: expandArguments
       trigger: "result|effect"
 
 
-  # ------------ Origin ------------
-  - import: org/clulab/wm/eidos/grammars/origin.yml
-    vars:
-      rulepriority: "6"
-      label: Origin
-      trigger: "from|for"
-      #action: ? #
-
-
-  # ------------ TransparentLinker ------------
-  - import: org/clulab/wm/eidos/grammars/transparentLinkers.yml
-    vars:
-      rulepriority: "6"
-      label: TransparentLink
-      trigger: "from"
-      #action: ? #
 
   # ------------ ExplicitLinker ------------
   - import: org/clulab/wm/eidos/grammars/explicitLinkers.yml
@@ -110,6 +97,7 @@ rules:
       rulepriority: "6"
       trigger: ${increase_triggers}|${decrease_triggers}
       correlation_trigger: ${correlation_triggers}
+      action: expandArguments
       #action: ? #
 
   # ------------ Correlation ------------
@@ -118,5 +106,6 @@ rules:
       rulepriority: "6"
       addlabel: "Correlation"
       label: Correlation
+      action: expandArguments
       trigger: ${correlation_triggers}
 
