@@ -23,7 +23,6 @@ correlation, `same-as`, and `is-a` relations.
       - [Prettified display](#to-produce-a-pretty-display-of-the-extracted-mentions)
       - [Export to JSON-LD](#to-export-extractions-as-json-ld)
       - [Export to JSON](#to-serialize-to-json)
-      - [Export to JSON](#to-serialize-to-json)
     - [Command Line Usage](#command-line-usage)
       - [Interactive shell](#running-an-interactive-shell)
       - [Webapp](#running-the-webapp)
