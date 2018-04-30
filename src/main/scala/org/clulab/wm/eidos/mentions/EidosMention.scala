@@ -8,7 +8,7 @@ import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder, OntologyGrounder, OntologyGrounding}
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.EidosAttachment
 
 abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGrounder,
     mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
@@ -20,12 +20,18 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGr
   
   // Access to new and improved Eidos arguments
   val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, sameAsGrounder, mapOfMentions)
-  
+
+  val eidosMentionsFromAttachments: Seq[EidosMention] = {
+    val attachmentMentions = odinMention.attachments.toSeq.flatMap(_.asInstanceOf[EidosAttachment].attachmentMentions)
+
+    EidosMention.asEidosMentions(attachmentMentions, sameAsGrounder, mapOfMentions)
+  }
+
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], sameAsGrounder: OntologyGrounder,
       mapOfMentions: IdentityHashMap[Mention, EidosMention]): Map[String, Seq[EidosMention]] = {
     odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, sameAsGrounder, mapOfMentions))
   }
-  
+
   val canonicalName: String // Determined by subclass
   val grounding: OntologyGrounding // Determined by subclass, in part because dependent on canonicalName
 
@@ -75,7 +81,7 @@ object EidosMention {
       if (mapOfMentions.containsKey(odinMention))
         mapOfMentions.get(odinMention)
       else
-        EidosMention.newEidosMention(odinMention, sameAsGrounder, mapOfMentions)
+        newEidosMention(odinMention, sameAsGrounder, mapOfMentions)
     }
     eidosMentions
   }

@@ -4,23 +4,17 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
-import scala.Ordering
-import scala.collection.immutable
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Set => MutableSet}
-import scala.io.BufferedSource
-
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
 
 //TODO: need to add polarity flipping
-
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
@@ -69,10 +63,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         case _ => (0, 0, mention.attachments)
       }
 
-      // disgusting!
-
       val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-      val triggerSize = mention.attachments.toSeq.map(triggerOf(_).length).sum
+      val triggerSize = mention.attachments.toSeq.map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
       val attachArgumentsSz = argumentSize + triggerSize
       // smart this up
       // problem: Quant("moderate to heavy", None) considered the same as Quant("heavy", none)
@@ -185,11 +177,15 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val mergedEntities = for {
       (_, entities) <- entitiesBySpan
       // These are now for the same span, so only one should win as the main one.
-      flattenedAttachments = entities.flatMap(_.attachments)
+      flattenedAttachments = entities.flatMap(_.attachments.map(_.asInstanceOf[TriggeredAttachment]))
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
-        val bestAttachment = filteredAttachments.sortWith(greaterThanOrEqual).head
+        // use old version for now
+//        val bestAttachment = filteredAttachments.sorted.reverse.head
+//        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
+
+        val bestAttachment = filteredAttachments.sorted.reverse.head
         // Since head was used above and there could have been a tie, == should be used below
         // The tie can be broken afterwards.
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
@@ -212,65 +208,32 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Filter out substring attachments, then keep most complete.
-  def filterAttachments(attachments: Seq[Attachment]) = {
+  def filterAttachments(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     attachments
         // Perform first mapping based on class
         .groupBy(_.getClass)
         // Filter out substring attachments
         .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
         // Next map based on both class and trigger.
-        .groupBy(attachment => (attachment.getClass, triggerOf(attachment)))
+        .groupBy(attachment => (attachment.getClass, attachment.trigger))
         // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
         .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
         .toSeq
   }
 
   // Keep the most complete attachment here.
-  protected def filterMostComplete(attachments: Seq[Attachment]) =
-      attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
-
-  // If there is a tie initially, the winner should have more arguments
-  protected def lessThan(left: Attachment, right: Attachment): Boolean = {
-    val triggerDiff = triggerOf(left).length - triggerOf(right).length
-
-    if (triggerDiff != 0)
-      triggerDiff < 0
-    else {
-      val argumentsDiff = left.asInstanceOf[EidosAttachment].argumentSize -
-        right.asInstanceOf[EidosAttachment].argumentSize
-
-      if (argumentsDiff != 0)
-        argumentsDiff < 0
-      else {
-        val triggerDiff2 = triggerOf(left).compareTo(triggerOf(right))
-
-        if (triggerDiff2 != 0)
-          triggerDiff2 < 0
-        else {
-          // They could be of different classes and then the first picked would depend on order.
-          // This would result in a different mention being picked as best.  It happens!
-          val classesDiff = left.getClass().getName().compareTo(right.getClass.getName())
-
-          if (classesDiff != 0)
-            classesDiff < 0
-          else
-            false // Hope for the best
-        }
-      }
-    }
-  }
-
-  protected def greaterThanOrEqual(left: Attachment, right: Attachment) = !lessThan(left, right)
+  protected def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
+      attachments.maxBy(_.argumentSize)
 
   // Filter out substring attachments.
-  protected def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
-
+  protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-        .sortWith(greaterThanOrEqual)
+        .sorted
+        .reverse
         .filter { attachment =>
-          val trigger = triggerOf(attachment)
+          val trigger = attachment.trigger
 
           if (!triggersKept.exists(_.contains(trigger))) {
             triggersKept.add(trigger) // Add this trigger.
@@ -280,22 +243,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
             false
         }
   }
-
-  // Get trigger from an attachment
-  protected def triggerOf(attachment: Attachment): String = {
-    attachment match {
-      case inc: Increase => inc.trigger
-      case dec: Decrease => dec.trigger
-      case quant: Quantification => quant.quantifier
-      case _ => throw new UnsupportedClassVersionError()
-    }
-  }
 }
 
 object EidosActions extends Actions {
 
   def apply(taxonomyPath: String) =
-    new EidosActions(readTaxonomy(taxonomyPath))
+      new EidosActions(readTaxonomy(taxonomyPath))
 
   private def readTaxonomy(path: String): Taxonomy = {
     val input = FileUtils.getTextFromResource(path)

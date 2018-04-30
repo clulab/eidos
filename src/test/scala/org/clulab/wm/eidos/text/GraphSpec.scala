@@ -1,13 +1,15 @@
 package org.clulab.wm.eidos.text
 
 import scala.collection.Seq
-
 import org.clulab.odin.Attachment
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.attachments._
+
+import scala.annotation.tailrec
+import scala.util.hashing.MurmurHash3.{mix, mixLast}
 
 case class Unmodified(quantifier: Quantifier) extends Attachment
 
@@ -28,73 +30,173 @@ object SameAs extends EventSpec("SameAs", false)
 // Not in taxonomy
 object Affect extends EventSpec("Affect", true)
 
-class AttachmentSpec(val attachment: Attachment) extends GraphSpec {
-  protected def toString(quantifiers: Option[Seq[Quantifier]]): String = {
+class AttachmentSpec() extends GraphSpec
+
+abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[Seq[String]]) extends AttachmentSpec {
+  val sortedQuantifiers: Seq[String] =
+      if (quantifiers.isEmpty) Seq.empty
+      else quantifiers.get.sorted
+
+  protected def toString(abbrev: String): String = {
     val stringBuilder = new StringBuilder()
-    
+
+    stringBuilder
+        .append("+")
+        .append(abbrev)
+        .append("(")
+        .append(trigger)
     if (quantifiers != None)
       stringBuilder
           .append(", ")
           .append(quantifiers.get.map("Quant: " + _).mkString(", "))
-    stringBuilder.toString()
-  }  
+    stringBuilder.append(")")
+        .toString()
+  }
+
+  def canEqual(other: Any): Boolean
+
+  override def hashCode: Int = {
+    val h0 = getClass().getName().##
+    val h1 = mix(h0, trigger.##)
+
+    mixLast(h1, sortedQuantifiers.##)
+  }
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case that: TriggeredAttachmentSpec =>
+      that.canEqual(this) &&
+        this.trigger == that.trigger &&
+        this.sortedQuantifiers == that.sortedQuantifiers
+    case _ => false
+  }
+
+  protected def matchClass(attachment: TriggeredAttachment): Boolean
 }
 
-class Quant(quantization: Quantification) extends AttachmentSpec(quantization) {
-  override def toString = "+QUANT(" + quantization.quantifier + toString(quantization.adverbs) + ")"
+object TriggeredAttachmentSpec {
+
+  protected def matchAttachment(attachment: TriggeredAttachment, attachmentSpec: TriggeredAttachmentSpec) = {
+    val result = attachment.trigger == attachmentSpec.trigger &&
+      attachment.sortedQuantifiers.sameElements(attachmentSpec.sortedQuantifiers) &&
+      attachmentSpec.matchClass(attachment)
+    result
+  }
+
+  @tailrec
+  protected def recMatchAttachments(attachments: Set[TriggeredAttachment], attachmentSpecs: Seq[TriggeredAttachmentSpec]): Boolean = {
+    if (attachments.size == 0 && attachmentSpecs.size == 0)
+      true
+    else {
+      val attachmentSpec = attachmentSpecs.head
+      val attachment = attachments.find(matchAttachment(_, attachmentSpec))
+
+      if (attachment.isEmpty)
+        false
+      else
+        recMatchAttachments(attachments - attachment.get, attachmentSpecs.tail)
+    }
+  }
+
+  def matchAttachments(mention: Mention, attachmentSpecs: Set[TriggeredAttachmentSpec]) = {
+    if (mention.attachments.size != attachmentSpecs.size)
+      false
+    else {
+      val attachments: Set[TriggeredAttachment] = mention.attachments
+          .filter(_.isInstanceOf[TriggeredAttachment])
+          .map(_.asInstanceOf[TriggeredAttachment])
+
+      recMatchAttachments(attachments, attachmentSpecs.toSeq)
+    }
+  }
+}
+
+class Quant(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+  override def toString = toString(Quant.abbrev)
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Quant]
+
+  override protected def matchClass(attachment: TriggeredAttachment): Boolean = attachment match {
+    case _: Quantification => true
+    case _ => false
+  }
 }
 
 object Quant {
-  def apply(quantifier: Quantifier) =
-      new Quant(Quantification(quantifier, None))
+  val abbrev = "QUANT"
 
-  def apply(quantifier: Quantifier, adverbs: String*): Quant = new Quant(Quantification(quantifier, Option(adverbs.toSeq)))
+  def apply(trigger: String) =
+      new Quant(trigger, None)
+
+  def apply(trigger: String, quantifiers: String*): Quant = new Quant(trigger, Option(quantifiers.toSeq))
 }
 
-class Dec(decrease: Decrease) extends AttachmentSpec(decrease) {
-  override def toString = "+DEC(" + decrease.trigger + toString(decrease.quantifiers) + ")"  
+class Dec(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+  override def toString = toString(Dec.abbrev)
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Dec]
+
+  override protected def matchClass(attachment: TriggeredAttachment): Boolean = attachment match {
+    case _: Decrease => true
+    case _ => false
+  }
 }
 
 object Dec {
+  val abbrev = "DEC"
+  val targetClass = Decrease.getClass()
+
   def apply(trigger: String) =
-      new Dec(Decrease(trigger, None))
+      new Dec(trigger, None)
   
   def apply(trigger: String, quantifiers: String*) =
-      new Dec(Decrease(trigger, Option(quantifiers.toSeq)))
+      new Dec(trigger, Option(quantifiers.toSeq))
 }
 
-class Inc(increase: Increase) extends AttachmentSpec(increase) {
-  override def toString = "+INC(" + increase.trigger + toString(increase.quantifiers) + ")"
+class Inc(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+  override def toString = toString(Inc.abbrev)
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Inc]
+
+  override protected def matchClass(attachment: TriggeredAttachment): Boolean = attachment match {
+    case _: Increase => true
+    case _ => false
+  }
 }
 
 object Inc {
+  val abbrev = "INC"
+  val targetClass = Increase.getClass()
+
   def apply(trigger: String) =
-    new Inc(Increase(trigger, None))
+    new Inc(trigger, None)
   
   def apply(trigger: String, quantifiers: String*) =
-      new Inc(Increase(trigger, Option(quantifiers.toSeq)))
+      new Inc(trigger, Option(quantifiers.toSeq))
 }    
 
-class Unmarked(unmodified: Unmodified) extends AttachmentSpec(unmodified) {
-  override def toString = "+" + unmodified.quantifier
+class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+  override def toString = toString("")
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Unmarked]
+
+  override protected def matchClass(attachment: TriggeredAttachment): Boolean = false
 }
 
 object Unmarked {
-  def apply(quantifier: Quantifier) =
-      new Unmarked(Unmodified(quantifier))
+  def apply(trigger: String) =
+      new Unmarked(trigger, None)
+
+  def apply(trigger: String, quantifiers: String*) =
+    new Unmarked(trigger, Option(quantifiers.toSeq))
 }
 
-class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
-  val attachments = attachmentSpecs.map(_.attachment)
+class NodeSpec(val nodeText: String, val attachmentSpecs: Set[TriggeredAttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
   var mention: Option[Mention] = None
   var tested = false
   var complaints = Seq[String]()
   
-  protected def matchAttachments(mention: TextBoundMention): Boolean = {
-    val success = mention.attachments == attachments
-    
-    success
-  }
+  protected def matchAttachments(mention: Mention): Boolean =
+      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs)
 
   protected def matchText(mention: TextBoundMention): Boolean = {
     val text = mention.text
@@ -134,7 +236,7 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
   protected def toString(left: String, right: String): String = {
     val stringBuilder = new StringBuilder(left)
         .append(nodeText)
-        .append(if (!attachments.isEmpty) "|" else "")
+        .append(if (!attachmentSpecs.isEmpty) "|" else "")
         
     attachmentSpecs.foreach(attachmentSpec => stringBuilder.append(attachmentSpec.toString))
     stringBuilder
@@ -157,16 +259,16 @@ object NodeSpec {
     
   def apply(nodeText: String, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(), nodeFilter)
-  def apply(nodeText: String, attachmentSpec: AttachmentSpec, nodeFilter: NodeFilter) =
+  def apply(nodeText: String, attachmentSpec: TriggeredAttachmentSpec, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(attachmentSpec), nodeFilter)
   
-  def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
+  def apply(nodeText: String, attachmentSpecs: Set[TriggeredAttachmentSpec]) =
       new NodeSpec(nodeText, attachmentSpecs)
-  def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
+  def apply(nodeText: String, attachmentSpecs: TriggeredAttachmentSpec*) =
       new NodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
-class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
+class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[TriggeredAttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
   override def test(mentions: Seq[Mention]): Seq[String] = {
     if (!tested) {
       val matches = testSpec(mentions)
@@ -181,9 +283,9 @@ class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) exten
 }
 
 object AntiNodeSpec {
-  def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
+  def apply(nodeText: String, attachmentSpecs: Set[TriggeredAttachmentSpec]) =
       new AntiNodeSpec(nodeText, attachmentSpecs)
-  def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
+  def apply(nodeText: String, attachmentSpecs: TriggeredAttachmentSpec*) =
       new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
