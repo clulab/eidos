@@ -43,10 +43,14 @@ object EidosAttachment {
   val TYPE = "type"
   val MOD = "mod"
 
-  def newEidosAttachment(mention: Mention): TriggeredAttachment = mention.label match {
-    case Quantification.label => Quantification(mention)
-    case Increase.label => Increase(mention)
-    case Decrease.label => Decrease(mention)
+  def newEidosAttachment(mention: Mention): TriggeredAttachment = {
+    val eventMention = mention.asInstanceOf[EventMention]
+
+    eventMention.label match {
+      case Quantification.label => Quantification(eventMention)
+      case Increase.label => Increase(eventMention)
+      case Decrease.label => Decrease(eventMention)
+    }
   }
 
   def newEidosAttachment(json: JValue): EidosAttachment = {
@@ -72,8 +76,12 @@ object EidosAttachment {
       .map(qs => qs.map(_.text))
 }
 
-abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]]/*,
-    triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]]*/) extends EidosAttachment {
+case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[String]] = None,
+    triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None)
+
+abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
+    triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]]) extends EidosAttachment {
+
   override val argumentSize: Int = if (quantifiers.isDefined) quantifiers.get.size else 0
 
   // We keep the original order in adverbs for printing and things,
@@ -117,8 +125,6 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
     someTriggerMentions ++ someQuantifierMentions
   }*/
 }
-
-case class AttachmentInfo(triggerMention: TextBoundMention, triggerText: String, quantifierMentions: Option[Seq[Mention]], quantifierTexts: Option[Seq[String]])
 
 object TriggeredAttachment {
 
@@ -180,12 +186,12 @@ object TriggeredAttachment {
     val quantifierMentions: Option[Seq[Mention]] = mention.asInstanceOf[EventMention].arguments.get(key)
     val quantifierTexts: Option[Seq[String]] = quantifierMentions.map(_.map(_.text))
 
-    AttachmentInfo(triggerMention, triggerText, quantifierMentions, quantifierTexts)
+    AttachmentInfo(triggerText, quantifierTexts, Some(triggerMention), quantifierMentions)
   }
 }
 
-class Quantification(trigger: String, quantifiers: Option[Seq[String]]/*, quantifierMention: Option[TextBoundMention] = None, adverbMentions: Option[Seq[Mention]] = None*/)
-    extends TriggeredAttachment(trigger, quantifiers/*, quantifierMention, adverbMentions*/) {
+class Quantification(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
+    quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Quantification]
 
@@ -203,17 +209,17 @@ object Quantification {
   val kind = "QUANT"
   val argument = "adverb"
 
-  def apply(quantifier: String, adverbs: Option[Seq[String]]) = new Quantification(quantifier, adverbs)
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new Quantification(trigger, quantifiers)
 
   def apply(mention: Mention): Quantification = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
-    new Quantification(attachmentInfo.triggerText, attachmentInfo.quantifierTexts/*, Some(attachmentInfo.triggerMention), attachmentInfo.quantifierMentions*/)
+    new Quantification(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
   }
 }
 
-class Increase(trigger: String, quantifiers: Option[Seq[String]]/*, triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None*/)
-    extends TriggeredAttachment(trigger, quantifiers/*, triggerMention, quantifierMentions*/) {
+class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
+    quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Increase]
 
@@ -236,12 +242,12 @@ object Increase {
   def apply(mention: Mention): Increase = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
-    new Increase(attachmentInfo.triggerText, attachmentInfo.quantifierTexts/*, Some(attachmentInfo.triggerMention), attachmentInfo.quantifierMentions*/)
+    new Increase(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
   }
 }
 
-class Decrease(trigger: String, quantifiers: Option[Seq[String]]/*, triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None*/)
-    extends TriggeredAttachment(trigger, quantifiers/*, triggerMention, quantifierMentions*/) {
+class Decrease(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
+    quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Decrease]
 
@@ -264,7 +270,7 @@ object Decrease {
   def apply(mention: Mention): Decrease = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
-    new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts /*, Some(attachmentInfo.triggerMention), attachmentInfo.quantifierMentions*/)
+    new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
   }
 }
 
