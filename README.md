@@ -18,7 +18,7 @@ correlation, `same-as`, and `is-a` relations.
 
 - [Usage](#usage)
   - [How to compile the source code](#how-to-compile-the-source-code)
-  - [How to use it](#how-to-use-it)
+  - [How to run Eidos](#how-to-use-it)
     - [Using the Scala API](#using-the-scala-api)
       - [Prettified display](#to-produce-a-pretty-display-of-the-extracted-mentions)
       - [Export to JSON-LD](#to-export-extractions-as-json-ld)
@@ -27,11 +27,12 @@ correlation, `same-as`, and `is-a` relations.
     - [Command Line Usage](#command-line-usage)
       - [Interactive shell](#running-an-interactive-shell)
       - [Webapp](#running-the-webapp)
+  - [How to use Eidos output](#how-to-use-eidos-output)
     - [Visualizing Eidos output](#visualizing-eidos-output)
     - [Using Eidos output for modeling](#using-eidos-output-for-modeling)
-  - [License](#license)
-  - [Related Resources](#related-resources)
-  - [Notes](#notes)
+- [License](#license)
+- [Related Resources](#related-resources)
+- [Notes](#notes)
 
 
 # Usage
@@ -759,6 +760,8 @@ sbt webapp/run
 and then navigate to `localhost:9000` in a web browser.
 
 
+## How to use Eidos output
+
 ### Visualizing Eidos output
 
 Eidos reading output can be visualized using
@@ -786,7 +789,6 @@ Example usage:
 that assembles causal fragments extracted by Eidos into a causal analysis graph.
 This causal analysis graph is then converted to a dynamic Bayes network and used
 to make probabilistic predictions. 
-
 
 
 # License
