@@ -28,6 +28,10 @@ import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
 
+  /*
+      Filtering Methods
+   */
+
   def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
 
     // --- To distinguish between :
@@ -59,19 +63,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         case _ => (0, 0,  mention.attachments)
       }
 
-      // disgusting!
-
       val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
       val triggerSize = mention.attachments.toSeq.map(triggerOf(_).length).sum
       val attachArgumentsSz = argumentSize + triggerSize
-      // smart this up
-      // problem: Quant("moderate to heavy", None) considered the same as Quant("heavy", none)
-      // MAYBE merge them...? here maybe no bc string overlap... keep superset/longest
-      // BUT: what about "persistent and heavy seasonal rainfall" -- Quant("persistent", None),  Quant("heavy", none)
-      // want merged -> Quant("persistent", None), Quant("heavy", None) ??
-
-      // may be helpful
-      //tb.newWithAttachment()
 
       (mention, (attachArgumentsSz + modSize + numArgs)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
     }
@@ -82,61 +76,101 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   def filterSubstringArgumentEvents(events: Seq[EventMention]): Seq[Mention] = {
-    val triggerGroups = events.groupBy(event => (event.label, event.trigger))
-    for ((_, eventsInGroup) <- triggerGroups) {
-      val sortedByLength = eventsInGroup.sortBy(e => e.tokenInterval.length)
+
+    def argumentTexts(em: EventMention): Set[String] = em.arguments.values.toSet.flatten.map(m => m.text)
+
+    // Return true if the event subsumes all the args
+    def eventArgsSubsume(argsToCheck: Set[String], event: EventMention): Boolean = {
+      val eventArgStrings = argumentTexts(event)
+//      println("\t\t--> the existing event arguments I am checking: " + eventArgStrings.mkString(", "))
+//      println("\t\t   --> the arguments I want to know if they are subsumed are: " + argsToCheck.mkString(", "))
+//      println("\t\t      --> returning: " + subsumes(eventArgStrings, argsToCheck))
+      subsumes(eventArgStrings, argsToCheck)
     }
-    ???
+
+    // True if A subsumes B
+    def subsumes(A: Set[String], B: Set[String]): Boolean = B.forall(elem => contained(elem, A))
+    def contained(s: String, A: Set[String]): Boolean = A.exists(elem => elem.contains(s))
+
+    val triggerGroups = events.groupBy(event => (event.label, event.trigger))
+    val filteredForArgumentSubsumption = for {
+      (_, eventsInGroup) <- triggerGroups
+
+      eventsKept = MutableSet[EventMention]() // Cache intermediate events.
+
+      filtered = eventsInGroup
+        // longest first
+        .sortBy(- argTokenInterval(_).length)
+        // Check to see if it's subsumed by something already there
+        .filter { event =>
+          val argTexts = argumentTexts(event)
+
+          if (!eventsKept.exists(ev => eventArgsSubsume(argTexts, ev))) {
+            eventsKept.add(event) // Add this event because it isn't subsumed by what's already there.
+            //println(s"\t!!!!!!!!!!!!!!!\n\tEvent: ${event.text} is NOT subsumed -- adding to list!\n\t!!!!!!!!!!!!!!!")
+            true // Keep the attachment.
+          }
+          else{
+            //println(s"\t!!!!!!!!!!!!!!!\n\tEvent: ${event.text} IS subsumed -- filtering out!!\n\t!!!!!!!!!!!!!!!")
+            false
+          }
+        }
+    } yield filtered
+
+    filteredForArgumentSubsumption.toSeq.flatten
+  }
+
+  // We need to remove underspecified EventMentions of near-duplicate groupings
+  // (ex. same phospho, but one is missing a site)
+  def argTokenInterval(m: EventMention): Interval = {
+    val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
+    val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
+    Interval(start = min, end = max)
   }
 
 
-  // remove incomplete EVENT Mentions
+  // Remove incomplete Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
 
-    val (events, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
-    val (textBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
-    // remove incomplete entities (i.e. under specified when more fully specified exists)
+    val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
+    // Filter out duplicate (or subsumed) events.  Strict containment used -- i.e. simply overlapping args is not
+    // enough to be filtered out here.
+    val events = filterSubstringArgumentEvents(baseEvents.map(_.asInstanceOf[EventMention]))
 
+    // Entities
+    val (textBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
+
+    // remove incomplete entities (i.e. under specified when more fully specified exists)
     val tbMentionGroupings =
       textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, m.label, m.sentence))
-    // remove incomplete mentions
+
     val completeTBMentions =
       for ((k, tbms) <- tbMentionGroupings) yield {
-//        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
-//        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
         val filteredTBMs = customAttachmentFilter(tbms)
-
         filteredTBMs.head
       }
 
-    // We need to remove underspecified EventMentions of near-duplicate groupings
-    // (ex. same phospho, but one is missing a site)
-    def argTokenInterval(m: EventMention): Interval = {
-      val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
-      val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
-      Interval(start = min, end = max)
-    }
-
+    // Events
     val eventMentionGroupings =
       events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.label, argTokenInterval(m), m.sentence))
 
-    // remove incomplete mentions
+    // remove incomplete event mentions
     val completeEventMentions =
       for ((_, ems) <- eventMentionGroupings) yield {
         // max number of arguments
         val maxSize: Int = ems.map(_.arguments.values.flatten.size).max
         // max number of argument modifications
         // todo not all attachments are equal
-//        val maxArgMods = ems.map(em => em.arguments.values.flatten.map(arg => arg.attachments.size).sum).max
-//        val maxModSize: Int = ems.map(em => em.arguments.values.flatMap(ms => ms.map(_.modifications.size)).max).max
-//        val filteredEMs = ems.filter(m => m.arguments.values.flatten.size == maxSize &&
-//          m.arguments.values.flatMap(ms => ms.map(_.attachments.size)).sum == maxArgMods)
         val filteredEMs = customAttachmentFilter(ems)
         filteredEMs.head
       }
 
     completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
   }
+
+  /*
+      Mention State / Attachment Methods
+   */
 
   //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
   //Rule to add Increase/Decrease to the state of an entity
@@ -165,39 +199,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
-
-
-  // New action designed to expand the args of relevant events only...
-  def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-
-    mentions.map(m => displayMention(m))
-    def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
-    def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
-      // All involved token intervals, both for the original event and the expanded arguments
-      val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
-      println("allIntervals: " + allIntervals.mkString(", "))
-      // Find the largest span from these intervals
-      val newTokenInterval = getNewTokenInterval(allIntervals)
-      // Make the copy based on the type of the Mention
-      orig match {
-        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
-        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
-      }
-    }
-
-    for {
-      mention <- mentions
-      expanded = for {
-        (argType, argMentions) <- mention.arguments
-        expandedMentions = argMentions.map(expand(_, maxHops = 5, new State))
-      } yield (argType, expandedMentions)
-    } yield copyWithExpanded(mention, expanded)
-
-  }
-
-
-
 
 
   // Currently used as a GLOBAL ACTION in EidosSystem:
@@ -304,6 +305,38 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
   }
 
+  /*
+      Entity Expansion Methods
+   */
+
+  // New action designed to expand the args of relevant events only...
+  def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
+
+    mentions.map(m => displayMention(m))
+    def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
+    def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
+      // All involved token intervals, both for the original event and the expanded arguments
+      val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
+      println("allIntervals: " + allIntervals.mkString(", "))
+      // Find the largest span from these intervals
+      val newTokenInterval = getNewTokenInterval(allIntervals)
+      // Make the copy based on the type of the Mention
+      orig match {
+        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
+        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
+      }
+    }
+
+    for {
+      mention <- mentions
+      expanded = for {
+        (argType, argMentions) <- mention.arguments
+        expandedMentions = argMentions.map(expand(_, maxHops = 5, new State))
+      } yield (argType, expandedMentions)
+    } yield copyWithExpanded(mention, expanded)
+
+  }
 
   //-- Entity expansion methods (brought in from EntityFinder)
   def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {

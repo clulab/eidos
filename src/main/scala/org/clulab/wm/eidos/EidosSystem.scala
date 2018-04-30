@@ -125,11 +125,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
 
     // 2. Filter entities which are entirely stop or transparent
-    val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
+    //val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
     //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
 
     // 3. Extract events that involve these entiies
-    val events = extractEventsFrom(doc, State(filtered)).distinct
+    val events = extractEventsFrom(doc, State(entities)).distinct
     //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
     events
