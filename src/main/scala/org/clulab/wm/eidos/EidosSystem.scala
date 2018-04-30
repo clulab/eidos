@@ -23,9 +23,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
-  var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
 
   override def getConf: Config = config
+
+  var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
+  def word2vecPath = getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt")
+  def topK = getArgInt(getFullName("topKNodeGroundings"), Some(10))
+  protected val wordToVec = if (word2vec) Some(EidosWordToVec(word2vecPath, topK)) else None
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
 
@@ -37,16 +41,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   class LoadableAttributes(
-                            // These are the values which can be reloaded.  Query them for current assignments.
-                            val entityFinder: EidosEntityFinder,
-                            val domainParams: DomainParams,
-                            val adjectiveGrounder: AdjectiveGrounder,
-                            val actions: EidosActions,
-                            val engine: ExtractorEngine,
-                            val ner: LexiconNER,
-                            val stopwordManager: StopwordManager,
-                            val ontologyGrounder: EidosOntologyGrounder
-                          )
+    // These are the values which can be reloaded.  Query them for current assignments.
+    val entityFinder: EidosEntityFinder,
+    val domainParams: DomainParams,
+    val adjectiveGrounder: AdjectiveGrounder,
+    val actions: EidosActions,
+    val engine: ExtractorEngine,
+    val ner: LexiconNER,
+    val stopwordManager: StopwordManager,
+    val ontologyGrounders: Seq[EidosOntologyGrounder]
+  )
 
   object LoadableAttributes {
     val   masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
@@ -65,6 +69,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
+      val ontologyGrounders =
+          if (word2vec) Seq(new EidosOntologyGrounder(taxonomyPath, wordToVec.get))
+          else Seq.empty
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -74,7 +81,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         StopwordManager(stopwordsPath, transparentPath),
-        EidosOntologyGrounder(),
+        ontologyGrounders
       )
     }
   }
@@ -87,13 +94,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
 
+//  getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml"),
+
   // This isn't intended to be (re)loadable.  This only happens once.
-  protected val wordToVec = EidosWordToVec(
-    word2vec,
-    getPath(     "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
-    getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml"),
-    getArgInt(getFullName("topKNodeGroundings"), Some(10))
-  )
 
   def reload() = loadableAttributes = LoadableAttributes()
 
@@ -161,7 +164,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val sameAsRelations = for {
       (m1, i) <- ms.zipWithIndex
       m2 <- ms.slice(i+1, ms.length)
-      score = wordToVec.calculateSimilarity(m1, m2)
+      score = if (word2vec) wordToVec.get.calculateSimilarity(m1, m2) else 0
     } yield sameAs(m1, m2, score)
 
     sameAsRelations
@@ -185,7 +188,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     loadableAttributes.stopwordManager.containsStopword(stopword)
 
   def groundOntology(mention: EidosMention): OntologyGrounding =
-    loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
+      if (!word2vec) new OntologyGrounding()
+      else loadableAttributes.ontologyGrounders.head.groundOntology(mention)
 
   def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
@@ -193,7 +197,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(s1: String, s2: String): Double = wordToVec.stringSimilarity(s1, s2)
+  def stringSimilarity(s1: String, s2: String): Double = wordToVec.get.stringSimilarity(s1, s2)
 
   /*
      Debugging Methods
