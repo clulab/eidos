@@ -20,7 +20,7 @@ object ExampleGenerator extends App {
 
   // extract mentions from annotated document
   val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
-  val eidosMentions = EidosMention.asEidosMentions(mentions, ieSystem)
+  val eidosMentions = EidosMention.asEidosMentions(mentions, ieSystem, ieSystem)
 
   // Display the groundings for all entities
   for (e <- eidosMentions.filter(_.odinMention matches "Entity")) {

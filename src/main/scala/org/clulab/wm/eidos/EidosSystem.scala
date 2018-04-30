@@ -11,8 +11,7 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.DomainParams
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{DomainParams, FileUtils, StopwordManager, StopwordManaging}
 import org.slf4j.LoggerFactory
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
@@ -20,7 +19,7 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with OntologyGrounder with AdjectiveGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with OntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   var debug = true // Allow external control with var
@@ -45,6 +44,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
                             val actions: EidosActions,
                             val engine: ExtractorEngine,
                             val ner: LexiconNER,
+                            val stopwordManager: StopwordManager,
                             val ontologyGrounder: EidosOntologyGrounder
                           )
 
@@ -73,7 +73,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         actions,
         ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
-        EidosOntologyGrounder(stopwordsPath, transparentPath)
+        StopwordManager(stopwordsPath, transparentPath),
+        EidosOntologyGrounder(),
       )
     }
   }
@@ -116,7 +117,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = keepCAGRelevant(odinMentions)
-    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, this)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
@@ -131,7 +132,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
-    val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
+    val filtered = loadableAttributes.stopwordManager.filterStopTransparent(entities)
     //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
     val events = extractEventsFrom(doc, State(filtered)).distinct
     //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
@@ -180,12 +181,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       Grounding
   */
 
+  def containsStopword(stopword: String) =
+    loadableAttributes.stopwordManager.containsStopword(stopword)
+
   def groundOntology(mention: EidosMention): OntologyGrounding =
     loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
-
-
-  def containsStopword(stopword: String) =
-    loadableAttributes.ontologyGrounder.containsStopword(stopword)
 
   def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
@@ -225,5 +225,4 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES = Set("Causal", "Correlation")
-
 }
