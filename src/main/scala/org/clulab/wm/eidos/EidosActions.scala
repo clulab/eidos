@@ -5,25 +5,21 @@ import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
-import scala.Ordering
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{Set => MutableSet}
-import scala.io.BufferedSource
 import utils.DisplayUtils.displayMention
 import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
 
+import scala.collection.mutable.{Set => MutableSet}
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
 
 //TODO: need to add polarity flipping
-
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
@@ -32,6 +28,20 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       Filtering Methods
    */
 
+  // This was essentially .head before, but that is dependent on order.
+  protected def tieBreaker(mentions: Seq[Mention]): Mention = {
+    val oldBest = mentions.head
+    val newBest = mentions.minBy(_.foundBy)
+
+//    if (!oldBest.eq(newBest))
+//      println("Changed answer")
+    newBest
+  }
+
+  /**
+    * @author Gus Hahn-Powell
+    *         Copies the label of the lowest overlapping entity in the taxonomy
+    */
   def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
 
     // --- To distinguish between :
@@ -60,11 +70,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
           val emAttachmentSet = em.arguments.values.flatten.flatMap(m => m.attachments).toSet
           (emSize, emModSize, emAttachmentSet)
         }
-        case _ => (0, 0,  mention.attachments)
+        case _ => (0, 0, mention.attachments)
       }
 
       val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-      val triggerSize = mention.attachments.toSeq.map(triggerOf(_).length).sum
+      val triggerSize = mention.attachments.toSeq.map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
       val attachArgumentsSz = argumentSize + triggerSize
 
       (mention, (attachArgumentsSz + modSize + numArgs)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
@@ -146,8 +156,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     val completeTBMentions =
       for ((k, tbms) <- tbMentionGroupings) yield {
+        //        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
+        //        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
+
         val filteredTBMs = customAttachmentFilter(tbms)
-        filteredTBMs.head
+        // In case there are several, use the one one smallest according to the rule.
+        tieBreaker(filteredTBMs)
       }
 
     // Events
@@ -162,9 +176,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         // max number of argument modifications
         // todo not all attachments are equal
         val filteredEMs = customAttachmentFilter(ems)
-        filteredEMs.head
+        tieBreaker(filteredEMs)
       }
-
     completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
   }
 
@@ -185,10 +198,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
       // Here, we want to keep the theme that is being modified, not the modification event itself
       case rm: RelationMention =>
-        val theme = rm.arguments("theme").head.asInstanceOf[TextBoundMention]
+        val theme = tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
         theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
       case em: EventMention =>
-        val theme = em.arguments("theme").head.asInstanceOf[TextBoundMention]
+        val theme = tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
         theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
     }
   } yield copyWithMod
@@ -219,17 +232,24 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val mergedEntities = for {
       (_, entities) <- entitiesBySpan
       // These are now for the same span, so only one should win as the main one.
-      flattenedAttachments = entities.flatMap(_.attachments)
+      flattenedAttachments = entities.flatMap(_.attachments.map(_.asInstanceOf[TriggeredAttachment]))
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
-        val bestAttachment = filteredAttachments.sortWith(greaterThanOrEqual).head
-        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
+        // use old version for now
+//        val bestAttachment = filteredAttachments.sorted.reverse.head
+//        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
+
+        val bestAttachment = filteredAttachments.sorted.reverse.head
+        // Since head was used above and there could have been a tie, == should be used below
+        // The tie can be broken afterwards.
+        val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
+        val bestEntity = tieBreaker(bestEntities)
 
         copyWithAttachments(bestEntity, filteredAttachments)
       }
       else
-        entities.head
+        tieBreaker(entities)
     }
     mergedEntities.toSeq ++ nonentities
   }
@@ -243,48 +263,32 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   // Filter out substring attachments, then keep most complete.
-  def filterAttachments(attachments: Seq[Attachment]) = {
+  def filterAttachments(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     attachments
         // Perform first mapping based on class
         .groupBy(_.getClass)
         // Filter out substring attachments
         .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
         // Next map based on both class and trigger.
-        .groupBy(attachment => (attachment.getClass, triggerOf(attachment)))
+        .groupBy(attachment => (attachment.getClass, attachment.trigger))
         // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
         .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
         .toSeq
   }
 
   // Keep the most complete attachment here.
-  protected def filterMostComplete(attachments: Seq[Attachment]) =
-      attachments.maxBy(_.asInstanceOf[EidosAttachment].argumentSize)
-
-  // If there is a tie initially, the winner should have more arguments
-  protected def lessThan(left: Attachment, right: Attachment): Boolean = {
-    val triggerDiff = triggerOf(left).length - triggerOf(right).length
-
-    if (triggerDiff != 0)
-      triggerDiff < 0
-    else {
-      val argumentsDiff = left.asInstanceOf[EidosAttachment].argumentSize -
-        right.asInstanceOf[EidosAttachment].argumentSize
-
-      argumentsDiff < 0
-    }
-  }
-
-  protected def greaterThanOrEqual(left: Attachment, right: Attachment) = !lessThan(left, right)
+  protected def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
+      attachments.maxBy(_.argumentSize)
 
   // Filter out substring attachments.
-  protected def filterSubstringTriggers(attachments: Seq[Attachment]): Seq[Attachment] = {
-
+  protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
     val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
 
     attachments
-        .sortWith(greaterThanOrEqual)
+        .sorted
+        .reverse
         .filter { attachment =>
-          val trigger = triggerOf(attachment)
+          val trigger = attachment.trigger
 
           if (!triggersKept.exists(_.contains(trigger))) {
             triggersKept.add(trigger) // Add this trigger.
@@ -300,7 +304,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     attachment match {
       case inc: Increase => inc.trigger
       case dec: Decrease => dec.trigger
-      case quant: Quantification => quant.quantifier
+      case quant: Quantification => quant.trigger
       case _ => throw new UnsupportedClassVersionError()
     }
   }
@@ -401,6 +405,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
 
+
 }
 
 object EidosActions extends Actions {
@@ -442,7 +447,7 @@ object EidosActions extends Actions {
   )
 
   def apply(taxonomyPath: String) =
-    new EidosActions(readTaxonomy(taxonomyPath))
+      new EidosActions(readTaxonomy(taxonomyPath))
 
   private def readTaxonomy(path: String): Taxonomy = {
     val input = FileUtils.getTextFromResource(path)

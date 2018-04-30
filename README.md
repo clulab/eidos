@@ -723,11 +723,18 @@ sbt webapp/run
 and then navigate to `localhost:9000` in a web browser.
 
 
+### Visualizing Eidos output
+
+Eidos reading output can be visualized using
+[INDRA](https://github.com/sorgerlab/indra) and Jupyter notebooks. See below for
+an example.
+
+![alt text](/doc/delphi_example.png?raw=True")
 
 ### Using Eidos output for modeling
 
 Events extracted using Eidos can be converted to
-[INDRA-GEM](https://github.com/sorgerlab/indra) Influence statements, which are
+[INDRA](https://github.com/sorgerlab/indra) Influence statements, which are
 bespoke data structures designed for modeling causal networks. 
 
 Example usage:
@@ -742,10 +749,8 @@ Example usage:
 [Delphi](https://github.com/ml4ai/delphi) is a framework built on top of INDRA
 that assembles causal fragments extracted by Eidos into a causal analysis graph.
 This causal analysis graph is then converted to a dynamic Bayes network and used
-to make probabilistic predictions. Currently Delphi provides a webapp interface
-for interactive visualization of CAGs. Here is an example:
+to make probabilistic predictions. 
 
-![alt text](/doc/delphi_example.png?raw=True")
 
 
 ## License

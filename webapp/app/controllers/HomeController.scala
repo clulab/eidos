@@ -84,7 +84,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
       groundedQuantifications = for {
         q <- quantifications
-        quantTrigger = q.asInstanceOf[Quantification].quantifier
+        quantTrigger = q.asInstanceOf[Quantification].trigger
       } yield groundEntity(m, quantTrigger, ieSystem)
 
       groundedIncreases = for {

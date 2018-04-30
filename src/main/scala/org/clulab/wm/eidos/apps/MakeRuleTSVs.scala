@@ -101,7 +101,7 @@ object MakeRuleTSVs extends App {
     a match {
       case inc:Increase => s"INC-${inc.trigger}"
       case dec:Decrease => s"DEC-${dec.trigger}"
-      case quant:Quantification => s"QUANT-${quant.quantifier}"
+      case quant:Quantification => s"QUANT-${quant.trigger}"
       case _ => ""
     }
 

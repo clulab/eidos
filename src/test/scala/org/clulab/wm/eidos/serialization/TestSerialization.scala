@@ -37,31 +37,41 @@ class TestSerialization extends Test {
         case eventMention: EventMention =>
           var index = 0
 
-//          serialize(eventMention.labels, index)
-//          index += 1
-//          serialize(eventMention.tokenInterval, index)
-//          index += 1
-//          serialize(eventMention.trigger, index)
-//          index += 1
-//          serialize(eventMention.arguments, index)
-//          index += 1
-//          serialize(eventMention.paths, index)
-//          index += 1
-//          serialize(eventMention.sentence, index)
-//          index += 1
-//          serialize(eventMention.document, index)
-//          index += 1
-//          serialize(eventMention.keep, index)
-//          index += 1
-//          serialize(eventMention.foundBy, index)
-//          index += 1
-//          serialize(eventMention.attachments, index)
-//          index += 1
+          serialize(eventMention.labels, index)
+          index += 1
+          serialize(eventMention.tokenInterval, index)
+          index += 1
+          serialize(eventMention.trigger, index)
+          index += 1
+          serialize(eventMention.arguments, index)
+          index += 1
+          serialize(eventMention.paths, index)
+          index += 1
+          serialize(eventMention.sentence, index)
+          index += 1
+          serialize(eventMention.document, index)
+          index += 1
+          serialize(eventMention.keep, index)
+          index += 1
+          serialize(eventMention.foundBy, index)
+
+          eventMention.attachments.foreach { attachment =>
+            serialize(attachment, index); index += 1
+          }
+
+          serialize(eventMention.attachments, index)
+          index += 1
           serialize(eventMention, index)
           index += 1
         case textBoundMention: TextBoundMention =>
           var index = 0
 
+          textBoundMention.attachments.foreach { attachment =>
+            serialize(attachment, index); index += 1
+          }
+
+          serialize(textBoundMention.attachments, index)
+          index += 1
           serialize(textBoundMention, index)
           index += 1
     }
