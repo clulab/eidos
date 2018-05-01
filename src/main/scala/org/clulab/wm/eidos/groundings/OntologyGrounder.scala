@@ -43,6 +43,6 @@ object EidosOntologyGrounder {
   def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
     val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath))
 
-    ontology.iterateOntology(wordToVec.w2v)
+    ontology.iterateOntology(wordToVec)
   }
 }

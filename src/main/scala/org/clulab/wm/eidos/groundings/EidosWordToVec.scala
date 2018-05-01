@@ -4,7 +4,26 @@ import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Sourcer
 
-class EidosWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) {
+trait EidosWordToVec {
+  def stringSimilarity(s1: String, s2: String): Double
+  def calculateSimilarity(m1: Mention, m2: Mention): Double
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Map[String, Seq[Double]]): Seq[(String, Double)]
+  def makeCompositeVector(t:Iterable[String]): Array[Double]
+}
+
+class FakeWordToVec extends EidosWordToVec {
+
+  override def stringSimilarity(s1: String, s2: String): Double =
+    throw new RuntimeException("Word2Vec wasn't loaded, please check configurations.")
+
+  def calculateSimilarity(m1: Mention, m2: Mention): Double = 0
+
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Map[String, Seq[Double]]): Seq[(String, Double)] = Seq.empty
+
+  def makeCompositeVector(t:Iterable[String]): Array[Double] = Array.emptyDoubleArray
+}
+
+class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
@@ -26,20 +45,26 @@ class EidosWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) {
     
     similarities.sortBy(- _._2).slice(0, topKNodeGroundings)
   }
+
+  def makeCompositeVector(t: Iterable[String]): Array[Double] = w2v.makeCompositeVector(t)
 }
 
 object EidosWordToVec {
 
-  def apply(wordToVecPath: String, topKNodeGroundings: Int): EidosWordToVec = {
-    val source = Sourcer.sourceFromResource(wordToVecPath)
+  def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int): EidosWordToVec = {
+    if (enabled) {
+      val source = Sourcer.sourceFromResource(wordToVecPath)
 
-    try {
-      val w2v = new Word2Vec(source, None)
+      try {
+        val w2v = new Word2Vec(source, None)
 
-      new EidosWordToVec(w2v, topKNodeGroundings)
+        new RealWordToVec(w2v, topKNodeGroundings)
+      }
+      finally {
+        source.close()
+      }
     }
-    finally {
-      source.close()
-    }
+    else
+      new FakeWordToVec()
   }
 }

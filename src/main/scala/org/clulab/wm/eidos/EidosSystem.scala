@@ -27,9 +27,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   override def getConf: Config = config
 
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
-  def word2vecPath = getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt")
-  def topK = getArgInt(getFullName("topKNodeGroundings"), Some(10))
-  protected val wordToVec = if (word2vec) Some(EidosWordToVec(word2vecPath, topK)) else None
+  protected val wordToVec = EidosWordToVec(
+    word2vec,
+    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
+    getArgInt(getFullName("topKNodeGroundings"), Some(10))
+  )
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
 
@@ -70,7 +72,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
       val ontologyGrounders =
-          if (word2vec) Seq(new EidosOntologyGrounder(taxonomyPath, wordToVec.get))
+          if (word2vec) Seq(new EidosOntologyGrounder(taxonomyPath, wordToVec))
           else Seq.empty
 
       new LoadableAttributes(
@@ -164,7 +166,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val sameAsRelations = for {
       (m1, i) <- ms.zipWithIndex
       m2 <- ms.slice(i+1, ms.length)
-      score = if (word2vec) wordToVec.get.calculateSimilarity(m1, m2) else 0
+      score = wordToVec.calculateSimilarity(m1, m2)
     } yield sameAs(m1, m2, score)
 
     sameAsRelations
@@ -197,7 +199,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(s1: String, s2: String): Double = wordToVec.get.stringSimilarity(s1, s2)
+  def stringSimilarity(s1: String, s2: String): Double = wordToVec.stringSimilarity(s1, s2)
 
   /*
      Debugging Methods

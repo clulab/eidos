@@ -3,19 +3,19 @@ package org.clulab.wm.eidos.utils
 import java.util.{Collection, Map => JMap}
 
 import org.clulab.embeddings.word2vec.Word2Vec
+import org.clulab.wm.eidos.groundings.EidosWordToVec
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 class DomainOntology(concepts: Map[String, Seq[String]]){
 
-  def iterateOntology(w2v: Word2Vec): Map[String, Seq[Double]] = {
+  def iterateOntology(wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
     for ((concept, examples) <- concepts) yield {
-      val avgEmbedding = w2v.makeCompositeVector(examples.flatMap(_.split(" +")))
+      val avgEmbedding = wordToVec.makeCompositeVector(examples.flatMap(_.split(" +")))
       (concept, avgEmbedding.toSeq)
     }
   }
-
 }
 
 object DomainOntology {
