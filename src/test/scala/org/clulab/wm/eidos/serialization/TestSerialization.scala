@@ -5,6 +5,7 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, 
 import org.clulab.odin.{EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
+import org.apache.commons.io.input.ClassLoaderObjectInputStream
 
 class TestSerialization extends Test {
   val reader = new EidosSystem()
@@ -17,12 +18,12 @@ class TestSerialization extends Test {
 
     val bytes = streamOut.toByteArray
     val streamIn = new ByteArrayInputStream(bytes)
-    val decoder = new ObjectInputStream(streamIn)
-//    val copy = decoder.readObject()
+    val decoder = new ClassLoaderObjectInputStream(getClass.getClassLoader, streamIn)
+    val copy = decoder.readObject()
     decoder.close()
 
-//    if (original.isInstanceOf[Mention])
-//      require(original == copy)
+    if (original.isInstanceOf[Mention])
+      require(original == copy)
   }
   
   behavior of "Standard Serializer"
