@@ -39,7 +39,7 @@ object ExtractFromFile extends App {
       sentenceMentions.foreach(
         m => {
           pw.println(s"CanonicalName: ${m.canonicalName}")
-          pw.println(s"OntologyGrounding: \n\t${m.grounding.grounding.mkString("\n\t")}")
+          pw.println(s"OntologyGrounding: \n\t${m.grounding.values.mkString("\n\t")}")
           printMention(m.odinMention, pw)
 
         }

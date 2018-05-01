@@ -27,7 +27,7 @@ object ExampleGenerator extends App {
     println("EidosMention:")
     displayMention(e.odinMention)
     println("Groundings:")
-    e.asInstanceOf[EidosTextBoundMention].grounding.grounding.foreach(g => println(s"\t$g"))
+    e.asInstanceOf[EidosTextBoundMention].grounding.values.foreach(g => println(s"\t$g"))
   }
 
   // Default debug display of the mentions
