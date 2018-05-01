@@ -3,6 +3,8 @@ package org.clulab.wm.eidos.entities
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.Mention
 
+import scala.util.matching.Regex
+
 
 /**
   * Utilities for validating entities
@@ -10,6 +12,8 @@ import org.clulab.odin.Mention
 object EntityConstraints extends LazyLogging {
 
   val VALID_FINAL_TAG = """^(NN|VB|JJ|\-R[SR]B).*"""
+
+  val COORD_DEPS: Set[Regex] = Set("^conj_".r, "^cc".r)
 
   // POS tags for splitting conjunctions
   val coordPOS = Set(

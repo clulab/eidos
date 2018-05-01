@@ -4,14 +4,14 @@ vars: org/clulab/wm/eidos/grammars/triggers.yml
 
 rules:
 
-  - name: "coordinations"
-    label: Avoid
-    priority: 1
-    type: token
-    pattern: |
-      # avoid coordinations
-      # we want any coordinated entities we might encounter to be split
-      (?<![tag=/^JJ/]) [tag=CC]
+#  - name: "coordinations"
+#    label: Avoid
+#    priority: 1
+#    type: token
+#    pattern: |
+#      # avoid coordinations
+#      # we want any coordinated entities we might encounter to be split
+#      (?<![tag=/^JJ/]) [tag=CC]
 
 #  # the chunker is wont to gobble up verbs with clear arguments as part of NPs,
 #  # hence this rule

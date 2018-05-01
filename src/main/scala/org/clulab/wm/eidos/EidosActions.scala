@@ -13,6 +13,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 import scala.annotation.tailrec
 import utils.DisplayUtils.displayMention
 import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
+import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{Set => MutableSet}
 
@@ -23,7 +24,7 @@ import scala.collection.mutable.{Set => MutableSet}
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
-
+  val entityHelper = new EntityHelper
   /*
       Filtering Methods
    */
@@ -332,14 +333,52 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       }
     }
 
+//    val withExpansion = for {
+//      mention <- mentions
+//      expanded = for {
+//        (argType, argMentions) <- mention.arguments
+//        expandedMentions = argMentions.map(expand(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, new State))
+//        //splitMentions = expandedMentions.flatMap(entityHelper.splitCoordinatedEntities)
+//      } yield (argType, expandedMentions)
+//      (argNames, mentionsToCombine) = expanded.toSeq.unzip
+//      cartesian = product(mentionsToCombine)
+//      argMaps = recombine(argNames, cartesian)  // the new argument maps, each will correspond to a new mention
+//
+//    } yield argMaps.map(copyWithExpanded(mention, _))
+//
+//    withExpansion.flatten
+
     for {
       mention <- mentions
       expanded = for {
         (argType, argMentions) <- mention.arguments
-        expandedMentions = argMentions.map(expand(_, maxHops = 5, new State))
+        expandedMentions = argMentions.map(expand(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, new State))
+      //splitMentions = expandedMentions.flatMap(entityHelper.splitCoordinatedEntities)
       } yield (argType, expandedMentions)
+      (argNames, mentionsToCombine) = expanded.toSeq.unzip
+      cartesian = product(mentionsToCombine)
+      argMaps = recombine(argNames, cartesian)  // the new argument maps, each will correspond to a new mention
+
     } yield copyWithExpanded(mention, expanded)
 
+  }
+
+  // Return the sequence of argMaps --> each will be a new Mention
+  // mentionPairs: Seq[Seq[Mention]] -- each element of this is a ordered list of mentions such that the index of the
+  //                                    mention corresponds to the argName in argNames
+  def recombine(argNames: Seq[String], mentionPairs: Seq[Seq[Mention]]): Seq[Map[String, Seq[Mention]]] = {
+    // Seq( ("cause", Seq(cause_mention)), ("effect", Seq(effect_mention)) ).toMap
+    for {
+      pair <- mentionPairs
+      namedArgs = argNames.zip(pair).map(elem => (elem._1, Seq(elem._2)))
+    } yield namedArgs.toMap
+  }
+
+  // cartesian product
+  // from: List(List(x1, x2, x3), List(y1, y2))
+  // to: List(List(x1, y1), List(x1, y2), List(x2, y1), List(x2, y2), List(x3, y1), List(x3, y2))
+  private def product[A](xss: Seq[Seq[A]]) = xss.foldRight(Seq(Seq[A]())) {
+    (xs, lla) => xs.flatMap(x => lla.map(x +: _))
   }
 
   //-- Entity expansion methods (brought in from EntityFinder)
@@ -368,7 +407,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         tok <- newTokens
         if outgoingRelations.nonEmpty && tok < outgoingRelations.length
         (nextTok, dep) <- outgoingRelations(tok)
-        if isValidOutgoingDependency(dep)
+        if isValidOutgoingDependency(dep, remainingHops)
         if stateFromAvoid.mentionsFor(sent, nextTok).isEmpty
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
@@ -397,6 +436,23 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
   }
 
+  def notInvalidConjunction(dep: String, hopsRemaining: Int): Boolean = {
+    // If it's not a coordination/conjunction, don't worry
+    if (EntityConstraints.COORD_DEPS.exists(pattern => pattern.findFirstIn(dep).isEmpty)) {
+      return true
+    } else if (hopsRemaining < EidosActions.MAX_HOPS_EXPANDING) {
+      // if it has a coordination/conjunction, check to make sure not at the top level (i.e. we've traversed
+      // something already
+      return true
+    }
+
+    false
+  }
+
+  def isValidOutgoingDependency(dep: String, hopsRemaining: Int): Boolean = {
+    isValidOutgoingDependency(dep) && notInvalidConjunction(dep, hopsRemaining)
+  }
+
   /** Ensure current token does not have any incoming dependencies that are invalid **/
   def hasValidIncomingDependencies(tokenIdx: Int, incomingDependencies: Array[Array[(Int, String)]]): Boolean = {
     if (incomingDependencies.nonEmpty && tokenIdx < incomingDependencies.length) {
@@ -409,6 +465,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 }
 
 object EidosActions extends Actions {
+
+  val MAX_HOPS_EXPANDING = 5
 
   // avoid expanding along these dependencies
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](
