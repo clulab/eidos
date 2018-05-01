@@ -3,16 +3,16 @@ package org.clulab.wm.eidos.text.cag
 import java.util.IdentityHashMap
 
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.{MultiOntologyGrounder, OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.cag.CAG._
 import org.clulab.wm.eidos.utils.StopwordManaging
 
-class TestEidosMention extends Test with StopwordManaging with OntologyGrounder {
+class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrounder {
   
-  def groundOntology(mention: EidosMention): OntologyGrounding = OntologyGrounding(Seq.empty)
+  def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
   def containsStopword(stopword: String) = stopword == "policy"
 
   def test(text: String) = {

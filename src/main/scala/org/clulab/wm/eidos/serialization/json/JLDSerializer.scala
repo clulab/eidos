@@ -1,10 +1,9 @@
 package org.clulab.wm.eidos.serialization.json
 
-import java.util.IdentityHashMap  // Unfortunately borrowed from Java
-import java.util.{Set => JavaSet} // Holds keys of IdentityHashMap
+import java.util.IdentityHashMap
+import java.util.{Set => JavaSet}
 
 import scala.collection.mutable
-
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
@@ -14,13 +13,12 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosRelationMention
 import org.clulab.wm.eidos.mentions.EidosTextBoundMention
-
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -289,9 +287,11 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
 
   override def toJObject(): JObject = {
     val jldAttachments = mention.odinMention.attachments.toList.map(_.asInstanceOf[TriggeredAttachment]).sortWith(TriggeredAttachment.lessThan).map(newJLDAttachment(_, mention))
-    val ontologyGrounding = mention.grounding.grounding
+
+    // kwa work here
+    val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = toJObjects(ontologyGrounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
+    val jldGroundings = toJObjects(ontologyGroundings.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~

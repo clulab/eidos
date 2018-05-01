@@ -9,10 +9,13 @@ trait OntologyGrounder {
   def groundOntology(mention: EidosMention): OntologyGrounding
 }
 
-class EidosOntologyGrounder(domainOntoPath: String, wordToVec: EidosWordToVec) extends OntologyGrounder {
+trait MultiOntologyGrounder {
+  def groundOntology(mention: EidosMention): Map[String, OntologyGrounding]
+}
+
+class EidosOntologyGrounder(var name: String, domainOntoPath: String, wordToVec: EidosWordToVec) extends OntologyGrounder {
   val conceptEmbeddings = EidosOntologyGrounder.getConceptEmbeddings(domainOntoPath, wordToVec)
 
-  // Be careful, because object may not be completely constructed.
   def groundOntology(mention: EidosMention): OntologyGrounding = {
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
       val canonicalName = mention.canonicalName
@@ -26,15 +29,23 @@ class EidosOntologyGrounder(domainOntoPath: String, wordToVec: EidosWordToVec) e
   }
 }
 
-class UNOntologyGrounder(ontologyPath: String, wordToVec: EidosWordToVec) extends EidosOntologyGrounder(ontologyPath, wordToVec) {
+class DomainOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
   // Override methods here
 }
 
-class WDIOntologyGrounder(ontologyPath: String, wordToVec: EidosWordToVec) extends EidosOntologyGrounder(ontologyPath, wordToVec) {
+class UNOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
   // Override methods here
 }
 
-class FAOOntologyGrounder(ontologyPath: String, wordToVec: EidosWordToVec) extends EidosOntologyGrounder(ontologyPath, wordToVec) {
+class WDIOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
+  // Override methods here
+}
+
+class FAOOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
   // Override methods here
 }
 
