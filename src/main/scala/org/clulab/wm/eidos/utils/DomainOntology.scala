@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.utils
 
 import java.util.{Collection, Map => JMap}
 
-import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.wm.eidos.groundings.EidosWordToVec
 
 import scala.collection.JavaConverters._

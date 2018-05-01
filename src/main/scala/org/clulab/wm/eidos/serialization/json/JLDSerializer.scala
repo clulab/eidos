@@ -171,6 +171,21 @@ object JLDOntologyGrounding {
   val plural = singular // Mass noun
 }
 
+class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
+    extends JLDObject(serializer, "Groundings") {
+  val jldGroundings = toJObjects(grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
+
+  override def toJObject(): JObject =
+    serializer.mkType(this) ~
+      ("name" -> name) ~
+      ("values" -> jldGroundings)
+}
+
+object JLDOntologyGroundings {
+  val singular = "groundings"
+  val pural = singular
+}
+
 class JLDModifier(serializer: JLDSerializer, quantifier: Quantifier, mention: EidosMention)
     extends JLDObject(serializer, "Modifier") {
 
@@ -289,9 +304,9 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
     val jldAttachments = mention.odinMention.attachments.toList.map(_.asInstanceOf[TriggeredAttachment]).sortWith(TriggeredAttachment.lessThan).map(newJLDAttachment(_, mention))
 
     // kwa work here
-    val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
+    //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = toJObjects(ontologyGroundings.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
+    val jldGroundings = toJObjects(mention.grounding.map(pair => new JLDOntologyGroundings(serializer, pair._1, pair._2)).toSeq)
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
@@ -299,7 +314,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
         ("text" -> mention.odinMention.text) ~
         ("rule" -> mention.odinMention.foundBy) ~
         ("canonicalName" -> mention.canonicalName) ~
-        ("grounding" -> jldGroundings) ~
+        ("groundings" -> jldGroundings) ~
     // kwa: This isn't where a score attachment would go
         ("score" -> None) ~ // Figure out how to look up?, maybe like the sigma
         (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention)))) ~
