@@ -18,7 +18,8 @@ class FakeWordToVec extends EidosWordToVec {
 
   def calculateSimilarity(m1: Mention, m2: Mention): Double = 0
 
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Map[String, Seq[Double]]): Seq[(String, Double)] = Seq.empty
+//  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Map[String, Seq[Double]]): Seq[(String, Double)] = Seq.empty
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Map[String, Seq[Double]]): Seq[(String, Double)] = Seq(("hello", 5.0d))
 
   def makeCompositeVector(t:Iterable[String]): Array[Double] = Array.emptyDoubleArray
 }
@@ -52,7 +53,7 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
 object EidosWordToVec {
 
   def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int): EidosWordToVec = {
-    if (enabled) {
+    if (!enabled) {
       val source = Sourcer.sourceFromResource(wordToVecPath)
 
       try {
