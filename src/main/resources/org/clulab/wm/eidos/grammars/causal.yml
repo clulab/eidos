@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|nsubjpass|'nsubjpass:xsubj'|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   noun_modifiers: "amod|compound|dep|name"
@@ -63,7 +63,6 @@ rules:
       cause: Entity = <case /${preps}/{,2}
       effect: Entity = <case <nmod_due_to? /${objects}/
 
-
   - name: dueToSyntax4-${addlabel}
     priority: ${rulepriority}
     label: ${label}
@@ -71,7 +70,7 @@ rules:
     example: "food imports will decrease due to rainfall"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /${conjunctions}/? /${preps}/ /${conjunctions}/{,2}
+      cause: Entity = <case /${conjunctions}/? /${preps}/{,2} /${conjunctions}/{,2}
       effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
 
     #-----------------------------------------------------------------------------------------
@@ -96,7 +95,17 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = nmod_to (${ conjunctions })?
-      effect: Entity = <advmod|<amod >nmod_in
+      effect: Entity = <advmod|<amod >/${preps}/{,2}
+
+#  - name: dueToSyntax6-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: "improvements in food availability due to seasonal harvests"
+#    pattern: |
+#      trigger = [lemma="due" & tag=/JJ/]
+#      cause: Entity = nmod_to (${ conjunctions })?
+#      effect: Entity = <advmod|<amod >nmod_in
 
   - name: madeSyntax3-${addlabel}
     priority: ${rulepriority}

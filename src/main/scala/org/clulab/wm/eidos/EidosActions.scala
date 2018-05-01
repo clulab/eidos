@@ -25,6 +25,7 @@ import scala.collection.mutable.{Set => MutableSet}
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   val entityHelper = new EntityHelper
+  val AVOID_LABEL = "Avoid"
   /*
       Filtering Methods
    */
@@ -317,7 +318,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
 
-//    mentions.map(m => displayMention(m))
+    //mentions.map(m => displayMention(m))
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
     def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
       // All involved token intervals, both for the original event and the expanded arguments
@@ -348,19 +349,23 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 //
 //    withExpansion.flatten
 
-    for {
+    val out = for {
       mention <- mentions
       expanded = for {
         (argType, argMentions) <- mention.arguments
-        expandedMentions = argMentions.map(expand(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, new State))
+        expandedMentions = argMentions.map(expand(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, state))
       //splitMentions = expandedMentions.flatMap(entityHelper.splitCoordinatedEntities)
       } yield (argType, expandedMentions)
-      (argNames, mentionsToCombine) = expanded.toSeq.unzip
-      cartesian = product(mentionsToCombine)
-      argMaps = recombine(argNames, cartesian)  // the new argument maps, each will correspond to a new mention
+//      (argNames, mentionsToCombine) = expanded.toSeq.unzip
+//      cartesian = product(mentionsToCombine)
+//      argMaps = recombine(argNames, cartesian)  // the new argument maps, each will correspond to a new mention
 
     } yield copyWithExpanded(mention, expanded)
 
+//    println(s"AFTER EXPANSION: out.length: ${out.length}")
+//    out.map(m => displayMention(m))
+
+    out
   }
 
   // Return the sequence of argMaps --> each will be a new Mention
@@ -397,7 +402,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
                                      incomingRelations: Array[Array[(Int, String)]],
                                      remainingHops: Int,
                                      sent: Int,
-                                     stateFromAvoid: State
+                                     state: State
                                    ): Interval = {
     if (remainingHops == 0) {
       val allTokens = tokens ++ newTokens
@@ -408,10 +413,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         if outgoingRelations.nonEmpty && tok < outgoingRelations.length
         (nextTok, dep) <- outgoingRelations(tok)
         if isValidOutgoingDependency(dep, remainingHops)
-        if stateFromAvoid.mentionsFor(sent, nextTok).isEmpty
+        if state.mentionsFor(sent, nextTok, AVOID_LABEL).isEmpty
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
-      traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, stateFromAvoid)
+      traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, state)
     }
   }
   private def traverseOutgoingLocal(m: Mention, numHops: Int, stateFromAvoid: State): Interval = {
@@ -450,7 +455,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   def isValidOutgoingDependency(dep: String, hopsRemaining: Int): Boolean = {
-    isValidOutgoingDependency(dep) && notInvalidConjunction(dep, hopsRemaining)
+    isValidOutgoingDependency(dep) //&& notInvalidConjunction(dep, hopsRemaining)
   }
 
   /** Ensure current token does not have any incoming dependencies that are invalid **/

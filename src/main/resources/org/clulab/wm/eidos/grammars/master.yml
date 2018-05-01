@@ -8,6 +8,10 @@ vars: org/clulab/wm/eidos/grammars/triggers.yml
 rules:
   #Entities are found with EntityFinder! Not extracted here!
 
+  #Avoid
+  - import: org/clulab/wm/eidos/grammars/avoidLocal.yml
+    vars:
+      rulepriority: "1"
 
   #Quantifiers
   - import: org/clulab/wm/eidos/grammars/quantifiers.yml
