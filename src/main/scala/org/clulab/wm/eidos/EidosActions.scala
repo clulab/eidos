@@ -317,12 +317,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
 
-    mentions.map(m => displayMention(m))
+//    mentions.map(m => displayMention(m))
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
     def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
       // All involved token intervals, both for the original event and the expanded arguments
       val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
-      println("allIntervals: " + allIntervals.mkString(", "))
+      //println("allIntervals: " + allIntervals.mkString(", "))
       // Find the largest span from these intervals
       val newTokenInterval = getNewTokenInterval(allIntervals)
       // Make the copy based on the type of the Mention
