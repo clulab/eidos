@@ -954,7 +954,7 @@
   - External_health_expenditure_per_capita:
     - description: "PPP (current international $)"
   - Female_genital_mutilation_prevalence_(%):
-    - description: "Percentage of women aged 15–49 who have gone through partial or total removal of the female external genitalia or other injury to the female genital organs for cultural or other non-therapeutic reasons."
+    - description: "Percentage of women aged 15-49 who have gone through partial or total removal of the female external genitalia or other injury to the female genital organs for cultural or other non-therapeutic reasons."
   - Female_headed_households_(%_of_households_with_a_female_head):
     - description: "Female headed households shows the percentage of households with a female head."
   - Female_share_of_employment_in_senior_and_middle_management_(%):
@@ -1522,7 +1522,7 @@
   - Land_under_cereal_production_(hectares):
     - description: "Land under cereal production refers to harvested area"
   - Law_mandates_equal_remuneration_for_females_and_males_for_work_of_equal_value_(1=yes;_0=no):
-    - description: "Law mandates equal remuneration for females and males for work of equal value is whether there is a law that obligates employers to pay equal remuneration to male and female employees who do work of equal value.“Remuneration” refers to the ordinary"
+    - description: "Law mandates equal remuneration for females and males for work of equal value is whether there is a law that obligates employers to pay equal remuneration to male and female employees who do work of equal value."Remuneration" refers to the ordinary"
   - Law_mandates_nondiscrimination_based_on_gender_in_hiring_(1=yes;_0=no):
     - description: "Law mandates nondiscrimination based on gender in hiring is whether the law specifically prevents or penalizes gender-based discrimination in the hiring process; the law may prohibit discrimination in employment on the basis of gender but be silent about whether job applicants are protected from discrimination. Hiring refers to the process of employing a person for wages and making a selection by presenting a candidate with a job offer. Job advertisements"
   - Law_mandates_paid_or_unpaid_maternity_leave_(1=yes;_0=no):
@@ -1688,7 +1688,7 @@
   - Methane_emissions_in_energy_sector_(thousand_metric_tons_of_CO2_equivalent):
     - description: "Methane emissions from energy processes are emissions from the production"
   - Methodology_assessment_of_statistical_capacity_(scale_0_-_100):
-    - description: "The methodology indicator measures a country’s ability to adhere to internationally recommended standards and methods. The methodology score is calculated as the weighted average of 10 underlying indicator scores. The final methodology score contributes 1/3 of the overall Statistical Capacity Indicator score."
+    - description: "The methodology indicator measures a country's ability to adhere to internationally recommended standards and methods. The methodology score is calculated as the weighted average of 10 underlying indicator scores. The final methodology score contributes 1/3 of the overall Statistical Capacity Indicator score."
   - Military_expenditure_(%_of_central_government_expenditure):
     - description: "Military expenditures data from SIPRI are derived from the NATO definition"
   - Military_expenditure_(%_of_GDP):
@@ -1866,9 +1866,9 @@
   - Net_investment_in_nonfinancial_assets_(current_LCU):
     - description: "Net investment in government nonfinancial assets includes fixed assets"
   - Net_lending_(+)_/_net_borrowing_(-)_(%_of_GDP):
-    - description: "Net lending (+) / net borrowing (–) equals government revenue minus expense"
+    - description: "Net lending (+) / net borrowing (-) equals government revenue minus expense"
   - Net_lending_(+)_/_net_borrowing_(-)_(current_LCU):
-    - description: "Net lending (+) / net borrowing (–) equals government revenue minus expense"
+    - description: "Net lending (+) / net borrowing (-) equals government revenue minus expense"
   - Net_migration:
     - description: "Net migration is the net total of migrants during the period"
   - Net_ODA_provided_to_the_least_developed_countries_(%_of_GNI):
@@ -1970,9 +1970,9 @@
   - Nitrous_oxide_emissions_in_energy_sector_(thousand_metric_tons_of_CO2_equivalent):
     - description: "Nitrous oxide emissions from energy processes are emissions produced by the combustion of fossil fuels and biofuels."
   - Nondiscrimination_clause_mentions_gender_in_the_constitution_(1=yes;_0=no):
-    - description: "Nondiscrimination clause mentions gender in the constitution is whether there is a nondiscrimination clause in the constitution which mentions gender. For the answer to be “Yes"
+    - description: "Nondiscrimination clause mentions gender in the constitution is whether there is a nondiscrimination clause in the constitution which mentions gender. For the answer to be "Yes"
   - Nonpregnant_and_nonnursing_women_can_do_the_same_jobs_as_men_(1=yes;_0=no):
-    - description: "Non-pregnant and non-nursing women can do the same jobs as men indicates whether there are specific jobs that women explicitly or implicitly cannot perform except in limited circumstances. Both partial and full restrictions on women’s work are counted as restrictions. For example"
+    - description: "Non-pregnant and non-nursing women can do the same jobs as men indicates whether there are specific jobs that women explicitly or implicitly cannot perform except in limited circumstances. Both partial and full restrictions on women's work are counted as restrictions. For example"
   - Number_of_deaths_ages_5-14_years:
     - description: "Number of deaths of children ages 5-14 years"
   - Number_of_infant_deaths:
@@ -2034,7 +2034,7 @@
   - Over-age_students:
     - description: "primary"
   - Overall_level_of_statistical_capacity_(scale_0_-_100):
-    - description: "The Statistical Capacity Indicator is a composite score assessing the capacity of a country’s statistical system. It is based on a diagnostic framework assessing the following areas: methodology; data sources; and periodicity and timeliness. Countries are scored against 25 criteria in these areas"
+    - description: "The Statistical Capacity Indicator is a composite score assessing the capacity of a country's statistical system. It is based on a diagnostic framework assessing the following areas: methodology; data sources; and periodicity and timeliness. Countries are scored against 25 criteria in these areas"
   - Part_time_employment:
     - description: "female (% of total female employment)"
   - Part_time_employment:
@@ -2074,7 +2074,7 @@
   - People_using_safely_managed_sanitation_services:
     - description: "rural (% of rural population)"
   - People_using_safely_managed_sanitation_services:
-    - description: "urban  (% of urban population)"
+    - description: "urban  (% of urban population)"
   - People_with_basic_handwashing_facilities_including_soap_and_water_(%_of_population):
     - description: "The percentage of people living in households that have a handwashing facility with soap and water available on the premises. Handwashing facilities may be fixed or mobile and include a sink with tap water"
   - People_with_basic_handwashing_facilities_including_soap_and_water:
