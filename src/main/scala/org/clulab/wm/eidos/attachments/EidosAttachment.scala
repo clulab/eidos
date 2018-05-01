@@ -84,6 +84,9 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
 
   override val argumentSize: Int = if (quantifiers.isDefined) quantifiers.get.size else 0
 
+  override def toString() = {
+    getClass().getSimpleName() + "(" + trigger + "," + quantifiers.toString + ")"
+  }
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
   // kwa: this is hopefully not used yet
