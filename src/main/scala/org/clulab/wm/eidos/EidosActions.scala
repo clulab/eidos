@@ -24,7 +24,6 @@ import scala.collection.mutable.{Set => MutableSet}
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
-  val entityHelper = new EntityHelper
   val AVOID_LABEL = "Avoid"
   /*
       Filtering Methods

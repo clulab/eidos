@@ -30,7 +30,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 //    val expandedEntities: Seq[Mention] = validBaseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
 //    // split entities on likely coordinations
 //    val splitEntities = (validBaseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
-    val splitEntities = validBaseEntities.flatMap(entityHelper.splitCoordinatedEntities)
+    val splitEntities = validBaseEntities.flatMap(EntityHelper.splitCoordinatedEntities)
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
