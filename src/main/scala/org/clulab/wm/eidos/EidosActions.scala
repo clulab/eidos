@@ -24,8 +24,6 @@ import scala.collection.mutable.{Set => MutableSet}
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
-  val entityHelper = new EntityHelper
-
   /*
       Filtering Methods
    */
@@ -380,7 +378,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       expanded = for {
         (argType, argMentions) <- mention.arguments
         expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, state))
-        trimmed = expandedMentions.map(entityHelper.trimEntityEdges)
+        trimmed = expandedMentions.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
     } yield Seq(copyWithExpanded(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten

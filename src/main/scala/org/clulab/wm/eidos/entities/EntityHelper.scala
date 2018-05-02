@@ -5,12 +5,12 @@ import org.clulab.struct.Interval
 
 import scala.annotation.tailrec
 
-class EntityHelper {
+object EntityHelper {
   /***
     * Recursively splits a TextBoundMention (flat) on likely coordinations.
     */
   @tailrec
-  private def splitCoordinatedEntities(m: TextBoundMention, entities: Seq[Mention]): Seq[Mention] = {
+  protected def splitCoordinatedEntities(m: TextBoundMention, entities: Seq[Mention]): Seq[Mention] = {
 
     val coordIndex: Option[Int] = m.tokenInterval.find(i => isCoord(i, m))
 

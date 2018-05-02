@@ -23,8 +23,6 @@ class RuleBasedEntityFinder(
   val maxLength: Int = RuleBasedEntityFinder.DEFAULT_MAX_LENGTH
 ) extends EntityFinder with LazyLogging {
 
-  val entityHelper = new EntityHelper
-
   // avoid expanding along these dependencies
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](
     "^nmod_including$".r,
@@ -68,7 +66,7 @@ class RuleBasedEntityFinder(
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
     val expandedEntities: Seq[Mention] = baseEntities.map(entity => expand(entity, maxHops))
     // split entities on likely coordinations
-    val splitEntities = (baseEntities ++ expandedEntities).flatMap(entityHelper.splitCoordinatedEntities)
+    val splitEntities = (baseEntities ++ expandedEntities).flatMap(EntityHelper.splitCoordinatedEntities)
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // if there are no avoid mentions, no need to filter
