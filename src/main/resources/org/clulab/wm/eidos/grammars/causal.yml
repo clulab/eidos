@@ -95,7 +95,7 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = nmod_to (${ conjunctions })?
-      effect: Entity = <advmod|<amod >/${preps}/{,2}
+      effect: Entity = <advmod|<amod (</${preps}/{,2} | >/${preps}/{,2})
 
 #  - name: dueToSyntax6-${addlabel}
 #    priority: ${rulepriority}

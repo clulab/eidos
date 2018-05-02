@@ -321,6 +321,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     //mentions.map(m => displayMention(m))
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
     def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
+
       // All involved token intervals, both for the original event and the expanded arguments
       val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
       //println("allIntervals: " + allIntervals.mkString(", "))
@@ -334,7 +335,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       }
     }
 
-//    val withExpansion = for {
+    val stateFromAvoid = State(state.allMentions.filter(_ matches AVOID_LABEL))
+
+    //    val withExpansion = for {
 //      mention <- mentions
 //      expanded = for {
 //        (argType, argMentions) <- mention.arguments
@@ -349,23 +352,28 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 //
 //    withExpansion.flatten
 
-    val out = for {
+    for {
       mention <- mentions
       expanded = for {
         (argType, argMentions) <- mention.arguments
-        expandedMentions = argMentions.map(expand(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, state))
-      //splitMentions = expandedMentions.flatMap(entityHelper.splitCoordinatedEntities)
-      } yield (argType, expandedMentions)
-//      (argNames, mentionsToCombine) = expanded.toSeq.unzip
-//      cartesian = product(mentionsToCombine)
-//      argMaps = recombine(argNames, cartesian)  // the new argument maps, each will correspond to a new mention
+        expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, state))
+        res = expandedMentions.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, AVOID_LABEL).isEmpty }
+      } yield (argType, res)
 
-    } yield copyWithExpanded(mention, expanded)
+    } yield copyWithExpanded(mention, expanded.toMap)
 
-//    println(s"AFTER EXPANSION: out.length: ${out.length}")
-//    out.map(m => displayMention(m))
+  }
 
-    out
+  // Do the expansion, but if the expansion causes you to suck up something we want to avoid, keep the original instead
+  // todo: perhaps we should handle this a diff way.... like, trim up tp the avoided thing?
+  def expandIfNotAvoid(orig: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
+    val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateFromAvoid)
+    if (stateFromAvoid.mentionsFor(expanded.sentence, expanded.tokenInterval, AVOID_LABEL).isEmpty) {
+      expanded
+    } else {
+      orig
+    }
+
   }
 
   // Return the sequence of argMaps --> each will be a new Mention

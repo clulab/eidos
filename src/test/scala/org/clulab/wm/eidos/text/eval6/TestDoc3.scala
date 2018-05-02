@@ -562,7 +562,7 @@ class TestDoc3 extends Test {
     passingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(farmInput, Causal, production)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Ajay) in {
+    passingTest should "have correct edges 4" taggedAs(Ajay) in {
       tester.test(EdgeSpec(conflict, Causal, farmInput)) should be (successful) // Test edges connecting them
     }
   }
