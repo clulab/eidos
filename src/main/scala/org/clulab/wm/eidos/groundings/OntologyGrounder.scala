@@ -3,14 +3,19 @@ package org.clulab.wm.eidos.groundings
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DomainOntology, FileUtils, Sourcer}
 
-case class OntologyGrounding(grounding: Seq[(String, Double)] = Seq.empty)
+object Aliases {
+  type Grounding = Seq[(String, Double)]
+  type Groundings = Map[String, OntologyGrounding]
+}
+
+case class OntologyGrounding(grounding: Aliases.Grounding = Seq.empty)
 
 trait OntologyGrounder {
   def groundOntology(mention: EidosMention): OntologyGrounding
 }
 
 trait MultiOntologyGrounder {
-  def groundOntology(mention: EidosMention): Map[String, OntologyGrounding]
+  def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
 class EidosOntologyGrounder(var name: String, domainOntoPath: String, wordToVec: EidosWordToVec) extends OntologyGrounder {

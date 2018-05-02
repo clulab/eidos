@@ -6,7 +6,8 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
-import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder, MultiOntologyGrounder, OntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.utils.{StopwordManager, StopwordManaging}
@@ -34,7 +35,7 @@ abstract class EidosMention(val odinMention: Mention, stopwordManaging: Stopword
   }
 
   val canonicalName: String // Determined by subclass
-  val grounding: Map[String, OntologyGrounding] // Determined by subclass, in part because dependent on canonicalName
+  val grounding: Groundings // Determined by subclass, in part because dependent on canonicalName
 
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)

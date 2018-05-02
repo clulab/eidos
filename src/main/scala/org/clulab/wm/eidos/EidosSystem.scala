@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DomainParams, FileUtils, StopwordManager, StopwordManaging}
 import org.slf4j.LoggerFactory
@@ -207,7 +208,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def containsStopword(stopword: String) =
     loadableAttributes.stopwordManager.containsStopword(stopword)
 
-  def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] =
+  def groundOntology(mention: EidosMention): Groundings =
       if (!word2vec)
         Map.empty
       else
