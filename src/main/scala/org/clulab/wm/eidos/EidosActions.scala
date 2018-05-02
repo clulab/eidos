@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.annotation.tailrec
-import utils.DisplayUtils.displayMention
+import utils.DisplayUtils.{displayMention, shortDisplay}
 import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
@@ -25,7 +25,7 @@ import scala.collection.mutable.{Set => MutableSet}
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   val entityHelper = new EntityHelper
-  val AVOID_LABEL = "Avoid"
+
   /*
       Filtering Methods
    */
@@ -51,41 +51,85 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // 2. Attachments: Quantification(high,None), Increase(high,None)
     // --- and select 2.
 
-    val mention_attachmentSz: Seq[(Mention, Int)] = for (mention <- mentions) yield {
-
-      // number of Arguments, number of attachments, the set of all attachments
-      val (numArgs, modSize, attachmentsSet) = mention match {
-        case tb: TextBoundMention => {
-          val tbModSize = tb.attachments.size * 10
-          val tbAttachmentSet = tb.attachments
-          (0, tbModSize, tbAttachmentSet)
-        }
-        case rm: RelationMention => {
-          val rmSize = rm.arguments.values.flatten.size * 100
-          val rmModSize = rm.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
-          val rmAttachmentSet = rm.arguments.values.flatten.flatMap(m => m.attachments).toSet
-          (rmSize, rmModSize, rmAttachmentSet)
-        }
-        case em: EventMention => {
-          val emSize = em.arguments.values.flatten.size * 100
-          val emModSize = em.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
-          val emAttachmentSet = em.arguments.values.flatten.flatMap(m => m.attachments).toSet
-          (emSize, emModSize, emAttachmentSet)
-        }
-        case _ => (0, 0, mention.attachments)
-      }
-
-      val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-      val triggerSize = mention.attachments.toSeq.map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
-      val attachArgumentsSz = argumentSize + triggerSize
-
-      (mention, (attachArgumentsSz + modSize + numArgs)) // The size of a mention is the sum of i) how many attachments are present ii) sum of args in each of the attachments iii) if (EventMention) ==>then include size of arguments
-    }
+    val mention_attachmentSz: Seq[(Mention, Int)] = mentions.map(m => (m, mentionAttachmentWeight(m)))
 
     val maxModAttachSz = mention_attachmentSz.map(_._2).max
     val filteredMentions = mention_attachmentSz.filter(m => m._2 == maxModAttachSz).map(_._1)
     filteredMentions
   }
+
+  // The size of a mention is the sum of:
+  //    i) how many attachments are present
+  //    ii) sum of args in each of the attachments
+  //    iii) if (EventMention) ==>then include size of arguments
+  def mentionAttachmentWeight(mention: Mention): Int = {
+
+    // number of Arguments, number of attachments, the set of all attachments
+    val (numArgs, modSize, attachmentsSet) = mention match {
+      case tb: TextBoundMention => {
+        val tbModSize = tb.attachments.size * 10
+        val tbAttachmentSet = tb.attachments
+        (0, tbModSize, tbAttachmentSet)
+      }
+      case rm: RelationMention => {
+        val rmSize = rm.arguments.values.flatten.size * 100
+        val rmModSize = rm.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
+        val rmAttachmentSet = rm.arguments.values.flatten.flatMap(m => m.attachments).toSet
+        (rmSize, rmModSize, rmAttachmentSet)
+      }
+      case em: EventMention => {
+        val emSize = em.arguments.values.flatten.size * 100
+        val emModSize = em.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
+        val emAttachmentSet = em.arguments.values.flatten.flatMap(m => m.attachments).toSet
+        (emSize, emModSize, emAttachmentSet)
+      }
+      case _ => (0, 0, mention.attachments)
+    }
+
+    val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
+    val triggerSize = mention.attachments.toSeq.map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
+    val attachArgumentsSz = argumentSize + triggerSize
+
+    val res = attachArgumentsSz + modSize + numArgs + mention.tokenInterval.length
+
+    res
+  }
+
+
+  def filterSubstringEntities(entities: Seq[TextBoundMention]): Seq[Mention] = {
+
+    val entityGroups = entities.groupBy(event => (event.sentence, event.label))
+
+    val filteredForTextSubsumption = for {
+      (_, entitiesInGroup) <- entityGroups
+
+      entitiesKept = MutableSet[TextBoundMention]() // Cache intermediate events.
+
+      filtered = entitiesInGroup
+        // most args/longest/attachiest first
+        .sortBy(ent => - (mentionAttachmentWeight(ent)))// + ent.tokenInterval.length))
+        // Check to see if it's subsumed by something already there
+        .filter { entity =>
+          if (!entitiesKept.exists(ent => subsumesInterval(Set(ent.tokenInterval), Set(entity.tokenInterval)))) {
+            entitiesKept.add(entity) // Add this event because it isn't subsumed by what's already there.
+            true // Keep the attachment.
+          }
+          else{
+            false
+          }
+        }
+    } yield filtered
+
+    filteredForTextSubsumption.flatten.toSeq
+  }
+
+  // True if A subsumes B
+  def subsumesString(a: Set[String], b: Set[String]): Boolean = b.forall(elem => contained(elem, a))
+  def contained(s: String, a: Set[String]): Boolean = a.exists(elem => elem.contains(s))
+  // Interval based
+  def subsumesInterval(a: Set[Interval], b: Set[Interval]): Boolean = b.forall(elem => contained(elem, a))
+  def contained(s: Interval, a: Set[Interval]): Boolean = a.exists(elem => elem.contains(s))
+
 
   def filterSubstringArgumentEvents(events: Seq[EventMention]): Seq[Mention] = {
 
@@ -94,36 +138,28 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // Return true if the event subsumes all the args
     def eventArgsSubsume(argsToCheck: Set[String], event: EventMention): Boolean = {
       val eventArgStrings = argumentTexts(event)
-//      println("\t\t--> the existing event arguments I am checking: " + eventArgStrings.mkString(", "))
-//      println("\t\t   --> the arguments I want to know if they are subsumed are: " + argsToCheck.mkString(", "))
-//      println("\t\t      --> returning: " + subsumes(eventArgStrings, argsToCheck))
-      subsumes(eventArgStrings, argsToCheck)
+      subsumesString(eventArgStrings, argsToCheck)
     }
 
-    // True if A subsumes B
-    def subsumes(A: Set[String], B: Set[String]): Boolean = B.forall(elem => contained(elem, A))
-    def contained(s: String, A: Set[String]): Boolean = A.exists(elem => elem.contains(s))
 
-    val triggerGroups = events.groupBy(event => (event.label, event.trigger))
+    val triggerGroups = events.groupBy(event => (event.sentence, event.label, event.trigger))
     val filteredForArgumentSubsumption = for {
       (_, eventsInGroup) <- triggerGroups
 
       eventsKept = MutableSet[EventMention]() // Cache intermediate events.
 
       filtered = eventsInGroup
-        // longest first
-        .sortBy(- argTokenInterval(_).length)
+        // most args/longest/attachiest first
+        .sortBy(event => - (mentionAttachmentWeight(event) + argTokenInterval(event).length))
         // Check to see if it's subsumed by something already there
         .filter { event =>
           val argTexts = argumentTexts(event)
 
           if (!eventsKept.exists(ev => eventArgsSubsume(argTexts, ev))) {
             eventsKept.add(event) // Add this event because it isn't subsumed by what's already there.
-            //println(s"\t!!!!!!!!!!!!!!!\n\tEvent: ${event.text} is NOT subsumed -- adding to list!\n\t!!!!!!!!!!!!!!!")
             true // Keep the attachment.
           }
           else{
-            //println(s"\t!!!!!!!!!!!!!!!\n\tEvent: ${event.text} IS subsumed -- filtering out!!\n\t!!!!!!!!!!!!!!!")
             false
           }
         }
@@ -140,6 +176,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     Interval(start = min, end = max)
   }
 
+  def importanceFromLengthAndAttachments(m: EventMention): Int = {
+    val allArgMentions = m.arguments.values.toSeq.flatten.map(mention => mention.attachments.size)
+    argTokenInterval(m).length
+  }
+
 
   // Remove incomplete Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
@@ -149,8 +190,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // enough to be filtered out here.
     val events = filterSubstringArgumentEvents(baseEvents.map(_.asInstanceOf[EventMention]))
 
+
     // Entities
-    val (textBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
+    val (baseTextBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
+    val textBounds = filterSubstringEntities(baseTextBounds.map(_.asInstanceOf[TextBoundMention]))
 
     // remove incomplete entities (i.e. under specified when more fully specified exists)
     val tbMentionGroupings =
@@ -158,8 +201,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     val completeTBMentions =
       for ((k, tbms) <- tbMentionGroupings) yield {
-        //        val maxModSize: Int = tbms.map(tbm => tbm.attachments.size).max
-        //        val filteredTBMs = tbms.filter(m => m.attachments.size == maxModSize)
 
         val filteredTBMs = customAttachmentFilter(tbms)
         // In case there are several, use the one one smallest according to the rule.
@@ -180,7 +221,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         val filteredEMs = customAttachmentFilter(ems)
         tieBreaker(filteredEMs)
       }
-    completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
+
+    val res = completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
+    res
   }
 
   /*
@@ -221,13 +264,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
   // of each other.
   def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-//    println("***************************")
-//    println("new ROUND")
-//    println("***************************")
-//
-//    println("Current State:")
-//    state.allMentions.foreach(m => DisplayUtils.displayMention(m))
-//    println("--------------------")
     // Get all the entity mentions for this span (i.e. all the "rainfall in Spain" mentions)
     val (entities, nonentities) = mentions.partition(mention => mention matches "Entity")
     val entitiesBySpan = entities.groupBy(entity => (entity.sentence, entity.tokenInterval, entity.label))
@@ -238,9 +274,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       filteredAttachments = filterAttachments(flattenedAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
-        // use old version for now
-//        val bestAttachment = filteredAttachments.sorted.reverse.head
-//        val bestEntity = entities.find(_.attachments.find(_ eq bestAttachment) != None).get
 
         val bestAttachment = filteredAttachments.sorted.reverse.head
         // Since head was used above and there could have been a tie, == should be used below
@@ -253,7 +286,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       else
         tieBreaker(entities)
     }
-    mergedEntities.toSeq ++ nonentities
+
+    val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
+    res
   }
 
   // Iteratively creates a mention which contains all of the passed in Attachments and no others
@@ -324,80 +359,54 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
       // All involved token intervals, both for the original event and the expanded arguments
       val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
-      //println("allIntervals: " + allIntervals.mkString(", "))
       // Find the largest span from these intervals
       val newTokenInterval = getNewTokenInterval(allIntervals)
       // Make the copy based on the type of the Mention
-      orig match {
+      val output = orig match {
         case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
         case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
         case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
       }
+
+      output
     }
 
-    val stateFromAvoid = State(state.allMentions.filter(_ matches AVOID_LABEL))
-
-    //    val withExpansion = for {
-//      mention <- mentions
-//      expanded = for {
-//        (argType, argMentions) <- mention.arguments
-//        expandedMentions = argMentions.map(expand(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, new State))
-//        //splitMentions = expandedMentions.flatMap(entityHelper.splitCoordinatedEntities)
-//      } yield (argType, expandedMentions)
-//      (argNames, mentionsToCombine) = expanded.toSeq.unzip
-//      cartesian = product(mentionsToCombine)
-//      argMaps = recombine(argNames, cartesian)  // the new argument maps, each will correspond to a new mention
-//
-//    } yield argMaps.map(copyWithExpanded(mention, _))
-//
-//    withExpansion.flatten
-
-    for {
+    // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
+    // themselves so that they can be added to the state (which happens when the Seq[Mentions] is returned at the
+    // end of the action
+    val expansionResult = for {
       mention <- mentions
+      // Get the argument map with the *expanded* Arguments
       expanded = for {
         (argType, argMentions) <- mention.arguments
         expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, state))
-        res = expandedMentions.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, AVOID_LABEL).isEmpty }
-      } yield (argType, res)
+        trimmed = expandedMentions.map(entityHelper.trimEntityEdges)
+      } yield (argType, trimmed)
 
-    } yield copyWithExpanded(mention, expanded.toMap)
+    } yield Seq(copyWithExpanded(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
 
+    // Get all the new mentions for the state -- both the events with new args and the
+    val res = expansionResult.flatten
+    keepMostCompleteEvents(res, state.updated(res))
   }
 
   // Do the expansion, but if the expansion causes you to suck up something we want to avoid, keep the original instead
   // todo: perhaps we should handle this a diff way.... like, trim up tp the avoided thing?
-  def expandIfNotAvoid(orig: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
-    val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateFromAvoid)
-    if (stateFromAvoid.mentionsFor(expanded.sentence, expanded.tokenInterval, AVOID_LABEL).isEmpty) {
+  def expandIfNotAvoid(orig: Mention, maxHops: Int, state: State): Mention = {
+    val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, state)
+    if (state.mentionsFor(expanded.sentence, expanded.tokenInterval, EidosActions.AVOID_LABEL).isEmpty) {
       expanded
     } else {
       orig
     }
-
   }
 
-  // Return the sequence of argMaps --> each will be a new Mention
-  // mentionPairs: Seq[Seq[Mention]] -- each element of this is a ordered list of mentions such that the index of the
-  //                                    mention corresponds to the argName in argNames
-  def recombine(argNames: Seq[String], mentionPairs: Seq[Seq[Mention]]): Seq[Map[String, Seq[Mention]]] = {
-    // Seq( ("cause", Seq(cause_mention)), ("effect", Seq(effect_mention)) ).toMap
-    for {
-      pair <- mentionPairs
-      namedArgs = argNames.zip(pair).map(elem => (elem._1, Seq(elem._2)))
-    } yield namedArgs.toMap
-  }
-
-  // cartesian product
-  // from: List(List(x1, x2, x3), List(y1, y2))
-  // to: List(List(x1, y1), List(x1, y2), List(x2, y1), List(x2, y2), List(x3, y1), List(x3, y2))
-  private def product[A](xss: Seq[Seq[A]]) = xss.foldRight(Seq(Seq[A]())) {
-    (xs, lla) => xs.flatMap(x => lla.map(x +: _))
-  }
 
   //-- Entity expansion methods (brought in from EntityFinder)
   def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
     val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid)
-    new TextBoundMention(entity.labels, interval, entity.sentence, entity.document, entity.keep, entity.foundBy)
+    val res = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
+    res
   }
 
 
@@ -421,7 +430,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         if outgoingRelations.nonEmpty && tok < outgoingRelations.length
         (nextTok, dep) <- outgoingRelations(tok)
         if isValidOutgoingDependency(dep, remainingHops)
-        if state.mentionsFor(sent, nextTok, AVOID_LABEL).isEmpty
+        if state.mentionsFor(sent, nextTok, EidosActions.AVOID_LABEL).isEmpty
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
       traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, state)
@@ -480,6 +489,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 object EidosActions extends Actions {
 
   val MAX_HOPS_EXPANDING = 5
+  val AVOID_LABEL = "Avoid-Strict"
 
   // avoid expanding along these dependencies
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](

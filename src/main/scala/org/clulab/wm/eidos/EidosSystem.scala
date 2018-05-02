@@ -96,66 +96,76 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def reload() = loadableAttributes = LoadableAttributes()
 
-  /*
-      Extraction Methods
-  */
-
-  // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
-    // Step 1: Annotate the text
-    val doc = annotate(text, keepText)
-    // Step 2: Get the odin events
-    val odinMentions = extractFrom(doc)
-    // Step 3: Filter out the entities that are never used in an event we care about
-    val cagRelevant = keepCAGRelevant(odinMentions)
-    // Step 4: Convert the odin Mentions to EidosMentions, grounding to the taxonomy happens here
-    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, this)
-
-    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
-  }
-
-  // Method that gets Mentions from a Document
-  def extractFrom(doc: Document): Vector[Mention] = {
-    // 1. Get entities
-    val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
-    //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
-
-    // 2. Filter entities which are entirely stop or transparent
-    //val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
-    //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
-
-    // 3. Extract events that involve these entiies
-    val events = extractEventsFrom(doc, State(entities)).distinct
-    //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
-
-    events
-  }
-
-  // Helper method, runs the event grammars.  The state needs to be populated with the previously found entities.
-  def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
-    val res = engine.extractFrom(doc, state).toVector
-    loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
-  }
-
-  /*
-      Pre- and Post-Processing Methods
-  */
-
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = false): Document = {
-    def addLexiconNER(s: Sentence) = {
-      for {
-        (lexiconNERTag, i) <- ner.find(s).zipWithIndex
-        if lexiconNERTag != EidosSystem.NER_OUTSIDE
-      } s.entities.get(i) = lexiconNERTag
-    }
-
     val doc = proc.annotate(text, keepText)
     doc.sentences.foreach(addLexiconNER)
     doc
   }
 
-  // Filter mentions to only those which are of the type desired for downstream use.
+  protected def addLexiconNER(s: Sentence) = {
+    for {
+      (lexiconNERTag, i) <- ner.find(s).zipWithIndex
+      if lexiconNERTag != EidosSystem.NER_OUTSIDE
+    } s.entities.get(i) = lexiconNERTag
+  }
+
+  // MAIN PIPELINE METHOD
+  def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
+    val doc = annotate(text, keepText)
+    val odinMentions = extractFrom(doc)
+    //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
+    val cagRelevant = keepCAGRelevant(odinMentions)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, this)
+
+    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
+  }
+
+  def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
+    val res = engine.extractFrom(doc, state).toVector
+    loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
+  }
+
+  def extractFrom(doc: Document): Vector[Mention] = {
+    // get entities
+    val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
+    // filter entities which are entirely stop or transparent
+    //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
+    val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
+    //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
+    val events = extractEventsFrom(doc, State(filtered)).distinct
+    //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
+
+    events
+  }
+
+
+  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
+
+    // Create an UndirectedRelation Mention to contain the sameAs grounding information
+    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
+      // Build a Relation Mention (no trigger)
+      new CrossSentenceMention(
+        labels = Seq("SameAs"),
+        anchor = a,
+        neighbor = b,
+        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
+        document = a.document,  // todo: change?
+        keep = true,
+        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
+        attachments = Set(Score(score)))
+    }
+
+    // n choose 2
+    val sameAsRelations = for {
+      (m1, i) <- ms.zipWithIndex
+      m2 <- ms.slice(i+1, ms.length)
+      score = wordToVec.calculateSimilarity(m1, m2)
+    } yield sameAs(m1, m2, score)
+
+    sameAsRelations
+  }
+
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
     val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
     mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
@@ -167,23 +177,22 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
           cagEdgeMentions.contains(m)
   
   /*
-      Grounding Methods
+      Grounding
   */
 
-  // Ground a mention to the ontology:
-  //   Returns a Seq[(String, Double)] of top k soft groundings to an ontology.
   def groundOntology(mention: EidosMention): OntologyGrounding =
     loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
 
-  // Check to see if a word is a stopword or not
+
   def containsStopword(stopword: String) =
     loadableAttributes.ontologyGrounder.containsStopword(stopword)
 
-  // Ground a gradable adjective to the LREC2018 adjectives model
   def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
 
-  // Wrapper for using w2v on some strings
+  /*
+      Wrapper for using w2v on some strings
+   */
   def stringSimilarity(s1: String, s2: String): Double = wordToVec.stringSimilarity(s1, s2)
 
   /*
@@ -195,7 +204,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def debugMentions(mentions: Seq[Mention]): Unit = {
     if (debug) mentions.foreach(m => println(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
   }
-
 }
 
 object EidosSystem {
