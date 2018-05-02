@@ -25,7 +25,7 @@ rules:
 #      [outgoing=/^nsubj/ & tag=/^V/]
 
   - name: "references-et-al"
-    label: Avoid
+    label: Avoid-Strict
     priority: 3
     type: token
     pattern: |
@@ -43,7 +43,7 @@ rules:
 
   # OURS HERE:
   - name: "triggers"
-    label: Avoid
+    label: Avoid-Strict
     priority: 1
     type: token
     pattern: |
@@ -60,7 +60,7 @@ rules:
       [entity="B-Quantifier"] [entity="I-Quantifier"]*
 
   - name: "causal-triggers"
-    label: Avoid
+    label: Avoid-Strict
     priority: 1
     type: token
     pattern: |
@@ -68,7 +68,7 @@ rules:
       [word = /result|due/]
 
   - name: "affect-triggers"
-    label: Avoid
+    label: Avoid-Strict
     priority: 1
     type: token
     pattern: |
@@ -76,7 +76,7 @@ rules:
       [tag = /VBG/ & word = /${ affect_triggers }|${ nonavoid_affect_triggers }/]
 
   - name: "during"
-    label: Avoid
+    label: Avoid-Strict
     priority: 1
     type: token
     pattern: |
@@ -84,7 +84,7 @@ rules:
       [incoming = nmod_during]
 
   - name: "passive"
-    label: Avoid
+    label: Avoid-Strict
     priority: 3
     type: token
     pattern: |

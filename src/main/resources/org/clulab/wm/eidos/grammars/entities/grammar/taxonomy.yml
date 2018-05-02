@@ -1,4 +1,5 @@
 - Entity:
   - NounPhrase
 # references, tables, etc.
-- Avoid
+- Avoid:
+  - Avoid-Strict
