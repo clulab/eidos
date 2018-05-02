@@ -385,6 +385,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     // Get all the new mentions for the state -- both the events with new args and the
     val res = expansionResult.flatten
+
     keepMostCompleteEvents(res, state.updated(res))
   }
 

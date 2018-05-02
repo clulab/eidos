@@ -542,7 +542,7 @@ class TestDoc3 extends Test {
     val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"))
     val insecurity = NodeSpec("insecurity")
     val farmInput = NodeSpec("access to farm inputs", Dec("lack"))
-    val conflict = NodeSpec("ongoing conflict")
+    val conflict = NodeSpec("ongoing conflict", Quant("ongoing"))
 
     behavior of "TestDoc3 Paragraph 14"
 

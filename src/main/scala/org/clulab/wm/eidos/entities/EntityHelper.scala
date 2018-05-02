@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.entities
 
-import org.clulab.odin.{Mention, TextBoundMention}
+import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.struct.Interval
 
 import scala.annotation.tailrec
@@ -54,6 +54,7 @@ object EntityHelper {
   def trimEntityEdges(entity: Mention): Mention = {
     //     println(s"trying to trim entity: ${entity.text}")
     // Check starting tag, get the location of first valid tag
+
     val tags = entity.document.sentences(entity.sentence).tags.get
     val startToken = entity.tokenInterval.start
     val startTag = tags(startToken)
