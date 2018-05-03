@@ -178,7 +178,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // Put them all together.
     val goodMentions = cagEdgeMentions ++ entityMentions ++ argumentMentions
     // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
-    val relevantMentions = mentions.filter(mention => goodMentions.exists(mention.eq))
+    val relevantMentions = mentions.filter(m => goodMentions.exists(m.eq))
 
     relevantMentions
   }
