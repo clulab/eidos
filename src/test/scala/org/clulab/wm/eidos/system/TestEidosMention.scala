@@ -1,17 +1,18 @@
 package org.clulab.wm.eidos.text.cag
 
-import java.util.IdentityHashMap  // Unfortunately borrowed from Java
+import java.util.IdentityHashMap
 
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.{MultiOntologyGrounder, OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.cag.CAG._
+import org.clulab.wm.eidos.utils.StopwordManaging
 
-class TestEidosMention extends Test with OntologyGrounder {
+class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrounder {
   
-  def groundOntology(mention: EidosMention): OntologyGrounding = OntologyGrounding(Seq.empty)
+  def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
   def containsStopword(stopword: String) = stopword == "policy"
 
   def test(text: String) = {
@@ -39,7 +40,7 @@ class TestEidosMention extends Test with OntologyGrounder {
         }
 
     val odinMentions = TestUtils.extractMentions(text)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, this)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions, this, this)
     val mentionsSize = odinMentions.size
     
     myprintln("mentionsSize: " + mentionsSize)
@@ -105,7 +106,7 @@ than in the corresponding period two years earlier.
   it should "properly make canonical form" in {
     val text3 = "The seasonal rainfall in July was decreased by the government policy."
     val odinMentions3 = TestUtils.extractMentions(text3)
-    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, this)
+    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, this, this)
 
 //    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 

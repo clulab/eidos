@@ -5,7 +5,7 @@ import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
 
 import scala.annotation.tailrec
 
@@ -75,7 +75,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
       // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
       tags.indices.exists { i =>
         (tags(i).startsWith("NN") || tags(i).startsWith("VB")) &&
-        !EidosOntologyGrounder.STOP_NER.contains(entities(i))
+        !StopwordManager.STOP_NER.contains(entities(i))
       }
     }
     // If there's a non-named entity noun in the entity, it's valid
