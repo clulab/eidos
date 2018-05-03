@@ -265,11 +265,19 @@ class JLDProvenance(serializer: JLDSerializer, mention: EidosMention)
 //        allJldWords.find(jldWord => jldWord.document.eq(document) && jldWord.sentence.eq(sentence) && i == jldWord.index)
 //      }.filter(_.isDefined).map(_.get)
 //      val refJldWords = filteredJldWords.map(jldWord => serializer.mkRef(jldWord.value))
+      val tokenInterval = mention.odinMention.tokenInterval
+      val documentCharInterval = {
+        val start = sentence.startOffsets(tokenInterval.start)
+        val end = sentence.endOffsets(tokenInterval.end - 1)
+
+        Interval(start, end)
+      }
 
       serializer.mkType(this) ~
           (JLDDocument.singular -> serializer.mkRef(document)) ~
+          ("documentCharInterval" -> toJObjects(Seq(new JLDInterval(serializer, documentCharInterval)))) ~
           (JLDSentence.singular -> serializer.mkRef(sentence)) ~ // TODO: use tokenIntervals
-          (JLDInterval.plural -> new JLDInterval(serializer, mention.odinMention.tokenInterval).toJObject)
+          ("positions" -> toJObjects(Seq(new JLDInterval(serializer, tokenInterval))))
 //          ("references" -> refJldWords)
     }
   }
