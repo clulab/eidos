@@ -212,9 +212,7 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
     extends JLDObject(serializer, "State") {
 
   override def toJObject(): JObject = {
-    val jldModifiers =
-        if (modifiers.isEmpty) Nil
-        else modifiers.get.map(new JLDModifier(serializer, _, mention).toJObject()).toList
+    val jldModifiers = modifiers.map(modifier => modifier.map(new JLDModifier(serializer, _, mention).toJObject()))
 
     // kwa:  Do it here!!!, can get most of these out of attachment
     // Do score some other way?
@@ -224,7 +222,7 @@ class JLDAttachment(serializer: JLDSerializer, kind: String, text: String, modif
         ("text", text) ~
         // This is also not the mention you are looking for
         //(JLDProvenance.singular -> new JLDProvenance(serializer, mention).toJObject()) ~
-        (JLDModifier.plural -> noneIfEmpty(jldModifiers))
+        (JLDModifier.plural -> jldModifiers)
   }
 }
 
@@ -375,9 +373,7 @@ class JLDUndirectedRelation(serializer: JLDSerializer, mention: EidosRelationMen
 
   override def toJObject(): JObject = {
     val arguments = mention.eidosArguments.values.flatten.filter(isExtractable) // The keys are skipped
-    val argumentMentions =
-        if (arguments.isEmpty) Nil
-        else arguments.map(serializer.mkRef).toList
+    val argumentMentions = arguments.map(serializer.mkRef).toList
 
     super.toJObject() ~
         (JLDArgument.plural -> noneIfEmpty(argumentMentions))
@@ -425,15 +421,11 @@ class JLDWord(serializer: JLDSerializer, val document: Document, val sentence: S
     extends JLDObject(serializer, JLDWord.typename) {
   
   override def toJObject(): JObject = {
-    def getOrNone(optionArray: Option[Array[String]]): Option[String] =
-        if (optionArray.isEmpty) None
-        else Option(optionArray.get(index))
-     
+    def getOrNone(optionArray: Option[Array[String]]): Option[String] = optionArray.map(values => values(index))
+
     val startOffset = sentence.startOffsets(index)
     val endOffset = sentence.endOffsets(index)
-    val jldText =
-        if (document.text.isEmpty) None
-        else Option(document.text.get.substring(startOffset, endOffset))
+    val jldText = document.text.map(text => text.substring(startOffset, endOffset))
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
@@ -461,9 +453,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
     // This is given access to the words because they are nicely in order and no searching need be done.
-    val jldGraphMapPair =
-        if (dependencies.isEmpty) None
-        else Some(new JLDGraphMapPair(serializer, key, dependencies.get, jldWords).toJValue())
+    val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue())
           
     serializer.mkType(this) ~
         serializer.mkId(this) ~
@@ -483,11 +473,13 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
   
   override def toJObject(): JObject = {
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
-      
-      serializer.mkType(this) ~
-          serializer.mkId(this) ~
-          ("title" -> annotatedDocument.document.id) ~
-          (JLDSentence.plural -> toJObjects(jldSentences))
+    val jldText = annotatedDocument.document.text.map(text => text)
+
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
+        ("title" -> annotatedDocument.document.id) ~
+        ("text" -> jldText) ~
+        (JLDSentence.plural -> toJObjects(jldSentences))
   }
 }
 
@@ -518,7 +510,7 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
       jldExtractions ++ collectMentions(recMentions, mapOfMentions)
     }
     else
-      Nil
+      Seq.empty
   }
   
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
