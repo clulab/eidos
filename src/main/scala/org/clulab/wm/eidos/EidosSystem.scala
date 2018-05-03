@@ -68,7 +68,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
     val domainOntologyPath: String = getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml")
     val     unOntologyPath: String = getPath(    "unOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml")
-    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/wdi_ontology.yml")
+    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/eidos/wdi_ontology.yml")
     val    faoOntologyPath: String = getPath(       "faoOntology", "/org/clulab/wm/eidos/fao_variable_ontology.yml")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.

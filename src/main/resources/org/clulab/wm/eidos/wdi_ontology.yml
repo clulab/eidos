@@ -1522,7 +1522,7 @@
   - Land_under_cereal_production_(hectares):
     - description: "Land under cereal production refers to harvested area"
   - Law_mandates_equal_remuneration_for_females_and_males_for_work_of_equal_value_(1=yes;_0=no):
-    - description: "Law mandates equal remuneration for females and males for work of equal value is whether there is a law that obligates employers to pay equal remuneration to male and female employees who do work of equal value."Remuneration" refers to the ordinary"
+    - description: "Law mandates equal remuneration for females and males for work of equal value is whether there is a law that obligates employers to pay equal remuneration to male and female employees who do work of equal value.\"Remuneration\" refers to the ordinary"
   - Law_mandates_nondiscrimination_based_on_gender_in_hiring_(1=yes;_0=no):
     - description: "Law mandates nondiscrimination based on gender in hiring is whether the law specifically prevents or penalizes gender-based discrimination in the hiring process; the law may prohibit discrimination in employment on the basis of gender but be silent about whether job applicants are protected from discrimination. Hiring refers to the process of employing a person for wages and making a selection by presenting a candidate with a job offer. Job advertisements"
   - Law_mandates_paid_or_unpaid_maternity_leave_(1=yes;_0=no):
@@ -1970,7 +1970,7 @@
   - Nitrous_oxide_emissions_in_energy_sector_(thousand_metric_tons_of_CO2_equivalent):
     - description: "Nitrous oxide emissions from energy processes are emissions produced by the combustion of fossil fuels and biofuels."
   - Nondiscrimination_clause_mentions_gender_in_the_constitution_(1=yes;_0=no):
-    - description: "Nondiscrimination clause mentions gender in the constitution is whether there is a nondiscrimination clause in the constitution which mentions gender. For the answer to be "Yes"
+    - description: "Nondiscrimination clause mentions gender in the constitution is whether there is a nondiscrimination clause in the constitution which mentions gender. For the answer to be Yes"
   - Nonpregnant_and_nonnursing_women_can_do_the_same_jobs_as_men_(1=yes;_0=no):
     - description: "Non-pregnant and non-nursing women can do the same jobs as men indicates whether there are specific jobs that women explicitly or implicitly cannot perform except in limited circumstances. Both partial and full restrictions on women's work are counted as restrictions. For example"
   - Number_of_deaths_ages_5-14_years:
