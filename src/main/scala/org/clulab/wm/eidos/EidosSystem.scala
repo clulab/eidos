@@ -215,8 +215,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
           (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
 
-  def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
-    loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
+  def groundAdjective(quantifier: String): AdjectiveGrounding =
+    loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
 
   /*
       Wrapper for using w2v on some strings

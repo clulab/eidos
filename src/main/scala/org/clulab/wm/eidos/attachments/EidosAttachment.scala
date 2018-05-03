@@ -5,8 +5,7 @@ import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.json.TextBoundMentionOps.stringCode
 import org.clulab.wm.eidos.serialization.json.odin.{JLDAttachment => JLDOdinAttachment, JLDSerializer => JLDOdinSerializer}
-import org.clulab.wm.eidos.serialization.json.{JLDSerializer => JLDEidosSerializer}
-import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment}
+import org.clulab.wm.eidos.serialization.json.{JLDScoredAttachment, JLDTriggeredAttachment, JLDAttachment => JLDEidosAttachment, JLDSerializer => JLDEidosSerializer}
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods
@@ -25,7 +24,7 @@ abstract class EidosAttachment extends Attachment with Serializable {
 
   // Support for JLD serialization
   def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment
-  def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment
+  def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment
 
   // Support for JSON serialization
   def toJson(): JValue
@@ -80,7 +79,7 @@ case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[Strin
     triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None)
 
 abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
-    triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]]) extends EidosAttachment {
+    val triggerMention: Option[TextBoundMention] = None, val quantifierMentions: Option[Seq[Mention]]) extends EidosAttachment {
 
   override val argumentSize: Int = if (quantifiers.isDefined) quantifiers.get.size else 0
 
@@ -114,8 +113,8 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
   def newJLDOdinAttachment(serializer: JLDOdinSerializer, kind: String, mention: Mention): JLDOdinAttachment =
     new JLDOdinAttachment(serializer, kind, trigger, quantifiers, mention)
 
-  def newJLDEidosAttachment(serializer: JLDEidosSerializer, kind: String, mention: EidosMention): JLDEidosAttachment =
-    new JLDEidosAttachment(serializer, kind, trigger, quantifiers, mention)
+  def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDTriggeredAttachment =
+    new JLDTriggeredAttachment(serializer, kind, this)
 
   override def attachmentMentions: Seq[Mention] = Seq.empty /*{
     val someTriggerMentions =
@@ -201,8 +200,8 @@ class Quantification(trigger: String, quantifiers: Option[Seq[String]], triggerM
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
       newJLDOdinAttachment(serializer, Quantification.kind, mention)
 
-  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-      newJLDEidosAttachment(serializer, Quantification.kind, mention)
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+      newJLDTriggeredAttachment(serializer, Quantification.kind)
 
   override def toJson(): JValue = toJson(Quantification.label)
 }
@@ -229,8 +228,8 @@ class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
       newJLDOdinAttachment(serializer, Increase.kind, mention)
 
-  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-      newJLDEidosAttachment(serializer, Increase.kind, mention)
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+      newJLDTriggeredAttachment(serializer, Increase.kind)
 
   override def toJson(): JValue = toJson(Increase.label)
 }
@@ -257,8 +256,8 @@ class Decrease(trigger: String, quantifiers: Option[Seq[String]], triggerMention
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
       newJLDOdinAttachment(serializer, Decrease.kind, mention)
 
-  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-      newJLDEidosAttachment(serializer, Decrease.kind, mention)
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+      newJLDTriggeredAttachment(serializer, Decrease.kind)
 
   override def toJson(): JValue = toJson(Decrease.label)
 }
@@ -281,8 +280,9 @@ case class Score(score: Double) extends EidosAttachment {
 
   override def newJLDAttachment(serializer: JLDOdinSerializer, mention: Mention): JLDOdinAttachment =
     new JLDOdinAttachment(serializer, Score.kind, score.toString, None, mention)
-  override def newJLDAttachment(serializer: JLDEidosSerializer, mention: EidosMention): JLDEidosAttachment =
-    new JLDEidosAttachment(serializer, Score.kind, score.toString, None, mention)
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    new JLDScoredAttachment(serializer, Score.kind, this)
 
   override def toJson(): JValue = toJson(Score.label)
 }

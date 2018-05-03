@@ -135,8 +135,8 @@ class JLDSerializer(val entityGrounder: Some[AdjectiveGrounder]) {
         jObject
   }
   
-  def ground(mention: Mention, quantifier: Quantifier) =
-    if (entityGrounder.isDefined) entityGrounder.get.groundAdjective(mention, quantifier)
+  def ground(mention: Mention, quantifier: String) =
+    if (entityGrounder.isDefined) entityGrounder.get.groundAdjective(quantifier)
     else AdjectiveGrounding(None, None, None)
 }
 
