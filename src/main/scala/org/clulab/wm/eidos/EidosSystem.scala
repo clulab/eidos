@@ -169,11 +169,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-    // These will be "Causal" and "Correlation" which fall under "Event"
+    // 1) These will be "Causal" and "Correlation" which fall under "Event"
     val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    // and these will be "Entity", without overlap from above.
+    // 2) and these will be "Entity", without overlap from above.
     val entityMentions = mentions.filter(m => m.matches("Entity") && m.attachments.nonEmpty)
-    // These last ones may overlap with the above or include mentions not in the original list.
+    // 3) These last ones may overlap with the above or include mentions not in the original list.
     val argumentMentions: Seq[Mention] = cagEdgeMentions.flatMap(_.arguments.values.flatten)
     // Put them all together.
     val goodMentions = cagEdgeMentions ++ entityMentions ++ argumentMentions
@@ -182,15 +182,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
     relevantMentions
   }
-/*
-  def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean =
-      // Keep all entities with attachments
-      (m.matches("Entity") && m.attachments.nonEmpty) ||
-          // anything that is an argument of one of edges
-          cagEdgeMentions.exists(cm => cm.arguments.values.flatten.toSeq.contains(m)) ||
-          // and any that started off in the list
-          cagEdgeMentions.contains(m)
-*/
+
   /*
       Grounding
   */
