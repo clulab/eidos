@@ -131,7 +131,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
-    val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
+    // Becky says not to filter yet
+    //val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
+    val filtered = entities
     //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
     val events = extractEventsFrom(doc, State(filtered)).distinct
     //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
@@ -167,6 +169,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
+    // kwa filter out stop words here
     val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
     mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
   }
