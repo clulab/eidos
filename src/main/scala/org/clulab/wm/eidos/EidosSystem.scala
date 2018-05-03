@@ -168,7 +168,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     sameAsRelations
   }
 
-  def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
+  // Old version
+  def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
     // 1) These will be "Causal" and "Correlation" which fall under "Event"
     val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
     // 2) and these will be "Entity", without overlap from above.
@@ -182,6 +183,36 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
     relevantMentions
   }
+
+  // New version
+  def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
+
+    def hasContent(mention: Mention): Boolean = {
+      val causes: Seq[String] = mention.arguments.getOrElse("cause", Seq.empty).flatMap(_.words)
+      val effects: Seq[String] = mention.arguments.getOrElse("effect", Seq.empty).flatMap(_.words)
+
+      if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
+        // then both causes and effects should have some content
+        causes.exists(!containsStopword(_)) && effects.exists(!containsStopword(_))
+      else
+        true
+    }
+
+    // 1) These will be "Causal" and "Correlation" which fall under "Event" if they have content
+    val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label) && hasContent(m))
+
+    // Should these be included as well?
+
+    // 3) These last ones may overlap with the above or include mentions not in the original list.
+    val argumentMentions: Seq[Mention] = cagEdgeMentions.flatMap(_.arguments.values.flatten)
+    // Put them all together.
+    val goodMentions = cagEdgeMentions ++ argumentMentions
+    // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
+    val relevantMentions = mentions.filter(m => goodMentions.exists(m.eq))
+
+    relevantMentions
+  }
+
 
   /*
       Grounding
