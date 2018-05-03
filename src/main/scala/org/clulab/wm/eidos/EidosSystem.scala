@@ -128,7 +128,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
-    val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
+    val entities: Seq[Mention] = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
     // Becky says not to filter yet
@@ -169,16 +169,28 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-    // kwa filter out stop words here
+    // These will be "Causal" and "Correlation" which fall under "Event"
     val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
-  }
+    // and these will be "Entity", without overlap from above.
+    val entityMentions = mentions.filter(m => m.matches("Entity") && m.attachments.nonEmpty)
+    // These last ones may overlap with the above or include mentions not in the original list.
+    val argumentMentions: Seq[Mention] = cagEdgeMentions.flatMap(_.arguments.values.flatten)
+    // Put them all together.
+    val goodMentions = cagEdgeMentions ++ entityMentions ++ argumentMentions
+    // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
+    val relevantMentions = mentions.filter(mention => goodMentions.exists(mention.eq))
 
+    relevantMentions
+  }
+/*
   def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean =
+      // Keep all entities with attachments
       (m.matches("Entity") && m.attachments.nonEmpty) ||
+          // anything that is an argument of one of edges
           cagEdgeMentions.exists(cm => cm.arguments.values.flatten.toSeq.contains(m)) ||
+          // and any that started off in the list
           cagEdgeMentions.contains(m)
-  
+*/
   /*
       Grounding
   */
