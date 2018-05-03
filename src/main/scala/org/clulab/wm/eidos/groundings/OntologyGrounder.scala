@@ -32,6 +32,7 @@ class EidosOntologyGrounder(stopwordsPath: String, transparentPath: String) {
   }
 
   def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
+  def containsStopwordStrict(stopword: String): Boolean = stopwords.contains(stopword)
 
   protected def hasContent(m: Mention): Boolean = {
     val lemmas = m.lemmas.get

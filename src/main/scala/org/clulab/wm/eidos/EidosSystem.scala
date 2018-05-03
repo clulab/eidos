@@ -187,19 +187,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // New version
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
 
-    def hasContent(mention: Mention): Boolean = {
-      val causes: Seq[String] = mention.arguments.getOrElse("cause", Seq.empty).flatMap(_.words)
-      val effects: Seq[String] = mention.arguments.getOrElse("effect", Seq.empty).flatMap(_.words)
-
-      if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
-        // then both causes and effects should have some content
-        causes.exists(!containsStopword(_)) && effects.exists(!containsStopword(_))
-      else
-        true
-    }
-
     // 1) These will be "Causal" and "Correlation" which fall under "Event" if they have content
-    val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label) && hasContent(m))
+    val cagEdgeMentions = mentions.filter(m => releventEdge(m))
 
     // Should these be included as well?
 
@@ -213,6 +202,18 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     relevantMentions
   }
 
+  def releventEdge(m: Mention): Boolean = EidosSystem.CAG_EDGES.contains(m.label) && hasContent(m)
+
+  def hasContent(mention: Mention): Boolean = {
+    val causes: Seq[String] = mention.arguments.getOrElse("cause", Seq.empty).flatMap(_.words)
+    val effects: Seq[String] = mention.arguments.getOrElse("effect", Seq.empty).flatMap(_.words)
+
+    if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
+    // then both causes and effects should have some content
+      causes.exists(!containsStopword(_)) && effects.exists(!containsStopword(_))
+    else
+      true
+  }
 
   /*
       Grounding

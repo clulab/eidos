@@ -14,7 +14,10 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGr
     mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
   // This must happen before the remap in case arguments point back to this
   mapOfMentions.put(odinMention, this)
-  
+
+  // Accessor method to facilitate cleaner code downstream
+  val label = odinMention.label
+
   // Convenience function for parallel construction
   val odinArguments: Map[String, Seq[Mention]] = odinMention.arguments
   
@@ -48,7 +51,7 @@ abstract class EidosMention(val odinMention: Mention, sameAsGrounder: OntologyGr
       tag = m.tags.get(i)
       ner = m.entities.get(i)
       if isContentTag(tag)
-      if !sameAsGrounder.containsStopword(lemma)
+      if !sameAsGrounder.asInstanceOf[EidosOntologyGrounder].containsStopwordStrict(lemma)
       if !removeNER(ner)
     } yield lemma
 
