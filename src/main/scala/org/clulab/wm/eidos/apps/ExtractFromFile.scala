@@ -28,9 +28,10 @@ object ExtractFromFile extends App {
     val doc = annotatedDoc.document
     pw.println(s"Filename: ${filename.getName}")
 
-    // keep the EidosMentions that are relevant to the CAG
-    val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention, cagEdgeMentions))
+    // Which Odin mentions are relevant to the CAG?
+    val relevantMentions = ieSystem.keepCAGRelevant(annotatedDoc.odinMentions)
+    // Keep the corresponding Eidos mention.
+    val eidosMentions = annotatedDoc.eidosMentions.filter(em => relevantMentions.exists(em.odinMention.eq))
 
     val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
     for ((sentence, sentenceMentions) <- mentionsBySentence){
