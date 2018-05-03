@@ -68,7 +68,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
     val domainOntologyPath: String = getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml")
     val     unOntologyPath: String = getPath(    "unOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml")
-    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/wdi_ontology.yml")
+    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/eidos/wdi_ontology.yml")
     val    faoOntologyPath: String = getPath(       "faoOntology", "/org/clulab/wm/eidos/fao_variable_ontology.yml")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
@@ -122,7 +122,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = false): Document = {
+  def annotate(text: String, keepText: Boolean = true): Document = {
     val doc = proc.annotate(text, keepText)
     doc.sentences.foreach(addLexiconNER)
     doc
@@ -136,7 +136,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = true): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
