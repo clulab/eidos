@@ -32,6 +32,13 @@
         - emergency
     - natural:
       - chemical:
+        - oxygen
+        - O2
+        - nitrogen
+        - CO2
+        - carbon dioxide
+        - sulfer
+        - lead
       #todo -- O2, N, CO2 etc ...
       - biology:
         - ecosystem:
@@ -159,6 +166,7 @@
       - health_intervention:
         - examples:
           - vaccine
+          - immunization
         #todo
       - famine:
         - examples:

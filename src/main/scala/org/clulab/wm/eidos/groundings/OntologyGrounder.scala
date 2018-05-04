@@ -56,6 +56,11 @@ class FAOOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWo
 
 object EidosOntologyGrounder {
 
+  // Namespace strings for the different in-house ontologies we typically use
+  val UN_NAMESPACE = "un"
+  val WDI_NAMESPACE = "wdi"
+  val FAO_NAMESPACE = "fao"
+
   def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
     val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath))
 

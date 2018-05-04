@@ -11,6 +11,7 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{UN_NAMESPACE, WDI_NAMESPACE, FAO_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DomainParams, FileUtils, StopwordManager, StopwordManaging}
 import org.slf4j.LoggerFactory
@@ -68,7 +69,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
     val domainOntologyPath: String = getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml")
     val     unOntologyPath: String = getPath(    "unOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml")
-    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/wdi_ontology.yml")
+    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/eidos/wdi_ontology.yml")
     val    faoOntologyPath: String = getPath(       "faoOntology", "/org/clulab/wm/eidos/fao_variable_ontology.yml")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
@@ -83,9 +84,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else {
           for (ontology <- ontologies)
           yield ontology match {
-            case name @ "un"  => new  UNOntologyGrounder(name,  unOntologyPath, wordToVec)
-            case name @ "wdi" => new WDIOntologyGrounder(name, wdiOntologyPath, wordToVec)
-            case name @ "fao" => new FAOOntologyGrounder(name, faoOntologyPath, wordToVec)
+            case name @ UN_NAMESPACE  => new  UNOntologyGrounder(name,  unOntologyPath, wordToVec)
+            case name @ WDI_NAMESPACE => new WDIOntologyGrounder(name, wdiOntologyPath, wordToVec)
+            case name @ FAO_NAMESPACE => new FAOOntologyGrounder(name, faoOntologyPath, wordToVec)
             case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
           }
         }
@@ -154,21 +155,21 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities: Seq[Mention] = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
+
     // filter entities which are entirely stop or transparent
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
-
     // Becky says not to filter yet
     //val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
     val filtered = entities
     //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
 
     val events = extractEventsFrom(doc, State(filtered)).distinct
-    val cagRelevant = keepCAGRelevant(events)
+    // Note -- in main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
+    // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports
+    //val cagRelevant = keepCAGRelevant(events)
 
-    //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
-
-//    events
-    cagRelevant.toVector
+    events
+    //cagRelevant.toVector
   }
 
 
