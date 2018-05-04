@@ -35,8 +35,8 @@ abstract class EidosAttachment extends Attachment with Serializable {
 
 object EidosAttachment {
   val TYPE = "type"
-  val MOD = "mod"
-  val QUANTS = "quants"
+  val TRIGGER = "trigger"
+  val QUANTIFICATIONS = "quantifications"
 
   def newEidosAttachment(mention: Mention): TriggeredAttachment = {
     val eventMention = mention.asInstanceOf[EventMention]
@@ -51,13 +51,14 @@ object EidosAttachment {
   def newEidosAttachment(json: JValue): EidosAttachment = {
     implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    def parseJValue(jValue: JValue): JValue =
-      JsonMethods.parse((jValue \ MOD).extract[String])
+    val trigger: String = (json \ TRIGGER).extract[String]
+    val quantifications: Seq[String] = (json \ QUANTIFICATIONS).extract[Seq[String]]
+    val someQuantifications = if (quantifications.nonEmpty) Some(quantifications) else None
 
     (json \ TYPE).extract[String] match {
-      case Increase.label => parseJValue(json).extract[Increase]
-      case Decrease.label => parseJValue(json).extract[Decrease]
-      case Quantification.label => parseJValue(json).extract[Quantification]
+      case Increase.label => new Increase(trigger, someQuantifications)
+      case Decrease.label => new Decrease(trigger, someQuantifications)
+      case Quantification.label => new Quantification(trigger, someQuantifications)
     }
   }
 
@@ -134,8 +135,8 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
       else Seq.empty
 
     (EidosAttachment.TYPE -> label) ~
-      (EidosAttachment.MOD -> trigger) ~
-      (EidosAttachment.QUANTS -> quants)
+      (EidosAttachment.TRIGGER -> trigger) ~
+      (EidosAttachment.QUANTIFICATIONS -> quants)
   }
 }
 
