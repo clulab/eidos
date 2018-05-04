@@ -18,9 +18,9 @@ trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
-class EidosOntologyGrounder(var name: String, domainOntoPath: String, wordToVec: EidosWordToVec, filterOnPos: Boolean) extends OntologyGrounder {
+class EidosOntologyGrounder(var name: String, ontologyPath: String, wordToVec: EidosWordToVec, filterOnPos: Boolean) extends OntologyGrounder {
   protected val conceptEmbeddings =
-      DomainOntology(FileUtils.loadYamlFromResource(domainOntoPath), filterOnPos).iterateOntology(wordToVec)
+      DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos).iterateOntology(wordToVec)
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
@@ -38,7 +38,7 @@ class EidosOntologyGrounder(var name: String, domainOntoPath: String, wordToVec:
 class DomainOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
     extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = false) {
   // This is the default grounder for when no other is specified.
-  // It uses the file specified in domainOntologyPath.
+  // It uses the file stored in domainOntologyPath.
 }
 
 class UNOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
@@ -55,4 +55,3 @@ class FAOOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWo
     // Note: Filter on POS tags as they contain descriptions
     extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = true) {
 }
-
