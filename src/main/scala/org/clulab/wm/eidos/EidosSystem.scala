@@ -141,7 +141,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
-    println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
+    //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = keepCAGRelevant(odinMentions)
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 

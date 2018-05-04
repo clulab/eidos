@@ -21,7 +21,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String) extends St
     val tags = mention.tags.get
     val entities = mention.entities.get
 
-     println(s"Checking mention: ${mention.text}")
+    //println(s"Checking mention: ${mention.text}")
     lemmas.indices.exists { i =>
       isContentPOS(tags(i)) &&
       !containsStopword(lemmas(i)) &&

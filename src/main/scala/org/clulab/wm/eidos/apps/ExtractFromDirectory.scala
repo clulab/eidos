@@ -11,8 +11,8 @@ import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, Sourcer}
+import org.clulab.wm.eidos.utils.GroundingUtils._
 
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
@@ -44,35 +44,26 @@ object MakeMITRETablesFromDirectory extends App {
   val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
-  // Gets the top UN ontology grounding
-  def getBaseGrounding(mention: EidosMention): String = {
-    val allGroundings = mention.grounding
-    val baseSet: OntologyGrounding = allGroundings(EidosOntologyGrounder.UN_NAMESPACE)
-    baseSet.grounding.head._1
-  }
-
-  // Gets the top k groundings from the desired ontology (identified by namespace: String), with scores
-  def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5): String = {
-    val grounding = mention.grounding(namespace)
-    val topkGroundings = grounding.grounding.slice(0,topK)
-    topkGroundings.mkString(", ")
-  }
-
   def getModifier(mention: EidosMention): String = {
     val attachments = mention.odinArguments.values.toSeq.flatten.flatMap(argMention => argMention.attachments)
-    val quantTriggers = attachments.filter(a => a.isInstanceOf[Quantification]).map(quant => quant.asInstanceOf[Quantification].trigger)
+    val quantTriggers = attachments
+      .filter(a => a.isInstanceOf[Quantification])
+      .map(quant => quant.asInstanceOf[Quantification].trigger)
+      .map(t => t.toLowerCase)
 
-    if (quantTriggers.nonEmpty) s"${quantTriggers.mkString(", ")})" else ""
+    if (quantTriggers.nonEmpty) s"${quantTriggers.mkString(", ")}" else ""
   }
 
+  //fixme: not working -- always ;
   def getPolarity(mention: EidosMention): String = {
-    val attachments = mention.odinArguments.values.toSeq.flatten.flatMap(argMention => argMention.attachments)
+    val sb = new StringBuilder
+    val attachments = mention.odinMention.attachments
     val incTriggers = attachments.filter(a => a.isInstanceOf[Increase]).map(inc => inc.asInstanceOf[Increase].trigger)
     val decTriggers = attachments.filter(a => a.isInstanceOf[Decrease]).map(inc => inc.asInstanceOf[Decrease].trigger)
-    val incString = if (incTriggers.nonEmpty) s"Increase(${incTriggers.mkString(", ")})" else ""
-    val decString = if (decTriggers.nonEmpty) s"Decrease(${decTriggers.mkString(", ")})" else ""
+    for (t <- incTriggers) sb.append(s"Increase(${t})")
+    for (t <- decTriggers) sb.append(s"Decrease(${t})")
 
-    s"$incString; $decString"
+    sb.mkString(", ")
   }
 
   val pw = new PrintWriter(s"$outputDir/MITRE_table.tsv")
@@ -87,12 +78,13 @@ object MakeMITRETablesFromDirectory extends App {
     val lines = FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
 
     // 4. Convert to tsv TODO
-    val head = "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
+    val header = "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
       "Factor A Modifiers\tFactor A Polarity\tRelation Text\tRelation Normalization\t" +
       "Relation Modifiers\tFactor B Text\tFactor B Normalization\tFactor B Modifiers\t" +
       "Factor B Polarity\tLocation\tTime\tEvidence\t" +
       "Factor A top5_UNOntology\tFactor A top5_FAOOntology\tFactor A top5_WDIOntology" +
       "Factor B top5_UNOntology\tFactor B top5_FAOOntology\tFactor B top5_WDIOntology"
+    pw.println(header)
 
     for {
       line <- lines
@@ -136,8 +128,8 @@ object MakeMITRETablesFromDirectory extends App {
         factor_a_txt + "\t" + factor_a_norm + "\t" + factor_a_modifier + "\t" + factor_a_polarity + "\t" +
         relation_txt + "\t" + relation_norm + "\t" + relation_modifier + "\t" +
         factor_b_txt + "\t" + factor_b_norm + "\t" + factor_b_modifier + "\t" + factor_b_polarity + "\t" +
-        location + "\t" + time + "\t" + evidence +
-        factor_a_un + "\t" + factor_b_fao + "\t" + factor_a_wdi +
+        location + "\t" + time + "\t" + evidence + "\t" +
+        factor_a_un + "\t" + factor_b_fao + "\t" + factor_a_wdi + "\t" +
         factor_b_un + "\t" + factor_b_fao + "\t" + factor_b_wdi
     //"top5_UNOntology\ttop5_FAOOntology\ttop5_WDIOntology"
 
