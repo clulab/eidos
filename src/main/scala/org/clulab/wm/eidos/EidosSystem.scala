@@ -139,7 +139,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
-    //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
+    println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = keepCAGRelevant(odinMentions)
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
@@ -163,9 +163,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
 
     val events = extractEventsFrom(doc, State(filtered)).distinct
+    val cagRelevant = keepCAGRelevant(events)
+
     //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
 
-    events
+//    events
+    cagRelevant.toVector
   }
 
 
@@ -226,18 +229,26 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
     val relevantMentions = mentions.filter(m => goodMentions.exists(m.eq))
 
-    relevantMentions
+//    relevantMentions
+    goodMentions
   }
 
-  def releventEdge(m: Mention): Boolean = EidosSystem.CAG_EDGES.contains(m.label) && hasContent(m)
+  def releventEdge(m: Mention): Boolean = {
+    m match {
+      case tb: TextBoundMention => EidosSystem.CAG_EDGES.contains(tb.label)
+      case rm: RelationMention => EidosSystem.CAG_EDGES.contains(rm.label)
+      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em)
+      case _ => throw new UnsupportedClassVersionError()
+    }
+  }
 
-  def hasContent(mention: Mention): Boolean = {
-    val causes: Seq[String] = mention.arguments.getOrElse("cause", Seq.empty).flatMap(_.words)
-    val effects: Seq[String] = mention.arguments.getOrElse("effect", Seq.empty).flatMap(_.words)
+  def argumentsHaveContent(mention: EventMention): Boolean = {
+    val causes: Seq[Mention] = mention.arguments.getOrElse("cause", Seq.empty)
+    val effects: Seq[Mention] = mention.arguments.getOrElse("effect", Seq.empty)
 
     if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
     // then both causes and effects should have some content
-      causes.exists(!containsStopword(_)) && effects.exists(!containsStopword(_))
+      causes.exists(loadableAttributes.stopwordManager.hasContent(_)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_))
     else
       true
   }

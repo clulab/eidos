@@ -80,7 +80,7 @@ rules:
       addlabel: "Causal"
       label: Causal
       action: expandArguments
-      trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers}|${affect_triggers}|${nonavoid_affect_triggers}
+      trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
 
   - import: org/clulab/wm/eidos/grammars/reverse_direction_causal.yml
     vars:

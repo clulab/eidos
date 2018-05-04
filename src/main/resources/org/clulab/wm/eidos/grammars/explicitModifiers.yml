@@ -19,7 +19,7 @@ rules:
     label: Decrease
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(possible)/ & tag=/JJ/ & outgoing=neg]
+      trigger = [word=/(?i)^(possible|available)/ & tag=/JJ/ & outgoing=neg]
       theme: Entity = /${agents}/
       #quantifier:Quantifier? = ${quant_modifiers}
 

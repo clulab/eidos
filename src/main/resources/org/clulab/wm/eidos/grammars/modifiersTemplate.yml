@@ -138,12 +138,12 @@ rules:
   - name: ported_copula_mods-${label}
     priority: ${ rulepriority }
     #Original example: "A is an activator of B"
-    example: ""
+    example: "Livestock conditions were generally good due to adequate pasture"
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger =   [lemma=/${ trigger }/ & !outgoing=dobj]
-      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) nsubj
+      theme: Entity = (?= /(aux|cop)/ [lemma=/be/ & tag=/^V/]) nsubj
       #todo: Quantifiers ?
 
   - name: ported_copula_mods-1-${label}
