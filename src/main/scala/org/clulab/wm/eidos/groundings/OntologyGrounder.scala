@@ -31,7 +31,7 @@ class EidosOntologyGrounder(var name: String, ontologyPath: String, wordToVec: E
       OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
     }
     else
-      OntologyGrounding(Seq.empty)
+      OntologyGrounding()
   }
 }
 
