@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{DomainOntology, FileUtils, Sourcer}
+import org.clulab.wm.eidos.utils.{DomainOntology, FileUtils}
 
 object Aliases {
   type Grounding = Seq[(String, Double)]
@@ -36,22 +36,37 @@ class EidosOntologyGrounder(var name: String, domainOntoPath: String, wordToVec:
 
 class DomainOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
     extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
+  // Override methods here //todo: What is to be done here ? is this UN ontology or other ?
 }
 
 class UNOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
     extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
+
+  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
+    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = false) // Note: No need to filter on POS tags as they contain examples
+
+    ontology.iterateOntology(wordToVec)
+  }
 }
 
 class WDIOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
     extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
+
+  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
+    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = true) // Note: Filter on POS tags as they contain descriptions
+
+    ontology.iterateOntology(wordToVec)
+  }
 }
 
 class FAOOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
     extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
+
+  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
+    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = true) // Note: Filter on POS tags as they contain descriptions
+
+    ontology.iterateOntology(wordToVec)
+  }
 }
 
 object EidosOntologyGrounder {
@@ -62,7 +77,7 @@ object EidosOntologyGrounder {
   val FAO_NAMESPACE = "fao"
 
   def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
-    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath))
+    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = false)
 
     ontology.iterateOntology(wordToVec)
   }

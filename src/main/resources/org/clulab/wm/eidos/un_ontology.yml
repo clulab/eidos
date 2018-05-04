@@ -1,5 +1,4 @@
-- UN:
-  #todo: fix out-standing issues in --> https://github.com/clulab/eidos/pull/281
+- UN: #todo: fix out-standing issues in --> https://github.com/clulab/eidos/pull/281
   - events:
     - nature_impact:
       - positive_nature_impact:
@@ -39,7 +38,6 @@
         - carbon dioxide
         - sulfer
         - lead
-      #todo -- O2, N, CO2 etc ...
       - biology:
         - ecosystem:
           - examples:
