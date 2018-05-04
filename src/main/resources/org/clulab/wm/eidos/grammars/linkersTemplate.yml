@@ -170,16 +170,16 @@ rules:
 
 
 
-  # todo: maybe applies only to promotion triggers
-  - name: ported_syntax_1_noun-${addlabel}
-    priority: ${ rulepriority }
-    example: "The cause of increasing poverty by bad water quality is the worst."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      effect: Entity = /${ preps }/ /${ noun_modifiers }|${ conjunctions }/{,2}
-      cause: Entity = /nmod_of/? nmod_by (<${objects}|nmod_by|agent|${noun_modifiers}|${preps}){1,2} /compound|amod|conj_|cc/{,2} #the prep_of may appear due to bad syntax
+#  # todo: maybe applies only to promotion triggers
+#  - name: ported_syntax_1_noun-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "The cause of increasing poverty by bad water quality is the worst."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+#      effect: Entity = /${ preps }/ /${ noun_modifiers }|${ conjunctions }/{,2}
+#      cause: Entity = /nmod_of/? nmod_by (<${objects}|nmod_by|agent|${noun_modifiers}|${preps}){1,2} /compound|amod|conj_|cc/{,2} #the prep_of may appear due to bad syntax
 
 
   - name: ported_syntax_2_noun-${addlabel}
