@@ -7,6 +7,8 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, EidosAttachment, Increase, Quantification}
+import org.clulab.wm.eidos.groundings.Aliases.Groundings
+import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
@@ -42,14 +44,18 @@ object MakeMITRETablesFromDirectory extends App {
   val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
-//  def getBaseGrounding(mention: EidosMention): String = {
-//    val allGroundings = mention.grounding
-//    val baseSet = allGroundings
-//  }
+  // Gets the top UN ontology grounding
+  def getBaseGrounding(mention: EidosMention): String = {
+    val allGroundings = mention.grounding
+    val baseSet: OntologyGrounding = allGroundings(EidosOntologyGrounder.UN_NAMESPACE)
+    baseSet.grounding.head._1
+  }
 
+  // Gets the top k groundings from the desired ontology (identified by namespace: String), with scores
   def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5): String = {
-    val groundings = mention.grounding.values.toSeq.map(g => g.grounding.slice(0, topK)).flatten
-    groundings.mkString(", ")
+    val grounding = mention.grounding(namespace)
+    val topkGroundings = grounding.grounding.slice(0,topK)
+    topkGroundings.mkString(", ")
   }
 
   def getModifier(mention: EidosMention): String = {
@@ -70,6 +76,7 @@ object MakeMITRETablesFromDirectory extends App {
   }
 
   val pw = new PrintWriter(s"$outputDir/MITRE_table.tsv")
+  val nKeep: Int = 5 // how many of the groundings to print for each ontology
 
   // For each file in the input directory:
   files.par.foreach { file =>
@@ -87,46 +94,54 @@ object MakeMITRETablesFromDirectory extends App {
       "Factor A top5_UNOntology\tFactor A top5_FAOOntology\tFactor A top5_WDIOntology" +
       "Factor B top5_UNOntology\tFactor B top5_FAOOntology\tFactor B top5_WDIOntology"
 
-//    for {
-//      line <- lines
-//      annotatedDocument = reader.extractFromText(line)
-//      mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention))
-//      mention <- mentionsToPrint
-//
-//      source = file.getName
-//      system = "EIDOS"
-//      sentence_id = mention.odinMention.sentence
-//
-//      cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
-//
-//      factor_a_txt = cause.odinMention.text
-//      factor_a_norm = getGroundingString(cause)
-//      factor_a_modifier = getModifier(cause)
-//      factor_a_polarity = getPolarity(cause)
-//
-//      trigger = mention.odinMention.asInstanceOf[EventMention].trigger
-//      relation_txt = trigger.text
-//      relation_norm = mention.label // i.e., "Causal" or "Correlation"
-//      relation_modifier = getModifier(mention) // prob none
-//
-//      effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
-//      factor_b_txt = effect.odinMention.text
-//      factor_b_norm = getGroundingString(effect)
-//      factor_b_modifier = getModifier(effect)
-//      factor_b_polarity = getPolarity(effect)
-//
-//      location = "" // I could try here..?
-//      time = ""
-//      evidence = mention.odinMention.sentenceObj.getSentenceText().trim
-//
-//      row = source + "\t" + system + "\t" + sentence_id + "\t" +
-//        factor_a_txt + "\t" + factor_a_norm + "\t" + factor_a_modifier + "\t" + factor_a_polarity + "\t" +
-//        relation_txt + "\t" + relation_norm + "\t" + relation_modifier + "\t" +
-//        factor_b_txt + "\t" + factor_b_norm + "\t" + factor_b_modifier + "\t" + factor_b_polarity + "\t" +
-//        location + "\t" + time + "\t" + evidence //+
-//      //"top5_UNOntology\ttop5_FAOOntology\ttop5_WDIOntology"
-//
-//    } pw.println(row)
+    for {
+      line <- lines
+      annotatedDocument = reader.extractFromText(line)
+      mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention))
+      mention <- mentionsToPrint
+
+      source = file.getName
+      system = "EIDOS"
+      sentence_id = mention.odinMention.sentence
+
+      cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
+
+      factor_a_txt = cause.odinMention.text
+      factor_a_norm = getBaseGrounding(cause)
+      factor_a_modifier = getModifier(cause)
+      factor_a_polarity = getPolarity(cause)
+      factor_a_un = getGroundingsString(cause, EidosOntologyGrounder.UN_NAMESPACE, nKeep)
+      factor_a_fao = getGroundingsString(cause, EidosOntologyGrounder.FAO_NAMESPACE, nKeep)
+      factor_a_wdi = getGroundingsString(cause, EidosOntologyGrounder.WDI_NAMESPACE, nKeep)
+
+      trigger = mention.odinMention.asInstanceOf[EventMention].trigger
+      relation_txt = trigger.text
+      relation_norm = mention.label // i.e., "Causal" or "Correlation"
+      relation_modifier = getModifier(mention) // prob none
+
+      effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
+      factor_b_txt = effect.odinMention.text
+      factor_b_norm = getBaseGrounding(effect)
+      factor_b_modifier = getModifier(effect)
+      factor_b_polarity = getPolarity(effect)
+      factor_b_un = getGroundingsString(effect, EidosOntologyGrounder.UN_NAMESPACE, nKeep)
+      factor_b_fao = getGroundingsString(effect, EidosOntologyGrounder.FAO_NAMESPACE, nKeep)
+      factor_b_wdi = getGroundingsString(effect, EidosOntologyGrounder.WDI_NAMESPACE, nKeep)
+
+      location = "" // I could try here..?
+      time = ""
+      evidence = mention.odinMention.sentenceObj.getSentenceText().trim
+
+      row = source + "\t" + system + "\t" + sentence_id + "\t" +
+        factor_a_txt + "\t" + factor_a_norm + "\t" + factor_a_modifier + "\t" + factor_a_polarity + "\t" +
+        relation_txt + "\t" + relation_norm + "\t" + relation_modifier + "\t" +
+        factor_b_txt + "\t" + factor_b_norm + "\t" + factor_b_modifier + "\t" + factor_b_polarity + "\t" +
+        location + "\t" + time + "\t" + evidence +
+        factor_a_un + "\t" + factor_b_fao + "\t" + factor_a_wdi +
+        factor_b_un + "\t" + factor_b_fao + "\t" + factor_b_wdi
+    //"top5_UNOntology\ttop5_FAOOntology\ttop5_WDIOntology"
+
+    } pw.println(row)
   }
 
   // Housekeeping
