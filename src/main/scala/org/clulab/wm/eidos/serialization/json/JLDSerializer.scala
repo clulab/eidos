@@ -221,14 +221,14 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
 
   override def toJObject(): JObject = {
     val text = triggeredAttachment.trigger
-    val jldProvanance = triggeredAttachment.triggerMention.map(mention => new JLDProvenance(serializer, mention).toJObject())
+    val jldProvanance = triggeredAttachment.getTriggerMention.map(mention => new JLDProvenance(serializer, mention).toJObject())
     val jldModifiers =
         if (triggeredAttachment.quantifiers.isEmpty) Seq.empty
         else
           triggeredAttachment.quantifiers.get.indices.map { index =>
             val quantifier = triggeredAttachment.quantifiers.get(index)
             val quantifierMention =
-              if (triggeredAttachment.quantifierMentions.isDefined) Some(triggeredAttachment.quantifierMentions.get(index))
+              if (triggeredAttachment.getQuantifierMentions.isDefined) Some(triggeredAttachment.getQuantifierMentions.get(index))
               else None
 
             new JLDModifier(serializer, quantifier, quantifierMention).toJObject()
