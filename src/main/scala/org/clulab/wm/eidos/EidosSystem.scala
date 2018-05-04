@@ -30,7 +30,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
   protected val wordToVec = EidosWordToVec(
     word2vec,
-    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
+//    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
+    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
     getArgInt(getFullName("topKNodeGroundings"), Some(10))
   )
 

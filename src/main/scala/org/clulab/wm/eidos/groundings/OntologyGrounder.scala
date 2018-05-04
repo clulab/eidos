@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{DomainOntology, FileUtils, Sourcer}
+import org.clulab.wm.eidos.utils.{DomainOntology, FileUtils}
 
 object Aliases {
   type Grounding = Seq[(String, Double)]
@@ -18,8 +18,9 @@ trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
-class EidosOntologyGrounder(var name: String, domainOntoPath: String, wordToVec: EidosWordToVec) extends OntologyGrounder {
-  val conceptEmbeddings = EidosOntologyGrounder.getConceptEmbeddings(domainOntoPath, wordToVec)
+class EidosOntologyGrounder(var name: String, ontologyPath: String, wordToVec: EidosWordToVec, filterOnPos: Boolean) extends OntologyGrounder {
+  protected val conceptEmbeddings =
+      DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos).iterateOntology(wordToVec)
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
@@ -30,35 +31,27 @@ class EidosOntologyGrounder(var name: String, domainOntoPath: String, wordToVec:
       OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
     }
     else
-      OntologyGrounding(Seq.empty)
+      OntologyGrounding()
   }
 }
 
 class DomainOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
-    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = false) {
+  // This is the default grounder for when no other is specified.
+  // It uses the file stored in domainOntologyPath.
 }
 
 class UNOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
-    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
+    // Note: No need to filter on POS tags as they contain examples
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = false) {
 }
 
 class WDIOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
-    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
+    // Note: Filter on POS tags as they contain descriptions
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = true) {
 }
 
 class FAOOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
-    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-  // Override methods here
-}
-
-object EidosOntologyGrounder {
-
-  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
-    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath))
-
-    ontology.iterateOntology(wordToVec)
-  }
+    // Note: Filter on POS tags as they contain descriptions
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = true) {
 }
