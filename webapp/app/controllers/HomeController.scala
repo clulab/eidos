@@ -61,7 +61,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       attachments.filter(_.isInstanceOf[Decrease]))
   }
   
-  def groundEntity(mention: Mention, quantifier: Quantifier, ieSystem: EidosSystem): GroundedEntity = {
+  def groundEntity(mention: Mention, quantifier: String, ieSystem: EidosSystem): GroundedEntity = {
     // add the calculation
     println("loaded domain params:" + ieSystem.domainParams.toString())
     println(s"\tkeys: ${ieSystem.domainParams.keys.mkString(", ")}")
@@ -70,7 +70,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val paramDetails = ieSystem.domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
     val paramMean = paramDetails.get(DomainParams.PARAM_MEAN).get
     val paramStdev = paramDetails.get(DomainParams.PARAM_STDEV).get
-    val grounding = ieSystem.groundAdjective(mention, quantifier)
+    val grounding = ieSystem.groundAdjective(quantifier)
     val predictedDelta = grounding.predictDelta(paramMean, paramStdev)
 
     GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
