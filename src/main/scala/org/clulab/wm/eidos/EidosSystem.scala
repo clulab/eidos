@@ -123,7 +123,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = false): Document = {
+  def annotate(text: String, keepText: Boolean = true): Document = {
     val doc = proc.annotate(text, keepText)
     doc.sentences.foreach(addLexiconNER)
     doc
@@ -137,7 +137,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = true): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
@@ -216,8 +216,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
           (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
 
-  def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
-    loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
+  def groundAdjective(quantifier: String): AdjectiveGrounding =
+    loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
 
   /*
       Wrapper for using w2v on some strings
