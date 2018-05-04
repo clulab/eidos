@@ -282,7 +282,9 @@ object JLDTrigger {
 
 abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mention: Mention) extends JLDObject(serializer, typename, mention) {
  
-  def getMentions(): Seq[Mention] = mention.attachments.toSeq.flatMap(_.asInstanceOf[EidosAttachment].attachmentMentions)
+  def getMentions(): Seq[Mention] = Seq.empty
+  // This isn't necessary because attachments only show provenance, not reference to a different extraction
+  // mention.attachments.toSeq.flatMap(_.asInstanceOf[EidosAttachment].attachmentMentions)
 
   override def toJObject(): JObject = {
     val jldAttachments = mention.attachments.toList
