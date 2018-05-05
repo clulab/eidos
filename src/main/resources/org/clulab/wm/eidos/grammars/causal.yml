@@ -1,5 +1,5 @@
 vars:
-  agents: "nsubj|nsubjpass|'nsubjpass:xsubj'|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+  agents: "nsubj|'nsubj:xsubj'|nsubjpass|'nsubjpass:xsubj'|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
   conjunctions: "appos|conj|conj_|cc"
   complements: "xcomp|ccomp"
   noun_modifiers: "amod|compound|dep|name"
@@ -123,9 +123,9 @@ rules:
     action: ${ action }
     example: "Conflict and economic decline have led to violence and displacement."
     pattern: |
-      trigger = [lemma="lead" & tag=/^VB/] (?=[word=to])
+      trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
       effect: Entity = nmod_to /${preps}/{,4}
-      cause: Entity = nsubj /${noun_modifiers}|${objects}/{,2}
+      cause: Entity = <ccomp? /${agents}/ /${noun_modifiers}|${objects}/{,2}
 
   - name: contribToSyntax1-${addlabel}
     priority: ${rulepriority}
