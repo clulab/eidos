@@ -102,7 +102,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         DomainParams(domainParamKBPath),
         EidosAdjectiveGrounder(quantifierKBPath),
         actions,
-        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
+//        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
+        ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         StopwordManager(stopwordsPath, transparentPath),
         ontologyGrounders

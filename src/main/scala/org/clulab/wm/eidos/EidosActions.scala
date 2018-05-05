@@ -257,11 +257,50 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
 
+  def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    // expand attachments
+    val (expandable, textBounds) = mentions.partition(_ matches "Causal")
+    val expanded = expandArguments(expandable, state)
+
+    // Push attachments up if entity gets subsumed
+    //val attached = expanded.map(addSubsumedAttachments(_, state)) ++ textBounds
+    val result = expanded ++ textBounds
+
+    // Merge attachments
+    val merged = mergeAttachments(result, state.updated(result))
+
+    // Keep most complete
+    keepMostCompleteEvents(merged, state.updated(merged))
+  }
+
+  def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
+    def addAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
+      var out = mention
+      for {
+        a <- attachments
+      } out = out.withAttachment(a)
+      out
+    }
+
+    // find mentions of the same label and sentence overlap
+    val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
+    println("Overlapping:")
+    overlapping.foreach(ov => println(ov.text))
+
+    val allAttachments = overlapping.flatMap(m => m.attachments).distinct
+    println(s"allAttachments: ${allAttachments.mkString(", ")}")
+    // Add on all attachments
+    addAttachments(expanded, allAttachments)
+  }
+
+
+
   // Currently used as a GLOBAL ACTION in EidosSystem:
   // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
   // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
   // of each other.
   def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
+
     // Get all the entity mentions for this span (i.e. all the "rainfall in Spain" mentions)
     val (entities, nonentities) = mentions.partition(mention => mention matches "Entity")
     val entitiesBySpan = entities.groupBy(entity => (entity.sentence, entity.tokenInterval, entity.label))
@@ -348,6 +387,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       Entity Expansion Methods
    */
 
+  def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
+
+
   // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
 
@@ -374,11 +416,22 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // end of the action
     val expansionResult = for {
       mention <- mentions
+      trigger = mention match {
+        case rm: RelationMention => None
+        case em: EventMention => {
+          println(s"EM and tigger = ${em.trigger.text}")
+          Some(em.trigger)
+        }
+        case _ => throw new RuntimeException("Trying to get the trigger from a mention with no trigger")
+      }
+      stateToAvoid = if (trigger.nonEmpty) State(Seq(trigger.get)) else new State()
+
       // Get the argument map with the *expanded* Arguments
       expanded = for {
         (argType, argMentions) <- mention.arguments
-        expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, state))
-        trimmed = expandedMentions.map(EntityHelper.trimEntityEdges)
+        expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid))
+        attached = expandedMentions.map(addSubsumedAttachments(_, state))
+        trimmed = attached.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
     } yield Seq(copyWithExpanded(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
@@ -389,16 +442,40 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     keepMostCompleteEvents(res, state.updated(res))
   }
 
+  private def replaceMentionsInterval(m: Mention, i: Interval): Mention = m match {
+    case m: TextBoundMention => m.copy(tokenInterval = i)
+    case _ => sys.error("m is not a textboundmention, i don't know what to do")
+  }
+
   // Do the expansion, but if the expansion causes you to suck up something we want to avoid, keep the original instead
   // todo: perhaps we should handle this a diff way.... like, trim up tp the avoided thing?
-  def expandIfNotAvoid(orig: Mention, maxHops: Int, state: State): Mention = {
-    val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, state)
-    if (state.mentionsFor(expanded.sentence, expanded.tokenInterval, EidosActions.AVOID_LABEL).isEmpty) {
-      expanded
-    } else {
-      orig
+  def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
+
+    val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid)
+
+    // split expanded at trigger (only thing in state to avoid)
+    val triggerOption = stateToAvoid.mentionsFor(orig.sentence).headOption
+    triggerOption match {
+      case None => expanded
+      case Some(trigger) =>
+        if (trigger.tokenInterval overlaps expanded.tokenInterval) {
+          if (orig.tokenInterval.end <= trigger.tokenInterval.start) {
+            // orig is to the left of trigger
+            replaceMentionsInterval(expanded, Interval(expanded.start, trigger.start))
+          } else if (orig.tokenInterval.start >= trigger.tokenInterval.end) {
+            // orig is to the right of trigger
+            replaceMentionsInterval(expanded, Interval(trigger.end, expanded.end))
+          } else {
+            sys.error("what?")
+          }
+        } else {
+          expanded
+        }
     }
+    // keep the half that is on the same side as orig: Mention
   }
+
+
 
 
   //-- Entity expansion methods (brought in from EntityFinder)
@@ -429,7 +506,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         if outgoingRelations.nonEmpty && tok < outgoingRelations.length
         (nextTok, dep) <- outgoingRelations(tok)
         if isValidOutgoingDependency(dep, remainingHops)
-        if state.mentionsFor(sent, nextTok, EidosActions.AVOID_LABEL).isEmpty
+        if state.mentionsFor(sent, nextTok).isEmpty
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
       traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, state)
