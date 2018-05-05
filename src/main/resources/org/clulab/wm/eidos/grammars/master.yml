@@ -8,10 +8,10 @@ vars: org/clulab/wm/eidos/grammars/triggers.yml
 rules:
   #Entities are found with EntityFinder! Not extracted here!
 
-  #Avoid
-  - import: org/clulab/wm/eidos/grammars/avoidLocal.yml
-    vars:
-      rulepriority: "1"
+#  #Avoid
+#  - import: org/clulab/wm/eidos/grammars/avoidLocal.yml
+#    vars:
+#      rulepriority: "1"
 
   #Quantifiers
   - import: org/clulab/wm/eidos/grammars/quantifiers.yml
@@ -47,14 +47,14 @@ rules:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Increase
-      trigger: ${ increase_triggers }
+      trigger: ${ increase_triggers }|${ noncausal_increase_triggers }
 
   - import: org/clulab/wm/eidos/grammars/modifiersTemplate.yml
     vars:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Decrease
-      trigger: ${ decrease_triggers }
+      trigger: ${ decrease_triggers }|${ noncausal_decrease_triggers }
 
   - import: org/clulab/wm/eidos/grammars/explicitModifiers.yml
     vars:
@@ -71,7 +71,7 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
-      action: expandArguments
+      action: pass
       trigger: ${cause_triggers}|${nonavoid_causal_triggers} #|${increase_triggers}|${decrease_triggers}
 
   - import: org/clulab/wm/eidos/grammars/linkersTemplate.yml
@@ -79,7 +79,7 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
-      action: expandArguments
+      action: pass
       trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
 
   - import: org/clulab/wm/eidos/grammars/reverse_direction_causal.yml
@@ -87,7 +87,7 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
-      action: expandArguments
+      action: pass
       trigger: "result|effect"
 
 
@@ -98,7 +98,7 @@ rules:
       rulepriority: "6"
       trigger: ${increase_triggers}|${decrease_triggers}
       correlation_trigger: ${correlation_triggers}
-      action: expandArguments
+      action: pass
       #action: ? #
 
   # ------------ Correlation ------------
@@ -107,6 +107,6 @@ rules:
       rulepriority: "6"
       addlabel: "Correlation"
       label: Correlation
-      action: expandArguments
+      action: pass
       trigger: ${correlation_triggers}
 
