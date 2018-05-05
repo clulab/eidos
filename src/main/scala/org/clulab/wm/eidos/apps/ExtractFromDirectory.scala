@@ -14,6 +14,8 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, Sourcer}
 import org.clulab.wm.eidos.utils.GroundingUtils._
 
+import scala.collection.mutable.ArrayBuffer
+
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
@@ -45,7 +47,7 @@ object MakeMITRETablesFromDirectory extends App {
   val reader = new EidosSystem()
 
   def getModifier(mention: EidosMention): String = {
-    val attachments = mention.odinArguments.values.toSeq.flatten.flatMap(argMention => argMention.attachments)
+    val attachments = mention.odinMention.attachments
     val quantTriggers = attachments
       .filter(a => a.isInstanceOf[Quantification])
       .map(quant => quant.asInstanceOf[Quantification].trigger)
@@ -56,7 +58,7 @@ object MakeMITRETablesFromDirectory extends App {
 
   //fixme: not working -- always ;
   def getPolarity(mention: EidosMention): String = {
-    val sb = new StringBuilder
+    val sb = new ArrayBuffer[String]
     val attachments = mention.odinMention.attachments
     val incTriggers = attachments.filter(a => a.isInstanceOf[Increase]).map(inc => inc.asInstanceOf[Increase].trigger)
     val decTriggers = attachments.filter(a => a.isInstanceOf[Decrease]).map(inc => inc.asInstanceOf[Decrease].trigger)
