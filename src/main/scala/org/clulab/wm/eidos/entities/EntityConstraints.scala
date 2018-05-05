@@ -26,7 +26,7 @@ object EntityConstraints extends LazyLogging {
 
   // POS tags for splitting conjunctions
   val coordPOS = Set("CC", ",", "-LRB-", "-RRB-")
-  
+
   // Ensure final token of mention span is valid
   def validFinalTag(mention: Mention): Boolean =
       mention.tags.isEmpty || mention.tags.get.last.matches(VALID_FINAL_TAG)
