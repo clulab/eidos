@@ -32,6 +32,15 @@ rules:
       # avoid xrefs
       [tag=NNP] "et" "al." @Avoid
 
+  - name: "copular-verbs"
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+      # avoid xrefs
+      [lemma=be]
+
+
   - name: "unicode-icons"
     label: Avoid
     priority: 3
@@ -49,7 +58,8 @@ rules:
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${cause_triggers}|${affect_triggers}|${correlation_triggers})/] # triggers used downstream
+      [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${noncausal_increase_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${correlation_triggers})/] # triggers used downstream
+
 
   - name: "gradable"
     label: Avoid
@@ -67,13 +77,13 @@ rules:
       # additional triggers
       [word = /result|due/]
 
-  - name: "affect-triggers"
-    label: Avoid-Strict
-    priority: 1
-    type: token
-    pattern: |
-      # avoid verbal affect triggers
-      [tag = /VBG/ & word = /${ affect_triggers }|${ nonavoid_affect_triggers }/]
+#  - name: "affect-triggers"
+#    label: Avoid-Strict
+#    priority: 1
+#    type: token
+#    pattern: |
+#      # avoid verbal affect triggers
+#      [tag = /VBG/ & word = /${ affect_triggers }|${ nonavoid_affect_triggers }/]
 
   - name: "during"
     label: Avoid-Strict
