@@ -110,7 +110,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]# & tag=/^V|RB/]
       effect: Entity = acl? dobj /${ noun_modifiers }|${ conjunctions }/{,2}
-      cause: Entity = (< /xcomp|ccomp|rcmod|appos/){1,2} /${agents}|${ conjunctions }|${ noun_modifiers }/{,2}
+      cause: Entity = (< /xcomp|ccomp|rcmod|appos/){1,2} /${agents}/{,2}
 
 
 #  - name: ported_syntax_6_verb-${addlabel}
