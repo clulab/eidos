@@ -383,9 +383,17 @@ head.ready(function() {
 
     $('form').submit(function (event) {
 
+        // stop the form from submitting the normal way and refreshing the page
+        event.preventDefault();
+
         // collect form data
         var formData = {
             'sent': $('input[name=sent]').val()
+        }
+
+        if (!formData.sent.trim()) {
+            alert("please write something");
+            return;
         }
 
         // show spinner
@@ -399,6 +407,11 @@ head.ready(function() {
             dataType: 'json',
             encode: true
         })
+        .fail(function () {
+            // hide spinner
+            document.getElementById("overlay").style.display = "none";
+            alert("error");
+        })
         .done(function (data) {
             console.log(data);
             syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, data.syntax)]);
@@ -408,9 +421,6 @@ head.ready(function() {
             // hide spinner
             document.getElementById("overlay").style.display = "none";
         });
-
-        // stop the form from submitting the normal way and refreshing the page
-        event.preventDefault();
 
     });
 });
