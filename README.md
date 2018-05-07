@@ -134,7 +134,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
   println(stringify(mentionsJSONLD, pretty = true))
 ```
 
-This produces the JSON-LD output shown [here](https://github.com/clulab/eidos/wiki/API-output-examples#json-ld-output) (mentions may appear in different order):
+This produces the JSON-LD output shown [here](https://github.com/clulab/eidos/wiki/API-output-examples#json-ld-output).
 
 #### To serialize to JSON
 
