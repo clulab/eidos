@@ -3,15 +3,12 @@ package org.clulab.wm.eidos.apps
 import java.io.PrintWriter
 
 import org.clulab.odin.EventMention
-import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.{Decrease, EidosAttachment, Increase, Quantification}
-import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
+import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, Sourcer}
+import org.clulab.wm.eidos.utils.{FileUtils, Sourcer}
 import org.clulab.wm.eidos.utils.GroundingUtils._
 
 import scala.collection.mutable.ArrayBuffer
@@ -31,11 +28,9 @@ object ExtractFromDirectory extends App {
     val lines = FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
     // 3. Extract causal mentions from the text
     val annotatedDocuments = lines.map(reader.extractFromText(_))
-    // 4. Convert to JSON
-    val corpus = new JLDCorpus(annotatedDocuments, reader)
-    val mentionsJSONLD = corpus.serialize()
-    // 5. Write to output file
-    pw.println(stringify(mentionsJSONLD, pretty = true))
+    // 4. Write to JSON-LD
+    FileUtils.writeToJSONLD(annotatedDocuments, pw, reader)
+    // 5. Housekeeping
     pw.close()
   }
 }
@@ -45,6 +40,7 @@ object MakeMITRETablesFromDirectory extends App {
   val outputDir = args(1)
   val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
+
 
   def getModifier(mention: EidosMention): String = {
     val attachments = mention.odinMention.attachments
@@ -68,8 +64,21 @@ object MakeMITRETablesFromDirectory extends App {
     sb.mkString(", ")
   }
 
+  // MITRE Table
   val pw = new PrintWriter(s"$outputDir/MITRE_table.tsv")
   val nKeep: Int = 5 // how many of the groundings to print for each ontology
+  // JSON-LD
+  val pwJson = new PrintWriter(s"$outputDir/UA_10docCAG.jsonld")
+  val annotatedDocs = new ArrayBuffer[AnnotatedDocument]
+
+  // Header
+  val header = "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
+    "Factor A Modifiers\tFactor A Polarity\tRelation Text\tRelation Normalization\t" +
+    "Relation Modifiers\tFactor B Text\tFactor B Normalization\tFactor B Modifiers\t" +
+    "Factor B Polarity\tLocation\tTime\tEvidence\t" +
+    "Factor A top5_UNOntology\tFactor A top5_FAOOntology\tFactor A top5_WDIOntology" +
+    "Factor B top5_UNOntology\tFactor B top5_FAOOntology\tFactor B top5_WDIOntology"
+  pw.println(header)
 
   // For each file in the input directory:
   files.par.foreach { file =>
@@ -79,14 +88,6 @@ object MakeMITRETablesFromDirectory extends App {
     // 2. Get the input file contents
     val lines = FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
 
-    // 4. Convert to tsv TODO
-    val header = "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
-      "Factor A Modifiers\tFactor A Polarity\tRelation Text\tRelation Normalization\t" +
-      "Relation Modifiers\tFactor B Text\tFactor B Normalization\tFactor B Modifiers\t" +
-      "Factor B Polarity\tLocation\tTime\tEvidence\t" +
-      "Factor A top5_UNOntology\tFactor A top5_FAOOntology\tFactor A top5_WDIOntology" +
-      "Factor B top5_UNOntology\tFactor B top5_FAOOntology\tFactor B top5_WDIOntology"
-    pw.println(header)
 
     for {
       line <- lines
@@ -95,7 +96,7 @@ object MakeMITRETablesFromDirectory extends App {
       mention <- mentionsToPrint
 
       source = file.getName
-      system = "EIDOS"
+      system = "Eidos"
       sentence_id = mention.odinMention.sentence
 
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
@@ -133,11 +134,17 @@ object MakeMITRETablesFromDirectory extends App {
         location + "\t" + time + "\t" + evidence + "\t" +
         factor_a_un + "\t" + factor_b_fao + "\t" + factor_a_wdi + "\t" +
         factor_b_un + "\t" + factor_b_fao + "\t" + factor_b_wdi
-    //"top5_UNOntology\ttop5_FAOOntology\ttop5_WDIOntology"
 
-    } pw.println(row)
+    } {
+      pw.println(row)
+      annotatedDocs.append(annotatedDocument)
+    }
   }
+
+  // Write the JSONLD with all accumulated AnnotatedDocs
+  FileUtils.writeToJSONLD(annotatedDocs, pwJson, reader)
 
   // Housekeeping
   pw.close()
+  pwJson.close()
 }
