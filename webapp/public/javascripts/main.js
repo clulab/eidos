@@ -388,7 +388,7 @@ head.ready(function() {
 
         // collect form data
         var formData = {
-            'sent': $('input[name=sent]').val()
+            'sent': $('textarea[name=text]').val()
         }
 
         if (!formData.sent.trim()) {

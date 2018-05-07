@@ -22,10 +22,8 @@ h2 {
     color: #2471A3;
 }
 
-input[type="text"] {
+textarea {
     font-size: inherit;
-    height: 50px;
-    width: 800px;
 }
 
 #overlay {
