@@ -24,6 +24,50 @@ import scala.collection.mutable.{Set => MutableSet}
 
 class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
+
+  /*
+      Global Action -- performed after each round in Odin
+  */
+  def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
+
+    // expand attachments
+    val (expandable, textBounds) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val expanded = expandArguments(expandable, state)
+    val result = expanded ++ textBounds
+
+    // Merge attachments
+    val merged = mergeAttachments(result, state.updated(result))
+
+    // Keep most complete
+    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
+
+    // If the cause of an event is itself another event, replace it with the nested event's effect
+    // collect all effects from causal events
+    val (causal, nonCausal) = mostComplete.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val effects = State(causal.flatMap(_.arguments.getOrElse("effect", Nil)))
+    // replace event causes with captured effects if possible
+    // to stitch together sequences of causal events
+    val newCausal = for {
+      m <- causal
+      _ = require(m.arguments("cause").length == 1, "we only support a single cause per event")
+      c <- m.arguments.getOrElse("cause", Nil)
+      // odin mentions keep track of the path between the trigger and the argument
+      // below we assume there is only one cause arg, so beware (see require statement abov)
+      landed = m.paths("cause").values.head.last._2 // when the rule matched, it landed on this
+      nc <- assembleEventChain(m.asInstanceOf[EventMention], c, landed, effects)
+    } yield nc
+
+    // FIXME
+    // in the sentence below we stitch together the sequence of cause->effect events
+    // but some expanded nounphrase remains, which shouldn't be displayed in the webapp
+    // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
+    val modifiedMentions = newCausal ++ nonCausal
+
+    // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
+    modifiedMentions
+  }
+
+
   /*
       Filtering Methods
    */
@@ -225,6 +269,29 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   /*
+      Method for assembling Event Chain Events from flat text, i.e., ("(A --> B)" --> C) ==> (A --> B), (B --> C)
+  */
+
+  // this method ensures that if a cause of one event is the effect of another then they are connected
+  // FIXME -- not working for this:
+  //    However , prospects for 2017 aggregate cereal production are generally unfavourable as agricultural activities continue to be severely affected by the protracted and widespread insecurity , which is constraining farmers ' access to fields and is causing large scale displacement of people , input shortages and damage to households ' productive assets .
+  def assembleEventChain(event: EventMention, origCause: Mention, landed: Int, effects: State): Seq[EventMention] = {
+    effects.mentionsFor(event.sentence, landed) match {
+      case Seq() => Seq(event) // return original event
+      case newCauses =>
+        val arguments = event.arguments
+        newCauses.map { nc =>
+          val retainedCauses = arguments("cause").filterNot(_ == origCause)
+          val newArguments = arguments.filterKeys(_ != "cause") + (("cause", retainedCauses :+ nc))
+          val mentions = (newArguments.values.flatten.toSeq :+ event.trigger)
+          val newStart = mentions.map(_.start).min
+          val newEnd = mentions.map(_.end).max
+          event.copy(arguments = newArguments, tokenInterval = Interval(newStart, newEnd))
+        }
+    }
+  }
+
+  /*
       Mention State / Attachment Methods
    */
 
@@ -256,22 +323,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
-
-  def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    // expand attachments
-    val (expandable, textBounds) = mentions.partition(_ matches "Causal")
-    val expanded = expandArguments(expandable, state)
-
-    // Push attachments up if entity gets subsumed
-    //val attached = expanded.map(addSubsumedAttachments(_, state)) ++ textBounds
-    val result = expanded ++ textBounds
-
-    // Merge attachments
-    val merged = mergeAttachments(result, state.updated(result))
-
-    // Keep most complete
-    keepMostCompleteEvents(merged, state.updated(merged))
-  }
 
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
     def addAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
@@ -396,19 +447,17 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     //mentions.map(m => displayMention(m))
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
     def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
-
       // All involved token intervals, both for the original event and the expanded arguments
       val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
       // Find the largest span from these intervals
       val newTokenInterval = getNewTokenInterval(allIntervals)
       // Make the copy based on the type of the Mention
-      val output = orig match {
+
+      orig match {
         case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
         case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
         case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
       }
-
-      output
     }
 
     // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
@@ -418,10 +467,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       mention <- mentions
       trigger = mention match {
         case rm: RelationMention => None
-        case em: EventMention => {
-          println(s"EM and tigger = ${em.trigger.text}")
-          Some(em.trigger)
-        }
+        case em: EventMention => Some(em.trigger)
         case _ => throw new RuntimeException("Trying to get the trigger from a mention with no trigger")
       }
       stateToAvoid = if (trigger.nonEmpty) State(Seq(trigger.get)) else new State()
@@ -444,11 +490,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   private def replaceMentionsInterval(m: Mention, i: Interval): Mention = m match {
     case m: TextBoundMention => m.copy(tokenInterval = i)
-    case _ => sys.error("m is not a textboundmention, i don't know what to do")
+    case _ => sys.error("M is not a textboundmention, I don't know what to do")
   }
 
-  // Do the expansion, but if the expansion causes you to suck up something we want to avoid, keep the original instead
-  // todo: perhaps we should handle this a diff way.... like, trim up tp the avoided thing?
+  // Do the expansion, but if the expansion causes you to suck up something we wanted to avoid, split at the
+  // avoided thing and keep the half containing the origina (pre-expansion) entity.
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
 
     val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid)
@@ -458,6 +504,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     triggerOption match {
       case None => expanded
       case Some(trigger) =>
+        // keep the half that is on the same side as original Mention
         if (trigger.tokenInterval overlaps expanded.tokenInterval) {
           if (orig.tokenInterval.end <= trigger.tokenInterval.start) {
             // orig is to the left of trigger
@@ -472,10 +519,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
           expanded
         }
     }
-    // keep the half that is on the same side as orig: Mention
   }
-
-
 
 
   //-- Entity expansion methods (brought in from EntityFinder)
