@@ -392,7 +392,7 @@ head.ready(function() {
         }
 
         if (!formData.sent.trim()) {
-            alert("please write something");
+            alert("Please write something.");
             return;
         }
 
