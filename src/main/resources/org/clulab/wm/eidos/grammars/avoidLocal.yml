@@ -59,6 +59,8 @@ rules:
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
       [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${noncausal_increase_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${correlation_triggers})/] # triggers used downstream
+      # This is if we want to no avoid the increase/decrease triggers at all...
+      #[word = /(?i)^(${cause_triggers}|${correlation_triggers})/] # triggers used downstream
 
 
   - name: "gradable"

@@ -335,11 +335,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     // find mentions of the same label and sentence overlap
     val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
-    println("Overlapping:")
+    //println("Overlapping:")
     overlapping.foreach(ov => println(ov.text))
 
     val allAttachments = overlapping.flatMap(m => m.attachments).distinct
-    println(s"allAttachments: ${allAttachments.mkString(", ")}")
+    //println(s"allAttachments: ${allAttachments.mkString(", ")}")
     // Add on all attachments
     addAttachments(expanded, allAttachments)
   }
@@ -498,7 +498,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
 
     val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid)
-
+   
     // split expanded at trigger (only thing in state to avoid)
     val triggerOption = stateToAvoid.mentionsFor(orig.sentence).headOption
     triggerOption match {
@@ -519,6 +519,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
           expanded
         }
     }
+
   }
 
 
