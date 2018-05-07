@@ -110,7 +110,9 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]# & tag=/^V|RB/]
       effect: Entity = acl? dobj /${ noun_modifiers }|${ conjunctions }/{,2}
-      cause: Entity = (< /xcomp|ccomp|rcmod|appos/){1,2} /${agents}/{,2}
+      cause: Entity =
+        (< /xcomp|ccomp|rcmod|appos/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
+        (?! /${agents}/ [tag=PRP])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
 
 
 #  - name: ported_syntax_6_verb-${addlabel}
