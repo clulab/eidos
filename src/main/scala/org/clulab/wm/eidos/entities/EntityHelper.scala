@@ -101,7 +101,8 @@ object EntityHelper {
     "^PRP".r,
     "^IN".r,
     "^TO".r,
-    "^DT".r
+    "^DT".r,
+    "[!\"#$%&'*+,-./:;<=>?@\\^_`{|}~]".r
   )
 
 
