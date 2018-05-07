@@ -52,32 +52,8 @@ class WDIOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWo
 }
 
 class FAOOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
-//<<<<<<< HEAD
-//    extends EidosOntologyGrounder(name, ontologyPath, wordToVec) {
-//
-//  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
-//    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = true) // Note: Filter on POS tags as they contain descriptions
-//
-//    ontology.iterateOntology(wordToVec)
-//  }
-//}
-//
-//object EidosOntologyGrounder {
-//
-//  // Namespace strings for the different in-house ontologies we typically use
-//  val UN_NAMESPACE = "un"
-//  val WDI_NAMESPACE = "wdi"
-//  val FAO_NAMESPACE = "fao"
-//
-//  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
-//    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = false)
-//
-//    ontology.iterateOntology(wordToVec)
-//  }
-//=======
     // Note: Filter on POS tags as they contain descriptions
     extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = true) {
-//>>>>>>> master
 }
 
 object EidosOntologyGrounder {
