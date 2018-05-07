@@ -388,6 +388,9 @@ head.ready(function() {
             'sent': $('input[name=sent]').val()
         }
 
+        // show spinner
+        document.getElementById("overlay").style.display = "block";
+
         // process the form
         $.ajax({
             type: 'GET',
@@ -402,6 +405,8 @@ head.ready(function() {
             eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.eidosMentions)]);
             document.getElementById("groundedAdj").innerHTML = data.groundedAdj;
             document.getElementById("parse").innerHTML = data.parse;
+            // hide spinner
+            document.getElementById("overlay").style.display = "none";
         });
 
         // stop the form from submitting the normal way and refreshing the page
