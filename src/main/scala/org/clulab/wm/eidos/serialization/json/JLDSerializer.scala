@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.IdentityHashMap
 import java.util.{Set => JavaSet}
 
-import scala.collection.mutable
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
@@ -22,6 +21,8 @@ import org.clulab.wm.eidos.mentions.EidosTextBoundMention
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
+
+import scala.collection.mutable
 
 // This is an object than when asked to convert itself a JSON object or value, converts
 // itself in a way that conforms to the JSON-LD standard as well.
@@ -275,36 +276,21 @@ class JLDProvenance(serializer: JLDSerializer, mention: Mention)
   def this(serializer: JLDSerializer, eidosMention: EidosMention) = this(serializer, eidosMention.odinMention)
 
   override def toJObject(): JObject = {
-    val skipPositions = false
     val document = mention.document
     val sentence = mention.sentenceObj
+    val tokenInterval = mention.tokenInterval
+    val documentCharInterval = {
+      val start = sentence.startOffsets(tokenInterval.start)
+      val end = sentence.endOffsets(tokenInterval.end - 1)
 
-    if (skipPositions) // For the states when we don't have them
-      serializer.mkType(this) ~
-        (JLDDocument.singular -> serializer.mkRef(document)) ~
-        (JLDSentence.singular -> serializer.mkRef(sentence))
-    else {
-      // Try to find the matching ones by document, sentence, and position with eq
-//      val allJldWords = serializer.byTypename(JLDWord.typename).asScala.map(_.asInstanceOf[JLDWord])
-//      val filteredJldWords = mention.start.until(mention.end).map { i => // This is done to keep the words in order
-//        allJldWords.find(jldWord => jldWord.document.eq(document) && jldWord.sentence.eq(sentence) && i == jldWord.index)
-//      }.filter(_.isDefined).map(_.get)
-//      val refJldWords = filteredJldWords.map(jldWord => serializer.mkRef(jldWord.value))
-      val tokenInterval = mention.tokenInterval
-      val documentCharInterval = {
-        val start = sentence.startOffsets(tokenInterval.start)
-        val end = sentence.endOffsets(tokenInterval.end - 1)
-
-        Interval(start, end)
-      }
-
-      serializer.mkType(this) ~
-          (JLDDocument.singular -> serializer.mkRef(document)) ~
-          ("documentCharInterval" -> toJObjects(Seq(new JLDInterval(serializer, documentCharInterval)))) ~
-          (JLDSentence.singular -> serializer.mkRef(sentence)) ~ // TODO: use tokenIntervals
-          ("positions" -> toJObjects(Seq(new JLDInterval(serializer, tokenInterval))))
-//          ("references" -> refJldWords)
+      Interval(start, end)
     }
+
+    serializer.mkType(this) ~
+        (JLDDocument.singular -> serializer.mkRef(document)) ~
+        ("documentCharInterval" -> toJObjects(Seq(new JLDInterval(serializer, documentCharInterval)))) ~
+        (JLDSentence.singular -> serializer.mkRef(sentence)) ~
+        ("positions" -> toJObjects(Seq(new JLDInterval(serializer, tokenInterval))))
   }
 }
 
@@ -329,7 +315,9 @@ object JLDTrigger {
 
 abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mention: EidosMention) extends JLDObject(serializer, typename, mention) {
 
-  def getMentions(): Seq[EidosMention] = Seq.empty // TODO Get the attributes out of this?
+  def getMentions(): Seq[EidosMention] =  Seq.empty
+  // This isn't necessary because attachments only show provenance, not reference to a different extraction
+  //mention.eidosMentionsFromAttachments
 
   override def toJObject(): JObject = {
     val jldAttachments = mention.odinMention.attachments.toList
@@ -377,10 +365,7 @@ class JLDDirectedRelation(serializer: JLDSerializer, mention: EidosEventMention)
     val sources = mention.eidosArguments.getOrElse(JLDObject.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDObject.effect, Seq.empty).filter(isExtractable)
     
-    // Know which kind of mention
-    //val trigger = mention.asInstanceOf[EidosEventMention].odinTrigger
-    
-    sources ++ targets // :+ trigger
+    sources ++ targets ++ super.getMentions()
   }
   
   override def toJObject(): JObject = {
