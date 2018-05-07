@@ -149,11 +149,11 @@ import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
   val reader = new EidosSystem()
 
   // Extract the mentions
-  val annotatedDocument = reader.extractFrom(text)
+  val annotatedDocument = reader.extractFromText(text)
 
   // Or... optionally serialize to regular JSON
   // (e.g., if you want to later reload the mentions for post-processing)
-  val mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.mentions)
+  val mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.odinMentions)
   println(stringify(mentionsJSON, pretty = true))
 
 ```
