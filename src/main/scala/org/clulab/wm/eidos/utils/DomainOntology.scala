@@ -1,10 +1,16 @@
 package org.clulab.wm.eidos.utils
 
-import java.util.{Collection, Map => JMap}
+import java.util
+import java.util.{ArrayList => JArrayList, Collection, Map => JMap}
 
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.wm.eidos.groundings.EidosWordToVec
+import org.clulab.wm.eidos.utils.DomainOntology.{nlpProc, parseOntology}
+import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
@@ -81,5 +87,63 @@ object DomainOntology {
       }
       parseOntology(tail, path, terms, preTerminals, filterOnPos)
   }
+}
+
+class ToyOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
+  def apply(forest: Collection[Any], filterOnPos: Boolean): DomainOntology = new DomainOntology(parseOntology(forest, filterOnPos))
+  val input = getTextFromResource(ontologyPath)
+  val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
+  val collection = yaml.load(input).asInstanceOf[Collection[Any]]
+
+  val result = parseOntology(collection, filterOnPos)
+
+  result.toSeq.foreach(println)
+
+  def parseOntology (nodes: Collection[Any], filterOnPos: Boolean = false): Map[String, Seq[String]] = {
+    val concepts = mutable.Map.empty[String, Seq[String]]
+    parseOntology(nodes.asScala.toSeq, "", Seq.empty, concepts, filterOnPos)
+    concepts.toMap
+  }
+
+  final def parseOntology (nodes: Seq[Any], path: String, terms: Seq[String], preTerminals: mutable.Map[String, Seq[String]], filterOnPos: Boolean): Unit = {
+    if (nodes.isEmpty) {
+      if (path.nonEmpty && terms.length != 0)
+        preTerminals.put(path, terms)
+      else
+        println("This is unexpected")
+    }
+    else {
+      val head = nodes.head
+
+      if (head.isInstanceOf[String])
+        parseOntology(nodes.tail, path, terms :+ head.asInstanceOf[String], preTerminals, filterOnPos)
+      else if (head.isInstanceOf[JMap[String, Collection[Any]]]) {
+        val map = head.asInstanceOf[JMap[String, Collection[Any]]].asScala
+        if (map.keys.size != 1)
+          throw new Exception("taxonomy tree node with multiple labels: " + map.keys.mkString(", "))
+        if (map.values.isEmpty)
+            throw new Exception(s"taxonomy term '$map.keys.head' has no children (looks like an extra ':')")
+        // Process the children.
+        parseOntology(map(map.keys.head).asScala.toSeq, path + "/" + map.keys.head, terms, preTerminals, filterOnPos)
+        // Continue with siblings.
+        parseOntology(nodes.tail, path, terms, preTerminals, filterOnPos)
+      }
+      else if (head.isInstanceOf[JArrayList[JMap[String, Collection[Any]]]])
+        println("Got the nodes")
+      else
+        println("Unknown head")
+    }
+  }
+}
+
+class UNOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
+
+}
+
+class WDIOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
+
+}
+
+class FAOOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
 
 }
