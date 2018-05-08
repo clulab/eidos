@@ -90,6 +90,9 @@ object DomainOntology {
 }
 
 class ToyOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
+
+// Turn into key, values
+
   def apply(forest: Collection[Any], filterOnPos: Boolean): DomainOntology = new DomainOntology(parseOntology(forest, filterOnPos))
   val input = getTextFromResource(ontologyPath)
   val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
@@ -107,43 +110,172 @@ class ToyOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filt
 
   final def parseOntology (nodes: Seq[Any], path: String, terms: Seq[String], preTerminals: mutable.Map[String, Seq[String]], filterOnPos: Boolean): Unit = {
     if (nodes.isEmpty) {
+      // Get to end of the line.
       if (path.nonEmpty && terms.length != 0)
         preTerminals.put(path, terms)
-      else
-        println("This is unexpected")
     }
     else {
       val head = nodes.head
 
       if (head.isInstanceOf[String])
+        // Process a child.
         parseOntology(nodes.tail, path, terms :+ head.asInstanceOf[String], preTerminals, filterOnPos)
-      else if (head.isInstanceOf[JMap[String, Collection[Any]]]) {
+      else {
         val map = head.asInstanceOf[JMap[String, Collection[Any]]].asScala
         if (map.keys.size != 1)
           throw new Exception("taxonomy tree node with multiple labels: " + map.keys.mkString(", "))
         if (map.values.isEmpty)
             throw new Exception(s"taxonomy term '$map.keys.head' has no children (looks like an extra ':')")
         // Process the children.
-        parseOntology(map(map.keys.head).asScala.toSeq, path + "/" + map.keys.head, terms, preTerminals, filterOnPos)
+        val key: String = map.keys.head
+        parseOntology(map(key).asScala.toSeq, path + "/" + key, terms, preTerminals, filterOnPos)
         // Continue with siblings.
         parseOntology(nodes.tail, path, terms, preTerminals, filterOnPos)
       }
-      else if (head.isInstanceOf[JArrayList[JMap[String, Collection[Any]]]])
-        println("Got the nodes")
-      else
-        println("Unknown head")
     }
   }
 }
 
 class UNOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
+// turn into key, examples
 
+  def apply(forest: Collection[Any], filterOnPos: Boolean): DomainOntology = new DomainOntology(parseOntology(forest, filterOnPos))
+  val input = getTextFromResource(ontologyPath)
+  val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
+  val collection = yaml.load(input).asInstanceOf[Collection[Any]]
+
+  val result = parseOntology(collection, filterOnPos)
+
+  result.toSeq.foreach(println)
+
+  def parseOntology (nodes: Collection[Any], filterOnPos: Boolean = false): Map[String, Seq[String]] = {
+    val concepts = mutable.Map.empty[String, Seq[String]]
+    parseOntology(nodes.asScala.toSeq, "", Seq.empty, concepts, filterOnPos)
+    concepts.toMap
+  }
+
+  final def parseOntology (nodes: Seq[Any], path: String, terms: Seq[String], preTerminals: mutable.Map[String, Seq[String]], filterOnPos: Boolean): Unit = {
+    if (nodes.isEmpty) {
+      // Get to end of the line.
+      if (path.nonEmpty && terms.length != 0) {
+//        if (!path.endsWith("/examples"))
+//          throw new Exception("Path found that does not end with /examples")
+        preTerminals.put(path, terms) // may need to edit path to remove examples
+      }
+    }
+    else {
+      val head = nodes.head
+
+      if (head.isInstanceOf[String])
+      // Process a child.
+        parseOntology(nodes.tail, path, terms :+ head.asInstanceOf[String], preTerminals, filterOnPos)
+      else {
+        val map = head.asInstanceOf[JMap[String, Collection[Any]]].asScala
+        if (map.keys.size != 1)
+          throw new Exception("taxonomy tree node with multiple labels: " + map.keys.mkString(", "))
+        if (map.values.isEmpty)
+          throw new Exception(s"taxonomy term '$map.keys.head' has no children (looks like an extra ':')")
+        // Process the children.
+        val key: String = map.keys.head // Look for examples
+        parseOntology(map(key).asScala.toSeq, path + "/" + key, terms, preTerminals, filterOnPos)
+        // Continue with siblings.
+        parseOntology(nodes.tail, path, terms, preTerminals, filterOnPos)
+      }
+    }
+  }
 }
 
 class WDIOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
+  def apply(forest: Collection[Any], filterOnPos: Boolean): DomainOntology = new DomainOntology(parseOntology(forest, filterOnPos))
+  val input = getTextFromResource(ontologyPath)
+  val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
+  val collection = yaml.load(input).asInstanceOf[Collection[Any]]
 
+  val result = parseOntology(collection, filterOnPos)
+
+  result.toSeq.foreach(println)
+
+  def parseOntology (nodes: Collection[Any], filterOnPos: Boolean = false): Map[String, Seq[String]] = {
+    val concepts = mutable.Map.empty[String, Seq[String]]
+    parseOntology(nodes.asScala.toSeq, "", Seq.empty, concepts, filterOnPos)
+    concepts.toMap
+  }
+
+  final def parseOntology (nodes: Seq[Any], path: String, terms: Seq[String], preTerminals: mutable.Map[String, Seq[String]], filterOnPos: Boolean): Unit = {
+    if (nodes.isEmpty) {
+      // Get to end of the line.
+      if (path.nonEmpty && terms.length != 0) {
+        if (!path.endsWith("/description"))
+          throw new Exception("Path found that does not end with /description")
+        preTerminals.put(path, terms) // may need to edit path to remove examples
+      }
+    }
+    else {
+      val head = nodes.head
+
+      if (head.isInstanceOf[String])
+      // Process a child.
+        parseOntology(nodes.tail, path, terms :+ head.asInstanceOf[String], preTerminals, filterOnPos)
+      else {
+        val map = head.asInstanceOf[JMap[String, Collection[Any]]].asScala
+        if (map.keys.size != 1)
+          throw new Exception("taxonomy tree node with multiple labels: " + map.keys.mkString(", "))
+        if (map.values.isEmpty)
+          throw new Exception(s"taxonomy term '$map.keys.head' has no children (looks like an extra ':')")
+        // Process the children.
+        val key: String = map.keys.head // Look for examples
+        parseOntology(map(key).asScala.toSeq, path + "/" + key, terms, preTerminals, filterOnPos)
+        // Continue with siblings.
+        parseOntology(nodes.tail, path, terms, preTerminals, filterOnPos)
+      }
+    }
+  }
 }
 
 class FAOOntology(ontologyPath: String, concepts: Map[String, Seq[String]], filterOnPos: Boolean = false) extends DomainOntology(concepts, filterOnPos) {
 
+  def apply(forest: Collection[Any], filterOnPos: Boolean): DomainOntology = new DomainOntology(parseOntology(forest, filterOnPos))
+  val input = getTextFromResource(ontologyPath)
+  val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
+  val collection = yaml.load(input).asInstanceOf[Collection[Any]]
+
+  val result = parseOntology(collection, filterOnPos)
+
+  result.toSeq.foreach(println)
+
+  def parseOntology (nodes: Collection[Any], filterOnPos: Boolean = false): Map[String, Seq[String]] = {
+    val concepts = mutable.Map.empty[String, Seq[String]]
+    parseOntology(nodes.asScala.toSeq, "", Seq.empty, concepts, filterOnPos)
+    concepts.toMap
+  }
+
+  final def parseOntology (nodes: Seq[Any], path: String, terms: Seq[String], preTerminals: mutable.Map[String, Seq[String]], filterOnPos: Boolean): Unit = {
+    if (nodes.isEmpty) {
+      // Get to end of the line.
+      if (path.nonEmpty && terms.length != 0) {
+                if (!path.endsWith("/description"))
+                  throw new Exception("Path found that does not end with /examples")
+        preTerminals.put(path, terms) // may need to edit path to remove examples
+      }
+    }
+    else {
+      val head = nodes.head
+
+      if (head.isInstanceOf[String])
+      // Process a child.
+        parseOntology(nodes.tail, path, terms :+ head.asInstanceOf[String], preTerminals, filterOnPos)
+      else {
+        val map = head.asInstanceOf[JMap[String, Collection[Any]]].asScala
+        if (map.keys.size != 1)
+          throw new Exception("taxonomy tree node with multiple labels: " + map.keys.mkString(", "))
+        if (map.values.isEmpty)
+          throw new Exception(s"taxonomy term '$map.keys.head' has no children (looks like an extra ':')")
+        // Process the children.
+        val key: String = map.keys.head // Look for examples
+        parseOntology(map(key).asScala.toSeq, path + "/" + key, terms, preTerminals, filterOnPos)
+        // Continue with siblings.
+        parseOntology(nodes.tail, path, terms, preTerminals, filterOnPos)
+      }
+    }
+  }
 }
