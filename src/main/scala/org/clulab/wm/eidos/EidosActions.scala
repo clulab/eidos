@@ -498,6 +498,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
 
     val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid)
+    //println(s"orig: ${orig.text}\texpanded: ${expanded.text}")
    
     // split expanded at trigger (only thing in state to avoid)
     val triggerOption = stateToAvoid.mentionsFor(orig.sentence).headOption
@@ -525,7 +526,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   //-- Entity expansion methods (brought in from EntityFinder)
   def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
-    val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid)
+    val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid, entity.sentenceObj)
     val res = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
     res
   }
@@ -540,7 +541,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
                                      incomingRelations: Array[Array[(Int, String)]],
                                      remainingHops: Int,
                                      sent: Int,
-                                     state: State
+                                     state: State,
+                                     sentence: Sentence
+
                                    ): Interval = {
     if (remainingHops == 0) {
       val allTokens = tokens ++ newTokens
@@ -550,17 +553,17 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         tok <- newTokens
         if outgoingRelations.nonEmpty && tok < outgoingRelations.length
         (nextTok, dep) <- outgoingRelations(tok)
-        if isValidOutgoingDependency(dep, remainingHops)
+        if isValidOutgoingDependency(dep, sentence.words(nextTok), remainingHops)
         if state.mentionsFor(sent, nextTok).isEmpty
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
-      traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, state)
+      traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, state, sentence)
     }
   }
-  private def traverseOutgoingLocal(m: Mention, numHops: Int, stateFromAvoid: State): Interval = {
+  private def traverseOutgoingLocal(m: Mention, numHops: Int, stateFromAvoid: State, sentence: Sentence): Interval = {
     val outgoing = outgoingEdges(m.sentenceObj)
     val incoming = incomingEdges(m.sentenceObj)
-    traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid)
+    traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid, sentence)
   }
 
   def outgoingEdges(s: Sentence): Array[Array[(Int, String)]] = s.dependencies match {
@@ -574,9 +577,14 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   }
 
   /** Ensure dependency may be safely traversed */
-  def isValidOutgoingDependency(dep: String): Boolean = {
-    VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
+  def isValidOutgoingDependency(dep: String, token: String, remainingHops: Int): Boolean = {
+    (
+      VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
       ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
+      ) || (
+        // Allow exception to close parens, etc.
+        dep == "punct" && Seq(")", "]", "}", "-RRB-").contains(token)
+      )
   }
 
   def notInvalidConjunction(dep: String, hopsRemaining: Int): Boolean = {
@@ -592,9 +600,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     false
   }
 
-  def isValidOutgoingDependency(dep: String, hopsRemaining: Int): Boolean = {
-    isValidOutgoingDependency(dep) //&& notInvalidConjunction(dep, hopsRemaining)
-  }
+//  def isValidOutgoingDependency(dep: String, token: String, hopsRemaining: Int): Boolean = {
+//    isValidOutgoingDependency(dep, token) //&& notInvalidConjunction(dep, hopsRemaining)
+//  }
 
   /** Ensure current token does not have any incoming dependencies that are invalid **/
   def hasValidIncomingDependencies(tokenIdx: Int, incomingDependencies: Array[Array[(Int, String)]]): Boolean = {
