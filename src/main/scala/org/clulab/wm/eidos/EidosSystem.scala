@@ -81,16 +81,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
           Seq.empty
         else if (ontologies.isEmpty)
           Seq(ToyOntology("toy", toyOntologyPath, proc))
-        else {
-          for (ontology <- ontologies)
-          yield ontology match {
-            case name @ "un"  =>  UNOntology(name,  unOntologyPath, proc)
-            case name @ "wdi" => WDIOntology(name, wdiOntologyPath, proc)
-            case name @ "fao" => FAOOntology(name, faoOntologyPath, proc)
-            case name @ "toy" => ToyOntology(name, toyOntologyPath, proc)
-            case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+        else
+          ontologies.map {
+            _ match {
+              case name@"un" => UNOntology(name, unOntologyPath, proc)
+              case name@"wdi" => WDIOntology(name, wdiOntologyPath, proc)
+              case name@"fao" => FAOOntology(name, faoOntologyPath, proc)
+              case name@"toy" => ToyOntology(name, toyOntologyPath, proc)
+              case name@_ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+            }
           }
-        }
 
     def apply(): LoadableAttributes = {
       // Reread these values from their files/resources each time based on paths in the config file.
