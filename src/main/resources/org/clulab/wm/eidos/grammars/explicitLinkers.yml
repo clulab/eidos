@@ -21,7 +21,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
-      effect: Entity  = <ccomp (?=/nmod_as/) nsubj
+      effect: Entity  = <ccomp (?=/nmod_as/) nsubj?
       cause: Entity = dobj
 
   - name: syntax_2_verb-Correlation
