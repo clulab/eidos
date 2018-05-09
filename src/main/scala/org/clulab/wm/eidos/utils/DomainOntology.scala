@@ -38,7 +38,7 @@ object DomainOntology {
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(yamlNodes, "", Seq.empty, Seq.empty, Seq.empty, Seq.empty)
 
-      // Need to remove duplicates for comparison?
+      // TODO: Need to remove duplicates for comparison?
 
       new DomainOntology(name, ontologyNodes)
     }
@@ -60,6 +60,7 @@ object DomainOntology {
         others: Seq[String], examples: Seq[String], descriptions: Seq[String]): Seq[OntologyNode] = {
       if (yamlNodes.isEmpty)
         // Get to end of the line.
+        // TODO: Remove "examples" or "description" from path
         if (path.nonEmpty && (others.nonEmpty || examples.nonEmpty || descriptions.nonEmpty))
           ontologyNodes :+ new OntologyNode(path, others, examples, descriptions)
         else
