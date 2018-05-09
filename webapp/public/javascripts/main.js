@@ -383,10 +383,21 @@ head.ready(function() {
 
     $('form').submit(function (event) {
 
+        // stop the form from submitting the normal way and refreshing the page
+        event.preventDefault();
+
         // collect form data
         var formData = {
-            'sent': $('input[name=sent]').val()
+            'sent': $('textarea[name=text]').val()
         }
+
+        if (!formData.sent.trim()) {
+            alert("Please write something.");
+            return;
+        }
+
+        // show spinner
+        document.getElementById("overlay").style.display = "block";
 
         // process the form
         $.ajax({
@@ -396,16 +407,20 @@ head.ready(function() {
             dataType: 'json',
             encode: true
         })
+        .fail(function () {
+            // hide spinner
+            document.getElementById("overlay").style.display = "none";
+            alert("error");
+        })
         .done(function (data) {
             console.log(data);
             syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, data.syntax)]);
             eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.eidosMentions)]);
             document.getElementById("groundedAdj").innerHTML = data.groundedAdj;
             document.getElementById("parse").innerHTML = data.parse;
+            // hide spinner
+            document.getElementById("overlay").style.display = "none";
         });
-
-        // stop the form from submitting the normal way and refreshing the page
-        event.preventDefault();
 
     });
 });
