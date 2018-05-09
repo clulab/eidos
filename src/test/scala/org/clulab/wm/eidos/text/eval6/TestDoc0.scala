@@ -24,7 +24,7 @@ policy focus on incomes, expenditure, markets and prices in achieving food secur
     
     behavior of "TestDoc0 Paragraph 1"
 
-    passingTest should "have correct edges 1" taggedAs(Somebody) in {
+    brokenEntitiesTest should "have correct edges 1" taggedAs(Somebody) in {
       // Placing the tester here will help it be ignored
       val tester = new Tester(text)
 
