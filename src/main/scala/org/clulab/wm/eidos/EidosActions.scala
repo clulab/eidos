@@ -44,27 +44,36 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
     val (causal, nonCausal) = mostComplete.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
-    val effects = State(causal.flatMap(_.arguments.getOrElse("effect", Nil)))
-    // replace event causes with captured effects if possible
-    // to stitch together sequences of causal events
-    val newCausal = for {
-      m <- causal
-      _ = require(m.arguments("cause").length == 1, "we only support a single cause per event")
-      c <- m.arguments.getOrElse("cause", Nil)
-      // odin mentions keep track of the path between the trigger and the argument
-      // below we assume there is only one cause arg, so beware (see require statement abov)
-      landed = m.paths("cause").values.head.last._2 // when the rule matched, it landed on this
-      nc <- assembleEventChain(m.asInstanceOf[EventMention], c, landed, effects)
-    } yield nc
 
+    val assemble1 = createEventChain(causal, "effect", "cause")
+    // FIXME please
+    //val assemble2 = createEventChain(assemble1, "cause", "effect")
+    val assemble2 = assemble1
     // FIXME
     // in the sentence below we stitch together the sequence of cause->effect events
     // but some expanded nounphrase remains, which shouldn't be displayed in the webapp
     // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
-    val modifiedMentions = newCausal ++ nonCausal
+    val modifiedMentions = assemble2 ++ nonCausal
 
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
     modifiedMentions
+  }
+
+  def createEventChain(causal: Seq[Mention], arg1: String, arg2: String): Seq[Mention] = {
+    val arg1Mentions = State(causal.flatMap(_.arguments.getOrElse(arg1, Nil)))
+    // replace event causes with captured effects if possible
+    // to stitch together sequences of causal events
+    val assembled = for {
+      m <- causal
+      _ = require(m.arguments(arg2).length == 1, "we only support a single cause and effect per event")
+      arg2Mention <- m.arguments.getOrElse(arg2, Nil)
+      // odin mentions keep track of the path between the trigger and the argument
+      // below we assume there is only one cause arg, so beware (see require statement abov)
+      landed = m.paths(arg2).values.head.last._2 // when the rule matched, it landed on this
+      a <- assembleEventChain(m.asInstanceOf[EventMention], arg2Mention, landed, arg1Mentions)
+    } yield a
+
+    assembled
   }
 
 
@@ -627,6 +636,7 @@ object EidosActions extends Actions {
     "^nmod_except".r,
     "^nmod_since".r,
     "^nmod_as".r,
+    "^nmod_due_to".r,
 //    "^nmod_among".r
     "^conj".r,
     "^cc".r,

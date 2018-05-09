@@ -15,7 +15,7 @@ class TestCagP4 extends Test {
   { // S1
     val tester = new Tester(p4s1)
   
-    val cost = NodeSpec("cost of living", Inc("rising"))
+    val cost = NodeSpec("rising cost of living", Inc("rising"))
     val impact = NodeSpec("impact of the conflict")
     val ability = NodeSpec("people's ability to access safe water", Dec("undermined"))
     
@@ -64,7 +64,7 @@ class TestCagP4 extends Test {
   
     behavior of "p4s4"
 
-    inferenceTest should "have correct edges 1" taggedAs(Fan) in {
+    passingTest should "have correct edges 1" taggedAs(Fan) in {
       tester.test(EdgeSpec(insecurity, Causal, access)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Fan) in {
@@ -73,7 +73,7 @@ class TestCagP4 extends Test {
     passingTest should "have correct edges 3" taggedAs(Fan) in {
       tester.test(EdgeSpec(supplies, Causal, repairs)) should be (successful)
     }
-    inferenceTest should "have correct edges 4" taggedAs(Fan) in {
+    brokenEntitiesTest should "have correct edges 4" taggedAs(Fan) in {
       tester.test(EdgeSpec(access, Causal, repairs)) should be (successful)
     }
   }
