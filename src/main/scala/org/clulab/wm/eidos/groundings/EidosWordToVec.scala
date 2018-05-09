@@ -6,23 +6,23 @@ import org.clulab.wm.eidos.utils.Sourcer
 
 trait EidosWordToVec {
   type Similarities = Seq[(String, Double)]
-  type ConceptEmbeddings = Map[String, Seq[Double]]
+  type ConceptEmbeddings = Seq[(String, Array[Double])]
 
-  def stringSimilarity(s1: String, s2: String): Double
-  def calculateSimilarity(m1: Mention, m2: Mention): Double
+  def stringSimilarity(string1: String, string2: String): Double
+  def calculateSimilarity(mention1: Mention, mention2: Mention): Double
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities
   def makeCompositeVector(t:Iterable[String]): Array[Double]
 }
 
 class FakeWordToVec extends EidosWordToVec {
 
-  override def stringSimilarity(s1: String, s2: String): Double =
+  override def stringSimilarity(string1: String, string2: String): Double =
     throw new RuntimeException("Word2Vec wasn't loaded, please check configurations.")
 
-  def calculateSimilarity(m1: Mention, m2: Mention): Double = 0
+  def calculateSimilarity(mention1: Mention, mention2: Mention): Double = 0
 
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities = Seq.empty
-//  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Map[String, Seq[Double]]): Seq[(String, Double)] = Seq(("hello", 5.0d))
+//  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Double)] = Seq(("hello", 5.0d))
 
   def makeCompositeVector(t:Iterable[String]): Array[Double] = Array.emptyDoubleArray
 }
@@ -31,13 +31,13 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
 
   protected def split(string: String): Array[String] = string.split(" +")
 
-  def stringSimilarity(s1: String, s2: String): Double =
-      w2v.avgSimilarity(split(s1), split(s2))
+  def stringSimilarity(string1: String, string2: String): Double =
+      w2v.avgSimilarity(split(string1), split(string2))
 
-  def calculateSimilarity(m1: Mention, m2: Mention): Double = {
+  def calculateSimilarity(mention1: Mention, mention2: Mention): Double = {
     // avgSimilarity does sanitizeWord itself, so it is unnecessary here.
-    val sanitisedM1 =  split(m1.text)
-    val sanitisedM2 =  split(m2.text)
+    val sanitisedM1 =  split(mention1.text)
+    val sanitisedM2 =  split(mention2.text)
     val similarity = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
     
     similarity
@@ -45,9 +45,9 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
   
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities = {
     val nodeEmbedding = w2v.makeCompositeVector(canonicalNameParts.map(word => Word2Vec.sanitizeWord(word)))
-    val similarities = conceptEmbeddings.toSeq.map(concept => (concept._1, Word2Vec.dotProduct(concept._2.toArray, nodeEmbedding)))
+    val similarities = conceptEmbeddings.map(concept => (concept._1, Word2Vec.dotProduct(concept._2, nodeEmbedding)))
     
-    similarities.sortBy(- _._2).slice(0, topKNodeGroundings)
+    similarities.sortBy(- _._2).take(topKNodeGroundings)
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Double] = w2v.makeCompositeVector(t)

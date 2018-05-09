@@ -30,9 +30,10 @@
         - crisis
         - emergency
     - natural:
-      - chemical: #todo -- O2, N, CO2 etc ...
-        - oxygen
-        - nitrogen
+      - chemical:
+        - examples: #todo -- O2, N, CO2 etc ...
+          - oxygen
+          - nitrogen
       - biology:
         - ecosystem:
           - examples:
