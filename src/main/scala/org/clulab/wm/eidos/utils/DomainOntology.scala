@@ -38,6 +38,8 @@ object DomainOntology {
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(yamlNodes, "", Seq.empty, Seq.empty, Seq.empty, Seq.empty)
 
+      // Need to remove duplicates for comparison?
+
       new DomainOntology(name, ontologyNodes)
     }
 

@@ -6,7 +6,6 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
-import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
@@ -28,6 +27,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   override def getConf: Config = config
 
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
+  // This isn't intended to be (re)loadable.  This only happens once.
   protected val wordToVec = EidosWordToVec(
     word2vec,
     getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
@@ -67,10 +67,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
     def   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
 
-    def   toyOntologyPath: String = getPath(  "toyOntologyPath", "/org/clulab/wm/eidos/ontology.yml")
-    def    unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml")
-    def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/wdi_ontology.yml")
-    def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/fao_variable_ontology.yml")
+    def   toyOntologyPath: String = getPath(  "toyOntologyPath", "/org/clulab/wm/eidos/ontologies/ontology.yml")
+    def    unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
+    def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
+    def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
@@ -84,11 +84,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name@"un" => UNOntology(name, unOntologyPath, proc)
-              case name@"wdi" => WDIOntology(name, wdiOntologyPath, proc)
-              case name@"fao" => FAOOntology(name, faoOntologyPath, proc)
-              case name@"toy" => ToyOntology(name, toyOntologyPath, proc)
-              case name@_ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+              case name @ "un"  =>  UNOntology(name,  unOntologyPath, proc)
+              case name @ "wdi" => WDIOntology(name, wdiOntologyPath, proc)
+              case name @ "fao" => FAOOntology(name, faoOntologyPath, proc)
+              case name @ "toy" => ToyOntology(name, toyOntologyPath, proc)
+              case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
 
@@ -118,9 +118,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def domainParams = loadableAttributes.domainParams
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
-
-
-  // This isn't intended to be (re)loadable.  This only happens once.
 
   def reload() = loadableAttributes = LoadableAttributes()
 
@@ -212,11 +209,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     loadableAttributes.stopwordManager.containsStopword(stopword)
 
   def groundOntology(mention: EidosMention): Groundings =
-      if (!word2vec)
-        Map.empty
-      else
-        loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
-          (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+      loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
+        (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
 
   def groundAdjective(quantifier: String): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
@@ -224,7 +218,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(s1: String, s2: String): Double = wordToVec.stringSimilarity(s1, s2)
+  def stringSimilarity(string1: String, string2: String): Double = wordToVec.stringSimilarity(string1, string2)
 
   /*
      Debugging Methods
