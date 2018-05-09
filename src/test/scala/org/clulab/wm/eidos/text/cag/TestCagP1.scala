@@ -13,24 +13,24 @@ class TestCagP1 extends Test {
     val conflict = NodeSpec("conflict")
     val economy = NodeSpec("economy", Dec("collapsing"))
     val cerealProduction = NodeSpec("cereal production", Dec("low"), Quant("low"))
-    val rainfall = NodeSpec("rainfall in southeastern areas", Dec("poor"), Quant("poor"))
-    val copingCapacities = NodeSpec("capacities", Dec("exhaustion"))
+    val rainfall = NodeSpec("poor rainfall in southeastern areas", Dec("poor"), Quant("poor"))
+    val copingCapacities = NodeSpec("coping capacities after several years of crisis", Dec("exhaustion"))
 
     behavior of "p1s1"
 
-    passingTest should "have correct edges 1" taggedAs(Egoitz) in {
+    brokenEntitiesTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(conflict, Causal, foodInsecurityLevels)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Egoitz) in {
+    brokenEntitiesTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(economy, Causal, foodInsecurityLevels)) should be (successful)
     }
-    passingTest should "have correct edges 3" taggedAs(Egoitz) in {
+    brokenEntitiesTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(cerealProduction, Causal, foodInsecurityLevels)) should be (successful)
     }
     passingTest should "have correct edges 4" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall, Causal, foodInsecurityLevels)) should be (successful)
     }
-    inferenceTest should "have correct edges 5" taggedAs(Egoitz) in {
+    passingTest should "have correct edges 5" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(copingCapacities, Causal, foodInsecurityLevels)) should be (successful)
     }
   }
@@ -62,13 +62,13 @@ class TestCagP1 extends Test {
 
     behavior of "p1s3"
 
-    passingTest should "have correct edges 1" taggedAs(Egoitz) in {
+    affectEventTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(shock, Causal, pasture)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Egoitz) in {
+    affectEventTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(shock, Causal, waterAvailability)) should be (successful)
     }
-    passingTest should "have correct edges 3" taggedAs(Egoitz) in {
+    affectEventTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(shock, Causal, foodProduction)) should be (successful)
     }
     passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
