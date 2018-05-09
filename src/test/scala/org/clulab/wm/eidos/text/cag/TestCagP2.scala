@@ -100,7 +100,7 @@ class TestCagP2 extends Test {
     val tester = new Tester(p2s4)
 
     val violence = NodeSpec("Violence")
-    val livestock = NodeSpec("livestock") //todo: add more modifications when we have that functionality
+    val livestock = NodeSpec("livestock to be looted") //todo: add more modifications when we have that functionality
     val displacement = NodeSpec("displacement")
     val delayedPlanting = NodeSpec("late planting") //todo: adjust when more mods available
 
@@ -121,10 +121,10 @@ class TestCagP2 extends Test {
   { // S5
     val tester = new Tester(p2s5)
   
-    val impactsLivestock = NodeSpec("impacts on livestock")
+    val impactsLivestock = NodeSpec("impacts on livestock and crops")
     val impactsCrops = NodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
     // TODO: the entity below is 'livelihoods being decimated' because "being..." is an acl dependency, which modifies nouns
-    val livelihoods = NodeSpec("livelihoods", Dec("decimated"))
+    val livelihoods = NodeSpec("livelihoods being decimated", Dec("decimated"))
 
     behavior of "p2s5"
 
