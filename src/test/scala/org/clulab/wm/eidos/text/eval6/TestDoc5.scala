@@ -260,7 +260,7 @@ class TestDoc5 extends Test {
     //
     val security    = NodeSpec("Food security", Dec("deteriorate"), Dec("worse"), Quant("severe"))
     val outcomes    = NodeSpec("some food security outcomes", Inc("surpassed"))
-    val conflict    = NodeSpec("conflict", Inc("increased"))
+    val conflict    = NodeSpec("increased conflict", Inc("increased"))
     val livelihoods = NodeSpec("livelihoods", Dec("disrupts"))
     val assistance  = NodeSpec("humanitarian assistance", Dec("limits"))
     val assistance2  = NodeSpec("humanitarian assistance", Dec("restricts"))

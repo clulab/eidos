@@ -139,11 +139,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
-    val cagRelevant = keepCAGRelevant(odinMentions)
+    val cagRelevant = if (returnAllMentions) odinMentions else keepCAGRelevant(odinMentions)
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)

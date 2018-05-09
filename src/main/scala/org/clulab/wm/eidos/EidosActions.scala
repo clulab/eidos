@@ -336,7 +336,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // find mentions of the same label and sentence overlap
     val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
     //println("Overlapping:")
-    overlapping.foreach(ov => println(ov.text))
+    //overlapping.foreach(ov => println(ov.text))
 
     val allAttachments = overlapping.flatMap(m => m.attachments).distinct
     //println(s"allAttachments: ${allAttachments.mkString(", ")}")
