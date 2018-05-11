@@ -3,9 +3,9 @@ package org.clulab.wm.eidos.test
 import scala.collection.Seq
 
 import org.scalatest._
-
 import org.clulab.odin.{Attachment, Mention}
-import org.clulab.wm.eidos.EidosSystem;
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.text.NodeSpec
 import org.clulab.wm.eidos.text.EdgeSpec
 
@@ -49,7 +49,7 @@ object TestUtils {
     val successful = Seq()
     
     class Tester(text: String) {
-      val mentions = extractMentions(clean(text))
+      val mentions = EidosMention.findReachableMentions(extractMentions(clean(text)))
       
       def getSpecialChars(s: String) = s.filter(c => c < 32 || 127 < c)
       
