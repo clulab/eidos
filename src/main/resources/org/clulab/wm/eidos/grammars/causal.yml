@@ -5,7 +5,7 @@ vars:
   noun_modifiers: "amod|compound|dep|name"
   negTriggers: "not"
   objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to|nmod_for|acl_of"
+  preps: "nmod_of|nmod_in|nmod_to|nmod_for|nmod_than|acl_of"
   prep_dobjs: "nmod"
   quant_modifiers: "amod|advmod"
   # Todo: nmod_from "X will follow from Y"

@@ -76,3 +76,23 @@ rules:
       trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/VBN/]
       effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+
+  - name: syntax_explicit_Correlation_given
+    priority: ${ rulepriority }
+    example: "This is occurring at a time when import requirements are higher than usual given below-average harvests."
+    label: Correlation
+    action: ${ action }
+    pattern: |
+      trigger = [word=given & tag=VBN]
+      cause: Entity = <case
+      effect: Entity = <case <nmod_given /${agents}/?
+
+  - name: syntax_explicit_favorable
+    priority: ${ rulepriority }
+    example: "We have started ramping up food and nutrition support, but much more is needed to keep things from deteriorating even further during the lean season"
+    label: Causal
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=/^(favorable|helpful|amenable)/ & tag=/^JJ/]
+      cause: Entity = (?= cop) ${agents}
+      effect: Entity = nmod_for

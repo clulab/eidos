@@ -132,6 +132,16 @@ rules:
       theme: Entity = >nmod_than
       quantifier: Quantifier? = ${quant_modifiers}
 
+  - name: ${ label}_adjective_rule_4
+    priority:  ${ rulepriority }
+    example: "heavier than normal"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      theme: Entity = nmod_for
+      quantifier: Quantifier? = ${quant_modifiers}
+
 
 # ------------------- Copular Constructions --------------------------
 
