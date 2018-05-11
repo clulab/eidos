@@ -2,6 +2,7 @@ package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
+import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
@@ -11,7 +12,7 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{UN_NAMESPACE, WDI_NAMESPACE, FAO_NAMESPACE}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DomainParams, FileUtils, StopwordManager, StopwordManaging}
 import org.slf4j.LoggerFactory
@@ -23,7 +24,9 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
   */
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
-  val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
+  val proc: Processor = new CluProcessor()//new FastNLPProcessor() // TODO: Get from configuration file soon
+//  val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
+
   var debug = true // Allow external control with var
 
   override def getConf: Config = config
