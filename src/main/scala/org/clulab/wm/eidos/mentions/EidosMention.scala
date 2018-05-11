@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.mentions
 
 import java.util.HashMap
-
+import java.util.IdentityHashMap
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
@@ -94,6 +94,40 @@ object EidosMention {
   def asEidosMentions(odinMentions: Seq[Mention], stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder): Seq[EidosMention] =
       // One could optionally keep this map around
       asEidosMentions(odinMentions, stopwordManaging, ontologyGrounder, new HashMap[Mention, EidosMention]()): Seq[EidosMention]
+
+  def findReachableMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {
+    // Just to be more informative, this will store the number of references counted.
+    val reachableMentions = new IdentityHashMap[Mention, Integer]
+
+    def addMention(mention: Mention): Unit = {
+      if (reachableMentions.containsKey(mention))
+        reachableMentions.put(mention, reachableMentions.get(mention) + 1)
+      else {
+        reachableMentions.put(mention, 1)
+        mention.arguments.flatMap(_._2).foreach(addMention)
+        // Skipping paths
+        mention.attachments.asInstanceOf[Set[EidosAttachment]].flatMap(_.attachmentMentions).foreach(addMention)
+        if (mention.isInstanceOf[EventMention])
+          addMention(mention.asInstanceOf[EventMention].trigger)
+      }
+    }
+
+    surfaceMentions.foreach(addMention)
+    reachableMentions.keySet().toArray.toSeq.map(_.asInstanceOf[Mention])
+  }
+
+  def findUnderlyingMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {
+    val reachableMentions = findReachableMentions(surfaceMentions)
+    val underlyingMentions = reachableMentions.filter { reachableMention =>
+      !surfaceMentions.exists { surfaceMention =>
+        surfaceMention.eq(reachableMention)
+      }
+    }
+
+    underlyingMentions
+  }
+
+  def hasUnderlyingMentions(surfaceMentions: Seq[Mention]): Boolean = findUnderlyingMentions(surfaceMentions).nonEmpty
 }
 
 class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,

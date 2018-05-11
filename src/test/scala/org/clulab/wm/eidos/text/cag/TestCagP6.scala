@@ -54,7 +54,7 @@ class TestCagP6 extends Test {
     // should be modified to the following:
     val fighting     = NodeSpec("fighting", Inc("widespread"))
     //val fighting     = newNodeSpec("fighting", newUnmarked("widespread"))
-    val access       = NodeSpec("access to services", Dec("poor"), Quant("poor")) // yes
+    val access       = NodeSpec("poor access to services", Dec("poor"), Quant("poor")) // TODO:  This looks like too many poors
     val morbidity    = NodeSpec("morbidity", Inc("high"), Quant("high"))
     val diet         = NodeSpec("diet", Dec("poor", "extremely"), Quant("poor", "extremely"))
     val coverage     = NodeSpec("coverage of sanitation facilities", Dec("low"), Quant("low"))
