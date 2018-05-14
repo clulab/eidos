@@ -24,8 +24,8 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
   */
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
-  val proc: Processor = new CluProcessor()//new FastNLPProcessor() // TODO: Get from configuration file soon
-//  val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
+//  val proc: Processor = new CluProcessor()//new FastNLPProcessor() // TODO: Get from configuration file soon
+  val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
 
   var debug = true // Allow external control with var
 
