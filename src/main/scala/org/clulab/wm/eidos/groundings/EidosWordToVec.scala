@@ -45,9 +45,15 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
   
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities = {
     val nodeEmbedding = w2v.makeCompositeVector(canonicalNameParts.map(word => Word2Vec.sanitizeWord(word)))
-    val similarities = conceptEmbeddings.map(concept => (concept._1, Word2Vec.dotProduct(concept._2, nodeEmbedding)))
-    
-    similarities.sortBy(- _._2).take(topKNodeGroundings)
+    val oov = nodeEmbedding.forall(_ == 0)
+
+    if (oov)
+      Seq.empty
+    else {
+      val similarities = conceptEmbeddings.map(concept => (concept._1, Word2Vec.dotProduct(concept._2, nodeEmbedding)))
+
+      similarities.sortBy(-_._2).take(topKNodeGroundings)
+    }
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Double] = w2v.makeCompositeVector(t)
