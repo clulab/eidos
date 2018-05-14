@@ -28,6 +28,8 @@ class DomainOntology(val name: String, protected val ontologyNodes: Seq[Ontology
 }
 
 object DomainOntology {
+  val EXAMPLE = "/examples"
+  val DESCRIPTION = "/description"
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
   class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor) {
@@ -66,7 +68,6 @@ object DomainOntology {
         others: Seq[String], examples: Seq[String], descriptions: Seq[String]): Seq[OntologyNode] = {
       if (yamlNodes.isEmpty)
         // Get to end of the line.
-        // TODO: Remove "examples" or "description" from path
         if (path.nonEmpty && (others.nonEmpty || examples.nonEmpty || descriptions.nonEmpty))
           ontologyNodes :+ new OntologyNode(path, others, examples, descriptions)
         else
@@ -77,10 +78,10 @@ object DomainOntology {
         if (head.isInstanceOf[String]) {
           // Process a child.
           val value: String = head.asInstanceOf[String]
-          if (path.endsWith("/example"))
-            parseOntology(yamlNodes.tail, path, ontologyNodes, others, examples :+ value, descriptions)
-          else if (path.endsWith("/description"))
-            parseOntology(yamlNodes.tail, path, ontologyNodes, others, examples, descriptions ++ filtered(value))
+          if (path.endsWith(EXAMPLE))
+            parseOntology(yamlNodes.tail, path.stripSuffix(EXAMPLE), ontologyNodes, others, examples :+ value, descriptions)
+          else if (path.endsWith(DESCRIPTION))
+            parseOntology(yamlNodes.tail, path.stripSuffix(DESCRIPTION), ontologyNodes, others, examples, descriptions ++ filtered(value))
           else
             parseOntology(yamlNodes.tail, path, ontologyNodes, others :+ value, examples, descriptions)
         }

@@ -44,12 +44,15 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
   }
   
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities = {
-    val nodeEmbedding = w2v.makeCompositeVector(canonicalNameParts.map(word => Word2Vec.sanitizeWord(word)))
-    val oov = nodeEmbedding.forall(_ == 0)
+    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
+    // It could be that the composite vectore below has all zeros even though some values are defined.
+    // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
+    val oov = sanitizedNameParts.forall(w2v.getWordVector(_).isEmpty)
 
     if (oov)
       Seq.empty
     else {
+      val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map(concept => (concept._1, Word2Vec.dotProduct(concept._2, nodeEmbedding)))
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
