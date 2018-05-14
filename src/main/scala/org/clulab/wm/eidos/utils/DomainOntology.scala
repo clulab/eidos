@@ -37,9 +37,21 @@ object DomainOntology {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(yamlNodes, "", Seq.empty, Seq.empty, Seq.empty, Seq.empty)
+      val pathSeq = ontologyNodes.map(_.path)
+      val pathSet = pathSeq.toSet
 
-      // TODO: Need to remove duplicates for comparison?
+      if (pathSeq.size != pathSet.size) {
+        val pathMap = pathSeq.foldLeft(Map[String, Int]()) { (map, path) =>
+          if (map.contains(path)) {
+            val count: Int = map(path)
+            map - path + ((path, count + 1))
+          }
+          else map + ((path, 1))
+        }
+        val duplicates = pathMap.toSeq.filter(_._2 > 1).map(_._1).mkString("\n\t")
 
+        throw new Exception(s"""The domain ontology "${name}" includes duplicate paths:\n\t${duplicates}""")
+      }
       new DomainOntology(name, ontologyNodes)
     }
 
