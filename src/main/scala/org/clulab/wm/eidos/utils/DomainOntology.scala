@@ -41,14 +41,8 @@ object DomainOntology {
       val pathSet = pathSeq.toSet
 
       if (pathSeq.size != pathSet.size) {
-        val pathMap = pathSeq.foldLeft(Map[String, Int]()) { (map, path) =>
-          if (map.contains(path)) {
-            val count: Int = map(path)
-            map - path + ((path, count + 1))
-          }
-          else map + ((path, 1))
-        }
-        val duplicates = pathMap.toSeq.filter(_._2 > 1).map(_._1).mkString("\n\t")
+        val pathBag = pathSeq.foldLeft(Map[String, Int]())((map, path) => map + (path -> (map.getOrElse(path, 0) + 1)))
+        val duplicates = pathBag.toSeq.filter(_._2 > 1).map(_._1).mkString("\n\t")
 
         throw new Exception(s"""The domain ontology "${name}" includes duplicate paths:\n\t${duplicates}""")
       }
