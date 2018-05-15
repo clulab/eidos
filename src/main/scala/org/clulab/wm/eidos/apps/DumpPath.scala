@@ -263,8 +263,8 @@ object DumpPath extends App {
   }
 
   //val fn = "/Users/bsharp/relationExtraction/RE/test.txt"
-  val nCores = 3
-  val dir = "/Users/bsharp/relationExtraction/RE/chunked"
+  val nCores = 20
+  val dir = "/work/bsharp/relationExtraction/RE/chunked_test"
   val files = findFilesPrefix(dir, "x").par
   files.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(nCores))
   for {
