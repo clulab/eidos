@@ -66,7 +66,7 @@ object DumpPath extends App {
       val toPrint = (fields.slice(0, 5) ++ Seq(path)).mkString("\t")
       println(s"${sentence.getSentenceText()}")
       println(s"\t${sentence.words.zipWithIndex.mkString(", ")}")
-      println(s"\te1: ${e1} ($e1Int)\te2: ${e2} ($e2Int) --> headlexPath ${path}")
+      println(s"\te1: ${e1} ($e1Int)\te2: ${e2} ($e2Int) --> \n\t\theadlexPath: \t${path}")
 
       pw.println(toPrint)
     }
@@ -88,6 +88,7 @@ object DumpPath extends App {
       val e2 = fields(3)//.split("_")
       val sentText = fields(5).split("###END###").head
       val sentence: Sentence = mkPartialAnnotation(sentText).sentences.head
+      //println(sentence.getSentenceText())
 
       // Entity tokens
       val e1Int: Int = sentence.words.indexOf(e1)
@@ -134,34 +135,61 @@ object DumpPath extends App {
                              pathHeadToE2: Seq[(Int, Int, String, String)]): String = {
 
     val out = new ArrayBuffer[String]
-    val start = pathe1ToHead.head
-    val leftWord = if (start._4 == ">") words(start._1) else words(start._2)
-    val rightWord = if (start._4 == ">") words(start._2) else words(start._1)
-    val startRel = start._4 + start._3
-    out.append(s"$leftWord $startRel")
 
-    var lastWord = ""
-    for (edge <- pathe1ToHead.slice(1, pathe1ToHead.length)) {
-      val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
-      out.append(s"${edge._4}${edge._3}")
-      lastWord = rightWord
+    // Case 1 -- both paths are empty
+    if (pathe1ToHead.isEmpty && pathHeadToE2.isEmpty) {
+      // shouldn't happen becuase the head should be only one or the other
+      throw new RuntimeException("Both of the shortest paths are empty!")
     }
-    // I think we land on the governing head, but check
-    println(s"lastWord: $lastWord\tgovHead: ${words(headInt)}")
-    assert(lastWord == words(headInt))
-    out.append(words(headInt))
 
+    // Check to make sure e1 isn't the head (i.e. there is a path)
+    if (pathe1ToHead.nonEmpty) {
+      val start = pathe1ToHead.head
+      val leftWord = if (start._4 == ">") words(start._1) else words(start._2)
+      val rightWord = if (start._4 == ">") words(start._2) else words(start._1)
+      val startRel = start._4 + start._3
+      out.append(s"$leftWord $startRel")
 
-    // I think that the head will be the first thing here, and the path will follow to e2, but check
-    val starte2 = pathHeadToE2.head
-    assert(starte2._1 == headInt || starte2._2 == headInt)
-
-    for (edge <- pathHeadToE2.slice(1, pathHeadToE2.length)) {
-      val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
-      out.append(s"${edge._4}${edge._3}")
-      lastWord = rightWord
+      val restOfPath = pathe1ToHead.slice(1, pathe1ToHead.length)
+      if (restOfPath.nonEmpty) {
+        var lastWord = ""
+        for (edge <- restOfPath) {
+          val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
+          out.append(s"${edge._4}${edge._3}")
+          //println(s"appended: ( ${edge._4}${edge._3} )")
+          lastWord = rightWord
+        }
+        // I think we land on the governing head, but check
+        //println(s"lastWord: $lastWord\tgovHead: ${words(headInt)}")
+        assert(lastWord == words(headInt))
+        out.append(words(headInt))
+      } else {
+        out.append(words(headInt))
+      }
+    } else {
+      out.append(words(headInt))
     }
-    out.append(lastWord)
+
+    // Check to make sure e2 isn't the head (i.e., there is a path)
+    if (pathHeadToE2.nonEmpty) {
+      // I think that the head will be the first thing here, and the path will follow to e2, but check
+      val starte2 = pathHeadToE2.head
+      assert(starte2._1 == headInt || starte2._2 == headInt)
+
+      val restOfThePath2 = pathHeadToE2.slice(1, pathHeadToE2.length)
+      if (restOfThePath2.nonEmpty) {
+        var lastWord = ""
+        for (edge <- restOfThePath2) {
+          val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
+          out.append(s"${edge._4}${edge._3}")
+          lastWord = rightWord
+        }
+        out.append(lastWord)
+      }
+    } else {
+      // nothing, we're done
+    }
+
 
     out.mkString(" ")
 
@@ -170,7 +198,7 @@ object DumpPath extends App {
 
   def pathToText(path: Seq[(Int, Int, String, String)]): String = path.map(edge => edge._4 + edge._3).mkString(" ")
 
-  val fn = "/Users/fan/Documents/RA/meanteacher/mean-teacher/pytorch/data-local/re/Riedel2010/train/train1.txt"
+  val fn = "/Users/bsharp/relationExtraction/RE/train.txt"
   loadInstances(fn)
 
 
