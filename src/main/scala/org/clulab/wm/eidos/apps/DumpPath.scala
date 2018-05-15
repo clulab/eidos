@@ -18,6 +18,31 @@ object DumpPath extends App {
 
   val proc = new FastNLPProcessor()
 
+
+  def repairBrokenEntities(sentenceText: String, entity: String): String = {
+    if (sentenceText.contains(entity)) {
+      return sentenceText
+    } else {
+      // find the broken entity
+      val entityNoUnderScore = entity.replaceAll("_", " ")
+      val sentTextNoUnderscore = sentenceText.replaceAll("_", " ")
+      //println(s"entityNoUnderScore: [[$entityNoUnderScore]]")
+      if (!sentTextNoUnderscore.contains(entityNoUnderScore)) {
+        //println(s"WARNING: sentence ${sentTextNoUnderscore} does not contain entity ${entity}, even with no underscores!")
+        return sentenceText
+      } else {
+        // find the interval of the entity
+        val start = sentTextNoUnderscore.indexOf(entityNoUnderScore)
+        val end = start + entityNoUnderScore.length
+        val doesItWork = sentenceText.slice(start, end)
+        //println (s"doesItWork: [[$doesItWork]]")
+        val newSent = sentenceText.slice(0, start) + doesItWork.replaceAll(" ", "_") + sentenceText.slice(end, sentenceText.length)
+        //println (s"newSent: [[$newSent]]")
+        return newSent
+      }
+    }
+  }
+
   def loadInstances(file: File): Unit = {
     //"m.0ccvx    m.05gf08    queens    belle_harbor    /location/location/contains    sen. charles e. schumer called on federal safety officials yesterday to reopen their investigation into the fatal crash of a passenger jet in belle_harbor , queens , because equipment failure , not pilot error , might have been the cause . ###END###"
     val filename = file.getAbsolutePath
@@ -42,14 +67,13 @@ object DumpPath extends App {
       //println(s"**FIELDS: ${fields.mkString(", ")}")
 
       var sentText = fields(5).split("###END###").head
-      // Store the end punctuation
-      val endPunct = sentText.trim.last
-      //println(endPunct)
 
 //      sentText = sentText.replaceAll("\\.", "") + endPunct
 //      fields = fields.map(s => s.replaceAll("\\.", ""))
       var e1 = fields(2)//.split("_")
       var e2 = fields(3)//.split("_")
+      sentText = repairBrokenEntities(sentText, e1)
+      sentText = repairBrokenEntities(sentText, e2)
 
       val sentence: Sentence = mkPartialAnnotation(sentText).sentences.head
       //println(sentence.getSentenceText())
@@ -59,6 +83,9 @@ object DumpPath extends App {
         badSentence += 1
         println(s"WARNING: bad sentence -- one of the entities not found! \n doc sentence text: ${sentence.getSentenceText()}")
         //println(s"CURRENT BAD SENTENCE: $badSentence")
+
+
+
       }  else {
         // Entity tokens
         val e1Ints: Seq[Int] = sentence.words.zipWithIndex.filter(_._1 == e1).unzip._2
@@ -262,9 +289,22 @@ object DumpPath extends App {
     result
   }
 
+  def countUnique(file:File): Unit = {
+    val unique = scala.collection.mutable.Set[String]()
+    val source = scala.io.Source.fromFile(file)
+    // todo: make a buffered reader??? (for memory issues)
+    val lines = source.getLines()
+    //var lineCounter = 0
+    while (lines.hasNext) {
+      val line = lines.next()
+      unique.add(line)
+    }
+    println(s"There are ${unique.size} unique lines!")
+  }
+
   //val fn = "/Users/bsharp/relationExtraction/RE/test.txt"
   val nCores = 20
-  val dir = "/work/bsharp/relationExtraction/RE/chunked_test"
+  val dir = "/work/bsharp/relationExtraction/RE/chunked_train"
   val files = findFilesPrefix(dir, "x").par
   files.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(nCores))
   for {
