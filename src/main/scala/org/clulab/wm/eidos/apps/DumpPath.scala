@@ -321,11 +321,11 @@ object DumpPath extends App {
   //val fn = "/Users/bsharp/relationExtraction/RE/test.txt"
   val nCores = 20
   val dir = "/work/bsharp/relationExtraction/RE/chunked_train"
-  val outputSuffix = ".deps.headLex"
+  val outputSuffix = ".deps.fullyLex"
   val files = findFilesPrefix(dir, "x").par
   files.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(nCores))
   for {
     file <- files
-  } loadInstances(file, outputSuffix, writeLexicalizeOnlyGovHead)
+  } loadInstances(file, outputSuffix, writeFullyLexicalized)
 
 }
