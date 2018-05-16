@@ -18,6 +18,32 @@ object DumpPath extends App {
 
   val proc = new FastNLPProcessor()
 
+//  def handleSubstringEntities(sentenceText: String, e1: String, e2: String): String = {
+//    if (sentenceText.contains(e1) && sentenceText.contains(e2)) return sentenceText
+//    else if (sentenceText.contains(e1) && e1.contains(e2)) {
+//      val
+//    }
+//  }
+  def findClosestOccurrences(sentence: Sentence, e1: String, e2: String): (Int, Int) = {
+  // Entity tokens
+  val e1Ints: Seq[Int] = sentence.words.zipWithIndex.filter(_._1 == e1).unzip._2
+  //println(s"\te1: $e1 $e1Int  ")//[${sentence.words(e1Int)}]")
+
+  val e2Ints: Seq[Int] = sentence.words.zipWithIndex.filter(_._1 == e2).unzip._2
+  //println(s"\te2: $e2 $e2Int ")// [${sentence.words(e2Int)}]")
+  val pairs = for {
+    a <- e1Ints
+    b <- e2Ints
+  } yield (a,b)
+
+  pairs
+    // Don't allow to be the same index
+    .filterNot(p => p._1 == p._2)
+    // Zip with the distance
+    .map(p => (p, math.abs(p._1 - p._2)))
+    // Find the shortest distance (recall from above, won't be 0)
+    .minBy(_._2)._1
+}
 
   def repairBrokenEntities(sentenceText: String, entity: String): String = {
     if (sentenceText.contains(entity)) {
@@ -29,6 +55,7 @@ object DumpPath extends App {
       //println(s"entityNoUnderScore: [[$entityNoUnderScore]]")
       if (!sentTextNoUnderscore.contains(entityNoUnderScore)) {
         //println(s"WARNING: sentence ${sentTextNoUnderscore} does not contain entity ${entity}, even with no underscores!")
+        //m.04c27w1	m.06_7wjm	mountain_road	music_mountain	NA	music_mountain , 225 music_mountain_road . ###END###
         return sentenceText
       } else {
         // find the interval of the entity
@@ -43,10 +70,12 @@ object DumpPath extends App {
     }
   }
 
-  def loadInstances(file: File): Unit = {
+  def loadInstances(file: File,
+                    outputSuffix: String,
+                    writeMethod: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit): Unit = {
     //"m.0ccvx    m.05gf08    queens    belle_harbor    /location/location/contains    sen. charles e. schumer called on federal safety officials yesterday to reopen their investigation into the fatal crash of a passenger jet in belle_harbor , queens , because equipment failure , not pilot error , might have been the cause . ###END###"
     val filename = file.getAbsolutePath
-    val pw = new PrintWriter(filename + ".nonlex_dep_path")
+    val pw = new PrintWriter(filename + outputSuffix)
 
     var badSentence: Int = 0
 
@@ -56,54 +85,41 @@ object DumpPath extends App {
     //var lineCounter = 0
     while (lines.hasNext) {
       val line = lines.next()
-//      if (lineCounter % 1000 == 0) {
-//        println(s"Processing line ${lineCounter}")
-//        println(s"CURRENT BAD SENTENCE: $badSentence")
-//      }
-//      lineCounter += 1
       //println(s"**LINE: $line")
 
-      var fields = line.split("\t")
+      val fields = line.split("\t")
       //println(s"**FIELDS: ${fields.mkString(", ")}")
 
       var sentText = fields(5).split("###END###").head
-
-//      sentText = sentText.replaceAll("\\.", "") + endPunct
-//      fields = fields.map(s => s.replaceAll("\\.", ""))
-      var e1 = fields(2)//.split("_")
-      var e2 = fields(3)//.split("_")
+      val e1 = fields(2)//.split("_")
+      val e2 = fields(3)//.split("_")
       sentText = repairBrokenEntities(sentText, e1)
       sentText = repairBrokenEntities(sentText, e2)
 
+
       val sentence: Sentence = mkPartialAnnotation(sentText).sentences.head
       //println(sentence.getSentenceText())
-     // println(s"**WORDS: ${sentence.words.mkString(";")}")
+      //println(s"**WORDS: ${sentence.words.mkString(";")}")
 
       if (!sentence.words.contains(e1) || !sentence.words.contains(e2)) {
-        badSentence += 1
-        println(s"WARNING: bad sentence -- one of the entities not found! \n doc sentence text: ${sentence.getSentenceText()}")
-        //println(s"CURRENT BAD SENTENCE: $badSentence")
-
-
+        val longestEntity = Seq(e1, e2).maxBy(_.length)
+        val shortestEntity = Seq(e1, e2).minBy(_.length)
+        // Substring situation AND the longer entity appears more than once
+        if (longestEntity.contains(shortestEntity) && (sentence.words.indexOf(longestEntity) != sentence.words.lastIndexOf(longestEntity))) {
+          val (e1Int, e2Int) = findClosestOccurrences(sentence, longestEntity, longestEntity)
+          writeMethod(sentence, fields, e1Int, e2Int, e1, e2, pw)
+        } else {
+          badSentence += 1
+          println(s"WARNING: bad sentence -- one of the entities not found! \n doc sentence text: ${sentence.getSentenceText()}")
+          //println(s"CURRENT BAD SENTENCE: $badSentence")
+          val toPrint = (fields.slice(0, 5) ++ Seq(longestEntity)).mkString("\t")
+          pw.println(toPrint)
+        }
 
       }  else {
-        // Entity tokens
-        val e1Ints: Seq[Int] = sentence.words.zipWithIndex.filter(_._1 == e1).unzip._2
-        //println(s"\te1: $e1 $e1Int  ")//[${sentence.words(e1Int)}]")
-
-        val e2Ints: Seq[Int] = sentence.words.zipWithIndex.filter(_._1 == e2).unzip._2
-        //println(s"\te2: $e2 $e2Int ")// [${sentence.words(e2Int)}]")
-        val pairs = for {
-          a <- e1Ints
-          b <- e2Ints
-        } yield (a,b)
-        val (e1Int, e2Int) = pairs.map(p => (p, math.abs(p._1 - p._2))).minBy(_._2)._1
-
-        // Fully lexicalized
-        //      writeFullyLexicalized(sentence, fields, e1Int, e2Int, e1, e2, pw)
-
-        // Lexicalize only gove head
-        writeLexicalizeOnlyGovHead(sentence, fields, e1Int, e2Int, e1, e2, pw)
+        // Default, normal case!
+        val (e1Int, e2Int) = findClosestOccurrences(sentence, e1, e2)
+        writeMethod(sentence, fields, e1Int, e2Int, e1, e2, pw)
       }
 
     }
@@ -302,16 +318,14 @@ object DumpPath extends App {
     println(s"There are ${unique.size} unique lines!")
   }
 
-  //val fn = "/Users/bsharp/relationExtraction/RE/test.txt"
   val nCores = 3
+  val outputSuffix = ".deps.headLex"
   val dir = "/Users/bsharp/relationExtraction/RE/tmpEnt"
   val files = findFilesPrefix(dir, "x").par
   files.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(nCores))
   for {
     file <- files
-  } loadInstances(file)
-
-
+  } loadInstances(file, outputSuffix, writeLexicalizeOnlyGovHead)
 
 
 }
