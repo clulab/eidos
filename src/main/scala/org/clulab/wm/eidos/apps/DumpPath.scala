@@ -149,14 +149,14 @@ object DumpPath extends App {
     // todo: histogram of #hops between entities in diff datasets
 
     val fullyLexicalizedPaths = shortestE1E2.map(path => lexicalizedPath(sentence.words, path))
-    for (path <- fullyLexicalizedPaths) {
-      val toPrint = (fields.slice(0, 5) ++ Seq(path)).mkString("\t")
-      //println(s"${sentence.getSentenceText()}")
-      //println(s"\t${sentence.words.zipWithIndex.mkString(", ")}")
-      //println(s"\te1: ${e1} ($e1Int)\te2: ${e2} ($e2Int) --> lexPath ${path}")
 
-      pw.println(toPrint)
-    }
+    // Print only one!! The first will do!
+    val path = fullyLexicalizedPaths.head
+    val toPrint = (fields.slice(0, 5) ++ Seq(path)).mkString("\t")
+    pw.println(toPrint)
+    //println(s"${sentence.getSentenceText()}")
+    //println(s"\t${sentence.words.zipWithIndex.mkString(", ")}")
+    //println(s"\te1: ${e1} ($e1Int)\te2: ${e2} ($e2Int) --> lexPath ${path}")
   }
 
   def writeLexicalizeOnlyGovHead(sentence: Sentence, fields: Seq[String],
@@ -188,14 +188,15 @@ object DumpPath extends App {
     } yield lexicalizedPathGovHead(sentence.words, govHead, i, j)
     //println("--> done.")
 
-    for (path <- headLexicalizedPaths) {
-      val toPrint = (fields.slice(0, 5) ++ Seq(path)).mkString("\t")
-      //println(s"${sentence.getSentenceText()}")
-      //println(s"\t${sentence.words.zipWithIndex.mkString(", ")}")
-      //println(s"\te1: ${e1} ($e1Int)\te2: ${e2} ($e2Int) --> \n\t\theadlexPath: \t${path}")
+    // Print only one!! The first will do!
+    val path = headLexicalizedPaths.head
+    val toPrint = (fields.slice(0, 5) ++ Seq(path)).mkString("\t")
+    pw.println(toPrint)
+    //println(s"${sentence.getSentenceText()}")
+    //println(s"\t${sentence.words.zipWithIndex.mkString(", ")}")
+    //println(s"\te1: ${e1} ($e1Int)\te2: ${e2} ($e2Int) --> \n\t\theadlexPath: \t${path}")
 
-      pw.println(toPrint)
-    }
+
 
   }
 
