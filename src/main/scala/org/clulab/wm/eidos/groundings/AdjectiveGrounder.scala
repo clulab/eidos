@@ -18,7 +18,7 @@ object AdjectiveGrounding {
 }
 
 trait AdjectiveGrounder {
-  def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding
+  def groundAdjective(adjective: String): AdjectiveGrounding
 }
 
 class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounder {
@@ -37,7 +37,7 @@ class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounde
   
   protected val grounder: Map[Quantifier, Map[String, Double]] = load()
   
-  def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding = {
+  def groundAdjective(adjective: String): AdjectiveGrounding = {
     
     def stemIfAdverb(word: String) = {
       if (word.endsWith("ly"))
@@ -49,7 +49,7 @@ class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounde
         word
     }
     
-    val pseudoStemmed = stemIfAdverb(quantifier)
+    val pseudoStemmed = stemIfAdverb(adjective)
     val modelRow = grounder.getOrElse(pseudoStemmed, Map.empty)
     
     if (modelRow.isEmpty)

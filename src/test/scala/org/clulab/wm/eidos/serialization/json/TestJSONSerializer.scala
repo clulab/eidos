@@ -15,11 +15,13 @@ class TestJSONSerializer extends Test {
     val text = "Water trucking has decreased due to the cost of fuel."
     val reader = new EidosSystem()
     val annotatedDocument = reader.extractFromText(text)
+
     val mentionsOut = annotatedDocument.odinMentions
     val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
+    val json1 = stringify(jValue1, pretty = true)
+
     val mentionsIn = WMJSONSerializer.toMentions(jValue1)
     val jValue2 = WMJSONSerializer.jsonAST(mentionsOut)
-    val json1 = stringify(jValue1, pretty = true)
     val json2 = stringify(jValue2, pretty = true)
 
     json1 should be (json2)

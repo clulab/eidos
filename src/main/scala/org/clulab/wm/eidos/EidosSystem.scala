@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
-
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
@@ -10,15 +9,13 @@ import org.clulab.utils.Configured
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, EidosAdjectiveGrounder}
-import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding, EidosOntologyGrounder}
-import org.clulab.wm.eidos.groundings.EidosWordToVec
+import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.DomainParams
+import org.clulab.wm.eidos.utils.{DomainParams, FileUtils, StopwordManager, StopwordManaging}
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
-
 import org.slf4j.LoggerFactory
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
@@ -26,14 +23,21 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with OntologyGrounder with AdjectiveGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
   val timenorm: TemporalCharbasedParser = new TemporalCharbasedParser("/home/egoitz/Tools/time/timenorm/src/main/resources/org/clulab/timenorm/model/char-3softmax-extra/lstm_models_2features.hdf5")
   var debug = true // Allow external control with var
-  var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
 
   override def getConf: Config = config
+
+  var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
+  protected val wordToVec = EidosWordToVec(
+    word2vec,
+//    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
+    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
+    getArgInt(getFullName("topKNodeGroundings"), Some(10))
+  )
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
 
@@ -45,28 +49,51 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   class LoadableAttributes(
-                            // These are the values which can be reloaded.  Query them for current assignments.
-                            val entityFinder: EidosEntityFinder,
-                            val domainParams: DomainParams,
-                            val adjectiveGrounder: AdjectiveGrounder,
-                            val actions: EidosActions,
-                            val engine: ExtractorEngine,
-                            val ner: LexiconNER,
-                            val ontologyGrounder: EidosOntologyGrounder
-                          )
+    // These are the values which can be reloaded.  Query them for current assignments.
+    val entityFinder: EidosEntityFinder,
+    val domainParams: DomainParams,
+    val adjectiveGrounder: AdjectiveGrounder,
+    val actions: EidosActions,
+    val engine: ExtractorEngine,
+    val ner: LexiconNER,
+    val stopwordManager: StopwordManager,
+    val ontologyGrounders: Seq[EidosOntologyGrounder]
+  )
 
   object LoadableAttributes {
-    val   masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
-    val  quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
-    val domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
-    val    quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
-    val   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
-    val    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    val      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
-    val     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
-    val   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
-    // This one is needed to construct some of the loadable attributes even though it isn't a path itself.
+    val    masterRulesPath: String = getPath(   "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
+    val   quantifierKBPath: String = getPath(  "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
+    val  domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
+    val     quantifierPath: String = getPath(    "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
+    val    entityRulesPath: String = getPath(   "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
+    val     avoidRulesPath: String = getPath(    "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
+    val       taxonomyPath: String = getPath(      "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    val      stopwordsPath: String = getPath(     "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    val    transparentPath: String = getPath(   "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+
+    val domainOntologyPath: String = getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml")
+    val     unOntologyPath: String = getPath(    "unOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml")
+    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/eidos/wdi_ontology.yml")
+    val    faoOntologyPath: String = getPath(       "faoOntology", "/org/clulab/wm/eidos/fao_variable_ontology.yml")
+
+    // These are needed to construct some of the loadable attributes even though it isn't a path itself.
+    val ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
     val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
+
+    protected def ontologyGrounders: Seq[EidosOntologyGrounder] =
+        if (!word2vec)
+          Seq.empty
+        else if (ontologies.isEmpty)
+          Seq(new DomainOntologyGrounder("domain", domainOntologyPath, wordToVec))
+        else {
+          for (ontology <- ontologies)
+          yield ontology match {
+            case name @ "un"  => new  UNOntologyGrounder(name,  unOntologyPath, wordToVec)
+            case name @ "wdi" => new WDIOntologyGrounder(name, wdiOntologyPath, wordToVec)
+            case name @ "fao" => new FAOOntologyGrounder(name, faoOntologyPath, wordToVec)
+            case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+          }
+        }
 
     def apply(): LoadableAttributes = {
       // Reread these values from their files/resources each time based on paths in the config file.
@@ -80,7 +107,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         actions,
         ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
-        EidosOntologyGrounder(stopwordsPath, transparentPath)
+        StopwordManager(stopwordsPath, transparentPath),
+        ontologyGrounders
       )
     }
   }
@@ -93,18 +121,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
 
+
   // This isn't intended to be (re)loadable.  This only happens once.
-  protected val wordToVec = EidosWordToVec(
-    word2vec,
-    getPath(     "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
-    getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml"),
-    getArgInt(getFullName("topKNodeGroundings"), Some(10))
-  )
 
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = false): Document = {
+  def annotate(text: String, keepText: Boolean = true): Document = {
     val doc = new EidosDocument(proc.annotate(text, keepText).sentences)
     doc.sentences.foreach(addLexiconNER)
     doc.parseTime(timenorm, text)
@@ -119,12 +142,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = false): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = true): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = keepCAGRelevant(odinMentions)
-    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, this)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
@@ -139,7 +162,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val entities = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
     // filter entities which are entirely stop or transparent
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
-    val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
+    val filtered = loadableAttributes.stopwordManager.filterStopTransparent(entities)
     //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
     val events = extractEventsFrom(doc, State(filtered)).distinct
     //println(s"In extractFrom() -- res : ${res.map(m => m.text).mkString(",\t")}")
@@ -188,15 +211,23 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       Grounding
   */
 
-  def groundOntology(mention: EidosMention): OntologyGrounding =
-    loadableAttributes.ontologyGrounder.groundOntology(mention, wordToVec)
-
-
   def containsStopword(stopword: String) =
-    loadableAttributes.ontologyGrounder.containsStopword(stopword)
+    loadableAttributes.stopwordManager.containsStopword(stopword)
 
-  def groundAdjective(mention: Mention, quantifier: Quantifier): AdjectiveGrounding =
-    loadableAttributes.adjectiveGrounder.groundAdjective(mention, quantifier)
+  def groundOntology(mention: EidosMention): Groundings =
+      if (!word2vec)
+        Map.empty
+      else
+        loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
+          (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+
+  def groundAdjective(quantifier: String): AdjectiveGrounding =
+    loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
+
+  /*
+      Wrapper for using w2v on some strings
+   */
+  def stringSimilarity(s1: String, s2: String): Double = wordToVec.stringSimilarity(s1, s2)
 
   /*
      Debugging Methods
@@ -228,5 +259,4 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES = Set("Causal", "Correlation")
-
 }

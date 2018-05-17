@@ -1,60 +1,57 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.embeddings.word2vec.Word2Vec
-import org.clulab.odin.Mention
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{DomainOntology, FileUtils}
 
-case class OntologyGrounding(grounding: Seq[(String, Double)])
+object Aliases {
+  type Grounding = Seq[(String, Double)]
+  type Groundings = Map[String, OntologyGrounding]
+}
+
+case class OntologyGrounding(grounding: Aliases.Grounding = Seq.empty)
 
 trait OntologyGrounder {
   def groundOntology(mention: EidosMention): OntologyGrounding
-  def containsStopword(stopword: String): Boolean
 }
 
-class EidosOntologyGrounder(stopwordsPath: String, transparentPath: String) {
-  protected val stopwords = FileUtils.getCommentedTextsFromResource(stopwordsPath).toSet
-  protected val transparentWords = FileUtils.getCommentedTextsFromResource(transparentPath).toSet
-  protected val bothWords = stopwords ++ transparentWords
+trait MultiOntologyGrounder {
+  def groundOntology(mention: EidosMention): Aliases.Groundings
+}
 
-  // Be careful, because object may not be completely constructed.
-  def groundOntology(mention: EidosMention, wordToVec: EidosWordToVec): OntologyGrounding = {
+class EidosOntologyGrounder(var name: String, ontologyPath: String, wordToVec: EidosWordToVec, filterOnPos: Boolean) extends OntologyGrounder {
+  protected val conceptEmbeddings =
+      DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos).iterateOntology(wordToVec)
+
+  def groundOntology(mention: EidosMention): OntologyGrounding = {
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
       val canonicalName = mention.canonicalName
       // Make vector for canonicalName
       val canonicalNameParts = canonicalName.split(" +")
 
-      OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts))
+      OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
     }
     else
-      OntologyGrounding(Seq.empty)
+      OntologyGrounding()
   }
-
-  def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
-
-  protected def hasContent(m: Mention): Boolean = {
-    val lemmas = m.lemmas.get
-    val tags = m.tags.get
-    val entities = m.entities.get
-
-    // println(s"Checking mention: ${m.text}")
-    lemmas.indices.exists { i =>
-      !containsStopword(lemmas(i)) &&
-        !EidosOntologyGrounder.STOP_POS.contains(tags(i)) &&
-        !EidosOntologyGrounder.STOP_NER.contains(entities(i))
-    }
-  }
-
-  def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] =
-  // Remove mentions which are entirely stop/transparent words
-    mentions.filter(hasContent)
 }
 
-object EidosOntologyGrounder {
+class DomainOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = false) {
+  // This is the default grounder for when no other is specified.
+  // It uses the file stored in domainOntologyPath.
+}
 
-  def apply(stopWordsPath: String, transparentPath: String) = new EidosOntologyGrounder(stopWordsPath, transparentPath)
-  val STOP_POS: Set[String] = Set("CD")
-  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "PERSON", "PLACE", "SET", "TIME")
+class UNOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    // Note: No need to filter on POS tags as they contain examples
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = false) {
+}
 
+class WDIOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    // Note: Filter on POS tags as they contain descriptions
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = true) {
+}
+
+class FAOOntologyGrounder(name: String, ontologyPath: String, wordToVec: EidosWordToVec)
+    // Note: Filter on POS tags as they contain descriptions
+    extends EidosOntologyGrounder(name, ontologyPath, wordToVec, filterOnPos = true) {
 }
