@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.serialization.json
 
 import java.util.IdentityHashMap  // Unfortunately borrowed from Java
 import java.util.{Set => JavaSet} // Holds keys of IdentityHashMap
+import java.time.LocalDateTime
 
 import scala.collection.mutable
 
@@ -20,6 +21,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosRelationMention
 import org.clulab.wm.eidos.mentions.EidosTextBoundMention
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.TimeInterval
 
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -434,6 +437,51 @@ object JLDWord {
   val typename = "Word"
 }
 
+
+class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val duration: Long)
+    // The document, sentence, index above will be used to recognized words.
+    extends JLDObject(serializer, JLDTimeInterval.typename) {
+  
+  override def toJObject(): JObject = {
+
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
+        ("start" -> Option(start).getOrElse("Undef").toString) ~
+        ("duration" -> duration)
+  }
+}
+
+object JLDTimeInterval {
+  val singular = "interval"
+  val plural = "intervals"
+  val typename = "TimeInterval"
+}
+
+
+
+class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
+    // The document, sentence, index above will be used to recognized words.
+    extends JLDObject(serializer, JLDTimex.typename) {
+  
+  override def toJObject(): JObject = {
+
+    val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i._1, i._2))
+
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
+        ("startOffset" -> interval.span._1) ~
+        ("endOffset" -> interval.span._2) ~
+        (JLDTimeInterval.plural -> toJObjects(jldIntervals))
+  }
+}
+
+object JLDTimex {
+  val singular = "timex"
+  val plural = "timexes"
+  val typename = "TimeEx"
+}
+
+
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
     extends JLDObject(serializer, "Sentence", sentence) {
   
@@ -441,6 +489,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val key = "universal-enhanced"
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
+    val sent_id = document.sentences.indexOf(sentence)
+    val timexes = document.asInstanceOf[EidosDocument].time(sent_id).map(new JLDTimex(serializer, _))
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair =
         if (dependencies.isEmpty) None
@@ -450,7 +500,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
         serializer.mkId(this) ~
         ("text" -> sentence.getSentenceText()) ~
         (JLDWord.plural -> toJObjects(jldWords)) ~
-        (JLDDependency.plural -> jldGraphMapPair)
+        (JLDDependency.plural -> jldGraphMapPair) ~
+        (JLDTimex.plural -> toJObjects(timexes))
   }
 }
 
@@ -464,7 +515,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
   
   override def toJObject(): JObject = {
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
-      
+
       serializer.mkType(this) ~
           serializer.mkId(this) ~
           ("title" -> annotatedDocument.document.id) ~
@@ -479,7 +530,7 @@ object JLDDocument {
 
 class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
     extends JLDObject(serializer, "Corpus", corpus) {
-  
+
   def this(corpus: Corpus, entityGrounder: AdjectiveGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
   
   protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: IdentityHashMap[EidosMention, Int]): Seq[JLDExtraction] = {
@@ -523,7 +574,7 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
     val jldDocuments = corpus.map(new JLDDocument(serializer, _))
     val eidosMentions = corpus.flatMap(_.eidosMentions)
     val jldExtractions = collectMentions(eidosMentions)
-    
+
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
 //    if (index1.isDefined) {
 //      val position1 = mentions(index1.get).end

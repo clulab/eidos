@@ -27,6 +27,7 @@ libraryDependencies ++= {
   )
 }
 
+
 //
 // publishing settings
 //
