@@ -9,7 +9,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 //EclipseKeys.withSource := true
 
 libraryDependencies ++= {
-  val procVer = "7.2.2"
+  val procVer = "7.3.1-SNAPSHOT" // Use this for hiddenHashCode
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
