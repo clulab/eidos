@@ -17,7 +17,7 @@ class OntologyNode(val path: String, others: Seq[String], examples: Seq[String],
   val values: Seq[String] = split(others) ++ split(examples) ++ split(descriptions)
 }
 
-class DomainOntology(val name: String, protected val ontologyNodes: Seq[OntologyNode]) {
+class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) {
 
   def iterateOntology(wordToVec: EidosWordToVec): Seq[(String, Array[Double])] = {
     ontologyNodes.map { ontologyNode =>
@@ -39,15 +39,7 @@ object DomainOntology {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(yamlNodes, "", Seq.empty, Seq.empty, Seq.empty, Seq.empty)
-      val pathSeq = ontologyNodes.map(_.path)
-      val pathSet = pathSeq.toSet
 
-      if (pathSeq.size != pathSet.size) {
-        val pathBag = pathSeq.foldLeft(Map[String, Int]())((map, path) => map + (path -> (map.getOrElse(path, 0) + 1)))
-        val duplicates = pathBag.toSeq.filter(_._2 > 1).map(_._1).mkString("\n\t")
-
-        throw new Exception(s"""The domain ontology "${name}" includes duplicate paths:\n\t${duplicates}""")
-      }
       new DomainOntology(name, ontologyNodes)
     }
 
