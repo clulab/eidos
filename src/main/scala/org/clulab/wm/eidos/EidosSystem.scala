@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos
 
+import scala.util.Try
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
@@ -57,7 +58,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
-    val timenorm: TemporalCharbasedParser
+    val timenorm: Option[TemporalCharbasedParser]
   )
 
   object LoadableAttributes {
@@ -98,7 +99,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
             }
           }
 
-    val timenorm: TemporalCharbasedParser = new TemporalCharbasedParser(getClass.getResource(timeNormModelPath).getPath)
+    val timenorm: Option[TemporalCharbasedParser] = getClass.getResource(timeNormModelPath) match {
+      case null => None
+      case resource => Some(new TemporalCharbasedParser(resource.getPath))
+    }
 
     def apply(): LoadableAttributes = {
       // Reread these values from their files/resources each time based on paths in the config file.

@@ -12,20 +12,23 @@ import org.clulab.processors.corenlp.CoreNLPDocument
 class EidosDocument(sentences: Array[Sentence]) extends CoreNLPDocument(sentences) {
 
   var time: Array[List[TimeInterval]] = Array()
-  def parseTime(timenorm: TemporalCharbasedParser, text:String, dct: Option[String] = None) = {
-    val padd = "\n\n\n"
-    val dateTime = dct match {
-      case Some(date) => Try(LocalDateTime.parse(date + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse(LocalDateTime.now())
-      case None => LocalDateTime.now()
+  def parseTime(timenorm: Option[TemporalCharbasedParser], text:String, dct: Option[String] = None) = timenorm match {
+    case Some(timenorm) => {
+      val padd = "\n\n\n"
+      val dateTime = dct match {
+        case Some(date) => Try(LocalDateTime.parse(date + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse(LocalDateTime.now())
+        case None => LocalDateTime.now()
+      }
+      val anchor = TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+      var prev = 0
+      for (s <- this.sentences) {
+        time = time :+ (for (i <- timenorm.intervals(timenorm.parse(padd + s.getSentenceText() + padd, anchor))) yield {
+          new TimeInterval((i._1._1 + prev, i._1._2 + prev), i._2)
+        }).toList
+        prev = s.endOffsets.last
+      }
     }
-    val anchor = TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
-    var prev = 0
-    for (s <- this.sentences) {
-      time = time :+ (for (i <- timenorm.intervals(timenorm.parse(padd + s.getSentenceText() + padd, anchor))) yield {
-        new TimeInterval((i._1._1 + prev, i._1._2 + prev), i._2)
-      }).toList
-      prev = s.endOffsets.last
-    }
+    case None =>
   }
 }
 
