@@ -1,85 +1,113 @@
 package org.clulab.wm.eidos.utils
 
-import java.util.{Collection, Map => JMap}
+import java.util.{Collection => JCollection, Map => JMap}
 
-import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.processors.Processor
 import org.clulab.wm.eidos.groundings.EidosWordToVec
+import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
-class DomainOntology(concepts: Map[String, Seq[String]], filterOnPos: Boolean = false){
+class OntologyNode(val path: String, others: Seq[String], examples: Seq[String],  descriptions: Seq[String]) {
+  protected def split(values: Seq[String]): Seq[String] = values.flatMap(_.split(" +"))
 
-  def iterateOntology(wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
-    for ((concept, examples) <- concepts) yield {
-      val avgEmbedding = wordToVec.makeCompositeVector(examples.flatMap(_.split(" +")))
-      (concept, avgEmbedding.toSeq)
+  // Right now it doesn't matter where these come from (as long as descriptions are filtered).
+  val values: Seq[String] = split(others) ++ split(examples) ++ split(descriptions)
+}
+
+class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) {
+
+  def iterateOntology(wordToVec: EidosWordToVec): Seq[(String, Array[Double])] = {
+    ontologyNodes.map { ontologyNode =>
+      val avgEmbedding = wordToVec.makeCompositeVector(ontologyNode.values)
+      (ontologyNode.path, avgEmbedding)
     }
   }
 }
 
 object DomainOntology {
-  val ROOT = ""
+  val EXAMPLE = "/examples"
+  val DESCRIPTION = "/description"
 
-  lazy val nlpProc = new FastNLPProcessor
+  // This is mostly here to capture proc so that it doesn't have to be passed around.
+  class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor) {
 
-  def apply(forest: Collection[Any], filterOnPos: Boolean): DomainOntology = new DomainOntology(parseOntology(forest, filterOnPos))
+    def build(): DomainOntology = {
+      val text = getTextFromResource(ontologyPath)
+      val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
+      val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
+      val ontologyNodes = parseOntology(yamlNodes, "", Seq.empty, Seq.empty, Seq.empty, Seq.empty)
 
-  def parseOntology (nodes: Collection[Any], filterOnPos: Boolean = false): Map[String, Seq[String]] = {
-    val concepts = mutable.Map.empty[String, Seq[String]]
-    parseOntology(nodes.asScala.toSeq, "", Seq(), concepts, filterOnPos)
-    // Following lines are for testing the creation of the ontology nodes. Can be removed later
-//    val x = concepts.toMap
-//    println("--------------------")
-//    for (k <- x.keys){
-//      println(s"${k} --> ${x.get(k).get.mkString(", ")}")
-//    }
-//    println("--------------------")
-    concepts.toMap
-  }
+      new DomainOntology(name, ontologyNodes)
+    }
 
-  // Note: modifying the odin.Taxonomy's mkParents() method
-  def parseOntology (nodes: Seq[Any], path: String, terms: Seq[Any], preTerminals: mutable.Map[String, Seq[String]], filterOnPos: Boolean): Unit = nodes match {
-    case Nil =>
-      if (path.isEmpty || terms.length == 0) {
-        return
+    def filtered(text: String): Seq[String] = {
+      val posString = proc.annotate(text)
+      val filteredTerms = posString.sentences.flatMap { sentence =>
+        sentence.words.zip(sentence.tags.get).filter { wordAndPos =>
+          wordAndPos._2.contains("NN") || // Filter by POS tags which need to be kept (Nouns, Adjectives and Verbs).
+              wordAndPos._2.contains("JJ") ||
+              wordAndPos._2.contains("VB")
+        }.map(_._1) // Get only the words.
       }
-//    println(s"${path.asInstanceOf[String]} -> ${terms.asInstanceOf[Seq[String]]}")
-      preTerminals.put(path.asInstanceOf[String], terms.asInstanceOf[Seq[String]])
+//      println(s"Filtered Terms: ${filteredTerms.mkString(", ")}")
+      filteredTerms
+    }
 
-    case (term: String) +: tail =>
-//      println(s"Sentence: ${term}")
-      if (filterOnPos){
-        val posString = nlpProc.annotate(term)
-        val filteredTerms = posString.sentences.flatMap{sent =>
-             sent.words.zip(sent.tags.get).filter{w => w._2.contains("NN") || //filter by POS tags which need to be kept (Nouns, Adjectives and Verbs)
-                                                       w._2.contains("JJ") ||
-                                                       w._2.contains("VB")}
-                                          .map(_._1) // get only the words
+    def parseOntology(yamlNodes: Seq[Any], path: String, ontologyNodes: Seq[OntologyNode],
+        others: Seq[String], examples: Seq[String], descriptions: Seq[String]): Seq[OntologyNode] = {
+      if (yamlNodes.isEmpty)
+        // Get to end of the line.
+        if (path.nonEmpty && (others.nonEmpty || examples.nonEmpty || descriptions.nonEmpty))
+          ontologyNodes :+ new OntologyNode(path, others, examples, descriptions)
+        else
+          ontologyNodes
+      else {
+        val head = yamlNodes.head
+
+        if (head.isInstanceOf[String]) {
+          // Process a child.
+          val value: String = head.asInstanceOf[String]
+          if (path.endsWith(EXAMPLE))
+            parseOntology(yamlNodes.tail, path.stripSuffix(EXAMPLE), ontologyNodes, others, examples :+ value, descriptions)
+          else if (path.endsWith(DESCRIPTION))
+            parseOntology(yamlNodes.tail, path.stripSuffix(DESCRIPTION), ontologyNodes, others, examples, descriptions ++ filtered(value))
+          else
+            parseOntology(yamlNodes.tail, path, ontologyNodes, others :+ value, examples, descriptions)
         }
-//        println(s"Filtered Terms: ${filteredTerms.mkString(", ")}")
-        parseOntology(tail, path, terms ++ filteredTerms, preTerminals, filterOnPos)
+        else {
+          val map = head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
+          if (map.values.isEmpty)
+            throw new Exception(s"taxonomy term '$map.keys.head' has no children (looks like an extra ':')")
+          // Process the children.
+          val key: String = map.keys.head
+          val moreOntologyNodes = parseOntology(map(key).asScala.toSeq, path + "/" + key, ontologyNodes, others, examples, descriptions)
+          // Continue with siblings.
+          parseOntology(yamlNodes.tail, path, moreOntologyNodes, others, examples, descriptions)
+        }
       }
-      else{
-        parseOntology(tail, path, terms ++ Seq(term), preTerminals, filterOnPos)
-      }
-
-
-    case head +: tail =>
-      val map = head.asInstanceOf[JMap[String, Collection[Any]]].asScala
-      if (map.keys.size != 1) {
-        val labels = map.keys.mkString(", ")
-        throw new Exception(s"taxonomy tree node with multiple labels: $labels")
-      }
-      val term = map.keys.head
-      Option(map(term)) match {
-        case None =>
-          val msg = s"taxonomy term '$term' has no children (looks like an extra ':')"
-          throw new Exception(msg)
-        case Some(children) =>
-          parseOntology(children.asScala.toSeq, path+"/"+term, terms, preTerminals, filterOnPos)
-      }
-      parseOntology(tail, path, terms, preTerminals, filterOnPos)
+    }
   }
 
+  def apply(name: String, ontologyPath: String, proc: Processor): DomainOntology =
+    new DomainOntologyBuilder(name, ontologyPath, proc).build()
+}
+
+// These are just here for when behavior might have to start differing.
+object ToyOntology {
+  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
+}
+
+object UNOntology {
+  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
+}
+
+object WDIOntology {
+  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
+}
+
+object FAOOntology {
+  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
 }
