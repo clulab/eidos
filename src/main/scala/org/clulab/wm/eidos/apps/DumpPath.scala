@@ -498,13 +498,13 @@ object DumpPathGids extends App {
   }
 
   def replaceEntities(text: String, entity: String, replacement: String): String = {
-    //println(s"looking for ${entity} in ${text}")
-    val regex = s"${entity}(?![a-zA-Z0-9])".r
+   // println(s"looking for ${entity} in ${text}")
+    val regex = s"(?<![a-zA-Z0-9_])${entity}(?![a-zA-Z0-9_])".r
     if (text.contains(entity)) {
       //val x = "dksd".r
       //x.repl
       val replaced = regex.replaceAllIn(text, replacement)
-      //println(s"replaced: ${replaced}")
+      //println(s"replaced: ${replaced}\n")
       return replaced
 
     } else {
@@ -513,7 +513,7 @@ object DumpPathGids extends App {
       val sentTextNoUnderscore = text.replaceAll("_", " ")
       //println(s"entityNoUnderScore: [[$entityNoUnderScore]]")
       if (!sentTextNoUnderscore.contains(entityNoUnderScore)) {
-        //println(s"WARNING: sentence ${sentTextNoUnderscore} does not contain entity ${entity}, even with no underscores!")
+        //println(s"WARNING: sentence ${sentTextNoUnderscore} does not contain entity ${entity}, even with no underscores!\n")
         //m.04c27w1	m.06_7wjm	mountain_road	music_mountain	NA	music_mountain , 225 music_mountain_road . ###END###
         return text
       } else {
@@ -523,7 +523,7 @@ object DumpPathGids extends App {
         val doesItWork = text.slice(start, end)
         //println (s"doesItWork: [[$doesItWork]]")
         val repaired = text.slice(0, start) + doesItWork.replaceAll(" ", "_") + text.slice(end, text.length)
-        //println (s"repaired: [[$repaired]]")
+        //println (s"repaired after underscore fix: [[$repaired]]\n")
         return regex.replaceAllIn(repaired, replacement)
       }
     }
@@ -565,14 +565,35 @@ object DumpPathGids extends App {
       val documentTextOrig = fields(5).toLowerCase.split("(###end###)|(###END###)").head
       val e1Orig = fields(2).toLowerCase//.split("_")
       val e2Orig = fields(3).toLowerCase//.split("_")
-      val (repairedDoc1, e1) = repairBrokenEntities1(documentTextOrig, e1Orig)
-      val (repairedDoc2, e2) = repairBrokenEntities1(repairedDoc1, e2Orig)
 
-      val finalFields = fields.take(2) ++ Seq(finalEntity(e1Orig), finalEntity(e2Orig)) ++ fields.takeRight(2)
+      var e1: String = ""
+      var e2: String = ""
+      var documentText: String = ""
+      if (e1Orig.length >= e2Orig.length) {
+        val repaired1 = repairBrokenEntities1(documentTextOrig, e1Orig)
+        e1 = repaired1._2
+        val repaired2 = repairBrokenEntities1(repaired1._1, e2Orig)
+        e2 = repaired2._2
+
+        val docText1 = replaceEntities(repaired2._1, e1, ENTITY_1)
+        documentText = replaceEntities(docText1, e2, ENTITY_2)
+
+      } else {
+        val repaired1 = repairBrokenEntities1(documentTextOrig, e2Orig)
+        e2 = repaired1._2
+        val repaired2 = repairBrokenEntities1(repaired1._1, e1Orig)
+        e1 = repaired2._2
+
+        val docText1 = replaceEntities(repaired2._1, e2, ENTITY_2)
+        documentText = replaceEntities(docText1, e1, ENTITY_1)
+      }
+
+      val finalFields = fields.take(2) ++ Seq(finalEntity(e1Orig), finalEntity(e2Orig)) ++ fields.takeRight(2) //2
+      //println("FINALFIELDS:" + finalFields.mkString(", "))
 
       // replace entities with sanitized versions.  This should help parsing too!
-      val docText1 = replaceEntities(repairedDoc2, e1, ENTITY_1)
-      val documentText = replaceEntities(docText1, e2, ENTITY_2)
+      //val docText1 = replaceEntities(docRepaired, e1, ENTITY_1)
+      //val documentText = replaceEntities(docText1, e2, ENTITY_2)
 
       val document: Document = mkPartialAnnotation(documentText)
       val hasBoth = document.sentences.filter(s => (s.words.contains(ENTITY_1) && s.words.contains(ENTITY_2)))
@@ -1022,17 +1043,21 @@ object DumpPathGids extends App {
     println(s"There are ${unique.size} unique lines!")
   }
 
-  val nCores = 3
-//  val outputSuffix = ".deps.headLex"
-//  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeLexicalizeOnlyGovHead
-  val outputSuffix = ".deps.fullyLex"
-  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeFullyLexicalized
+  val nCores = 40
+
+  val outputSuffix = ".deps.headLex"
+  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeLexicalizeOnlyGovHead
+
+//  val outputSuffix = ".deps.fullyLex"
+//  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeFullyLexicalized
 
 
-  val dir = "/Users/bsharp/relationExtraction/gids/g"
+  //val dir = "/work/bsharp/relationExtraction/gids/raw/may20tmp"
+  val dir = "/work/bsharp/relationExtraction/RE/fan/chunked_train"
 
-  val files = findFilesSuffix(dir, ".txt").par
-  //  val files = findFilesPrefix(dir, ".x").par
+  //val files = findFilesSuffix(dir, ".txt").par
+  val files = findFilesPrefix(dir, "x").par
+
   files.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(nCores))
   for {
     file <- files
