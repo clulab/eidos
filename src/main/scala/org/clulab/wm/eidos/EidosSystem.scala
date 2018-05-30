@@ -26,7 +26,6 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
-  val timenorm: TemporalCharbasedParser = new TemporalCharbasedParser("/home/egoitz/Tools/time/timenorm/src/main/resources/org/clulab/timenorm/model/char-3softmax-extra/lstm_models_2features.hdf5")
   var debug = true // Allow external control with var
 
   override def getConf: Config = config
@@ -57,7 +56,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val engine: ExtractorEngine,
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
-    val ontologyGrounders: Seq[EidosOntologyGrounder]
+    val ontologyGrounders: Seq[EidosOntologyGrounder],
+    val timenorm: TemporalCharbasedParser
   )
 
   object LoadableAttributes {
@@ -75,6 +75,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val     unOntologyPath: String = getPath(    "unOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml")
     val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/eidos/wdi_ontology.yml")
     val    faoOntologyPath: String = getPath(       "faoOntology", "/org/clulab/wm/eidos/fao_variable_ontology.yml")
+
+    val  timeNormModelPath: String = getPath( "timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     val ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
@@ -95,6 +97,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
           }
         }
 
+    val timenorm: TemporalCharbasedParser = new TemporalCharbasedParser(getClass.getResource(timeNormModelPath).getPath)
+
     def apply(): LoadableAttributes = {
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
@@ -108,7 +112,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         StopwordManager(stopwordsPath, transparentPath),
-        ontologyGrounders
+        ontologyGrounders,
+        timenorm
       )
     }
   }
@@ -120,17 +125,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def domainParams = loadableAttributes.domainParams
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
-
+  def timenorm = loadableAttributes.timenorm
 
   // This isn't intended to be (re)loadable.  This only happens once.
 
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true): Document = {
+  def annotate(text: String, keepText: Boolean = true, dct: Option[String] = None): Document = {
     val doc = new EidosDocument(proc.annotate(text, keepText).sentences)
     doc.sentences.foreach(addLexiconNER)
-    doc.parseTime(timenorm, text)
+    doc.parseTime(timenorm, text, dct)
     doc
   }
 
@@ -142,8 +147,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true): AnnotatedDocument = {
-    val doc = annotate(text, keepText)
+  def extractFromText(text: String, keepText: Boolean = true, dct: Option[String] = None): AnnotatedDocument = {
+    val doc = annotate(text, keepText, dct)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = keepCAGRelevant(odinMentions)

@@ -8,6 +8,8 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 //EclipseKeys.withSource := true
 
+resolvers += "jitpack" at "https://jitpack.io"
+
 libraryDependencies ++= {
   val procVer = "7.2.2"
 
@@ -23,6 +25,8 @@ libraryDependencies ++= {
     "com.typesafe"  %  "config"                   % "1.3.1",
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
+
+    "com.github.clulab" % "timenorm" % "timenorm-0.9.6.7"  exclude("org.slf4j", "slf4j-log4j12"),
 
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   )

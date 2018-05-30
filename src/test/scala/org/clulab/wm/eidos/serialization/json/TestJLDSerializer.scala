@@ -74,7 +74,7 @@ class TestJLDSerializer extends Test {
     inspect(json)
     json should not be empty
   }
-  
+
   it should "serialize one simple document" in {
     val json = serialize(Seq(
         newTitledAnnotatedDocument(p1s1, "This is a test")
@@ -147,4 +147,15 @@ class TestJLDSerializer extends Test {
     inspect(json)
     json should not be empty    
   }
+
+  it should "serialize time expression" in {
+    val json = serialize(Seq(
+      newTitledAnnotatedDocument("2018-10-04", "This is a time expression")
+    ))
+
+    inspect(json)
+    json.contains("timexes") should be (true)
+    json.contains("intervals") should be (true)
+  }
+
 }
