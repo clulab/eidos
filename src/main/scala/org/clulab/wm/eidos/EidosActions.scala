@@ -85,8 +85,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   // remove incomplete EVENT Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
-    printRound("keepMostCompleteEvents")
-
     val (events, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
     val (textBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
     // remove incomplete entities (i.e. under specified when more fully specified exists)
@@ -137,7 +135,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   //TODO Heather: write toy test for this
   //TODO: perhaps keep token interval of the EVENT because it will be longer?
   def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-    printRound("applyAttachments")
     for {
       m <- ms
       //if m matches "EntityModifier"
@@ -163,18 +160,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
-  def printRound(text: String): Unit = {
-//    println(text + " " + EidosActions.round)
-    EidosActions.round += 1
-  }
-
   // Currently used as a GLOBAL ACTION in EidosSystem:
   // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
   // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
   // of each other.
   def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    printRound("mergeAttachments")
-
 //    println("***************************")
 //    println("new ROUND")
 //    println("***************************")
@@ -257,8 +247,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 }
 
 object EidosActions extends Actions {
-  var round = 0
-
   def apply(taxonomyPath: String) =
       new EidosActions(readTaxonomy(taxonomyPath))
 

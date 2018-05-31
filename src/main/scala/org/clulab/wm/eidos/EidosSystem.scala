@@ -138,11 +138,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   // MAIN PIPELINE METHOD
   def extractFromText(text: String, keepText: Boolean = true): AnnotatedDocument = {
-    val doc = Timer.time("Annotating...") { annotate(text, keepText) }
-    val odinMentions = Timer.time("Extracting...") { extractFrom(doc) }
+    val doc = annotate(text, keepText)
+    val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
-    val cagRelevant = Timer.time("Keeping relevant...") { keepCAGRelevant(odinMentions) }
-    val eidosMentions = Timer.time("Converting...") { EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this) }
+    val cagRelevant = keepCAGRelevant(odinMentions)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
@@ -192,29 +192,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     sameAsRelations
   }
 
-  class MentionAndHashCode(val mention: Mention) {
-    override val hashCode = mention.hashCode
-
-    override def equals(that: Any): Boolean = this.hashCode == that.hashCode
-  }
-
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
     val cagEdgeMentions = mentions.filter(mention => EidosSystem.CAG_EDGES.contains(mention.label))
     // Calculate this once ahead of time.
     val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
-    // Don't do this yet.  Instead, collect the hash codes first.
-    //mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
-
-    val cagEdgeMentionAndHashCode = cagEdgeMentions.map(new MentionAndHashCode(_))
-    val cagEdgeArgumentsAndHashCode = cagEdgeArguments.map(new MentionAndHashCode(_))
-
-    mentions.filter(mention => isCAGRelevant(new MentionAndHashCode(mention), cagEdgeMentionAndHashCode, cagEdgeArgumentsAndHashCode))
+    mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
   }
-
-  def isCAGRelevant(mention: MentionAndHashCode, cagEdgeMentions: Seq[MentionAndHashCode], cagEdgeArguments: Seq[MentionAndHashCode]): Boolean =
-      (mention.mention.matches("Entity") && mention.mention.attachments.nonEmpty) ||
-          cagEdgeMentions.contains(mention) ||
-          cagEdgeArguments.contains(mention)
 
   def isCAGRelevant(mention: Mention, cagEdgeMentions: Seq[Mention], cagEdgeArguments: Seq[Mention]): Boolean =
       (mention.matches("Entity") && mention.attachments.nonEmpty) ||
