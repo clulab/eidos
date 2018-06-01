@@ -1,13 +1,10 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.PrintWriter
-
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
 
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
@@ -19,7 +16,7 @@ object ExtractFromDirectory extends App {
   files.par.foreach { file =>
     // 1. Open corresponding output file
     println(s"Extracting from ${file.getName}")
-    val pw = new PrintWriter(s"$outputDir/${file.getName}.jsonld")
+    val pw = FileUtils.printWriterFromFile(s"$outputDir/${file.getName}.jsonld")
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text

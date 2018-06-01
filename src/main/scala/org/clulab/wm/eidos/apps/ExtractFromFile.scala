@@ -8,7 +8,7 @@ import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.{FileUtils, Sourcer}
+import org.clulab.wm.eidos.utils.FileUtils
 
 object ExtractFromFile extends App {
 
@@ -16,7 +16,7 @@ object ExtractFromFile extends App {
   val outputFile = args(1)
   val files = findFiles(inputDir, "txt")
   println(s"There are ${files.length} files...")
-  val pw = new PrintWriter(s"$outputFile")
+  val pw = FileUtils.printWriterFromFile(s"$outputFile")
 
   val ieSystem = new EidosSystem()
 
