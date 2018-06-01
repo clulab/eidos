@@ -4,16 +4,14 @@ import java.io.File
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
-
 import org.clulab.processors.{Document, Processor}
 import ai.lum.common.ConfigUtils._
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.FileUtils
 
 /**
   * Created by ajaynagesh on 5/31/17.
@@ -39,7 +37,7 @@ object WMseed extends App with LazyLogging {
 
   for(file <- fileList){
     logger.info(s"Processing file ${file.getName}")
-    val text = Sourcer.sourceFromFile(file).getLines().mkString("\n")
+    val text = FileUtils.getTextFromFile(file)
 
     // process text
     extractFrom(text)
