@@ -1,7 +1,5 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.{File, PrintWriter}
-
 import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
@@ -53,7 +51,7 @@ object MakeRuleTSVs extends App {
   // ok print them
   for ((rule, mentionsForRule) <- byRulesSet) {
     if (rule.contains("Causal")) {
-      val pw = new PrintWriter(s"${outputDir}/${rule}.tsv")
+      val pw = FileUtils.printWriterFromFile(s"${outputDir}/${rule}.tsv")
       pw.println(header)
 //      println(s"MENTIONS for RULE: ${rule}")
       for (m <- mentionsForRule) {
