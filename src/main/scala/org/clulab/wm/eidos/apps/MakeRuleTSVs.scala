@@ -25,7 +25,7 @@ object MakeRuleTSVs extends App {
 
   val annotatedDocuments = for {
       file <- files //foreach { file =>
-      text = FileUtils.getCommentedTextFromFile(file)
+      text = FileUtils.getTextFromFile(file)
       annotatedDocument = reader.extractFromText(text)
     } yield annotatedDocument
 
