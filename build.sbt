@@ -27,12 +27,17 @@ libraryDependencies ++= {
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
 
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-
-    "com.github.clulab" % "timenorm" % "timenorm-0.9.6.7"  exclude("org.slf4j", "slf4j-log4j12")
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   )
 }
 
+val minorVersionRegex = "\\d+\\.(\\d+).*".r
+libraryDependencies <++= scalaVersion { sv =>
+  sv match {
+    case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.7_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
+    case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.7" exclude("org.slf4j", "slf4j-log4j12")) 
+  }
+}
 
 //
 // publishing settings

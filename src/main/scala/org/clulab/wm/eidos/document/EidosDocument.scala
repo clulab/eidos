@@ -14,11 +14,11 @@ class EidosDocument(sentences: Array[Sentence]) extends CoreNLPDocument(sentence
   var time: Array[List[TimeInterval]] = Array()
   def parseTime(timenorm: Option[TemporalCharbasedParser], text:String, dct: Option[String] = None) = {
     val padd = "\n\n\n"
-    val dateTime = dct match {
+    lazy val dateTime = dct match {
       case Some(date) => Try(LocalDateTime.parse(date + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse(LocalDateTime.now())
       case None => LocalDateTime.now()
     }
-    val anchor = TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+    lazy val anchor = TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
     var prev = 0
     for (s <- this.sentences) {
       timenorm match {
