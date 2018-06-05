@@ -10,6 +10,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
 
+// Heads up.  This is about to change.
 class OntologyNode(val path: String, others: Seq[String], examples: Seq[String],  descriptions: Seq[String]) {
   protected def split(values: Seq[String]): Seq[String] = values.flatMap(_.split(" +"))
 
