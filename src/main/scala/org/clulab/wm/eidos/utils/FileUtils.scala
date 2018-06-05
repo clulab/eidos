@@ -1,14 +1,19 @@
 package org.clulab.wm.eidos.utils
 
-import java.io.{File, FileNotFoundException, FilenameFilter}
+import java.io.{File, FileNotFoundException, FilenameFilter, PrintWriter}
 import java.util.Collection
 
+import org.clulab.wm.eidos.utils.Sinker.logger
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.io.Source
 
 object FileUtils {
+
+  def printWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file)
+
+  def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path)
 
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)

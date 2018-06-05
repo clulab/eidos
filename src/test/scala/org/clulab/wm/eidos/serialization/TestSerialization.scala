@@ -73,7 +73,10 @@ class TestSerialization extends Test {
 
           serialize(textBoundMention.attachments, index)
           index += 1
-          serialize(textBoundMention, index)
+          val hash = textBoundMention.hashCode
+          val mention2 = textBoundMention.copy()
+          val hash2 = mention2.hashCode
+          serialize(mention2, index)
           index += 1
     }
   }

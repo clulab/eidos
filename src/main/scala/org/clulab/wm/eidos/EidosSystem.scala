@@ -209,15 +209,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-    val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    mentions.filter(m => isCAGRelevant(m, cagEdgeMentions))
+    val cagEdgeMentions = mentions.filter(mention => EidosSystem.CAG_EDGES.contains(mention.label))
+    // Calculate this once ahead of time.
+    val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
+    mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
   }
 
-  def isCAGRelevant(m:Mention, cagEdgeMentions: Seq[Mention]): Boolean =
-      (m.matches("Entity") && m.attachments.nonEmpty) ||
-          cagEdgeMentions.exists(cm => cm.arguments.values.flatten.toSeq.contains(m)) ||
-          cagEdgeMentions.contains(m)
-  
+  def isCAGRelevant(mention: Mention, cagEdgeMentions: Seq[Mention], cagEdgeArguments: Seq[Mention]): Boolean =
+      (mention.matches("Entity") && mention.attachments.nonEmpty) ||
+          cagEdgeMentions.contains(mention) ||
+          cagEdgeArguments.contains(mention)
+
   /*
       Grounding
   */

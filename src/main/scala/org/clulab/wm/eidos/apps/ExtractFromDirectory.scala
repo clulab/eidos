@@ -1,13 +1,10 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.PrintWriter
-
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
 
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
@@ -19,11 +16,11 @@ object ExtractFromDirectory extends App {
   files.par.foreach { file =>
     // 1. Open corresponding output file
     println(s"Extracting from ${file.getName}")
-    val pw = new PrintWriter(s"$outputDir/${file.getName}.jsonld")
+    val pw = FileUtils.printWriterFromFile(s"$outputDir/${file.getName}.jsonld")
     // 2. Get the input file contents
-    val lines = FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
+    val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
-    val annotatedDocuments = lines.map(reader.extractFromText(_))
+    val annotatedDocuments = Seq(reader.extractFromText(text))
     // 4. Convert to JSON
     val corpus = new JLDCorpus(annotatedDocuments, reader)
     val mentionsJSONLD = corpus.serialize()

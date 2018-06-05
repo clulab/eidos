@@ -38,7 +38,7 @@ object ExampleGenerator extends App {
   println(pretty(render(mentionsJSON)))
 
 
-//  val pw = new PrintWriter("/Users/bsharp/wmExampleJson_dec7.txt")
+//  val pw = FileUtils.newPrintWriterFromFile("/Users/bsharp/wmExampleJson_dec7.txt")
 //  pw.println(pretty(render(mentionsJSON)))
 //  pw.close()
 

@@ -8,7 +8,7 @@ import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.FileUtils
 
 object ExtractFromFile extends App {
 
@@ -16,21 +16,21 @@ object ExtractFromFile extends App {
   val outputFile = args(1)
   val files = findFiles(inputDir, "txt")
   println(s"There are ${files.length} files...")
-  val pw = new PrintWriter(s"$outputFile")
+  val pw = FileUtils.printWriterFromFile(s"$outputFile")
 
   val ieSystem = new EidosSystem()
 
   for (filename <- files) {
-    val source = Sourcer.sourceFromFile(filename)
-    val text = source.getLines().toArray.filter(line => !line.startsWith("#"))
-    println(s"There are ${text.length} lines in the file...")
-    val annotatedDoc = ieSystem.extractFromText(text.mkString(" "))
+    val text = FileUtils.getTextFromFile(filename)
+    println(s"There are ${text.split('\n').length} lines in the file...")
+    val annotatedDoc = ieSystem.extractFromText(text)
     val doc = annotatedDoc.document
     pw.println(s"Filename: ${filename.getName}")
 
     // keep the EidosMentions that are relevant to the CAG
     val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention, cagEdgeMentions))
+    val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
+    val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention, cagEdgeMentions, cagEdgeArguments))
 
     val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
     for ((sentence, sentenceMentions) <- mentionsBySentence){
