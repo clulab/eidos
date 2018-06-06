@@ -408,7 +408,7 @@
           - irrigation system
           - irrigation
       - infrastructure:
-          - transportation:
+        - transportation:
           - OntologyNode:
             name: transportation_methods
             examples:
