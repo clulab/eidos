@@ -56,18 +56,18 @@ class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrou
     // Collect unique values?
     myprintln("odinMentions: " + odinMentions.size + " eidosMentions " + eidosMentions.size)
     myprintln("odinArguments: " + odinArguments.size + " eidosArguments " + eidosArguments.size)
-    
+
     val odinUniqueMentions = new IdentityHashMap[Mention, Int]()
     val eidosUniqueMentions = new IdentityHashMap[EidosMention, Int]()
-    
+
     addAllOdinMention(odinUniqueMentions, odinMentions)
     addAllEidosMention(eidosUniqueMentions, eidosMentions)
     val uniqueSize1 = odinUniqueMentions.size()
-    
-    
+
+
     myprintln("uniqueSize1: " + uniqueSize1)
     odinUniqueMentions.size should be (eidosUniqueMentions.size)
-    
+
     addAllOdinMention(odinUniqueMentions, odinArguments)
     addAllEidosMention(eidosUniqueMentions, eidosArguments)
     val uniqueSize2 = odinUniqueMentions.size()

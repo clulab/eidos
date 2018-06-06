@@ -70,7 +70,8 @@ rules:
     example: "food imports will decrease due to rainfall"
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /${conjunctions}/? /${preps}/{,2} /${conjunctions}/{,2}
+      cause: Entity = <case /^(${conjunctions})/? /${preps}/{,2} /${conjunctions}/{,2}
+      #cause: Entity = <case conj_and /${preps}/{,2} /${conjunctions}/{,2}
       effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
 
     #-----------------------------------------------------------------------------------------

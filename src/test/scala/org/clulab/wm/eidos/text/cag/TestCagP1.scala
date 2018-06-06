@@ -18,13 +18,13 @@ class TestCagP1 extends Test {
 
     behavior of "p1s1"
 
-    brokenEntitiesTest should "have correct edges 1" taggedAs(Egoitz) in {
+    tempBrokenEntitiesTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(conflict, Causal, foodInsecurityLevels)) should be (successful)
     }
-    brokenEntitiesTest should "have correct edges 2" taggedAs(Egoitz) in {
+    tempBrokenEntitiesTest should "have correct edges 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(economy, Causal, foodInsecurityLevels)) should be (successful)
     }
-    brokenEntitiesTest should "have correct edges 3" taggedAs(Egoitz) in {
+    tempBrokenEntitiesTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(cerealProduction, Causal, foodInsecurityLevels)) should be (successful)
     }
     passingTest should "have correct edges 4" taggedAs(Egoitz) in {

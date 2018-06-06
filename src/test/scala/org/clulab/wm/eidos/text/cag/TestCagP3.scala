@@ -95,10 +95,10 @@ class TestCagP3 extends Test {
     behavior of "p3s5"
     //waiting on "economic" fix from becky. 
 
-    brokenEntitiesTest should "have correct edges 1" taggedAs(Mithun) in {
+    tempBrokenEntitiesTest should "have correct edges 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(economic, Causal, accessFood)) should be (successful)
     }
-    brokenEntitiesTest should "have correct edges 2" taggedAs(Mithun) in {
+    tempBrokenEntitiesTest should "have correct edges 2" taggedAs(Mithun) in {
       tester.test(EdgeSpec(economic, Causal, accessWater)) should be (successful)
 
     }

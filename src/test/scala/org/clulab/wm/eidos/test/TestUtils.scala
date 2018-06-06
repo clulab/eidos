@@ -43,7 +43,7 @@ object TestUtils {
                                 // framework, they will be achievable
     val inferenceTest = ignore  // type of futureWorkTest -- added for tests which are now failing because of entity
                                 // filtering, basically because inference or coref would be needed
-    val brokenEntitiesTest = ignore
+    val tempBrokenEntitiesTest = ignore
     val affectEventTest = ignore
 
     val successful = Seq()

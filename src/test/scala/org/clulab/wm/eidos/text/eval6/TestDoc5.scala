@@ -169,7 +169,7 @@ class TestDoc5 extends Test {
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices3)
     }
-    brokenEntitiesTest should "have correct edges 1" taggedAs(Ajay) in {
+    tempBrokenEntitiesTest should "have correct edges 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(factors, Causal, prices)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Ajay) in {

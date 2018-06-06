@@ -543,7 +543,7 @@ class TestDoc3 extends Test {
     val vegetation = NodeSpec("Vegetation conditions", Dec("below"))
     val vegetation2 = NodeSpec("vegetation conditions", Inc("above-average"), Quant("above-average")) // Increase??
 
-    val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"))
+    val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"), Quant("most"))
     val insecurity = NodeSpec("insecurity")
     val farmInput = NodeSpec("access to farm inputs", Dec("lack"))
     val conflict = NodeSpec("ongoing conflict", Quant("ongoing"))

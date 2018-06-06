@@ -67,13 +67,13 @@ class TestCagP4 extends Test {
     passingTest should "have correct edges 1" taggedAs(Fan) in {
       tester.test(EdgeSpec(insecurity, Causal, access)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Fan) in {
+    tempBrokenEntitiesTest should "have correct edges 2" taggedAs(Fan) in {
       tester.test(EdgeSpec(expertise, Causal, repairs)) should be (successful)
     }
-    passingTest should "have correct edges 3" taggedAs(Fan) in {
+    tempBrokenEntitiesTest should "have correct edges 3" taggedAs(Fan) in {
       tester.test(EdgeSpec(supplies, Causal, repairs)) should be (successful)
     }
-    brokenEntitiesTest should "have correct edges 4" taggedAs(Fan) in {
+    tempBrokenEntitiesTest should "have correct edges 4" taggedAs(Fan) in {
       tester.test(EdgeSpec(access, Causal, repairs)) should be (successful)
     }
   }

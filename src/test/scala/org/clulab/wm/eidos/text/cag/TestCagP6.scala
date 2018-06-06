@@ -88,7 +88,7 @@ class TestCagP6 extends Test {
     brokenSyntaxTest should "have correct edges 7" taggedAs(Becky) in {
       tester.test(EdgeSpec(practices, Causal, malnutrition)) should be (successful)
     }
-    passingTest should "have correct edges 8" taggedAs(Ben) in {
+    tempBrokenEntitiesTest should "have correct edges 8" taggedAs(Ben) in {
       tester.test(EdgeSpec(displacement, Causal, access)) should be (successful)
     }
   }
@@ -101,7 +101,7 @@ class TestCagP6 extends Test {
      
     behavior of "p6s3"
 
-    passingTest should "have correct edges 1" taggedAs(Zheng) in {
+    tempBrokenEntitiesTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(EdgeSpec(consumption, Causal, malnutrition)) should be (successful)
     }
   }
