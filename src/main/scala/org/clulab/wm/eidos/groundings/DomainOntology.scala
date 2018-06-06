@@ -77,10 +77,8 @@ object DomainOntology {
       val examples: Option[Seq[String]] = yamlNodes.get(DomainOntology.EXAMPLES).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
       val yamlDescription: Option[JCollection[Any]] = yamlNodes.get(DomainOntology.DESCRIPTION)
       val description: Option[String] =
-          if (yamlDescription.isDefined)
-            Some(yamlDescription.get.asInstanceOf[String])
-          else
-            None // yamlNodes.get(DomainOntology.DESCRIPTION) // .map(_.asInstanceOf[String])
+          if (yamlDescription.isDefined) Some(yamlDescription.get.asInstanceOf[String])
+          else None
 
       ontologyNodes :+ new OntologyNode(path, name, examples, description.map(filtered))
     }
@@ -89,12 +87,10 @@ object DomainOntology {
       if (yamlNodes.nonEmpty) {
         val map: mutable.Map[String, JCollection[Any]] = yamlNodes.head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
-        println(key)
         val moreOntologyNodes =
-            if (key == DomainOntology.FIELD)
-              parseOntology(map, ontologyNodes, path)
-            else
-              parseOntology(map(key).asScala.toSeq, ontologyNodes, path :+ key)
+            if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, path)
+            else parseOntology(map(key).asScala.toSeq, ontologyNodes, path :+ key)
+
         parseOntology(yamlNodes.tail, moreOntologyNodes, path)
       }
       else
