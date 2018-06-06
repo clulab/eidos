@@ -203,7 +203,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     sameAsRelations
   }
 
-<<<<<<< HEAD
   // Old version
   def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
     // 1) These will be "Causal" and "Correlation" which fall under "Event"
