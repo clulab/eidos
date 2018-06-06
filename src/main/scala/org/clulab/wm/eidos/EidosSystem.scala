@@ -7,14 +7,13 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.utils.Configured
-import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{DomainParams, FileUtils, StopwordManager, StopwordManaging}
+import org.clulab.wm.eidos.utils._
 import org.slf4j.LoggerFactory
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
@@ -32,10 +31,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   override def getConf: Config = config
 
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
+  // This isn't intended to be (re)loadable.  This only happens once.
   protected val wordToVec = EidosWordToVec(
     word2vec,
-//    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
-    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
+    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
+//    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
     getArgInt(getFullName("topKNodeGroundings"), Some(10))
   )
 
@@ -61,44 +61,46 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   )
 
   object LoadableAttributes {
-    val    masterRulesPath: String = getPath(   "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
-    val   quantifierKBPath: String = getPath(  "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
-    val  domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
-    val     quantifierPath: String = getPath(    "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
-    val    entityRulesPath: String = getPath(   "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
-    val     avoidRulesPath: String = getPath(    "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    val       taxonomyPath: String = getPath(      "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
-    val      stopwordsPath: String = getPath(     "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
-    val    transparentPath: String = getPath(   "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    def   masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
+    def  quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
+    def domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
+    def    quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
+    def   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
+    def    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
+    def      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    def     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    def   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
 
-    val domainOntologyPath: String = getPath("domainOntologyPath", "/org/clulab/wm/eidos/ontology.yml")
-    val     unOntologyPath: String = getPath(    "unOntologyPath", "/org/clulab/wm/eidos/un_ontology.yml")
-    val    wdiOntologyPath: String = getPath(   "wdiOntologyPath", "/org/clulab/wm/eidos/wdi_ontology.yml")
-    val    faoOntologyPath: String = getPath(       "faoOntology", "/org/clulab/wm/eidos/fao_variable_ontology.yml")
+    def   toyOntologyPath: String = getPath(  "toyOntologyPath", "/org/clulab/wm/eidos/ontologies/ontology.yml")
+    def    unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
+    def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
+    def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
-    val ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
-    val maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
+    def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
+    def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
 
-    protected def ontologyGrounders: Seq[EidosOntologyGrounder] =
+    protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
           Seq.empty
         else if (ontologies.isEmpty)
-          Seq(new DomainOntologyGrounder("domain", domainOntologyPath, wordToVec))
-        else {
-          for (ontology <- ontologies)
-          yield ontology match {
-            case name @ UN_NAMESPACE  => new  UNOntologyGrounder(name,  unOntologyPath, wordToVec)
-            case name @ WDI_NAMESPACE => new WDIOntologyGrounder(name, wdiOntologyPath, wordToVec)
-            case name @ FAO_NAMESPACE => new FAOOntologyGrounder(name, faoOntologyPath, wordToVec)
-            case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+          Seq(ToyOntology("toy", toyOntologyPath, proc))
+        else
+          ontologies.map {
+            _ match {
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, proc)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, proc)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, proc)
+//              case name @ "toy" => ToyOntology(name, toyOntologyPath, proc)
+              case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+            }
           }
-        }
 
     def apply(): LoadableAttributes = {
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
+      val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -121,9 +123,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def domainParams = loadableAttributes.domainParams
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
-
-
-  // This isn't intended to be (re)loadable.  This only happens once.
 
   def reload() = loadableAttributes = LoadableAttributes()
 
@@ -204,6 +203,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     sameAsRelations
   }
 
+<<<<<<< HEAD
   // Old version
   def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
     // 1) These will be "Causal" and "Correlation" which fall under "Event"
@@ -229,15 +229,19 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // Should these be included as well?
 
     // 3) These last ones may overlap with the above or include mentions not in the original list.
-    val argumentMentions: Seq[Mention] = cagEdgeMentions.flatMap(_.arguments.values.flatten)
+    val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
     // Put them all together.
-    val goodMentions = cagEdgeMentions ++ argumentMentions
+    val releventEdgesAndTheirArgs = cagEdgeMentions ++ cagEdgeArguments
     // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
-    val relevantMentions = mentions.filter(m => goodMentions.exists(m.eq))
+    mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
 
-//    relevantMentions
-    goodMentions
   }
+
+  def isCAGRelevant(mention: Mention, cagEdgeMentions: Seq[Mention], cagEdgeArguments: Seq[Mention]): Boolean =
+    // We're no longer keeping all modified entities
+    //(mention.matches("Entity") && mention.attachments.nonEmpty) ||
+      cagEdgeMentions.contains(mention) ||
+      cagEdgeArguments.contains(mention)
 
   def releventEdge(m: Mention): Boolean = {
     m match {
@@ -267,11 +271,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     loadableAttributes.stopwordManager.containsStopword(stopword)
 
   def groundOntology(mention: EidosMention): Groundings =
-      if (!word2vec)
-        Map.empty
-      else
-        loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
-          (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+      loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
+        (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
 
   def groundAdjective(quantifier: String): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
@@ -279,7 +280,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(s1: String, s2: String): Double = wordToVec.stringSimilarity(s1, s2)
+  def stringSimilarity(string1: String, string2: String): Double = wordToVec.stringSimilarity(string1, string2)
 
   /*
      Debugging Methods

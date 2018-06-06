@@ -31,13 +31,14 @@
         - emergency
     - natural:
       - chemical:
-        - oxygen
-        - O2
-        - nitrogen
-        - CO2
-        - carbon dioxide
-        - sulfer
-        - lead
+        - examples: #todo -- O2, N, CO2 etc ...
+          - oxygen
+          - O2
+          - nitrogen
+          - CO2
+          - carbon dioxide
+          - sulfer
+          - lead
       - biology:
         - ecosystem:
           - examples:

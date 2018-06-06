@@ -235,12 +235,18 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   // Remove incomplete Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
+//<<<<<<< HEAD
 
     val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
     // Filter out duplicate (or subsumed) events.  Strict containment used -- i.e. simply overlapping args is not
     // enough to be filtered out here.
     val events = filterSubstringArgumentEvents(baseEvents.map(_.asInstanceOf[EventMention]))
 
+//=======
+//    val (events, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
+//    val (textBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
+//    // remove incomplete entities (i.e. under specified when more fully specified exists)
+//>>>>>>> master
 
     // Entities
     val (baseTextBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
@@ -308,22 +314,24 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   //Rule to add Increase/Decrease to the state of an entity
   //TODO Heather: write toy test for this
   //TODO: perhaps keep token interval of the EVENT because it will be longer?
-  def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = for {
-    m <- ms
-    //if m matches "EntityModifier"
-    attachment = getAttachment(m)
+  def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+      //if m matches "EntityModifier"
+      attachment = getAttachment(m)
 
-    copyWithMod = m match {
-      case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
-      // Here, we want to keep the theme that is being modified, not the modification event itself
-      case rm: RelationMention =>
-        val theme = tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
-      case em: EventMention =>
-        val theme = tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
-        theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
-    }
-  } yield copyWithMod
+      copyWithMod = m match {
+        case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
+        // Here, we want to keep the theme that is being modified, not the modification event itself
+        case rm: RelationMention =>
+          val theme = tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
+        case em: EventMention =>
+          val theme = tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
+      }
+    } yield copyWithMod
+  }
 
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
@@ -626,6 +634,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
 object EidosActions extends Actions {
 
+
   val MAX_HOPS_EXPANDING = 5
   val AVOID_LABEL = "Avoid-Strict"
 
@@ -666,6 +675,7 @@ object EidosActions extends Actions {
 //    "^ccomp".r
     ".+".r
   )
+
 
   def apply(taxonomyPath: String) =
       new EidosActions(readTaxonomy(taxonomyPath))
