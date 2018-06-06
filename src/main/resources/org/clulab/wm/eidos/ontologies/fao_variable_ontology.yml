@@ -1943,7 +1943,7 @@
         description:
           - "Export Quantity Industrial roundwood"
       - OntologyNode:
-        name: coniferous tropical (export/import)
+        name: coniferous tropical (export\/import)
         description:
           - "Export Quantity Industrial roundwood, non-coniferous tropical (export/import)"
       - OntologyNode:
@@ -1968,7 +1968,7 @@
         description:
           - "Export Value Industrial roundwood"
       - OntologyNode:
-        name: coniferous tropical (export/import)
+        name: coniferous tropical (export\/import)
         description:
           - "Export Value Industrial roundwood, non-coniferous tropical (export/import)"
       - OntologyNode:
@@ -1988,7 +1988,7 @@
         description:
           - "Export Value Sawnwood, non-coniferous all"
       - OntologyNode:
-        name: Forest products (export/import)
+        name: Forest products (export\/import)
         description:
           - "Export Value Forest products (export/import)"
     - Food aid shipments:
@@ -2489,7 +2489,7 @@
         description:
           - "Import Quantity Paper and paperboard, excluding newsprint"
       - OntologyNode:
-        name: MDF/HDF
+        name: MDF\/HDF
         description:
           - "Import Quantity MDF/HDF"
       - OntologyNode:
@@ -2554,11 +2554,11 @@
         description:
           - "Import Value Paper and paperboard, excluding newsprint"
       - OntologyNode:
-        name: MDF/HDF
+        name: MDF\/HDF
         description:
           - "Import Value MDF/HDF"
       - OntologyNode:
-        name: Forest products (export/import)
+        name: Forest products (export\/import)
         description:
           - "Import Value Forest products (export/import)"
       - OntologyNode:
@@ -4747,7 +4747,7 @@
           - "Urban population Population - Est. & Proj."
     - Value:
       - OntologyNode:
-        name: Per capita food supply variability (kcal/capita/day)
+        name: Per capita food supply variability (kcal\/capita\/day)
         description:
           - "Value Per capita food supply variability (kcal/capita/day)"
       - OntologyNode:
@@ -4796,7 +4796,7 @@
           - "Value Share of dietary energy supply derived from cereals, roots and tubers\
           \ (%) (3-year average)"
       - OntologyNode:
-        name: Political stability and absence of violence/terrorism (index)
+        name: Political stability and absence of violence\/terrorism (index)
         description:
           - "Value Political stability and absence of violence/terrorism (index)"
       - OntologyNode:
