@@ -1,14 +1,14 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils._
 
 class TestDomainOntology extends Test {
 
   def hasDuplicates(domainOntology: DomainOntology): Boolean = {
     val ontologyNodes = domainOntology.ontologyNodes
-    val pathSeq = ontologyNodes.map(_.path)
+    val pathSeq = ontologyNodes.map(_.route())
     val pathSet = pathSeq.toSet
 
     if (pathSeq.size != pathSet.size) {
@@ -29,7 +29,7 @@ class TestDomainOntology extends Test {
 
   behavior of "toy ontology"
   it should "load and not have duplicates" in {
-    hasDuplicates(ToyOntology("toy", "/org/clulab/wm/eidos/ontologies/ontology.yml", proc)) should be (false)
+    hasDuplicates(ToyOntology("toy", "/org/clulab/wm/eidos/ontologies/toy_ontology.yml", proc)) should be (false)
   }
 
   behavior of "un ontology"
@@ -44,10 +44,6 @@ class TestDomainOntology extends Test {
 
   behavior of "wdi ontology"
   it should "load" in {
-    WDIOntology("wdi", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", proc)
-  }
-
-  ignore should "load and not have duplicates" in {
     hasDuplicates(WDIOntology("wdi", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", proc)) should be (false)
   }
 }
