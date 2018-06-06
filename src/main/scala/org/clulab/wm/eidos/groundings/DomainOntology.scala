@@ -59,6 +59,7 @@ object DomainOntology {
     def filtered(text: String): Seq[String] = {
       text.split(" +")
 
+      // TODO: Return this functionality after finish testing
 //      val posString = proc.annotate(text)
 //      val filteredTerms = posString.sentences.flatMap { sentence =>
 //        sentence.words.zip(sentence.tags.get).filter { wordAndPos =>
