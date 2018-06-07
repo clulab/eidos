@@ -18,28 +18,60 @@ class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrou
   def test(text: String) = {
     def myprintln(text: String) = {
       val debug = false
-      
+
       if (debug)
         println(text)
     }
-      
-    def addAllOdinMention(map: IdentityHashMap[Mention, Int], values: Seq[Mention]): Unit =
-        values.foreach { value =>
-          if (map.containsKey(value))
-            map.put(value, map.get(value) + 1)
-          else
-            map.put(value, 1)
-        }
-      
-    def addAllEidosMention(map: IdentityHashMap[EidosMention, Int], values: Seq[EidosMention]): Unit =
-        values.foreach { value =>
-          if (map.containsKey(value))
-            map.put(value, map.get(value) + 1)
-          else
-            map.put(value, 1)
-        }
 
-    val odinMentions = TestUtils.extractMentions(text)
+    def addAllOdinMention(map: IdentityHashMap[Mention, Int], values: Seq[Mention]): Unit =
+      values.foreach { value =>
+        if (map.containsKey(value))
+          map.put(value, map.get(value) + 1)
+        else
+          map.put(value, 1)
+      }
+
+    def addAllEidosMention(map: IdentityHashMap[EidosMention, Int], values: Seq[EidosMention]): Unit =
+      values.foreach { value =>
+        if (map.containsKey(value))
+          map.put(value, map.get(value) + 1)
+        else
+          map.put(value, 1)
+      }
+
+    val extractedOdinMentions = ieSystem.extractFromText(text, returnAllMentions = true).odinMentions
+    val distinctExtractedOdinMentions = extractedOdinMentions.distinct
+    val uniqueExtractedOdinMentions = {
+      val map = new IdentityHashMap[Mention, Int]()
+      addAllOdinMention(map, extractedOdinMentions)
+      map
+    }
+    val uniqueDistinctExtractedOdinMentions = {
+      val map = new IdentityHashMap[Mention, Int]()
+      addAllOdinMention(map, distinctExtractedOdinMentions)
+      map
+    }
+
+    val reachableOdinMentions = EidosMention.findReachableMentions(extractedOdinMentions)
+    val distinctReachableOdinMentions = reachableOdinMentions.distinct
+    val uniqueReachableOdinMentions = {
+      val map = new IdentityHashMap[Mention, Int]()
+      addAllOdinMention(map, reachableOdinMentions)
+      map
+    }
+    val uniqueDistinctReachableOdinMentions = {
+      val map = new IdentityHashMap[Mention, Int]()
+      addAllOdinMention(map, distinctReachableOdinMentions)
+      map
+    }
+
+    reachableOdinMentions.foreach { odinMention =>
+      println(System.identityHashCode(odinMention) + "\t" + odinMention.hashCode())
+    }
+
+    val odinMentions = reachableOdinMentions
+    val distinctOdinMentions = odinMentions.distinct
+
     val eidosMentions = EidosMention.asEidosMentions(odinMentions, this, this)
     val mentionsSize = odinMentions.size
     
