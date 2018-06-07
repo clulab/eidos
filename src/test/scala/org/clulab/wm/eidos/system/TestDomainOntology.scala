@@ -13,9 +13,11 @@ class TestDomainOntology extends Test {
 
     if (pathSeq.size != pathSet.size) {
       val pathBag = pathSeq.foldLeft(Map[String, Int]())((map, path) => map + (path -> (map.getOrElse(path, 0) + 1)))
-      val duplicates = pathBag.toSeq.filter(_._2 > 1).map(_._1).mkString("\n\t")
+      val duplicatePaths = pathBag.toSeq.filter(_._2 > 1).map(_._1)
+      val duplicateNodes = ontologyNodes.filter { ontologyNode => duplicatePaths.contains(ontologyNode.route()) }
 
-      println(s"""The domain ontology "${domainOntology.name}" includes duplicate paths:\n\t${duplicates}""")
+      println(s"""The domain ontology "${domainOntology.name}" includes duplicate nodes:""")
+      duplicateNodes.foreach(println)
       true
     }
     else

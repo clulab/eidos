@@ -24,6 +24,8 @@ class OntologyNode(val path: Seq[String], val name: String, examples: Option[Seq
   val values: Seq[String] = split(examples) ++ description.getOrElse(Seq.empty)
 
   override def toString = route() + " = " + values.toList
+
+  println(this.toString())
 }
 
 object OntologyNode {
@@ -87,6 +89,7 @@ object DomainOntology {
       if (yamlNodes.nonEmpty) {
         val map: mutable.Map[String, JCollection[Any]] = yamlNodes.head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
+        println(key)
         val moreOntologyNodes =
             if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, path)
             else parseOntology(map(key).asScala.toSeq, ontologyNodes, path :+ key)
