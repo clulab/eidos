@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.mentions
 
 import java.util.HashMap
-import java.util.IdentityHashMap
+//import java.util.IdentityHashMap
 
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
@@ -98,7 +98,7 @@ object EidosMention {
 
   def findReachableMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {
     // Just to be more informative, this will store the number of references counted.
-    val reachableMentions = new IdentityHashMap[Mention, Integer]
+    val reachableMentions = new HashMap[Mention, Integer] // Used to be IdentityHashMap
 
     def addMention(mention: Mention): Unit = {
       if (reachableMentions.containsKey(mention))
