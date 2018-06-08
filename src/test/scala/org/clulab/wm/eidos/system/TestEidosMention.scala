@@ -1,10 +1,11 @@
 package org.clulab.wm.eidos.text.cag
 
-import java.util.IdentityHashMap
+import java.util.HashMap
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.groundings.{MultiOntologyGrounder, OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.mentions.{HashCodeBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.cag.CAG._
@@ -23,89 +24,43 @@ class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrou
         println(text)
     }
 
-    def addAllOdinMention(map: IdentityHashMap[Mention, Int], values: Seq[Mention]): Unit =
-      values.foreach { value =>
-        if (map.containsKey(value))
-          map.put(value, map.get(value) + 1)
-        else
-          map.put(value, 1)
-      }
-
-    def addAllEidosMention(map: IdentityHashMap[EidosMention, Int], values: Seq[EidosMention]): Unit =
-      values.foreach { value =>
-        if (map.containsKey(value))
-          map.put(value, map.get(value) + 1)
-        else
-          map.put(value, 1)
-      }
-
     val extractedOdinMentions = ieSystem.extractFromText(text, returnAllMentions = true).odinMentions
-    val distinctExtractedOdinMentions = extractedOdinMentions.distinct
-    val uniqueExtractedOdinMentions = {
-      val map = new IdentityHashMap[Mention, Int]()
-      addAllOdinMention(map, extractedOdinMentions)
-      map
-    }
-    val uniqueDistinctExtractedOdinMentions = {
-      val map = new IdentityHashMap[Mention, Int]()
-      addAllOdinMention(map, distinctExtractedOdinMentions)
-      map
-    }
-
     val reachableOdinMentions = EidosMention.findReachableMentions(extractedOdinMentions)
-    val distinctReachableOdinMentions = reachableOdinMentions.distinct
-    val uniqueReachableOdinMentions = {
-      val map = new IdentityHashMap[Mention, Int]()
-      addAllOdinMention(map, reachableOdinMentions)
-      map
-    }
-    val uniqueDistinctReachableOdinMentions = {
-      val map = new IdentityHashMap[Mention, Int]()
-      addAllOdinMention(map, distinctReachableOdinMentions)
-      map
+
+    {
+      // Diagnostics
+      val distinctExtractedOdinMentions = new HashCodeBagger[Mention].put(extractedOdinMentions).get()
+      val uniqueExtractedOdinMentions = new IdentityBagger[Mention].put(extractedOdinMentions).get()
+      val uniqueDistinctExtractedOdinMentions = new IdentityBagger[Mention].put(distinctExtractedOdinMentions).get()
+
+      val distinctReachableOdinMentions = new HashCodeBagger[Mention].put(reachableOdinMentions).get()
+      val uniqueReachableOdinMentions = new IdentityBagger[Mention].put(reachableOdinMentions).get()
+      val uniqueDistinctReachableOdinMentions = new IdentityBagger[Mention].put(distinctReachableOdinMentions).get()
+
+      //    reachableOdinMentions.foreach { odinMention =>
+      //      println(System.identityHashCode(odinMention) + "\t" + odinMention.hashCode())
+      //    }
     }
 
-    reachableOdinMentions.foreach { odinMention =>
-      println(System.identityHashCode(odinMention) + "\t" + odinMention.hashCode())
-    }
-
-    val odinMentions = reachableOdinMentions
-    val distinctOdinMentions = odinMentions.distinct
-
+    val odinMentions = reachableOdinMentions // These should already be distinct
+    val distinctOdinMentions = new HashCodeBagger[Mention].put(odinMentions).get() // This shouldn't make a difference
     val eidosMentions = EidosMention.asEidosMentions(odinMentions, this, this)
-    val mentionsSize = odinMentions.size
-    
-    myprintln("mentionsSize: " + mentionsSize)
+    odinMentions.size should be (distinctOdinMentions.size)
     odinMentions.size should be (eidosMentions.size)
-    
+
+    // Since they are all distinct above, they are also unique
+    val odinUniqueMentions = new IdentityBagger[Mention].put(odinMentions).get()
+    val eidosUniqueMentions = new IdentityBagger[EidosMention].put(eidosMentions).get()
+    odinMentions.size should be (odinUniqueMentions.size)
+    odinMentions.size should be (eidosUniqueMentions.size)
+
+    // These may not be distinct or unique, but their sizes should at least match
     val odinArguments = eidosMentions.flatMap(eidosMention => eidosMention.odinArguments.values).flatten
     val eidosArguments = eidosMentions.flatMap(eidosMention => eidosMention.eidosArguments.values).flatten
-    val argumentsSize = odinArguments.size
-    
-    myprintln("argumentsSize: " + argumentsSize)
     odinArguments.size should be (eidosArguments.size)
     
-    // Collect unique values?
     myprintln("odinMentions: " + odinMentions.size + " eidosMentions " + eidosMentions.size)
     myprintln("odinArguments: " + odinArguments.size + " eidosArguments " + eidosArguments.size)
-
-    val odinUniqueMentions = new IdentityHashMap[Mention, Int]()
-    val eidosUniqueMentions = new IdentityHashMap[EidosMention, Int]()
-
-    addAllOdinMention(odinUniqueMentions, odinMentions)
-    addAllEidosMention(eidosUniqueMentions, eidosMentions)
-    val uniqueSize1 = odinUniqueMentions.size()
-
-
-    myprintln("uniqueSize1: " + uniqueSize1)
-    odinUniqueMentions.size should be (eidosUniqueMentions.size)
-
-    addAllOdinMention(odinUniqueMentions, odinArguments)
-    addAllEidosMention(eidosUniqueMentions, eidosArguments)
-    val uniqueSize2 = odinUniqueMentions.size()
-
-    myprintln("uniqueSize2: " + uniqueSize2)
-    odinUniqueMentions.size should be (eidosUniqueMentions.size)
   }
 
   val text1 = """
