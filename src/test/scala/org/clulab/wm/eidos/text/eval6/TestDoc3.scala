@@ -511,9 +511,10 @@ class TestDoc3 extends Test {
     behavior of "TestDoc3 Paragraph 13"
 
     // tests here
-    passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
-      tester.test(rainfall) should be (successful) // Test edges connecting them
-    }
+    // no longer testing singleton nodes
+//    passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
+//      tester.test(rainfall) should be (successful) // Test edges connecting them
+//    }
     failingTest should "have correct edges 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(rainfall2, Causal, flooding)) should be (successful) // Test edges connecting them
     }

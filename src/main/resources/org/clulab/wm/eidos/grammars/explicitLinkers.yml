@@ -57,6 +57,18 @@ rules:
 #      cause: Entity = <case <nmod_with (${ agents }) (${ preps })?
 #      effect: Entity  = <case [incoming=nmod_with] #<advcl_as nsubj
 
+
+  - name: syntax_verb-Correlation_with
+    priority: ${ rulepriority }
+    example: "moderate to heavy seasonal rainfall is expected to continue, with heightened risk of flooding in these regions"
+    label: Correlation
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/^VB/]
+      cause: Entity = nmod_with
+      effect: Entity  = nsubj
+
+
   - name: syntax_5_verb-Correlation
     priority: ${ rulepriority }
     example: "Economic crisis, marked by drastic hyperinflation and market failures"

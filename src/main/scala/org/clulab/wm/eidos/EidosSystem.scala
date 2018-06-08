@@ -233,7 +233,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val releventEdgesAndTheirArgs = cagEdgeMentions ++ cagEdgeArguments
     // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
     mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
-
   }
 
   def isCAGRelevant(mention: Mention, cagEdgeMentions: Seq[Mention], cagEdgeArguments: Seq[Mention]): Boolean =

@@ -46,14 +46,14 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 2"
 
-    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(situation) should be(successful)
-    }
+//    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+//      tester.test(situation) should be(successful)
+//    }
 
-      //this is passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
-    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
-      tester.test(leanSeason) should be(successful)
-    }
+//      //this is passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
+//    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
+//      tester.test(leanSeason) should be(successful)
+//    }
 
     passingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(foodStocks) should be(successful)
