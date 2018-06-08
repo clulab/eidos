@@ -5218,7 +5218,7 @@
         - yield/carcass weight poultry meat
         name: Meat, Poultry
       - OntologyNode:
-        description: null
+        description:
         name: Meat, goat
       - OntologyNode:
         description:
