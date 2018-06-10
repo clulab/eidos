@@ -20,9 +20,9 @@ class TestUnicode extends Test {
     behavior of "text with bullet"
 
     it should "not be disturbed by the bullet" in {
-      odinMentions.exists(_.text == "\u2022 The wetter") should be (false)
+      odinMentions.exists(_.text == "\u2022 The wetter than average conditions in mid May") should be (false)
 
-      odinMentions.exists(_.text == "conditions in mid May") should be (true)
+      odinMentions.exists(_.text == "The wetter than average conditions in mid May") should be (true)
       eidosMentions.exists(_.canonicalName == "conditions in mid May") should be (true)
 
 //      odinMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.text) }

@@ -94,7 +94,7 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val foodSecurityTrends = NodeSpec("food security trends", Dec("Worsening"), Inc("compounded"))
+    val foodSecurityTrends = NodeSpec("Worsening food security trends", Dec("Worsening"), Inc("compounded"))
     val conflict = NodeSpec("continued conflict")
 
     val marketFailure = NodeSpec("market", Dec("failure"))
@@ -103,16 +103,16 @@ class TestDoc8 extends Test {
 
     behavior of "TestDoc8 Sidenote"
 
-    passingTest should "have correct edge 1" taggedAs(Keith) in {
+    failingTest should "have correct edge 1" taggedAs(Keith) in {
       tester.test(EdgeSpec(conflict, Correlation, foodSecurityTrends)) should be(successful)
     }
-    passingTest should "have correct edge 2" taggedAs(Keith) in {
+    tempBrokenEntitiesTest should "have correct edge 2" taggedAs(Keith) in {
       tester.test(EdgeSpec(marketFailure, Causal, foodSecurityTrends)) should be (successful) 
     }
-    passingTest should "have correct edge 3" taggedAs(Keith) in {
+    tempBrokenEntitiesTest should "have correct edge 3" taggedAs(Keith) in {
       tester.test(EdgeSpec(internalDisplacement, Causal, foodSecurityTrends)) should be (successful) 
     }
-    passingTest should "have correct edge 4" taggedAs(Keith) in {
+    tempBrokenEntitiesTest should "have correct edge 4" taggedAs(Keith) in {
       tester.test(EdgeSpec(access, Causal, foodSecurityTrends)) should be (successful)
     }
   }
@@ -202,8 +202,8 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val persistentInsecurity = NodeSpec("insecurity", Quant("Persistent"))
-    val massiveDisplacement  = NodeSpec("displacement", Quant("massive"))
+    val persistentInsecurity = NodeSpec("Persistent insecurity", Quant("Persistent"))
+    val massiveDisplacement  = NodeSpec("massive displacement", Quant("massive"))
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disruption"))
     val accessToMarkets = NodeSpec("access to local food markets", Dec("disruption"), Dec("limited"))
 
@@ -219,32 +219,33 @@ class TestDoc8 extends Test {
     //val routesd = NodeSpec("Trade routes", Dec("disrupted"))
 
     // How might this be done?
-    val riska = NodeSpec("risk of livestock disease outbreaks", Inc("increased"))
-    val riskb = NodeSpec("occurrence of livestock disease outbreaks", Inc("increased"))
+    // We're no longer expanding non-args
+//    val riska = NodeSpec("risk of livestock disease outbreaks", Inc("increased"))
+//    val riskb = NodeSpec("occurrence of livestock disease outbreaks", Inc("increased"))
     // This is ungrammatical to me.  Risk and occurrence _have_ increased
     //val riskc = NodeSpec("risk and occurrence of livestock disease outbreaks", Inc("increased"))
 
     val econCrisis = NodeSpec("Economic crisis")
-    val hyperinflation = NodeSpec("hyperinflation", Quant("drastic")) 
+    val hyperinflation = NodeSpec("drastic hyperinflation", Quant("drastic"))
     val marketFailures = NodeSpec("market", Dec("failures"))
     val foodSystems = NodeSpec("food systems", Dec("destabilised"))
     val accessToFood = NodeSpec("household access to food", Dec("destabilised"))
     val income = NodeSpec("income", Dec("destabilised"))
 
-    val localFoodProduction = NodeSpec("local food production", Inc("Supporting"), Quant("critical"))
+    val localFoodProduction = NodeSpec("Supporting local food production", Quant("critical"))
     val foodSecuritySituation = NodeSpec("food security situation", Dec("deterioration"),  Dec("preventing"))
     behavior of "TestDoc8 Impact para 2"
 
-    passingTest should "have correct edge 1" taggedAs(Ajay) in {
+    tempBrokenEntitiesTest should "have correct edge 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(persistentInsecurity, Causal, livelihoodActivities)) should be (successful) 
     }
-    passingTest should "have correct edge 2" taggedAs(Ajay) in {
+    tempBrokenEntitiesTest should "have correct edge 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(massiveDisplacement, Causal, livelihoodActivities)) should be (successful) 
     }
-    passingTest should "have correct edge 3" taggedAs(Ajay) in {
+    tempBrokenEntitiesTest should "have correct edge 3" taggedAs(Ajay) in {
       tester.test(EdgeSpec(persistentInsecurity, Causal, accessToMarkets)) should be (successful) 
     }
-    passingTest should "have correct edge 4" taggedAs(Egoitz) in {
+    tempBrokenEntitiesTest should "have correct edge 4" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(massiveDisplacement, Causal, accessToMarkets)) should be (successful) 
     }
     passingTest should "have correct edge 5" taggedAs(Egoitz) in {
@@ -262,12 +263,12 @@ class TestDoc8 extends Test {
     ignore should "have correct singleton node 1c" taggedAs(Keith) in {
       tester.test(routesc) should be (successful)
     }
-    ignore should "have correct singleton node 2a" taggedAs(Keith) in {
-      tester.test(riska) should be (successful)
-    }
-    passingTest should "have correct singleton node 2b" taggedAs(Keith) in {
-      tester.test(riskb) should be (successful)
-    }
+//    ignore should "have correct singleton node 2a" taggedAs(Keith) in {
+//      tester.test(riska) should be (successful)
+//    }
+//    passingTest should "have correct singleton node 2b" taggedAs(Keith) in {
+//      tester.test(riskb) should be (successful)
+//    }
     passingTest should "have correct edge 7" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(hyperinflation, Correlation, econCrisis)) should be (successful) 
     }
@@ -277,10 +278,10 @@ class TestDoc8 extends Test {
     passingTest should "have correct edge 9" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(econCrisis, Causal, foodSystems)) should be (successful) 
     }
-    passingTest should "have correct edge 10" taggedAs(Egoitz) in {
+    tempBrokenEntitiesTest should "have correct edge 10" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(econCrisis, Causal, accessToFood)) should be (successful) 
     }
-    passingTest should "have correct edge 11" taggedAs(Egoitz) in {
+    tempBrokenEntitiesTest should "have correct edge 11" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(econCrisis, Causal, income)) should be (successful) 
     }
     passingTest should "have correct singleton node 3" taggedAs(Egoitz) in {
