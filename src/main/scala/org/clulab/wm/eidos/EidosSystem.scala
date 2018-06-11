@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 
-
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
 /**
@@ -77,7 +76,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
     def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
 
-    val  timeNormModelPath: String = getPath( "timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
+    def timeNormModelPath: String = getPath("timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
@@ -99,16 +98,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
             }
           }
 
-    val timenorm: Option[TemporalCharbasedParser] = getClass.getResource(timeNormModelPath) match {
-      case null => None
-      case resource => Some(new TemporalCharbasedParser(resource.getPath))
-    }
-
     def apply(): LoadableAttributes = {
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
       val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
+      val timenormResource = getClass.getResource(timeNormModelPath)
+      val timenorm: Option[TemporalCharbasedParser] =
+          if (timenormResource == null) None
+          else Some(new TemporalCharbasedParser(timenormResource.getPath))
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -133,15 +131,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def ner = loadableAttributes.ner
   def timenorm = loadableAttributes.timenorm
 
-  // This isn't intended to be (re)loadable.  This only happens once.
-
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, dct: Option[String] = None): Document = {
-    val doc = new EidosDocument(proc.annotate(text, keepText).sentences)
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None): Document = {
+    val doc = new EidosDocument(proc.annotate(text, keepText).sentences, documentCreationTime)
     doc.sentences.foreach(addLexiconNER)
-    doc.parseTime(timenorm, text, dct)
+    doc.parseTime(timenorm)
     doc
   }
 
@@ -153,8 +149,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, dct: Option[String] = None): AnnotatedDocument = {
-    val doc = annotate(text, keepText, dct)
+  def extractFromText(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None): AnnotatedDocument = {
+    val doc = annotate(text, keepText, documentCreationTime)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = keepCAGRelevant(odinMentions)

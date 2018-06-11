@@ -203,8 +203,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, mentions, doc.asInstanceOf[EidosDocument].time)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents, doc.asInstanceOf[EidosDocument].time)
+    val eidosJsonObj = mkJsonForEidos(text, sent, mentions, doc.asInstanceOf[EidosDocument].times)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents, doc.asInstanceOf[EidosDocument].times)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...

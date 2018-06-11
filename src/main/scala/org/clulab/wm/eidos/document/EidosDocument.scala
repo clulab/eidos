@@ -1,37 +1,50 @@
 package org.clulab.wm.eidos.document
 
-import scala.util.Try
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+import org.clulab.processors.Sentence
+import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.timenorm.TimeSpan
-import org.clulab.anafora.Data
-import org.clulab.processors.{Sentence, Document}
-import org.clulab.processors.corenlp.CoreNLPDocument
 
-class EidosDocument(sentences: Array[Sentence]) extends CoreNLPDocument(sentences) {
+class EidosDocument(sentences: Array[Sentence], documentCreationTime: Option[String] = None) extends CoreNLPDocument(sentences) {
+  val times = new Array[List[TimeInterval]](sentences.length)
+  lazy val anchor = {
+    val dateTime =
+        if (documentCreationTime.isEmpty) LocalDateTime.now()
+        // This no longer falls back silently to now().
+        else LocalDateTime.parse(documentCreationTime.get + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
-  var time: Array[List[TimeInterval]] = Array()
-  def parseTime(timenorm: Option[TemporalCharbasedParser], text:String, dct: Option[String] = None) = {
-    val padd = "\n\n\n"
-    lazy val dateTime = dct match {
-      case Some(date) => Try(LocalDateTime.parse(date + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse(LocalDateTime.now())
-      case None => LocalDateTime.now()
-    }
-    lazy val anchor = TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
-    var prev = 0
-    for (s <- this.sentences) {
-      timenorm match {
-        case Some(timenorm) => {
-          time = time :+ (for (i <- timenorm.intervals(timenorm.parse(padd + s.getSentenceText() + padd, anchor))) yield {
-            new TimeInterval((i._1._1 + prev, i._1._2 + prev), i._2)
-          }).toList
+    TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+  }
+
+  protected def parseFakeTime(): Unit = times.indices.foreach(times(_) = List[TimeInterval]())
+
+  protected def parseRealTime(timenorm: TemporalCharbasedParser): Unit = {
+    times.indices.foreach { index =>
+      times(index) = {
+        // Why is it necessary to pad the text?  Doesn't this mess up the offsets?
+        val paddedSentenceText = EidosDocument.PAD + this.sentences(index).getSentenceText() + EidosDocument.PAD
+        val intervals = timenorm.intervals(timenorm.parse(paddedSentenceText, anchor))
+        // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
+        // Account for this by adding the starting offset of the first word of sentence.
+        val offset = this.sentences(index).startOffsets(0)
+
+        intervals.map { interval =>
+          new TimeInterval((interval._1._1 + offset, interval._1._2 + offset), interval._2)
         }
-        case None => time = time :+ List[TimeInterval]()
       }
-      prev = s.endOffsets.last
     }
   }
+
+  def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
+     if (timenorm.isDefined) parseRealTime(timenorm.get)
+     else parseFakeTime()
 }
 
-class TimeInterval(val span: (Int,Int), val intervals: List[(LocalDateTime, Long)])
+object EidosDocument {
+  val PAD = "\n\n\n"
+}
+
+class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, Long)])
