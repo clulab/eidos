@@ -11,7 +11,7 @@ class TestDoc2 extends Test {
                  |population--will be facing severe food shortages over the coming months, and the risk of a
                  |hunger catastrophe continues to threaten parts of the country, three UN agencies warned
                  |today.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val food = NodeSpec("food", Dec("shortages", "severe"), Quant("severe"))
@@ -35,7 +35,7 @@ class TestDoc2 extends Test {
                  |deteriorating situation coincides with an unusually long and harsh annual lean season, when families
                  |have depleted their food stocks and new harvests are not expected until August, the level of food
                  |insecurity this year is unprecedented.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val situation = NodeSpec("situation", Dec("deteriorating"))
@@ -74,7 +74,7 @@ class TestDoc2 extends Test {
     val text = """
                  |This is the highest level of hunger since the conflict in South
                  |Sudan began two-and-a-half years ago.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val hunger = NodeSpec("level of hunger", Quant("highest"))
@@ -91,7 +91,7 @@ class TestDoc2 extends Test {
                  |"We are very worried to see that food insecurity is spreading beyond conflict areas as rising prices,
                  |impassable roads and dysfunctional markets are preventing many families, even those in towns and
                  |cities, from accessing food," said FAO Country Representative Serge Tissot.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val prices = NodeSpec("prices", Inc("rising"))
@@ -135,7 +135,7 @@ class TestDoc2 extends Test {
   { // Paragraph 5
     val text = """
                  |Food insecurity and conflict are also forcing many families to leave South Sudan for neighbouring countries.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val foodInsecurity = NodeSpec("Food insecurity")
@@ -174,7 +174,7 @@ class TestDoc2 extends Test {
     val text = """
                  |"The levels of malnutrition among children continue to be truly alarming," said Mahimbo Mdoe,
                  |UNICEF's Representative in South Sudan.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     // removed 'truly' from this test and quantifiers.tsv bc it's not gradable
@@ -191,7 +191,7 @@ class TestDoc2 extends Test {
     val text = """
                  |We have started ramping up food and nutrition support, but much more is needed to keep things
                  |from deteriorating even further during the lean season," said WFP Country Director Joyce Luma.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val food = NodeSpec("food", Inc("ramping up"), Inc("support"))
@@ -212,7 +212,7 @@ class TestDoc2 extends Test {
     val text = """
                  |"We are now seeing sharp spikes of need in new areas, such as Eastern Equatoria or Western
                  |Bahr el-Ghazal, where malnutrition rates in some places are reaching dangerous levels.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val need = NodeSpec("need in new areas", Inc("spikes", "sharp"))
@@ -233,7 +233,7 @@ class TestDoc2 extends Test {
     val text = """
                  |The dramatic rise in malnutrition rates, means that in the first four months of the year UNICEF
                  |has already treated 45 per cent of its planned 2016 caseload of 166,000 children.
-               """
+               """.stripMargin
     val tester = new Tester(text)
 
     val malnutrition = NodeSpec("malnutrition rates", Inc("rise", "dramatic"))
