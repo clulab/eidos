@@ -52,10 +52,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - amount excreted in manure (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Amount excreted in manure (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -66,6 +62,10 @@
         description:
         - Amount excreted in manure (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - amount excreted in manure (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Amount excreted in manure (N content) Goats
@@ -486,7 +486,7 @@
       - OntologyNode:
         description:
         - Biomass burned (dry matter) Burning - all categories
-        name: all categories
+        name: Burning - all categories
       - OntologyNode:
         description:
         - Biomass burned (dry matter) Closed and open shrubland
@@ -523,7 +523,7 @@
       - OntologyNode:
         description:
         - Burned Area Burning - all categories
-        name: all categories
+        name: Burning - all categories
       - OntologyNode:
         description:
         - Burned Area Closed and open shrubland
@@ -638,10 +638,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - direct emissions (co2eq) (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Direct emissions (CO2eq) (Manure applied) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -652,6 +648,10 @@
         description:
         - Direct emissions (CO2eq) (Manure applied) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - direct emissions (co2eq) (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Direct emissions (CO2eq) (Manure applied) Goats
@@ -691,10 +691,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - direct emissions (co2eq) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Direct emissions (CO2eq) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -705,6 +701,10 @@
         description:
         - Direct emissions (CO2eq) (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - direct emissions (co2eq) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Direct emissions (CO2eq) (Manure management) Goats
@@ -744,10 +744,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - direct emissions (co2eq) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Direct emissions (CO2eq) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -758,6 +754,10 @@
         description:
         - Direct emissions (CO2eq) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - direct emissions (co2eq) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Direct emissions (CO2eq) (Manure on pasture) Goats
@@ -818,10 +818,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - direct emissions (n2o) (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Direct emissions (N2O) (Manure applied) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -832,6 +828,10 @@
         description:
         - Direct emissions (N2O) (Manure applied) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - direct emissions (n2o) (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Direct emissions (N2O) (Manure applied) Goats
@@ -871,10 +871,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - direct emissions (n2o) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Direct emissions (N2O) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -885,6 +881,10 @@
         description:
         - Direct emissions (N2O) (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - direct emissions (n2o) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Direct emissions (N2O) (Manure management) Goats
@@ -924,10 +924,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - direct emissions (n2o) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Direct emissions (N2O) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -938,6 +934,10 @@
         description:
         - Direct emissions (N2O) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - direct emissions (n2o) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Direct emissions (N2O) (Manure on pasture) Goats
@@ -958,7 +958,7 @@
       - OntologyNode:
         description:
         - Emissions (CH4) (Burning - savanna) Burning - all categories
-        name: all categories
+        name: Burning - all categories
       - OntologyNode:
         description:
         - Emissions (CH4) (Burning - savanna) Closed and open shrubland
@@ -1007,16 +1007,16 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (ch4) (enteric) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CH4) (Enteric) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
         description:
         - Emissions (CH4) (Enteric) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (ch4) (enteric) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (CH4) (Enteric) Goats
@@ -1056,10 +1056,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (ch4) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CH4) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1072,13 +1068,13 @@
         name: Cattle
       - OntologyNode:
         description:
+        - emissions (ch4) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
+      - OntologyNode:
+        description:
         - Emissions (CH4) (Manure management) Goats
         name: Goats
     - Emissions (CO2eq):
-      - OntologyNode:
-        description:
-        - emissions (co2eq) cattle meat
-        name: Meat, cattle
       - OntologyNode:
         description:
         - Emissions (CO2eq) Milk, whole fresh cow
@@ -1093,6 +1089,10 @@
         name: Cultivation of Organic Soils
       - OntologyNode:
         description:
+        - Emissions (CO2eq) Burning - Savanna
+        name: Burning - Savanna
+      - OntologyNode:
+        description:
         - Emissions (CO2eq) Milk, whole fresh sheep
         name: Milk, whole fresh sheep
       - OntologyNode:
@@ -1101,8 +1101,8 @@
         name: Cereals excluding rice
       - OntologyNode:
         description:
-        - Emissions (CO2eq) Burning - Crop residues
-        name: Crop residues
+        - emissions (co2eq) cattle meat
+        name: Meat, cattle
       - OntologyNode:
         description:
         - Emissions (CO2eq) Enteric Fermentation
@@ -1121,8 +1121,8 @@
         name: Meat, sheep
       - OntologyNode:
         description:
-        - Emissions (CO2eq) Burning - Savanna
-        name: Savanna
+        - Emissions (CO2eq) Burning - Crop residues
+        name: Burning - Crop residues
       - OntologyNode:
         description:
         - Emissions (CO2eq) Crop Residues
@@ -1163,7 +1163,7 @@
       - OntologyNode:
         description:
         - Emissions (CO2eq) (Burning - savanna) Burning - all categories
-        name: all categories
+        name: Burning - all categories
       - OntologyNode:
         description:
         - Emissions (CO2eq) (Burning - savanna) Closed and open shrubland
@@ -1247,16 +1247,16 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (co2eq) (enteric) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CO2eq) (Enteric) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
         description:
         - Emissions (CO2eq) (Enteric) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (co2eq) (enteric) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (CO2eq) (Enteric) Goats
@@ -1296,10 +1296,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (co2eq) (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CO2eq) (Manure applied) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1310,6 +1306,10 @@
         description:
         - Emissions (CO2eq) (Manure applied) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (co2eq) (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (CO2eq) (Manure applied) Goats
@@ -1349,10 +1349,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (co2eq) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CO2eq) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1363,6 +1359,10 @@
         description:
         - Emissions (CO2eq) (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (co2eq) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (CO2eq) (Manure management) Goats
@@ -1402,10 +1402,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (co2eq) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CO2eq) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1418,6 +1414,10 @@
         name: Cattle
       - OntologyNode:
         description:
+        - emissions (co2eq) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
+      - OntologyNode:
+        description:
         - Emissions (CO2eq) (Manure on pasture) Goats
         name: Goats
     - Emissions (CO2eq) from CH4:
@@ -1427,20 +1427,20 @@
         name: Agriculture total
       - OntologyNode:
         description:
+        - Emissions (CO2eq) from CH4 Burning - Crop residues
+        name: Burning - Crop residues
+      - OntologyNode:
+        description:
         - Emissions (CO2eq) from CH4 Enteric Fermentation
         name: Enteric Fermentation
       - OntologyNode:
         description:
-        - Emissions (CO2eq) from CH4 Burning - Crop residues
-        name: Crop residues
+        - Emissions (CO2eq) from CH4 Burning - Savanna
+        name: Burning - Savanna
       - OntologyNode:
         description:
         - Emissions (CO2eq) from CH4 Manure Management
         name: Manure Management
-      - OntologyNode:
-        description:
-        - Emissions (CO2eq) from CH4 Burning - Savanna
-        name: Savanna
     - Emissions (CO2eq) from CH4 (Burning - savanna):
       - OntologyNode:
         description:
@@ -1457,7 +1457,7 @@
       - OntologyNode:
         description:
         - Emissions (CO2eq) from CH4 (Burning - savanna) Burning - all categories
-        name: all categories
+        name: Burning - all categories
       - OntologyNode:
         description:
         - Emissions (CO2eq) from CH4 (Burning - savanna) Closed and open shrubland
@@ -1518,10 +1518,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (co2eq) from ch4 (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CO2eq) from CH4 (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1534,6 +1530,10 @@
         name: Cattle
       - OntologyNode:
         description:
+        - emissions (co2eq) from ch4 (manure management) non-dairy cattle
+        name: Cattle, non-dairy
+      - OntologyNode:
+        description:
         - Emissions (CO2eq) from CH4 (Manure management) Goats
         name: Goats
     - Emissions (CO2eq) from N2O:
@@ -1543,16 +1543,16 @@
         name: Manure left on Pasture
       - OntologyNode:
         description:
-        - Emissions (CO2eq) from N2O Burning - Crop residues
-        name: Crop residues
+        - Emissions (CO2eq) from N2O Burning - Savanna
+        name: Burning - Savanna
       - OntologyNode:
         description:
         - Emissions (CO2eq) from N2O Manure Management
         name: Manure Management
       - OntologyNode:
         description:
-        - Emissions (CO2eq) from N2O Burning - Savanna
-        name: Savanna
+        - Emissions (CO2eq) from N2O Burning - Crop residues
+        name: Burning - Crop residues
       - OntologyNode:
         description:
         - Emissions (CO2eq) from N2O Crop Residues
@@ -1589,7 +1589,7 @@
       - OntologyNode:
         description:
         - Emissions (CO2eq) from N2O (Burning - savanna) Burning - all categories
-        name: all categories
+        name: Burning - all categories
       - OntologyNode:
         description:
         - Emissions (CO2eq) from N2O (Burning - savanna) Closed and open shrubland
@@ -1650,10 +1650,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (co2eq) from n2o (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (CO2eq) from N2O (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1664,6 +1660,10 @@
         description:
         - Emissions (CO2eq) from N2O (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (co2eq) from n2o (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (CO2eq) from N2O (Manure management) Goats
@@ -1684,7 +1684,7 @@
       - OntologyNode:
         description:
         - Emissions (N2O) (Burning - savanna) Burning - all categories
-        name: all categories
+        name: Burning - all categories
       - OntologyNode:
         description:
         - Emissions (N2O) (Burning - savanna) Closed and open shrubland
@@ -1780,10 +1780,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (n2o) (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (N2O) (Manure applied) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1794,6 +1790,10 @@
         description:
         - Emissions (N2O) (Manure applied) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (n2o) (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (N2O) (Manure applied) Goats
@@ -1833,10 +1833,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (n2o) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (N2O) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1847,6 +1843,10 @@
         description:
         - Emissions (N2O) (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (n2o) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (N2O) (Manure management) Goats
@@ -1886,10 +1886,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - emissions (n2o) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Emissions (N2O) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -1900,6 +1896,10 @@
         description:
         - Emissions (N2O) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - emissions (n2o) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Emissions (N2O) (Manure on pasture) Goats
@@ -1940,10 +1940,6 @@
     - Export Quantity:
       - OntologyNode:
         description:
-        - Export Quantity Industrial roundwood, non-coniferous
-        name: coniferous
-      - OntologyNode:
-        description:
         - Export Quantity Roundwood
         name: Roundwood
       - OntologyNode:
@@ -1956,17 +1952,17 @@
         name: Industrial roundwood
       - OntologyNode:
         description:
-        - Export Quantity Industrial roundwood, non-coniferous tropical (export/import)
-        name: coniferous tropical (export/import)
-      - OntologyNode:
-        description:
         - Export Quantity Sawnwood, non-coniferous all
-        name: coniferous all
-    - Export Value:
+        name: Sawnwood, non-coniferous all
       - OntologyNode:
         description:
-        - Export Value Industrial roundwood, non-coniferous
-        name: coniferous
+        - Export Quantity Industrial roundwood, non-coniferous tropical (export/import)
+        name: Industrial roundwood, non-coniferous tropical (export/import)
+      - OntologyNode:
+        description:
+        - Export Quantity Industrial roundwood, non-coniferous
+        name: Industrial roundwood, non-coniferous
+    - Export Value:
       - OntologyNode:
         description:
         - Export Value Roundwood
@@ -1981,22 +1977,24 @@
         name: Industrial roundwood
       - OntologyNode:
         description:
-        - Export Value Industrial roundwood, non-coniferous tropical (export/import)
-        name: coniferous tropical (export/import)
+        - Export Value Sawnwood, non-coniferous all
+        name: Sawnwood, non-coniferous all
       - OntologyNode:
         description:
         - Export Value Forest products (export/import)
         name: Forest products (export/import)
       - OntologyNode:
         description:
-        - Export Value Sawnwood, non-coniferous all
-        name: coniferous all
+        - Export Value Industrial roundwood, non-coniferous tropical (export/import)
+        name: Industrial roundwood, non-coniferous tropical (export/import)
+      - OntologyNode:
+        description:
+        - Export Value Industrial roundwood, non-coniferous
+        name: Industrial roundwood, non-coniferous
     - Food aid shipments:
       - OntologyNode:
         description:
-        - Food aid shipments Other Non-Cereals
         - Food aid shipments Cereals
-        - Food aid shipments Non-Cereals
         name: Cereals
       - OntologyNode:
         description:
@@ -2006,6 +2004,10 @@
         description:
         - Food aid shipments Pulses,Total
         name: Pulses,Total
+      - OntologyNode:
+        description:
+        - Food aid shipments Non-Cereals
+        name: Non-Cereals
       - OntologyNode:
         description:
         - Food aid shipments Coarse Grains
@@ -2026,6 +2028,10 @@
         description:
         - Food aid shipments Vegetable Oils
         name: Vegetable Oils
+      - OntologyNode:
+        description:
+        - Food aid shipments Other Non-Cereals
+        name: Other Non-Cereals
       - OntologyNode:
         description:
         - Food aid shipments Rice Total
@@ -2241,12 +2247,12 @@
         name: Sheep
       - OntologyNode:
         description:
-        - Implied emission factor for CH4 (Enteric) Asses
-        name: Asses
+        - implied emission factor for ch4 (enteric) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
-        - implied emission factor for ch4 (enteric) non-dairy cattle
-        name: dairy
+        - Implied emission factor for CH4 (Enteric) Asses
+        name: Asses
       - OntologyNode:
         description:
         - Implied emission factor for CH4 (Enteric) Goats
@@ -2274,12 +2280,12 @@
         name: Asses
       - OntologyNode:
         description:
-        - implied emission factor for ch4 (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - implied emission factor for ch4 (manure management) layer chickens
         name: Chickens, layers
+      - OntologyNode:
+        description:
+        - implied emission factor for ch4 (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Implied emission factor for CH4 (Manure management) Goats
@@ -2357,12 +2363,12 @@
         name: Asses
       - OntologyNode:
         description:
-        - implied emission factor for n2o (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - implied emission factor for n2o (manure applied) layer chickens
         name: Chickens, layers
+      - OntologyNode:
+        description:
+        - implied emission factor for n2o (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Implied emission factor for N2O (Manure applied) Goats
@@ -2386,12 +2392,12 @@
         name: Asses
       - OntologyNode:
         description:
-        - implied emission factor for n2o (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - implied emission factor for n2o (manure management) layer chickens
         name: Chickens, layers
+      - OntologyNode:
+        description:
+        - implied emission factor for n2o (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Implied emission factor for N2O (Manure management) Goats
@@ -2415,12 +2421,12 @@
         name: Asses
       - OntologyNode:
         description:
-        - implied emission factor for n2o (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - implied emission factor for n2o (manure on pasture) layer chickens
         name: Chickens, layers
+      - OntologyNode:
+        description:
+        - implied emission factor for n2o (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Implied emission factor for N2O (Manure on pasture) Goats
@@ -2436,16 +2442,16 @@
         name: Other paper and paperboard n.e.s. (not elsewhere specified)
       - OntologyNode:
         description:
-        - Import Quantity MDF/HDF
-        name: MDF/HDF
+        - Import Quantity Wood-based panels
+        name: Wood-based panels
       - OntologyNode:
         description:
         - Import Quantity Other paper and paperboard
         name: Other paper and paperboard
       - OntologyNode:
         description:
-        - Import Quantity Wood-based panels
-        name: based panels
+        - Import Quantity Fibreboard
+        name: Fibreboard
       - OntologyNode:
         description:
         - Import Quantity Household and sanitary papers
@@ -2468,12 +2474,12 @@
         name: Sawnwood
       - OntologyNode:
         description:
-        - Import Quantity Printing and writing papers, coated
-        name: Printing and writing papers, coated
+        - Import Quantity MDF/HDF
+        name: MDF/HDF
       - OntologyNode:
         description:
-        - Import Quantity Fibreboard
-        name: Fibreboard
+        - Import Quantity Printing and writing papers, coated
+        name: Printing and writing papers, coated
       - OntologyNode:
         description:
         - Import Quantity Plywood
@@ -2501,16 +2507,16 @@
         name: Other paper and paperboard n.e.s. (not elsewhere specified)
       - OntologyNode:
         description:
-        - Import Value MDF/HDF
-        name: MDF/HDF
+        - Import Value Wood-based panels
+        name: Wood-based panels
       - OntologyNode:
         description:
         - Import Value Other paper and paperboard
         name: Other paper and paperboard
       - OntologyNode:
         description:
-        - Import Value Wood-based panels
-        name: based panels
+        - Import Value Fibreboard
+        name: Fibreboard
       - OntologyNode:
         description:
         - Import Value Household and sanitary papers
@@ -2533,12 +2539,12 @@
         name: Sawnwood
       - OntologyNode:
         description:
-        - Import Value Printing and writing papers, coated
-        name: Printing and writing papers, coated
+        - Import Value MDF/HDF
+        name: MDF/HDF
       - OntologyNode:
         description:
-        - Import Value Fibreboard
-        name: Fibreboard
+        - Import Value Printing and writing papers, coated
+        name: Printing and writing papers, coated
       - OntologyNode:
         description:
         - Import Value Plywood
@@ -2615,10 +2621,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (co2eq) (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (CO2eq) (Manure applied) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -2629,6 +2631,10 @@
         description:
         - Indirect emissions (CO2eq) (Manure applied) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (co2eq) (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (CO2eq) (Manure applied) Goats
@@ -2668,10 +2674,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (co2eq) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (CO2eq) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -2682,6 +2684,10 @@
         description:
         - Indirect emissions (CO2eq) (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (co2eq) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (CO2eq) (Manure management) Goats
@@ -2721,10 +2727,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (co2eq) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (CO2eq) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -2735,6 +2737,10 @@
         description:
         - Indirect emissions (CO2eq) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (co2eq) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (CO2eq) (Manure on pasture) Goats
@@ -2774,10 +2780,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (n2o that leaches) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (N2O that leaches) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -2788,6 +2790,10 @@
         description:
         - Indirect emissions (N2O that leaches) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (n2o that leaches) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (N2O that leaches) (Manure on pasture) Goats
@@ -2828,11 +2834,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (n2o that volatilises) (manure on pasture) non-dairy
-          cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (N2O that volatilises) (Manure on pasture) Mules and
           Asses
         name: Mules and Asses
@@ -2844,6 +2845,11 @@
         description:
         - Indirect emissions (N2O that volatilises) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (n2o that volatilises) (manure on pasture) non-dairy
+          cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (N2O that volatilises) (Manure on pasture) Goats
@@ -2904,10 +2910,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (n2o) (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (N2O) (Manure applied) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -2918,6 +2920,10 @@
         description:
         - Indirect emissions (N2O) (Manure applied) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (n2o) (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (N2O) (Manure applied) Goats
@@ -2957,10 +2963,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (n2o) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (N2O) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -2971,6 +2973,10 @@
         description:
         - Indirect emissions (N2O) (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (n2o) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (N2O) (Manure management) Goats
@@ -3010,10 +3016,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - indirect emissions (n2o) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Indirect emissions (N2O) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3024,6 +3026,10 @@
         description:
         - Indirect emissions (N2O) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - indirect emissions (n2o) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Indirect emissions (N2O) (Manure on pasture) Goats
@@ -3072,10 +3078,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - losses from manure treated (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Losses from manure treated (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3086,6 +3088,10 @@
         description:
         - Losses from manure treated (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - losses from manure treated (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Losses from manure treated (N content) Goats
@@ -3125,10 +3131,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure (n content that leaches) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure (N content that leaches) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3139,6 +3141,10 @@
         description:
         - Manure (N content that leaches) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure (n content that leaches) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure (N content that leaches) (Manure on pasture) Goats
@@ -3178,10 +3184,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure (n content that volatilises) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure (N content that volatilises) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3192,6 +3194,10 @@
         description:
         - Manure (N content that volatilises) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure (n content that volatilises) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure (N content that volatilises) (Manure on pasture) Goats
@@ -3231,10 +3237,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure (n content) (manure applied) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure (N content) (Manure applied) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3245,6 +3247,10 @@
         description:
         - Manure (N content) (Manure applied) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure (n content) (manure applied) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure (N content) (Manure applied) Goats
@@ -3284,10 +3290,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure (n content) (manure management) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure (N content) (Manure management) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3298,6 +3300,10 @@
         description:
         - Manure (N content) (Manure management) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure (n content) (manure management) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure (N content) (Manure management) Goats
@@ -3337,10 +3343,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure (n content) (manure on pasture) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure (N content) (Manure on pasture) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3351,6 +3353,10 @@
         description:
         - Manure (N content) (Manure on pasture) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure (n content) (manure on pasture) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure (N content) (Manure on pasture) Goats
@@ -3390,10 +3396,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure applied to soils (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure applied to soils (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3404,6 +3406,10 @@
         description:
         - Manure applied to soils (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure applied to soils (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure applied to soils (N content) Goats
@@ -3443,10 +3449,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure applied to soils that leaches (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure applied to soils that leaches (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3457,6 +3459,10 @@
         description:
         - Manure applied to soils that leaches (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure applied to soils that leaches (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure applied to soils that leaches (N content) Goats
@@ -3496,10 +3502,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure applied to soils that volatilises (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure applied to soils that volatilises (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3510,6 +3512,10 @@
         description:
         - Manure applied to soils that volatilises (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure applied to soils that volatilises (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure applied to soils that volatilises (N content) Goats
@@ -3549,10 +3555,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure left on pasture (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure left on pasture (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3563,6 +3565,10 @@
         description:
         - Manure left on pasture (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure left on pasture (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure left on pasture (N content) Goats
@@ -3602,10 +3608,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure left on pasture that leaches (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure left on pasture that leaches (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3616,6 +3618,10 @@
         description:
         - Manure left on pasture that leaches (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure left on pasture that leaches (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure left on pasture that leaches (N content) Goats
@@ -3655,10 +3661,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure left on pasture that volatilises (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure left on pasture that volatilises (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3669,6 +3671,10 @@
         description:
         - Manure left on pasture that volatilises (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure left on pasture that volatilises (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure left on pasture that volatilises (N content) Goats
@@ -3708,10 +3714,6 @@
         name: Asses
       - OntologyNode:
         description:
-        - manure treated (n content) non-dairy cattle
-        name: dairy
-      - OntologyNode:
-        description:
         - Manure treated (N content) Mules and Asses
         name: Mules and Asses
       - OntologyNode:
@@ -3722,6 +3724,10 @@
         description:
         - Manure treated (N content) Cattle
         name: Cattle
+      - OntologyNode:
+        description:
+        - manure treated (n content) non-dairy cattle
+        name: Cattle, non-dairy
       - OntologyNode:
         description:
         - Manure treated (N content) Goats
@@ -4019,9 +4025,8 @@
         name: Cauliflowers and broccoli
       - OntologyNode:
         description:
-        - Production Wood fuel, non-coniferous (production)
-        - Production Roundwood, non-coniferous (production)
-        name: coniferous (production)
+        - Production Cottonseed
+        name: Cottonseed
       - OntologyNode:
         description:
         - Production Meat indigenous, sheep
@@ -4060,6 +4065,10 @@
         name: Broad beans, horse beans, dry
       - OntologyNode:
         description:
+        - Production Roundwood, non-coniferous (production)
+        name: Roundwood, non-coniferous (production)
+      - OntologyNode:
+        description:
         - Production Cucumbers and gherkins
         name: Cucumbers and gherkins
       - OntologyNode:
@@ -4090,6 +4099,10 @@
         description:
         - Production Meat indigenous, chicken
         name: Meat indigenous, chicken
+      - OntologyNode:
+        description:
+        - Production Wood fuel, non-coniferous (production)
+        name: Wood fuel, non-coniferous (production)
       - OntologyNode:
         description:
         - production chicken meat
@@ -4194,10 +4207,6 @@
         description:
         - Production Castor oil seed
         name: Castor oil seed
-      - OntologyNode:
-        description:
-        - Production Cottonseed
-        name: Cottonseed
       - OntologyNode:
         description:
         - Production Cabbages and other brassicas
@@ -4481,7 +4490,7 @@
       - OntologyNode:
         description:
         - Rural population Population - Est. & Proj.
-        name: Est. & Proj.
+        name: Population - Est. & Proj.
     - Share in Agricultural area:
       - OntologyNode:
         description:
@@ -4698,8 +4707,8 @@
         name: Camels
       - OntologyNode:
         description:
-        - stocks non-dairy cattle
-        name: dairy
+        - Stocks Sheep and Goats
+        name: Sheep and Goats
       - OntologyNode:
         description:
         - Stocks Mules and Asses
@@ -4714,70 +4723,45 @@
         name: Cattle
       - OntologyNode:
         description:
+        - stocks non-dairy cattle
+        name: Cattle, non-dairy
+      - OntologyNode:
+        description:
         - stocks dairy cattle
         name: Cattle, dairy
       - OntologyNode:
         description:
         - Stocks Goats
         name: Goats
-      - OntologyNode:
-        description:
-        - Stocks Sheep and Goats
-        name: Sheep and Goats
     - Total Population - Both sexes:
       - OntologyNode:
         description:
         - Total Population - Both sexes Population - Est. & Proj.
-        name: Est. & Proj.
+        name: Population - Est. & Proj.
     - Total Population - Female:
       - OntologyNode:
         description:
         - Total Population - Female Population - Est. & Proj.
-        name: Est. & Proj.
+        name: Population - Est. & Proj.
     - Total Population - Male:
       - OntologyNode:
         description:
         - Total Population - Male Population - Est. & Proj.
-        name: Est. & Proj.
+        name: Population - Est. & Proj.
     - Urban population:
       - OntologyNode:
         description:
         - Urban population Population - Est. & Proj.
-        name: Est. & Proj.
+        name: Population - Est. & Proj.
     - Value:
       - OntologyNode:
         description:
         - Value Rail-lines density (per 100 square km of land area)
-        name: lines density (per 100 square km of land area)
+        name: Rail-lines density (per 100 square km of land area)
       - OntologyNode:
         description:
-        - Value Average value of food production (constant I$ per person) (3-year
-          average)
-        - Value Prevalence of undernourishment (%) (3-year average)
-        - Value Cereal import dependency ratio (%) (3-year average)
-        - Value Average protein supply (g/capita/day) (3-year average)
         - Value Value of food imports over total merchandise exports (%) (3-year average)
-        - Value Depth of the food deficit (kcal/capita/day) (3-year average)
-        - Value Average supply of protein of animal origin (g/capita/day) (3-year
-          average)
-        - Value Share of dietary energy supply derived from cereals, roots and tubers
-          (%) (3-year average)
-        - Value Average dietary energy supply adequacy (%) (3-year average)
-        - Value Number of people undernourished (millions) (3-year average)
-        - Value Percentage of arable land equipped for irrigation (%) (3-year average)
-        name: year average)
-      - OntologyNode:
-        description:
-        - Value Number of severely food insecure people
-        name: Number of severely food insecure people
-      - OntologyNode:
-        description:
-        - Value Percentage of children under 5 years of age who are stunted (%)
-        name: Percentage of children under 5 years of age who are stunted (%)
-      - OntologyNode:
-        description:
-        - Value Access to improved sanitation facilities (%)
-        name: Access to improved sanitation facilities (%)
+        name: Value of food imports over total merchandise exports (%) (3-year average)
       - OntologyNode:
         description:
         - Value Per capita food supply variability (kcal/capita/day)
@@ -4788,38 +4772,94 @@
         name: Percentage of children under 5 years of age who are overweight
       - OntologyNode:
         description:
-        - Value Access to improved water sources (%)
-        name: Access to improved water sources (%)
-      - OntologyNode:
-        description:
-        - Value Prevalence of anemia among women of reproductive age (15-49 years)
-        name: 49 years)
-      - OntologyNode:
-        description:
-        - Value Percentage of children under 5 years of age affected by wasting (%)
-        name: Percentage of children under 5 years of age affected by wasting (%)
-      - OntologyNode:
-        description:
-        - Value Political stability and absence of violence/terrorism (index)
-        name: Political stability and absence of violence/terrorism (index)
-      - OntologyNode:
-        description:
-        - Value Per capita food production variability (I$ per person constant 2004-06)
-        name: 06)
-      - OntologyNode:
-        description:
-        - Value Prevalence of exclusive breastfeeding among infants (0-5 months)
-        name: 5 months)
+        - Value Depth of the food deficit (kcal/capita/day) (3-year average)
+        name: Depth of the food deficit (kcal/capita/day) (3-year average)
       - OntologyNode:
         description:
         - Value Prevalence of severe food insecurity in the total population
         name: Prevalence of severe food insecurity in the total population
       - OntologyNode:
         description:
+        - Value Number of severely food insecure people
+        name: Number of severely food insecure people
+      - OntologyNode:
+        description:
+        - Value Average supply of protein of animal origin (g/capita/day) (3-year
+          average)
+        name: Average supply of protein of animal origin (g/capita/day) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Access to improved sanitation facilities (%)
+        name: Access to improved sanitation facilities (%)
+      - OntologyNode:
+        description:
+        - Value Average value of food production (constant I$ per person) (3-year
+          average)
+        name: Average value of food production (constant I$ per person) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Percentage of children under 5 years of age who are stunted (%)
+        name: Percentage of children under 5 years of age who are stunted (%)
+      - OntologyNode:
+        description:
+        - Value Political stability and absence of violence/terrorism (index)
+        name: Political stability and absence of violence/terrorism (index)
+      - OntologyNode:
+        description:
+        - Value Percentage of arable land equipped for irrigation (%) (3-year average)
+        name: Percentage of arable land equipped for irrigation (%) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Share of dietary energy supply derived from cereals, roots and tubers
+          (%) (3-year average)
+        name: Share of dietary energy supply derived from cereals, roots and tubers
+          (%) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Prevalence of exclusive breastfeeding among infants (0-5 months)
+        name: Prevalence of exclusive breastfeeding among infants (0-5 months)
+      - OntologyNode:
+        description:
+        - Value Prevalence of anemia among women of reproductive age (15-49 years)
+        name: Prevalence of anemia among women of reproductive age (15-49 years)
+      - OntologyNode:
+        description:
+        - Value Access to improved water sources (%)
+        name: Access to improved water sources (%)
+      - OntologyNode:
+        description:
+        - Value Percentage of children under 5 years of age affected by wasting (%)
+        name: Percentage of children under 5 years of age affected by wasting (%)
+      - OntologyNode:
+        description:
+        - Value Average dietary energy supply adequacy (%) (3-year average)
+        name: Average dietary energy supply adequacy (%) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Number of people undernourished (millions) (3-year average)
+        name: Number of people undernourished (millions) (3-year average)
+      - OntologyNode:
+        description:
         - Value Gross domestic product per capita, PPP (constant 2011 international
           $)
         name: Gross domestic product per capita, PPP (constant 2011 international
           $)
+      - OntologyNode:
+        description:
+        - Value Average protein supply (g/capita/day) (3-year average)
+        name: Average protein supply (g/capita/day) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Cereal import dependency ratio (%) (3-year average)
+        name: Cereal import dependency ratio (%) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Prevalence of undernourishment (%) (3-year average)
+        name: Prevalence of undernourishment (%) (3-year average)
+      - OntologyNode:
+        description:
+        - Value Per capita food production variability (I$ per person constant 2004-06)
+        name: Per capita food production variability (I$ per person constant 2004-06)
     - Value Local Currency:
       - OntologyNode:
         description:
