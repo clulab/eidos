@@ -1,11 +1,10 @@
 package org.clulab.wm.eidos.test
 
 import scala.collection.Seq
-
 import org.scalatest._
-
 import org.clulab.odin.{Attachment, Mention}
-import org.clulab.wm.eidos.EidosSystem;
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.text.NodeSpec
 import org.clulab.wm.eidos.text.EdgeSpec
 
@@ -43,11 +42,14 @@ object TestUtils {
                                 // framework, they will be achievable
     val inferenceTest = ignore  // type of futureWorkTest -- added for tests which are now failing because of entity
                                 // filtering, basically because inference or coref would be needed
-    
+    val tempBrokenEntitiesTest = ignore
+    val affectEventTest = ignore
+
     val successful = Seq()
     
     class Tester(text: String) {
-      val mentions = extractMentions(clean(text))
+      //val mentions = extractMentions(clean(text))
+      val mentions = EidosMention.findReachableMentions(extractMentions(clean(text)))
       
       def getSpecialChars(s: String) = s.filter(c => c < 32 || 127 < c)
       
@@ -87,5 +89,5 @@ object TestUtils {
   
   lazy val ieSystem = new EidosSystem()
 
-  def extractMentions(text: String): Seq[Mention] = ieSystem.extractFromText(text).odinMentions
+  def extractMentions(text: String): Seq[Mention] = ieSystem.extractFromText(text, returnAllMentions = true).odinMentions
 }

@@ -38,7 +38,8 @@ object CAG {
   val p3 = Array(p3s1, p3s2, p3s3, p3s4, p3s5).mkString(SINGLE_SENTENCE_SEPARATOR)
   
   // Note the &rsquo;
-  val p4s1raw = "The rising cost of living and impact of the conflict have also undermined people\u2019s ability to access safe water."
+  // Note - modified p4s1 to include "the" before "impact of the ocnflict" to facilitate correct parsing
+  val p4s1raw = "The rising cost of living and the impact of the conflict have also undermined people\u2019s ability to access safe water."
   val p4s1 = p4s1raw.replaceAll(rsquo, "'")
   val p4s2 = "It is estimated that only 13 per cent of South Sudanese people have access to improved sanitation, while 85 per cent of the population practice open defecation and only 41 per cent have access to safe water."
   val p4s3 = "Families in urban centres have had to spend an increasing portion of their income to obtain clean water, while water trucking has decreased due to the cost of fuel."

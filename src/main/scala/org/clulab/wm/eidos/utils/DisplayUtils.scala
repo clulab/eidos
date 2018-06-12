@@ -117,6 +117,14 @@ object DisplayUtils {
 
   def displayMention(mention: Mention): Unit = println(mentionToDisplayString(mention))
 
+  def shortDisplay(m: Mention): Unit = {
+    println(s"${m.label}: [${m.text}] + ${m.attachments.mkString(",")}")
+    if (m.isInstanceOf[EventMention]) {
+      for (arg <- m.arguments) {
+        println(s"\t${arg._1}: ${arg._2.map(am => am.text + " " + am.attachments.mkString(",")).mkString("; ")}")
+      }
+    }
+  }
 
   /* Wrappers for printing the mention string to a file */
   def printMentions(mentions: Seq[Mention], doc: Document, pw: PrintWriter, printDeps: Boolean = false): Unit = {

@@ -39,19 +39,20 @@ class TestRaps1 extends Test {
       "expected to change agriculture development in the country."
     val tester = new Tester(sent21)
 
-    val population = NodeSpec("population", Inc("increasing"))
+    val population = NodeSpec("combination of increasing population", Inc("increasing"))
     val econ = NodeSpec("economic performance", Inc("improved"))
 
     behavior of "Raps_sent21"
 
-    passingTest should "have correct node 1" taggedAs(Heather) in {
-      tester.test(population) should be (successful)
-    }
-
-    //currently extracts "economic performance expected" as the entity text
-    failingTest should "have correct node 2" taggedAs(Heather) in {
-      tester.test(econ) should be (successful)
-    }
+    // Not expanding singleton nodes anymore...
+//    passingTest should "have correct node 1" taggedAs(Heather) in {
+//      tester.test(population) should be (successful)
+//    }
+//
+//    //currently extracts "economic performance expected" as the entity text
+//    failingTest should "have correct node 2" taggedAs(Heather) in {
+//      tester.test(econ) should be (successful)
+//    }
 
   }
 
@@ -78,12 +79,12 @@ class TestRaps1 extends Test {
     val sent23 = "The transformation however starts under extremely difficult conditions, characterized by large account deficit and liquidity challenges and limited direct foreign investment due to lack of clarity on investment security and high interest rates."
     val tester = new Tester(sent23)
 
-    val account = NodeSpec("account", Dec("deficit", "large"))
-    val invest = NodeSpec("direct foreign investment", Dec("limited"))
+    val account = NodeSpec("account", Dec("deficit", "large"), Quant("large"))
+    val invest = NodeSpec("limited direct foreign investment", Dec("limited"))
     val noClarity = NodeSpec("clarity", Dec("lack"))
     val interestRates = NodeSpec("interest rates", Quant("high"), Inc("high"))
 
-    val conditions = NodeSpec("difficult conditions", Quant("extremely"))
+    val conditions = NodeSpec("extremely difficult conditions", Quant("extremely"))
 
     behavior of "Raps_sent23"
 
@@ -92,16 +93,16 @@ class TestRaps1 extends Test {
     }
 
     //extracts properly in the Eidos shell
-    failingTest should "have correct node 2" taggedAs(Heather) in {
+    passingTest should "have correct node 2" taggedAs(Heather) in {
       tester.test(account) should be (successful)
     }
 
     failingTest should "have correct edge 1" taggedAs(Heather) in {
-      tester.test(EdgeSpec(invest, Causal, noClarity)) should be (successful)
+      tester.test(EdgeSpec(noClarity, Causal, invest)) should be (successful)
     }
 
     failingTest should "have correct edge 2" taggedAs(Heather) in {
-      tester.test(EdgeSpec(invest, Causal, interestRates)) should be (successful)
+      tester.test(EdgeSpec(interestRates, Causal, invest)) should be (successful)
     }
 
   }
@@ -115,8 +116,8 @@ class TestRaps1 extends Test {
 
     behavior of "Raps_24"
 
-    passingTest should "have correct edge" taggedAs(Heather) in {
-      tester.test(EdgeSpec(climate, Causal, wheat)) should be (successful)
+    affectEventTest should "have correct edge" taggedAs(Heather) in {
+      tester.test(EdgeSpec(climate, Affect, wheat)) should be (successful)
     }
 
   }
@@ -198,8 +199,8 @@ class TestRaps1 extends Test {
 
     val soil = NodeSpec("Soil quality", Dec("decline", "small-to-medium"))
     val pollution = NodeSpec("pollution")
-    val shrink = NodeSpec("land base for agriculture", Dec("shrinking"))
-    val cultivation = NodeSpec("cultivation", Inc("intensive"))
+    val shrink = NodeSpec("shrinking land base for agriculture", Dec("shrinking"))
+    val cultivation = NodeSpec("intensive cultivation", Inc("intensive"))
 
     behavior of "Raps_28"
 
