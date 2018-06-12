@@ -4,33 +4,42 @@ vars: org/clulab/wm/eidos/grammars/triggers.yml
 
 rules:
 
-  - name: "coordinations"
-    label: Avoid
-    priority: 1
-    type: token
-    pattern: |
-      # avoid coordinations
-      # we want any coordinated entities we might encounter to be split
-      (?<![tag=/^JJ/]) [tag=CC]
+#  - name: "coordinations"
+#    label: Avoid
+#    priority: 1
+#    type: token
+#    pattern: |
+#      # avoid coordinations
+#      # we want any coordinated entities we might encounter to be split
+#      (?<![tag=/^JJ/]) [tag=CC]
 
-  # the chunker is wont to gobble up verbs with clear arguments as part of NPs,
-  # hence this rule
-  - name: "verbs-with-args"
-    label: Avoid
-    priority: 1
-    example: "X HINDERS Y."
-    type: token
-    pattern: |
-      # avoid verbs with arguments
-      [outgoing=/^nsubj/ & tag=/^V/]
+#  # the chunker is wont to gobble up verbs with clear arguments as part of NPs,
+#  # hence this rule
+#  - name: "verbs-with-args"
+#    label: Avoid
+#    priority: 1
+#    example: "X HINDERS Y."
+#    type: token
+#    pattern: |
+#      # avoid verbs with arguments
+#      [outgoing=/^nsubj/ & tag=/^V/]
 
   - name: "references-et-al"
-    label: Avoid
+    label: Avoid-Strict
     priority: 3
     type: token
     pattern: |
       # avoid xrefs
       [tag=NNP] "et" "al." @Avoid
+
+  - name: "copular-verbs"
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+      # avoid xrefs
+      [lemma=be]
+
 
   - name: "unicode-icons"
     label: Avoid
@@ -43,13 +52,16 @@ rules:
 
   # OURS HERE:
   - name: "triggers"
-    label: Avoid
+    label: Avoid-Strict
     priority: 1
     type: token
     pattern: |
       # avoid coordinations
       # we want any coordinated entities we might encounter to be split
-      [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${cause_triggers}|${affect_triggers}|${correlation_triggers})/] # triggers used downstream
+      [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${noncausal_increase_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${correlation_triggers})/] # triggers used downstream
+      # This is if we want to no avoid the increase/decrease triggers at all...
+      #[word = /(?i)^(${cause_triggers}|${correlation_triggers})/] # triggers used downstream
+
 
   - name: "gradable"
     label: Avoid
@@ -60,23 +72,23 @@ rules:
       [entity="B-Quantifier"] [entity="I-Quantifier"]*
 
   - name: "causal-triggers"
-    label: Avoid
+    label: Avoid-Strict
     priority: 1
     type: token
     pattern: |
       # additional triggers
       [word = /result|due/]
 
-  - name: "affect-triggers"
-    label: Avoid
-    priority: 1
-    type: token
-    pattern: |
-      # avoid verbal affect triggers
-      [tag = /VBG/ & word = /${ affect_triggers }|${ nonavoid_affect_triggers }/]
+#  - name: "affect-triggers"
+#    label: Avoid-Strict
+#    priority: 1
+#    type: token
+#    pattern: |
+#      # avoid verbal affect triggers
+#      [tag = /VBG/ & word = /${ affect_triggers }|${ nonavoid_affect_triggers }/]
 
   - name: "during"
-    label: Avoid
+    label: Avoid-Strict
     priority: 1
     type: token
     pattern: |
@@ -84,7 +96,7 @@ rules:
       [incoming = nmod_during]
 
   - name: "passive"
-    label: Avoid
+    label: Avoid-Strict
     priority: 3
     type: token
     pattern: |

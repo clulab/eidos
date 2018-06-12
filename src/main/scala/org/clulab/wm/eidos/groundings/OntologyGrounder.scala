@@ -33,10 +33,20 @@ class EidosOntologyGrounder(var name: String, conceptEmbeddings: Seq[(String, Ar
 }
 
 object EidosOntologyGrounder {
+  // Namespace strings for the different in-house ontologies we typically use
+  val UN_NAMESPACE = "un"
+  val WDI_NAMESPACE = "wdi"
+  val FAO_NAMESPACE = "fao"
 
   def apply(domainOntology: DomainOntology, wordToVec: EidosWordToVec) = {
     val conceptEmbeddings: Seq[(String, Array[Double])] = domainOntology.iterateOntology(wordToVec)
 
     new EidosOntologyGrounder(domainOntology.name, conceptEmbeddings, wordToVec)
   }
-}
+
+
+//  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
+//    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = false)
+//
+//    ontology.iterateOntology(wordToVec)
+  }

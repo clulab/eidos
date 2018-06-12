@@ -33,7 +33,12 @@
       - chemical:
         - examples: #todo -- O2, N, CO2 etc ...
           - oxygen
+          - O2
           - nitrogen
+          - CO2
+          - carbon dioxide
+          - sulfer
+          - lead
       - biology:
         - ecosystem:
           - examples:
@@ -160,6 +165,7 @@
       - health_intervention:
         - examples:
           - vaccine
+          - immunization
         #todo
       - famine:
         - examples:

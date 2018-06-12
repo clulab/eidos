@@ -19,13 +19,14 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 1"
 
-    passingTest should "have correct singleton node 1" taggedAs(Mithun) in {
-      tester.test(food) should be(successful)
-    }
-
-    passingTest should "have correct singleton node 2" taggedAs(Mithun) in {
-      tester.test(hunger) should be (successful)
-    }
+    // removing because we no longer expand entities when they are not part of a causal event
+//    passingTest should "have correct singleton node 1" taggedAs(Mithun) in {
+//      tester.test(food) should be(successful)
+//    }
+//
+//    passingTest should "have correct singleton node 2" taggedAs(Mithun) in {
+//      tester.test(hunger) should be (successful)
+//    }
   }
 
   { // Paragraph 2
@@ -45,14 +46,14 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 2"
 
-    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(situation) should be(successful)
-    }
+//    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
+//      tester.test(situation) should be(successful)
+//    }
 
-      //this is passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
-    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
-      tester.test(leanSeason) should be(successful)
-    }
+//      //this is passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
+//    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
+//      tester.test(leanSeason) should be(successful)
+//    }
 
     passingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(foodStocks) should be(successful)
@@ -95,9 +96,9 @@ class TestDoc2 extends Test {
     val tester = new Tester(text)
 
     val prices = NodeSpec("prices", Inc("rising"))
-    val roads = NodeSpec("roads", Quant("impassable"))
-    val markets = NodeSpec("markets", Quant("dysfunctional"))
-    val families = NodeSpec("families", Quant("many"), Dec("preventing"))
+    val roads = NodeSpec("impassable roads", Quant("impassable"))
+    val markets = NodeSpec("dysfunctional markets", Quant("dysfunctional"))
+    val families = NodeSpec("many families", Quant("many"), Dec("preventing"))
 
     behavior of "TestDoc2 Paragraph 4"
 
@@ -105,21 +106,9 @@ class TestDoc2 extends Test {
       tester.test(prices) should be(successful)
     }
 
-    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
-      tester.test(roads) should be(successful)
-    }
-
-    passingTest should "have correct singleton node 3" taggedAs(Fan) in {
-      tester.test(markets) should be(successful)
-    }
-
-    passingTest should "have correct singleton node 4" taggedAs(Fan) in {
-      tester.test(families) should be(successful)
-    }
-
     // If the processor improves and is better able to handle long coordinations/conj, then maybe we can get this.
     // Currently no path exists.
-    futureWorkTest should "have correct edge 1" taggedAs(Fan) in {
+    brokenSyntaxTest should "have correct edge 1" taggedAs(Fan) in {
       tester.test(EdgeSpec(prices, Causal, families)) should be(successful)
     }
 
@@ -140,32 +129,17 @@ class TestDoc2 extends Test {
 
     val foodInsecurity = NodeSpec("Food insecurity")
     val conflict = NodeSpec("conflict")
-    val fams = NodeSpec("families to leave South Sudan for neighbouring countries", Quant("many"))
+    val fams = NodeSpec("many families to leave South Sudan for neighbouring countries", Quant("many"))
 
     behavior of "TestDoc2 Paragraph 5"
 
-    // Until we allow VPs in entityFinder, the causal events aren't found, so these 2 nodes are pruned.
-    futureWorkTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(foodInsecurity) should be(successful)
-    }
-
-    // Until we allow VPs in entityFinder, the causal events aren't found, so these 2 nodes are pruned.
-    futureWorkTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(conflict) should be(successful)
-    }
-
     //this is dependant on something becky is working on. arbitrary predicates thing
-    failingTest should "have correct singleton node 3" taggedAs(Mithun) in {
-      tester.test(fams) should be(successful)
-    }
-
-    //this is dependant on something becky is working on. arbitrary predicates thing
-    failingTest should "have correct edge 1" taggedAs(Mithun) in {
+    passingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(foodInsecurity, Causal, fams)) should be(successful)
     }
 
     //this is dependant on something becky is working on. arbitrary predicates thing
-    failingTest should "have correct edge 2" taggedAs(Mithun) in {
+    passingTest should "have correct edge 2" taggedAs(Mithun) in {
       tester.test(EdgeSpec(conflict, Causal, fams)) should be (successful)
     }
   }
@@ -182,9 +156,10 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 6"
 
-    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
-      tester.test(malnutrition) should be (successful)
-    }
+    // removing because we no longer expand entities when they are not part of a causal event
+//    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
+//      tester.test(malnutrition) should be (successful)
+//    }
   }
 
   { // Paragraph 7
@@ -199,13 +174,14 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 7"
 
-    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
-      tester.test(food) should be (successful)
-    }
-
-    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
-      tester.test(nutrition) should be (successful)
-    }
+    // removing because we no longer expand entities when they are not part of a causal event
+//    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
+//      tester.test(food) should be (successful)
+//    }
+//
+//    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
+//      tester.test(nutrition) should be (successful)
+//    }
   }
 
   { // Paragraph 8
@@ -220,13 +196,14 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 8"
 
-    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
-      tester.test(need) should be(successful)
-    }
-
-    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
-      tester.test(malnutrition) should be (successful)
-    }
+    // removing because we no longer expand entities when they are not part of a causal event
+//    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
+//      tester.test(need) should be(successful)
+//    }
+//
+//    passingTest should "have correct singleton node 2" taggedAs(Fan) in {
+//      tester.test(malnutrition) should be (successful)
+//    }
   }
 
   { // Paragraph 9

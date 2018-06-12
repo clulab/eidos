@@ -18,15 +18,17 @@ rules:
     priority: ${ rulepriority }
     example: "In 2017, food insecurity remained critical as spikes in conflict, economic collapse, and impacts of flooding reduced agricultural production."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
-      effect: Entity  = <ccomp (?=/nmod_as/) nsubj
+      effect: Entity  = <ccomp (?=/nmod_as/) nsubj?
       cause: Entity = dobj
 
   - name: syntax_2_verb-Correlation
     priority: ${ rulepriority }
     example: "Food insecurity remained critical as conflict continues."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [incoming=advcl_as]
       effect: Entity  = <advcl_as nsubj
@@ -36,27 +38,42 @@ rules:
     priority: ${ rulepriority }
     example: "Food insecurity remained critical as conflict continues to increase danger."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [incoming=advcl_as]
       effect: Entity  = <advcl_as nsubj
       cause: Entity = /(${complements})/? dobj
 
-  - name: syntax_4_verb-Correlation
+#  - name: syntax_4_verb-Correlation
+#    priority: ${ rulepriority }
+#    example: "moderate to heavy seasonal rainfall is expected to continue, with heightened risk of flooding in these regions"
+#    # todo: this is likely only valid if there's some verb happening in at least one of the entities.  We should check for
+#    # that in an action maybe -- look for either a literal verb in the span OR an inc/dec attachment
+#    # example of when it *shouldn't* match: "Fields were additionally treated with fertilizer for increased crop yield."
+#    label: Correlation
+#    action: ${ action }
+#    pattern: |
+#      trigger = [tag=IN & word=with]
+#      cause: Entity = <case <nmod_with (${ agents }) (${ preps })?
+#      effect: Entity  = <case [incoming=nmod_with] #<advcl_as nsubj
+
+
+  - name: syntax_verb-Correlation_with
     priority: ${ rulepriority }
     example: "moderate to heavy seasonal rainfall is expected to continue, with heightened risk of flooding in these regions"
-    # todo: this is likely only valid if there's some verb happening in at least one of the entities.  We should check for
-    # that in an action maybe -- look for either a literal verb in the span OR an inc/dec attachment
-    # example of when it *shouldn't* match: "Fields were additionally treated with fertilizer for increased crop yield."
     label: Correlation
+    action: ${ action }
     pattern: |
-      trigger = [tag=IN & word=with]
-      cause: Entity = <case <nmod_with (${ agents }) (${ preps })?
-      effect: Entity  = <case [incoming=nmod_with] #<advcl_as nsubj
+      trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/^VB/]
+      cause: Entity = nmod_with
+      effect: Entity  = nsubj
+
 
   - name: syntax_5_verb-Correlation
     priority: ${ rulepriority }
     example: "Economic crisis, marked by drastic hyperinflation and market failures"
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [word=/${ passive_mark_verbs }/] [word="by"]
       effect: Entity  = <acl
@@ -66,7 +83,28 @@ rules:
     priority: ${ rulepriority }
     example: "Worsening food security trends linked to continued conflict have been causing problems."
     label: Correlation
+    action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/VBN/]
       effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+
+  - name: syntax_explicit_Correlation_given
+    priority: ${ rulepriority }
+    example: "This is occurring at a time when import requirements are higher than usual given below-average harvests."
+    label: Correlation
+    action: ${ action }
+    pattern: |
+      trigger = [word=given & tag=VBN]
+      cause: Entity = <case
+      effect: Entity = <case <nmod_given /${agents}/?
+
+  - name: syntax_explicit_favorable
+    priority: ${ rulepriority }
+    example: "We have started ramping up food and nutrition support, but much more is needed to keep things from deteriorating even further during the lean season"
+    label: Causal
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=/^(favorable|helpful|amenable)/ & tag=/^JJ/]
+      cause: Entity = (?= cop) ${agents}
+      effect: Entity = nmod_for

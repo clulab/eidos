@@ -53,12 +53,12 @@ class TestRaps extends Test {
     val sent3 = "Limited financial capacities and low education levels further restrict farmers' ability for higher benefits from increased agricultural production."
     val tester = new Tester(sent3)
 
-    val financial = NodeSpec("financial capacities", Dec("Limited"))
-    val ability = NodeSpec("\' ability", Dec("restrict"))
-    val education = NodeSpec("education levels", Dec("low"), Quant("low"))
+    val financial = NodeSpec("Limited financial capacities", Dec("Limited"))
+    val ability = NodeSpec("farmers' ability for higher benefits from increased agricultural production", Dec("restrict"), Inc("higher"), Inc("increased"))
+    val education = NodeSpec("low education levels", Dec("low"), Quant("low"))
 
-    val production = NodeSpec("agricultural production", Inc("increased"))
-    val benefits = NodeSpec("benefits", Inc("higher"))
+//    val production = NodeSpec("agricultural production", Inc("increased"))
+//    val benefits = NodeSpec("benefits", Inc("higher"))
 
     behavior of "Raps_sent3"
 
@@ -83,8 +83,7 @@ class TestRaps extends Test {
 
     val tester = new Tester(sent4)
     //increase
-    val cultivar1 = NodeSpec("cultivar", Inc("improved"), Inc("promotes"))
-    val cultivar2 = NodeSpec("cultivar", Inc("improved"))
+    val cultivar1 = NodeSpec("improved cultivar", Inc("improved"), Inc("promotes"))
     val tech = NodeSpec("climate-smart technologies", Inc("improved"), Inc("promotes"))
 
     //decrease
@@ -121,37 +120,37 @@ class TestRaps extends Test {
     }
 
     //phase out the fertilizer subsidy results in deteriorating biophysical conditions
-    failingTest should "have correct edges 4" taggedAs(Heather) in {
+    tempBrokenEntitiesTest should "have correct edges 4" taggedAs(Heather) in {
       tester.test(EdgeSpec(subsidy, Causal, conditions)) should be (successful)
     }
 
     //phase out subsidy results in ... low use of inorganic fertilizer
-    failingTest should "have correct edges 5" taggedAs(Heather) in {
+    tempBrokenEntitiesTest should "have correct edges 5" taggedAs(Heather) in {
       tester.test(EdgeSpec(subsidy, Causal, fertUse2)) should be (successful)
     }
 
     //phase out results in ... less water
-    failingTest should "have correct edges 6" taggedAs(Heather) in {
+    tempBrokenEntitiesTest should "have correct edges 6" taggedAs(Heather) in {
       tester.test(EdgeSpec(subsidy, Causal, water)) should be (successful)
     }
 
     //phase out results in ... reduced farm size
-    failingTest should "have correct edges 7" taggedAs(Heather) in {
+    tempBrokenEntitiesTest should "have correct edges 7" taggedAs(Heather) in {
       tester.test(EdgeSpec(subsidy, Causal, farmSize)) should be (successful)
     }
 
     //low use of inorganic fertilizer... which lead to low benefit
-    failingTest should "have correct edges 8" taggedAs(Heather) in {
+    tempBrokenEntitiesTest should "have correct edges 8" taggedAs(Heather) in {
       tester.test(EdgeSpec(fertUse2, Causal, benefit)) should be (successful)
     }
 
     //less water ... lead to low benefit
-    failingTest should "have correct edges 9" taggedAs(Heather) in {
+    tempBrokenEntitiesTest should "have correct edges 9" taggedAs(Heather) in {
       tester.test(EdgeSpec(water, Causal, benefit)) should be (successful)
     }
 
     //reduced farm sizes which lead to low benefit from the improved cultivar
-    passingTest should "have correct edges 10" taggedAs(Heather) in {
+    tempBrokenEntitiesTest should "have correct edges 10" taggedAs(Heather) in {
       tester.test(EdgeSpec(farmSize, Causal, benefit)) should be (successful)
     }
 
@@ -271,15 +270,17 @@ class TestRaps extends Test {
     val use = NodeSpec("Use", Inc("increased"))
     val cultivars = NodeSpec("cultivars", Inc("improved"))
     val mechanization = NodeSpec("mechanization", Inc("improved"))
+    val interventions = NodeSpec("use of critical interventions", Quant("critical"))
     val productivity = NodeSpec("productivity", Inc("increases"))
     val resources = NodeSpec("efficient use of resources", Inc("increases"))
 
     behavior of "Raps_sent11"
 
+    // Not expanding non-args
     //This should probably be "Use of improved cultivars" for the NodeSpec
-    inferenceTest should "have correct node 1" in {
-      tester.test(use) should be (successful)
-    }
+//    inferenceTest should "have correct node 1" in {
+//      tester.test(use) should be (successful)
+//    }
 
     passingTest should "have correct node 2" in {
       tester.test(cultivars) should be (successful)
@@ -289,12 +290,12 @@ class TestRaps extends Test {
       tester.test(mechanization) should be (successful)
     }
 
-    passingTest should "have correct node 4" in {
-      tester.test(productivity) should be (successful)
+    tempBrokenEntitiesTest should "have correct edge 1" in {
+      tester.test(EdgeSpec(interventions, Causal, productivity)) should be (successful)
     }
 
-    passingTest should "have correct node 5" in {
-      tester.test(resources) should be (successful)
+    tempBrokenEntitiesTest should "have correct edge 2" in {
+      tester.test(EdgeSpec(interventions, Causal, resources)) should be (successful)
     }
 
   }
@@ -318,7 +319,7 @@ class TestRaps extends Test {
       tester.test(investment) should be (successful)
     }
 
-    passingTest should "have correct edge" in {
+    failingTest should "have correct edge" in {
       tester.test(EdgeSpec(gov, Causal, sector)) should be (successful)
     }
 

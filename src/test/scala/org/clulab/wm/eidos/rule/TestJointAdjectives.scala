@@ -91,19 +91,19 @@ class TestJointAdjectives extends Test {
 
     behavior of "Misparsed adjectives in noun phrases"
 
-    it should "get misparsed one" taggedAs(Somebody) in {
+    tempBrokenEntitiesTest should "get misparsed one" taggedAs(Somebody) in {
       tester.test(red) should be (successful)
     }
     it should "not combine it with the noun" taggedAs(Somebody) in {
       tester.test(antiRedStates) should be (successful)
     }
-    it should "get the second one" taggedAs(Somebody) in {
+    tempBrokenEntitiesTest should "get the second one" taggedAs(Somebody) in {
       tester.test(blueStates) should be (successful)
     }
-    it should "not combine them" taggedAs(Somebody) in {
+    tempBrokenEntitiesTest should "not combine them" taggedAs(Somebody) in {
       tester.test(antiRedAndBlueStates) should be (successful)
     }
-    it should "find the two events" taggedAs(Somebody) in {
+    tempBrokenEntitiesTest should "find the two events" taggedAs(Somebody) in {
       tester.test(EdgeSpec(red, Causal, problems)) should be (successful)
       tester.test(EdgeSpec(blueStates, Causal, problems)) should be (successful)
     }
