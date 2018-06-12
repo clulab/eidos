@@ -172,7 +172,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
   }
 
-  def extractFrom(doc: Document): Vector[Men
+  def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities: Seq[Mention] = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
 
