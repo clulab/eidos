@@ -71,7 +71,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
     def   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
 
-    def   toyOntologyPath: String = getPath(  "toyOntologyPath", "/org/clulab/wm/eidos/ontologies/ontology.yml")
+    def   toyOntologyPath: String = getPath(  "toyOntologyPath", "/org/clulab/wm/eidos/ontologies/toy_ontology.yml")
     def    unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
     def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
     def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
