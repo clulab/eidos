@@ -1,0 +1,340 @@
+- events:
+  - OntologyNode:
+    name: crisis
+    examples:
+      - "crisis"
+      - "emergency"
+  - natural:
+    - weather:
+      - OntologyNode:
+        name: precipitation
+        examples:
+          - "precipitation"
+          - "rain"
+          - "rainfall"
+          - "snow"
+      - OntologyNode:
+        name: flooding
+        examples:
+          - "flood"
+          - "flash flood"
+      - OntologyNode:
+        name: drought
+        examples:
+          - "drought"
+      - OntologyNode:
+        name: storm
+        examples:
+          - "hurricane"
+          - "extreme winds"
+          - "cyclone"
+          - "tornado"
+  - human:
+    - OntologyNode:
+      name: conflict
+      examples:
+        - "conflict"
+        - "war"
+        - "fighting"
+        - "disarmament"
+        - "infighting"
+        - "civil unrest"
+        - "genocide"
+        - "clash"
+        - "raid"
+    - OntologyNode:
+      name: human_migration
+      examples:
+        - "migration"
+        - "immigration"
+        - "displacement"
+        - "refugee migration"
+        - "emigration"
+    - OntologyNode:
+      name: intervention
+      examples:
+        - "access"
+        - "humanitarian response"
+        - "humanitarian aid"
+        - "assistance"
+        - "humanitarian support"
+        - "intervention"
+    - OntologyNode:
+      name: famine
+      examples:
+        - "famine"
+        - "hunger"
+        - "starvation"
+    - OntologyNode:
+      name: death
+      examples:
+        - "death"
+        - "mortality"
+        - "morbidity"
+        - "decease"
+- entities:
+  - measurement:
+    - OntologyNode:
+      name: distance
+      examples:
+        - "feet"
+        - "meter"
+        - "inch"
+        - "yard"
+        - "mile"
+        - "kilometer"
+    - OntologyNode:
+      name: area
+      examples:
+        - "acre"
+        - "hectare"
+    - OntologyNode:
+      name: weight
+      examples:
+        - "ton"
+        - "tonne"
+        - "gram"
+        - "kilogram"
+        - "pound"
+        - "ounce"
+    - OntologyNode:
+      name: volume
+      examples:
+        - "liter"
+        - "gallon"
+  - natural:
+    - soil:
+      - OntologyNode:
+        name: soil_contents
+        examples:
+          - "phosphorous"
+          - "organic matter"
+    - OntologyNode:
+      name: crop
+      examples:
+        - "wheat"
+        - "corn"
+        - "maize"
+        - "rice"
+        - "sorghum"
+        - "barley"
+        - "flax"
+        - "grain"
+        - "beans"
+        - "sugar"
+        - "flour"
+        - "tea"
+        - "leaf vegetables"
+        - "groundnuts"
+        - "cultivar"
+    - OntologyNode:
+      name: pest
+      examples:
+        - "infestation"
+        - "armyworm"
+        - "insect"
+        - "swarm"
+        - "locust"
+        - "fungus"
+        - "plant nematodes"
+        - "weeds"
+        - "volunteer plants"
+        - "pests"
+        - "mice"
+        - "midges"
+        - "slugs"
+  - human:
+    - OntologyNode:
+      name: fertilizer
+      examples:
+        - "nitrogen fertilizer"
+        - "inorganic fertilizers"
+        - "potting composts"
+        - "nitrogen potassium fertilizers"
+        - "superphosphate"
+        - "magnesium fertilizers"
+        - "nitrate fertilizers"
+        - "biofertilizers"
+        - "potash fertilizers"
+        - "fish manure"
+        - "guano"
+        - "nitrophosphates"
+        - "composts"
+    - OntologyNode:
+      name: irrigation
+      examples:
+        - "localized irrigation"
+        - "capillary irrigation"
+        - "sprinkler irrigation"
+        - "furrow irrigation"
+        - "drip fertigation"
+        - "surface irrigation"
+        - "runoff irrigation"
+        - "fertigation"
+        - "wastewater irrigation"
+        - "watering"
+        - "rotation irrigation"
+        - "flood irrigation"
+        - "trickle irrigation"
+        - "centre pivot irrigation"
+        - "subsurface irrigation"
+    - infrastructure:
+      - transportation:
+        - OntologyNode:
+          name: transportation_methods
+          examples:
+            - "trucking"
+            - "shipping"
+            - "courier"
+            - "transportation"
+            - "driving"
+            - "bus"
+            - "air travel"
+            - "delivery"
+        - OntologyNode:
+          name: road
+          examples:
+            - "road"
+            - "highways"
+        - OntologyNode:
+          name: bridge
+          examples:
+            - "bridge"
+      - OntologyNode:
+        name: other
+        examples:
+          - "border"
+          - "building"
+          - "monument"
+          - "utilities"
+          - "electric plant"
+          - "desalination"
+          - "water treatment facility"
+          - "sewage plant"
+          - "drainage ditch"
+          - "airport"
+          - "seaport"
+          - "marina"
+          - "harbour"
+    - OntologyNode:
+      name: livelihood
+      examples:
+        - "livelihood"
+        - "farming"
+        - "fishery"
+        - "food production"
+        - "agriculture"
+        - "industry"
+        - "commerce"
+        - "workplace"
+        - "trade"
+        - "work"
+        - "job"
+        - "career"
+    - financial:
+      - OntologyNode:
+        name: price
+        examples:
+          - "price"
+          - "cost"
+          - "expense"
+      - economic:
+        - OntologyNode:
+          name: market
+          examples:
+            - "market"
+            - "domestic markets"
+            - "capital market"
+            - "street markets"
+        - OntologyNode:
+          name: economy
+          examples:
+            - "interest rate"
+            - "investment"
+            - "stipend"
+            - "government spending"
+            - "subsidy"
+            - "finance"
+            - "GDP"
+            - "economy"
+            - "inflation"
+            - "depreciation"
+        - OntologyNode:
+          name: revenue
+          examples:
+            - "livelihood"
+            - "income"
+            - "household income"
+            - "take home pay"
+            - "net profit"
+            - "profit"
+            - "earning"
+            - "revenue"
+    - OntologyNode:
+      name: nation
+      examples:
+        - "nation"
+        - "country"
+        - "state"
+        - "geopolitical entity"
+        - "nation-state"
+        - "ethic group"
+        - "population"
+        - "government"
+    - OntologyNode:
+      name: communities
+      examples:
+        - "communities"
+        - "people group"
+        - "households"
+        - "families"
+        - "villages"
+    - food:
+      - OntologyNode:
+        name: food_security
+        examples:
+          - "food security"
+          - "food access"
+          - "food availability"
+          - "nutrition"
+      - OntologyNode:
+        name: food_insecurity
+        examples:
+          - "food insecurity"
+          - "food gap"
+          - "malnutrition"
+- temporal:
+  - seasons:
+    - OntologyNode:
+      name: crop_season
+      examples:
+        - "harvest"
+        - "lean season"
+        - "planting season"
+        - "sowing season"
+    - OntologyNode:
+      name: annual
+      examples:
+        - "summer"
+        - "winter"
+        - "fall"
+        - "spring"
+        - "dry season"
+        - "rainy season"
+        - "monsoon season"
+  - OntologyNode:
+    name: months
+    examples:
+      - "January"
+      - "February"
+      - "March"
+      - "April"
+      - "May"
+      - "June"
+      - "July"
+      - "August"
+      - "September"
+      - "October"
+      - "November"
+      - "December"
+

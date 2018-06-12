@@ -1,8 +1,9 @@
 - UN: #todo: fix out-standing issues in --> https://github.com/clulab/eidos/pull/281
   - events:
     - nature_impact:
-      - positive_nature_impact:
-        - examples:
+      - OntologyNode:
+        name: positive_nature_impact
+        examples:
           - conservation
           - sustainable use
           - afforestation
@@ -14,8 +15,9 @@
           - forest management
           - water management
           - management forest
-      - negative_nature_impact:
-        - examples:
+      - OntologyNode:
+        name: negative_nature_impact
+        examples:
           - pollution
           - deforestation
           - soil erosion
@@ -25,13 +27,15 @@
           - climate change
           - ghg emission
           - contamination
-    - crisis:
-      - examples:
+    - OntologyNode:
+      name: crisis
+      examples:
         - crisis
         - emergency
     - natural:
-      - chemical:
-        - examples: #todo -- O2, N, CO2 etc ...
+      - OntologyNode:
+        name: chemical
+        examples:
           - oxygen
           - O2
           - nitrogen
@@ -40,8 +44,9 @@
           - sulfer
           - lead
       - biology:
-        - ecosystem:
-          - examples:
+        - OntologyNode:
+          name: ecosystem
+          examples:
             - species
             - forest
             - environment
@@ -49,8 +54,9 @@
             - life
             - ecology
             - ecosystem service
-        - flora:
-          - examples:
+        - OntologyNode:
+          name: flora
+          examples:
             - flora
             - mangrove
             - tree species
@@ -60,8 +66,9 @@
             - plant
             - vegetation
             - fuelwood
-        - fauna:
-          - examples:
+        - OntologyNode:
+          name: fauna
+          examples:
             - animal
             - bird
             - insect
@@ -75,8 +82,9 @@
             - buffalo
             - tsetse
             - shark
-      - natural_resources: # todo: to split into multiple categories ?
-        - examples:
+      - OntologyNode:
+        name: natural_resources # todo to split into multiple categories ?
+        examples:
           - area
           - food
           - resource
@@ -112,29 +120,34 @@
           - iron
           - water body
       - natural_disaster:
-        - flooding:
-          - examples:
+        - OntologyNode:
+          name: flooding
+          examples:
             - flood
             - flash flood
-        - drought:
-          - examples:
+        - OntologyNode:
+          name: drought
+          examples:
             - drought
-        - storm:
-          - examples:
+        - OntologyNode:
+          name: storm
+          examples:
             - hurricane
             - extreme winds
             - cyclone
             - tornado
       - weather:
-        - precipitation:
-          - examples:
+        - OntologyNode:
+          name: precipitation
+          examples:
             - precipitation
             - rain
             - rainfall
             - snow
     - human:
-      - conflict:
-        - examples:
+      - OntologyNode:
+        name: conflict
+        examples:
           - conflict
           - war
           - fighting
@@ -144,16 +157,18 @@
           - genocide
           - clash
           - raid
-      - human_migration:
-        - examples:
+      - OntologyNode:
+        name: human_migration
+        examples:
           - migration
           - immigration
           - displacement
           - refugee migration
           - emigration
       - intervention:
-        - intervention:
-          - examples:
+        - OntologyNode:
+          name: intervention
+          examples:
             - access
             - humanitarian response
             - humanitarian aid
@@ -162,25 +177,29 @@
             - intervention
             - rehabilitation
             - poverty alleviation
-      - health_intervention:
-        - examples:
+      - OntologyNode:
+        name: health_intervention
+        examples:
           - vaccine
           - immunization
         #todo
-      - famine:
-        - examples:
+      - OntologyNode:
+        name: famine
+        examples:
           - famine
           - hunger
           - starvation
-      - death:
-        - examples:
+      - OntologyNode:
+        name: death
+        examples:
           - death
           - mortality
           - morbidity
           - decease
   - entities:
-    - GPE:
-      - examples:
+    - OntologyNode:
+      name: GPE
+      examples:
         - village
         - world
         - district
@@ -211,39 +230,45 @@
         - geopolitical entity
         - nation-state
     - measurement:
-      - distance:
-        - examples:
+      - OntologyNode:
+        name: distance
+        examples:
           - feet
           - meter
           - inch
           - yard
           - mile
           - kilometer
-      - area:
-        - examples:
+      - OntologyNode:
+        name: area
+        examples:
           - acre
           - hectare
-      - weight:
-        - examples:
+      - OntologyNode:
+        name: weight
+        examples:
           - ton
           - tonne
           - gram
           - kilogram
           - pound
           - ounce
-      - volume:
-        - examples:
+      - OntologyNode:
+        name: volume
+        examples:
           - liter
           - gallon
     - natural:
       - soil:
-        - soil_contents:
-          - examples:
+        - OntologyNode:
+          name: soil_contents
+          examples:
             - phosphorous
             - organic matter
             - soil
-      - crop_technology:
-        - examples:
+      - OntologyNode:
+        name: crop_technology
+        examples:
           - pesticide
           - cultivation
           - harvesting
@@ -265,8 +290,9 @@
           - horticulture
           - tillage
           - investment agriculture
-      - crop:
-        - examples:
+      - OntologyNode:
+        name: crop
+        examples:
           - wheat
           - corn
           - maize
@@ -308,8 +334,9 @@
           - legume
           - grain
           - tuber
-      - pest:
-        - examples:
+      - OntologyNode:
+        name: pest
+        examples:
           - infestation
           - armyworm
           - insect
@@ -326,18 +353,21 @@
           - pest
     - human:
       - health:
-        - human_health: #todo
-          - examples:
+        - OntologyNode:
+          name: human_health #todo
+          examples:
             - health
             - healthy
             - nutrition
-        - nutrients:
-          - examples:
+        - OntologyNode:
+          name: nutrients
+          examples:
             - diet
             - vitamin a
           #todo
-        - disease:
-          - examples:
+        - OntologyNode:
+          name: disease
+          examples:
             - HIV
             - malaraia
             - diabetes
@@ -346,8 +376,9 @@
             - anaemia
             - hiv/aids
             - outbreak
-      - fertilizer: #todo: move this to crop_technology
-        - examples:
+      - OntologyNode:
+        name: fertilizer #todo move this to crop_technology
+        examples:
           - nitrogen fertilizer
           - inorganic fertilizers
           - potting composts
@@ -362,8 +393,9 @@
           - nitrophosphates
           - composts
           - fertilizer
-      - irrigation:
-        - examples:
+      - OntologyNode:
+        name: irrigation
+        examples:
           - localized irrigation
           - capillary irrigation
           - sprinkler irrigation
@@ -383,8 +415,9 @@
           - irrigation
       - infrastructure:
         - transportation:
-          - transportation_methods:
-            - examples:
+          - OntologyNode:
+            name: transportation_methods
+            examples:
               - trucking
               - shipping
               - courier
@@ -393,15 +426,18 @@
               - bus
               - air travel
               - delivery
-          - road:
-            - examples:
+          - OntologyNode:
+            name: road
+            examples:
               - road
               - highways
-          - bridge:
-            - examples:
+          - OntologyNode:
+            name: bridge
+            examples:
               - bridge
-        - other: #todo split out
-          - examples:
+        - OntologyNode:
+          name: other #todo split out
+          examples:
             - infrastructure
             - energy
             - border
@@ -422,8 +458,9 @@
             - dam
             - watershed
             - canal
-      - livelihood:
-        - examples:
+      - OntologyNode:
+        name: livelihood
+        examples:
           - livelihood
           - farming # todo move to own pre-terminal
           - fishery # todo move to own pre-terminal
@@ -439,14 +476,16 @@
           - opportunity
           - employment
           - agribusiness
-      - education: #todo
-        - examples:
+      - OntologyNode:
+        name: education #todo
+        examples:
           - literacy
           - education
           - school
       - financial:
-        - price:
-          - examples:
+        - OntologyNode:
+          name: price
+          examples:
             - price
             - cost
             - expense
@@ -454,14 +493,16 @@
             - budget
             - cash
         - economic:
-          - market:
-            - examples:
+          - OntologyNode:
+            name: market
+            examples:
               - market
               - domestic markets
               - capital market
               - street markets
-          - economy:
-            - examples:
+          - OntologyNode:
+            name: economy
+            examples:
               - interest rate
               - investment
               - stipend
@@ -472,8 +513,9 @@
               - economy
               - inflation
               - depreciation
-          - technology: #todo -- think about investments in _______
-            - examples:
+          - OntologyNode:
+            name: think about investments in _______
+            examples:
               - biofuel
               - technology
               - e-mail
@@ -500,8 +542,9 @@
               - machinery
               - radio
               - programming
-          - revenue:
-            - examples:
+          - OntologyNode:
+            name: revenue
+            examples:
               - livelihood
               - income
               - household income
@@ -511,12 +554,14 @@
               - earning
               - revenue
               - investment
-          - poverty: #todo
-            - examples:
+          - OntologyNode:
+            name: poverty #todo
+            examples:
               - poverty
       - government:
-        - government_entity:
-          - examples:
+        - OntologyNode:
+          name: government_entity
+          examples:
             - ngo
             - agriculture organization UNITED NATIONS
             - agency
@@ -555,8 +600,9 @@
             - contract party
             - department
             - government
-        - government_actions:
-          - examples:
+        - OntologyNode:
+          name: government_actions
+          examples:
             - regulation
             - governance
             - surveillance
@@ -596,8 +642,9 @@
             - rights
             - decision-making
             - welfare
-      - communities:
-        - examples:
+      - OntologyNode:
+        name: communities
+        examples:
           - communities
           - people group
           - households
@@ -609,15 +656,17 @@
           - ethnic group
           - population
       - food:
-        - food_security:
-          - examples:
+        - OntologyNode:
+          name: food_security
+          examples:
             - food security
             - food access
             - food availability
             - nutrition
             - nutrition security
-        - food_insecurity:
-          - examples:
+        - OntologyNode:
+          name: food_insecurity
+          examples:
             - food insecurity
             - food gap
             - malnutrition
@@ -628,14 +677,16 @@
             - wasting
   - temporal:
     - seasons:
-      - crop_season:
-        - examples:
+      - OntologyNode:
+        name: crop_season
+        examples:
           - harvest
           - lean season
           - planting season
           - sowing season
-      - annual:
-        - examples:
+      - OntologyNode:
+        name: annual
+        examples:
           - summer
           - winter
           - fall
@@ -643,8 +694,9 @@
           - dry season
           - rainy season
           - monsoon season
-    - months:
-      - examples:
+    - OntologyNode:
+      name: months
+      examples:
         - January
         - February
         - March
