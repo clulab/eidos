@@ -15,6 +15,7 @@ import scala.collection.mutable.ArrayBuffer
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.apps.ExtractFromDirectory.reader
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
 
@@ -94,12 +95,14 @@ object MakeMITRETablesFromDirectory extends App {
     println(s"Extracting from ${file.getName}")
 
     // 2. Get the input file contents
-    val lines = FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
+    val text = FileUtils.getTextFromFile(file)
+    //val lines = FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromFile(file))
+    // 3. Extract causal mentions from the text
+    val annotatedDocuments = Seq(reader.extractFromText(text))
 
 
     for {
-      line <- lines
-      annotatedDocument = reader.extractFromText(line)
+      annotatedDocument <- annotatedDocuments
       mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention))
       mention <- mentionsToPrint
 
