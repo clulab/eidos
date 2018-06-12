@@ -1,7 +1,7 @@
 - events:
   - OntologyNode:
     name: crisis
-    example:
+    examples:
       - "crisis"
       - "emergency"
   - natural:
@@ -200,22 +200,22 @@
           name: bridge
           examples:
             - "bridge"
-        - OntologyNode:
-          name: other
-          examples:
-            - "border"
-            - "building"
-            - "monument"
-            - "utilities"
-            - "electric plant"
-            - "desalination"
-            - "water treatment facility"
-            - "sewage plant"
-            - "drainage ditch"
-            - "airport"
-            - "seaport"
-            - "marina"
-            - "harbour"
+      - OntologyNode:
+        name: other
+        examples:
+          - "border"
+          - "building"
+          - "monument"
+          - "utilities"
+          - "electric plant"
+          - "desalination"
+          - "water treatment facility"
+          - "sewage plant"
+          - "drainage ditch"
+          - "airport"
+          - "seaport"
+          - "marina"
+          - "harbour"
     - OntologyNode:
       name: livelihood
       examples:
@@ -336,3 +336,5 @@
       - "September"
       - "October"
       - "November"
+      - "December"
+

@@ -408,50 +408,50 @@
           - irrigation system
           - irrigation
       - infrastructure:
-          - transportation:
-            - OntologyNode:
-              name: transportation_methods
-              examples:
-                - trucking
-                - shipping
-                - courier
-                - transportation
-                - driving
-                - bus
-                - air travel
-                - delivery
-            - OntologyNode:
-              name: road
-              examples:
-                - road
-                - highways
-            - OntologyNode:
-              name: bridge
-              examples:
-                - bridge
+        - transportation:
           - OntologyNode:
-            name: other #todo split out
+            name: transportation_methods
             examples:
-              - infrastructure
-              - energy
-              - border
-              - building
-              - monument
-              - utilities
-              - electric plant
-              - desalination
-              - water treatment facility
-              - sewage plant
-              - drainage ditch
-              - airport
-              - seaport
-              - marina
-              - harbour
-              - reservoir
-              - sanitation
-              - dam
-              - watershed
-              - canal
+              - trucking
+              - shipping
+              - courier
+              - transportation
+              - driving
+              - bus
+              - air travel
+              - delivery
+          - OntologyNode:
+            name: road
+            examples:
+              - road
+              - highways
+          - OntologyNode:
+            name: bridge
+            examples:
+              - bridge
+        - OntologyNode:
+          name: other #todo split out
+          examples:
+            - infrastructure
+            - energy
+            - border
+            - building
+            - monument
+            - utilities
+            - electric plant
+            - desalination
+            - water treatment facility
+            - sewage plant
+            - drainage ditch
+            - airport
+            - seaport
+            - marina
+            - harbour
+            - reservoir
+            - sanitation
+            - dam
+            - watershed
+            - canal
       - OntologyNode:
         name: livelihood
         examples:
@@ -702,3 +702,4 @@
         - September
         - October
         - November
+        - December
