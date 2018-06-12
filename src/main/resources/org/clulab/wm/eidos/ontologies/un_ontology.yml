@@ -1,32 +1,92 @@
 - UN: #todo: fix out-standing issues in --> https://github.com/clulab/eidos/pull/281
+  - properties:
+    - OntologyNode:
+      name: price
+      examples:
+        - price
+        - cost
+        - expense
+        - credit
+        - budget
+        - cash
+    - OntologyNode:
+      name: rate
+      examples:
+        - rate
+    - OntologyNode:
+      name: proportion
+      examples:
+        - proportion
+        - percentage
+        - ratio
+    - OntologyNode:
+      name: distance
+      examples:
+        - feet
+        - meter
+        - inch
+        - yard
+        - mile
+        - kilometer
+    - OntologyNode:
+      name: area
+      examples:
+        - acre
+        - hectare
+    - OntologyNode:
+      name: weight
+      examples:
+        - ton
+        - tonne
+        - gram
+        - kilogram
+        - pound
+        - ounce
+    - OntologyNode:
+      name: volume
+      examples:
+        - liter
+        - gallon
+
   - events:
     - nature_impact:
       - OntologyNode:
-        name: positive_nature_impact
+        name: climate_change_mitigation
+        examples:
+          - climate change mitigation
+          - climate change adaptation
+      - OntologyNode:
+        name: resource_management
         examples:
           - conservation
           - sustainable use
-          - afforestation
-          - agroforestry
           - biodiversity conservation
-          - climate change mitigation
-          - reforestation
-          - climate change adaptation
           - forest management
           - water management
           - management forest
       - OntologyNode:
-        name: negative_nature_impact
+        name: forestry
         examples:
-          - pollution
-          - deforestation
-          - soil erosion
-          - desertification
-          - greenhouse gas emission
-          - contaminant
-          - climate change
-          - ghg emission
-          - contamination
+          - afforestation
+          - agroforestry
+          - forest management
+          - reforestation
+      - pollution:  
+        - OntologyNode:
+          name: air_pollution
+          examples:
+            - pollution
+            - greenhouse gas emission
+            - ghg emission
+        - OntologyNode:
+          name: land_pollution
+          examples:
+            - contaminant
+            - contamination
+            - soil pollution
+            - deforestation
+            - soil erosion
+            - desertification  
     - OntologyNode:
       name: crisis
       examples:
@@ -77,43 +137,59 @@
             - buffalo
             - tsetse
             - shark
-      - OntologyNode:
-        name: natural_resources # todo to split into multiple categories ?
-        examples:
-          - area
-          - food
-          - resource
-          - land
-          - water
-          - biodiversity
-          - sea
-          - ecosystem
-          - river
-          - forest area
-          - pond
-          - rain
-          - water resource
-          - forestry sector
-          - wetland
-          - nAtuRAl ReSouRceS
-          - mineral
-          - Convention Biological diversity
-          - area forest
-          - forest sector
-          - lake
-          - forest land
-          - freshwater
-          - surface water
-          - air
-          - charcoal
-          - sand
-          - plant resource food
-          - wildlife
-          - groundwater
-          - mountain
-          - mt
-          - iron
-          - water body
+      - natural_resources:
+        - OntologyNode:
+          name: Biotic_resources # todo to split into multiple categories 
+          examples:
+            - biodiversity
+            - Convention Biological diversity   
+            - ecosystem
+            - food
+            - forest area
+            - area forest
+            - forest land          
+            - forestry sector  
+            - plant resource food
+            - wildlife     
+      - Abiotic_resources:                      
+          - OntologyNode:
+            name: land # todo to split into multiple categories 
+            examples:
+              - area
+              - land
+              - mountain
+              - mt
+              - wetland
+              - sand
+          - OntologyNode:
+            name: water # todo to split into multiple categories 
+            examples:
+              - water
+              - sea
+              - river
+              - pond
+              - rain
+              - water resource
+              - lake
+              - freshwater
+              - surface water
+              - groundwater
+              - water body
+          - OntologyNode:
+            name: material # todo to split into multiple categories 
+            examples:
+              - charcoal
+              - iron
+              - mineral
+          - OntologyNode:
+            name: resource # todo to split into multiple categories 
+            examples:
+              - resource
+              - nAtuRAl ReSouRceS
+          - OntologyNode:
+            name: air # todo to split into multiple categories 
+            examples:
+              - air              
       - natural_disaster:
         - OntologyNode:
           name: flooding
@@ -146,12 +222,15 @@
           - conflict
           - war
           - fighting
-          - disarmament # todo: fix this ...
           - infighting
           - civil unrest
           - genocide
           - clash
           - raid
+      - OntologyNode:
+        name: disarmament
+        examples:
+          - disarmament          
       - OntologyNode:
         name: human_migration
         examples:
@@ -223,35 +302,6 @@
         - state
         - geopolitical entity
         - nation-state
-    - measurement:
-      - OntologyNode:
-        name: distance
-        examples:
-          - feet
-          - meter
-          - inch
-          - yard
-          - mile
-          - kilometer
-      - OntologyNode:
-        name: area
-        examples:
-          - acre
-          - hectare
-      - OntologyNode:
-        name: weight
-        examples:
-          - ton
-          - tonne
-          - gram
-          - kilogram
-          - pound
-          - ounce
-      - OntologyNode:
-        name: volume
-        examples:
-          - liter
-          - gallon
     - natural:
       - soil:
         - OntologyNode:
@@ -261,29 +311,47 @@
             - organic matter
             - soil
       - OntologyNode:
-        name: crop_technology
+        name: watershed
         examples:
-          - pesticide
-          - cultivation
-          - harvesting
-          - post-harvest
-          - food system
-          - farmer organization
-          - department agriculture
-          - aquaculture sector
-          - food product
-          - Peoples food system
-          - farming
-          - harvest
-          - rice production
-          - farming system
-          - agriculture organization
-          - soil fertility
-          - planting
-          - fertility
-          - horticulture
-          - tillage
-          - investment agriculture
+          - watershed
+      - crop_technology:
+        - OntologyNode: # todo too broad??
+          name: pesticide
+          examples:
+            - pesticide
+        - OntologyNode: # todo too broad??
+          name: management
+          examples:
+            - farmer organization
+            - department agriculture
+            - aquaculture sector
+            - farming system
+            - agriculture organization
+            - investment agriculture
+            - food system
+            - Peoples food system
+        - OntologyNode: # todo too broad??
+          name: farming
+          examples:
+            - farming
+            - cultivation
+            - harvesting
+            - harvest
+            - tillage
+            - soil fertility
+            - fertility
+        - OntologyNode: # todo too broad??
+          name: planting
+          examples:
+            - planting
+            - horticulture
+        - OntologyNode: # todo too broad??
+          name: product
+          examples:
+            - post-harvest
+            - food product
+            - rice production
+
       - OntologyNode:
         name: crop
         examples:
@@ -348,16 +416,13 @@
     - human:
       - health:
         - OntologyNode:
-          name: human_health #todo
-          examples:
-            - health
-            - healthy
-            - nutrition
-        - OntologyNode:
-          name: nutrients
+          name: nutrient # todo robustify
           examples:
             - diet
-            - vitamin a
+            - vitamin
+            - nutrition
+            - nutritive
+            - nutritiousness
           #todo
         - OntologyNode:
           name: disease
@@ -370,8 +435,10 @@
             - anaemia
             - hiv/aids
             - outbreak
+            - virus
+            - bacteria
       - OntologyNode:
-        name: fertilizer #todo move this to crop_technology
+        name: fertilizer
         examples:
           - nitrogen fertilizer
           - inorganic fertilizers
@@ -408,56 +475,75 @@
           - irrigation system
           - irrigation
       - infrastructure:
-        - transportation:
+          - transportation:
+            - OntologyNode:
+              name: transportation_methods
+              examples:
+                - trucking
+                - shipping
+                - courier
+                - transportation
+                - driving
+                - bus
+                - air travel
+                - delivery
+            - OntologyNode:
+              name: road
+              examples:
+                - road
+                - highways
+            - OntologyNode:
+              name: bridge
+              examples:
+                - bridge
           - OntologyNode:
-            name: transportation_methods
+            name: water_management #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
             examples:
-              - trucking
-              - shipping
-              - courier
-              - transportation
-              - driving
-              - bus
-              - air travel
-              - delivery
+              - water treatment facility              
+              - dam
+              - sewage plant
+              - drainage ditch    
+              - desalination   
+              - sanitation  
+              - reservoir         
+              - border                      
           - OntologyNode:
-            name: road
+            name: shipping_facilities_water #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
             examples:
-              - road
-              - highways
+              - canal
+              - seaport
+              - marina
+              - harbour
           - OntologyNode:
-            name: bridge
+            name: shipping_facilities_air #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
             examples:
-              - bridge
-        - OntologyNode:
-          name: other #todo split out
-          examples:
-            - infrastructure
-            - energy
-            - border
-            - building
-            - monument
-            - utilities
-            - electric plant
-            - desalination
-            - water treatment facility
-            - sewage plant
-            - drainage ditch
-            - airport
-            - seaport
-            - marina
-            - harbour
-            - reservoir
-            - sanitation
-            - dam
-            - watershed
-            - canal
+              - airport
+          - OntologyNode:
+            name: electrical #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
+            examples: # todo == Becky removed "watershed" should it go somewhere (not here)
+              - energy
+              - electric plant
+              - utilities
+          - OntologyNode:
+            name: building #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
+            examples:
+              - building
+              - monument
+              - infrastructure
+              - reservoir 
+              - dam
+              - sewage plant
+              - drainage ditch  
+              - seaport
+              - marina
+              - harbour 
+              - airport
+              - electric plant
+
       - OntologyNode:
         name: livelihood
         examples:
           - livelihood
-          - farming # todo move to own pre-terminal
-          - fishery # todo move to own pre-terminal
           - food production
           - agriculture
           - industry
@@ -471,21 +557,20 @@
           - employment
           - agribusiness
       - OntologyNode:
+        name: farming
+        examples:
+          - farming
+      - OntologyNode:
+        name: fishery
+        examples:
+          - fishery          
+      - OntologyNode:
         name: education #todo
         examples:
           - literacy
           - education
           - school
       - financial:
-        - OntologyNode:
-          name: price
-          examples:
-            - price
-            - cost
-            - expense
-            - credit
-            - budget
-            - cash
         - economic:
           - OntologyNode:
             name: market
@@ -495,7 +580,7 @@
               - capital market
               - street markets
           - OntologyNode:
-            name: economy
+            name: economy 
             examples:
               - interest rate
               - investment
@@ -505,37 +590,24 @@
               - finance
               - GDP
               - economy
+          - OntologyNode:
+            name: inflation 
+            examples:
               - inflation
+          - OntologyNode:
+            name: depreciation 
+            examples:
               - depreciation
           - OntologyNode:
-            name: think about investments in _______
+            name: fuel #todo -- remove, add a fuel node, move biofuel to there, perhaps
+                    # with petroleum, gas, oil, crude
             examples:
+              - fuel
               - biofuel
-              - technology
-              - e-mail
-              - email
-              - network
-              - solution
-              - transportation
-              - internet
-              - information system
-              - electricity
-              - software
-              - website
-              - vehicle
-              - web site
-              - machine
-              - transport
-              - database
-              - innovation
-              - biofuel
-              - technology transfer
-              - networking
-              - mechanization
-              - biotechnology
-              - machinery
-              - radio
-              - programming
+              - petroleum
+              - gas
+              - oil
+              - crude
           - OntologyNode:
             name: revenue
             examples:
@@ -594,48 +666,46 @@
             - contract party
             - department
             - government
-        - OntologyNode:
-          name: government_actions
-          examples:
-            - regulation
-            - governance
-            - surveillance
-            - security
-            - commission
-            - law
-            - meeting
-            - session
-            - discussion
-            - legislation
-            - workshop
-            - conference
-            - partnership
-            - decision
-            - agreement
-            - rule
-            - agenda
-            - convention
-            - recommendation
-            - stability
-            - compliance
-            - tax
-            - enforcement
-            - census
-            - action plan
-            - policy
-            - development
-            - management
-            - production
-            - organization
-            - programme
-            - Programme Work
-            - development programme
-            - Development Goals
-            - jurisdiction
-            - management plan
-            - rights
-            - decision-making
-            - welfare
+        - government_actions:
+          - OntologyNode:
+            name: regulation # todo prune, what's left split out
+            examples:
+              - regulation
+              - governance
+              - surveillance
+              - enforcement
+              - law
+              - policy
+              - legislation
+          - OntologyNode:
+            name: census
+            examples:
+              - census
+              - survey
+          - OntologyNode:
+            name: organization
+            examples:            
+              - commission
+              - workshop
+              - conference
+              - partnership
+              - management
+              - organization
+              - programme
+              - Programme Work
+              - convention
+          - OntologyNode:
+            name: duty
+            examples:
+              - security
+              - tax 
+              - action plan
+              - development programme
+              - Development Goals
+              - management plan
+              - welfare # make "govenrment" node with a buncha stuff from here, also make a "data_collection" node with "census", etc
+              # tax elsewhere??
+              # workshop, conference, partnership.... etc elsewhere
       - OntologyNode:
         name: communities
         examples:
@@ -668,8 +738,7 @@
             - undernourishment
             - stunting
             - wasting
-            - wasting
-  - temporal:
+  - temporal: # todo maybe one day remove??
     - seasons:
       - OntologyNode:
         name: crop_season
@@ -679,7 +748,7 @@
           - planting season
           - sowing season
       - OntologyNode:
-        name: annual
+        name: season
         examples:
           - summer
           - winter
@@ -689,7 +758,7 @@
           - rainy season
           - monsoon season
     - OntologyNode:
-      name: months
+      name: month
       examples:
         - January
         - February
