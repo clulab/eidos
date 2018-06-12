@@ -1,30 +1,30 @@
 - events:
   - OntologyNode:
     name: crisis
-    example:
+    examples:
       - "crisis"
       - "emergency"
   - natural:
-      - weather:
+    - weather:
       - OntologyNode:
         name: precipitation
-        example:
+        examples:
           - "precipitation"
           - "rain"
           - "rainfall"
           - "snow"
       - OntologyNode:
         name: flooding
-        example:
+        examples:
           - "flood"
           - "flash flood"
       - OntologyNode:
         name: drought
-        example:
+        examples:
           - "drought"
       - OntologyNode:
         name: storm
-        example:
+        examples:
           - "hurricane"
           - "extreme winds"
           - "cyclone"
@@ -32,7 +32,7 @@
   - human:
     - OntologyNode:
       name: conflict
-      example:
+      examples:
         - "conflict"
         - "war"
         - "fighting"
@@ -44,7 +44,7 @@
         - "raid"
     - OntologyNode:
       name: human_migration
-      example:
+      examples:
         - "migration"
         - "immigration"
         - "displacement"
@@ -52,7 +52,7 @@
         - "emigration"
     - OntologyNode:
       name: intervention
-      example:
+      examples:
         - "access"
         - "humanitarian response"
         - "humanitarian aid"
@@ -61,13 +61,13 @@
         - "intervention"
     - OntologyNode:
       name: famine
-      example:
+      examples:
         - "famine"
         - "hunger"
         - "starvation"
     - OntologyNode:
       name: death
-      example:
+      examples:
         - "death"
         - "mortality"
         - "morbidity"
@@ -76,7 +76,7 @@
   - measurement:
     - OntologyNode:
       name: distance
-      example:
+      examples:
         - "feet"
         - "meter"
         - "inch"
@@ -85,12 +85,12 @@
         - "kilometer"
     - OntologyNode:
       name: area
-      example:
+      examples:
         - "acre"
         - "hectare"
     - OntologyNode:
       name: weight
-      example:
+      examples:
         - "ton"
         - "tonne"
         - "gram"
@@ -99,19 +99,19 @@
         - "ounce"
     - OntologyNode:
       name: volume
-      example:
+      examples:
         - "liter"
         - "gallon"
   - natural:
     - soil:
       - OntologyNode:
         name: soil_contents
-        example:
+        examples:
           - "phosphorous"
           - "organic matter"
     - OntologyNode:
       name: crop
-      example:
+      examples:
         - "wheat"
         - "corn"
         - "maize"
@@ -129,7 +129,7 @@
         - "cultivar"
     - OntologyNode:
       name: pest
-      example:
+      examples:
         - "infestation"
         - "armyworm"
         - "insect"
@@ -146,7 +146,7 @@
   - human:
     - OntologyNode:
       name: fertilizer
-      example:
+      examples:
         - "nitrogen fertilizer"
         - "inorganic fertilizers"
         - "potting composts"
@@ -162,7 +162,7 @@
         - "composts"
     - OntologyNode:
       name: irrigation
-      example:
+      examples:
         - "localized irrigation"
         - "capillary irrigation"
         - "sprinkler irrigation"
@@ -179,10 +179,10 @@
         - "centre pivot irrigation"
         - "subsurface irrigation"
     - infrastructure:
-        - transportation:
+      - transportation:
         - OntologyNode:
           name: transportation_methods
-          example:
+          examples:
             - "trucking"
             - "shipping"
             - "courier"
@@ -193,16 +193,16 @@
             - "delivery"
         - OntologyNode:
           name: road
-          example:
+          examples:
             - "road"
             - "highways"
         - OntologyNode:
           name: bridge
-          example:
+          examples:
             - "bridge"
       - OntologyNode:
         name: other
-        example:
+        examples:
           - "border"
           - "building"
           - "monument"
@@ -218,7 +218,7 @@
           - "harbour"
     - OntologyNode:
       name: livelihood
-      example:
+      examples:
         - "livelihood"
         - "farming"
         - "fishery"
@@ -234,21 +234,21 @@
     - financial:
       - OntologyNode:
         name: price
-        example:
+        examples:
           - "price"
           - "cost"
           - "expense"
       - economic:
         - OntologyNode:
           name: market
-          example:
+          examples:
             - "market"
             - "domestic markets"
             - "capital market"
             - "street markets"
         - OntologyNode:
           name: economy
-          example:
+          examples:
             - "interest rate"
             - "investment"
             - "stipend"
@@ -261,7 +261,7 @@
             - "depreciation"
         - OntologyNode:
           name: revenue
-          example:
+          examples:
             - "livelihood"
             - "income"
             - "household income"
@@ -272,7 +272,7 @@
             - "revenue"
     - OntologyNode:
       name: nation
-      example:
+      examples:
         - "nation"
         - "country"
         - "state"
@@ -283,7 +283,7 @@
         - "government"
     - OntologyNode:
       name: communities
-      example:
+      examples:
         - "communities"
         - "people group"
         - "households"
@@ -292,14 +292,14 @@
     - food:
       - OntologyNode:
         name: food_security
-        example:
+        examples:
           - "food security"
           - "food access"
           - "food availability"
           - "nutrition"
       - OntologyNode:
         name: food_insecurity
-        example:
+        examples:
           - "food insecurity"
           - "food gap"
           - "malnutrition"
@@ -307,14 +307,14 @@
   - seasons:
     - OntologyNode:
       name: crop_season
-      example:
+      examples:
         - "harvest"
         - "lean season"
         - "planting season"
         - "sowing season"
     - OntologyNode:
       name: annual
-      example:
+      examples:
         - "summer"
         - "winter"
         - "fall"
@@ -324,7 +324,7 @@
         - "monsoon season"
   - OntologyNode:
     name: months
-    example:
+    examples:
       - "January"
       - "February"
       - "March"
@@ -336,3 +336,5 @@
       - "September"
       - "October"
       - "November"
+      - "December"
+

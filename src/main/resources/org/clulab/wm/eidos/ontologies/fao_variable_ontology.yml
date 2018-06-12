@@ -5259,8 +5259,5 @@
         name: Meat, Poultry
       - OntologyNode:
         description:
-        name: Meat, goat
-      - OntologyNode:
-        description:
         - yield/carcass weight chicken meat
         name: Meat, chicken
