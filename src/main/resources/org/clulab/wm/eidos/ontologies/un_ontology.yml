@@ -47,6 +47,7 @@
       examples:
         - liter
         - gallon
+
   - events:
     - nature_impact:
       - OntologyNode:
@@ -85,7 +86,7 @@
             - soil pollution
             - deforestation
             - soil erosion
-            - desertification
+            - desertification  
     - OntologyNode:
       name: crisis
       examples:
@@ -188,7 +189,7 @@
           - OntologyNode:
             name: air # todo to split into multiple categories 
             examples:
-              - air
+              - air              
       - natural_disaster:
         - OntologyNode:
           name: flooding
@@ -206,6 +207,7 @@
             - extreme winds
             - cyclone
             - tornado
+            - storm
       - weather:
         - OntologyNode:
           name: precipitation
@@ -229,7 +231,7 @@
       - OntologyNode:
         name: disarmament
         examples:
-          - disarmament
+          - disarmament          
       - OntologyNode:
         name: human_migration
         examples:
@@ -350,6 +352,7 @@
             - post-harvest
             - food product
             - rice production
+
       - OntologyNode:
         name: crop
         examples:
@@ -426,7 +429,7 @@
           name: disease
           examples:
             - HIV
-            - malaraia
+            - malaria
             - diabetes
             - anemia
             - hiv
@@ -497,14 +500,14 @@
           - OntologyNode:
             name: water_management #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
             examples:
-              - water treatment facility
+              - water treatment facility              
               - dam
               - sewage plant
-              - drainage ditch
-              - desalination
-              - sanitation
-              - reservoir
-              - border
+              - drainage ditch    
+              - desalination   
+              - sanitation  
+              - reservoir         
+              - border                      
           - OntologyNode:
             name: shipping_facilities_water #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
             examples:
@@ -528,15 +531,16 @@
               - building
               - monument
               - infrastructure
-              - reservoir
+              - reservoir 
               - dam
               - sewage plant
-              - drainage ditch
+              - drainage ditch  
               - seaport
               - marina
               - harbour 
               - airport
               - electric plant
+
       - OntologyNode:
         name: livelihood
         examples:
@@ -560,7 +564,7 @@
       - OntologyNode:
         name: fishery
         examples:
-          - fishery
+          - fishery          
       - OntologyNode:
         name: education #todo
         examples:
@@ -577,7 +581,7 @@
               - capital market
               - street markets
           - OntologyNode:
-            name: economy
+            name: economy 
             examples:
               - interest rate
               - investment
@@ -588,11 +592,11 @@
               - GDP
               - economy
           - OntologyNode:
-            name: inflation
+            name: inflation 
             examples:
               - inflation
           - OntologyNode:
-            name: depreciation
+            name: depreciation 
             examples:
               - depreciation
           - OntologyNode:
@@ -675,37 +679,31 @@
               - policy
               - legislation
           - OntologyNode:
-            name: data_collection
+            name: census
             examples:
               - census
               - survey
           - OntologyNode:
-            name: government_organization
-            examples:
+            name: organization
+            examples:            
               - commission
               - workshop
               - conference
               - partnership
               - management
               - organization
-              - convention
-          - OntologyNode:
-            name: programme
-            examples:
-              - action plan
-              - development programme
               - programme
               - Programme Work
-              - Development Goals
-              - management plan
+              - convention
           - OntologyNode:
-            name: revenue
-            examples:
-              - tax
-          - OntologyNode:
-            name: service
+            name: duty
             examples:
               - security
+              - tax 
+              - action plan
+              - development programme
+              - Development Goals
+              - management plan
               - welfare # make "govenrment" node with a buncha stuff from here, also make a "data_collection" node with "census", etc
               # tax elsewhere??
               # workshop, conference, partnership.... etc elsewhere
