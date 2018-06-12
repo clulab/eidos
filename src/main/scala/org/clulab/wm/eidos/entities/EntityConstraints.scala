@@ -16,6 +16,8 @@ object EntityConstraints extends LazyLogging {
 
   val COORD_DEPS: Set[Regex] = Set("^conj_".r, "^cc".r)
 
+  // POS tags for splitting conjunctions
+
   val BRACKETS = Seq(
     ("(", ")"), ("-LRB-", "-RRB-"), // round
     ("{", "}"), ("-LCB-", "-RCB-"), // curly
@@ -43,6 +45,7 @@ object EntityConstraints extends LazyLogging {
   // Otherwise, a stack of outstanding unmatched brackets is required.
   def matchingBrackets(words: Seq[String], opening: String, closing: String): Boolean = {
 
+
     @tailrec
     def matchingBrackets(index: Int, extraOpening: Int): Boolean = {
       if (extraOpening < 0)
@@ -56,6 +59,7 @@ object EntityConstraints extends LazyLogging {
       else
         matchingBrackets(index + 1, extraOpening)
     }
+
 
     matchingBrackets(0, 0)
   }

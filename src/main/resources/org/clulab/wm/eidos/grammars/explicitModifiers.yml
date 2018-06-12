@@ -19,7 +19,7 @@ rules:
     label: Decrease
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(possible)/ & tag=/JJ/ & outgoing=neg]
+      trigger = [word=/(?i)^(possible|available)/ & tag=/JJ/ & outgoing=neg]
       theme: Entity = /${agents}/
       #quantifier:Quantifier? = ${quant_modifiers}
 
@@ -43,6 +43,8 @@ rules:
       trigger = [word=/(?i)^(limit|little)/] to no
       theme: Entity = <neg
 
+# ------------------- Specific Increase --------------------------
+
   - name: increase_explicit_increaseup_1
     priority: ${ rulepriority }
     example: "We have started ramping up food and nutrition support, but much more is needed to keep things from deteriorating even further during the lean season"
@@ -51,3 +53,5 @@ rules:
     pattern: |
       trigger = [lemma=/^(ramp|turn)/] up
       theme: Entity  = dobj compound?
+
+

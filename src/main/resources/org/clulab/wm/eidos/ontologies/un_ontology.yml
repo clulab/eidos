@@ -37,7 +37,12 @@
         name: chemical
         examples:
           - oxygen
+          - O2
           - nitrogen
+          - CO2
+          - carbon dioxide
+          - sulfer
+          - lead
       - biology:
         - OntologyNode:
           name: ecosystem
@@ -176,6 +181,7 @@
         name: health_intervention
         examples:
           - vaccine
+          - immunization
         #todo
       - OntologyNode:
         name: famine

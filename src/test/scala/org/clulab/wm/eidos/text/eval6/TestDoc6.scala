@@ -88,20 +88,21 @@ class TestDoc6 extends Test {
 //    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
 //      tester.test(concerns) should be (successful)
 //    }
-    brokenSyntaxTest should "have correct singleton node 2" taggedAs(Becky) in {
-      tester.test(foodSec) should be (successful)
-    }
-    passingTest should "have correct singleton node 3" taggedAs(Becky) in {
-      tester.test(access) should be (successful)
-    }
+    // NO longer expanding non-args
+//    brokenSyntaxTest should "have correct singleton node 2" taggedAs(Becky) in {
+//      tester.test(foodSec) should be (successful)
+//    }
+//    passingTest should "have correct singleton node 3" taggedAs(Becky) in {
+//      tester.test(access) should be (successful)
+//    }
     // Relies on VP entities
     futureWorkTest should "have correct edge 1" taggedAs(Becky) in {
       tester.test(EdgeSpec(catastrophe, Correlation, households)) should be (successful)
     }
-    passingTest should "have correct edge 2" taggedAs(Becky) in {
+    tempBrokenEntitiesTest should "have correct edge 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(insecurity, Causal, assistance)) should be (successful)
     }
-    passingTest should "have correct edge 3" taggedAs(Becky) in {
+    tempBrokenEntitiesTest should "have correct edge 3" taggedAs(Becky) in {
       tester.test(EdgeSpec(insecurity, Causal, movement)) should be (successful)
     }
 

@@ -50,3 +50,6 @@ scripts/*
 #IML files
 *.iml
 /bin/
+
+# For MacOS filesystem
+.DS_Store

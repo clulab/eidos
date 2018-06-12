@@ -70,9 +70,10 @@ class TestDoc7 extends Test {
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(foodSecurity) should be (successful) 
     }
-    passingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
-      tester.test(foodInsecurity) should be (successful) 
-    }
+    // No longer expanding except in the context of a relevant event
+//    passingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
+//      tester.test(foodInsecurity) should be (successful)
+//    }
     passingTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(seasonalHarvests, Causal, foodAvailability)) should be (successful) 
     }
@@ -121,19 +122,20 @@ class TestDoc7 extends Test {
     val tester = new Tester(text)
 
     val refugees = NodeSpec("2.4 million refugees", Quant("approximately"))
-    val insecurity = NodeSpec("insecurity", Inc("Widespread"))
+    val insecurity = NodeSpec("Widespread insecurity", Inc("Widespread"))
     val communities = NodeSpec("communities")
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disrupt"))
     val foodInsecurity = NodeSpec("food insecurity", Inc("exacerbate"))
-    val humanitarianAccess = NodeSpec("humanitarian access", Dec("impede"))
+    val humanitarianAccess = NodeSpec("humanitarian access to vulnerable populations", Dec("impede"), Quant("vulnerable"))
     
     behavior of "TestDoc7 Paragraph 4"
 
     passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(refugees) should be (successful) 
     }
-    passingTest should "have correct edge 1" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(insecurity, Causal, communities)) should be (successful) 
+    // The event here should either be a DISPLACEMENT event or something like cause communities to be displaced
+    futureWorkTest should "have correct edge 1" taggedAs(Egoitz) in {
+      tester.test(EdgeSpec(insecurity, Causal, communities)) should be (successful)
     }
     passingTest should "have correct edge 2" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, livelihoodActivities)) should be (successful) 
