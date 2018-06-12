@@ -12,7 +12,7 @@ class TestDomainOntology extends Test {
     val pathSet = pathSeq.toSet
 
 //    println(s"""The domain ontology "${domainOntology.name}" node count: ${ontologyNodes.length}""")
-    ontologyNodes.foreach(println)
+//    ontologyNodes.foreach(println)
 
     if (pathSeq.size != pathSet.size) {
       val pathBag = pathSeq.foldLeft(Map[String, Int]())((map, path) => map + (path -> (map.getOrElse(path, 0) + 1)))
