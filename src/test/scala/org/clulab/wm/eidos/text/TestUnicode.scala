@@ -19,7 +19,7 @@ class TestUnicode extends Test {
 
     behavior of "text with bullet"
 
-    it should "not be disturbed by the bullet" in {
+    ignore should "not be disturbed by the bullet" in {
       odinMentions.exists(_.text == "\u2022 The wetter than average conditions in mid May") should be (false)
 
       odinMentions.exists(_.text == "The wetter than average conditions in mid May") should be (true)
@@ -46,7 +46,7 @@ class TestUnicode extends Test {
 
     behavior of "text with arrows"
 
-    it should "not be disturbed by the arrows" in {
+    ignore should "not be disturbed by the arrows" in {
       odinMentions.exists(_ == "\u27a4\u27a4 Across Central Asia") should be (false)
 
       odinMentions.exists(_.text == "snow accumulation") should be (true)
