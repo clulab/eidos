@@ -510,7 +510,7 @@
   - OntologyNode:
     name: Nondiscrimination_clause_mentions_gender_in_the_constitution_(1=yes;_0=no)
     description:
-      - "Nondiscrimination clause mentions gender in the constitution is whether there is a nondiscrimination clause in the constitution which mentions gender. For the answer to be "Yes," the constitution must use either the word discrimination or the word nondiscrimination or even when there is a "clawback" provision granting exceptions to the nondiscrimination clause for certain areas of the law, such as inheritance, family and customary law. The answer is "No" if there is no nondiscrimination provision, or the nondiscrimination language is present in the preamble but not in an article of the constitution, or there is a provision that merely stipulates that the sexes are equal, or the sexes have equal rights and obligations. The answer is N/A if there is no nondiscrimination provision."
+      - "Nondiscrimination clause mentions gender in the constitution is whether there is a nondiscrimination clause in the constitution which mentions gender. For the answer to be \"Yes,\" the constitution must use either the word discrimination or the word nondiscrimination or even when there is a \"clawback\" provision granting exceptions to the nondiscrimination clause for certain areas of the law, such as inheritance, family and customary law. The answer is \"No\" if there is no nondiscrimination provision, or the nondiscrimination language is present in the preamble but not in an article of the constitution, or there is a provision that merely stipulates that the sexes are equal, or the sexes have equal rights and obligations. The answer is N/A if there is no nondiscrimination provision."
   - OntologyNode:
     name: Grants_and_other_revenue_(current_LCU)
     description:
@@ -2186,7 +2186,7 @@
   - OntologyNode:
     name: Law_mandates_nondiscrimination_based_on_gender_in_hiring_(1=yes;_0=no)
     description:
-      - "Law mandates nondiscrimination based on gender in hiring is whether the law specifically prevents or penalizes gender-based discrimination in the hiring process; the law may prohibit discrimination in employment on the basis of gender but be silent about whether job applicants are protected from discrimination. Hiring refers to the process of employing a person for wages and making a selection by presenting a candidate with a job offer. Job advertisements, selection criteria and recruitment, although equally important, are not considered "hiring" for purposes of this question."
+      - "Law mandates nondiscrimination based on gender in hiring is whether the law specifically prevents or penalizes gender-based discrimination in the hiring process; the law may prohibit discrimination in employment on the basis of gender but be silent about whether job applicants are protected from discrimination. Hiring refers to the process of employing a person for wages and making a selection by presenting a candidate with a job offer. Job advertisements, selection criteria and recruitment, although equally important, are not considered \"hiring\" for purposes of this question."
   - OntologyNode:
     name: Persistence_to_last_grade_of_primary,_female_(%_of_cohort)
     description:
@@ -3898,7 +3898,7 @@
   - OntologyNode:
     name: Legislation_exists_on_domestic_violence_(1=yes;_0=no)
     description:
-      - "Legislation exists on domestic violence is whether there is legislation addressing domestic violence: violence between spouses, within the family or members of the same household, or in interpersonal relationships, including intimate partner violence that is subject to criminal sanctions or provides for protection orders for domestic violence, or the legislation addresses "cruel, inhuman or degrading treatment" or "harassment" that clearly affects physical or mental health, and it is implied that such behavior is considered domestic violence."
+      - "Legislation exists on domestic violence is whether there is legislation addressing domestic violence: violence between spouses, within the family or members of the same household, or in interpersonal relationships, including intimate partner violence that is subject to criminal sanctions or provides for protection orders for domestic violence, or the legislation addresses \"cruel, inhuman or degrading treatment\" or \"harassment\" that clearly affects physical or mental health, and it is implied that such behavior is considered domestic violence."
   - OntologyNode:
     name: Employment_to_population_ratio,_ages_15-24,_total_(%)_(national_estimate)
     description:
@@ -4082,7 +4082,7 @@
   - OntologyNode:
     name: Women_making_their_own_informed_decisions_regarding_sexual_relations,_contraceptive_use_and_reproductive_health_care__(%_of_women_age_15-49)
     description:
-      - "Proportion of women ages 15-49 years (married or in union) who make their own decision on all three selected areas i.e. can say no to sexual intercourse with their husband or partner if they do not want; decide on use of contraception; and decide on their own health care. Only women who provide a "yes" answer to all three components are considered as women who "make her own decisions regarding sexual and reproductive"."
+      - "Proportion of women ages 15-49 years (married or in union) who make their own decision on all three selected areas i.e. can say no to sexual intercourse with their husband or partner if they do not want; decide on use of contraception; and decide on their own health care. Only women who provide a \"yes\" answer to all three components are considered as women who \"make her own decisions regarding sexual and reproductive\"."
   - OntologyNode:
     name: School_enrollment,_primary,_private_(%_of_total_primary)
     description:
@@ -4634,7 +4634,7 @@
   - OntologyNode:
     name: Law_mandates_equal_remuneration_for_females_and_males_for_work_of_equal_value_(1=yes;_0=no)
     description:
-      - "Law mandates equal remuneration for females and males for work of equal value is whether there is a law that obligates employers to pay equal remuneration to male and female employees who do work of equal value."Remuneration" refers to the ordinary, basic or minimum wage or salary and any additional emoluments payable directly or indirectly, whether in cash or in kind, by the employer to the worker and arising out of the worker's employment. "Work of equal value" refers not only to the same or similar jobs but also to different jobs of the same value."
+      - "Law mandates equal remuneration for females and males for work of equal value is whether there is a law that obligates employers to pay equal remuneration to male and female employees who do work of equal value.\"Remuneration\" refers to the ordinary, basic or minimum wage or salary and any additional emoluments payable directly or indirectly, whether in cash or in kind, by the employer to the worker and arising out of the worker's employment. \"Work of equal value\" refers not only to the same or similar jobs but also to different jobs of the same value."
   - OntologyNode:
     name: PNG,_bonds_(DOD,_current_US$)
     description:
@@ -5522,7 +5522,7 @@
   - OntologyNode:
     name: Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)
     description:
-      - "Internally displaced persons are defined according to the 1998 Guiding Principles (http://www.internal-displacement.org/publications/1998/ocha-guiding-principles-on-internal-displacement) as people or groups of people who have been forced or obliged to flee or to leave their homes or places of habitual residence, in particular as a result of armed conflict, or to avoid the effects of armed conflict, situations of generalized violence, violations of human rights, or natural or human-made disasters and who have not crossed an international border. "People displaced" refers to the number of people living in displacement as of the end of each year, and reflects the stock of people displaced at the end of the previous year, plus inflows of new cases arriving over the year as well as births over the year to those displaced, minus outflows which may include returnees, those who settled elsewhere, those who integrated locally, those who travelled over borders, and deaths."
+      - "Internally displaced persons are defined according to the 1998 Guiding Principles (http://www.internal-displacement.org/publications/1998/ocha-guiding-principles-on-internal-displacement) as people or groups of people who have been forced or obliged to flee or to leave their homes or places of habitual residence, in particular as a result of armed conflict, or to avoid the effects of armed conflict, situations of generalized violence, violations of human rights, or natural or human-made disasters and who have not crossed an international border. \"People displaced\" refers to the number of people living in displacement as of the end of each year, and reflects the stock of people displaced at the end of the previous year, plus inflows of new cases arriving over the year as well as births over the year to those displaced, minus outflows which may include returnees, those who settled elsewhere, those who integrated locally, those who travelled over borders, and deaths."
   - OntologyNode:
     name: Vitamin_A_supplementation_coverage_rate_(%_of_children_ages_6-59_months)
     description:
@@ -5826,7 +5826,7 @@
   - OntologyNode:
     name: Mothers_are_guaranteed_an_equivalent_position_after_maternity_leave_(1=yes;_0=no)
     description:
-      - "Mothers are guaranteed an equivalent position after maternity leave is whether employers of women returning from maternity leave are legally obligated to provide them with an equivalent position after maternity leave. It takes into account paid and unpaid maternity leave and captures whether the employer has a legal obligation to reinstate the returning employee in an equivalent or better position and salary than the employee had pre-leave. Where the maternity leave regime explicitly states that the employee may not be indefinitely replaced, the answer is assumed to be "Yes." Where the maternity leave regime explicitly establishes a suspension of the employee's contract, the answer is assumed to be "Yes." In economies that also have parental leave and the law guarantees return after the leave to the same or an equivalent position paid at the same rate but is silent on guaranteeing the same position after maternity leave, the answer is "Yes." The answer is "N/A" if no paid or unpaid maternity leave is available."
+      - "Mothers are guaranteed an equivalent position after maternity leave is whether employers of women returning from maternity leave are legally obligated to provide them with an equivalent position after maternity leave. It takes into account paid and unpaid maternity leave and captures whether the employer has a legal obligation to reinstate the returning employee in an equivalent or better position and salary than the employee had pre-leave. Where the maternity leave regime explicitly states that the employee may not be indefinitely replaced, the answer is assumed to be \"Yes.\" Where the maternity leave regime explicitly establishes a suspension of the employee's contract, the answer is assumed to be \"Yes.\" In economies that also have parental leave and the law guarantees return after the leave to the same or an equivalent position paid at the same rate but is silent on guaranteeing the same position after maternity leave, the answer is \"Yes.\" The answer is \"N/A\" if no paid or unpaid maternity leave is available."
   - OntologyNode:
     name: Prevalence_of_stunting,_height_for_age,_male_(%_of_children_under_5)
     description:
