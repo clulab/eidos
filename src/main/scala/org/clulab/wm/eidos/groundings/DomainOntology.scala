@@ -10,22 +10,25 @@ import org.yaml.snakeyaml.constructor.Constructor
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class OntologyNode(val path: Seq[String], val name: String, examples: Option[Seq[String]] = None, description: Option[Seq[String]] = None) {
+class OntologyNode(crumbs: Seq[String], name: String, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) {
 
   protected def split(values: Option[Seq[String]]): Seq[String] =
       if (values.isEmpty) Seq.empty
       else values.get.flatMap(_.split(" +"))
 
-  // Can there already be a / in any of the paths that must be escaped?
-  def route(): String =
-      path.mkString(OntologyNode.SEPARATOR) + (if (path.isEmpty) "" else OntologyNode.SEPARATOR) + name
+  // There can already be a / in any of the stages of the route that must be escaped.
+  // First, double up any existing backslashes, then escape the forward slashes with backslashes.
+  protected def escapeRoute: Seq[String] =
+      route.map(_.replace("\\", "\\\\").replace(OntologyNode.SEPARATOR, "\\" + OntologyNode.SEPARATOR))
 
-  // Right now it doesn't matter where these come from (as long as descriptions are filtered).
-  val values: Seq[String] = split(examples) ++ description.getOrElse(Seq.empty)
+  def path: String = escapeRoute.mkString(OntologyNode.SEPARATOR)
 
-  override def toString = route() + " = " + values.toList
+  val route = (name +: crumbs).reverse
 
-  println(this.toString())
+  // Right now it doesn't matter where these come from, so they can be combined.
+  val values: Seq[String] = split(examples) ++ split(descriptions)
+
+  override def toString = path + " = " + values.toList
 }
 
 object OntologyNode {
@@ -36,7 +39,7 @@ class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) {
 
   def iterateOntology(wordToVec: EidosWordToVec): Seq[ConceptEmbedding] =
       ontologyNodes.map { ontologyNode =>
-        ConceptEmbedding(ontologyNode.route(), wordToVec.makeCompositeVector(ontologyNode.values))
+        ConceptEmbedding(ontologyNode.path, wordToVec.makeCompositeVector(ontologyNode.values))
       }
 }
 
@@ -44,10 +47,10 @@ object DomainOntology {
   val FIELD = "OntologyNode"
   val NAME = "name"
   val EXAMPLES = "examples"
-  val DESCRIPTION = "description"
+  val DESCRIPTION = "description" // TODO: Turn this into descriptions with an S
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor) {
+  class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor, filter: Boolean) {
 
     def build(): DomainOntology = {
       val text = getTextFromResource(ontologyPath)
@@ -58,66 +61,71 @@ object DomainOntology {
       new DomainOntology(name, ontologyNodes)
     }
 
-    def filtered(text: String): Seq[String] = {
-      text.split(" +")
+    protected def realFiltered(text: String): Seq[String] =
+        proc.annotate(text).sentences.flatMap { sentence =>
+          sentence.words.zip(sentence.tags.get).filter { wordAndPos =>
+            // Filter by POS tags which need to be kept (Nouns, Adjectives, and Verbs).
+            wordAndPos._2.contains("NN") ||
+                wordAndPos._2.contains("JJ") ||
+                wordAndPos._2.contains("VB")
+          }.map(_._1) // Get only the words.
+        }
 
-      // TODO: Return this functionality after finish testing
-//      val posString = proc.annotate(text)
-//      val filteredTerms = posString.sentences.flatMap { sentence =>
-//        sentence.words.zip(sentence.tags.get).filter { wordAndPos =>
-//          wordAndPos._2.contains("NN") || // Filter by POS tags which need to be kept (Nouns, Adjectives and Verbs).
-//              wordAndPos._2.contains("JJ") ||
-//              wordAndPos._2.contains("VB")
-//        }.map(_._1) // Get only the words.
-//      }
-////      println(s"Filtered Terms: ${filteredTerms.mkString(", ")}")
-//      filteredTerms
+    protected def fakeFiltered(text: String): Seq[String] = text.split(" +")
+
+    protected val filtered: String => Seq[String] = if (filter) realFiltered else fakeFiltered
+
+    protected def yamlNodesToStrings(yamlNodes: mutable.Map[String, JCollection[Any]], name: String): Option[Seq[String]] =
+      yamlNodes.get(name).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
+
+    protected def parseOntology(yamlNodes: mutable.Map[String, JCollection[Any]], ontologyNodes: Seq[OntologyNode],
+        route: Seq[String]): Seq[OntologyNode] = {
+      val name = yamlNodes.get(DomainOntology.NAME).get.asInstanceOf[String]
+      val examples = yamlNodesToStrings(yamlNodes, DomainOntology.EXAMPLES)
+      val descriptions = yamlNodesToStrings(yamlNodes, DomainOntology.DESCRIPTION)
+      val filteredDescriptions =
+          if (descriptions.isEmpty) descriptions
+          else Some(descriptions.get.flatMap(filtered))
+
+      ontologyNodes :+ new OntologyNode(route, name, examples, filteredDescriptions)
     }
 
-    def parseOntology(yamlNodes: mutable.Map[String, JCollection[Any]], ontologyNodes: Seq[OntologyNode], path: Seq[String]): Seq[OntologyNode] = {
-      val name: String = yamlNodes.get(DomainOntology.NAME).get.asInstanceOf[String]
-      val examples: Option[Seq[String]] = yamlNodes.get(DomainOntology.EXAMPLES).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
-      val yamlDescription: Option[JCollection[Any]] = yamlNodes.get(DomainOntology.DESCRIPTION)
-      val description: Option[String] =
-          if (yamlDescription.isDefined) Some(yamlDescription.get.asInstanceOf[String])
-          else None
-
-      ontologyNodes :+ new OntologyNode(path, name, examples, description.map(filtered))
-    }
-
-    def parseOntology(yamlNodes: Seq[Any], ontologyNodes: Seq[OntologyNode], path: Seq[String]): Seq[OntologyNode] = {
+    protected def parseOntology(yamlNodes: Seq[Any], ontologyNodes: Seq[OntologyNode], crumbs: Seq[String]): Seq[OntologyNode] = {
       if (yamlNodes.nonEmpty) {
         val map: mutable.Map[String, JCollection[Any]] = yamlNodes.head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
-        println(key)
         val moreOntologyNodes =
-            if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, path)
-            else parseOntology(map(key).asScala.toSeq, ontologyNodes, path :+ key)
+            if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, crumbs)
+            else parseOntology(map(key).asScala.toSeq, ontologyNodes, key +: crumbs)
 
-        parseOntology(yamlNodes.tail, moreOntologyNodes, path)
+        parseOntology(yamlNodes.tail, moreOntologyNodes, crumbs)
       }
       else
         ontologyNodes
     }
   }
 
-  def apply(name: String, ontologyPath: String, proc: Processor): DomainOntology =
-      new DomainOntologyBuilder(name, ontologyPath, proc).build()
+  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean): DomainOntology =
+      new DomainOntologyBuilder(name, ontologyPath, proc, filter).build()
 }
 
 // These are just here for when behavior might have to start differing.
 object ToyOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
+  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
 }
 
 object UNOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
+  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
 }
 
 object WDIOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
+  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
 }
 
 object FAOOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor) = DomainOntology(name, ontologyPath, proc)
+  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+}
+
+object TopoFlowOntology {
+  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
 }
