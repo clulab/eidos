@@ -9,29 +9,31 @@ import org.clulab.anafora.Data
 import org.clulab.processors.{Sentence, Document}
 import org.clulab.processors.corenlp.CoreNLPDocument
 
-class EidosDocument(sentences: Array[Sentence]) extends CoreNLPDocument(sentences) {
+class EidosDocument(sentences: Array[Sentence], docTime: Option[String] = None) extends CoreNLPDocument(sentences) {
 
-  var time: Array[List[TimeInterval]] = Array()
-  def parseTime(timenorm: Option[TemporalCharbasedParser], text:String, dct: Option[String] = None) = {
-    val padd = "\n\n\n"
-    lazy val dateTime = dct match {
+  @transient lazy val dateTime = docTime match {
       case Some(date) => Try(LocalDateTime.parse(date + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse(LocalDateTime.now())
       case None => LocalDateTime.now()
-    }
-    lazy val anchor = TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+  }
+  @transient lazy val anchor = TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+
+  var time: Array[List[TimeInterval]] = new Array(sentences.length)
+  def parseTime(timenorm: Option[TemporalCharbasedParser], text:String) = {
     var prev = 0
-    for (s <- this.sentences) {
+    for ((sent, sidx) <- this.sentences.zipWithIndex) {
       timenorm match {
         case Some(timenorm) => {
-          time = time :+ (for (i <- timenorm.intervals(timenorm.parse(padd + s.getSentenceText() + padd, anchor))) yield {
+          time(sidx) = (for (i <- timenorm.intervals(timenorm.parse(sent.getSentenceText(), this.anchor))) yield {
             new TimeInterval((i._1._1 + prev, i._1._2 + prev), i._2)
           }).toList
         }
-        case None => time = time :+ List[TimeInterval]()
+        case None => time(sidx) = List[TimeInterval]()
       }
-      prev = s.endOffsets.last
+      prev = sent.endOffsets.last
     }
   }
 }
 
-class TimeInterval(val span: (Int,Int), val intervals: List[(LocalDateTime, Long)])
+class TimeInterval(val span: (Int,Int), val intervals: List[(LocalDateTime, Long)]) extends Serializable
+
+
