@@ -12,26 +12,97 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.utils.{StopwordManager, StopwordManaging}
 
+import scala.collection.mutable.HashMap
+
+abstract class MentionMapper {
+  def put(odinMention: Mention, eidosMention: EidosMention): Unit
+  def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention
+}
+
+class HashCodeMapper extends MentionMapper {
+  protected val mapOfMentions = new HashMap[Mention, EidosMention]()
+
+  def put(odinMention: Mention, eidosMention: EidosMention): Unit = mapOfMentions.put(odinMention, eidosMention)
+
+  def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention = mapOfMentions.getOrElse(odinMention, default)
+}
+
+class IdentityMapper extends MentionMapper {
+  protected val mapOfMentions = new IdentityHashMap[Mention, EidosMention]()
+
+  def put(odinMention: Mention, eidosMention: EidosMention): Unit = mapOfMentions.put(odinMention, eidosMention)
+
+  def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention =
+      if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
+      else default
+}
+
+abstract class Bagger[T] {
+  def put(values: Seq[T]): Bagger[T]
+  def putIfNew(value: T, block: => Unit): Unit
+  def get(): Seq[T]
+  def size: Int
+}
+
+class HashCodeBagger[T] extends Bagger[T] {
+  protected val map = new HashMap[T, Int]()
+
+  def put(values: Seq[T]): HashCodeBagger[T] = { values.foreach(putIfNew(_, ())); this }
+
+  def putIfNew(value: T, block: => Unit): Unit = {
+    val count = map.getOrElse(value, 0)
+
+    if (count == 0)
+      block
+    map.put(value, count + 1)
+  }
+
+  def get(): Seq[T] = map.keySet.toSeq
+
+  def size: Int = map.size
+}
+
+class IdentityBagger[T] extends Bagger[T] {
+  protected val map = new IdentityHashMap[T, Int]()
+
+  def put(values: Seq[T]): IdentityBagger[T] = { values.foreach(putIfNew(_, ())); this }
+
+  def putIfNew(value: T, block: => Unit): Unit =
+    if (map.containsKey(value))
+      map.put(value, map.get(value) + 1)
+    else {
+      map.put(value, 1)
+      block
+    }
+
+  def get(): Seq[T] = map.keySet().toArray.toSeq.map(_.asInstanceOf[T])
+
+  def size: Int = map.size
+}
+
 abstract class EidosMention(val odinMention: Mention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
-    mapOfMentions: IdentityHashMap[Mention, EidosMention]) /* extends Mention if really needs to */ {
+    mentionMapper: MentionMapper) /* extends Mention if really needs to */ {
   // This must happen before the remap in case arguments point back to this
-  mapOfMentions.put(odinMention, this)
-  
+  mentionMapper.put(odinMention, this)
+
+  // Accessor method to facilitate cleaner code downstream
+  val label = odinMention.label
+
   // Convenience function for parallel construction
   val odinArguments: Map[String, Seq[Mention]] = odinMention.arguments
-  
+
   // Access to new and improved Eidos arguments
-  val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, stopwordManaging, ontologyGrounder, mapOfMentions)
+  val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, stopwordManaging, ontologyGrounder, mentionMapper)
 
   val eidosMentionsFromAttachments: Seq[EidosMention] = {
     val attachmentMentions = odinMention.attachments.toSeq.flatMap(_.asInstanceOf[EidosAttachment].attachmentMentions)
 
-    EidosMention.asEidosMentions(attachmentMentions, stopwordManaging, ontologyGrounder, mapOfMentions)
+    EidosMention.asEidosMentions(attachmentMentions, stopwordManaging, ontologyGrounder, mentionMapper)
   }
 
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
-      mapOfMentions: IdentityHashMap[Mention, EidosMention]): Map[String, Seq[EidosMention]] = {
-    odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, stopwordManaging, ontologyGrounder, mapOfMentions))
+      mentionMapper: MentionMapper): Map[String, Seq[EidosMention]] = {
+    odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, stopwordManaging, ontologyGrounder, mentionMapper))
   }
 
   val canonicalName: String // Determined by subclass
@@ -66,52 +137,84 @@ abstract class EidosMention(val odinMention: Mention, stopwordManaging: Stopword
 }
 
 object EidosMention {
-  
+
+  protected def newMentionMapper() = new HashCodeMapper()
+//  protected def newMentionMapper() = new IdentityMapper()
+
+  protected def newMentionBagger() = new HashCodeBagger[Mention]()
+//  protected def newMentionBagger() = new IdentityBagger[Mention]()
+
   def newEidosMention(odinMention: Mention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
-        mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention = {
+      mentionMapper: MentionMapper): EidosMention = {
     odinMention match {
-      case mention: TextBoundMention => new EidosTextBoundMention(mention, stopwordManaging, ontologyGrounder, mapOfMentions)
-      case mention: EventMention => new EidosEventMention(mention, stopwordManaging, ontologyGrounder, mapOfMentions)
-      case mention: RelationMention => new EidosRelationMention(mention, stopwordManaging, ontologyGrounder, mapOfMentions)
+      case mention: TextBoundMention => new EidosTextBoundMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
+      case mention: EventMention => new EidosEventMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
+      case mention: RelationMention => new EidosRelationMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
       case _ => throw new IllegalArgumentException("Unknown Mention: " + odinMention)
     }
   }
-  
+
   def asEidosMentions(odinMentions: Seq[Mention], stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
-        mapOfMentions: IdentityHashMap[Mention, EidosMention]): Seq[EidosMention] = {
+      mentionMapper: MentionMapper): Seq[EidosMention] = {
     val eidosMentions = odinMentions.map { odinMention =>
-      if (mapOfMentions.containsKey(odinMention))
-        mapOfMentions.get(odinMention)
-      else
-        newEidosMention(odinMention, stopwordManaging, ontologyGrounder, mapOfMentions)
+      mentionMapper.getOrElse(odinMention, newEidosMention(odinMention, stopwordManaging, ontologyGrounder, mentionMapper))
     }
     eidosMentions
   }
-  
+
   def asEidosMentions(odinMentions: Seq[Mention], stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder): Seq[EidosMention] =
       // One could optionally keep this map around
-      asEidosMentions(odinMentions, stopwordManaging, ontologyGrounder, new IdentityHashMap[Mention, EidosMention]()): Seq[EidosMention]
+      asEidosMentions(odinMentions, stopwordManaging, ontologyGrounder, newMentionMapper()): Seq[EidosMention]
+
+  def findReachableMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {
+    val mentionBagger = newMentionBagger()
+
+    def addMention(odinMention: Mention): Unit = {
+      mentionBagger.putIfNew(odinMention, {
+        odinMention.arguments.flatMap(_._2).foreach(addMention)
+        // Skipping paths
+        odinMention.attachments.asInstanceOf[Set[EidosAttachment]].flatMap(_.attachmentMentions).foreach(addMention)
+        if (odinMention.isInstanceOf[EventMention])
+          addMention(odinMention.asInstanceOf[EventMention].trigger)
+      })
+    }
+
+    surfaceMentions.foreach(addMention)
+    mentionBagger.get()
+  }
+
+  def findUnderlyingMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {
+    val reachableMentions = findReachableMentions(surfaceMentions)
+    val underlyingMentions = reachableMentions.filter { reachableMention =>
+      !surfaceMentions.exists { surfaceMention =>
+        surfaceMention.eq(reachableMention)
+      }
+    }
+
+    underlyingMentions
+  }
+
+  def hasUnderlyingMentions(surfaceMentions: Seq[Mention]): Boolean = findUnderlyingMentions(surfaceMentions).nonEmpty
 }
 
 class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
-      mapOfMentions: IdentityHashMap[Mention, EidosMention])
-      extends EidosMention(odinTextBoundMention, stopwordManaging, ontologyGrounder, mapOfMentions) {
-  
+    mentionMapper: MentionMapper)
+    extends EidosMention(odinTextBoundMention, stopwordManaging, ontologyGrounder, mentionMapper) {
+
   override val canonicalName: String = canonicalFormSimple(odinMention)
   override val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
 }
 
 class EidosEventMention(val odinEventMention: EventMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
-    mapOfMentions: IdentityHashMap[Mention, EidosMention])
-    extends EidosMention(odinEventMention, stopwordManaging, ontologyGrounder, mapOfMentions) {
-  
+    mentionMapper: MentionMapper)
+    extends EidosMention(odinEventMention, stopwordManaging, ontologyGrounder, mentionMapper) {
+
   val odinTrigger = odinEventMention.trigger
-  
-  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, ontologyGrounder, mapOfMentions)
-  
-  protected def remapOdinTrigger(odinMention: Mention, ontologyGrounder: MultiOntologyGrounder, mapOfMentions: IdentityHashMap[Mention, EidosMention]): EidosMention =
-    if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
-    else EidosMention.asEidosMentions(Seq(odinMention), stopwordManaging, ontologyGrounder, mapOfMentions)(0)
+
+  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, ontologyGrounder, mentionMapper)
+
+  protected def remapOdinTrigger(odinMention: Mention, ontologyGrounder: MultiOntologyGrounder, mentionMapper: MentionMapper): EidosMention =
+      mentionMapper.getOrElse(odinMention, EidosMention.asEidosMentions(Seq(odinMention), stopwordManaging, ontologyGrounder, mentionMapper)(0))
 
   override val canonicalName = {
     val em = odinEventMention
@@ -126,8 +229,8 @@ class EidosEventMention(val odinEventMention: EventMention, stopwordManaging: St
 }
 
 class EidosRelationMention(val odinRelationMention: RelationMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
-    mapOfMentions: IdentityHashMap[Mention, EidosMention])
-    extends EidosMention(odinRelationMention, stopwordManaging, ontologyGrounder, mapOfMentions) {
+    mentionMapper: MentionMapper)
+    extends EidosMention(odinRelationMention, stopwordManaging, ontologyGrounder, mentionMapper) {
   
   override val canonicalName = {
     val rm = odinRelationMention

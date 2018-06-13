@@ -18,7 +18,7 @@ class TestCagP0 extends Test {
     
     it should "have the correct triples" taggedAs(Somebody) in {
       val rainfall = NodeSpec("rainfall", Dec("decrease"))
-      val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
+      val poverty = NodeSpec("significantly increased poverty", Inc("increased", "significantly"))
       val edge = EdgeSpec(rainfall, Causal, poverty)
       
       tester.test(edge) should be (successful)
@@ -33,7 +33,7 @@ class TestCagP0 extends Test {
     
     it should "have the correct triples" taggedAs(Keith) in {
       val rainfall = NodeSpec("rainfall", Dec("decrease"))
-      val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
+      val poverty = NodeSpec("significantly increased poverty", Inc("increased", "significantly"))
       val humidity = NodeSpec("humidity", Dec("decreased"))
       
       val edge1 = EdgeSpec(rainfall, Causal, poverty)
@@ -52,12 +52,12 @@ class TestCagP0 extends Test {
     
     it should "have the correct triples" taggedAs(Keith) in {
       val rainfall = NodeSpec("rainfall", Dec("decrease"))
-      val poverty = NodeSpec("poverty", Inc("increased", "significantly"))
+      val poverty = NodeSpec("significantly increased poverty", Inc("increased", "significantly"))
       
       val edge = EdgeSpec(rainfall, Causal, poverty)
 
       val antiRainfall = AntiNodeSpec("rainfall", Dec("decrease"))
-      val antiPoverty = AntiNodeSpec("poverty", Inc("increased", "significantly"))
+      val antiPoverty = AntiNodeSpec("significantly increased poverty", Inc("increased", "significantly"))
       
       val notRainfall = AntiNodeSpec("not-rainfall", Dec("decrease"))
       val notPoverty = AntiNodeSpec("not-poverty", Inc("increased", "significantly"))
@@ -95,7 +95,7 @@ class TestCagP0 extends Test {
 
     behavior of "a correlation edge"
 
-    it should "have the correct triples" taggedAs(Keith) in {
+    tempBrokenEntitiesTest should "have the correct triples" taggedAs(Keith) in {
       val foodSecurityTrends = NodeSpec("food security trends", Dec("Worsening"), Inc("compounded"))
       val conflict = NodeSpec("continued conflict")
       val noConflict = NodeSpec("uncontinued conflict")
@@ -132,9 +132,9 @@ class TestCagP0 extends Test {
     val tester = new Tester(text)
 
     val x = NodeSpec("X")
-    val rainfall1 = NodeSpec("rainfall", Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"), Inc("above-average"))
-    val rainfall2 = NodeSpec("rainfall", Inc("above-average"), Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"))
-    val rainfall3 = NodeSpec("rainfall", Quant("above-average", "high", "record"), Inc("high"), Inc("above-average"), Inc("above-average"))
+    val rainfall1 = NodeSpec("record high above-average rainfall", Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"), Inc("above-average"))
+    val rainfall2 = NodeSpec("record high above-average rainfall", Inc("above-average"), Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"))
+    val rainfall3 = NodeSpec("record high above-average rainfall", Quant("above-average", "high", "record"), Inc("high"), Inc("above-average"), Inc("above-average"))
 
     behavior of "text"
 

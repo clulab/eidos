@@ -17,10 +17,10 @@ class TestCagP2 extends Test {
     val tester = new Tester(p2s1)
 
     val economicCrisis = NodeSpec("South Sudan's economic crisis")
-    val sudanesePound = NodeSpec("value of the South Sudanese Pound", Dec("depreciating", "rapidly"))
+    val sudanesePound = NodeSpec("rapidly depreciating value of the South Sudanese Pound (SSP)", Dec("depreciating", "rapidly"))
     val hardCurrency = NodeSpec("hard currency", Dec("shortages"))
     val oilPrices = NodeSpec("oil prices", Dec("declines"))
-    val dependenceOnImports = NodeSpec("dependence on imports", Quant("significant"))
+    val dependenceOnImports = NodeSpec("significant dependence on imports", Quant("significant"))
     
     behavior of "p2s1"
 
@@ -47,7 +47,7 @@ class TestCagP2 extends Test {
     val marketDisruption = NodeSpec("market", Dec("disruption")) //newNodeSpec("market disruption")
     val economic = NodeSpec("economic", Dec("downturn"))
     val cropFailure = NodeSpec("localized crop", Dec("failures"))
-    val foodPrices = NodeSpec("food prices", Inc("high"), Quant("high", "record"))
+    val foodPrices = NodeSpec("record high food prices", Inc("high"), Quant("high", "record"))
     val hunger = NodeSpec("hunger", Inc("spread"))
 
     behavior of "p2s2"
@@ -100,7 +100,7 @@ class TestCagP2 extends Test {
     val tester = new Tester(p2s4)
 
     val violence = NodeSpec("Violence")
-    val livestock = NodeSpec("livestock") //todo: add more modifications when we have that functionality
+    val livestock = NodeSpec("livestock to be looted") //todo: add more modifications when we have that functionality
     val displacement = NodeSpec("displacement")
     val delayedPlanting = NodeSpec("late planting") //todo: adjust when more mods available
 
@@ -121,17 +121,17 @@ class TestCagP2 extends Test {
   { // S5
     val tester = new Tester(p2s5)
   
-    val impactsLivestock = NodeSpec("impacts on livestock")
+    val impactsLivestock = NodeSpec("impacts on livestock and crops")
     val impactsCrops = NodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
     // TODO: the entity below is 'livelihoods being decimated' because "being..." is an acl dependency, which modifies nouns
-    val livelihoods = NodeSpec("livelihoods", Dec("decimated"))
+    val livelihoods = NodeSpec("livelihoods being decimated", Dec("decimated"))
 
     behavior of "p2s5"
 
     passingTest should "have correct edges 1" taggedAs(Mihai) in {
       tester.test(EdgeSpec(impactsLivestock, Causal, livelihoods)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Mihai) in {
+    futureWorkTest should "have correct edges 2" taggedAs(Mihai) in {
       tester.test(EdgeSpec(impactsCrops, Causal, livelihoods)) should be (successful)
     }
   }  
