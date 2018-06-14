@@ -70,7 +70,7 @@
           - agroforestry
           - forest management
           - reforestation
-      - pollution:  
+      - pollution:
         - OntologyNode:
           name: air_pollution
           examples:
@@ -138,10 +138,10 @@
             - shark
       - natural_resources:
         - OntologyNode:
-          name: Biotic_resources # todo to split into multiple categories 
+          name: Biotic_resources # todo to split into multiple categories
           examples:
             - biodiversity
-            - Convention Biological diversity   
+            - Convention Biological diversity
             - ecosystem
             - food
             - forest area
@@ -152,7 +152,7 @@
             - wildlife
       - Abiotic_resources:
         - OntologyNode:
-          name: land # todo to split into multiple categories 
+          name: land # todo to split into multiple categories
           examples:
             - area
             - land
@@ -161,7 +161,7 @@
             - wetland
             - sand
         - OntologyNode:
-          name: water # todo to split into multiple categories 
+          name: water # todo to split into multiple categories
           examples:
             - water
             - sea
@@ -175,18 +175,18 @@
             - groundwater
             - water body
         - OntologyNode:
-          name: material # todo to split into multiple categories 
+          name: material # todo to split into multiple categories
           examples:
             - charcoal
             - iron
             - mineral
         - OntologyNode:
-          name: resource # todo to split into multiple categories 
+          name: resource # todo to split into multiple categories
           examples:
             - resource
-            - nAtuRAl ReSouRceS
+            - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
         - OntologyNode:
-          name: air # todo to split into multiple categories 
+          name: air # todo to split into multiple categories
           examples:
             - air
       - natural_disaster:
@@ -206,6 +206,7 @@
             - extreme winds
             - cyclone
             - tornado
+            - storm
       - weather:
         - OntologyNode:
           name: precipitation
@@ -426,7 +427,7 @@
           name: disease
           examples:
             - HIV
-            - malaraia
+            - malaria
             - diabetes
             - anemia
             - hiv
@@ -534,7 +535,7 @@
               - drainage ditch
               - seaport
               - marina
-              - harbour 
+              - harbour
               - airport
               - electric plant
       - OntologyNode:
@@ -675,12 +676,12 @@
               - policy
               - legislation
           - OntologyNode:
-            name: data_collection
+            name: census
             examples:
               - census
               - survey
           - OntologyNode:
-            name: government_organization
+            name: organization
             examples:
               - commission
               - workshop
@@ -688,24 +689,18 @@
               - partnership
               - management
               - organization
-              - convention
-          - OntologyNode:
-            name: programme
-            examples:
-              - action plan
-              - development programme
               - programme
               - Programme Work
-              - Development Goals
-              - management plan
+              - convention
           - OntologyNode:
-            name: revenue
-            examples:
-              - tax
-          - OntologyNode:
-            name: service
+            name: duty
             examples:
               - security
+              - tax
+              - action plan
+              - development programme
+              - Development Goals
+              - management plan
               - welfare # make "govenrment" node with a buncha stuff from here, also make a "data_collection" node with "census", etc
               # tax elsewhere??
               # workshop, conference, partnership.... etc elsewhere
