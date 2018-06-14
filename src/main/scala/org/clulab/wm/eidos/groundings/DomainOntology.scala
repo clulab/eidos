@@ -110,10 +110,6 @@ object DomainOntology {
 }
 
 // These are just here for when behavior might have to start differing.
-object ToyOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
-}
-
 object UNOntology {
   def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
 }

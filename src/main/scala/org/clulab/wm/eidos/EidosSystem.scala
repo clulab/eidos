@@ -71,7 +71,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
     def   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
 
-    def   toyOntologyPath: String = getPath(  "toyOntologyPath", "/org/clulab/wm/eidos/ontologies/toy_ontology.yml")
     def    unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
     def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
     def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
@@ -83,15 +82,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
           Seq.empty
-        else if (ontologies.isEmpty)
-          Seq(ToyOntology("toy", toyOntologyPath, proc))
         else
           ontologies.map {
             _ match {
               case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, proc)
               case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, proc)
               case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, proc)
-//              case name @ "toy" => ToyOntology(name, toyOntologyPath, proc)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
