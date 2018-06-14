@@ -151,44 +151,44 @@
             - plant resource food
             - wildlife
       - Abiotic_resources:
-          - OntologyNode:
-            name: land # todo to split into multiple categories
-            examples:
-              - area
-              - land
-              - mountain
-              - mt
-              - wetland
-              - sand
-          - OntologyNode:
-            name: water # todo to split into multiple categories
-            examples:
-              - water
-              - sea
-              - river
-              - pond
-              - rain
-              - water resource
-              - lake
-              - freshwater
-              - surface water
-              - groundwater
-              - water body
-          - OntologyNode:
-            name: material # todo to split into multiple categories
-            examples:
-              - charcoal
-              - iron
-              - mineral
-          - OntologyNode:
-            name: resource # todo to split into multiple categories
-            examples:
-              - resource
-              - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
-          - OntologyNode:
-            name: air # todo to split into multiple categories
-            examples:
-              - air
+        - OntologyNode:
+          name: land # todo to split into multiple categories
+          examples:
+            - area
+            - land
+            - mountain
+            - mt
+            - wetland
+            - sand
+        - OntologyNode:
+          name: water # todo to split into multiple categories
+          examples:
+            - water
+            - sea
+            - river
+            - pond
+            - rain
+            - water resource
+            - lake
+            - freshwater
+            - surface water
+            - groundwater
+            - water body
+        - OntologyNode:
+          name: material # todo to split into multiple categories
+          examples:
+            - charcoal
+            - iron
+            - mineral
+        - OntologyNode:
+          name: resource # todo to split into multiple categories
+          examples:
+            - resource
+            - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
+        - OntologyNode:
+          name: air # todo to split into multiple categories
+          examples:
+            - air
       - natural_disaster:
         - OntologyNode:
           name: flooding
