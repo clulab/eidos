@@ -24,9 +24,7 @@ class EidosDocument(sentences: Array[Sentence], documentCreationTime: Option[Str
   protected def parseRealTime(timenorm: TemporalCharbasedParser): Unit = {
     times.indices.foreach { index =>
       times(index) = {
-        // Why is it necessary to pad the text?  Doesn't this mess up the offsets?
-        val paddedSentenceText = EidosDocument.PAD + this.sentences(index).getSentenceText() + EidosDocument.PAD
-        val intervals = timenorm.intervals(timenorm.parse(paddedSentenceText, anchor))
+        val intervals = timenorm.intervals(timenorm.parse(this.sentences(index).getSentenceText(), anchor))
         // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
         // Account for this by adding the starting offset of the first word of sentence.
         val offset = this.sentences(index).startOffsets(0)
@@ -41,10 +39,6 @@ class EidosDocument(sentences: Array[Sentence], documentCreationTime: Option[Str
   def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
      if (timenorm.isDefined) parseRealTime(timenorm.get)
      else parseFakeTime()
-}
-
-object EidosDocument {
-  val PAD = "\n\n\n"
 }
 
 class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, Long)])

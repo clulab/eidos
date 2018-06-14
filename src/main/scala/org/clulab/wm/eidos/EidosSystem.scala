@@ -1,9 +1,7 @@
 package org.clulab.wm.eidos
 
-import scala.util.Try
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
-import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
@@ -110,7 +108,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val timenormResource = getClass.getResource(timeNormModelPath)
       val timenorm: Option[TemporalCharbasedParser] =
           if (timenormResource == null) None
-          else Some(new TemporalCharbasedParser(timenormResource.getPath))
+          else Some(new TemporalCharbasedParser("D:\\Users\\kwa\\Documents\\MyData\\Projects\\eidos\\eidos-clone\\eidos\\target\\scala-2.12\\classes\\org\\clulab\\wm\\eidos\\models\\timenorm_model.hdf5" /*timenormResource.getFile*/))
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -154,8 +152,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false): AnnotatedDocument = {
-    val doc = annotate(text, keepText)
+  def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false, documentCreationTime: Option[String] = None): AnnotatedDocument = {
+    val doc = annotate(text, keepText, documentCreationTime)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (returnAllMentions) odinMentions else keepCAGRelevant(odinMentions)
