@@ -31,12 +31,7 @@ class TestDomainOntology extends Test {
   val filter = false
 
   // These paths must be coordinated with default values in EidosSystem.
-
-  behavior of "toy ontology"
-  it should "load and not have duplicates" in {
-    hasDuplicates(ToyOntology("toy", "/org/clulab/wm/eidos/ontologies/toy_ontology.yml", proc, filter)) should be (false)
-  }
-
+  
   behavior of "un ontology"
   it should "load and not have duplicates" in {
     hasDuplicates(UNOntology("un", "/org/clulab/wm/eidos/ontologies/un_ontology.yml", proc, filter)) should be (false)
