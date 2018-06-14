@@ -33,8 +33,8 @@ libraryDependencies ++= {
 val minorVersionRegex = "\\d+\\.(\\d+).*".r
 libraryDependencies <++= scalaVersion { sv =>
   sv match {
-    case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.9_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
-    case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.9" exclude("org.slf4j", "slf4j-log4j12")) 
+    case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.11_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
+    case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.11" exclude("org.slf4j", "slf4j-log4j12")) 
   }
 }
 
