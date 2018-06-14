@@ -108,7 +108,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val timenormResource = getClass.getResource(timeNormModelPath)
       val timenorm: Option[TemporalCharbasedParser] =
           if (timenormResource == null) None
-          else Some(new TemporalCharbasedParser("D:\\Users\\kwa\\Documents\\MyData\\Projects\\eidos\\eidos-clone\\eidos\\target\\scala-2.12\\classes\\org\\clulab\\wm\\eidos\\models\\timenorm_model.hdf5" /*timenormResource.getFile*/))
+//          else Some(new TemporalCharbasedParser("D:\\Users\\kwa\\Documents\\MyData\\Projects\\eidos\\eidos-clone\\eidos\\target\\scala-2.12\\classes\\org\\clulab\\wm\\eidos\\models\\timenorm_model.hdf5" /*timenormResource.getFile*/))
+          else Some(new TemporalCharbasedParser(timenormResource.getFile))
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
