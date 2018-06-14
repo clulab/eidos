@@ -11,12 +11,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-//<<<<<<< HEAD
-////  val procVer = "7.2.2"
-//val procVer = "7.3.0-SNAPSHOT"
-//=======
   val procVer = "7.3.1"
-//>>>>>>> master
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
