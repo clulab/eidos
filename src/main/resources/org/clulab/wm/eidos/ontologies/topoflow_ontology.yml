@@ -1,1437 +1,1437 @@
 - TOPOFLOW:
   - OntologyNode:
     name: soil_surface_water__volume_fraction
-    description:
+    descriptions:
       - "soil surface water  volume fraction"
   - OntologyNode:
     name: soil_water__hygroscopic_volume_fraction
-    description:
+    descriptions:
       - "soil water  hygroscopic volume fraction"
   - OntologyNode:
     name: soil_water__brooks-corey-smith_c_parameter
-    description:
+    descriptions:
       - "soil water  brooks-corey-smith c parameter"
   - OntologyNode:
     name: soil_water__pressure_head
-    description:
+    descriptions:
       - "soil water  pressure head"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: soil_water__residual_volume_fraction
-    description:
+    descriptions:
       - "soil water  residual volume fraction"
   - OntologyNode:
     name: soil_water_sat-zone_top_surface__elevation
-    description:
+    descriptions:
       - "soil water sat-zone top surface  elevation"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: soil_water_flow__z_component_of_darcy_velocity
-    description:
+    descriptions:
       - "soil water flow  z component of darcy velocity"
   - OntologyNode:
     name: soil_water__brooks-corey-smith_pressure_head_offset_parameter
-    description:
+    descriptions:
       - "soil water  brooks-corey-smith pressure head offset parameter"
   - OntologyNode:
     name: soil_water__hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  hydraulic conductivity"
   - OntologyNode:
     name: soil_water__brooks-corey_lambda_parameter
-    description:
+    descriptions:
       - "soil water  brooks-corey lambda parameter"
   - OntologyNode:
     name: soil_water__brooks-corey_eta_parameter
-    description:
+    descriptions:
       - "soil water  brooks-corey eta parameter"
   - OntologyNode:
     name: soil_surface_water__domain_time_integral_of_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  domain time integral of infiltration volume flux"
   - OntologyNode:
     name: land_surface__elevation
-    description:
+    descriptions:
       - "land surface  elevation"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: soil_water__initial_volume_fraction
-    description:
+    descriptions:
       - "soil water  initial volume fraction"
   - OntologyNode:
     name: glacier_ice__melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  melt volume flux"
   - OntologyNode:
     name: soil_water_sat-zone_top__domain_time_integral_of_recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  domain time integral of recharge volume flux"
   - OntologyNode:
     name: atmosphere_water__rainfall_volume_flux
-    description:
+    descriptions:
       - "atmosphere water  rainfall volume flux"
   - OntologyNode:
     name: soil_water__saturated_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  saturated hydraulic conductivity"
   - OntologyNode:
     name: soil_surface_water__infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  infiltration volume flux"
   - OntologyNode:
     name: soil_water_sat-zone_top__recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  recharge volume flux"
   - OntologyNode:
     name: soil_water__saturated_volume_fraction
-    description:
+    descriptions:
       - "soil water  saturated volume fraction"
   - OntologyNode:
     name: soil_water_wetting-front__depth
-    description:
+    descriptions:
       - "soil water wetting-front  depth"
   - OntologyNode:
     name: soil_water__volume_fraction
-    description:
+    descriptions:
       - "soil water  volume fraction"
   - OntologyNode:
     name: soil_water__initial_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  initial hydraulic conductivity"
   - OntologyNode:
     name: soil_water__bubbling_pressure_head
-    description:
+    descriptions:
       - "soil water  bubbling pressure head"
   - OntologyNode:
     name: snowpack__initial_depth
-    description:
+    descriptions:
       - "snowpack  initial depth"
   - OntologyNode:
     name: snowpack__liquid-equivalent_depth
-    description:
+    descriptions:
       - "snowpack  liquid-equivalent depth"
   - OntologyNode:
     name: land_surface__temperature
-    description:
+    descriptions:
       - "land surface  temperature"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: snowpack__initial_liquid-equivalent_depth
-    description:
+    descriptions:
       - "snowpack  initial liquid-equivalent depth"
   - OntologyNode:
     name: atmosphere_water__snowfall_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  snowfall leq-volume flux"
   - OntologyNode:
     name: atmosphere_bottom_air__temperature
-    description:
+    descriptions:
       - "atmosphere bottom air  temperature"
   - OntologyNode:
     name: atmosphere_bottom_air__mass-specific_isobaric_heat_capacity
-    description:
+    descriptions:
       - "atmosphere bottom air  mass-specific isobaric heat capacity"
   - OntologyNode:
     name: snowpack__energy-per-area_cold_content
-    description:
+    descriptions:
       - "snowpack  energy-per-area cold content"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: atmosphere_bottom_air__mass-per-volume_density
-    description:
+    descriptions:
       - "atmosphere bottom air  mass-per-volume density"
   - OntologyNode:
     name: land_surface_net-total-energy__energy_flux
-    description:
+    descriptions:
       - "land surface net-total-energy  energy flux"
   - OntologyNode:
     name: snowpack__depth
-    description:
+    descriptions:
       - "snowpack  depth"
   - OntologyNode:
     name: water-liquid__mass-per-volume_density
-    description:
+    descriptions:
       - "water-liquid  mass-per-volume density"
   - OntologyNode:
     name: snowpack__z_mean_of_mass-specific_isobaric_heat_capacity
-    description:
+    descriptions:
       - "snowpack  z mean of mass-specific isobaric heat capacity"
   - OntologyNode:
     name: snowpack__z_mean_of_mass-per-volume_density
-    description:
+    descriptions:
       - "snowpack  z mean of mass-per-volume density"
   - OntologyNode:
     name: snowpack__domain_time_integral_of_melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  domain time integral of melt volume flux"
   - OntologyNode:
     name: land_surface__temperature
-    description:
+    descriptions:
       - "land surface  temperature"
   - OntologyNode:
     name: land_surface_soil__conduction_heat_flux
-    description:
+    descriptions:
       - "land surface soil  conduction heat flux"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of evaporation volume flux"
   - OntologyNode:
     name: atmosphere_bottom_air__temperature
-    description:
+    descriptions:
       - "atmosphere bottom air  temperature"
   - OntologyNode:
     name: land_surface_net-shortwave-radiation__energy_flux
-    description:
+    descriptions:
       - "land surface net-shortwave-radiation  energy flux"
   - OntologyNode:
     name: land_surface_net-longwave-radiation__energy_flux
-    description:
+    descriptions:
       - "land surface net-longwave-radiation  energy flux"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: canals_entrance__y_coordinate
-    description:
+    descriptions:
       - "canals entrance  y coordinate"
   - OntologyNode:
     name: basin_outlet_water_x-section__volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  volume flow rate"
   - OntologyNode:
     name: channel_bottom_water_flow__domain_min_of_log_law_roughness_length
-    description:
+    descriptions:
       - "channel bottom water flow  domain min of log law roughness length"
   - OntologyNode:
     name: channel_bottom_surface__slope
-    description:
+    descriptions:
       - "channel bottom surface  slope"
   - OntologyNode:
     name: canals_exit__x_coordinate
-    description:
+    descriptions:
       - "canals exit  x coordinate"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: channel_water_x-section__mean_depth
-    description:
+    descriptions:
       - "channel water x-section  mean depth"
   - OntologyNode:
     name: channel_water_x-section__domain_min_of_volume_flow_rate
-    description:
+    descriptions:
       - "channel water x-section  domain min of volume flow rate"
   - OntologyNode:
     name: channel_x-section_trapezoid_side__flare_angle
-    description:
+    descriptions:
       - "channel x-section trapezoid side  flare angle"
   - OntologyNode:
     name: channel_water_flow__domain_max_of_manning_n_parameter
-    description:
+    descriptions:
       - "channel water flow  domain max of manning n parameter"
   - OntologyNode:
     name: basin_outlet_water_x-section__peak_time_of_volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  peak time of volume flow rate"
   - OntologyNode:
     name: channel_water_x-section__domain_max_of_volume_flow_rate
-    description:
+    descriptions:
       - "channel water x-section  domain max of volume flow rate"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_max_of_volume_flux
-    description:
+    descriptions:
       - "basin outlet water x-section  time max of volume flux"
   - OntologyNode:
     name: sources_water__volume_flow_rate
-    description:
+    descriptions:
       - "sources water  volume flow rate"
   - OntologyNode:
     name: canals_exit__y_coordinate
-    description:
+    descriptions:
       - "canals exit  y coordinate"
   - OntologyNode:
     name: model_grid_cell__area
-    description:
+    descriptions:
       - "model grid cell  area"
   - OntologyNode:
     name: channel_water_flow__froude_number
-    description:
+    descriptions:
       - "channel water flow  froude number"
   - OntologyNode:
     name: channel_water_x-section__domain_min_of_mean_depth
-    description:
+    descriptions:
       - "channel water x-section  domain min of mean depth"
   - OntologyNode:
     name: canals_entrance_water__volume_flow_rate
-    description:
+    descriptions:
       - "canals entrance water  volume flow rate"
   - OntologyNode:
     name: sinks__count
-    description:
+    descriptions:
       - "sinks  count"
   - OntologyNode:
     name: channel_water_x-section__domain_min_of_volume_flux
-    description:
+    descriptions:
       - "channel water x-section  domain min of volume flux"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_integral_of_volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  time integral of volume flow rate"
   - OntologyNode:
     name: channel_water_surface__slope
-    description:
+    descriptions:
       - "channel water surface  slope"
   - OntologyNode:
     name: channel_bottom_water_flow__log_law_roughness_length
-    description:
+    descriptions:
       - "channel bottom water flow  log law roughness length"
   - OntologyNode:
     name: channel_water_flow__domain_min_of_manning_n_parameter
-    description:
+    descriptions:
       - "channel water flow  domain min of manning n parameter"
   - OntologyNode:
     name: basin_outlet_water_flow__half_of_fanning_friction_factor
-    description:
+    descriptions:
       - "basin outlet water flow  half of fanning friction factor"
   - OntologyNode:
     name: sources__y_coordinate
-    description:
+    descriptions:
       - "sources  y coordinate"
   - OntologyNode:
     name: channel_water_flow__manning_n_parameter
-    description:
+    descriptions:
       - "channel water flow  manning n parameter"
   - OntologyNode:
     name: sinks_water__volume_flow_rate
-    description:
+    descriptions:
       - "sinks water  volume flow rate"
   - OntologyNode:
     name: basin_outlet_water_x-section__peak_time_of_volume_flux
-    description:
+    descriptions:
       - "basin outlet water x-section  peak time of volume flux"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: channel_water_x-section__domain_max_of_volume_flux
-    description:
+    descriptions:
       - "channel water x-section  domain max of volume flux"
   - OntologyNode:
     name: canals_entrance__x_coordinate
-    description:
+    descriptions:
       - "canals entrance  x coordinate"
   - OntologyNode:
     name: channel_bottom_water_flow__domain_max_of_log_law_roughness_length
-    description:
+    descriptions:
       - "channel bottom water flow  domain max of log law roughness length"
   - OntologyNode:
     name: sinks__y_coordinate
-    description:
+    descriptions:
       - "sinks  y coordinate"
   - OntologyNode:
     name: basin_outlet_water_x-section__mean_depth
-    description:
+    descriptions:
       - "basin outlet water x-section  mean depth"
   - OntologyNode:
     name: channel_water_x-section__initial_mean_depth
-    description:
+    descriptions:
       - "channel water x-section  initial mean depth"
   - OntologyNode:
     name: channel_bottom_water_flow__magnitude_of_shear_stress
-    description:
+    descriptions:
       - "channel bottom water flow  magnitude of shear stress"
   - OntologyNode:
     name: sources__count
-    description:
+    descriptions:
       - "sources  count"
   - OntologyNode:
     name: channel_water_x-section__domain_max_of_mean_depth
-    description:
+    descriptions:
       - "channel water x-section  domain max of mean depth"
   - OntologyNode:
     name: water-liquid__mass-per-volume_density
-    description:
+    descriptions:
       - "water-liquid  mass-per-volume density"
   - OntologyNode:
     name: canals__count
-    description:
+    descriptions:
       - "canals  count"
   - OntologyNode:
     name: sinks__x_coordinate
-    description:
+    descriptions:
       - "sinks  x coordinate"
   - OntologyNode:
     name: glacier_ice__melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  melt volume flux"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_runoff_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of runoff volume flux"
   - OntologyNode:
     name: basin_outlet_water_x-section__volume_flux
-    description:
+    descriptions:
       - "basin outlet water x-section  volume flux"
   - OntologyNode:
     name: channel_bottom_water_flow__shear_speed
-    description:
+    descriptions:
       - "channel bottom water flow  shear speed"
   - OntologyNode:
     name: atmosphere_water__rainfall_volume_flux
-    description:
+    descriptions:
       - "atmosphere water  rainfall volume flux"
   - OntologyNode:
     name: channel_water_x-section__volume_flow_rate
-    description:
+    descriptions:
       - "channel water x-section  volume flow rate"
   - OntologyNode:
     name: land_surface_water__baseflow_volume_flux
-    description:
+    descriptions:
       - "land surface water  baseflow volume flux"
   - OntologyNode:
     name: channel_water__volume
-    description:
+    descriptions:
       - "channel water  volume"
   - OntologyNode:
     name: channel_water_x-section__hydraulic_radius
-    description:
+    descriptions:
       - "channel water x-section  hydraulic radius"
   - OntologyNode:
     name: canals_entrance_water__volume_fraction
-    description:
+    descriptions:
       - "canals entrance water  volume fraction"
   - OntologyNode:
     name: channel_water_flow__half_of_fanning_friction_factor
-    description:
+    descriptions:
       - "channel water flow  half of fanning friction factor"
   - OntologyNode:
     name: channel_centerline__sinuosity
-    description:
+    descriptions:
       - "channel centerline  sinuosity"
   - OntologyNode:
     name: soil_surface_water__infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  infiltration volume flux"
   - OntologyNode:
     name: channel_water_x-section__wetted_perimeter
-    description:
+    descriptions:
       - "channel water x-section  wetted perimeter"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_max_of_volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  time max of volume flow rate"
   - OntologyNode:
     name: land_surface_water__runoff_volume_flux
-    description:
+    descriptions:
       - "land surface water  runoff volume flux"
   - OntologyNode:
     name: channel_water_x-section__volume_flux
-    description:
+    descriptions:
       - "channel water x-section  volume flux"
   - OntologyNode:
     name: channel_x-section_trapezoid_bottom__width
-    description:
+    descriptions:
       - "channel x-section trapezoid bottom  width"
   - OntologyNode:
     name: basin_outlet_water_x-section__peak_time_of_depth
-    description:
+    descriptions:
       - "basin outlet water x-section  peak time of depth"
   - OntologyNode:
     name: sources__x_coordinate
-    description:
+    descriptions:
       - "sources  x coordinate"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: canals_exit_water__volume_flow_rate
-    description:
+    descriptions:
       - "canals exit water  volume flow rate"
   - OntologyNode:
     name: channel_water_x-section__wetted_area
-    description:
+    descriptions:
       - "channel water x-section  wetted area"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_max_of_mean_depth
-    description:
+    descriptions:
       - "basin outlet water x-section  time max of mean depth"
   - OntologyNode:
     name: channel_water_total-sediment__volume_flow_rate
-    description:
+    descriptions:
       - "channel water total-sediment  volume flow rate"
   - OntologyNode:
     name: channel_water_total-sediment__volume_flow_rate_law_area_exponent
-    description:
+    descriptions:
       - "channel water total-sediment  volume flow rate law area exponent"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: model_domain_boundary__lowering_rate
-    description:
+    descriptions:
       - "model domain boundary  lowering rate"
   - OntologyNode:
     name: bedrock__uplift_rate
-    description:
+    descriptions:
       - "bedrock  uplift rate"
   - OntologyNode:
     name: model_grid_cell__x_length
-    description:
+    descriptions:
       - "model grid cell  x length"
   - OntologyNode:
     name: land_surface__elevation
-    description:
+    descriptions:
       - "land surface  elevation"
   - OntologyNode:
     name: atmosphere_water__geomorphic_precipitation_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  geomorphic precipitation leq-volume flux"
   - OntologyNode:
     name: land_surface__domain_max_of_increment_of_elevation
-    description:
+    descriptions:
       - "land surface  domain max of increment of elevation"
   - OntologyNode:
     name: model_grid_cell__y_length
-    description:
+    descriptions:
       - "model grid cell  y length"
   - OntologyNode:
     name: land_surface__initial_elevation
-    description:
+    descriptions:
       - "land surface  initial elevation"
   - OntologyNode:
     name: channel_water_total-sediment__volume_flow_rate_law_slope_exponent
-    description:
+    descriptions:
       - "channel water total-sediment  volume flow rate law slope exponent"
   - OntologyNode:
     name: land_surface__time_derivative_of_elevation
-    description:
+    descriptions:
       - "land surface  time derivative of elevation"
   - OntologyNode:
     name: channel_water_x-section__volume_flow_rate
-    description:
+    descriptions:
       - "channel water x-section  volume flow rate"
   - OntologyNode:
     name: model_grid_cell__d8_flow_length
-    description:
+    descriptions:
       - "model grid cell  d8 flow length"
   - OntologyNode:
     name: channel_water_x-section__volume_flow_rate_law_area_exponent
-    description:
+    descriptions:
       - "channel water x-section  volume flow rate law area exponent"
   - OntologyNode:
     name: model_grid_cell__diameter
-    description:
+    descriptions:
       - "model grid cell  diameter"
   - OntologyNode:
     name: land_surface_contour-segment__total_contributing_area
-    description:
+    descriptions:
       - "land surface contour-segment  total contributing area"
   - OntologyNode:
     name: model_grid_cell__area
-    description:
+    descriptions:
       - "model grid cell  area"
   - OntologyNode:
     name: land_surface__increment_of_elevation
-    description:
+    descriptions:
       - "land surface  increment of elevation"
   - OntologyNode:
     name: model_grid_cell__d8_flow_width
-    description:
+    descriptions:
       - "model grid cell  d8 flow width"
   - OntologyNode:
     name: channel_water_total-sediment__volume_flow_rate_law_coefficient
-    description:
+    descriptions:
       - "channel water total-sediment  volume flow rate law coefficient"
   - OntologyNode:
     name: land_surface__slope
-    description:
+    descriptions:
       - "land surface  slope"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of evaporation volume flux"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: channel_water_x-section__mean_depth
-    description:
+    descriptions:
       - "channel water x-section  mean depth"
   - OntologyNode:
     name: model_grid_cell__area
-    description:
+    descriptions:
       - "model grid cell  area"
   - OntologyNode:
     name: snowpack__initial_depth
-    description:
+    descriptions:
       - "snowpack  initial depth"
   - OntologyNode:
     name: snowpack__liquid-equivalent_depth
-    description:
+    descriptions:
       - "snowpack  liquid-equivalent depth"
   - OntologyNode:
     name: snowpack__degree-day_coefficient
-    description:
+    descriptions:
       - "snowpack  degree-day coefficient"
   - OntologyNode:
     name: land_surface__temperature
-    description:
+    descriptions:
       - "land surface  temperature"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: snowpack__degree-day_threshold_temperature
-    description:
+    descriptions:
       - "snowpack  degree-day threshold temperature"
   - OntologyNode:
     name: snowpack__initial_liquid-equivalent_depth
-    description:
+    descriptions:
       - "snowpack  initial liquid-equivalent depth"
   - OntologyNode:
     name: atmosphere_water__snowfall_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  snowfall leq-volume flux"
   - OntologyNode:
     name: atmosphere_bottom_air__temperature
-    description:
+    descriptions:
       - "atmosphere bottom air  temperature"
   - OntologyNode:
     name: snowpack__z_mean_of_mass-per-volume_density
-    description:
+    descriptions:
       - "snowpack  z mean of mass-per-volume density"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: snowpack__depth
-    description:
+    descriptions:
       - "snowpack  depth"
   - OntologyNode:
     name: water-liquid__mass-per-volume_density
-    description:
+    descriptions:
       - "water-liquid  mass-per-volume density"
   - OntologyNode:
     name: snowpack__domain_time_integral_of_melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  domain time integral of melt volume flux"
   - OntologyNode:
     name: channel_model__time_step
-    description:
+    descriptions:
       - "channel model  time step"
   - OntologyNode:
     name: channel_water__volume
-    description:
+    descriptions:
       - "channel water  volume"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: model_soil_layer-2__porosity
-    description:
+    descriptions:
       - "model soil layer-2  porosity"
   - OntologyNode:
     name: land_surface_water__baseflow_volume_flux
-    description:
+    descriptions:
       - "land surface water  baseflow volume flux"
   - OntologyNode:
     name: soil_top-layer__porosity
-    description:
+    descriptions:
       - "soil top-layer  porosity"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: soil_top-layer__thickness
-    description:
+    descriptions:
       - "soil top-layer  thickness"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_baseflow_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of baseflow volume flux"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: soil_water_sat-zone_top_surface__elevation
-    description:
+    descriptions:
       - "soil water sat-zone top surface  elevation"
   - OntologyNode:
     name: model_soil_layer-0__saturated_thickness
-    description:
+    descriptions:
       - "model soil layer-0  saturated thickness"
   - OntologyNode:
     name: channel_water_x-section__mean_depth
-    description:
+    descriptions:
       - "channel water x-section  mean depth"
   - OntologyNode:
     name: model_soil_layer-0__thickness
-    description:
+    descriptions:
       - "model soil layer-0  thickness"
   - OntologyNode:
     name: model_soil_layer-1__thickness
-    description:
+    descriptions:
       - "model soil layer-1  thickness"
   - OntologyNode:
     name: land_surface__elevation
-    description:
+    descriptions:
       - "land surface  elevation"
   - OntologyNode:
     name: soil_water_sat-zone_top__recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  recharge volume flux"
   - OntologyNode:
     name: model_soil_layer-0__porosity
-    description:
+    descriptions:
       - "model soil layer-0  porosity"
   - OntologyNode:
     name: model_soil_layer-1__saturated_thickness
-    description:
+    descriptions:
       - "model soil layer-1  saturated thickness"
   - OntologyNode:
     name: model_soil_layer-1__porosity
-    description:
+    descriptions:
       - "model soil layer-1  porosity"
   - OntologyNode:
     name: soil_top-layer__saturated_thickness
-    description:
+    descriptions:
       - "soil top-layer  saturated thickness"
   - OntologyNode:
     name: model_soil_layer-2__saturated_thickness
-    description:
+    descriptions:
       - "model soil layer-2  saturated thickness"
   - OntologyNode:
     name: model_soil_layer-2__thickness
-    description:
+    descriptions:
       - "model soil layer-2  thickness"
   - OntologyNode:
     name: model_grid_cell__y_length
-    description:
+    descriptions:
       - "model grid cell  y length"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: model_grid_cell__x_length
-    description:
+    descriptions:
       - "model grid cell  x length"
   - OntologyNode:
     name: glacier_top_surface__elevation
-    description:
+    descriptions:
       - "glacier top surface  elevation"
   - OntologyNode:
     name: glacier_ice__thickness
-    description:
+    descriptions:
       - "glacier ice  thickness"
   - OntologyNode:
     name: glacier_ice__melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  melt volume flux"
   - OntologyNode:
     name: glacier_ice__domain_time_integral_of_melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  domain time integral of melt volume flux"
   - OntologyNode:
     name: basin_outlet_water_x-section__volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  volume flow rate"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: atmosphere_water__domain_time_max_of_precipitation_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  domain time max of precipitation leq-volume flux"
   - OntologyNode:
     name: channel_water_x-section__domain_min_of_volume_flow_rate
-    description:
+    descriptions:
       - "channel water x-section  domain min of volume flow rate"
   - OntologyNode:
     name: basin_outlet_water_x-section__peak_time_of_volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  peak time of volume flow rate"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_max_of_volume_flux
-    description:
+    descriptions:
       - "basin outlet water x-section  time max of volume flux"
   - OntologyNode:
     name: channel_water_x-section__domain_max_of_volume_flow_rate
-    description:
+    descriptions:
       - "channel water x-section  domain max of volume flow rate"
   - OntologyNode:
     name: atmosphere_water__domain_time_integral_of_precipitation_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  domain time integral of precipitation leq-volume flux"
   - OntologyNode:
     name: glacier_ice__domain_time_integral_of_melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  domain time integral of melt volume flux"
   - OntologyNode:
     name: channel_water_x-section__domain_min_of_mean_depth
-    description:
+    descriptions:
       - "channel water x-section  domain min of mean depth"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_baseflow_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of baseflow volume flux"
   - OntologyNode:
     name: soil_surface_water__domain_time_integral_of_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  domain time integral of infiltration volume flux"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_integral_of_volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  time integral of volume flow rate"
   - OntologyNode:
     name: channel_water_flow__domain_max_of_manning_n_parameter
-    description:
+    descriptions:
       - "channel water flow  domain max of manning n parameter"
   - OntologyNode:
     name: basin_outlet_water_flow__half_of_fanning_friction_factor
-    description:
+    descriptions:
       - "basin outlet water flow  half of fanning friction factor"
   - OntologyNode:
     name: basin_outlet_water_x-section__peak_time_of_volume_flux
-    description:
+    descriptions:
       - "basin outlet water x-section  peak time of volume flux"
   - OntologyNode:
     name: channel_water_x-section__domain_max_of_volume_flux
-    description:
+    descriptions:
       - "channel water x-section  domain max of volume flux"
   - OntologyNode:
     name: channel_bottom_water_flow__domain_max_of_log_law_roughness_length
-    description:
+    descriptions:
       - "channel bottom water flow  domain max of log law roughness length"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of evaporation volume flux"
   - OntologyNode:
     name: basin_outlet_water_x-section__mean_depth
-    description:
+    descriptions:
       - "basin outlet water x-section  mean depth"
   - OntologyNode:
     name: basin_outlet_water_x-section__peak_time_of_depth
-    description:
+    descriptions:
       - "basin outlet water x-section  peak time of depth"
   - OntologyNode:
     name: channel_water_x-section__domain_max_of_mean_depth
-    description:
+    descriptions:
       - "channel water x-section  domain max of mean depth"
   - OntologyNode:
     name: snowpack__domain_time_integral_of_melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  domain time integral of melt volume flux"
   - OntologyNode:
     name: channel_bottom_water_flow__domain_min_of_log_law_roughness_length
-    description:
+    descriptions:
       - "channel bottom water flow  domain min of log law roughness length"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_runoff_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of runoff volume flux"
   - OntologyNode:
     name: basin_outlet_water_x-section__volume_flux
-    description:
+    descriptions:
       - "basin outlet water x-section  volume flux"
   - OntologyNode:
     name: soil_water_sat-zone_top__domain_time_integral_of_recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  domain time integral of recharge volume flux"
   - OntologyNode:
     name: channel_water_x-section__domain_min_of_volume_flux
-    description:
+    descriptions:
       - "channel water x-section  domain min of volume flux"
   - OntologyNode:
     name: land_surface_water__baseflow_volume_flux
-    description:
+    descriptions:
       - "land surface water  baseflow volume flux"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_max_of_volume_flow_rate
-    description:
+    descriptions:
       - "basin outlet water x-section  time max of volume flow rate"
   - OntologyNode:
     name: land_surface_water__runoff_volume_flux
-    description:
+    descriptions:
       - "land surface water  runoff volume flux"
   - OntologyNode:
     name: channel_water_flow__domain_min_of_manning_n_parameter
-    description:
+    descriptions:
       - "channel water flow  domain min of manning n parameter"
   - OntologyNode:
     name: basin_outlet_water_x-section__time_max_of_mean_depth
-    description:
+    descriptions:
       - "basin outlet water x-section  time max of mean depth"
   - OntologyNode:
     name: land_surface__elevation
-    description:
+    descriptions:
       - "land surface  elevation"
   - OntologyNode:
     name: atmosphere_water__rainfall_volume_flux
-    description:
+    descriptions:
       - "atmosphere water  rainfall volume flux"
   - OntologyNode:
     name: soil_water__saturated_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  saturated hydraulic conductivity"
   - OntologyNode:
     name: soil_surface_water__infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  infiltration volume flux"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: soil_water__potential_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil water  potential infiltration volume flux"
   - OntologyNode:
     name: soil_water__smith-parlange_gamma_parameter
-    description:
+    descriptions:
       - "soil water  smith-parlange gamma parameter"
   - OntologyNode:
     name: soil_water_sat-zone_top_surface__elevation
-    description:
+    descriptions:
       - "soil water sat-zone top surface  elevation"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: soil_surface_water__domain_time_integral_of_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  domain time integral of infiltration volume flux"
   - OntologyNode:
     name: soil_water_flow__z_component_of_darcy_velocity
-    description:
+    descriptions:
       - "soil water flow  z component of darcy velocity"
   - OntologyNode:
     name: land_surface__elevation
-    description:
+    descriptions:
       - "land surface  elevation"
   - OntologyNode:
     name: soil_water_sat-zone_top__recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  recharge volume flux"
   - OntologyNode:
     name: soil_water__saturated_volume_fraction
-    description:
+    descriptions:
       - "soil water  saturated volume fraction"
   - OntologyNode:
     name: soil_water__initial_volume_fraction
-    description:
+    descriptions:
       - "soil water  initial volume fraction"
   - OntologyNode:
     name: soil_water__initial_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  initial hydraulic conductivity"
   - OntologyNode:
     name: glacier_ice__melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  melt volume flux"
   - OntologyNode:
     name: soil_water__green-ampt_capillary_length
-    description:
+    descriptions:
       - "soil water  green-ampt capillary length"
   - OntologyNode:
     name: soil_water_sat-zone_top__domain_time_integral_of_recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  domain time integral of recharge volume flux"
   - OntologyNode:
     name: atmosphere_water__rainfall_volume_flux
-    description:
+    descriptions:
       - "atmosphere water  rainfall volume flux"
   - OntologyNode:
     name: soil_water__saturated_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  saturated hydraulic conductivity"
   - OntologyNode:
     name: soil_surface_water__infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  infiltration volume flux"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: soil_water__potential_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil water  potential infiltration volume flux"
   - OntologyNode:
     name: soil_water_sat-zone_top_surface__elevation
-    description:
+    descriptions:
       - "soil water sat-zone top surface  elevation"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: soil_surface_water__domain_time_integral_of_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  domain time integral of infiltration volume flux"
   - OntologyNode:
     name: soil_water_flow__z_component_of_darcy_velocity
-    description:
+    descriptions:
       - "soil water flow  z component of darcy velocity"
   - OntologyNode:
     name: land_surface__elevation
-    description:
+    descriptions:
       - "land surface  elevation"
   - OntologyNode:
     name: soil_water_sat-zone_top__recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  recharge volume flux"
   - OntologyNode:
     name: soil_water__saturated_volume_fraction
-    description:
+    descriptions:
       - "soil water  saturated volume fraction"
   - OntologyNode:
     name: soil_water__initial_volume_fraction
-    description:
+    descriptions:
       - "soil water  initial volume fraction"
   - OntologyNode:
     name: soil_water__initial_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  initial hydraulic conductivity"
   - OntologyNode:
     name: glacier_ice__melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  melt volume flux"
   - OntologyNode:
     name: soil_water__green-ampt_capillary_length
-    description:
+    descriptions:
       - "soil water  green-ampt capillary length"
   - OntologyNode:
     name: soil_water_sat-zone_top__domain_time_integral_of_recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  domain time integral of recharge volume flux"
   - OntologyNode:
     name: soil_surface_water__time_integral_of_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  time integral of infiltration volume flux"
   - OntologyNode:
     name: snowpack__liquid-equivalent_depth
-    description:
+    descriptions:
       - "snowpack  liquid-equivalent depth"
   - OntologyNode:
     name: land_surface__longitude
-    description:
+    descriptions:
       - "land surface  longitude"
   - OntologyNode:
     name: land_surface__temperature
-    description:
+    descriptions:
       - "land surface  temperature"
   - OntologyNode:
     name: atmosphere_aerosol_dust__reduction_of_transmittance
-    description:
+    descriptions:
       - "atmosphere aerosol dust  reduction of transmittance"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: atmosphere_bottom_air__neutral_bulk_aerodynamic_conductance
-    description:
+    descriptions:
       - "atmosphere bottom air  neutral bulk aerodynamic conductance"
   - OntologyNode:
     name: atmosphere_bottom_air__mass-specific_isobaric_heat_capacity
-    description:
+    descriptions:
       - "atmosphere bottom air  mass-specific isobaric heat capacity"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: atmosphere_water__precipitation_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  precipitation leq-volume flux"
   - OntologyNode:
     name: water__mass-specific_latent_vaporization_heat
-    description:
+    descriptions:
       - "water  mass-specific latent vaporization heat"
   - OntologyNode:
     name: atmosphere_bottom_air_flow__reference-height_speed
-    description:
+    descriptions:
       - "atmosphere bottom air flow  reference-height speed"
   - OntologyNode:
     name: snowpack__depth
-    description:
+    descriptions:
       - "snowpack  depth"
   - OntologyNode:
     name: water__mass-specific_latent_fusion_heat
-    description:
+    descriptions:
       - "water  mass-specific latent fusion heat"
   - OntologyNode:
     name: atmosphere_bottom_air_flow__log_law_roughness_length
-    description:
+    descriptions:
       - "atmosphere bottom air flow  log law roughness length"
   - OntologyNode:
     name: atmosphere_water__domain_time_integral_of_precipitation_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  domain time integral of precipitation leq-volume flux"
   - OntologyNode:
     name: land_surface__latitude
-    description:
+    descriptions:
       - "land surface  latitude"
   - OntologyNode:
     name: atmosphere_bottom_air__bulk_sensible_heat_aerodynamic_conductance
-    description:
+    descriptions:
       - "atmosphere bottom air  bulk sensible heat aerodynamic conductance"
   - OntologyNode:
     name: physics__stefan_boltzmann_constant
-    description:
+    descriptions:
       - "physics  stefan boltzmann constant"
   - OntologyNode:
     name: atmosphere_bottom_air_land_net-latent-heat__energy_flux
-    description:
+    descriptions:
       - "atmosphere bottom air land net-latent-heat  energy flux"
   - OntologyNode:
     name: atmosphere_bottom_air__pressure
-    description:
+    descriptions:
       - "atmosphere bottom air  pressure"
   - OntologyNode:
     name: physics__von_karman_constant
-    description:
+    descriptions:
       - "physics  von karman constant"
   - OntologyNode:
     name: land_surface__slope_angle
-    description:
+    descriptions:
       - "land surface  slope angle"
   - OntologyNode:
     name: snowpack__z_mean_of_mass-per-volume_density
-    description:
+    descriptions:
       - "snowpack  z mean of mass-per-volume density"
   - OntologyNode:
     name: land_surface_air_water-vapor__saturated_partial_pressure
-    description:
+    descriptions:
       - "land surface air water-vapor  saturated partial pressure"
   - OntologyNode:
     name: land_surface_air_water-vapor__partial_pressure
-    description:
+    descriptions:
       - "land surface air water-vapor  partial pressure"
   - OntologyNode:
     name: atmosphere_bottom_air_flow__speed_reference_height
-    description:
+    descriptions:
       - "atmosphere bottom air flow  speed reference height"
   - OntologyNode:
     name: land_surface__albedo
-    description:
+    descriptions:
       - "land surface  albedo"
   - OntologyNode:
     name: atmosphere_bottom_air_water-vapor__dew_point_temperature
-    description:
+    descriptions:
       - "atmosphere bottom air water-vapor  dew point temperature"
   - OntologyNode:
     name: atmosphere_air-column_water-vapor__liquid-equivalent_depth
-    description:
+    descriptions:
       - "atmosphere air-column water-vapor  liquid-equivalent depth"
   - OntologyNode:
     name: land_surface_net-total-energy__energy_flux
-    description:
+    descriptions:
       - "land surface net-total-energy  energy flux"
   - OntologyNode:
     name: atmosphere_bottom_air__temperature
-    description:
+    descriptions:
       - "atmosphere bottom air  temperature"
   - OntologyNode:
     name: atmosphere_bottom_air_water-vapor__relative_saturation
-    description:
+    descriptions:
       - "atmosphere bottom air water-vapor  relative saturation"
   - OntologyNode:
     name: atmosphere_water__domain_time_max_of_precipitation_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  domain time max of precipitation leq-volume flux"
   - OntologyNode:
     name: land_surface_net-longwave-radiation__energy_flux
-    description:
+    descriptions:
       - "land surface net-longwave-radiation  energy flux"
   - OntologyNode:
     name: land_surface__aspect_angle
-    description:
+    descriptions:
       - "land surface  aspect angle"
   - OntologyNode:
     name: water-liquid__mass-per-volume_density
-    description:
+    descriptions:
       - "water-liquid  mass-per-volume density"
   - OntologyNode:
     name: atmosphere_bottom_air__brutsaert_emissivity_canopy_factor
-    description:
+    descriptions:
       - "atmosphere bottom air  brutsaert emissivity canopy factor"
   - OntologyNode:
     name: atmosphere_bottom_air_land_net-sensible-heat__energy_flux
-    description:
+    descriptions:
       - "atmosphere bottom air land net-sensible-heat  energy flux"
   - OntologyNode:
     name: atmosphere_water__rainfall_volume_flux
-    description:
+    descriptions:
       - "atmosphere water  rainfall volume flux"
   - OntologyNode:
     name: land_surface__emissivity
-    description:
+    descriptions:
       - "land surface  emissivity"
   - OntologyNode:
     name: atmosphere_bottom_air_water-vapor__saturated_partial_pressure
-    description:
+    descriptions:
       - "atmosphere bottom air water-vapor  saturated partial pressure"
   - OntologyNode:
     name: atmosphere_bottom_air__brutsaert_emissivity_cloud_factor
-    description:
+    descriptions:
       - "atmosphere bottom air  brutsaert emissivity cloud factor"
   - OntologyNode:
     name: earth__standard_gravity_constant
-    description:
+    descriptions:
       - "earth  standard gravity constant"
   - OntologyNode:
     name: atmosphere_water__snowfall_leq-volume_flux
-    description:
+    descriptions:
       - "atmosphere water  snowfall leq-volume flux"
   - OntologyNode:
     name: land_surface_net-shortwave-radiation__energy_flux
-    description:
+    descriptions:
       - "land surface net-shortwave-radiation  energy flux"
   - OntologyNode:
     name: atmosphere_bottom_air__mass-per-volume_density
-    description:
+    descriptions:
       - "atmosphere bottom air  mass-per-volume density"
   - OntologyNode:
     name: atmosphere_bottom_air_flow__bulk_richardson_number
-    description:
+    descriptions:
       - "atmosphere bottom air flow  bulk richardson number"
   - OntologyNode:
     name: atmosphere_bottom_air__bulk_latent_heat_aerodynamic_conductance
-    description:
+    descriptions:
       - "atmosphere bottom air  bulk latent heat aerodynamic conductance"
   - OntologyNode:
     name: atmosphere_bottom_air__emissivity
-    description:
+    descriptions:
       - "atmosphere bottom air  emissivity"
   - OntologyNode:
     name: atmosphere_bottom_air_water-vapor__partial_pressure
-    description:
+    descriptions:
       - "atmosphere bottom air water-vapor  partial pressure"
   - OntologyNode:
     name: atmosphere_bottom_air_land_net-latent-heat__energy_flux
-    description:
+    descriptions:
       - "atmosphere bottom air land net-latent-heat  energy flux"
   - OntologyNode:
     name: land_surface__temperature
-    description:
+    descriptions:
       - "land surface  temperature"
   - OntologyNode:
     name: land_surface_soil__conduction_heat_flux
-    description:
+    descriptions:
       - "land surface soil  conduction heat flux"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: land_surface_water__domain_time_integral_of_evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  domain time integral of evaporation volume flux"
   - OntologyNode:
     name: atmosphere_bottom_air__temperature
-    description:
+    descriptions:
       - "atmosphere bottom air  temperature"
   - OntologyNode:
     name: land_surface_net-total-energy__energy_flux
-    description:
+    descriptions:
       - "land surface net-total-energy  energy flux"
   - OntologyNode:
     name: snowpack__depth
-    description:
+    descriptions:
       - "snowpack  depth"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: canals_entrance__y_coordinate
-    description:
+    descriptions:
       - "canals entrance  y coordinate"
   - OntologyNode:
     name: sinks_water__volume_flow_rate
-    description:
+    descriptions:
       - "sinks water  volume flow rate"
   - OntologyNode:
     name: sinks__count
-    description:
+    descriptions:
       - "sinks  count"
   - OntologyNode:
     name: canals_entrance__x_coordinate
-    description:
+    descriptions:
       - "canals entrance  x coordinate"
   - OntologyNode:
     name: canals_entrance_water__volume_fraction
-    description:
+    descriptions:
       - "canals entrance water  volume fraction"
   - OntologyNode:
     name: canals_exit__x_coordinate
-    description:
+    descriptions:
       - "canals exit  x coordinate"
   - OntologyNode:
     name: canals_entrance_water__volume_flow_rate
-    description:
+    descriptions:
       - "canals entrance water  volume flow rate"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: sinks__y_coordinate
-    description:
+    descriptions:
       - "sinks  y coordinate"
   - OntologyNode:
     name: sources__count
-    description:
+    descriptions:
       - "sources  count"
   - OntologyNode:
     name: sources__x_coordinate
-    description:
+    descriptions:
       - "sources  x coordinate"
   - OntologyNode:
     name: canals__count
-    description:
+    descriptions:
       - "canals  count"
   - OntologyNode:
     name: sinks__x_coordinate
-    description:
+    descriptions:
       - "sinks  x coordinate"
   - OntologyNode:
     name: sources_water__volume_flow_rate
-    description:
+    descriptions:
       - "sources water  volume flow rate"
   - OntologyNode:
     name: canals_exit__y_coordinate
-    description:
+    descriptions:
       - "canals exit  y coordinate"
   - OntologyNode:
     name: sources__y_coordinate
-    description:
+    descriptions:
       - "sources  y coordinate"
   - OntologyNode:
     name: canals_exit_water__volume_flow_rate
-    description:
+    descriptions:
       - "canals exit water  volume flow rate"
   - OntologyNode:
     name: atmosphere_water__rainfall_volume_flux
-    description:
+    descriptions:
       - "atmosphere water  rainfall volume flux"
   - OntologyNode:
     name: soil_water__saturated_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  saturated hydraulic conductivity"
   - OntologyNode:
     name: soil_surface_water__infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  infiltration volume flux"
   - OntologyNode:
     name: land_surface_water__evaporation_volume_flux
-    description:
+    descriptions:
       - "land surface water  evaporation volume flux"
   - OntologyNode:
     name: model__time_step
-    description:
+    descriptions:
       - "model  time step"
   - OntologyNode:
     name: soil_water__potential_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil water  potential infiltration volume flux"
   - OntologyNode:
     name: soil_water_sat-zone_top_surface__elevation
-    description:
+    descriptions:
       - "soil water sat-zone top surface  elevation"
   - OntologyNode:
     name: snowpack__melt_volume_flux
-    description:
+    descriptions:
       - "snowpack  melt volume flux"
   - OntologyNode:
     name: soil_surface_water__domain_time_integral_of_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  domain time integral of infiltration volume flux"
   - OntologyNode:
     name: soil_water_flow__z_component_of_darcy_velocity
-    description:
+    descriptions:
       - "soil water flow  z component of darcy velocity"
   - OntologyNode:
     name: land_surface__elevation
-    description:
+    descriptions:
       - "land surface  elevation"
   - OntologyNode:
     name: soil_water_sat-zone_top__recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  recharge volume flux"
   - OntologyNode:
     name: soil_water__saturated_volume_fraction
-    description:
+    descriptions:
       - "soil water  saturated volume fraction"
   - OntologyNode:
     name: soil_water__initial_volume_fraction
-    description:
+    descriptions:
       - "soil water  initial volume fraction"
   - OntologyNode:
     name: soil_water__initial_hydraulic_conductivity
-    description:
+    descriptions:
       - "soil water  initial hydraulic conductivity"
   - OntologyNode:
     name: glacier_ice__melt_volume_flux
-    description:
+    descriptions:
       - "glacier ice  melt volume flux"
   - OntologyNode:
     name: soil_water__green-ampt_capillary_length
-    description:
+    descriptions:
       - "soil water  green-ampt capillary length"
   - OntologyNode:
     name: soil_water_sat-zone_top__domain_time_integral_of_recharge_volume_flux
-    description:
+    descriptions:
       - "soil water sat-zone top  domain time integral of recharge volume flux"
   - OntologyNode:
     name: soil_surface_water__time_integral_of_infiltration_volume_flux
-    description:
+    descriptions:
       - "soil surface water  time integral of infiltration volume flux"
