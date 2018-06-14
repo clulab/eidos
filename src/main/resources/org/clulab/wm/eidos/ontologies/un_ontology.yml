@@ -47,7 +47,6 @@
       examples:
         - liter
         - gallon
-
   - events:
     - nature_impact:
       - OntologyNode:
@@ -71,7 +70,7 @@
           - agroforestry
           - forest management
           - reforestation
-      - pollution:  
+      - pollution:
         - OntologyNode:
           name: air_pollution
           examples:
@@ -86,7 +85,7 @@
             - soil pollution
             - deforestation
             - soil erosion
-            - desertification  
+            - desertification
     - OntologyNode:
       name: crisis
       examples:
@@ -139,10 +138,10 @@
             - shark
       - natural_resources:
         - OntologyNode:
-          name: Biotic_resources # todo to split into multiple categories 
+          name: Biotic_resources # todo to split into multiple categories
           examples:
             - biodiversity
-            - Convention Biological diversity   
+            - Convention Biological diversity
             - ecosystem
             - food
             - forest area
@@ -153,7 +152,7 @@
             - wildlife
       - Abiotic_resources:
           - OntologyNode:
-            name: land # todo to split into multiple categories 
+            name: land # todo to split into multiple categories
             examples:
               - area
               - land
@@ -162,7 +161,7 @@
               - wetland
               - sand
           - OntologyNode:
-            name: water # todo to split into multiple categories 
+            name: water # todo to split into multiple categories
             examples:
               - water
               - sea
@@ -176,20 +175,20 @@
               - groundwater
               - water body
           - OntologyNode:
-            name: material # todo to split into multiple categories 
+            name: material # todo to split into multiple categories
             examples:
               - charcoal
               - iron
               - mineral
           - OntologyNode:
-            name: resource # todo to split into multiple categories 
+            name: resource # todo to split into multiple categories
             examples:
               - resource
-              - nAtuRAl ReSouRceS
+              - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
           - OntologyNode:
-            name: air # todo to split into multiple categories 
+            name: air # todo to split into multiple categories
             examples:
-              - air              
+              - air
       - natural_disaster:
         - OntologyNode:
           name: flooding
@@ -231,7 +230,7 @@
       - OntologyNode:
         name: disarmament
         examples:
-          - disarmament          
+          - disarmament
       - OntologyNode:
         name: human_migration
         examples:
@@ -352,7 +351,6 @@
             - post-harvest
             - food product
             - rice production
-
       - OntologyNode:
         name: crop
         examples:
@@ -500,14 +498,14 @@
           - OntologyNode:
             name: water_management #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
             examples:
-              - water treatment facility              
+              - water treatment facility
               - dam
               - sewage plant
-              - drainage ditch    
-              - desalination   
-              - sanitation  
-              - reservoir         
-              - border                      
+              - drainage ditch
+              - desalination
+              - sanitation
+              - reservoir
+              - border
           - OntologyNode:
             name: shipping_facilities_water #todo split out: water_management, shipping_facilities_water, shipping_facilities_air, electrical...
             examples:
@@ -531,16 +529,15 @@
               - building
               - monument
               - infrastructure
-              - reservoir 
+              - reservoir
               - dam
               - sewage plant
-              - drainage ditch  
+              - drainage ditch
               - seaport
               - marina
-              - harbour 
+              - harbour
               - airport
               - electric plant
-
       - OntologyNode:
         name: livelihood
         examples:
@@ -564,7 +561,7 @@
       - OntologyNode:
         name: fishery
         examples:
-          - fishery          
+          - fishery
       - OntologyNode:
         name: education #todo
         examples:
@@ -581,7 +578,7 @@
               - capital market
               - street markets
           - OntologyNode:
-            name: economy 
+            name: economy
             examples:
               - interest rate
               - investment
@@ -592,11 +589,11 @@
               - GDP
               - economy
           - OntologyNode:
-            name: inflation 
+            name: inflation
             examples:
               - inflation
           - OntologyNode:
-            name: depreciation 
+            name: depreciation
             examples:
               - depreciation
           - OntologyNode:
@@ -685,7 +682,7 @@
               - survey
           - OntologyNode:
             name: organization
-            examples:            
+            examples:
               - commission
               - workshop
               - conference
@@ -699,7 +696,7 @@
             name: duty
             examples:
               - security
-              - tax 
+              - tax
               - action plan
               - development programme
               - Development Goals
