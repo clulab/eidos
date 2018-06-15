@@ -159,6 +159,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (returnAllMentions) odinMentions else keepCAGRelevant(odinMentions)
+    // Add temporal attachments
+
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)

@@ -13,6 +13,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 import scala.annotation.tailrec
 import utils.DisplayUtils.{displayMention, shortDisplay}
 import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
+import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{Set => MutableSet}
@@ -359,6 +360,29 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     //println(s"allAttachments: ${allAttachments.mkString(", ")}")
     // Add on all attachments
     addAttachments(expanded, allAttachments)
+  }
+
+  // Add the temporal attachments for any temporal expression
+  def attachTemporal(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- mentions
+      // check to see if this mention has a temporal context
+      mWithTemporal = findTemporal(m)
+      
+    } yield mWithTemporal
+  }
+
+  // or should I return an EidosAttachment
+  def findTemporal(m: Mention): Mention = {
+    val mSentence = m.sentence
+    val timeIntervals = m.document.asInstanceOf[EidosDocument].time(mSentence)
+    // do any of these guys overlap with me?
+    m.tokenInterval
+    // if there's overlap, store in a Temporal attachement
+    ???
+    // add the attachment
+    //if (has attachment) m.wihAttachments else m
+    ???
   }
 
 

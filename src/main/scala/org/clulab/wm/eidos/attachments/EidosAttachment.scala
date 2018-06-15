@@ -2,18 +2,9 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.serialization.json.odin.{
-  JLDAttachment => JLDOdinAttachment,
-  JLDScoredAttachment => JLDOdinScoredAttachment,
-  JLDTriggeredAttachment => JLDOdinTriggeredAttachment,
-  JLDSerializer => JLDOdinSerializer
-}
-import org.clulab.wm.eidos.serialization.json.{
-  JLDAttachment => JLDEidosAttachment,
-  JLDScoredAttachment => JLDEidosScoredAttachment,
-  JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
-  JLDSerializer => JLDEidosSerializer
-}
+import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.serialization.json.odin.{JLDAttachment => JLDOdinAttachment, JLDScoredAttachment => JLDOdinScoredAttachment, JLDSerializer => JLDOdinSerializer, JLDTriggeredAttachment => JLDOdinTriggeredAttachment}
+import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
 import org.json4s._
 import org.json4s.JsonDSL._
 
@@ -65,6 +56,7 @@ object EidosAttachment {
       case Increase.label => new Increase(trigger, someQuantifications)
       case Decrease.label => new Decrease(trigger, someQuantifications)
       case Quantification.label => new Quantification(trigger, someQuantifications)
+      case Temporal.label => new Temporal(intervals)
     }
   }
 
@@ -292,6 +284,35 @@ object Decrease {
 
     new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
   }
+}
+
+// todo
+class Temporal(intervals: Seq[TimeInterval]) extends EidosAttachment {
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Decrease]
+
+//  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
+//    newJLDAttachment(serializer, Decrease.kind)
+//
+//  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+//    newJLDTriggeredAttachment(serializer, Decrease.kind)
+
+  override def toJson(): JValue = toJson(Temporal.label)
+}
+
+object Temporal {
+  val label = "Temporal"
+  val kind = "TMP"
+  val argument = "interval" //???
+
+  def apply(intervals: Seq[TimeInterval]) = new Temporal(intervals)
+
+  // todo: should this exist? I am not a TriggeredAttachment...
+//  def apply(mention: Mention): Temporal = {
+//    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
+//
+//    new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
+//  }
 }
 
 case class Score(score: Double) extends EidosAttachment {
