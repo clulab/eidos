@@ -47,7 +47,7 @@ object DomainOntology {
   val FIELD = "OntologyNode"
   val NAME = "name"
   val EXAMPLES = "examples"
-  val DESCRIPTION = "description" // TODO: Turn this into descriptions with an S
+  val DESCRIPTION = "descriptions"
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
   class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor, filter: Boolean) {
@@ -110,10 +110,6 @@ object DomainOntology {
 }
 
 // These are just here for when behavior might have to start differing.
-object ToyOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
-}
-
 object UNOntology {
   def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
 }
