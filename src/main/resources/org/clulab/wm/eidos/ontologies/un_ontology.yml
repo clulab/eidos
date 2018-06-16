@@ -47,6 +47,33 @@
       examples:
         - liter
         - gallon
+    - OntologyNode:
+      name: solar_radiation
+      examples:
+        - solar radiation
+        - sunlight
+        - solar energy
+    - OntologyNode:
+      name: depth
+      examples:
+        - deep
+        - depth
+    - OntologyNode:
+      name: spatial_coordinates
+      examples:
+        - latitude
+        - longitude
+        - latlong
+        - coordinates
+    - OntologyNode:
+      name: temperature
+      examples:
+        - temperature
+        - degree celcius
+        - farenheit
+        - kelvin
+        - C
+        - F
   - events:
     - nature_impact:
       - OntologyNode:
