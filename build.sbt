@@ -11,12 +11,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-//<<<<<<< HEAD
-////  val procVer = "7.2.2"
-//val procVer = "7.3.0-SNAPSHOT"
-//=======
   val procVer = "7.3.1"
-//>>>>>>> master
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
@@ -39,7 +34,7 @@ val minorVersionRegex = "\\d+\\.(\\d+).*".r
 libraryDependencies <++= scalaVersion { sv =>
   sv match {
     case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.11_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
-    case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.11" exclude("org.slf4j", "slf4j-log4j12"))
+    case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.11" exclude("org.slf4j", "slf4j-log4j12")) 
   }
 }
 
