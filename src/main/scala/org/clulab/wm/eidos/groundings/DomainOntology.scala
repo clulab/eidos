@@ -61,15 +61,24 @@ object DomainOntology {
       new DomainOntology(name, ontologyNodes)
     }
 
-    protected def realFiltered(text: String): Seq[String] =
-        proc.annotate(text).sentences.flatMap { sentence =>
-          sentence.words.zip(sentence.tags.get).filter { wordAndPos =>
-            // Filter by POS tags which need to be kept (Nouns, Adjectives, and Verbs).
-            wordAndPos._2.contains("NN") ||
-                wordAndPos._2.contains("JJ") ||
-                wordAndPos._2.contains("VB")
-          }.map(_._1) // Get only the words.
-        }
+    protected def realFiltered(text: String): Seq[String] = {
+//      val sentences = proc.annotate(text).sentences
+      val sentences = {
+        // Only POS is used below, so only compute this part of a doc.
+        val doc = proc.mkDocument(proc.preprocessText(text))
+        proc.tagPartsOfSpeech(doc)
+        doc.sentences
+      }
+
+      sentences.flatMap { sentence =>
+        sentence.words.zip(sentence.tags.get).filter { wordAndPos =>
+          // Filter by POS tags which need to be kept (Nouns, Adjectives, and Verbs).
+          wordAndPos._2.contains("NN") ||
+            wordAndPos._2.contains("JJ") ||
+            wordAndPos._2.contains("VB")
+        }.map(_._1) // Get only the words.
+      }
+    }
 
     protected def fakeFiltered(text: String): Seq[String] = text.split(" +")
 
