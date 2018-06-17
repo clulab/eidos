@@ -51,19 +51,15 @@ class TestJLDFormat extends Test {
 
     // Call whichever JSONLD function you want! (e.g. compact)
     val compact = JsonUtils.toPrettyString(JsonLdProcessor.compact(jsonObject, context, options))
-    println(compact)
     compact should not be empty
 
     val expand = JsonUtils.toPrettyString(JsonLdProcessor.expand(jsonObject))
-    println(expand)
     expand should not be empty
 
     val flatten = JsonUtils.toPrettyString(JsonLdProcessor.flatten(jsonObject, options))
-    println(flatten)
     flatten should not be empty
 
     val normalize = JsonUtils.toPrettyString(JsonLdProcessor.normalize(jsonObject))
-    println(normalize)
     normalize should not be empty
   }
 }
