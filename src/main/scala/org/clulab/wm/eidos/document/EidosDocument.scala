@@ -3,14 +3,17 @@ package org.clulab.wm.eidos.document
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.timenorm.TimeSpan
 
 class EidosDocument(sentences: Array[Sentence], documentCreationTime: Option[String] = None) extends CoreNLPDocument(sentences) {
-  val times = new Array[List[TimeInterval]](sentences.length)
-  lazy val anchor = {
+  // TODO: @transient here means these values aren't serialized, which sort of defeats the purpose of serialization.
+  // Currently no test checks to see if the values are preserved across serialization, but that doesn't make it right.
+  @transient val times = new Array[List[TimeInterval]](sentences.length)
+  @transient lazy val anchor = {
     val dateTime =
         if (documentCreationTime.isEmpty) LocalDateTime.now()
         // This no longer falls back silently to now().
@@ -39,6 +42,19 @@ class EidosDocument(sentences: Array[Sentence], documentCreationTime: Option[Str
   def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
      if (timenorm.isDefined) parseRealTime(timenorm.get)
      else parseFakeTime()
+}
+
+object EidosDocument {
+
+  def apply(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None): EidosDocument = {
+    val text = document.text // This will be the preprocessed text now.
+    // This constructor does not make use of the text,
+    val eidosDocument = new EidosDocument(document.sentences, documentCreationTime)
+    // so it must be set afterwards, if specified.
+    if (keepText)
+      eidosDocument.text = text
+    eidosDocument
+  }
 }
 
 class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, Long)])

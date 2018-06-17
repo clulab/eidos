@@ -1,5 +1,8 @@
 package org.clulab.wm.eidos
 
+import java.net.URL
+import java.nio.file.Paths
+
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.fastnlp.FastNLPProcessor
@@ -105,12 +108,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
       val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
-      val timenormResource = getClass.getResource(timeNormModelPath)
+      val timenormResource: URL = getClass.getResource(timeNormModelPath)
       val timenorm: Option[TemporalCharbasedParser] =
           if (timenormResource == null) None
-          else None
-//          else Some(new TemporalCharbasedParser("D:\\Users\\kwa\\Documents\\MyData\\Projects\\eidos\\eidos-clone\\eidos\\target\\scala-2.12\\classes\\org\\clulab\\wm\\eidos\\models\\timenorm_model.hdf5" /*timenormResource.getFile*/))
-//          else Some(new TemporalCharbasedParser(timenormResource.getFile))
+          else {
+            // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+            val file = Paths.get(timenormResource.toURI()).toFile().getAbsolutePath()
+            // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
+            //     public native void openFile(@StdString BytePointer var1, ...
+            // and needs native representation of the file.
+            Some(new TemporalCharbasedParser(file))
+          }
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -140,7 +148,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None): Document = {
-    val doc = new EidosDocument(proc.annotate(text, keepText).sentences, documentCreationTime)
+    val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
+    val doc = EidosDocument(oldDoc, keepText, documentCreationTime)
     doc.sentences.foreach(addLexiconNER)
     doc.parseTime(timenorm)
     doc
