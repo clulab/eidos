@@ -1,4 +1,6 @@
 # Changes
++ **0.2.1** - Switch to top-down extraction (entities now found only when they participate in events), grounding
+to multiple grammars (high- and mid-level), scalability improvements, updates to JSON-LD export format
 + **0.2.0** - Grammar improvements, grounding to ontology, canonical names for extractions, 
 entity filtering, added example output of system on 10 debugging documents
 + **0.1.5** - Added missing organization id to build file
