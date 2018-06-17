@@ -8,8 +8,12 @@ import org.clulab.struct.Interval
 import scala.annotation.tailrec
 import org.clulab.wm.eidos.utils.FileUtils
 
+// This file was copied from processors.  scaladoc comments in eidos cannot refer
+// directly to [[org.clulab.processors.Document]] without causing an error during
+// the release processes.  The links have therefore been removed.
+
 /**
-  * Finds Open IE-style entities from a [[org.clulab.processors.Document]].
+  * Finds Open IE-style entities from an org.clulab.processors.Document.
   *
   * @param entityEngine an ExtractorEngine for entities.  Runs AFTER avoidEngine.
   * @param avoidEngine an ExtractorEngine for tokens/spans to be avoided. Runs BEFORE entityEngine.
@@ -57,7 +61,7 @@ class RuleBasedEntityFinder(
   /**
     * Performs rule-based entity extraction with selective expansion along syntactic dependencies.
     * For filtering, see filterEntities.
-    * @param doc a [[org.clulab.processors.Document]]
+    * @param doc an org.clulab.processors.Document
     */
   def extract(doc: Document): Seq[Mention] = {
     // avoid refs, etc.
