@@ -247,6 +247,20 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
   }
 }
 
+class JLDContextAttachment(serializer: JLDSerializer, kind: String, contextAttachment: ContextAttachment)
+    extends JLDAttachment(serializer, "State") {
+
+  override def toJObject(): JObject = {
+    val value = serializer.mkRef(contextAttachment.value)
+    val text = contextAttachment.text
+
+    serializer.mkType(this) ~
+      ("type", kind) ~
+      ("text", text) ~
+      ("value", value)
+  }
+}
+
 // TODO: This format is not documented
 class JLDScoredAttachment(serializer: JLDSerializer, kind: String, scoredAttachment: Score)
   extends JLDAttachment(serializer, "Score") {
@@ -325,9 +339,11 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
 
   override def toJObject(): JObject = {
     val jldAttachments = mention.odinMention.attachments.toList
+        .filter(_.isInstanceOf[TriggeredAttachment])
         .map(_.asInstanceOf[TriggeredAttachment])
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
+    val jldCAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[ContextAttachment]).map(attachment => newJLDAttachment(attachment))
 
     // kwa work here
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
@@ -342,7 +358,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
         ("canonicalName" -> mention.canonicalName) ~
         ("groundings" -> jldGroundings) ~
         (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention)))) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments))
+        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldCAttachments))
   }
 }
 
@@ -489,10 +505,9 @@ object JLDTimeInterval {
 }
 
 
-
 class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
     // The document, sentence, index above will be used to recognized words.
-    extends JLDObject(serializer, JLDTimex.typename) {
+    extends JLDObject(serializer, JLDTimex.typename, interval) {
   
   override def toJObject(): JObject = {
 
@@ -502,6 +517,7 @@ class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
         serializer.mkId(this) ~
         ("startOffset" -> interval.span._1) ~
         ("endOffset" -> interval.span._2) ~
+        ("text" -> interval.text) ~
         (JLDTimeInterval.plural -> toJObjects(jldIntervals))
   }
 }

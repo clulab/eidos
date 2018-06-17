@@ -3,14 +3,16 @@ package org.clulab.wm.eidos.attachments
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.wm.eidos.serialization.json.odin.{JLDAttachment => JLDOdinAttachment, JLDScoredAttachment => JLDOdinScoredAttachment, JLDSerializer => JLDOdinSerializer, JLDTriggeredAttachment => JLDOdinTriggeredAttachment}
-import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
+import org.clulab.wm.eidos.serialization.json.odin.{JLDAttachment => JLDOdinAttachment, JLDScoredAttachment => JLDOdinScoredAttachment, JLDSerializer => JLDOdinSerializer, JLDTriggeredAttachment => JLDOdinTriggeredAttachment, JLDContextAttachment => JLDOdinContextAttachment}
+import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment, JLDContextAttachment => JLDEidosContextAttachment}
 import org.json4s._
 import org.json4s.JsonDSL._
 
 import scala.beans.BeanProperty
 import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.{mix, mixLast}
+
+import org.clulab.wm.eidos.document.TimeInterval
 
 @SerialVersionUID(1L)
 abstract class EidosAttachment extends Attachment with Serializable {
@@ -56,7 +58,6 @@ object EidosAttachment {
       case Increase.label => new Increase(trigger, someQuantifications)
       case Decrease.label => new Decrease(trigger, someQuantifications)
       case Quantification.label => new Quantification(trigger, someQuantifications)
-      case Temporal.label => new Temporal(intervals)
     }
   }
 
@@ -286,33 +287,45 @@ object Decrease {
   }
 }
 
-// todo
-class Temporal(intervals: Seq[TimeInterval]) extends EidosAttachment {
+abstract class ContextAttachment() extends EidosAttachment {
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Decrease]
+  val text: String
+  val value: Object
 
-//  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
-//    newJLDAttachment(serializer, Decrease.kind)
-//
-//  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
-//    newJLDTriggeredAttachment(serializer, Decrease.kind)
+  override def toString() = {
+    getClass().getSimpleName() + "(" + text + ")"
+  }
 
-  override def toJson(): JValue = toJson(Temporal.label)
+  def newJLDContextAttachment(serializer: JLDOdinSerializer, kind: String): JLDOdinContextAttachment =
+    new JLDOdinContextAttachment(serializer, kind, this)
+
+  def newJLDContextAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosContextAttachment =
+    new JLDEidosContextAttachment(serializer, kind, this)
+
+  def toJson(label: String): JValue = {
+    (EidosAttachment.TYPE -> label)
+  }
 }
 
-object Temporal {
-  val label = "Temporal"
+class Time(interval: TimeInterval) extends ContextAttachment {
+
+  val text = interval.text
+  val value = interval
+
+  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
+    newJLDContextAttachment(serializer, Time.kind)
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDContextAttachment(serializer, Time.kind)
+
+  override def toJson(): JValue = toJson(Time.label)
+}
+
+object Time {
+  val label = "Time"
   val kind = "TMP"
-  val argument = "interval" //???
 
-  def apply(intervals: Seq[TimeInterval]) = new Temporal(intervals)
-
-  // todo: should this exist? I am not a TriggeredAttachment...
-//  def apply(mention: Mention): Temporal = {
-//    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
-//
-//    new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
-//  }
+  def apply(interval: TimeInterval) = new Time(interval)
 }
 
 case class Score(score: Double) extends EidosAttachment {

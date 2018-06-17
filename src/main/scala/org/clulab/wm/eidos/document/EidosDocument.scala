@@ -24,7 +24,7 @@ class EidosDocument(sentences: Array[Sentence], docTime: Option[String] = None) 
       timenorm match {
         case Some(timenorm) => {
           time(sidx) = (for (i <- timenorm.intervals(timenorm.parse(sent.getSentenceText(), this.anchor))) yield {
-            new TimeInterval((i._1._1 + prev, i._1._2 + prev), i._2)
+            new TimeInterval((i._1._1 + prev, i._1._2 + prev), i._2, sent.getSentenceText().slice(i._1._1, i._1._2))
           }).toList
         }
         case None => time(sidx) = List[TimeInterval]()
@@ -34,6 +34,6 @@ class EidosDocument(sentences: Array[Sentence], docTime: Option[String] = None) 
   }
 }
 
-class TimeInterval(val span: (Int,Int), val intervals: List[(LocalDateTime, Long)]) extends Serializable
+class TimeInterval(val span: (Int,Int), val intervals: List[(LocalDateTime, Long)], val text: String) extends Serializable
 
 

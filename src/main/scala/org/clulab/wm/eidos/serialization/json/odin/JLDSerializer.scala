@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.serialization.json.odin
 
 import java.util.IdentityHashMap
 import java.util.{Set => JavaSet}
+import java.time.LocalDateTime
 
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
@@ -16,6 +17,8 @@ import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.TimeInterval
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -212,6 +215,21 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
   }
 }
 
+class JLDContextAttachment(serializer: JLDSerializer, kind: String, contextAttachment: ContextAttachment)
+    extends JLDAttachment(serializer, "State") {
+
+  override def toJObject(): JObject = {
+    val value = serializer.mkRef(contextAttachment.value)
+    val text = contextAttachment.text
+
+    serializer.mkType(this) ~
+      ("type", kind) ~
+      ("text", text) ~
+      ("value", value)
+  }
+}
+
+
 // TODO: This format is not documented
 class JLDScoredAttachment(serializer: JLDSerializer, kind: String, scoredAttachment: Score)
   extends JLDAttachment(serializer, "Score") {
@@ -288,17 +306,19 @@ abstract class JLDExtraction(serializer: JLDSerializer, typename: String, mentio
 
   override def toJObject(): JObject = {
     val jldAttachments = mention.attachments.toList
+        .filter(_.isInstanceOf[TriggeredAttachment])
         .map(_.asInstanceOf[TriggeredAttachment])
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-          
+    val jldCAttachments = mention.attachments.toList.filter(_.isInstanceOf[ContextAttachment]).map(attachment => newJLDAttachment(attachment))
+
     serializer.mkType(this) ~
         serializer.mkId(this) ~
         ("labels" -> mention.labels) ~
         ("text" -> mention.text) ~
         ("rule" -> mention.foundBy) ~
         (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention)))) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments))
+        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldCAttachments))
   }
 }
 
@@ -424,6 +444,51 @@ object JLDWord {
   val typename = "Word"
 }
 
+
+class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val duration: Long)
+    // The document, sentence, index above will be used to recognized words.
+    extends JLDObject(serializer, JLDTimeInterval.typename) {
+  
+  override def toJObject(): JObject = {
+
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
+        ("start" -> Option(start).getOrElse("Undef").toString) ~
+        ("duration" -> duration)
+  }
+}
+
+object JLDTimeInterval {
+  val singular = "interval"
+  val plural = "intervals"
+  val typename = "TimeInterval"
+}
+
+
+class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
+    // The document, sentence, index above will be used to recognized words.
+    extends JLDObject(serializer, JLDTimex.typename, interval) {
+  
+  override def toJObject(): JObject = {
+
+    val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i._1, i._2))
+
+    serializer.mkType(this) ~
+        serializer.mkId(this) ~
+        ("startOffset" -> interval.span._1) ~
+        ("endOffset" -> interval.span._2) ~
+        ("text" -> interval.text) ~
+        (JLDTimeInterval.plural -> toJObjects(jldIntervals))
+  }
+}
+
+object JLDTimex {
+  val singular = "timex"
+  val plural = "timexes"
+  val typename = "TimeEx"
+}
+
+
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
     extends JLDObject(serializer, "Sentence", sentence) {
   
@@ -431,6 +496,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val key = "universal-enhanced"
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
+    val sent_id = document.sentences.indexOf(sentence)
+    val timexes = document.asInstanceOf[EidosDocument].time(sent_id).map(new JLDTimex(serializer, _))
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue())
           
@@ -438,7 +505,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
         serializer.mkId(this) ~
         ("text" -> sentence.getSentenceText()) ~
         (JLDWord.plural -> toJObjects(jldWords)) ~
-        (JLDDependency.plural -> jldGraphMapPair)
+        (JLDDependency.plural -> jldGraphMapPair) ~
+        (JLDTimex.plural -> toJObjects(timexes))
   }
 }
 
