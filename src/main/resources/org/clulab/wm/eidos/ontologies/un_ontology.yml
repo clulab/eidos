@@ -48,12 +48,6 @@
         - liter
         - gallon
     - OntologyNode:
-      name: solar_radiation
-      examples:
-        - solar radiation
-        - sunlight
-        - solar energy
-    - OntologyNode:
       name: depth
       examples:
         - deep
@@ -242,6 +236,12 @@
             - rain
             - rainfall
             - snow
+        - OntologyNode:
+          name: solar_radiation
+          examples:
+            - solar radiation
+            - sunlight
+            - solar energy
     - human:
       - OntologyNode:
         name: conflict
