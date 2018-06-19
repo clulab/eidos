@@ -36,6 +36,19 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String], documentCr
         // Account for this by adding the starting offset of the first word of sentence.
         val offset = this.sentences(index).startOffsets(0)
 
+        // Update  norms with B-I time expressions
+        val norms = for (
+          ((start, end), norm) <- this.sentences(index).startOffsets zip this.sentences(index).endOffsets zip this.sentences(index).norms.get;
+          val inTimex = intervals.map(interval => (start - (interval._1._1 + offset), (interval._1._2 + offset) - end)).filter(x => x._1 >= 0 && x._2 >= 0)
+        ) yield {
+          inTimex.isEmpty match {
+            case false if inTimex(0)._1 == 0 => "B-TMP"
+            case false if inTimex(0)._1 != 0 => "I-TMP"
+            case _ => norm
+          }
+        }
+        this.sentences(index).norms = Some(norms.toArray)
+
         intervals.map { interval =>
           new TimeInterval((interval._1._1 + offset, interval._1._2 + offset), interval._2, sentence_text.slice(interval._1._1, interval._1._2))
         }
