@@ -365,8 +365,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   // Add the temporal attachments for any temporal expression
   def attachTemporal(mention: Mention, state: State): Mention = {
-    val window = 10
-    val timeIntervals = mention.document.asInstanceOf[EidosDocument].time(mention.sentence)
+    val window = 50
+    val timeIntervals = mention.document.asInstanceOf[EidosDocument].times(mention.sentence)
     var timeAttchment: Option[TimeInterval] = None
     for (interval <- timeIntervals)
       if (mention.startOffset - interval.span._2 <= window && interval.span._1 - mention.endOffset <= window)

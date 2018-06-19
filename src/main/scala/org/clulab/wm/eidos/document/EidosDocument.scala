@@ -9,7 +9,7 @@ import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.timenorm.TimeSpan
 
-class EidosDocument(sentences: Array[Sentence], documentCreationTime: Option[String] = None) extends CoreNLPDocument(sentences) {
+class EidosDocument(sentences: Array[Sentence], text: Option[String], documentCreationTime: Option[String] = None) extends CoreNLPDocument(sentences) {
   // TODO: @transient here means these values aren't serialized, which sort of defeats the purpose of serialization.
   // Currently no test checks to see if the values are preserved across serialization, but that doesn't make it right.
   @transient val times = new Array[List[TimeInterval]](sentences.length)
@@ -27,13 +27,17 @@ class EidosDocument(sentences: Array[Sentence], documentCreationTime: Option[Str
   protected def parseRealTime(timenorm: TemporalCharbasedParser): Unit = {
     times.indices.foreach { index =>
       times(index) = {
-        val intervals = timenorm.intervals(timenorm.parse(this.sentences(index).getSentenceText(), anchor))
+        val sentence_text = text match {
+          case Some(t) => t.slice(this.sentences(index).startOffsets(0), this.sentences(index).endOffsets.last)
+          case _ => this.sentences(index).getSentenceText()
+        }
+        val intervals = timenorm.intervals(timenorm.parse(sentence_text, anchor))
         // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
         // Account for this by adding the starting offset of the first word of sentence.
         val offset = this.sentences(index).startOffsets(0)
 
         intervals.map { interval =>
-          new TimeInterval((interval._1._1 + offset, interval._1._2 + offset), interval._2, this.sentences(index).getSentenceText().slice(interval._1._1, interval._1._2))
+          new TimeInterval((interval._1._1 + offset, interval._1._2 + offset), interval._2, sentence_text.slice(interval._1._1, interval._1._2))
         }
       }
     }
@@ -49,7 +53,7 @@ object EidosDocument {
   def apply(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None): EidosDocument = {
     val text = document.text // This will be the preprocessed text now.
     // This constructor does not make use of the text,
-    val eidosDocument = new EidosDocument(document.sentences, documentCreationTime)
+    val eidosDocument = new EidosDocument(document.sentences, text, documentCreationTime)
     // so it must be set afterwards, if specified.
     if (keepText)
       eidosDocument.text = text
