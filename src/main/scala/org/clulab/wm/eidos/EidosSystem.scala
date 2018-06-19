@@ -1,9 +1,10 @@
 package org.clulab.wm.eidos
 
-import scala.util.Try
+import java.net.URL
+import java.nio.file.Paths
+
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
-import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
@@ -18,7 +19,6 @@ import org.clulab.wm.eidos.utils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
-
 
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
@@ -80,7 +80,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
     def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
 
-    def timeNormModelPath: String = getPath( "timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
+    def timeNormModelPath: String = getPath("timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
@@ -104,10 +104,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
       val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
-      val timenorm: Option[TemporalCharbasedParser] = getClass.getResource(timeNormModelPath) match {
-        case null => None
-        case resource => Some(new TemporalCharbasedParser(resource.getPath))
-      }
+      val timenormResource: URL = getClass.getResource(timeNormModelPath)
+      val timenorm: Option[TemporalCharbasedParser] =
+          if (timenormResource == null) None
+          else {
+            // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+            val file = Paths.get(timenormResource.toURI()).toFile().getAbsolutePath()
+            // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
+            //     public native void openFile(@StdString BytePointer var1, ...
+            // and needs native representation of the file.
+            Some(new TemporalCharbasedParser(file))
+          }
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -133,16 +140,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def ner = loadableAttributes.ner
   def timenorm = loadableAttributes.timenorm
 
-  // This isn't intended to be (re)loadable.  This only happens once.
-
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, docTime: Option[String] = None): Document = {
-    val doc = new EidosDocument(proc.annotate(text, keepText).sentences, docTime)
-    doc.text = Some(text)
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None): Document = {
+    val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
+    val doc = EidosDocument(oldDoc, keepText, documentCreationTime)
     doc.sentences.foreach(addLexiconNER)
-    doc.parseTime(timenorm, text)
+    doc.parseTime(timenorm)
     doc
   }
 
@@ -154,8 +159,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false, dct: Option[String] = None): AnnotatedDocument = {
-    val doc = annotate(text, keepText, dct)
+  def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false, documentCreationTime: Option[String] = None): AnnotatedDocument = {
+    val doc = annotate(text, keepText, documentCreationTime)
     val odinMentions = extractFrom(doc)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (returnAllMentions) odinMentions else keepCAGRelevant(odinMentions)

@@ -149,8 +149,9 @@ class TestJLDSerializer extends Test {
   }
 
   getClass.getResource("/org/clulab/wm/eidos/models/timenorm_model.hdf5") match {
-    case null =>
+    case null => println("It didn't do it")
     case _ => {
+      println("it is working")
       it should "serialize time expression" in {
         val json = serialize(Seq(
           newTitledAnnotatedDocument("2018-10-04", "This is a time expression")

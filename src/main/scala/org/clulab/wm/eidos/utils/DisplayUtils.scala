@@ -19,7 +19,7 @@ object DisplayUtils {
     printDeps: Boolean = false): String = {
 
     val sb = new StringBuffer()
-    val time = doc.asInstanceOf[EidosDocument].time
+    val time = doc.asInstanceOf[EidosDocument].times
     val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
     for ((s, i) <- doc.sentences.zipWithIndex) {
       sb.append(s"sentence #$i $nl")
