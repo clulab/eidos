@@ -178,11 +178,12 @@ class TestDoc2 extends Test {
     val tester = new Tester(text)
 
     // removed 'truly' from this test and quantifiers.tsv bc it's not gradable
-    val malnutrition = NodeSpec("\"The levels of malnutrition", Quant("alarming"))
+    // Starting with Processors 7.4.0 this is no longer "The levels of malnutrition".
+    val malnutrition = NodeSpec("levels of malnutrition", Quant("alarming"))
 
     behavior of "TestDoc2 Paragraph 6"
 
-    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
+    it should "have correct singleton node 1" taggedAs(Fan) in {
       tester.test(malnutrition) should be (successful)
     }
   }

@@ -9,7 +9,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 //EclipseKeys.withSource := true
 
 libraryDependencies ++= {
-  val procVer = "7.4.0-SNAPSHOT"
+  val procVer = "7.4.0"
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
