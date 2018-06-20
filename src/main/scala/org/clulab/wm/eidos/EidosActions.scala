@@ -538,7 +538,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
             // orig is to the right of trigger
             replaceMentionsInterval(expanded, Interval(trigger.end, expanded.end))
           } else {
-            sys.error("what?")
+            sys.error("unexpected overlap of trigger and argument")
           }
         } else {
           expanded
