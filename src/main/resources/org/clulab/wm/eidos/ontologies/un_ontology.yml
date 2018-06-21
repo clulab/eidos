@@ -332,25 +332,25 @@
             - Peoples food system
         - OntologyNode: # todo too broad??
           name: farming
-          examples:
+          examples: # Maria: events ? 
             - farming
             - cultivation
             - harvesting
             - harvest
             - tillage
             - soil fertility
-            - fertility
+            - fertility # Maria: property ? 
         - OntologyNode: # todo too broad??
           name: planting
           examples:
-            - planting
+            - planting # Maria: event ? 
             - horticulture
         - OntologyNode: # todo too broad??
           name: product
           examples:
             - post-harvest
             - food product
-            - rice production
+            - rice production #Maria: event ? 
       - OntologyNode:
         name: crop
         examples:
@@ -421,7 +421,7 @@
             - vitamin
             - nutrition
             - nutritive
-            - nutritiousness
+            - nutritiousness # Maria: property ? is it occuring freq in corpus ? 
           #todo
         - OntologyNode:
           name: disease
@@ -476,7 +476,7 @@
       - infrastructure:
           - transportation:
             - OntologyNode:
-              name: transportation_methods
+              name: transportation_methods # Maria: process .. should this be event ? 
               examples:
                 - trucking
                 - shipping
@@ -502,8 +502,8 @@
               - dam
               - sewage plant
               - drainage ditch
-              - desalination
-              - sanitation
+              - desalination #Maria: events ?
+              - sanitation #Maria: events ?
               - reservoir
               - border
           - OntologyNode:
@@ -537,7 +537,7 @@
               - marina
               - harbour
               - airport
-              - electric plant
+              - electric plant #repeated ?
       - OntologyNode:
         name: livelihood
         examples:
