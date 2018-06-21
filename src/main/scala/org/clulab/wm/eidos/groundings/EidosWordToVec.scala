@@ -6,11 +6,10 @@ import org.clulab.wm.eidos.utils.Sourcer
 
 trait EidosWordToVec {
   type Similarities = Seq[(String, Double)]
-  type ConceptEmbeddings = Seq[(String, Array[Double])]
 
   def stringSimilarity(string1: String, string2: String): Double
   def calculateSimilarity(mention1: Mention, mention2: Mention): Double
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities
   def makeCompositeVector(t:Iterable[String]): Array[Double]
 }
 
@@ -21,7 +20,7 @@ class FakeWordToVec extends EidosWordToVec {
 
   def calculateSimilarity(mention1: Mention, mention2: Mention): Double = 0
 
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities = Seq.empty
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = Seq.empty
 //  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Double)] = Seq(("hello", 5.0d))
 
   def makeCompositeVector(t:Iterable[String]): Array[Double] = Array.emptyDoubleArray
@@ -43,7 +42,7 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
     similarity
   }
   
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Similarities = {
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = {
     val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
@@ -53,7 +52,9 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
       Seq.empty
     else {
       val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
-      val similarities = conceptEmbeddings.map(concept => (concept._1, Word2Vec.dotProduct(concept._2, nodeEmbedding)))
+      val similarities = conceptEmbeddings.map { conceptEmbedding =>
+        (conceptEmbedding.concept, Word2Vec.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+      }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }

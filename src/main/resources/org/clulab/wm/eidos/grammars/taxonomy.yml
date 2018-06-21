@@ -18,4 +18,5 @@
     - UndirectedRelation:
       - Correlation
       - SameAs
-
+- Avoid:
+  - Avoid-Strict

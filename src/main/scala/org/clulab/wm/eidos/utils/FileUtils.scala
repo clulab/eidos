@@ -3,6 +3,9 @@ package org.clulab.wm.eidos.utils
 import java.io.{File, FileNotFoundException, FilenameFilter, PrintWriter}
 import java.util.Collection
 
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
+import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Sinker.logger
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -74,5 +77,13 @@ object FileUtils {
     val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
     
     yaml.load(input).asInstanceOf[Collection[Any]]
+  }
+
+  def writeToJSONLD(annotatedDocuments: Seq[AnnotatedDocument], pw: PrintWriter, reader: EidosSystem): Unit = {
+    // 4. Convert to JSON
+    val corpus = new JLDCorpus(annotatedDocuments, reader)
+    val mentionsJSONLD = corpus.serialize()
+    // 5. Write to output file
+    pw.println(stringify(mentionsJSONLD, pretty = true))
   }
 }

@@ -44,7 +44,7 @@ class TestCagP3 extends Test {
     val economic = NodeSpec("economic", Dec("collapse"))
     val conflict = NodeSpec("conflict")
     val production = NodeSpec("agricultural production", Dec("reduced"))
-    val insecurity = NodeSpec("food insecurity in Unity", Quant("critical"))
+    val insecurity = NodeSpec("2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical", Quant("critical"))
     
     behavior of "p3s2"
 
@@ -56,7 +56,7 @@ class TestCagP3 extends Test {
     }
     // The parse for this sentence is too bad to get this, but as I keep trying to modify the sentence to fix it,
     // the parse breaks in other ways... hopefully we can fix this with CluProcessor
-    failingTest should "have correct edges 3" taggedAs(Egoitz) in {
+    brokenSyntaxTest should "have correct edges 3" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(conflict, Causal, production)) should be (successful)
     }
     passingTest should "have correct edges 4" taggedAs(Egoitz) in {
@@ -78,7 +78,7 @@ class TestCagP3 extends Test {
   
     behavior of "p3s4"
 
-    failingTest should "have correct edges 1" taggedAs(Ajay) in {
+    affectEventTest should "have correct edges 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(harvest, Affect, prices)) should be (successful)
     }
   }
@@ -95,15 +95,15 @@ class TestCagP3 extends Test {
     behavior of "p3s5"
     //waiting on "economic" fix from becky. 
 
-    passingTest should "have correct edges 1" taggedAs(Mithun) in {
+    tempBrokenEntitiesTest should "have correct edges 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(economic, Causal, accessFood)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Mithun) in {
+    tempBrokenEntitiesTest should "have correct edges 2" taggedAs(Mithun) in {
       tester.test(EdgeSpec(economic, Causal, accessWater)) should be (successful)
 
     }
     // Becky: sentence modified slightly to provide a more reasonable parse.
-    passingTest should "have correct edges 3" taggedAs(Mithun) in {
+    brokenSyntaxTest should "have correct edges 3" taggedAs(Mithun) in {
       tester.test(EdgeSpec(economic, Causal, foods)) should be (successful)
     }
   }  

@@ -1,8 +1,10 @@
 package org.clulab.wm.eidos.system
 
 import java.util.IdentityHashMap
+
 import scala.collection.JavaConverters._
 import org.clulab.odin._
+import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
@@ -247,7 +249,7 @@ class TestEidosActions extends Test {
         Decrease("31415", Some(Seq("pi")))
       )
 
-      val beforeMentions = Seq(new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, null, false, "Found by me", attachments.toSet))
+      val beforeMentions = Seq(new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, new Document(Array.empty[Sentence]), false, "Found by me", attachments.toSet))
       val afterMentions = eidosActions.mergeAttachments(beforeMentions, null)
 
       afterMentions.head.attachments.size should be(3)
@@ -268,8 +270,8 @@ class TestEidosActions extends Test {
       )
 
       val beforeMentions = Seq(
-        new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, null, false, "Found by me", attachments1.toSet),
-        new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, null, false, "Found by me", attachments2.toSet)
+        new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, new Document(Array.empty[Sentence]), false, "Found by me", attachments1.toSet),
+        new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, new Document(Array.empty[Sentence]), false, "Found by me", attachments2.toSet)
       )
       val afterMentions = eidosActions.mergeAttachments(beforeMentions, null)
 

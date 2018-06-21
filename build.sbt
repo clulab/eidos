@@ -23,7 +23,6 @@ libraryDependencies ++= {
     "com.typesafe"  %  "config"                   % "1.3.1",
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
-
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   )
