@@ -157,9 +157,10 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 6"
 
-    it should "have correct singleton node 1" taggedAs(Fan) in {
-      tester.test(malnutrition) should be (successful)
-    }
+    // removing because we no longer expand entities when they are not part of a causal event
+    //    passingTest should "have correct singleton node 1" taggedAs(Fan) in {
+    //      tester.test(malnutrition) should be (successful)
+    //    }
   }
 
   { // Paragraph 7
