@@ -65,8 +65,8 @@
       name: temperature
       examples:
         - temperature
-        - degree celcius
-        - farenheit
+        - degree celsius
+        - fahrenheit
         - kelvin
         - C
         - F
@@ -106,8 +106,11 @@
             - contaminant
             - contamination
             - soil pollution
-            - deforestation
             - soil erosion
+        - OntologyNode:
+          name: climate_change
+          examples:
+            - deforestation
             - desertification
     - OntologyNode:
       name: crisis
@@ -116,13 +119,13 @@
         - emergency
     - natural:
       - OntologyNode:
-        name: chemical
+        name: chemical # Maria: move to entity
         examples:
           - oxygen
           - nitrogen
       - biology:
         - OntologyNode:
-          name: ecosystem
+          name: ecosystem # Maria: move to entity
           examples:
             - species
             - forest
@@ -132,7 +135,7 @@
             - ecology
             - ecosystem service
         - OntologyNode:
-          name: flora
+          name: flora # Maria: move to entity
           examples:
             - flora
             - mangrove
@@ -144,7 +147,7 @@
             - vegetation
             - fuelwood
         - OntologyNode:
-          name: fauna
+          name: fauna # Maria: move to entity
           examples:
             - animal
             - bird
@@ -163,8 +166,8 @@
         - OntologyNode:
           name: Biotic_resources # todo to split into multiple categories
           examples:
-            - biodiversity
-            - Convention Biological diversity
+            - biodiversity # properties ...
+            - Convention Biological diversity # properties ...
             - ecosystem
             - food
             - forest area
@@ -175,7 +178,7 @@
             - wildlife
       - Abiotic_resources:
         - OntologyNode:
-          name: land # todo to split into multiple categories
+          name: land # todo to split into multiple categories # Maria: entity ? 
           examples:
             - area
             - land
@@ -184,7 +187,7 @@
             - wetland
             - sand
         - OntologyNode:
-          name: water # todo to split into multiple categories
+          name: water # todo to split into multiple categories # Maria: entity ? 
           examples:
             - water
             - sea
@@ -198,18 +201,18 @@
             - groundwater
             - water body
         - OntologyNode:
-          name: material # todo to split into multiple categories
+          name: material # todo to split into multiple categories # Maria: entity ? 
           examples:
             - charcoal
             - iron
             - mineral
         - OntologyNode:
-          name: resource # todo to split into multiple categories
+          name: resource # todo to split into multiple categories # Maria: entity ? 
           examples:
             - resource
             - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
         - OntologyNode:
-          name: air # todo to split into multiple categories
+          name: air # todo to split into multiple categories # Maria: entity ? 
           examples:
             - air
       - natural_disaster:
@@ -239,7 +242,7 @@
             - rainfall
             - snow
         - OntologyNode:
-          name: solar_radiation
+          name: solar_radiation # Maria: entity ? 
           examples:
             - solar radiation
             - sunlight
@@ -283,7 +286,8 @@
       - OntologyNode:
         name: health_intervention
         examples:
-          - vaccine
+          - vaccine # Maria: entity ? 
+          - vaccination
         #todo
       - OntologyNode:
         name: famine
@@ -295,8 +299,8 @@
         name: death
         examples:
           - death
-          - mortality
-          - morbidity
+          - mortality # Maria: properties ? 
+          - morbidity # Maria: properties ? 
           - decease
   - entities:
     - OntologyNode:
@@ -466,7 +470,7 @@
             - virus
             - bacteria
       - OntologyNode:
-        name: fertilizer
+        name: fertilizer # Maria: move to crop_technology
         examples:
           - nitrogen fertilizer
           - inorganic fertilizers
@@ -483,7 +487,7 @@
           - composts
           - fertilizer
       - OntologyNode:
-        name: irrigation
+        name: irrigation  # Maria: move to crop_technology
         examples:
           - localized irrigation
           - capillary irrigation
