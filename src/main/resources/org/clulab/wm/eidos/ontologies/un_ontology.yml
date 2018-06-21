@@ -19,6 +19,8 @@
         - proportion
         - percentage
         - ratio
+        - fraction
+        - portion
     - OntologyNode:
       name: distance
       examples:
