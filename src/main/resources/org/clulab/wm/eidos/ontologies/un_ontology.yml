@@ -299,7 +299,7 @@
           - decease
   - entities:
     - OntologyNode:
-      name: GPE # Global Partnership for Education
+      name: GPE
       examples:
         - village
         - world
