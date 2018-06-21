@@ -158,9 +158,9 @@
             - tsetse
             - shark
       - natural_resources:
-        - Biotic_resources:
+        - biotic_resources:
           - OntologyNode:
-            name: Biotic_resources # todo to split into multiple categories
+            name: biotic_resources # todo to split into multiple categories
             examples:
               - biodiversity
               - Convention Biological diversity
@@ -172,7 +172,7 @@
               - forestry sector
               - plant resource food
               - wildlife
-        - Abiotic_resources:
+        - abiotic_resources:
           - OntologyNode:
             name: land # todo to split into multiple categories
             examples:
@@ -299,7 +299,7 @@
           - decease
   - entities:
     - OntologyNode:
-      name: GPE
+      name: GPE # Global Partnership for Education
       examples:
         - village
         - world
