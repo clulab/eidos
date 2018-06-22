@@ -454,7 +454,7 @@
             - vitamin
             - nutrition
             - nutritive
-            - nutritiousness # Maria: property ? is it occuring freq in corpus ? 
+            - nutritiousness # Maria: property ? is it occurring freq in corpus ?
           #todo
         - OntologyNode:
           name: disease
@@ -734,7 +734,7 @@
               - development programme
               - Development Goals
               - management plan
-              - welfare # make "govenrment" node with a buncha stuff from here, also make a "data_collection" node with "census", etc
+              - welfare # make "government" node with a buncha stuff from here, also make a "data_collection" node with "census", etc
               # tax elsewhere??
               # workshop, conference, partnership.... etc elsewhere
       - OntologyNode:
