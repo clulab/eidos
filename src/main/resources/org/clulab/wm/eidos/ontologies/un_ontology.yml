@@ -299,7 +299,7 @@
           - decease
   - entities:
     - OntologyNode:
-      name: GPE
+      name: GPE # Geo-political Entity
       examples:
         - village
         - world
