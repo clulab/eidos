@@ -163,58 +163,59 @@
             - tsetse
             - shark
       - natural_resources:
-        - OntologyNode:
-          name: Biotic_resources # todo to split into multiple categories
-          examples:
-            - biodiversity # properties ...
-            - Convention Biological diversity # properties ...
-            - ecosystem
-            - food
-            - forest area
-            - area forest
-            - forest land
-            - forestry sector
-            - plant resource food
-            - wildlife
-      - Abiotic_resources:
-        - OntologyNode:
-          name: land # todo to split into multiple categories # Maria: entity ? 
-          examples:
-            - area
-            - land
-            - mountain
-            - mt
-            - wetland
-            - sand
-        - OntologyNode:
-          name: water # todo to split into multiple categories # Maria: entity ? 
-          examples:
-            - water
-            - sea
-            - river
-            - pond
-            - rain
-            - water resource
-            - lake
-            - freshwater
-            - surface water
-            - groundwater
-            - water body
-        - OntologyNode:
-          name: material # todo to split into multiple categories # Maria: entity ? 
-          examples:
-            - charcoal
-            - iron
-            - mineral
-        - OntologyNode:
-          name: resource # todo to split into multiple categories # Maria: entity ? 
-          examples:
-            - resource
-            - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
-        - OntologyNode:
-          name: air # todo to split into multiple categories # Maria: entity ? 
-          examples:
-            - air
+        - biotic_resources:
+          - OntologyNode:
+            name: biotic_resources # todo to split into multiple categories
+            examples:
+              - biodiversity # properties ...
+              - Convention Biological diversity # properties ...
+              - ecosystem
+              - food
+              - forest area
+              - area forest
+              - forest land
+              - forestry sector
+              - plant resource food
+              - wildlife
+        - abiotic_resources:
+          - OntologyNode:
+            name: land # todo to split into multiple categories # Maria: entity ? 
+            examples:
+              - area
+              - land
+              - mountain
+              - mt
+              - wetland
+              - sand
+          - OntologyNode:
+            name: water # todo to split into multiple categories # Maria: entity ? 
+            examples:
+              - water
+              - sea
+              - river
+              - pond
+              - rain
+              - water resource
+              - lake
+              - freshwater
+              - surface water
+              - groundwater
+              - water body
+          - OntologyNode:
+            name: material # todo to split into multiple categories # Maria: entity ? 
+            examples:
+              - charcoal
+              - iron
+              - mineral
+          - OntologyNode:
+            name: resource # todo to split into multiple categories # Maria: entity ? 
+            examples:
+              - resource
+              - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
+          - OntologyNode:
+            name: air # todo to split into multiple categories # Maria: entity ? 
+            examples:
+              - air
       - natural_disaster:
         - OntologyNode:
           name: flooding
@@ -304,7 +305,7 @@
           - decease
   - entities:
     - OntologyNode:
-      name: GPE
+      name: GPE # Geo-political Entity
       examples:
         - village
         - world
