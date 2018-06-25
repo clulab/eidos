@@ -102,3 +102,35 @@ rules:
     pattern: |
       # avoid passive like in "marked by drastic hyperinflation"
       [tag=VBN] "by"
+
+  - name: avoid_given
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+        # `given` is a correlation trigger defined at `syntax_explicit_Correlation_given`
+        given
+
+  - name: avoid_syntax_2_verb-Correlation_triggers
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+        # In Greater Upper Nile and Greater Bahr el Ghazal , limited activity is occurring on most trade routes due to combination of insecurity and seasonal constraints , as the rainy season limits road functioning .
+        # functioning is a correlation trigger that should be avoided
+        [incoming=advcl_as]
+
+  - name: produce_vb
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+        # However , the mechanized sector in Upper Nile State is expected to produce some 7 000 tonnes of sesame from 23 000 feddans -LRB- 9 600 ha -RRB- that is likely to be purchased immediately from the field by Sudanese traders .
+        # "expected to produce" is a simple-vp arg
+        # "produce" is a `ported_syntax_5_verb-Causal` trigger
+        [word=/^produces?$/ & tag=/^VB/]
+            |
+        # Even in the midst of the violence , FAO is operating in 13 of Syria 's 14 governorates , working to help families stay on their land when it is safe to do so , and continue producing food to feed themselves , their communities and the country .
+        # "producing" trigger found by ported_syntax_5_verb-Causal
+        # "continue producing" arg found by simple-vp
+        [word=producing]
