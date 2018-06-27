@@ -117,138 +117,56 @@
       examples:
         - crisis
         - emergency
-    - natural:
+    - natural_disaster:
       - OntologyNode:
-        name: chemical # Maria: move to entity
+        name: flooding
         examples:
-          - oxygen
-          - nitrogen
-      - biology:
-        - OntologyNode:
-          name: ecosystem # Maria: move to entity
-          examples:
-            - species
-            - forest
-            - environment
-            - habitat
-            - life
-            - ecology
-            - ecosystem service
-        - OntologyNode:
-          name: flora # Maria: move to entity
-          examples:
-            - flora
-            - mangrove
-            - tree species
-            - plant forest
-            - shrub
-            - tree
-            - plant
-            - vegetation
-            - fuelwood
-        - OntologyNode:
-          name: fauna # Maria: move to entity
-          examples:
-            - animal
-            - bird
-            - insect
-            - turtle
-            - oyster
-            - elephant
-            - mammal
-            - chick
-            - duck
-            - crustacean
-            - buffalo
-            - tsetse
-            - shark
-      - natural_resources:
-        - biotic_resources:
-          - OntologyNode:
-            name: biotic_resources # todo to split into multiple categories
-            examples:
-              - biodiversity # properties ...
-              - Convention Biological diversity # properties ...
-              - ecosystem
-              - food
-              - forest area
-              - area forest
-              - forest land
-              - forestry sector
-              - plant resource food
-              - wildlife
-        - abiotic_resources:
-          - OntologyNode:
-            name: land # todo to split into multiple categories # Maria: entity ? 
-            examples:
-              - area
-              - land
-              - mountain
-              - mt
-              - wetland
-              - sand
-          - OntologyNode:
-            name: water # todo to split into multiple categories # Maria: entity ? 
-            examples:
-              - water
-              - sea
-              - river
-              - pond
-              - rain
-              - water resource
-              - lake
-              - freshwater
-              - surface water
-              - groundwater
-              - water body
-          - OntologyNode:
-            name: material # todo to split into multiple categories # Maria: entity ? 
-            examples:
-              - charcoal
-              - iron
-              - mineral
-          - OntologyNode:
-            name: resource # todo to split into multiple categories # Maria: entity ? 
-            examples:
-              - resource
-              - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
-          - OntologyNode:
-            name: air # todo to split into multiple categories # Maria: entity ? 
-            examples:
-              - air
-      - natural_disaster:
-        - OntologyNode:
-          name: flooding
-          examples:
-            - flood
-            - flash flood
-        - OntologyNode:
-          name: drought
-          examples:
-            - drought
-        - OntologyNode:
-          name: storm
-          examples:
-            - hurricane
-            - extreme winds
-            - cyclone
-            - tornado
-            - storm
-      - weather:
-        - OntologyNode:
-          name: precipitation
-          examples:
-            - precipitation
-            - rain
-            - rainfall
-            - snow
-        - OntologyNode:
-          name: solar_radiation # Maria: entity ? 
-          examples:
-            - solar radiation
-            - sunlight
-            - solar energy
+          - flood
+          - flash flood
+      - OntologyNode:
+        name: drought
+        examples:
+          - drought
+      - OntologyNode:
+        name: storm
+        examples:
+          - hurricane
+          - extreme winds
+          - cyclone
+          - tornado
+          - storm
+    - weather:
+      - OntologyNode:
+        name: precipitation
+        examples:
+          - precipitation
+          - rain
+          - rainfall
+          - snow
     - human:
+      - agriculture:
+        - OntologyNode: 
+          name: food_production
+          examples:
+            - rice production
+            - food production
+            - staple crop production
+            - crop yield
+        - OntologyNode: # todo too broad??
+          name: farming
+          examples:
+            - farming
+            - cultivation
+            - harvesting
+            - harvest
+            - tillage
+            - soil fertility
+            - fertility 
+        - OntologyNode: # todo too broad??
+          name: planting
+          examples:
+            - planting
+            - horticulture
       - OntologyNode:
         name: conflict
         examples:
@@ -287,7 +205,7 @@
       - OntologyNode:
         name: health_intervention
         examples:
-          - vaccine # Maria: entity ? 
+          - vaccine
           - vaccination
         #todo
       - OntologyNode:
@@ -300,10 +218,19 @@
         name: death
         examples:
           - death
-          - mortality # Maria: properties ? 
-          - morbidity # Maria: properties ? 
+          - mortality
+          - morbidity
           - decease
   - entities:
+    - OntologyNode:
+      name: food_availability
+      examples:
+        - rice
+        - meat 
+        - food availability
+        - access to food
+        - cereal
+        - food
     - OntologyNode:
       name: GPE # Geo-political Entity
       examples:
@@ -337,6 +264,110 @@
         - geopolitical entity
         - nation-state
     - natural:
+      - OntologyNode:
+        name: chemical
+        examples:
+          - oxygen
+          - nitrogen
+      - biology:
+        - OntologyNode:
+          name: ecosystem
+          examples:
+            - species
+            - forest
+            - environment
+            - habitat
+            - life
+            - ecology
+            - ecosystem service
+        - OntologyNode:
+          name: flora
+          examples:
+            - flora
+            - mangrove
+            - tree species
+            - plant forest
+            - shrub
+            - tree
+            - plant
+            - vegetation
+            - fuelwood
+        - OntologyNode:
+          name: fauna
+          examples:
+            - animal
+            - bird
+            - insect
+            - turtle
+            - oyster
+            - elephant
+            - mammal
+            - chick
+            - duck
+            - crustacean
+            - buffalo
+            - tsetse
+            - shark
+      - natural_resources:
+        - OntologyNode:
+          name: solar_radiation 
+          examples:
+            - solar radiation
+            - sunlight
+            - solar energy
+        - biotic_resources:
+          - OntologyNode:
+            name: biotic_resources # todo to split into multiple categories
+            examples:
+              - biodiversity # properties ...
+              - Convention Biological diversity # properties ...
+              - ecosystem
+              - food
+              - forest area
+              - area forest
+              - forest land
+              - forestry sector
+              - plant resource food
+              - wildlife
+        - abiotic_resources:
+          - OntologyNode:
+            name: land # todo to split into multiple categories
+            examples:
+              - area
+              - land
+              - mountain
+              - mt
+              - wetland
+              - sand
+          - OntologyNode:
+            name: water # todo to split into multiple categories
+            examples:
+              - water
+              - sea
+              - river
+              - pond
+              - rain
+              - water resource
+              - lake
+              - freshwater
+              - surface water
+              - groundwater
+              - water body
+          - OntologyNode:
+            name: material # todo to split into multiple categories
+            examples:
+              - charcoal
+              - iron
+              - mineral
+          - OntologyNode:
+            name: resource # todo to split into multiple categories
+            examples:
+              - resource
+              - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
+          - OntologyNode:
+            name: air # todo to split into multiple categories 
+            examples:
+              - air
       - soil:
         - OntologyNode:
           name: soil_contents
@@ -349,6 +380,43 @@
         examples:
           - watershed
       - crop_technology:
+        - OntologyNode:
+          name: fertilizer
+          examples:
+            - nitrogen fertilizer
+            - inorganic fertilizers
+            - potting composts
+            - nitrogen potassium fertilizers
+            - superphosphate
+            - magnesium fertilizers
+            - nitrate fertilizers
+            - biofertilizers
+            - potash fertilizers
+            - fish manure
+            - guano
+            - nitrophosphates
+            - composts
+            - fertilizer
+        - OntologyNode:
+          name: irrigation
+          examples:
+            - localized irrigation
+            - capillary irrigation
+            - sprinkler irrigation
+            - furrow irrigation
+            - drip fertigation
+            - surface irrigation
+            - runoff irrigation
+            - fertigation
+            - wastewater irrigation
+            - watering
+            - rotation irrigation
+            - flood irrigation
+            - trickle irrigation
+            - centre pivot irrigation
+            - subsurface irrigation
+            - irrigation system
+            - irrigation
         - OntologyNode: # todo too broad??
           name: pesticide
           examples:
@@ -365,26 +433,10 @@
             - food system
             - Peoples food system
         - OntologyNode: # todo too broad??
-          name: farming
-          examples: # Maria: events ? 
-            - farming
-            - cultivation
-            - harvesting
-            - harvest
-            - tillage
-            - soil fertility
-            - fertility # Maria: property ? 
-        - OntologyNode: # todo too broad??
-          name: planting
-          examples:
-            - planting # Maria: event ? 
-            - horticulture
-        - OntologyNode: # todo too broad??
           name: product
           examples:
             - post-harvest
             - food product
-            - rice production #Maria: event ? 
       - OntologyNode:
         name: crop
         examples:
@@ -455,7 +507,6 @@
             - vitamin
             - nutrition
             - nutritive
-            - nutritiousness # Maria: property ? is it occurring freq in corpus ?
           #todo
         - OntologyNode:
           name: disease
@@ -470,47 +521,10 @@
             - outbreak
             - virus
             - bacteria
-      - OntologyNode:
-        name: fertilizer # Maria: move to crop_technology
-        examples:
-          - nitrogen fertilizer
-          - inorganic fertilizers
-          - potting composts
-          - nitrogen potassium fertilizers
-          - superphosphate
-          - magnesium fertilizers
-          - nitrate fertilizers
-          - biofertilizers
-          - potash fertilizers
-          - fish manure
-          - guano
-          - nitrophosphates
-          - composts
-          - fertilizer
-      - OntologyNode:
-        name: irrigation  # Maria: move to crop_technology
-        examples:
-          - localized irrigation
-          - capillary irrigation
-          - sprinkler irrigation
-          - furrow irrigation
-          - drip fertigation
-          - surface irrigation
-          - runoff irrigation
-          - fertigation
-          - wastewater irrigation
-          - watering
-          - rotation irrigation
-          - flood irrigation
-          - trickle irrigation
-          - centre pivot irrigation
-          - subsurface irrigation
-          - irrigation system
-          - irrigation
       - infrastructure:
           - transportation:
             - OntologyNode:
-              name: transportation_methods # Maria: process .. should this be event ? 
+              name: transportation_methods
               examples:
                 - trucking
                 - shipping
@@ -536,8 +550,8 @@
               - dam
               - sewage plant
               - drainage ditch
-              - desalination #Maria: events ?
-              - sanitation #Maria: events ?
+              - desalination
+              - sanitation
               - reservoir
               - border
           - OntologyNode:
