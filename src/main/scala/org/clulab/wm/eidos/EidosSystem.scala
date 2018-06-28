@@ -140,6 +140,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
+
+    // This functionality is split out so that something else can fool with the mention attributes.
+    // It is not necessary in the master version.
+    newAnnotatedDocument(doc, odinMentions, returnAllMentions)
+  }
+
+  def newAnnotatedDocument(doc: Document, odinMentions: Seq[Mention], returnAllMentions: Boolean = false): AnnotatedDocument = {
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (returnAllMentions) odinMentions else keepCAGRelevant(odinMentions)
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)

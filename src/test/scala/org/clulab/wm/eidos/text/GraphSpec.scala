@@ -172,7 +172,30 @@ object Inc {
   
   def apply(trigger: String, quantifiers: String*) =
       new Inc(trigger, Option(quantifiers.toSeq))
-}    
+}
+
+// This is only necessary if the testing framework is supposed to check for this attribute.
+class Neg(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+  override def toString = toString(Neg.abbrev)
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Neg]
+
+  override protected def matchClass(attachment: TriggeredAttachment): Boolean = attachment match {
+    case _: Negation => true
+    case _ => false
+  }
+}
+
+object Neg {
+  val abbrev = "NEG"
+  val targetClass = Negation.getClass()
+
+  def apply(trigger: String) =
+    new Neg(trigger, None)
+
+  def apply(trigger: String, quantifiers: String*) =
+    new Neg(trigger, Option(quantifiers.toSeq))
+}
 
 class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
   override def toString = toString("")

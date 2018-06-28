@@ -51,6 +51,7 @@ object EidosAttachment {
       case Quantification.label => Quantification(eventMention)
       case Increase.label => Increase(eventMention)
       case Decrease.label => Decrease(eventMention)
+      case Negation.label => Negation(eventMention)
     }
   }
 
@@ -65,6 +66,7 @@ object EidosAttachment {
       case Increase.label => new Increase(trigger, someQuantifications)
       case Decrease.label => new Decrease(trigger, someQuantifications)
       case Quantification.label => new Quantification(trigger, someQuantifications)
+      case Negation.label => new Negation(trigger, someQuantifications)
     }
   }
 
@@ -291,6 +293,34 @@ object Decrease {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
     new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
+  }
+}
+
+class Negation(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
+    quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Negation]
+
+  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
+    newJLDTriggeredAttachment(serializer, Negation.kind)
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDTriggeredAttachment(serializer, Negation.kind)
+
+  override def toJson(): JValue = toJson(Negation.label)
+}
+
+object Negation {
+  val label = "Negation"
+  val kind = "NEG"
+  val argument = "quantifier"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new Negation(trigger, quantifiers)
+
+  def apply(mention: Mention): Negation = {
+    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
+
+    new Negation(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
   }
 }
 

@@ -6,6 +6,7 @@ import org.clulab.odin.{EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.apache.commons.io.input.ClassLoaderObjectInputStream
+import org.clulab.wm.eidos.attachments.Negation
 
 class TestSerialization extends Test {
   val reader = new EidosSystem()
@@ -34,8 +35,13 @@ class TestSerialization extends Test {
     val annotatedDocument = reader.extractFromText(text)
     val mentionsOut = annotatedDocument.odinMentions
 
+    val negation = new Negation("trigger", Some(Seq("mod1", "mod1")))
+
     mentionsOut.foreach {
-        case eventMention: EventMention =>
+        case tmpEventMention: EventMention =>
+          // Add any extra attachments to test here.
+          val eventMention = tmpEventMention.newWithAttachment(negation)
+
           var index = 0
 
           serialize(eventMention.labels, index)
@@ -64,7 +70,9 @@ class TestSerialization extends Test {
           index += 1
           serialize(eventMention, index)
           index += 1
-        case textBoundMention: TextBoundMention =>
+        case tmpTextBoundMention: TextBoundMention =>
+          val textBoundMention = tmpTextBoundMention.newWithAttachment(negation)
+
           var index = 0
 
           textBoundMention.attachments.foreach { attachment =>

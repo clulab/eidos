@@ -13,16 +13,21 @@ import org.clulab.wm.eidos.text.EdgeSpec
 
 import org.clulab.wm.eidos.text.Dec
 import org.clulab.wm.eidos.text.Inc
+import org.clulab.wm.eidos.text.Neg
 import org.clulab.wm.eidos.text.Quant
 import org.clulab.wm.eidos.text.Unmarked
 
 class TestGraphSpec extends Test {
   val rainfallNode = NodeSpec("in rainfall", Dec("decrease"))
   val povertyNode = NodeSpec("poverty", Inc("increased", "significantly"))
-  val manyNode = NodeSpec("many", Unmarked("displaced")) 
+  val manyNode = NodeSpec("many", Unmarked("displaced"))
+  val neverRainfallNode = NodeSpec("rainfall", Neg("never"))
+  val notRainfallNode = NodeSpec("rainfall", Neg("not"))
+
   val rainfallPovertyEdge = EdgeSpec(rainfallNode, Affect, povertyNode)
+  val neverRainfallPovertyEdge = EdgeSpec(neverRainfallNode, Affect, povertyNode)
   val rainfallNoEventPovertyEdge = EdgeSpec(rainfallNode, NoEvent, povertyNode)
-  
+
   val antiNode = AntiNodeSpec("few", Inc("decreased", "never"))
   val antiEdge = AntiEdgeSpec(rainfallNode, Affect, povertyNode)
   
@@ -39,9 +44,21 @@ class TestGraphSpec extends Test {
   "manyNode" should "have the correct string representation" in {
     manyNode.toString() should be ("[many|+(displaced)]")
   }
-  
+
+  "neverRainfallNode" should "have the correct string representation" in {
+    neverRainfallNode.toString() should be ("[rainfall|+NEG(never)]")
+  }
+
+  "notRainfallNode" should "have the correct string representation" in {
+    notRainfallNode.toString() should be ("[rainfall|+NEG(not)]")
+  }
+
   "rainfallPovertyEdge" should "have the correct string representation" in {
     rainfallPovertyEdge.toString() should be ("[in rainfall|+DEC(decrease)]->(Affect)->[poverty|+INC(increased, Quant: significantly)]")
+  }
+
+  "neverRainfallPovertyEdge" should "have the correct string representation" in {
+    neverRainfallPovertyEdge.toString() should be ("[rainfall|+NEG(never)]->(Affect)->[poverty|+INC(increased, Quant: significantly)]")
   }
 
   "rainfallNoEventPovertyEdge" should "have the correct string representation" in {

@@ -1,11 +1,14 @@
 package org.clulab.wm.eidos.serialization.json
 
-import org.clulab.odin.Mention
+import org.clulab.odin.{Mention, TextBoundMention}
+import org.clulab.processors.Document
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
+import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
@@ -20,7 +23,21 @@ class TestJLDSerializer extends Test {
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val ieSystem = TestUtils.ieSystem
-    val annotatedDocument = ieSystem.extractFromText(text, keepText = true)
+    val tmpAnnotatedDocument = ieSystem.extractFromText(text, keepText = true)
+    // Add some attachments just for fun.  This is not necessary if the attachments are already there.
+    // This should definitely not be used in master.
+    val tmpOdinMentions =
+      for {
+        odinMention <- tmpAnnotatedDocument.odinMentions
+        if odinMention.isInstanceOf[TextBoundMention]
+        textOdinMention = odinMention.asInstanceOf[TextBoundMention]
+      }
+      yield {
+        val negation = new Negation("trigger", Some(Seq("mod1")), Some(textOdinMention), Some(Seq(odinMention)))
+        odinMention.withAttachment(negation)
+      }
+    // Keep all to assure that the added ones are used.
+    val annotatedDocument = ieSystem.newAnnotatedDocument(tmpAnnotatedDocument.document, tmpAnnotatedDocument.odinMentions ++ tmpOdinMentions, true)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
