@@ -19,6 +19,8 @@
         - proportion
         - percentage
         - ratio
+        - fraction
+        - portion
     - OntologyNode:
       name: distance
       examples:
@@ -63,8 +65,8 @@
       name: temperature
       examples:
         - temperature
-        - degree celcius
-        - farenheit
+        - degree celsius
+        - fahrenheit
         - kelvin
         - C
         - F
@@ -104,14 +106,163 @@
             - contaminant
             - contamination
             - soil pollution
-            - deforestation
             - soil erosion
+        - OntologyNode:
+          name: climate_change
+          examples:
+            - deforestation
             - desertification
     - OntologyNode:
       name: crisis
       examples:
         - crisis
         - emergency
+    - natural_disaster:
+      - OntologyNode:
+        name: flooding
+        examples:
+          - flood
+          - flash flood
+      - OntologyNode:
+        name: drought
+        examples:
+          - drought
+      - OntologyNode:
+        name: storm
+        examples:
+          - hurricane
+          - extreme winds
+          - cyclone
+          - tornado
+          - storm
+    - weather:
+      - OntologyNode:
+        name: precipitation
+        examples:
+          - precipitation
+          - rain
+          - rainfall
+          - snow
+    - human:
+      - agriculture:
+        - OntologyNode: 
+          name: food_production
+          examples:
+            - rice production
+            - food production
+            - staple crop production
+            - crop yield
+        - OntologyNode: # todo too broad??
+          name: farming
+          examples:
+            - farming
+            - cultivation
+            - harvesting
+            - harvest
+            - tillage
+            - soil fertility
+            - fertility 
+        - OntologyNode: # todo too broad??
+          name: planting
+          examples:
+            - planting
+            - horticulture
+      - OntologyNode:
+        name: conflict
+        examples:
+          - conflict
+          - war
+          - fighting
+          - infighting
+          - civil unrest
+          - genocide
+          - clash
+          - raid
+      - OntologyNode:
+        name: disarmament
+        examples:
+          - disarmament
+      - OntologyNode:
+        name: human_migration
+        examples:
+          - migration
+          - immigration
+          - displacement
+          - refugee migration
+          - emigration
+      - intervention:
+        - OntologyNode:
+          name: intervention
+          examples:
+            - access
+            - humanitarian response
+            - humanitarian aid
+            - assistance
+            - humanitarian support
+            - intervention
+            - rehabilitation
+            - poverty alleviation
+      - OntologyNode:
+        name: health_intervention
+        examples:
+          - vaccine
+          - vaccination
+        #todo
+      - OntologyNode:
+        name: famine
+        examples:
+          - famine
+          - hunger
+          - starvation
+      - OntologyNode:
+        name: death
+        examples:
+          - death
+          - mortality
+          - morbidity
+          - decease
+  - entities:
+    - OntologyNode:
+      name: food_availability
+      examples:
+        - rice
+        - meat 
+        - food availability
+        - access to food
+        - cereal
+        - food
+    - OntologyNode:
+      name: GPE # Geo-political Entity
+      examples:
+        - village
+        - world
+        - district
+        - province
+        - zone
+        - territory
+        - city
+        - capital
+        - States
+        - nation
+        - regional
+        - republic
+        - town
+        - headquarters
+        - settlement
+        - subregion
+        - continent
+        - several countries
+        - municipality
+        - county
+        - urban
+        - most countries
+        - developed countries
+        - sub-region
+        - nation
+        - country
+        - state
+        - geopolitical entity
+        - nation-state
     - natural:
       - OntologyNode:
         name: chemical
@@ -159,177 +310,64 @@
             - shark
       - natural_resources:
         - OntologyNode:
-          name: Biotic_resources # todo to split into multiple categories
-          examples:
-            - biodiversity
-            - Convention Biological diversity
-            - ecosystem
-            - food
-            - forest area
-            - area forest
-            - forest land
-            - forestry sector
-            - plant resource food
-            - wildlife
-      - Abiotic_resources:
-        - OntologyNode:
-          name: land # todo to split into multiple categories
-          examples:
-            - area
-            - land
-            - mountain
-            - mt
-            - wetland
-            - sand
-        - OntologyNode:
-          name: water # todo to split into multiple categories
-          examples:
-            - water
-            - sea
-            - river
-            - pond
-            - rain
-            - water resource
-            - lake
-            - freshwater
-            - surface water
-            - groundwater
-            - water body
-        - OntologyNode:
-          name: material # todo to split into multiple categories
-          examples:
-            - charcoal
-            - iron
-            - mineral
-        - OntologyNode:
-          name: resource # todo to split into multiple categories
-          examples:
-            - resource
-            - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
-        - OntologyNode:
-          name: air # todo to split into multiple categories
-          examples:
-            - air
-      - natural_disaster:
-        - OntologyNode:
-          name: flooding
-          examples:
-            - flood
-            - flash flood
-        - OntologyNode:
-          name: drought
-          examples:
-            - drought
-        - OntologyNode:
-          name: storm
-          examples:
-            - hurricane
-            - extreme winds
-            - cyclone
-            - tornado
-            - storm
-      - weather:
-        - OntologyNode:
-          name: precipitation
-          examples:
-            - precipitation
-            - rain
-            - rainfall
-            - snow
-        - OntologyNode:
-          name: solar_radiation
+          name: solar_radiation 
           examples:
             - solar radiation
             - sunlight
             - solar energy
-    - human:
-      - OntologyNode:
-        name: conflict
-        examples:
-          - conflict
-          - war
-          - fighting
-          - infighting
-          - civil unrest
-          - genocide
-          - clash
-          - raid
-      - OntologyNode:
-        name: disarmament
-        examples:
-          - disarmament
-      - OntologyNode:
-        name: human_migration
-        examples:
-          - migration
-          - immigration
-          - displacement
-          - refugee migration
-          - emigration
-      - intervention:
-        - OntologyNode:
-          name: intervention
-          examples:
-            - access
-            - humanitarian response
-            - humanitarian aid
-            - assistance
-            - humanitarian support
-            - intervention
-            - rehabilitation
-            - poverty alleviation
-      - OntologyNode:
-        name: health_intervention
-        examples:
-          - vaccine
-        #todo
-      - OntologyNode:
-        name: famine
-        examples:
-          - famine
-          - hunger
-          - starvation
-      - OntologyNode:
-        name: death
-        examples:
-          - death
-          - mortality
-          - morbidity
-          - decease
-  - entities:
-    - OntologyNode:
-      name: GPE
-      examples:
-        - village
-        - world
-        - district
-        - province
-        - zone
-        - territory
-        - city
-        - capital
-        - States
-        - nation
-        - regional
-        - republic
-        - town
-        - headquarters
-        - settlement
-        - subregion
-        - continent
-        - several countries
-        - municipality
-        - county
-        - urban
-        - most countries
-        - developed countries
-        - sub-region
-        - nation
-        - country
-        - state
-        - geopolitical entity
-        - nation-state
-    - natural:
+        - biotic_resources:
+          - OntologyNode:
+            name: biotic_resources # todo to split into multiple categories
+            examples:
+              - biodiversity # properties ...
+              - Convention Biological diversity # properties ...
+              - ecosystem
+              - food
+              - forest area
+              - area forest
+              - forest land
+              - forestry sector
+              - plant resource food
+              - wildlife
+        - abiotic_resources:
+          - OntologyNode:
+            name: land # todo to split into multiple categories
+            examples:
+              - area
+              - land
+              - mountain
+              - mt
+              - wetland
+              - sand
+          - OntologyNode:
+            name: water # todo to split into multiple categories
+            examples:
+              - water
+              - sea
+              - river
+              - pond
+              - rain
+              - water resource
+              - lake
+              - freshwater
+              - surface water
+              - groundwater
+              - water body
+          - OntologyNode:
+            name: material # todo to split into multiple categories
+            examples:
+              - charcoal
+              - iron
+              - mineral
+          - OntologyNode:
+            name: resource # todo to split into multiple categories
+            examples:
+              - resource
+              - nAtuRAl ReSouRceS # This mIxEd CaSe is intentional
+          - OntologyNode:
+            name: air # todo to split into multiple categories 
+            examples:
+              - air
       - soil:
         - OntologyNode:
           name: soil_contents
@@ -342,6 +380,43 @@
         examples:
           - watershed
       - crop_technology:
+        - OntologyNode:
+          name: fertilizer
+          examples:
+            - nitrogen fertilizer
+            - inorganic fertilizers
+            - potting composts
+            - nitrogen potassium fertilizers
+            - superphosphate
+            - magnesium fertilizers
+            - nitrate fertilizers
+            - biofertilizers
+            - potash fertilizers
+            - fish manure
+            - guano
+            - nitrophosphates
+            - composts
+            - fertilizer
+        - OntologyNode:
+          name: irrigation
+          examples:
+            - localized irrigation
+            - capillary irrigation
+            - sprinkler irrigation
+            - furrow irrigation
+            - drip fertigation
+            - surface irrigation
+            - runoff irrigation
+            - fertigation
+            - wastewater irrigation
+            - watering
+            - rotation irrigation
+            - flood irrigation
+            - trickle irrigation
+            - centre pivot irrigation
+            - subsurface irrigation
+            - irrigation system
+            - irrigation
         - OntologyNode: # todo too broad??
           name: pesticide
           examples:
@@ -358,26 +433,10 @@
             - food system
             - Peoples food system
         - OntologyNode: # todo too broad??
-          name: farming
-          examples:
-            - farming
-            - cultivation
-            - harvesting
-            - harvest
-            - tillage
-            - soil fertility
-            - fertility
-        - OntologyNode: # todo too broad??
-          name: planting
-          examples:
-            - planting
-            - horticulture
-        - OntologyNode: # todo too broad??
           name: product
           examples:
             - post-harvest
             - food product
-            - rice production
       - OntologyNode:
         name: crop
         examples:
@@ -448,7 +507,6 @@
             - vitamin
             - nutrition
             - nutritive
-            - nutritiousness
           #todo
         - OntologyNode:
           name: disease
@@ -463,43 +521,6 @@
             - outbreak
             - virus
             - bacteria
-      - OntologyNode:
-        name: fertilizer
-        examples:
-          - nitrogen fertilizer
-          - inorganic fertilizers
-          - potting composts
-          - nitrogen potassium fertilizers
-          - superphosphate
-          - magnesium fertilizers
-          - nitrate fertilizers
-          - biofertilizers
-          - potash fertilizers
-          - fish manure
-          - guano
-          - nitrophosphates
-          - composts
-          - fertilizer
-      - OntologyNode:
-        name: irrigation
-        examples:
-          - localized irrigation
-          - capillary irrigation
-          - sprinkler irrigation
-          - furrow irrigation
-          - drip fertigation
-          - surface irrigation
-          - runoff irrigation
-          - fertigation
-          - wastewater irrigation
-          - watering
-          - rotation irrigation
-          - flood irrigation
-          - trickle irrigation
-          - centre pivot irrigation
-          - subsurface irrigation
-          - irrigation system
-          - irrigation
       - infrastructure:
           - transportation:
             - OntologyNode:
@@ -564,7 +585,7 @@
               - marina
               - harbour
               - airport
-              - electric plant
+              - electric plant #repeated ?
       - OntologyNode:
         name: livelihood
         examples:
@@ -728,7 +749,7 @@
               - development programme
               - Development Goals
               - management plan
-              - welfare # make "govenrment" node with a buncha stuff from here, also make a "data_collection" node with "census", etc
+              - welfare # make "government" node with a buncha stuff from here, also make a "data_collection" node with "census", etc
               # tax elsewhere??
               # workshop, conference, partnership.... etc elsewhere
       - OntologyNode:

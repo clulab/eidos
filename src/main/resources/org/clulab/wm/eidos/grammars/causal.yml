@@ -159,6 +159,10 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N|^JJ/]
+      # the motivation for `!tag=TO` is avoiding situations like "is vulnerable to production"
+      # in the sentence "We present evidence that the global food system is vulnerable to
+      # production shocks caused by extreme weather , and that this risk is growing ."
+      # this would match because `produc` is a `nonavoid_causal_triggers`
+      trigger = [lemma=/be/ & tag=/^V/] [!tag=TO]{,2} [lemma=/${ trigger }/ & tag=/^N|^JJ/]
       cause: Entity = nsubj
       effect: Entity = /${ preps }$/
