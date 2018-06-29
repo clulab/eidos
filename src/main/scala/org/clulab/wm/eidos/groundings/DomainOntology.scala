@@ -2,9 +2,10 @@ package org.clulab.wm.eidos.groundings
 
 import java.util.{Collection => JCollection, Map => JMap}
 
-import org.clulab.processors.{Document, Processor, Sentence}
+import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
+import org.clulab.processors.{Processor, Sentence}
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -43,7 +44,28 @@ class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) {
       ontologyNodes.map { ontologyNode =>
         ConceptEmbedding(ontologyNode.path, wordToVec.makeCompositeVector(ontologyNode.values))
       }
+
+  def computeIDF(): Map[String, Double] = {
+
+    val document = ontologyNodes.flatMap(_.values)
+    val tokenFreq = document.map { tok =>
+                                    (Word2Vec.sanitizeWord(tok),1)  // sanitize the token as done when processing a mention during grounding
+                                 }.groupBy(_._1)
+                                  .map{ token_len =>
+                                          (token_len._1, token_len._2.length) // (token, freq)
+                                  }
+
+    val idf = tokenFreq.map { tok_freq =>
+      (tok_freq._1, 1.0 / (1.0 + math.log(tok_freq._2))) } // IDF = 1 / ( 1 + log (freq) ) // NOTE: add 1 smoothing
+
+    idf
+  }
 }
+
+//class BranchedOntology(name: String, ontologyNodes: Seq[OntologyNode]) extends DomainOntology(name, ontologyNodes) {
+//  // fixme syntax of this
+//  ???
+//}
 
 object DomainOntology {
   val FIELD = "OntologyNode"
