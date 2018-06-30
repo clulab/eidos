@@ -1,5 +1,5 @@
 - Entity:
-  - NounPhrase
+  - Concept
 # references, tables, etc.
 - Avoid:
   - Avoid-Strict
