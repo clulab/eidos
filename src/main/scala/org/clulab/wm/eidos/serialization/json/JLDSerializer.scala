@@ -142,7 +142,7 @@ object JLDSerializer {
 }
 
 class JLDArgument(serializer: JLDSerializer, typeString: String, mention: EidosMention)
-    extends JLDObject(serializer, "Argument", mention) {
+    extends JLDObject(serializer, "Argument") {
 
   override def toJObject: JObject =
       serializer.mkType(this) ~
@@ -310,7 +310,8 @@ object JLDTrigger {
   val plural = "triggers"
 }
 
-abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var subtypeString: String, mention: EidosMention) extends JLDObject(serializer, JLDExtraction.typename, mention) {
+abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var subtypeString: String, mention: EidosMention)
+    extends JLDObject(serializer, JLDExtraction.typename, mention) {
 
   def getMentions: Seq[EidosMention] =  Seq.empty
   // This isn't necessary because attachments only show provenance, not reference to a different extraction
