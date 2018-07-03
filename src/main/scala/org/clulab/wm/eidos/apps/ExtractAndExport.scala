@@ -12,8 +12,8 @@ import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.FileUtils.{findFiles, printWriterFromFile}
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
@@ -30,8 +30,8 @@ object ExtractAndExport extends App with Configured {
 
   def getExporter(exporterString: String, filename: String, topN: Int): Exporter = {
     exporterString match {
-      case "jsonld" => JSONLDExporter(new PrintWriter(filename + ".jsonld"), reader)
-      case "mitre" => MitreExporter(new PrintWriter(filename + ".mitre.tsv"), reader, filename, topN)
+      case "jsonld" => JSONLDExporter(printWriterFromFile(filename + ".jsonld"), reader)
+      case "mitre" => MitreExporter(printWriterFromFile(filename + ".mitre.tsv"), reader, filename, topN)
       case "serialized" => SerializedExporter(filename)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
