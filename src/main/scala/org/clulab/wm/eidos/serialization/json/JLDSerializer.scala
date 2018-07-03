@@ -147,7 +147,7 @@ class JLDArgument(serializer: JLDSerializer, typeString: String, mention: EidosM
   override def toJObject: JObject =
       serializer.mkType(this) ~
           ("type" -> typeString) ~
-          serializer.mkRef(mention)
+          ("value" -> serializer.mkRef(mention))
 }
 
 object JLDArgument {
