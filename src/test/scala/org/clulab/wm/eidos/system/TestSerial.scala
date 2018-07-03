@@ -31,7 +31,7 @@ class TestSerial extends Test {
   protected def toText(eidosSystem: EidosSystem): String = {
     val annotatedDocuments = texts.map(eidosSystem.extractFromText(_))
     val corpus = new JLDCorpus(annotatedDocuments, ieSystem)
-    val result = corpus.toJsonStr()
+    val result = corpus.toJsonStr
 
     Random.shuffle(altTexts.toList).map(eidosSystem.extractFromText(_))
     result
