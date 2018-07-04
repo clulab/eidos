@@ -70,13 +70,20 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       m <- causal
       _ = require(m.arguments(arg2).length == 1, "we only support a single cause and effect per event")
       arg2Mention <- m.arguments.getOrElse(arg2, Nil)
-      // odin mentions keep track of the path between the trigger and the argument
-      // below we assume there is only one cause arg, so beware (see require statement abov)
-      landed = m.paths(arg2).values.head.last._2 // when the rule matched, it landed on this
-      a <- assembleEventChain(m.asInstanceOf[EventMention], arg2Mention, landed, arg1Mentions)
-    } yield a
+    } yield {
+      if (m.paths.isEmpty) {
+        // if the mention was captured by a surface rule then there is no syntactic path to retrieve
+        // return mention as-is
+        Seq(m)
+      } else {
+        // odin mentions keep track of the path between the trigger and the argument
+        // below we assume there is only one cause arg, so beware (see require statement abov)
+        val landed = m.paths(arg2).values.head.last._2 // when the rule matched, it landed on this
+        assembleEventChain(m.asInstanceOf[EventMention], arg2Mention, landed, arg1Mentions)
+      }
+    }
 
-    assembled
+    assembled.flatten
   }
 
 
@@ -562,7 +569,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
             // orig is to the right of trigger
             replaceMentionsInterval(expanded, Interval(trigger.end, expanded.end))
           } else {
-            sys.error("what?")
+            sys.error("unexpected overlap of trigger and argument")
           }
         } else {
           expanded

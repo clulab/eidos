@@ -1,11 +1,11 @@
 var bratLocation = 'assets/brat';
 
 // Color names used
-var baseNounPhraseColor = '#CCD1D1';
-var increaseNounPhraseColor = '#BBDC90';
-var decreaseNounPhraseColor = '#FC5C38';
+var baseConceptColor = '#CCD1D1';
+var increaseConceptColor = '#BBDC90';
+var decreaseConceptColor = '#FC5C38';
 var quantifierColor = '#AED6F1';
-var quantifiedNounPhraseColor = '#85C1E9';
+var quantifiedConceptColor = '#85C1E9';
 var causalEventColor = '#BB8FCE';
 var correlationEventColor = '#F7DC6F';
 var timeExpressionColor = '#FFA500'
@@ -44,38 +44,38 @@ var collData = {
         "borderColor": "darken"
     },
     {
-            "type"   : "NounPhrase",
-            "labels" : ["NounPhrase", "NP"],
+            "type"   : "Concept",
+            "labels" : ["Concept", "Conc"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": baseNounPhraseColor,
+            "bgColor": baseConceptColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
         {
-            "type"   : "NounPhrase-Inc",
-            "labels" : ["NounPhrase", "NP"],
+            "type"   : "Concept-Inc",
+            "labels" : ["Concept", "Conc"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": increaseNounPhraseColor,
+            "bgColor": increaseConceptColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
         {
-            "type"   : "NounPhrase-Dec",
-            "labels" : ["NounPhrase", "NP"],
+            "type"   : "Concept-Dec",
+            "labels" : ["Concept", "Conc"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": decreaseNounPhraseColor,
+            "bgColor": decreaseConceptColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
         {
-            "type"   : "NounPhrase-Quant",
-            "labels" : ["NounPhrase", "NP"],
+            "type"   : "Concept-Quant",
+            "labels" : ["Concept", "Conc"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
-            "bgColor": quantifiedNounPhraseColor,
+            "bgColor": quantifiedConceptColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },

@@ -1,7 +1,7 @@
 - Entity:
   - Param
   - Agrovoc
-  - NounPhrase
+  - Concept
 - Transparent
 - Quantifier
 - Event:
