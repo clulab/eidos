@@ -2,10 +2,7 @@ package org.clulab.wm.eidos.mentions
 
 import java.util.IdentityHashMap
 
-import org.clulab.odin.EventMention
-import org.clulab.odin.Mention
-import org.clulab.odin.RelationMention
-import org.clulab.odin.TextBoundMention
+import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.struct.Interval
@@ -150,6 +147,7 @@ object EidosMention {
       case mention: TextBoundMention => new EidosTextBoundMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
       case mention: EventMention => new EidosEventMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
       case mention: RelationMention => new EidosRelationMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
+      case mention: CrossSentenceMention => new EidosCrossSentenceMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
       case _ => throw new IllegalArgumentException("Unknown Mention: " + odinMention)
     }
   }
@@ -176,6 +174,10 @@ object EidosMention {
         odinMention.attachments.asInstanceOf[Set[EidosAttachment]].flatMap(_.attachmentMentions).foreach(addMention)
         if (odinMention.isInstanceOf[EventMention])
           addMention(odinMention.asInstanceOf[EventMention].trigger)
+        if (odinMention.isInstanceOf[CrossSentenceMention]) {
+          addMention(odinMention.asInstanceOf[CrossSentenceMention].anchor)
+          addMention(odinMention.asInstanceOf[CrossSentenceMention].neighbor)
+        }
       })
     }
 
@@ -239,6 +241,15 @@ class EidosRelationMention(val odinRelationMention: RelationMention, stopwordMan
 
     sorted.unzip._1.mkString(" ")
   }
+
+  override val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
+}
+
+class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
+    mentionMapper: MentionMapper)
+    extends EidosMention(odinCrossSentenceMention, stopwordManaging, ontologyGrounder, mentionMapper) {
+
+  override val canonicalName = "" // TODO
 
   override val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
 }
