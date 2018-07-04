@@ -503,7 +503,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
           
     serializer.mkType(this) ~
         serializer.mkId(this) ~
-        ("text" -> sentence.getSentenceText()) ~
+        ("text" -> sentence.getSentenceText) ~
         (JLDWord.plural -> toJObjects(jldWords)) ~
         (JLDDependency.plural -> jldGraphMapPair) ~
         (JLDTimex.plural -> toJObjects(timexes))

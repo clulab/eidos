@@ -9,6 +9,7 @@
     - Quantification
     - Increase
     - Decrease
+    - Time
   - EntityLinker:
     - DirectedRelation:
       - Causal

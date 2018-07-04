@@ -336,6 +336,18 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     } yield copyWithMod
   }
 
+  def applyTimeAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+      trigger = m.asInstanceOf[EventMention].trigger
+      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
+      time: Option[TimeInterval] = Some(m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(i => (i.span._1 <= trigger.startOffset && i.span._2 > trigger.startOffset))(0))
+    } yield time match {
+      case None => theme
+      case Some(t) =>  theme.withAttachment(new Time(t))
+    }
+  }
+
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
     ms
@@ -365,7 +377,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   // Add the temporal attachments for any temporal expression
   def attachTemporal(mention: Mention, state: State): Mention = {
-    val window = 50
+    val window = 10
     val timeIntervals = mention.document.asInstanceOf[EidosDocument].times(mention.sentence)
     var timeAttchment: Option[TimeInterval] = None
     for (interval <- timeIntervals)

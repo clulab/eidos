@@ -55,7 +55,7 @@ object MakeRuleTSVs extends App {
       pw.println(header)
 //      println(s"MENTIONS for RULE: ${rule}")
       for (m <- mentionsForRule) {
-        val sentenceText = m.document.sentences(m.sentence).getSentenceText()
+        val sentenceText = m.document.sentences(m.sentence).getSentenceText
         val toPrint = new ArrayBuffer[String]
         toPrint.append(rule)
         toPrint.appendAll(causalStringForCSV(m))

@@ -29,7 +29,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String], documentCr
       times(index) = {
         val sentence_text = text match {
           case Some(t) => t.slice(this.sentences(index).startOffsets(0), this.sentences(index).endOffsets.last)
-          case _ => this.sentences(index).getSentenceText()
+          case _ => this.sentences(index).getSentenceText
         }
         val intervals = timenorm.intervals(timenorm.parse(sentence_text, anchor))
         // Sentences use offsets into the document.  Timenorm only knows about the single sentence.

@@ -136,7 +136,7 @@ object MakeMITRETablesFromDirectory extends App {
 
       location = "" // I could try here..?
       time = ""
-      evidence = mention.odinMention.sentenceObj.getSentenceText().trim
+      evidence = mention.odinMention.sentenceObj.getSentenceText.trim
 
       row = source + "\t" + system + "\t" + sentence_id + "\t" +
         factor_a_txt + "\t" + factor_a_norm + "\t" + factor_a_modifier + "\t" + factor_a_polarity + "\t" +

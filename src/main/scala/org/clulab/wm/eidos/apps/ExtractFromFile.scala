@@ -34,7 +34,7 @@ object ExtractFromFile extends App {
 
     val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
     for ((sentence, sentenceMentions) <- mentionsBySentence){
-      pw.println(s"\nSENTENCE ${sentence}: ${doc.sentences(sentence).getSentenceText()}")
+      pw.println(s"\nSENTENCE ${sentence}: ${doc.sentences(sentence).getSentenceText}")
       println (s"Number of Eidos mentions found: ${sentenceMentions.length}")
       sentenceMentions.foreach(
         m => {

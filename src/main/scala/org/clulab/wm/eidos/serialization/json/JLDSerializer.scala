@@ -474,7 +474,8 @@ class JLDWord(serializer: JLDSerializer, val document: Document, val sentence: S
         ("startOffset" -> startOffset) ~
         ("endOffset" -> endOffset) ~
         ("lemma" -> getOrNone(sentence.lemmas)) ~
-        ("chunk" -> getOrNone(sentence.chunks))
+        ("chunk" -> getOrNone(sentence.chunks)) ~
+        ("norm" -> getOrNone(sentence.norms))
   }
 }
 
@@ -543,7 +544,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
           
     serializer.mkType(this) ~
         serializer.mkId(this) ~
-        ("text" -> sentence.getSentenceText()) ~
+        ("text" -> sentence.getSentenceText) ~
         (JLDWord.plural -> toJObjects(jldWords)) ~
         (JLDDependency.plural -> jldGraphMapPair) ~
         (JLDTimex.plural -> toJObjects(timexes))
