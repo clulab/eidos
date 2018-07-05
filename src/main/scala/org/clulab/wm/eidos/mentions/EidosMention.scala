@@ -113,8 +113,11 @@ abstract class EidosMention(val odinMention: Mention, stopwordManaging: Stopword
           left.sentence < right.sentence
         else if (left.start != right.start)
           left.start < right.start
+        // This one shouldn't really be necessary.
+        else if (left.end != right.end)
+          left.end < right.end
         else
-          true
+          false // False is needed to preserve order on tie.
 
     canonicalMentions.sortWith(lessThan).map(canonicalFormSimple).mkString(" ")
   }
