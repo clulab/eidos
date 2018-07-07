@@ -370,10 +370,14 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         s"X$x",
         "TimeExpression",
         Json.arr(Json.arr(i.span._1,i.span._2)),
-        Json.toJson(for(d <- i.intervals) yield ((d._1 match {
+        Json.toJson(for(d <- i.intervals) yield ((
+          d._1 match {
           case null => "Undef"
           case start => start.toString},
-          d._2)))
+          d._2 match {
+          case null => "Undef"
+          case end => end.toString},
+          d._3)))
       )}
     Json.toJson(timexs)
   }

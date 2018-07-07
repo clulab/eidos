@@ -51,7 +51,8 @@ object DisplayUtils {
       sb.append(s"$tab span: ${interval.span._1},${interval.span._2} $nl")
       for (i <- interval.intervals) {
         sb.append(s"$tab start: ${i._1} $nl")
-        sb.append(s"$tab duration: ${i._2} $nl")
+        sb.append(s"$tab end: ${i._2} $nl")
+        sb.append(s"$tab duration: ${i._3} $nl")
       }
       sb.append(nl)
     }

@@ -348,7 +348,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       m <- ms
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      time: Option[TimeInterval] = Some(m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(i => (i.span._1 <= trigger.startOffset && i.span._2 > trigger.startOffset))(0))
+      time: Option[TimeInterval] = Some(m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset)(0))
     } yield time match {
       case None => theme
       case Some(t) =>  theme.withAttachment(new Time(t))
@@ -533,6 +533,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         attached = expandedMentions.map(addSubsumedAttachments(_, state))
         timeattached = attached.map(attachTemporal(_, state))
         trimmed = timeattached.map(EntityHelper.trimEntityEdges)
+        // trimmed = attached.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
     } yield Seq(copyWithExpanded(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten

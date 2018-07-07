@@ -323,7 +323,7 @@ class Time(interval: TimeInterval) extends ContextAttachment {
 
 object Time {
   val label = "Time"
-  val kind = "TMP"
+  val kind = "TIMEX"
 
   def apply(interval: TimeInterval) = new Time(interval)
 }

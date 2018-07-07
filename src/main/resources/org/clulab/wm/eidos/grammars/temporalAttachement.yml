@@ -12,22 +12,10 @@ vars:
 
 rules:
 
-  - name: timeattachement1
+  - name: timeattachment1
     priority: ${ rulepriority }
-    example: "heavier than usual rainfall"
     label: ${ label }
     action: ${ action }
     pattern: |
-      # note: assumes comparative JJ forms of quantifiers are tagged
-      trigger = [lemma="year"]
-      theme: Entity = </^nmod/ >nmod_in #Find the entity the quantifier is modifying
-
-  # - name: timeattachement2
-  #   priority: ${ rulepriority }
-  #   example: "heavier than usual rainfall"
-  #   label: ${ label }
-  #   action: ${ action }
-  #   pattern: |
-  #     # note: assumes comparative JJ forms of quantifiers are tagged
-  #     trigger = [lemma="2014"]
-  #     theme: Entity = <nmod_since >nmod_in #Find the entity the quantifier is modifying
+      trigger = [norm="B-TIMEX"] [norm="I-TIMEX"]*
+      theme: Entity = </^nmod/ >nmod_in

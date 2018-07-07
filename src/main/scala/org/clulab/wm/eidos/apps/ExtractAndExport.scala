@@ -152,7 +152,7 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
 
       location = "" // I could try here..?
       time = ""
-      evidence = removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText().trim)
+      evidence = removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
 
       row = source + "\t" + system + "\t" + sentence_id + "\t" +
         factor_a_txt + "\t" + factor_a_norm + "\t" + factor_a_modifier + "\t" + factor_a_polarity + "\t" +

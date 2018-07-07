@@ -445,7 +445,7 @@ object JLDWord {
 }
 
 
-class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val duration: Long)
+class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val end: LocalDateTime, val duration: Long)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimeInterval.typename) {
   
@@ -454,6 +454,7 @@ class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val du
     serializer.mkType(this) ~
         serializer.mkId(this) ~
         ("start" -> Option(start).getOrElse("Undef").toString) ~
+        ("end" -> Option(end).getOrElse("Undef").toString) ~
         ("duration" -> duration)
   }
 }
@@ -471,7 +472,7 @@ class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
   
   override def toJObject(): JObject = {
 
-    val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i._1, i._2))
+    val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i._1, i._2, i._3))
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
