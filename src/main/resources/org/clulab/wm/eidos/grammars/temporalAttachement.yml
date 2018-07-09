@@ -18,4 +18,4 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [norm="B-TIMEX"] [norm="I-TIMEX"]*
-      theme: Entity = </^nmod/ >nmod_in
+      theme: Entity = </^nmod/ >nmod_in?

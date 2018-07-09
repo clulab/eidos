@@ -531,9 +531,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         (argType, argMentions) <- mention.arguments
         expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid))
         attached = expandedMentions.map(addSubsumedAttachments(_, state))
-        timeattached = attached.map(attachTemporal(_, state))
-        trimmed = timeattached.map(EntityHelper.trimEntityEdges)
-        // trimmed = attached.map(EntityHelper.trimEntityEdges)
+        //timeattached = attached.map(attachTemporal(_, state))
+        //trimmed = timeattached.map(EntityHelper.trimEntityEdges)
+        trimmed = attached.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
     } yield Seq(copyWithExpanded(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
