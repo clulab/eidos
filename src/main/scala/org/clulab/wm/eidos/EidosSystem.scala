@@ -16,6 +16,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.slf4j.LoggerFactory
 
+import scala.annotation.tailrec
+
 case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
 
 /**
@@ -140,8 +142,24 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
+    // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
+    @tailrec
+    def traverse(ms: Seq[Mention], results: Seq[Mention], seen: Set[Mention]): Seq[Mention] = {
+      ms match {
+        case Nil => results
+        case m +: rest if !seen.contains(m) =>
+          //DisplayUtils.shortDisplay(m)
+          val args = m.arguments.values.flatten
+          traverse(rest ++ args, m +: results, seen + m)
+        case m +: rest => traverse(rest, results, seen)
+      }
+    }
+
+    val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
+
+
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
-    val cagRelevant = if (returnAllMentions) odinMentions else keepCAGRelevant(odinMentions)
+    val cagRelevant = if (returnAllMentions) mentionsAndNestedArgs else keepCAGRelevant(mentionsAndNestedArgs)
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)

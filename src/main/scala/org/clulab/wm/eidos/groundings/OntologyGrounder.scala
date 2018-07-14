@@ -38,6 +38,7 @@ object EidosOntologyGrounder {
   val FAO_NAMESPACE = "fao"
 
   def apply(domainOntology: DomainOntology, wordToVec: EidosWordToVec) = {
+    println(s"Processing ${domainOntology.name} ontology...")
     val conceptEmbeddings = domainOntology.iterateOntology(wordToVec)
 
     new EidosOntologyGrounder(domainOntology.name, conceptEmbeddings, wordToVec)

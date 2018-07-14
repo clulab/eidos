@@ -67,6 +67,7 @@ object EidosWordToVec {
 
   def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int): EidosWordToVec = {
     if (enabled) {
+      println(s"Loading w2v from ${wordToVecPath}...")
       val source = Sourcer.sourceFromResource(wordToVecPath)
 
       try {
