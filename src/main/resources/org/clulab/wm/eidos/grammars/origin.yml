@@ -1,13 +1,13 @@
-vars:
-  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
-  conjunctions: "appos|conj|conj_|cc"
-  complements: "xcomp|ccomp"
-  modifiers: "amod|compound|dep|name"
-  negTriggers: "not"
-  objects: "dobj"
-  preps: "nmod_of|nmod_in"
-  prep_dobjs: "nmod"
-  quant_modifiers: "amod|advmod"
+vars: org/clulab/wm/eidos/grammars/vars.yml
+#  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+#  conjunctions: "appos|conj|conj_|cc"
+#  complements: "xcomp|ccomp"
+#  modifiers: "amod|compound|dep|name"
+#  negTriggers: "not"
+#  objects: "dobj"
+#  preps: "nmod_of|nmod_in"
+#  prep_dobjs: "nmod"
+#  quant_modifiers: "amod|advmod"
 
 rules:
 
