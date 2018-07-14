@@ -38,7 +38,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val merged = mergeAttachments(result, state.updated(result))
 
     // Keep most complete
-    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
+    val mostComplete = merged //keepMostCompleteEvents(merged, state.updated(merged))
 
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
@@ -348,23 +348,33 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
 
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
-    def addAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
+    def addAttachments(mention: Mention, attachments: Seq[Attachment], foundByName: String): Mention = {
       var out = mention
       for {
         a <- attachments
       } out = out.withAttachment(a)
-      out
+
+      out match {
+        case tb: TextBoundMention => tb.copy(foundBy=foundByName)
+        case rm: RelationMention => rm.copy(foundBy=foundByName)
+        case em: EventMention => em.copy(foundBy=foundByName)
+      }
+    }
+
+    def compositionalFoundBy(ms: Seq[Mention]): String = {
+      ms.map(_.foundBy).flatMap(ruleName => ruleName.split("\\+\\+")).distinct.mkString("++")
     }
 
     // find mentions of the same label and sentence overlap
     val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
-    //println("Overlapping:")
-    //overlapping.foreach(ov => println(ov.text))
+//    println("Overlapping:")
+//    overlapping.foreach(ov => println("  " + ov.text + ", " + ov.foundBy))
+    val completeFoundBy = compositionalFoundBy(overlapping)
 
     val allAttachments = overlapping.flatMap(m => m.attachments).distinct
-    //println(s"allAttachments: ${allAttachments.mkString(", ")}")
+//    println(s"allAttachments: ${allAttachments.mkString(", ")}")
     // Add on all attachments
-    addAttachments(expanded, allAttachments)
+    addAttachments(expanded, allAttachments, completeFoundBy)
   }
 
 
