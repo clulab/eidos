@@ -13,10 +13,10 @@ object GroundingUtils {
   }
 
   // Gets the top k groundings from the desired ontology (identified by namespace: String), with scores
-  def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5): String = {
+  def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5, delim: String = ", "): String = {
     val grounding = mention.grounding(namespace)
     val topkGroundings = grounding.grounding.slice(0,topK).map(grd => (stripMetaDataType(grd._1), grd._2))
-    topkGroundings.mkString(", ")
+    topkGroundings.mkString(delim)
   }
 
   // temp method for stripping the unwanted metadat suffixes

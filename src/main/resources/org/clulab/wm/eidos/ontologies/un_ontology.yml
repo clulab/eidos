@@ -190,6 +190,7 @@
           - displacement
           - refugee migration
           - emigration
+          - flee
       - intervention:
         - OntologyNode:
           name: intervention
