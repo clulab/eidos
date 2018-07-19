@@ -42,15 +42,10 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
       noneIfEmpty(jldObjects.map(_.toJObject).toList)
 
   def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
-    case mention: EidosEventMention =>
-        if (mention.label == "Causal") // taken from taxonomy
-          new JLDDirectedRelation(serializer, mention)
-        else if (mention.label == "Correlation") // taken from taxonomy
-          new JLDUndirectedRelation(serializer, mention)
-        else throw new IllegalArgumentException("Unknown Mention: " + mention)
+    case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention)
     //case mention: EidosRelationMention =>
     //case mention: CrossSentenceMention =>    
-    case mention: EidosTextBoundMention => new JLDEntity(serializer, mention)
+    case mention: EidosTextBoundMention => new JLDConceptEntity(serializer, mention)
     case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
 
