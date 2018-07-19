@@ -9,7 +9,6 @@ import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
@@ -44,9 +43,15 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
       noneIfEmpty(jldObjects.map(_.toJObject()).toList)
   
   def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
-    case mention: EidosEventMention => new JLDDirectedRelation(serializer, mention)
-    case mention: EidosRelationMention => new JLDUndirectedRelation(serializer, mention)
+    case mention: EidosEventMention =>
+        if (mention.label == "Causal") // taken from taxonomy
+          new JLDDirectedRelation(serializer, mention)
+        else if (mention.label == "Correlation") // taken from taxonomy
+          new JLDUndirectedRelation(serializer, mention)
+        else throw new IllegalArgumentException("Unknown Mention: " + mention)
+    //case mention: EidosRelationMention =>
     case mention: EidosTextBoundMention => new JLDEntity(serializer, mention)
+    case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
         
   def isExtractable(mention: EidosMention) = true
@@ -384,18 +389,26 @@ object JLDDirectedRelation {
   val typename = "DirectedRelation"
 }
 
-class JLDUndirectedRelation(serializer: JLDSerializer, mention: EidosRelationMention)
+class JLDUndirectedRelation(serializer: JLDSerializer, mention: EidosEventMention)
     extends JLDExtraction(serializer, JLDUndirectedRelation.typename, mention) {
-  
-  override def getMentions(): Seq[EidosMention] =
-    mention.eidosArguments.values.flatten.toSeq.filter(isExtractable)
+
+  override def getMentions(): Seq[EidosMention] = {
+    val sources = mention.eidosArguments.getOrElse(JLDObject.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.eidosArguments.getOrElse(JLDObject.effect, Seq.empty).filter(isExtractable)
+
+    sources ++ targets ++ super.getMentions()
+  }
 
   override def toJObject(): JObject = {
-    val arguments = mention.eidosArguments.values.flatten.filter(isExtractable) // The keys are skipped
+    val trigger = new JLDTrigger(serializer, mention.eidosTrigger).toJObject()
+    val sources = mention.eidosArguments.getOrElse(JLDObject.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.eidosArguments.getOrElse(JLDObject.effect, Seq.empty).filter(isExtractable)
+    val arguments = sources ++ targets
     val argumentMentions = arguments.map(serializer.mkRef).toList
 
     super.toJObject() ~
-        (JLDArgument.plural -> noneIfEmpty(argumentMentions))
+      (JLDTrigger.singular -> trigger) ~
+      (JLDArgument.plural -> noneIfEmpty(argumentMentions))
   }
 }
 
