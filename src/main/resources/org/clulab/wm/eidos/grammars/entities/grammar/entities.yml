@@ -2,7 +2,7 @@ taxonomy: org/clulab/wm/eidos/grammars/entities/grammar/taxonomy.yml
 
 rules:
   - name: simple-np
-    label: NounPhrase
+    label: Concept
     priority: 1
     type: token
     pattern: |
@@ -12,7 +12,7 @@ rules:
       [chunk='B-NP' & !mention=Avoid]
 
   - name: simple-vp
-    label: NounPhrase
+    label: Concept
     priority: 1
     type: token
     pattern: |
