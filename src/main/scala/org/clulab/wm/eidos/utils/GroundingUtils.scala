@@ -13,11 +13,11 @@ object GroundingUtils {
   }
 
   // Gets the top k groundings from the desired ontology (identified by namespace: String), with scores
-  def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5): String = {
+  def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5, delim: String = ", "): String = {
     if (mention.grounding.contains(namespace)) {
       val grounding = mention.grounding(namespace)
-      val topkGroundings = grounding.grounding.take(topK).map(grd => (stripMetaDataType(grd._1), grd._2))
-      topkGroundings.mkString(", ")
+      val topkGroundings = grounding.grounding.slice(topK).map(grd => (stripMetaDataType(grd._1), grd._2))
+      topkGroundings.mkString(delim)
     }
     else "(namespace unavailable)"
   }

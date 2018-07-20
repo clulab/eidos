@@ -1,20 +1,20 @@
 package controllers
 
 import javax.inject._
-
 import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, TextBoundMention}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
-import org.clulab.wm.eidos.utils.DisplayUtils
-import org.clulab.wm.eidos.utils.DomainParams
-
+import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -54,8 +54,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
 
   // Return the sorted Quantification, Increase, and Decrease modifications
-  def separateAttachments(m: Mention): (Set[Attachment], Set[Attachment], Set[Attachment]) = {
-    val attachments = m.attachments
+  def separateAttachments(m: EidosMention): (Set[Attachment], Set[Attachment], Set[Attachment]) = {
+    val attachments = m.odinMention.attachments
     (attachments.filter(_.isInstanceOf[Quantification]),
       attachments.filter(_.isInstanceOf[Increase]),
       attachments.filter(_.isInstanceOf[Decrease]))
@@ -77,7 +77,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
 
-  def groundEntities(ieSystem: EidosSystem, mentions: Seq[Mention]): Vector[GroundedEntity] = {
+  def groundEntities(ieSystem: EidosSystem, mentions: Seq[EidosMention]): Vector[GroundedEntity] = {
     val gms = for {
       m <- mentions
       (quantifications, increases, decreases) = separateAttachments(m)
@@ -85,17 +85,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       groundedQuantifications = for {
         q <- quantifications
         quantTrigger = q.asInstanceOf[Quantification].trigger
-      } yield groundEntity(m, quantTrigger, ieSystem)
+      } yield groundEntity(m.odinMention, quantTrigger, ieSystem)
 
       groundedIncreases = for {
         inc <- increases
         quantTrigger <- inc.asInstanceOf[Increase].quantifiers.getOrElse(Seq.empty[Quantifier])
-      } yield groundEntity(m, quantTrigger, ieSystem)
+      } yield groundEntity(m.odinMention, quantTrigger, ieSystem)
 
       groundedDecreases = for {
         dec <- decreases
         quantTrigger <- dec.asInstanceOf[Decrease].quantifiers.getOrElse(Seq.empty[Quantifier])
-      } yield groundEntity(m, quantTrigger, ieSystem)
+      } yield groundEntity(m.odinMention, quantTrigger, ieSystem)
 
 
       } yield groundedQuantifications ++ groundedIncreases ++ groundedDecreases
@@ -105,10 +105,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   
   
 
-  def getEntityLinkerEvents(mentions: Vector[Mention]): Vector[(Trigger, Map[String, String])] = {
-    val events = mentions.filter(_ matches "Event")
-    val entityLinkingEvents = events.filter(_ matches "EntityLinker").map { e =>
-      val event = e.asInstanceOf[EventMention]
+  def getEntityLinkerEvents(mentions: Vector[EidosMention]): Vector[(Trigger, Map[String, String])] = {
+    val events = mentions.filter(_.odinMention matches "Event")
+    val entityLinkingEvents = events.filter(_.odinMention matches "EntityLinker").map { e =>
+      val event = e.odinMention.asInstanceOf[EventMention]
       val trigger = event.trigger.text
       val arguments = event.arguments.map { a =>
         val name = a._1
@@ -121,16 +121,22 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     entityLinkingEvents
   }
   
-  def processPlaySentence(ieSystem: EidosSystem, text: String): (Document, Vector[Mention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
+  def processPlaySentence(
+    ieSystem: EidosSystem,
+    text: String): (Document, Vector[EidosMention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
     // preprocessing
     println(s"Processing sentence : ${text}" )
     val doc = ieSystem.annotate(text)
 
     println(s"DOC : ${doc}")
     // extract mentions from annotated document
-    val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    val annotatedDocument = ieSystem.extractFromText(text, returnAllMentions = true)
+    val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
+
+
+
     println(s"Done extracting the mentions ... ")
-    println(s"They are : ${mentions.map(m => m.text).mkString(",\t")}")
+    println(s"They are : ${mentions.map(m => m.odinMention.text).mkString(",\t")}")
 
     println(s"Grounding the gradable adjectives ... ")
     val groundedEntities = groundEntities(ieSystem, mentions)
@@ -141,7 +147,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println("DONE .... ")
 //    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
     // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
-    (doc, mentions.sortBy(_.start), groundedEntities, events)
+    (doc, mentions.sortBy(_.odinMention.start), groundedEntities, events)
   }
 
   def parseSentence(text: String) = Action {
@@ -190,9 +196,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       sb.toString
   }
 
-  def mkJson(text: String, doc: Document, mentions: Vector[Mention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
+  def mkJson(text: String, doc: Document, eidosMentions: Vector[EidosMention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
     println("Found mentions (in mkJson):")
-    mentions.foreach(DisplayUtils.displayMention)
+    eidosMentions.foreach(eidosMention => DisplayUtils.displayMention(eidosMention.odinMention))
 
     val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
@@ -200,8 +206,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, mentions)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, mentions, causalEvents)
+    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention))
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, causalEvents)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
@@ -216,12 +222,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def mkGroundedObj(groundedEntities: Vector[GroundedEntity],
-                    mentions: Vector[Mention],
+                    mentions: Vector[EidosMention],
                     causalEvents: Vector[(String, Map[String, String])]): String = {
     var objectToReturn = ""
 
     if(groundedEntities.size > 0){
-      objectToReturn += "<h2>Grounded Entities:</h2>"
+      objectToReturn += "<h2>Grounded Concepts:</h2>"
 
       // Make the string for each grounded entity
       val toPrint = for (grounding <- groundedEntities) yield {
@@ -247,21 +253,28 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     else
       objectToReturn += ""
 
-    // Entities
-    val entities = mentions.filter(_ matches "Entity")
+    // Concepts
+    val entities = mentions.filter(_.odinMention matches "Entity")
     if (entities.nonEmpty){
-      objectToReturn += "<h2>Found Entities:</h2>"
+      objectToReturn += "<h2>Found Concepts:</h2>"
       for (entity <- entities) {
-        objectToReturn += s"${DisplayUtils.webAppMention(entity)}"
+        objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
+        // If the UN groundings are available, let's print them too...
+        if (entity.grounding.contains(EidosOntologyGrounder.UN_NAMESPACE)) {
+          objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
+          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.UN_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
+          objectToReturn +=  groundings
+          objectToReturn += "<br><br>"
+        }
       }
     }
 
-
-    val events = mentions.filter(_ matches "Event")
+    // Relations
+    val events = mentions.filter(_.odinMention matches "Event")
     if (events.nonEmpty) {
-      objectToReturn += s"<h2>Found Events:</h2>"
+      objectToReturn += s"<h2>Found Relations:</h2>"
       for (event <- events) {
-        objectToReturn += s"${DisplayUtils.webAppMention(event)}"
+        objectToReturn += s"${DisplayUtils.webAppMention(event.odinMention)}"
       }
     }
 
