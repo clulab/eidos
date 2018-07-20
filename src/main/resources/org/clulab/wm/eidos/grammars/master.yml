@@ -84,7 +84,7 @@ rules:
       addlabel: "Causal"
       label: Causal
       action: pass
-      trigger: "result|effect"
+      trigger: ${reverse_direction_cause_triggers}
 
 
 
