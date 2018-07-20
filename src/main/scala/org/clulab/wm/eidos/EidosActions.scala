@@ -5,7 +5,7 @@ import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -29,7 +29,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
-
     // expand attachments
     val (expandable, textBounds) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
     val expanded = expandArguments(expandable, state)
