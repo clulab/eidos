@@ -18,10 +18,6 @@ rules:
     vars:
       rulepriority: "1"
 
-  #Transparent Words
-  - import: org/clulab/wm/eidos/grammars/transparent.yml
-    vars:
-      rulepriority: "1"
 
   #Events
   # TODO: 'with X, Y...' sentences:
@@ -88,7 +84,7 @@ rules:
       addlabel: "Causal"
       label: Causal
       action: pass
-      trigger: "result|effect"
+      trigger: ${reverse_direction_cause_triggers}
 
 
 

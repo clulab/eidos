@@ -1,15 +1,4 @@
-vars:
-  agents: "nsubj|'nsubj:xsubj'|nsubjpass|csubj|csubjpass|<acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
-  conjunctions: "appos|conj|conj_|cc"
-  complements: "xcomp|ccomp"
-  noun_modifiers: "amod|compound|name|'nsubj:xsubj'" #removed dep
-  negTriggers: "not"
-  objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to"
-  prep_dobjs: "nmod"
-  quant_modifiers: "amod|advmod"
-
-
+vars: org/clulab/wm/eidos/grammars/vars.yml
 
 #
 # The government promotes improved cultivar to boost agricultural production for ensuring food security.
@@ -40,8 +29,8 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
-      theme: Entity = >${complements}? (?! [outgoing=dobj]) ${ agents }
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/ & !outgoing=/dobj|${complements}/ ]  # original rule had RB as possible tag
+      theme: Entity = >${complements}? (?! [outgoing=/dobj|${complements}/]) ${ agents }
       quantifier:Quantifier? = ${quant_modifiers}
 
   # Note: Captures passive voice; thus verb must be VBD|VBN
@@ -52,7 +41,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB|JJR/]
-      theme: Entity = (?! dobj) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
@@ -208,4 +197,4 @@ rules:
     pattern: |
       @theme: Entity
       [lemma=have]
-      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=dobj])
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=/dobj|${complements}/])

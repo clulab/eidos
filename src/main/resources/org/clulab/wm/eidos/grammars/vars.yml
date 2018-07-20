@@ -1,0 +1,27 @@
+agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+
+adverbial_clause: "advcl"
+
+conjunctions: "appos|conj|conj_|cc"
+
+complements: "xcomp|ccomp"
+
+noun_modifiers: "amod|compound|name" #removed dep
+
+negTriggers: "not"
+
+objects: "dobj"
+
+preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_than|acl_of"
+
+prep_dobjs: "nmod"
+
+quant_modifiers: "amod|advmod"
+
+passive_agents: "nmod_by|nmod_agent|agent"
+
+passive_mark_verbs: "marked|defined|indicated|characterized"
+
+transparent_nouns: "level|amount|quantit" # do we need these in general?
+
+# Todo: nmod_from "X will follow from Y"
