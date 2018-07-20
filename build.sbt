@@ -100,3 +100,7 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
+// scaladoc hosting
+enablePlugins(SiteScaladocPlugin)
+enablePlugins(GhpagesPlugin)
+git.remoteRepo := "git@github.com:clulab/eidos.git"
