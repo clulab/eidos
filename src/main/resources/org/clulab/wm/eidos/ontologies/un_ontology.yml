@@ -215,6 +215,7 @@
         - displacement
         - refugee migration
         - emigration
+        - flee        
         name: human_migration
         polarity: 1.0
       - intervention:

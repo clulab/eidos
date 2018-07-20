@@ -160,7 +160,7 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
         factor_b_txt + "\t" + factor_b_norm + "\t" + factor_b_modifier + "\t" + factor_b_polarity + "\t" +
         location + "\t" + time + "\t" + evidence + "\t" +
         factor_a_un + "\t" + factor_a_fao + "\t" + factor_a_wdi + "\t" +
-        factor_b_un + "\t" + factor_b_fao + "\t" + factor_b_wdi
+        factor_b_un + "\t" + factor_b_fao + "\t" + factor_b_wdi + "\n"
 
     } pw.print(row)
   }

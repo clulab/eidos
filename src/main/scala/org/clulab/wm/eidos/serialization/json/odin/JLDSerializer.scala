@@ -6,7 +6,6 @@ import java.util.{Set => JavaSet}
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
-import org.clulab.odin.RelationMention
 import org.clulab.odin.EventMention
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
@@ -42,9 +41,15 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
       noneIfEmpty(jldObjects.map(_.toJObject()).toList)
   
   def newJLDExtraction(mention: Mention): JLDExtraction = mention match {
-    case mention: EventMention => new JLDDirectedRelation(serializer, mention)
-    case mention: RelationMention => new JLDUndirectedRelation(serializer, mention)
+    case mention: EventMention =>
+      if (mention.label == "Causal") // taken from taxonomy
+        new JLDDirectedRelation(serializer, mention)
+      else if (mention.label == "Correlation") // taken from taxonomy
+        new JLDUndirectedRelation(serializer, mention)
+      else throw new IllegalArgumentException("Unknown Mention: " + mention)
+    //case mention: RelationMention =>
     case mention: TextBoundMention => new JLDEntity(serializer, mention)
+    case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
         
   def isExtractable(mention: Mention) = true
@@ -344,18 +349,26 @@ object JLDDirectedRelation {
   val typename = "DirectedRelation"
 }
 
-class JLDUndirectedRelation(serializer: JLDSerializer, mention: Mention)
+class JLDUndirectedRelation(serializer: JLDSerializer, mention: EventMention)
     extends JLDExtraction(serializer, JLDUndirectedRelation.typename, mention) {
-  
-  override def getMentions(): Seq[Mention] =
-    mention.arguments.values.flatten.toSeq.filter(isExtractable)
+
+  override def getMentions(): Seq[Mention] = {
+    val sources = mention.arguments.getOrElse(JLDObject.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.arguments.getOrElse(JLDObject.effect, Seq.empty).filter(isExtractable)
+
+    sources ++ targets ++ super.getMentions()
+  }
 
   override def toJObject(): JObject = {
-    val arguments = mention.arguments.values.flatten.filter(isExtractable) // The keys are skipped
+    val trigger = new JLDTrigger(serializer, mention.trigger).toJObject()
+    val sources = mention.arguments.getOrElse(JLDObject.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.arguments.getOrElse(JLDObject.effect, Seq.empty).filter(isExtractable)
+    val arguments = sources ++ targets
     val argumentMentions = arguments.map(serializer.mkRef).toList
 
     super.toJObject() ~
-        (JLDArgument.plural -> noneIfEmpty(argumentMentions))
+      (JLDTrigger.singular -> trigger) ~
+      (JLDArgument.plural -> noneIfEmpty(argumentMentions))
   }
 }
 
