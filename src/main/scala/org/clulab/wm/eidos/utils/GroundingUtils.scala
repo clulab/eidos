@@ -16,7 +16,7 @@ object GroundingUtils {
   def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5): String = {
     if (mention.grounding.contains(namespace)) {
       val grounding = mention.grounding(namespace)
-      val topkGroundings = grounding.grounding.slice(0,topK).map(grd => (stripMetaDataType(grd._1), grd._2))
+      val topkGroundings = grounding.grounding.take(topK).map(grd => (stripMetaDataType(grd._1), grd._2))
       topkGroundings.mkString(", ")
     }
     else "(namespace unavailable)"
