@@ -104,6 +104,9 @@ abstract class EidosMention(val odinMention: Mention, stopwordManaging: Stopword
     odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, stopwordManaging, ontologyGrounder, mentionMapper))
   }
 
+  protected def remapOdinMention(odinMention: Mention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder, mentionMapper: MentionMapper): EidosMention =
+      EidosMention.asEidosMentions(Seq(odinMention), stopwordManaging, ontologyGrounder, mentionMapper)(0)
+
   // This is lazy because canonicalMentions is called and that may be overridden in the derived class.
   // The overriden method will not be called in this constructor.
   lazy val canonicalName: String = {
@@ -232,13 +235,10 @@ class EidosEventMention(val odinEventMention: EventMention, stopwordManaging: St
 
   val odinTrigger = odinEventMention.trigger
 
-  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, ontologyGrounder, mentionMapper)
-
-  protected def remapOdinTrigger(odinMention: Mention, ontologyGrounder: MultiOntologyGrounder, mentionMapper: MentionMapper): EidosMention =
-      mentionMapper.getOrElse(odinMention, EidosMention.asEidosMentions(Seq(odinMention), stopwordManaging, ontologyGrounder, mentionMapper)(0))
+  val eidosTrigger = remapOdinMention(odinTrigger, stopwordManaging, ontologyGrounder, mentionMapper)
 
   protected override def canonicalMentions: Seq[Mention] =
-      super.canonicalMentions ++ Seq(odinEventMention.trigger)
+      super.canonicalMentions ++ Seq(odinTrigger)
 }
 
 class EidosRelationMention(val odinRelationMention: RelationMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
@@ -249,4 +249,15 @@ class EidosRelationMention(val odinRelationMention: RelationMention, stopwordMan
 class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
     mentionMapper: MentionMapper)
     extends EidosMention(odinCrossSentenceMention, stopwordManaging, ontologyGrounder, mentionMapper) {
+
+  val odinAnchor = odinCrossSentenceMention.anchor
+
+  val eidosAnchor = remapOdinMention(odinAnchor, stopwordManaging, ontologyGrounder, mentionMapper)
+
+  val odinNeighbor = odinCrossSentenceMention.neighbor
+
+  val eidosNeighbor = remapOdinMention(odinNeighbor, stopwordManaging, ontologyGrounder, mentionMapper)
+
+  protected override def canonicalMentions: Seq[Mention] =
+    Seq(odinAnchor, odinNeighbor)
 }
