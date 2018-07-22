@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.groundings
 
 import org.clulab.utils.DependencyUtils
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.slf4j.LoggerFactory
 
 object Aliases {
   type Grounding = Seq[(String, Double)]
@@ -69,12 +70,14 @@ object EidosOntologyGrounder {
   val WDI_NAMESPACE = "wdi"
   val FAO_NAMESPACE = "fao"
 
+  protected val logger = LoggerFactory.getLogger(this.getClass())
+
   def apply(domainOntology: DomainOntology, wordToVec: EidosWordToVec) = {
+    logger.info(s"Processing ${domainOntology.name} ontology...")
     val conceptEmbeddings = domainOntology.iterateOntology(wordToVec)
     val idfOntology = domainOntology.computeIDF()
     new EidosOntologyGrounder(domainOntology.name, conceptEmbeddings, wordToVec, idfOntology)
   }
-
 
 //  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {
 //    val ontology = DomainOntology(FileUtils.loadYamlFromResource(ontologyPath), filterOnPos = false)

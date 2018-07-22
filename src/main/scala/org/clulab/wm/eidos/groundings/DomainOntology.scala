@@ -13,16 +13,16 @@ import org.yaml.snakeyaml.constructor.Constructor
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class OntologyNode(crumbs: Seq[String], name: String, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) {
+class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) {
 
   protected def split(values: Option[Seq[String]]): Seq[String] =
-      if (values.isEmpty) Seq.empty
-      else values.get.flatMap(_.split(" +"))
+    if (values.isEmpty) Seq.empty
+    else values.get.flatMap(_.split(" +"))
 
   // There can already be a / in any of the stages of the route that must be escaped.
   // First, double up any existing backslashes, then escape the forward slashes with backslashes.
   protected def escapeRoute: Seq[String] =
-      route.map(_.replace("\\", "\\\\").replace(OntologyNode.SEPARATOR, "\\" + OntologyNode.SEPARATOR))
+    route.map(_.replace("\\", "\\\\").replace(OntologyNode.SEPARATOR, "\\" + OntologyNode.SEPARATOR))
 
   def path: String = escapeRoute.mkString(OntologyNode.SEPARATOR)
 
@@ -41,6 +41,7 @@ object OntologyNode {
 class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) {
 
   def iterateOntology(wordToVec: EidosWordToVec): Seq[ConceptEmbedding] =
+
       ontologyNodes.map { ontologyNode =>
         ConceptEmbedding(ontologyNode.path, wordToVec.makeCompositeVector(ontologyNode.values))
       }
@@ -72,6 +73,7 @@ object DomainOntology {
   val NAME = "name"
   val EXAMPLES = "examples"
   val DESCRIPTION = "descriptions"
+  val POLARITY = "polarity"
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
   class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor, filter: Boolean) {
@@ -129,15 +131,16 @@ object DomainOntology {
       yamlNodes.get(name).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
 
     protected def parseOntology(yamlNodes: mutable.Map[String, JCollection[Any]], ontologyNodes: Seq[OntologyNode],
-        route: Seq[String]): Seq[OntologyNode] = {
+                                route: Seq[String]): Seq[OntologyNode] = {
       val name = yamlNodes.get(DomainOntology.NAME).get.asInstanceOf[String]
       val examples = yamlNodesToStrings(yamlNodes, DomainOntology.EXAMPLES)
       val descriptions = yamlNodesToStrings(yamlNodes, DomainOntology.DESCRIPTION)
+      val polarity = yamlNodes.get(DomainOntology.POLARITY).get.asInstanceOf[Double]
       val filteredDescriptions =
-          if (descriptions.isEmpty) descriptions
-          else Some(descriptions.get.flatMap(filtered))
+        if (descriptions.isEmpty) descriptions
+        else Some(descriptions.get.flatMap(filtered))
 
-      ontologyNodes :+ new OntologyNode(route, name, examples, filteredDescriptions)
+      ontologyNodes :+ new OntologyNode(route, name, polarity,  examples, filteredDescriptions)
     }
 
     protected def parseOntology(yamlNodes: Seq[Any], ontologyNodes: Seq[OntologyNode], crumbs: Seq[String]): Seq[OntologyNode] = {
@@ -145,8 +148,8 @@ object DomainOntology {
         val map: mutable.Map[String, JCollection[Any]] = yamlNodes.head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
         val moreOntologyNodes =
-            if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, crumbs)
-            else parseOntology(map(key).asScala.toSeq, ontologyNodes, key +: crumbs)
+          if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, crumbs)
+          else parseOntology(map(key).asScala.toSeq, ontologyNodes, key +: crumbs)
 
         parseOntology(yamlNodes.tail, moreOntologyNodes, crumbs)
       }
@@ -156,7 +159,7 @@ object DomainOntology {
   }
 
   def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean): DomainOntology =
-      new DomainOntologyBuilder(name, ontologyPath, proc, filter).build()
+    new DomainOntologyBuilder(name, ontologyPath, proc, filter).build()
 }
 
 // These are just here for when behavior might have to start differing.

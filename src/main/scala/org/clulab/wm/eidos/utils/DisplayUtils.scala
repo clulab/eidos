@@ -116,5 +116,7 @@ object DisplayUtils {
   def webAppMention(mention: Mention): String =
       xml.Utility.escape(mentionToDisplayString(mention))
           .replaceAll(nl, "<br>")
-          .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")
+          .replaceAll(tab, htmlTab)
+
+  def htmlTab: String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 }

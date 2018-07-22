@@ -8,6 +8,7 @@ noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|dow
 # NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
 cause_triggers: "activat|allow|because|cataly|caus|contribut|driv|due|elicit|enabl|force|forcing|help|induc|initiat|interconvert|lead|^led$|mediat|modulat|signal|synthes|trigger|underli"
 nonavoid_causal_triggers: "produc"
+reverse_direction_cause_triggers: "result|effect|consequence"
 
 affect_triggers: "affect|alter|(displaces?$)|chang|influenc|modifi|modify"
 nonavoid_affect_triggers: "impact"
