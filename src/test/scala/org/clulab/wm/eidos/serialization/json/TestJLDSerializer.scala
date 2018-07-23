@@ -1,14 +1,10 @@
 package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.odin.{Attachment, CrossSentenceMention, Mention}
-import org.clulab.processors.Document
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
@@ -29,22 +25,13 @@ class TestJLDSerializer extends Test {
   }
   
   def serialize(corpus: Corpus) = {
-    val json1 = {
-      val jldCorpus = new JLDOdinCorpus(corpus, TestUtils.ieSystem)
-      val jValue = jldCorpus.serialize()
-      stringify(jValue, true)
-    }
-    
-    val json2 = {
+    val json = {
       val jldCorpus = new JLDEidosCorpus(corpus, TestUtils.ieSystem)
       val jValue = jldCorpus.serialize()
       stringify(jValue, true)
     }
     
-//    if (json1 != json2)
-//      println(json1 + json2)
-      
-    json1 + json2
+    json
   }
   
   def inspect(string: String): Unit =
@@ -132,7 +119,7 @@ class TestJLDSerializer extends Test {
     val firstMention = prevOdinMentions.head
     val lastMention = prevOdinMentions.last
     val crossSentenceMention = new CrossSentenceMention(
-        Seq("label1", "label2", "...", "labelN"),
+        Seq("Coreference", "label1", "label2", "...", "labelN"),
         firstMention,
         lastMention,
         Map(("first" -> Seq(firstMention)), ("last" -> Seq(lastMention))),

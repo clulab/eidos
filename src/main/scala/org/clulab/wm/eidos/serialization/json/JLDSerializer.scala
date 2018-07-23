@@ -3,8 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 
-import org.clulab.odin.Attachment
-import org.clulab.odin.Mention
+import org.clulab.odin.{Attachment, CrossSentenceMention, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
@@ -42,7 +41,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
     case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention)
     //case mention: EidosRelationMention =>
-    case mention: CrossSentenceMention => JLDRelation.newJLDRelation(serializer, mention)
+    case mention: EidosCrossSentenceMention => JLDRelation.newJLDRelation(serializer, mention)
     case mention: EidosTextBoundMention => new JLDConceptEntity(serializer, mention)
     case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
@@ -457,7 +456,7 @@ object JLDRelationCorrelation {
 }
 
 class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSentenceMention)
-  extends JLDRelation(serializer, JLDRelationCorrelation.subtypeString, mention) {
+  extends JLDRelation(serializer, JLDRelationCoreference.subtypeString, mention) {
 
   override def getMentions: Seq[EidosMention] =
       Seq(mention.eidosAnchor, mention.eidosNeighbor) ++ super.getMentions
