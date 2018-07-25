@@ -124,7 +124,7 @@ object DomainOntology {
       if (yamlNodes.nonEmpty) {
         val head = yamlNodes.head
         if (head.isInstanceOf[String])
-          throw new Exception(s"Ontology has string ($head.asInstanceOf[String]) where it should have a map.")
+          throw new Exception(s"Ontology has string (${head.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
         val moreOntologyNodes =
