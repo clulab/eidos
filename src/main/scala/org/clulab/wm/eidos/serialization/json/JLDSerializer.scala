@@ -613,7 +613,12 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
   }
 
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
-    val ordering = Array(JLDConceptEntity.subtypeString, JLDRelationCausation.subtypeString, JLDRelationCorrelation.subtypeString)
+    val ordering = Array(
+        JLDConceptEntity.subtypeString,
+        JLDRelationCausation.subtypeString,
+        JLDRelationCorrelation.subtypeString,
+        JLDRelationCoreference.subtypeString
+    )
     val mapOfMentions = new JIdentityHashMap[EidosMention, Int]()
 
     def lt(left: JLDExtraction, right: JLDExtraction) = {
