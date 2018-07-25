@@ -122,7 +122,10 @@ object DomainOntology {
 
     protected def parseOntology(yamlNodes: Seq[Any], ontologyNodes: Seq[OntologyNode], crumbs: Seq[String]): Seq[OntologyNode] = {
       if (yamlNodes.nonEmpty) {
-        val map: mutable.Map[String, JCollection[Any]] = yamlNodes.head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
+        val head = yamlNodes.head
+        if (head.isInstanceOf[String])
+          throw new Exception(s"Ontology has string ($head.asInstanceOf[String]) where it should have a map.")
+        val map: mutable.Map[String, JCollection[Any]] = head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
         val moreOntologyNodes =
             if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, crumbs)
