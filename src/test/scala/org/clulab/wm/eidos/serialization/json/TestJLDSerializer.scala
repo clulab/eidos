@@ -114,11 +114,12 @@ class TestJLDSerializer extends Test {
   }
 
   it should "work with cross-sentence mentions" in {
-    val prevTitledAnnotatedDocument = newTitledAnnotatedDocument(p1, "p1")
-    val prevOdinMentions = prevTitledAnnotatedDocument.odinMentions
-    val firstMention = prevOdinMentions.head
-    val lastMention = prevOdinMentions.last
-    val crossSentenceMention = new CrossSentenceMention(
+
+    def addCrossSentenceMention(prevAnnotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+      val prevOdinMentions = prevAnnotatedDocument.odinMentions
+      val firstMention = prevOdinMentions.head
+      val lastMention = prevOdinMentions.last
+      val crossSentenceMention = new CrossSentenceMention(
         Seq("Coreference", "label1", "label2", "...", "labelN"),
         firstMention,
         lastMention,
@@ -127,11 +128,17 @@ class TestJLDSerializer extends Test {
         true,
         "Found by me",
         Set.empty
-    )
-    val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-    val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, TestUtils.ieSystem.loadableAttributes.stopwordManager, TestUtils.ieSystem)
-    val nextTitledAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
-    val json = serialize(Seq(nextTitledAnnotatedDocument))
+      )
+      val nextOdinMentions = crossSentenceMention +: prevOdinMentions
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, TestUtils.ieSystem.loadableAttributes.stopwordManager, TestUtils.ieSystem)
+      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
+
+      nextAnnotatedDocument
+    }
+
+    val prevAnnotatedDocument = newTitledAnnotatedDocument(p1, "p1")
+    val nextAnnotatedDocument = addCrossSentenceMention(prevAnnotatedDocument)
+    val json = serialize(Seq(nextAnnotatedDocument))
 
     inspect(json)
     json should not be empty
