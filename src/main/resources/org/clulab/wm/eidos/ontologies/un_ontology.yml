@@ -839,7 +839,7 @@
         - family
         - ethnic group
         - population
-        name: communities
+        name: population
         polarity: 1.0
       - food:
         - OntologyNode:
