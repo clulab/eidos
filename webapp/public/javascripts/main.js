@@ -388,7 +388,8 @@ head.ready(function() {
 
         // collect form data
         var formData = {
-            'sent': $('textarea[name=text]').val()
+            'sent': $('textarea[name=text]').val(),
+            'cagRelevantOnly': $('input[name=cagRelevantOnly]').is(':checked')
         }
 
         if (!formData.sent.trim()) {

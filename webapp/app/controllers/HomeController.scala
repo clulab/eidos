@@ -45,8 +45,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   // Entry method
-  def parseSentence(text: String) = Action {
-    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text)
+  def parseSentence(text: String, cagRelevantOnly: Boolean) = Action {
+    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text, cagRelevantOnly)
     println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText()}")
     val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
@@ -55,7 +55,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // Method where eidos happens!
   def processPlaySentence(
     ieSystem: EidosSystem,
-    text: String): (Document, Vector[EidosMention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
+    text: String,
+    cagRelevantOnly: Boolean): (Document, Vector[EidosMention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
 
     // preprocessing
     println(s"Processing sentence : ${text}" )
@@ -64,7 +65,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     // Debug
     println(s"DOC : ${doc}")
     // extract mentions from annotated document
-    val annotatedDocument = ieSystem.extractFromText(text, returnAllMentions = false)
+    val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
     val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
 
 
