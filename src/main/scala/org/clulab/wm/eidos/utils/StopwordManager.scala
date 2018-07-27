@@ -24,6 +24,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String) extends St
     //println(s"Checking mention: ${mention.text}")
     lemmas.indices.exists { i =>
       isContentPOS(tags(i)) &&
+      tags(i) != "VBN" && // we don't want entities/concepts which consist ONLY of a VBN
       !containsStopword(lemmas(i)) &&
         !StopwordManager.STOP_POS.contains(tags(i)) &&
         !StopwordManager.STOP_NER.contains(entities(i))
@@ -31,6 +32,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String) extends St
   }
 
   def isContentPOS(tag: String): Boolean = StopwordManager.CONTENT_POS_PREFIXES.exists(prefix => tag.startsWith(prefix))
+
 
   def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] =
       // Remove mentions which are entirely stop/transparent words

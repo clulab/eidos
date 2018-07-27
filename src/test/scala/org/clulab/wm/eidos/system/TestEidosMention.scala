@@ -24,7 +24,7 @@ class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrou
         println(text)
     }
 
-    val extractedOdinMentions = ieSystem.extractFromText(text, returnAllMentions = true).odinMentions
+    val extractedOdinMentions = ieSystem.extractFromText(text, cagRelevantOnly = false).odinMentions
     val reachableOdinMentions = EidosMention.findReachableMentions(extractedOdinMentions)
 
     {
