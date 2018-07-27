@@ -139,7 +139,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, returnAllMentions: Boolean = false): AnnotatedDocument = {
+  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true): AnnotatedDocument = {
     val doc = annotate(text, keepText)
     val odinMentions = extractFrom(doc)
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
@@ -159,7 +159,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
 
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
-    val cagRelevant = if (returnAllMentions) mentionsAndNestedArgs else keepCAGRelevant(mentionsAndNestedArgs)
+    val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)
