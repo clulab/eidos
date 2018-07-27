@@ -44,6 +44,46 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(views.html.index())
   }
 
+  // Entry method
+  def parseSentence(text: String) = Action {
+    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text)
+    println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText()}")
+    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    Ok(json)
+  }
+
+  // Method where eidos happens!
+  def processPlaySentence(
+    ieSystem: EidosSystem,
+    text: String): (Document, Vector[EidosMention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
+
+    // preprocessing
+    println(s"Processing sentence : ${text}" )
+    val doc = ieSystem.annotate(text)
+
+    // Debug
+    println(s"DOC : ${doc}")
+    // extract mentions from annotated document
+    val annotatedDocument = ieSystem.extractFromText(text, returnAllMentions = false)
+    val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
+
+
+    println(s"Done extracting the mentions ... ")
+    println(s"They are : ${mentions.map(m => m.odinMention.text).mkString(",\t")}")
+
+    println(s"Grounding the gradable adjectives ... ")
+    val groundedEntities = groundEntities(ieSystem, mentions)
+
+    println(s"Getting entity linking events ... ")
+    val events = getEntityLinkerEvents(mentions)
+
+    println("DONE .... ")
+    //    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
+    // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
+    (doc, mentions.sortBy(_.odinMention.start), groundedEntities, events)
+  }
+
+
   case class GroundedEntity(sentence: String,
                             quantifier: Quantifier,
                             entity: Entity,
@@ -120,42 +160,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     entityLinkingEvents
   }
-  
-  def processPlaySentence(
-    ieSystem: EidosSystem,
-    text: String): (Document, Vector[EidosMention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
-    // preprocessing
-    println(s"Processing sentence : ${text}" )
-    val doc = ieSystem.annotate(text)
-
-    println(s"DOC : ${doc}")
-    // extract mentions from annotated document
-    val annotatedDocument = ieSystem.extractFromText(text, returnAllMentions = true)
-    val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
 
 
-
-    println(s"Done extracting the mentions ... ")
-    println(s"They are : ${mentions.map(m => m.odinMention.text).mkString(",\t")}")
-
-    println(s"Grounding the gradable adjectives ... ")
-    val groundedEntities = groundEntities(ieSystem, mentions)
-
-    println(s"Getting entity linking events ... ")
-    val events = getEntityLinkerEvents(mentions)
-
-    println("DONE .... ")
-//    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
-    // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
-    (doc, mentions.sortBy(_.odinMention.start), groundedEntities, events)
-  }
-
-  def parseSentence(text: String) = Action {
-    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text)
-    println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText()}")
-    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
-    Ok(json)
-  }
 
   protected def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
     def getTdAt(option: Option[Array[String]], n: Int): String = {
