@@ -34,22 +34,22 @@ class TestDomainOntology extends Test {
 
   behavior of "un ontology"
   it should "load and not have duplicates" in {
-    hasDuplicates(UNOntology("un", "/org/clulab/wm/eidos/ontologies/un_ontology.yml", proc, filter)) should be (false)
+    hasDuplicates(UNOntology("un", "/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter)) should be (false)
   }
 
   behavior of "fao ontology"
   it should "load and not have duplicates" in {
-    hasDuplicates(FAOOntology("fao", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", proc, filter)) should be (false)
+    hasDuplicates(FAOOntology("fao", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter)) should be (false)
   }
 
   behavior of "wdi ontology"
   it should "load and not have duplicates" in {
-    hasDuplicates(WDIOntology("wdi", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", proc, filter)) should be (false)
+    hasDuplicates(WDIOntology("wdi", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter)) should be (false)
   }
 
   // TODO: This one appears to have many duplicates.
   behavior of "topoFlow ontology"
   ignore should "load and not have duplicates" in {
-    hasDuplicates(TopoFlowOntology("topo", "/org/clulab/wm/eidos/ontologies/topoflow_ontology.yml", proc, filter)) should be (false)
+    hasDuplicates(TopoFlowOntology("topo", "/org/clulab/wm/eidos/ontologies/topoflow_ontology.yml", "",proc, filter)) should be (false)
   }
 }

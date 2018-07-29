@@ -1,7 +1,9 @@
 package org.clulab.wm.eidos.groundings
 
+import java.io.File
 import java.util.{Collection => JCollection, Map => JMap}
 
+import org.clulab.utils.Serializer
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
@@ -12,7 +14,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) {
+class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends Serializable {
 
   protected def split(values: Option[Seq[String]]): Seq[String] =
       if (values.isEmpty) Seq.empty
@@ -37,12 +39,16 @@ object OntologyNode {
   val SEPARATOR = "/"
 }
 
-class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) {
+class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) extends Serializable {
 
   def iterateOntology(wordToVec: EidosWordToVec): Seq[ConceptEmbedding] =
       ontologyNodes.map { ontologyNode =>
         ConceptEmbedding(ontologyNode.path, wordToVec.makeCompositeVector(ontologyNode.values))
       }
+
+  def save(filename: String) = {
+    Serializer.save[DomainOntology](this, filename)
+  }
 }
 
 object DomainOntology {
@@ -52,10 +58,20 @@ object DomainOntology {
   val DESCRIPTION = "descriptions"
   val POLARITY = "polarity"
 
+  def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
+
+  // Load from serialized
+  def load(name: String, cachedDir: String): DomainOntology = {
+    val path = serializedPath(name, cachedDir)
+    println(s"Loading serialized ontology from $path")
+    Serializer.load[DomainOntology](path)
+  }
+
   // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor, filter: Boolean) {
+  class DomainOntologyBuilder(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean) {
 
     def build(): DomainOntology = {
+
       val text = getTextFromResource(ontologyPath)
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
@@ -138,23 +154,55 @@ object DomainOntology {
     }
   }
 
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean): DomainOntology =
-      new DomainOntologyBuilder(name, ontologyPath, proc, filter).build()
+  def loadCachedOntology(name: String, ontologyPath: String, cachedDir: String): Option[DomainOntology] = {
+    // Check to see if there is a cached ontology in the cached dir corresponding to the namespace
+    // Get the timestamps of the files
+    val cachedFile = new File(s"$cachedDir/$name.serialized")
+    // If there is a cached file
+    if (cachedFile.exists) {
+      val textOntology = new File(ontologyPath)
+      // Is there a yml version?
+       if (textOntology.exists) {
+        val cachedTimestamp = cachedFile.lastModified()
+        val textTimestamp = textOntology.lastModified()
+        if (cachedTimestamp > textTimestamp) {
+          // If both versions exist, and the cached version is newer, load it
+          return Some(DomainOntology.load(name, cachedDir))
+        }
+      } else {
+        // If only a cached version exists, by all means load it!
+        return Some(DomainOntology.load(name, cachedDir))
+      }
+    }
+
+    // Otherwise, if there is no cached version, return None
+    None
+  }
+
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean): DomainOntology = {
+    // If there is a cached version which is newer than the ontology path, load it
+    val loaded = loadCachedOntology(name, ontologyPath, cachedDir)
+    if (loaded.nonEmpty) {
+      return loaded.get
+    }
+    // else, build one
+    new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
+  }
 }
 
 // These are just here for when behavior might have to start differing.
 object UNOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
 }
 
 object WDIOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
 }
 
 object FAOOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
 }
 
 object TopoFlowOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
 }
