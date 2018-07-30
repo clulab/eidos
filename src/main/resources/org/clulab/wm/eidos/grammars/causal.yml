@@ -115,7 +115,7 @@ rules:
     pattern: |
       trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
       effect: Entity = nmod_to /${preps}/{,4}
-      cause: Entity = <ccomp? /${agents}/ /${noun_modifiers}|${objects}/{,2}
+      cause: Entity = <ccomp? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
 
   - name: contribToSyntax1-${addlabel}
     priority: ${rulepriority}
