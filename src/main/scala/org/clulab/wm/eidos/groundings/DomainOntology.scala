@@ -1,23 +1,18 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{File, FileInputStream}
+import java.io.{FileInputStream}
 import java.util.{Collection => JCollection, Map => JMap}
 
 import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
-import org.clulab.processors.{Document, Processor, Sentence}
+import org.clulab.processors.{Processor, Sentence}
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
-import org.clulab.utils.Serializer.getClass
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
-import org.clulab.wm.eidos.utils.Sourcer
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import org.json4s.JsonDSL._
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 
 @SerialVersionUID(1000L)
 class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends Serializable {
