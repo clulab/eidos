@@ -174,6 +174,7 @@ object DomainOntology {
     if(loadFromSerialized) {
       DomainOntology.load(serializedPath(name, cachedDir))
     } else {
+      println("Processing yml ontology...")
       new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
     }
   }
