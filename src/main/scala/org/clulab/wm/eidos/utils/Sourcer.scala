@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.utils
 
 import java.io.{File, FileNotFoundException}
-import java.net.URL
 import java.nio.charset.StandardCharsets
 
 import org.slf4j.LoggerFactory
@@ -12,22 +11,12 @@ import scala.io.Source
 object Sourcer {
   val logger = LoggerFactory.getLogger(this.getClass())
   val utf8 = StandardCharsets.UTF_8.toString
-
-  // Keith wrote this, i moved it to it's own method to use it... was part of the below which works
-  def resourceURL(path: String): URL = {
+  
+  def sourceFromResource(path: String): BufferedSource = {
     val url = Sourcer.getClass.getResource(path)
 
-//    if (url == null)
-//      throw newFileNotFoundException(path)
-
-    url
-  }
-
-  def sourceFromResource(path: String): BufferedSource = {
-    val url = resourceURL(path)
     if (url == null)
       throw newFileNotFoundException(path)
-
     logger.info("Sourcing resource " + url.getPath())
     Source.fromURL(url, utf8)
   }
