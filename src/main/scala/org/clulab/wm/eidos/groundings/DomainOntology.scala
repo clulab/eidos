@@ -8,12 +8,18 @@ import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.clulab.wm.eidos.utils.Sourcer
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import org.json4s.JsonDSL._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
+
+@SerialVersionUID(1000L)
 class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends Serializable {
 
   protected def split(values: Option[Seq[String]]): Seq[String] =
@@ -27,10 +33,10 @@ class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples
 
   def path: String = escapeRoute.mkString(OntologyNode.SEPARATOR)
 
-  val route = (name +: crumbs).reverse
+  val route = (name +: crumbs).reverse.toArray
 
   // Right now it doesn't matter where these come from, so they can be combined.
-  val values: Seq[String] = split(examples) ++ split(descriptions)
+  val values: Array[String] = (split(examples) ++ split(descriptions)).toArray
 
   override def toString = path + " = " + values.toList
 }
@@ -39,7 +45,8 @@ object OntologyNode {
   val SEPARATOR = "/"
 }
 
-class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) extends Serializable {
+@SerialVersionUID(1000L)
+class DomainOntology(val name: String, val ontologyNodes: Array[OntologyNode]) extends Serializable {
 
   def iterateOntology(wordToVec: EidosWordToVec): Seq[ConceptEmbedding] =
       ontologyNodes.map { ontologyNode =>
@@ -47,7 +54,7 @@ class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) ext
       }
 
   def save(filename: String) = {
-    Serializer.save[DomainOntology](this, filename)
+    Serializer.save(this, filename)
   }
 }
 
@@ -61,10 +68,13 @@ object DomainOntology {
   def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
 
   // Load from serialized
-  def load(name: String, cachedDir: String): DomainOntology = {
-    val path = serializedPath(name, cachedDir)
+  def load(path: String): DomainOntology = {
     println(s"Loading serialized ontology from $path")
     Serializer.load[DomainOntology](path)
+  }
+
+  def fromJSON(name: String, cachedDir: String): DomainOntology = {
+    ???
   }
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
@@ -77,7 +87,7 @@ object DomainOntology {
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(yamlNodes, Seq.empty, Seq.empty)
 
-      new DomainOntology(name, ontologyNodes)
+      new DomainOntology(name, ontologyNodes.toArray)
     }
 
     protected val getSentences: (String => Array[Sentence]) = proc match {
@@ -157,7 +167,8 @@ object DomainOntology {
   def loadCachedOntology(name: String, ontologyPath: String, cachedDir: String): Option[DomainOntology] = {
     // Check to see if there is a cached ontology in the cached dir corresponding to the namespace
     // Get the timestamps of the files
-    val cachedFile = new File(s"$cachedDir/$name.serialized")
+    val cachedPath = Sourcer.resourceURL(s"$cachedDir/$name.serialized").getPath
+    val cachedFile = new File(cachedPath)
     // If there is a cached file
     if (cachedFile.exists) {
       val textOntology = new File(ontologyPath)
@@ -167,11 +178,11 @@ object DomainOntology {
         val textTimestamp = textOntology.lastModified()
         if (cachedTimestamp > textTimestamp) {
           // If both versions exist, and the cached version is newer, load it
-          return Some(DomainOntology.load(name, cachedDir))
+          return Some(DomainOntology.load(cachedPath))
         }
       } else {
         // If only a cached version exists, by all means load it!
-        return Some(DomainOntology.load(name, cachedDir))
+        return Some(DomainOntology.load(cachedPath))
       }
     }
 

@@ -108,12 +108,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
       // Domain Ontologies:
       val loadedOntologies = domainOntologies
+
       // To facilitate the loading of cached ontologies (i.e., to save time!), check to see if the current ontologies need to be saved
       println(s"saveOntologies = $saveOntologies")
       if (saveOntologies) {
-        val cachedPath = Sourcer.resourceURL(cachedOntologiesDir).getFile()
+        val cachedPath = Sourcer.resourceURL(cachedOntologiesDir).getPath()
+        println("Sourcing resource " + cachedPath)
         println(s"Saving ontologies to $cachedPath...")
-        loadedOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, "/Users/bsharp/temp")))
+        loadedOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, cachedPath)))
       }
       val ontologyGrounders = loadedOntologies.map(EidosOntologyGrounder(_, wordToVec))
 

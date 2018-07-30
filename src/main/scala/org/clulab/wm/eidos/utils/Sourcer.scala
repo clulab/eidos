@@ -13,6 +13,7 @@ object Sourcer {
   val logger = LoggerFactory.getLogger(this.getClass())
   val utf8 = StandardCharsets.UTF_8.toString
 
+  // Keith wrote this, i moved it to it's own method to use it... was part of the below which works
   def resourceURL(path: String): URL = {
     val url = Sourcer.getClass.getResource(path)
 
