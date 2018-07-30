@@ -5,7 +5,7 @@ import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Sourcer
 import org.slf4j.LoggerFactory
 
-trait EidosWordToVec extends Serializable{
+trait EidosWordToVec {
   type Similarities = Seq[(String, Double)]
 
   def stringSimilarity(string1: String, string2: String): Double
