@@ -1,7 +1,5 @@
 package org.clulab.wm.eidos
 
-import java.io.File
-
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.clu.CluProcessor
