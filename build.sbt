@@ -76,7 +76,19 @@ pomExtra :=
 // end publishing settings
 //
 
-lazy val core = project in file(".")
+lazy val core = (project in file("."))
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoPackage := "org.clulab.wm.eidos",
+    buildInfoOptions += BuildInfoOption.BuildTime,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
+      "gitCurrentBranch" -> { git.gitCurrentBranch.value },
+      "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
+      "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
+      "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
+    )
+  )
 
 lazy val webapp = project
   .enablePlugins(PlayScala)
