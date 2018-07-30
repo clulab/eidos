@@ -1,12 +1,13 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.File
+import java.io.{File, FileInputStream}
 import java.util.{Collection => JCollection, Map => JMap}
 
-import org.clulab.utils.Serializer
+import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
+import org.clulab.utils.Serializer.getClass
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
 import org.clulab.wm.eidos.utils.Sourcer
 import org.yaml.snakeyaml.Yaml
@@ -69,9 +70,16 @@ object DomainOntology {
   // Load from serialized
   def load(path: String): DomainOntology = {
     println(s"Loading serialized ontology from $path")
-    val ont = Serializer.load[DomainOntology](path)
-    println("Ont loaded!")
-    ont
+    // fixme: the following 5 lines are directly from Serializer.  We were having problems with the ClassLoader not
+    // being able to find DomainOntology from within the webapp submodule, so we put it here.  This is nonideal,
+    // and should be fixed
+    val cl = getClass().getClassLoader()
+    val fis = new FileInputStream(path)
+    val ois = new ClassLoaderObjectInputStream(cl, fis)
+    val obj = ois.readObject().asInstanceOf[DomainOntology]
+    ois.close()
+    println("Serialized Ontology successfully loaded.")
+    obj
   }
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
@@ -161,13 +169,10 @@ object DomainOntology {
     }
   }
 
-  def loadCachedOntology(name: String, cachedDir: String): DomainOntology = DomainOntology.load(serializedPath(name, cachedDir))
-
 
   def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean, loadFromSerialized: Boolean = false): DomainOntology = {
     if(loadFromSerialized) {
-      // load the serialized
-      loadCachedOntology(name, cachedDir)
+      DomainOntology.load(serializedPath(name, cachedDir))
     } else {
       new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
     }
