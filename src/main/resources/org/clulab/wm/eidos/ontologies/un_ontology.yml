@@ -112,6 +112,13 @@
           polarity: 1.0
       - OntologyNode:
         examples:
+        - insecurity
+        - instability
+        - physical insecurity
+        name: physical_insecurity
+        polarity: 1.0
+      - OntologyNode:
+        examples:
         - conflict
         - war
         - fighting
