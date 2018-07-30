@@ -24,7 +24,7 @@ trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
-class EidosOntologyGrounder(var name: String, conceptEmbeddings: Seq[ConceptEmbedding], wordToVec: EidosWordToVec) extends OntologyGrounder with Serializable {
+class EidosOntologyGrounder(var name: String, conceptEmbeddings: Seq[ConceptEmbedding], wordToVec: EidosWordToVec) extends OntologyGrounder {
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
