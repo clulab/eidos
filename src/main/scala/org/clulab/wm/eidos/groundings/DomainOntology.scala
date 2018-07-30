@@ -69,7 +69,9 @@ object DomainOntology {
   // Load from serialized
   def load(path: String): DomainOntology = {
     println(s"Loading serialized ontology from $path")
-    Serializer.load[DomainOntology](path)
+    val ont = Serializer.load[DomainOntology](path)
+    println("Ont loaded!")
+    ont
   }
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
@@ -159,56 +161,32 @@ object DomainOntology {
     }
   }
 
-  def loadCachedOntology(name: String, ontologyPath: String, cachedDir: String): Option[DomainOntology] = {
-    // Check to see if there is a cached ontology in the cached dir corresponding to the namespace
-    // Get the timestamps of the files
-    val cachedPath = Sourcer.resourceURL(s"$cachedDir/$name.serialized").getPath
-    val cachedFile = new File(cachedPath)
-    // If there is a cached file
-    if (cachedFile.exists) {
-      val textOntology = new File(ontologyPath)
-      // Is there a yml version?
-       if (textOntology.exists) {
-        val cachedTimestamp = cachedFile.lastModified()
-        val textTimestamp = textOntology.lastModified()
-        if (cachedTimestamp > textTimestamp) {
-          // If both versions exist, and the cached version is newer, load it
-          return Some(DomainOntology.load(cachedPath))
-        }
-      } else {
-        // If only a cached version exists, by all means load it!
-        return Some(DomainOntology.load(cachedPath))
-      }
-    }
+  def loadCachedOntology(name: String, cachedDir: String): DomainOntology = DomainOntology.load(serializedPath(name, cachedDir))
 
-    // Otherwise, if there is no cached version, return None
-    None
-  }
 
-  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean): DomainOntology = {
-    // If there is a cached version which is newer than the ontology path, load it
-    val loaded = loadCachedOntology(name, ontologyPath, cachedDir)
-    if (loaded.nonEmpty) {
-      return loaded.get
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean, loadFromSerialized: Boolean = false): DomainOntology = {
+    if(loadFromSerialized) {
+      // load the serialized
+      loadCachedOntology(name, cachedDir)
+    } else {
+      new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
     }
-    // else, build one
-    new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
   }
 }
 
 // These are just here for when behavior might have to start differing.
 object UNOntology {
-  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }
 
 object WDIOntology {
-  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }
 
 object FAOOntology {
-  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }
 
 object TopoFlowOntology {
-  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, cachedDir, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }

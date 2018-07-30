@@ -85,7 +85,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
     def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-    def saveOntologies: Boolean = getArgBoolean(getFullName("saveOntologies"), Option(false))
+    def loadSerializedOnts: Boolean = getArgBoolean(getFullName("loadCachedOntologies"), Option(false))
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
@@ -93,9 +93,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc)
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
@@ -110,11 +110,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val loadedOntologies = domainOntologies
 
       // To facilitate the loading of cached ontologies (i.e., to save time!), check to see if the current ontologies need to be saved
-      if (saveOntologies) {
-        val cachedPath = Sourcer.resourceURL(cachedOntologiesDir).getPath()
-        println(s"Saving ontologies to $cachedPath...")
-        loadedOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, cachedPath)))
-      }
+//      if (saveOntologies) {
+//        val cachedPath = Sourcer.resourceURL(cachedOntologiesDir).getPath()
+//        println(s"Saving ontologies to $cachedPath...")
+//        loadedOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, cachedPath)))
+//      }
       val ontologyGrounders = loadedOntologies.map(EidosOntologyGrounder(_, wordToVec))
 
       new LoadableAttributes(
