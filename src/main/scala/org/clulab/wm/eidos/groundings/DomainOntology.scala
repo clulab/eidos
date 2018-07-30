@@ -18,7 +18,6 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-
 @SerialVersionUID(1000L)
 class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends Serializable {
 
@@ -71,10 +70,6 @@ object DomainOntology {
   def load(path: String): DomainOntology = {
     println(s"Loading serialized ontology from $path")
     Serializer.load[DomainOntology](path)
-  }
-
-  def fromJSON(name: String, cachedDir: String): DomainOntology = {
-    ???
   }
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.

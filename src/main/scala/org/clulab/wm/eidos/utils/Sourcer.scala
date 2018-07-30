@@ -17,14 +17,17 @@ object Sourcer {
   def resourceURL(path: String): URL = {
     val url = Sourcer.getClass.getResource(path)
 
-    if (url == null)
-      throw newFileNotFoundException(path)
+//    if (url == null)
+//      throw newFileNotFoundException(path)
 
     url
   }
 
   def sourceFromResource(path: String): BufferedSource = {
     val url = resourceURL(path)
+    if (url == null)
+      throw newFileNotFoundException(path)
+
     logger.info("Sourcing resource " + url.getPath())
     Source.fromURL(url, utf8)
   }
