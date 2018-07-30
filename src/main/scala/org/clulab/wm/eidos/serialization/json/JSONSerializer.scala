@@ -7,9 +7,9 @@ import org.clulab.struct.{DirectedGraph, Edge, Interval}
 import org.clulab.odin._
 import org.clulab.serialization.json.DocOps
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.groundings.DomainOntology
 import org.clulab.wm.eidos.serialization.json.json._
 import org.clulab.wm.eidos.utils.FileUtils
+
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -19,18 +19,6 @@ object WMJSONSerializer {
 
 //  import org.clulab.odin.serialization.json._
   import org.clulab.serialization.json.JSONSerializer.toDocument
-//
-//  def jsonOntologyAST(ont: DomainOntology): JValue = {
-//    ("documents" -> docsMap) ~
-//      ("mentions" -> mentionList)
-//  }
-//
-//  // class OntologyNode(crumbs: Seq[String], name: String, polarity: Double,
-//  // examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends Serializable {
-//  def ontNodeAST(node: OntologyNode): JValue = {
-//    ("documents" -> docsMap) ~
-//      ("mentions" -> mentionList)
-//  }
 
   def jsonAST(mentions: Seq[Mention]): JValue = {
     val docsMap: Map[String, JValue] = {
