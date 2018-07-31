@@ -26,15 +26,16 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 //  val proc: Processor = new CluProcessor()//new FastNLPProcessor() // TODO: Get from configuration file soon
+  println("Loading processor...")
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
 
   var debug = true // Allow external control with var
 
   override def getConf: Config = config
-
+  println("Loading W2V...")
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
   // This isn't intended to be (re)loadable.  This only happens once.
-  protected val wordToVec = EidosWordToVec(
+  val wordToVec = EidosWordToVec(
     word2vec,
     getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
 //    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
@@ -121,6 +122,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     }
   }
 
+  println("Loading loadableAttributes...")
   var loadableAttributes = LoadableAttributes()
 
   // These public variables are accessed directly by clients which
