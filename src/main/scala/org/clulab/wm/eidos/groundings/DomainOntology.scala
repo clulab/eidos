@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileInputStream}
+import java.io.{FileInputStream, ObjectInputStream}
 import java.util.{Collection => JCollection, Map => JMap}
 
 import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
@@ -8,6 +8,7 @@ import org.clulab.processors.{Processor, Sentence}
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -60,20 +61,36 @@ object DomainOntology {
   val DESCRIPTION = "descriptions"
   val POLARITY = "polarity"
 
+  val logger = LoggerFactory.getLogger(this.getClass())
+
   def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
+
+  // fixme: the following lines are almost directly from Serializer.  We were having problems with the ClassLoader not
+  // being able to find DomainOntology from within the webapp submodule, so we put it here.  This is not ideal
+  // and should be fixed, probably in Processors.
+  def updatedLoad[A](filename: String, classProvider: Any = this): A = {
+    val classLoader = classProvider.getClass().getClassLoader()
+    val fileInputStream = new FileInputStream(filename)
+    var objectInputStream: ObjectInputStream = null
+
+    try {
+      objectInputStream = new ClassLoaderObjectInputStream(classLoader, fileInputStream)
+
+      objectInputStream.readObject().asInstanceOf[A]
+    }
+    finally {
+      if (objectInputStream != null)
+        objectInputStream.close()
+      else
+        fileInputStream.close()
+    }
+  }
 
   // Load from serialized
   def load(path: String): DomainOntology = {
-    println(s"Loading serialized ontology from $path")
-    // fixme: the following 5 lines are directly from Serializer.  We were having problems with the ClassLoader not
-    // being able to find DomainOntology from within the webapp submodule, so we put it here.  This is nonideal,
-    // and should be fixed
-    val cl = getClass().getClassLoader()
-    val fis = new FileInputStream(path)
-    val ois = new ClassLoaderObjectInputStream(cl, fis)
-    val obj = ois.readObject().asInstanceOf[DomainOntology]
-    ois.close()
-    println("Serialized Ontology successfully loaded.")
+    logger.info(s"Loading serialized ontology from $path")
+    val obj = updatedLoad[DomainOntology](path)
+    logger.info("Serialized Ontology successfully loaded.")
     obj
   }
 
@@ -81,7 +98,6 @@ object DomainOntology {
   class DomainOntologyBuilder(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean) {
 
     def build(): DomainOntology = {
-
       val text = getTextFromResource(ontologyPath)
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
@@ -164,12 +180,11 @@ object DomainOntology {
     }
   }
 
-
   def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean, loadFromSerialized: Boolean = false): DomainOntology = {
-    if(loadFromSerialized) {
+    if (loadFromSerialized)
       DomainOntology.load(serializedPath(name, cachedDir))
-    } else {
-      println("Processing yml ontology...")
+    else {
+      logger.info("Processing yml ontology...")
       new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
     }
   }
