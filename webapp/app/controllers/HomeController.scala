@@ -5,6 +5,7 @@ import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, Text
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding}
@@ -42,6 +43,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
    */
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
+  }
+
+  def buildInfo = Action {
+    Ok(jsonBuildInfo)
   }
 
   // Entry method
@@ -164,7 +169,20 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     entityLinkingEvents
   }
 
-
+  val jsonBuildInfo: JsValue = Json.obj(
+    "name" -> BuildInfo.name,
+    "version" -> BuildInfo.version,
+    "scalaVersion" -> BuildInfo.scalaVersion,
+    "sbtVersion" -> BuildInfo.sbtVersion,
+    "libraryDependencies" -> BuildInfo.libraryDependencies,
+    "scalacOptions" -> BuildInfo.scalacOptions,
+    "gitCurrentBranch" -> BuildInfo.gitCurrentBranch,
+    "gitHeadCommit" -> BuildInfo.gitHeadCommit,
+    "gitHeadCommitDate" -> BuildInfo.gitHeadCommitDate,
+    "gitUncommittedChanges" -> BuildInfo.gitUncommittedChanges,
+    "builtAtString" -> BuildInfo.builtAtString,
+    "builtAtMillis" -> BuildInfo.builtAtMillis
+  )
 
   protected def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
     def getTdAt(option: Option[Array[String]], n: Int): String = {
