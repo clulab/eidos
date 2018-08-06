@@ -4,11 +4,17 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.slf4j.LoggerFactory
 
 object Aliases {
-  type Grounding = Seq[(String, Double)]
+  type SingleGrounding = (String, Double)
+  type MultipleGrounding = Seq[SingleGrounding]
   type Groundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: Aliases.Grounding = Seq.empty)
+case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
+  def nonEmpty: Boolean = grounding.nonEmpty
+
+  def take(n: Int): Aliases.MultipleGrounding = grounding.take(n)
+  def head: Aliases.SingleGrounding = grounding.head
+}
 
 trait OntologyGrounder {
   def groundOntology(mention: EidosMention): OntologyGrounding

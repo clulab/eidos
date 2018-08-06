@@ -1,0 +1,3796 @@
+{
+  "@context": {
+    "Argument": "https://github.com/clulab/eidos/wiki/JSON-LD#Argument",
+    "Corpus": "https://github.com/clulab/eidos/wiki/JSON-LD#Corpus",
+    "Dependency": "https://github.com/clulab/eidos/wiki/JSON-LD#Dependency",
+    "Document": "https://github.com/clulab/eidos/wiki/JSON-LD#Document",
+    "Extraction": "https://github.com/clulab/eidos/wiki/JSON-LD#Extraction",
+    "Grounding": "https://github.com/clulab/eidos/wiki/JSON-LD#Grounding",
+    "Groundings": "https://github.com/clulab/eidos/wiki/JSON-LD#Groundings",
+    "Interval": "https://github.com/clulab/eidos/wiki/JSON-LD#Interval",
+    "Modifier": "https://github.com/clulab/eidos/wiki/JSON-LD#Modifier",
+    "Provenance": "https://github.com/clulab/eidos/wiki/JSON-LD#Provenance",
+    "Sentence": "https://github.com/clulab/eidos/wiki/JSON-LD#Sentence",
+    "State": "https://github.com/clulab/eidos/wiki/JSON-LD#State",
+    "Trigger": "https://github.com/clulab/eidos/wiki/JSON-LD#Trigger",
+    "Word": "https://github.com/clulab/eidos/wiki/JSON-LD#Word"
+  },
+  "@type": "Corpus",
+  "documents": [
+    {
+      "@type": "Document",
+      "@id": "_:Document_1",
+      "sentences": [
+        {
+          "@type": "Sentence",
+          "@id": "_:Sentence_1",
+          "text": "Particularly for people living in market-dependent urban areas , economic decline has caused a significant reduction in access to staple food , clean water , and to a variety of foods .",
+          "words": [
+            {
+              "@type": "Word",
+              "@id": "_:Word_1",
+              "tag": "RB",
+              "entity": "O",
+              "startOffset": 0,
+              "endOffset": 12,
+              "lemma": "particularly",
+              "chunk": "B-ADVP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_2",
+              "tag": "IN",
+              "entity": "O",
+              "startOffset": 13,
+              "endOffset": 16,
+              "lemma": "for",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_3",
+              "tag": "NNS",
+              "entity": "O",
+              "startOffset": 17,
+              "endOffset": 23,
+              "lemma": "people",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_4",
+              "tag": "VBG",
+              "entity": "O",
+              "startOffset": 24,
+              "endOffset": 30,
+              "lemma": "live",
+              "chunk": "B-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_5",
+              "tag": "IN",
+              "entity": "O",
+              "startOffset": 31,
+              "endOffset": 33,
+              "lemma": "in",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_6",
+              "tag": "JJ",
+              "entity": "O",
+              "startOffset": 34,
+              "endOffset": 50,
+              "lemma": "market-dependent",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_7",
+              "tag": "JJ",
+              "entity": "O",
+              "startOffset": 51,
+              "endOffset": 56,
+              "lemma": "urban",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_8",
+              "tag": "NNS",
+              "entity": "O",
+              "startOffset": 57,
+              "endOffset": 62,
+              "lemma": "area",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_9",
+              "tag": ",",
+              "entity": "O",
+              "startOffset": 62,
+              "endOffset": 63,
+              "lemma": ",",
+              "chunk": "O"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_10",
+              "tag": "JJ",
+              "entity": "O",
+              "startOffset": 64,
+              "endOffset": 72,
+              "lemma": "economic",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_11",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 73,
+              "endOffset": 80,
+              "lemma": "decline",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_12",
+              "tag": "VBZ",
+              "entity": "O",
+              "startOffset": 81,
+              "endOffset": 84,
+              "lemma": "have",
+              "chunk": "B-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_13",
+              "tag": "VBN",
+              "entity": "O",
+              "startOffset": 85,
+              "endOffset": 91,
+              "lemma": "cause",
+              "chunk": "I-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_14",
+              "tag": "DT",
+              "entity": "O",
+              "startOffset": 92,
+              "endOffset": 93,
+              "lemma": "a",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_15",
+              "tag": "JJ",
+              "entity": "B-Quantifier",
+              "startOffset": 94,
+              "endOffset": 105,
+              "lemma": "significant",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_16",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 106,
+              "endOffset": 115,
+              "lemma": "reduction",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_17",
+              "tag": "IN",
+              "entity": "O",
+              "startOffset": 116,
+              "endOffset": 118,
+              "lemma": "in",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_18",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 119,
+              "endOffset": 125,
+              "lemma": "access",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_19",
+              "tag": "TO",
+              "entity": "O",
+              "startOffset": 126,
+              "endOffset": 128,
+              "lemma": "to",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_20",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 129,
+              "endOffset": 135,
+              "lemma": "staple",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_21",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 136,
+              "endOffset": 140,
+              "lemma": "food",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_22",
+              "tag": ",",
+              "entity": "O",
+              "startOffset": 140,
+              "endOffset": 141,
+              "lemma": ",",
+              "chunk": "O"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_23",
+              "tag": "JJ",
+              "entity": "O",
+              "startOffset": 142,
+              "endOffset": 147,
+              "lemma": "clean",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_24",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 148,
+              "endOffset": 153,
+              "lemma": "water",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_25",
+              "tag": ",",
+              "entity": "O",
+              "startOffset": 153,
+              "endOffset": 154,
+              "lemma": ",",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_26",
+              "tag": "CC",
+              "entity": "O",
+              "startOffset": 155,
+              "endOffset": 158,
+              "lemma": "and",
+              "chunk": "I-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_27",
+              "tag": "TO",
+              "entity": "O",
+              "startOffset": 159,
+              "endOffset": 161,
+              "lemma": "to",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_28",
+              "tag": "DT",
+              "entity": "O",
+              "startOffset": 162,
+              "endOffset": 163,
+              "lemma": "a",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_29",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 164,
+              "endOffset": 171,
+              "lemma": "variety",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_30",
+              "tag": "IN",
+              "entity": "O",
+              "startOffset": 172,
+              "endOffset": 174,
+              "lemma": "of",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_31",
+              "tag": "NNS",
+              "entity": "O",
+              "startOffset": 175,
+              "endOffset": 180,
+              "lemma": "food",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_32",
+              "tag": ".",
+              "entity": "O",
+              "startOffset": 180,
+              "endOffset": 181,
+              "lemma": ".",
+              "chunk": "O"
+            }
+          ],
+          "dependencies": [
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_1"
+              },
+              "destination": {
+                "@id": "_:Word_3"
+              },
+              "relation": "nmod_for"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_3"
+              },
+              "destination": {
+                "@id": "_:Word_2"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_3"
+              },
+              "destination": {
+                "@id": "_:Word_4"
+              },
+              "relation": "acl"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_4"
+              },
+              "destination": {
+                "@id": "_:Word_8"
+              },
+              "relation": "nmod_in"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_8"
+              },
+              "destination": {
+                "@id": "_:Word_5"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_8"
+              },
+              "destination": {
+                "@id": "_:Word_6"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_8"
+              },
+              "destination": {
+                "@id": "_:Word_7"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_11"
+              },
+              "destination": {
+                "@id": "_:Word_10"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_13"
+              },
+              "destination": {
+                "@id": "_:Word_16"
+              },
+              "relation": "dobj"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_13"
+              },
+              "destination": {
+                "@id": "_:Word_32"
+              },
+              "relation": "punct"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_13"
+              },
+              "destination": {
+                "@id": "_:Word_1"
+              },
+              "relation": "advmod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_13"
+              },
+              "destination": {
+                "@id": "_:Word_9"
+              },
+              "relation": "punct"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_13"
+              },
+              "destination": {
+                "@id": "_:Word_11"
+              },
+              "relation": "nsubj"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_13"
+              },
+              "destination": {
+                "@id": "_:Word_12"
+              },
+              "relation": "aux"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_16"
+              },
+              "destination": {
+                "@id": "_:Word_18"
+              },
+              "relation": "nmod_in"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_16"
+              },
+              "destination": {
+                "@id": "_:Word_14"
+              },
+              "relation": "det"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_16"
+              },
+              "destination": {
+                "@id": "_:Word_15"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_18"
+              },
+              "destination": {
+                "@id": "_:Word_17"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_18"
+              },
+              "destination": {
+                "@id": "_:Word_21"
+              },
+              "relation": "nmod_to"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_18"
+              },
+              "destination": {
+                "@id": "_:Word_24"
+              },
+              "relation": "nmod_to"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_18"
+              },
+              "destination": {
+                "@id": "_:Word_31"
+              },
+              "relation": "nmod_to"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_21"
+              },
+              "destination": {
+                "@id": "_:Word_19"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_21"
+              },
+              "destination": {
+                "@id": "_:Word_20"
+              },
+              "relation": "compound"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_21"
+              },
+              "destination": {
+                "@id": "_:Word_22"
+              },
+              "relation": "punct"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_21"
+              },
+              "destination": {
+                "@id": "_:Word_24"
+              },
+              "relation": "conj_and"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_21"
+              },
+              "destination": {
+                "@id": "_:Word_25"
+              },
+              "relation": "punct"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_21"
+              },
+              "destination": {
+                "@id": "_:Word_26"
+              },
+              "relation": "cc"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_21"
+              },
+              "destination": {
+                "@id": "_:Word_31"
+              },
+              "relation": "conj_and"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_24"
+              },
+              "destination": {
+                "@id": "_:Word_23"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_28"
+              },
+              "destination": {
+                "@id": "_:Word_29"
+              },
+              "relation": "mwe"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_28"
+              },
+              "destination": {
+                "@id": "_:Word_30"
+              },
+              "relation": "mwe"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_29"
+              },
+              "destination": {
+                "@id": "_:Word_27"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_31"
+              },
+              "destination": {
+                "@id": "_:Word_28"
+              },
+              "relation": "det:qmod"
+            }
+          ]
+        },
+        {
+          "@type": "Sentence",
+          "@id": "_:Sentence_2",
+          "text": "Conflict and economic decline have led to violence and displacement .",
+          "words": [
+            {
+              "@type": "Word",
+              "@id": "_:Word_33",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 182,
+              "endOffset": 190,
+              "lemma": "conflict",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_34",
+              "tag": "CC",
+              "entity": "O",
+              "startOffset": 191,
+              "endOffset": 194,
+              "lemma": "and",
+              "chunk": "O"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_35",
+              "tag": "JJ",
+              "entity": "O",
+              "startOffset": 195,
+              "endOffset": 203,
+              "lemma": "economic",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_36",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 204,
+              "endOffset": 211,
+              "lemma": "decline",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_37",
+              "tag": "VBP",
+              "entity": "O",
+              "startOffset": 212,
+              "endOffset": 216,
+              "lemma": "have",
+              "chunk": "B-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_38",
+              "tag": "VBN",
+              "entity": "O",
+              "startOffset": 217,
+              "endOffset": 220,
+              "lemma": "lead",
+              "chunk": "I-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_39",
+              "tag": "TO",
+              "entity": "O",
+              "startOffset": 221,
+              "endOffset": 223,
+              "lemma": "to",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_40",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 224,
+              "endOffset": 232,
+              "lemma": "violence",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_41",
+              "tag": "CC",
+              "entity": "O",
+              "startOffset": 233,
+              "endOffset": 236,
+              "lemma": "and",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_42",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 237,
+              "endOffset": 249,
+              "lemma": "displacement",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_43",
+              "tag": ".",
+              "entity": "O",
+              "startOffset": 249,
+              "endOffset": 250,
+              "lemma": ".",
+              "chunk": "O"
+            }
+          ],
+          "dependencies": [
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_36"
+              },
+              "destination": {
+                "@id": "_:Word_35"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_38"
+              },
+              "destination": {
+                "@id": "_:Word_36"
+              },
+              "relation": "nsubj"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_38"
+              },
+              "destination": {
+                "@id": "_:Word_37"
+              },
+              "relation": "aux"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_38"
+              },
+              "destination": {
+                "@id": "_:Word_40"
+              },
+              "relation": "nmod_to"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_38"
+              },
+              "destination": {
+                "@id": "_:Word_42"
+              },
+              "relation": "nmod_to"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_38"
+              },
+              "destination": {
+                "@id": "_:Word_43"
+              },
+              "relation": "punct"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_38"
+              },
+              "destination": {
+                "@id": "_:Word_33"
+              },
+              "relation": "nsubj"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_40"
+              },
+              "destination": {
+                "@id": "_:Word_39"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_40"
+              },
+              "destination": {
+                "@id": "_:Word_41"
+              },
+              "relation": "cc"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_40"
+              },
+              "destination": {
+                "@id": "_:Word_42"
+              },
+              "relation": "conj_and"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_33"
+              },
+              "destination": {
+                "@id": "_:Word_36"
+              },
+              "relation": "conj_and"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_33"
+              },
+              "destination": {
+                "@id": "_:Word_34"
+              },
+              "relation": "cc"
+            }
+          ]
+        },
+        {
+          "@type": "Sentence",
+          "@id": "_:Sentence_3",
+          "text": "The rising cost of living and impact of the conflict have also undermined people 's ability to access safe water .",
+          "words": [
+            {
+              "@type": "Word",
+              "@id": "_:Word_44",
+              "tag": "DT",
+              "entity": "O",
+              "startOffset": 251,
+              "endOffset": 254,
+              "lemma": "the",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_45",
+              "tag": "VBG",
+              "entity": "O",
+              "startOffset": 255,
+              "endOffset": 261,
+              "lemma": "rise",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_46",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 262,
+              "endOffset": 266,
+              "lemma": "cost",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_47",
+              "tag": "IN",
+              "entity": "O",
+              "startOffset": 267,
+              "endOffset": 269,
+              "lemma": "of",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_48",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 270,
+              "endOffset": 276,
+              "lemma": "living",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_49",
+              "tag": "CC",
+              "entity": "O",
+              "startOffset": 277,
+              "endOffset": 280,
+              "lemma": "and",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_50",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 281,
+              "endOffset": 287,
+              "lemma": "impact",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_51",
+              "tag": "IN",
+              "entity": "O",
+              "startOffset": 288,
+              "endOffset": 290,
+              "lemma": "of",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_52",
+              "tag": "DT",
+              "entity": "O",
+              "startOffset": 291,
+              "endOffset": 294,
+              "lemma": "the",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_53",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 295,
+              "endOffset": 303,
+              "lemma": "conflict",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_54",
+              "tag": "VBP",
+              "entity": "O",
+              "startOffset": 304,
+              "endOffset": 308,
+              "lemma": "have",
+              "chunk": "B-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_55",
+              "tag": "RB",
+              "entity": "O",
+              "startOffset": 309,
+              "endOffset": 313,
+              "lemma": "also",
+              "chunk": "I-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_56",
+              "tag": "VBN",
+              "entity": "O",
+              "startOffset": 314,
+              "endOffset": 324,
+              "lemma": "undermine",
+              "chunk": "I-VP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_57",
+              "tag": "NNS",
+              "entity": "O",
+              "startOffset": 325,
+              "endOffset": 331,
+              "lemma": "people",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_58",
+              "tag": "POS",
+              "entity": "O",
+              "startOffset": 331,
+              "endOffset": 333,
+              "lemma": "'s",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_59",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 334,
+              "endOffset": 341,
+              "lemma": "ability",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_60",
+              "tag": "TO",
+              "entity": "O",
+              "startOffset": 342,
+              "endOffset": 344,
+              "lemma": "to",
+              "chunk": "B-PP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_61",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 345,
+              "endOffset": 351,
+              "lemma": "access",
+              "chunk": "B-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_62",
+              "tag": "JJ",
+              "entity": "O",
+              "startOffset": 352,
+              "endOffset": 356,
+              "lemma": "safe",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_63",
+              "tag": "NN",
+              "entity": "O",
+              "startOffset": 357,
+              "endOffset": 362,
+              "lemma": "water",
+              "chunk": "I-NP"
+            },
+            {
+              "@type": "Word",
+              "@id": "_:Word_64",
+              "tag": ".",
+              "entity": "O",
+              "startOffset": 362,
+              "endOffset": 363,
+              "lemma": ".",
+              "chunk": "O"
+            }
+          ],
+          "dependencies": [
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_53"
+              },
+              "destination": {
+                "@id": "_:Word_51"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_53"
+              },
+              "destination": {
+                "@id": "_:Word_52"
+              },
+              "relation": "det"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_56"
+              },
+              "destination": {
+                "@id": "_:Word_54"
+              },
+              "relation": "aux"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_56"
+              },
+              "destination": {
+                "@id": "_:Word_55"
+              },
+              "relation": "advmod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_56"
+              },
+              "destination": {
+                "@id": "_:Word_59"
+              },
+              "relation": "dobj"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_56"
+              },
+              "destination": {
+                "@id": "_:Word_46"
+              },
+              "relation": "nsubj"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_56"
+              },
+              "destination": {
+                "@id": "_:Word_64"
+              },
+              "relation": "punct"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_57"
+              },
+              "destination": {
+                "@id": "_:Word_58"
+              },
+              "relation": "case"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_59"
+              },
+              "destination": {
+                "@id": "_:Word_57"
+              },
+              "relation": "nmod:poss"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_59"
+              },
+              "destination": {
+                "@id": "_:Word_61"
+              },
+              "relation": "acl_to"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_61"
+              },
+              "destination": {
+                "@id": "_:Word_60"
+              },
+              "relation": "mark"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_61"
+              },
+              "destination": {
+                "@id": "_:Word_63"
+              },
+              "relation": "dobj"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_63"
+              },
+              "destination": {
+                "@id": "_:Word_62"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_46"
+              },
+              "destination": {
+                "@id": "_:Word_50"
+              },
+              "relation": "nmod_of"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_46"
+              },
+              "destination": {
+                "@id": "_:Word_44"
+              },
+              "relation": "det"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_46"
+              },
+              "destination": {
+                "@id": "_:Word_45"
+              },
+              "relation": "amod"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_46"
+              },
+              "destination": {
+                "@id": "_:Word_48"
+              },
+              "relation": "nmod_of"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_48"
+              },
+              "destination": {
+                "@id": "_:Word_49"
+              },
+              "relation": "cc"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_48"
+              },
+              "destination": {
+                "@id": "_:Word_50"
+              },
+              "relation": "conj_and"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_48"
+              },
+              "destination": {
+                "@id": "_:Word_53"
+              },
+              "relation": "nmod_of"
+            },
+            {
+              "@type": "Dependency",
+              "source": {
+                "@id": "_:Word_48"
+              },
+              "destination": {
+                "@id": "_:Word_47"
+              },
+              "relation": "case"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "extractions": [
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_7",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "people's ability to access safe water",
+      "rule": "simple-np++Decrease_ported_syntax_1_verb",
+      "canonicalName": "water",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/natural_resources/abiotic_resources/water",
+              "value": 0.9245609099976677
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/infrastructure/water_management",
+              "value": 0.7602880580692488
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/infrastructure/building",
+              "value": 0.6465779520088584
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/crop_technology/irrigation",
+              "value": 0.6316976715600763
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/nature_impact/pollution/land_pollution",
+              "value": 0.5950602202342752
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/natural_resources/abiotic_resources/land",
+              "value": 0.5884913808989009
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/nature_impact/resource_management",
+              "value": 0.5760889043769307
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/soil/soil_contents",
+              "value": 0.562470169181729
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/natural_resources/abiotic_resources/air",
+              "value": 0.5606073254578279
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/weather/precipitation",
+              "value": 0.5582982371260395
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_safely_managed_drinking_water_services_(%_of_population)",
+              "value": 0.7515167376445716
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_safely_managed_drinking_water_services,_rural_(%_of_rural_population)",
+              "value": 0.7515167376445716
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_safely_managed_drinking_water_services,_urban_(%_of_urban_population)",
+              "value": 0.7515167376445716
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_with_basic_handwashing_facilities_including_soap_and_water,_rural_(%_of_rural_population)",
+              "value": 0.7494162058064178
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_with_basic_handwashing_facilities_including_soap_and_water_(%_of_population)",
+              "value": 0.7494162058064178
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_with_basic_handwashing_facilities_including_soap_and_water,_urban_(%_of_urban_population)",
+              "value": 0.7494162058064178
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_at_least_basic_drinking_water_services,_rural_(%_of_rural_population)",
+              "value": 0.7476935948089123
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_at_least_basic_drinking_water_services,_urban_(%_of_urban_population)",
+              "value": 0.7476935948089123
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_at_least_basic_drinking_water_services_(%_of_population)",
+              "value": 0.7476935948089123
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Annual_freshwater_withdrawals,_domestic_(%_of_total_freshwater_withdrawal)",
+              "value": 0.675840419049183
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Area harvested/Beans, dry",
+              "value": 0.5928412502502153
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Area harvested/Onions, dry",
+              "value": 0.5900449123679969
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Production/Beans, dry",
+              "value": 0.5695325484655921
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Production/Onions, dry",
+              "value": 0.5649990061433129
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Direct emissions (CO2eq) (Crop residues)/Beans, dry",
+              "value": 0.5598506210743451
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Yield/Beans, dry",
+              "value": 0.5583103285589728
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Beans, dry",
+              "value": 0.5554238007651394
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Emissions (CO2eq) (Crop residues)/Beans, dry",
+              "value": 0.5512715356465714
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Indirect emissions (CO2eq) (Crop residues)/Beans, dry",
+              "value": 0.5463102210088087
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Beans, dry",
+              "value": 0.5407218419474888
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 326,
+              "end": 362
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_3"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 14,
+              "end": 20
+            }
+          ]
+        }
+      ],
+      "states": [
+        {
+          "@type": "State",
+          "type": "DEC",
+          "text": "undermined",
+          "provenance": {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 315,
+                "end": 324
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_3"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_8",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "Conflict",
+      "rule": "simple-np",
+      "canonicalName": "conflict",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/conflict",
+              "value": 0.8372545191211976
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/intervention/intervention",
+              "value": 0.578830287706582
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/GPE",
+              "value": 0.5582304834451738
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/government/government_actions/regulation",
+              "value": 0.5167213919557495
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/crisis",
+              "value": 0.5124510124752975
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/nature_impact/climate_change_mitigation",
+              "value": 0.5117896360536861
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/human_migration",
+              "value": 0.5093050884962552
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/government/government_entity",
+              "value": 0.4985052191944197
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/government/government_actions/duty",
+              "value": 0.484892234234339
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/communities",
+              "value": 0.48044607716068743
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Presence_of_peace_keepers_(number_of_troops,_police,_and_military_observers_in_mandate)",
+              "value": 0.7442294190168166
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Battle-related_deaths_(number_of_people)",
+              "value": 0.7245324792078472
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Intentional_homicides_(per_100,000_people)",
+              "value": 0.6978027975261973
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Legislation_exists_on_domestic_violence_(1=yes;_0=no)",
+              "value": 0.6657021606771869
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_new_displacement_associated_with_disasters_(number_of_cases)",
+              "value": 0.6585000037437888
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_new_displacement_associated_with_conflict_and_violence_(number_of_cases)",
+              "value": 0.6585000037437888
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)",
+              "value": 0.6546640158765528
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Refugee_population_by_country_or_territory_of_origin",
+              "value": 0.6174025676962379
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Refugee_population_by_country_or_territory_of_asylum",
+              "value": 0.6056444643165692
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_property_rights_and_rule-based_governance_rating_(1=low_to_6=high)",
+              "value": 0.6041915401228357
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Prevalence of severe food insecurity in the total population",
+              "value": 0.42605481572813997
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Political stability and absence of violence\\/terrorism (index)",
+              "value": 0.42574124730745916
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Meat, game",
+              "value": 0.3769699666639242
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Honey, natural",
+              "value": 0.3647201269248842
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Meat, game",
+              "value": 0.36062477278813493
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)",
+              "value": 0.35226498211012797
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Gross domestic product per capita, PPP (constant 2011 international $)",
+              "value": 0.3517714280477182
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Honey, natural",
+              "value": 0.34849054100727217
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Implied emission factor for CH4 (Manure management)/Cattle, dairy",
+              "value": 0.3428718326596775
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Implied emission factor for N2O (Manure management)/Cattle, dairy",
+              "value": 0.34145595374827603
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 183,
+              "end": 190
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 1,
+              "end": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_9",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "access to staple food, clean water, and to a variety of foods",
+      "rule": "simple-np++Decrease_ported_syntax_1_noun",
+      "canonicalName": "staple food water variety food",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/food_availability",
+              "value": 0.8917906944184963
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/food/food_security",
+              "value": 0.8049356368184892
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/crop_technology/product",
+              "value": 0.7545822666073602
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/agriculture/food_production",
+              "value": 0.7278271698806609
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/crop",
+              "value": 0.6641032747973006
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/crop_technology/management",
+              "value": 0.656846873839193
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/natural_resources/biotic_resources/biotic_resources",
+              "value": 0.6512269147966715
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/natural_resources/abiotic_resources/water",
+              "value": 0.6495582537129964
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/livelihood",
+              "value": 0.6085445932732477
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/soil/soil_contents",
+              "value": 0.5909718852052365
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Food_production_index_(2004-2006_=_100)",
+              "value": 0.8055762102385423
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Food_imports_(%_of_merchandise_imports)",
+              "value": 0.7647866253585153
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Food_exports_(%_of_merchandise_exports)",
+              "value": 0.7647866253585153
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Livestock_production_index_(2004-2006_=_100)",
+              "value": 0.7522345203343721
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_with_basic_handwashing_facilities_including_soap_and_water,_rural_(%_of_rural_population)",
+              "value": 0.7318655350803962
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_with_basic_handwashing_facilities_including_soap_and_water_(%_of_population)",
+              "value": 0.7318655350803962
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_with_basic_handwashing_facilities_including_soap_and_water,_urban_(%_of_urban_population)",
+              "value": 0.7318655350803962
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_at_least_basic_drinking_water_services,_rural_(%_of_rural_population)",
+              "value": 0.731011832091671
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_at_least_basic_drinking_water_services,_urban_(%_of_urban_population)",
+              "value": 0.731011832091671
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/People_using_at_least_basic_drinking_water_services_(%_of_population)",
+              "value": 0.731011832091671
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Producing Animals\\/Slaughtered/Meat, chicken",
+              "value": 0.7075295592491037
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Production/Meat, chicken",
+              "value": 0.7012708240232932
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Producing Animals\\/Slaughtered/Meat, Poultry",
+              "value": 0.6900083206919863
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Production/Beans, dry",
+              "value": 0.6897635346804105
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Yield\\/Carcass Weight/Meat, Poultry",
+              "value": 0.6834426891215221
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Production/Meat, Poultry",
+              "value": 0.6793195329795801
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Yield\\/Carcass Weight/Meat, chicken",
+              "value": 0.6754387317410215
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Area harvested/Beans, dry",
+              "value": 0.6742506843968334
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Beans, dry",
+              "value": 0.6687343350140921
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Beans, dry",
+              "value": 0.667714689890171
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 120,
+              "end": 180
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_1"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 18,
+              "end": 31
+            }
+          ]
+        }
+      ],
+      "states": [
+        {
+          "@type": "State",
+          "type": "DEC",
+          "text": "reduction",
+          "provenance": {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 107,
+                "end": 115
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_1"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 16,
+                "end": 16
+              }
+            ]
+          },
+          "modifiers": [
+            {
+              "@type": "Modifier",
+              "text": "significant",
+              "provenance": {
+                "@type": "Provenance",
+                "document": {
+                  "@id": "_:Document_1"
+                },
+                "documentCharInterval": [
+                  {
+                    "@type": "Interval",
+                    "start": 95,
+                    "end": 105
+                  }
+                ],
+                "sentence": {
+                  "@id": "_:Sentence_1"
+                },
+                "positions": [
+                  {
+                    "@type": "Interval",
+                    "start": 15,
+                    "end": 15
+                  }
+                ]
+              },
+              "intercept": 0.6154,
+              "mu": 1.034e-05,
+              "sigma": -0.001123
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_10",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "rising cost of living and impact of the conflict",
+      "rule": "simple-np++Increase_rule_3",
+      "canonicalName": "rise cost living conflict",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/revenue",
+              "value": 0.7194423212575275
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/economy",
+              "value": 0.7034182086285221
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/properties/price",
+              "value": 0.6953129494056063
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/GPE",
+              "value": 0.6818713247222312
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/communities",
+              "value": 0.6813434325936364
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/conflict",
+              "value": 0.6620448351125062
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/livelihood",
+              "value": 0.6604753673193214
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/government/government_actions/duty",
+              "value": 0.64433220695828
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/market",
+              "value": 0.6238461379258365
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/poverty",
+              "value": 0.620855984493335
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)",
+              "value": 0.8225201137638088
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Poverty_headcount_ratio_at_$1.90_a_day_(2011_PPP)_(%_of_population)",
+              "value": 0.8224235804682744
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Poverty_headcount_ratio_at_$3.20_a_day_(2011_PPP)_(%_of_population)",
+              "value": 0.8224235804682744
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Poverty_headcount_ratio_at_$5.50_a_day_(2011_PPP)_(%_of_population)",
+              "value": 0.8224235804682744
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Poverty_gap_at_$1.90_a_day_(2011_PPP)_(%)",
+              "value": 0.808175403853289
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Population_living_in_slums_(%_of_urban_population)",
+              "value": 0.804784721893694
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_new_displacement_associated_with_disasters_(number_of_cases)",
+              "value": 0.7970418682740005
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_new_displacement_associated_with_conflict_and_violence_(number_of_cases)",
+              "value": 0.7970418682740005
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Price_level_ratio_of_PPP_conversion_factor_(GDP)_to_market_exchange_rate",
+              "value": 0.7904248690431841
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)",
+              "value": 0.7892978631641865
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Meat, game",
+              "value": 0.6556381406828247
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Honey, natural",
+              "value": 0.6547124560790459
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Prevalence of severe food insecurity in the total population",
+              "value": 0.6447033336826099
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Meat, game",
+              "value": 0.644319891728807
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Honey, natural",
+              "value": 0.6430660799462388
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)",
+              "value": 0.6363077525324566
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Beans, green",
+              "value": 0.636215584126766
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Peas, green",
+              "value": 0.6279667540590345
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Beans, green",
+              "value": 0.6268845335518078
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Percentage of children under 5 years of age affected by wasting (%)",
+              "value": 0.6190555935780434
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 256,
+              "end": 303
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_3"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 2,
+              "end": 10
+            }
+          ]
+        }
+      ],
+      "states": [
+        {
+          "@type": "State",
+          "type": "INC",
+          "text": "rising",
+          "provenance": {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 256,
+                "end": 261
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_3"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 2,
+                "end": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_11",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "violence",
+      "rule": "simple-np",
+      "canonicalName": "violence",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/conflict",
+              "value": 0.7368319537853067
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/poverty",
+              "value": 0.5824867803062446
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/intervention/intervention",
+              "value": 0.5387369694253956
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/communities",
+              "value": 0.5152673600346016
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/famine",
+              "value": 0.48330822610568597
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/government/government_actions/regulation",
+              "value": 0.47341942323856884
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/GPE",
+              "value": 0.46895697797704006
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/crisis",
+              "value": 0.46160490182876507
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/human_migration",
+              "value": 0.45280773125363777
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/death",
+              "value": 0.4148099369140532
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Intentional_homicides_(per_100,000_people)",
+              "value": 0.7679011305526035
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Legislation_exists_on_domestic_violence_(1=yes;_0=no)",
+              "value": 0.730922206734815
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Proportion_of_women_subjected_to_physical_and\\/or_sexual_violence_in_the_last_12_months_(%_of_women_age_15-49)",
+              "value": 0.683047734534676
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Battle-related_deaths_(number_of_people)",
+              "value": 0.6628345415034697
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_new_displacement_associated_with_disasters_(number_of_cases)",
+              "value": 0.6233605334709678
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_new_displacement_associated_with_conflict_and_violence_(number_of_cases)",
+              "value": 0.6233605334709678
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)",
+              "value": 0.6088905919351342
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Presence_of_peace_keepers_(number_of_troops,_police,_and_military_observers_in_mandate)",
+              "value": 0.5958831825712896
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Suicide_mortality_rate_(per_100,000_population)",
+              "value": 0.568173963826042
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Cause_of_death,_by_injury_(%_of_total)",
+              "value": 0.5679107809129249
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Prevalence of severe food insecurity in the total population",
+              "value": 0.4827886841784948
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Prevalence of anemia among women of reproductive age (15-49 years)",
+              "value": 0.384307092978833
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Meat, game",
+              "value": 0.3558611927529027
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Gross domestic product per capita, PPP (constant 2011 international $)",
+              "value": 0.3547804613585987
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Political stability and absence of violence\\/terrorism (index)",
+              "value": 0.3381295549298178
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Percentage of children under 5 years of age affected by wasting (%)",
+              "value": 0.33703032274896305
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Percentage of children under 5 years of age who are overweight",
+              "value": 0.3293775309171103
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Honey, natural",
+              "value": 0.3231213919184845
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Percentage of children under 5 years of age who are stunted (%)",
+              "value": 0.31905810641046833
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)",
+              "value": 0.30998371284694537
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 225,
+              "end": 232
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 8,
+              "end": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_12",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "displacement",
+      "rule": "simple-np",
+      "canonicalName": "displacement",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/human_migration",
+              "value": 0.5647573024408186
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/properties/proportion",
+              "value": 0.42496730204020594
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/nature_impact/pollution/land_pollution",
+              "value": 0.37446091032219636
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/intervention/intervention",
+              "value": 0.3697770339929502
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/crop_technology/irrigation",
+              "value": 0.3693577704052121
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/famine",
+              "value": 0.3382831401563765
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/fuel",
+              "value": 0.33292682310384153
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/infrastructure/water_management",
+              "value": 0.3307979431897533
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/properties/depth",
+              "value": 0.3285571153302391
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/nature_impact/pollution/air_pollution",
+              "value": 0.32268300331849015
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/PM2.5_air_pollution,_mean_annual_exposure_(micrograms_per_cubic_meter)",
+              "value": 0.4580501214914253
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/GINI_index_(World_Bank_estimate)",
+              "value": 0.4440682796334904
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Urban_poverty_gap_at_national_poverty_lines_(%)",
+              "value": 0.4335143986266909
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Death_rate,_crude_(per_1,000_people)",
+              "value": 0.4330252786400251
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Poverty_gap_at_national_poverty_lines_(%)",
+              "value": 0.4328189397550254
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)",
+              "value": 0.428612386358049
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Rural_poverty_gap_at_national_poverty_lines_(%)",
+              "value": 0.4275125232017915
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Birth_rate,_crude_(per_1,000_people)",
+              "value": 0.420482855803374
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Industry,_value_added_(%_of_GDP)",
+              "value": 0.4190105150065469
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Internally_displaced_persons,_new_displacement_associated_with_disasters_(number_of_cases)",
+              "value": 0.41765378991002117
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Pulses, nes",
+              "value": 0.43336700951995494
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Implied emission factor for N2O (Manure applied)/Chickens, layers",
+              "value": 0.41503528315877974
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Pulses, nes",
+              "value": 0.3893208760011802
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Implied emission factor for N2O (Manure applied)/Cattle, non-dairy",
+              "value": 0.3847432190010719
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Implied emission factor for CH4 (Manure management)/Chickens, layers",
+              "value": 0.3842092961746113
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Implied emission factor for N2O (Manure management)/Chickens, layers",
+              "value": 0.3828743037527893
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Implied emission factor for N2O (Manure applied)/Cattle, dairy",
+              "value": 0.3785067916302765
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Indirect emissions (N2O) (Manure applied)/Chickens, layers",
+              "value": 0.37682916123367244
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Indirect emissions (CO2eq) (Manure applied)/Chickens, layers",
+              "value": 0.37474518929801615
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Prevalence of severe food insecurity in the total population",
+              "value": 0.37116937200421485
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 238,
+              "end": 249
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 10,
+              "end": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_13",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "economic",
+      "rule": "simple-np++Decrease_ported_syntax_2_noun",
+      "canonicalName": "economic",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/economy",
+              "value": 0.7584230443144294
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/livelihood",
+              "value": 0.6849764814277366
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/market",
+              "value": 0.6778549602386936
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/crop_technology/management",
+              "value": 0.6750893200704163
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/GPE",
+              "value": 0.6655873530995043
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/government/government_actions/duty",
+              "value": 0.6578205940568275
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/poverty",
+              "value": 0.6394977962661568
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/nature_impact/climate_change_mitigation",
+              "value": 0.6390972161834622
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/intervention/intervention",
+              "value": 0.6256774106181846
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/crisis",
+              "value": 0.6245634063541894
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_fiscal_policy_rating_(1=low_to_6=high)",
+              "value": 0.8154921250812499
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_economic_management_cluster_average_(1=low_to_6=high)",
+              "value": 0.8123143148049192
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_financial_sector_rating_(1=low_to_6=high)",
+              "value": 0.7633200405107556
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_structural_policies_cluster_average_(1=low_to_6=high)",
+              "value": 0.7612200892724666
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Domestic_general_government_health_expenditure_(%_of_GDP)",
+              "value": 0.7521671271272307
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Merchandise_exports_by_the_reporting_economy,_residual_(%_of_total_merchandise_exports)",
+              "value": 0.7513014885824938
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_macroeconomic_management_rating_(1=low_to_6=high)",
+              "value": 0.7488717595100566
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_debt_policy_rating_(1=low_to_6=high)",
+              "value": 0.7453467437253207
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Foreign_direct_investment,_net_outflows_(%_of_GDP)",
+              "value": 0.7375721310399417
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Merchandise_imports_by_the_reporting_economy,_residual_(%_of_total_merchandise_imports)",
+              "value": 0.7373833664758638
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Annual growth US$/Agriculture, forestry, fishing (Central Government)",
+              "value": 0.6017988742493429
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Political stability and absence of violence\\/terrorism (index)",
+              "value": 0.599934950025132
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Gross domestic product per capita, PPP (constant 2011 international $)",
+              "value": 0.5881406972667657
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)",
+              "value": 0.5677074159858033
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing (Central Government)",
+              "value": 0.5667208164320248
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Prevalence of severe food insecurity in the total population",
+              "value": 0.5561123120514979
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Recurrent (Central Government)",
+              "value": 0.544907720715081
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)",
+              "value": 0.5256965099366422
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$/Agriculture, forestry, fishing (Central Government)",
+              "value": 0.5223226014304883
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)",
+              "value": 0.5119702156102781
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 65,
+              "end": 72
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_1"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 10,
+              "end": 10
+            }
+          ]
+        }
+      ],
+      "states": [
+        {
+          "@type": "State",
+          "type": "DEC",
+          "text": "decline",
+          "provenance": {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 74,
+                "end": 80
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_1"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_14",
+      "type": "concept",
+      "subtype": "entity",
+      "labels": [
+        "Concept",
+        "Entity"
+      ],
+      "text": "economic",
+      "rule": "simple-np++Decrease_ported_syntax_2_noun",
+      "canonicalName": "economic",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/economy",
+              "value": 0.7584230443144294
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/livelihood",
+              "value": 0.6849764814277366
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/market",
+              "value": 0.6778549602386936
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/natural/crop_technology/management",
+              "value": 0.6750893200704163
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/GPE",
+              "value": 0.6655873530995043
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/government/government_actions/duty",
+              "value": 0.6578205940568275
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/entities/human/financial/economic/poverty",
+              "value": 0.6394977962661568
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/nature_impact/climate_change_mitigation",
+              "value": 0.6390972161834622
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/human/intervention/intervention",
+              "value": 0.6256774106181846
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "UN/events/crisis",
+              "value": 0.6245634063541894
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_fiscal_policy_rating_(1=low_to_6=high)",
+              "value": 0.8154921250812499
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_economic_management_cluster_average_(1=low_to_6=high)",
+              "value": 0.8123143148049192
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_financial_sector_rating_(1=low_to_6=high)",
+              "value": 0.7633200405107556
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_structural_policies_cluster_average_(1=low_to_6=high)",
+              "value": 0.7612200892724666
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Domestic_general_government_health_expenditure_(%_of_GDP)",
+              "value": 0.7521671271272307
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Merchandise_exports_by_the_reporting_economy,_residual_(%_of_total_merchandise_exports)",
+              "value": 0.7513014885824938
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_macroeconomic_management_rating_(1=low_to_6=high)",
+              "value": 0.7488717595100566
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/CPIA_debt_policy_rating_(1=low_to_6=high)",
+              "value": 0.7453467437253207
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Foreign_direct_investment,_net_outflows_(%_of_GDP)",
+              "value": 0.7375721310399417
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "WDI/Merchandise_imports_by_the_reporting_economy,_residual_(%_of_total_merchandise_imports)",
+              "value": 0.7373833664758638
+            }
+          ]
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao",
+          "values": [
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Annual growth US$/Agriculture, forestry, fishing (Central Government)",
+              "value": 0.6017988742493429
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Political stability and absence of violence\\/terrorism (index)",
+              "value": 0.599934950025132
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Gross domestic product per capita, PPP (constant 2011 international $)",
+              "value": 0.5881406972667657
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)",
+              "value": 0.5677074159858033
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing (Central Government)",
+              "value": 0.5667208164320248
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Prevalence of severe food insecurity in the total population",
+              "value": 0.5561123120514979
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Recurrent (Central Government)",
+              "value": 0.544907720715081
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)",
+              "value": 0.5256965099366422
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value US$/Agriculture, forestry, fishing (Central Government)",
+              "value": 0.5223226014304883
+            },
+            {
+              "@type": "Grounding",
+              "ontologyConcept": "FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)",
+              "value": 0.5119702156102781
+            }
+          ]
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 196,
+              "end": 203
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 3,
+              "end": 3
+            }
+          ]
+        }
+      ],
+      "states": [
+        {
+          "@type": "State",
+          "type": "DEC",
+          "text": "decline",
+          "provenance": {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 205,
+                "end": 211
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_2"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_1",
+      "type": "relation",
+      "subtype": "causation",
+      "labels": [
+        "Causal",
+        "DirectedRelation",
+        "EntityLinker",
+        "Event"
+      ],
+      "text": "Conflict and economic decline have led to violence and displacement",
+      "rule": "leadToSyntax1-Causal",
+      "canonicalName": "conflict lead displacement",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un"
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi"
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao"
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 183,
+              "end": 249
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 1,
+              "end": 10
+            }
+          ]
+        }
+      ],
+      "trigger": {
+        "@type": "Trigger",
+        "text": "led",
+        "provenance": [
+          {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 218,
+                "end": 220
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_2"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "@type": "Argument",
+          "type": "source",
+          "value": {
+            "@id": "_:Extraction_8"
+          }
+        },
+        {
+          "@type": "Argument",
+          "type": "destination",
+          "value": {
+            "@id": "_:Extraction_12"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_2",
+      "type": "relation",
+      "subtype": "causation",
+      "labels": [
+        "Causal",
+        "DirectedRelation",
+        "EntityLinker",
+        "Event"
+      ],
+      "text": "rising cost of living and impact of the conflict have also undermined people's ability to access safe water",
+      "rule": "ported_syntax_1_verb-Causal",
+      "canonicalName": "rise cost living conflict undermine water",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un"
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi"
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao"
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 256,
+              "end": 362
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_3"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 2,
+              "end": 20
+            }
+          ]
+        }
+      ],
+      "trigger": {
+        "@type": "Trigger",
+        "text": "undermined",
+        "provenance": [
+          {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 315,
+                "end": 324
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_3"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "@type": "Argument",
+          "type": "source",
+          "value": {
+            "@id": "_:Extraction_10"
+          }
+        },
+        {
+          "@type": "Argument",
+          "type": "destination",
+          "value": {
+            "@id": "_:Extraction_7"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_3",
+      "type": "relation",
+      "subtype": "causation",
+      "labels": [
+        "Causal",
+        "DirectedRelation",
+        "EntityLinker",
+        "Event"
+      ],
+      "text": "economic decline have led to violence and displacement",
+      "rule": "leadToSyntax1-Causal",
+      "canonicalName": "economic lead displacement",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un"
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi"
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao"
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 196,
+              "end": 249
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 3,
+              "end": 10
+            }
+          ]
+        }
+      ],
+      "trigger": {
+        "@type": "Trigger",
+        "text": "led",
+        "provenance": [
+          {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 218,
+                "end": 220
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_2"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "@type": "Argument",
+          "type": "source",
+          "value": {
+            "@id": "_:Extraction_14"
+          }
+        },
+        {
+          "@type": "Argument",
+          "type": "destination",
+          "value": {
+            "@id": "_:Extraction_12"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_4",
+      "type": "relation",
+      "subtype": "causation",
+      "labels": [
+        "Causal",
+        "DirectedRelation",
+        "EntityLinker",
+        "Event"
+      ],
+      "text": "economic decline has caused a significant reduction in access to staple food, clean water, and to a variety of foods",
+      "rule": "ported_syntax_1_verb-Causal",
+      "canonicalName": "economic cause staple food water variety food",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un"
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi"
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao"
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 65,
+              "end": 180
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_1"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 10,
+              "end": 31
+            }
+          ]
+        }
+      ],
+      "trigger": {
+        "@type": "Trigger",
+        "text": "caused",
+        "provenance": [
+          {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 86,
+                "end": 91
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_1"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "@type": "Argument",
+          "type": "source",
+          "value": {
+            "@id": "_:Extraction_13"
+          }
+        },
+        {
+          "@type": "Argument",
+          "type": "destination",
+          "value": {
+            "@id": "_:Extraction_9"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_5",
+      "type": "relation",
+      "subtype": "causation",
+      "labels": [
+        "Causal",
+        "DirectedRelation",
+        "EntityLinker",
+        "Event"
+      ],
+      "text": "Conflict and economic decline have led to violence",
+      "rule": "leadToSyntax1-Causal",
+      "canonicalName": "conflict lead violence",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un"
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi"
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao"
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 183,
+              "end": 232
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 1,
+              "end": 8
+            }
+          ]
+        }
+      ],
+      "trigger": {
+        "@type": "Trigger",
+        "text": "led",
+        "provenance": [
+          {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 218,
+                "end": 220
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_2"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "@type": "Argument",
+          "type": "source",
+          "value": {
+            "@id": "_:Extraction_8"
+          }
+        },
+        {
+          "@type": "Argument",
+          "type": "destination",
+          "value": {
+            "@id": "_:Extraction_11"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Extraction",
+      "@id": "_:Extraction_6",
+      "type": "relation",
+      "subtype": "causation",
+      "labels": [
+        "Causal",
+        "DirectedRelation",
+        "EntityLinker",
+        "Event"
+      ],
+      "text": "economic decline have led to violence",
+      "rule": "leadToSyntax1-Causal",
+      "canonicalName": "economic lead violence",
+      "groundings": [
+        {
+          "@type": "Groundings",
+          "name": "un"
+        },
+        {
+          "@type": "Groundings",
+          "name": "wdi"
+        },
+        {
+          "@type": "Groundings",
+          "name": "fao"
+        }
+      ],
+      "provenance": [
+        {
+          "@type": "Provenance",
+          "document": {
+            "@id": "_:Document_1"
+          },
+          "documentCharInterval": [
+            {
+              "@type": "Interval",
+              "start": 196,
+              "end": 232
+            }
+          ],
+          "sentence": {
+            "@id": "_:Sentence_2"
+          },
+          "positions": [
+            {
+              "@type": "Interval",
+              "start": 3,
+              "end": 8
+            }
+          ]
+        }
+      ],
+      "trigger": {
+        "@type": "Trigger",
+        "text": "led",
+        "provenance": [
+          {
+            "@type": "Provenance",
+            "document": {
+              "@id": "_:Document_1"
+            },
+            "documentCharInterval": [
+              {
+                "@type": "Interval",
+                "start": 218,
+                "end": 220
+              }
+            ],
+            "sentence": {
+              "@id": "_:Sentence_2"
+            },
+            "positions": [
+              {
+                "@type": "Interval",
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
+        ]
+      },
+      "arguments": [
+        {
+          "@type": "Argument",
+          "type": "source",
+          "value": {
+            "@id": "_:Extraction_14"
+          }
+        },
+        {
+          "@type": "Argument",
+          "type": "destination",
+          "value": {
+            "@id": "_:Extraction_11"
+          }
+        }
+      ]
+    }
+  ]
+}
