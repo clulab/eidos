@@ -3,8 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 
-import org.clulab.odin.Attachment
-import org.clulab.odin.Mention
+import org.clulab.odin.{Attachment, CrossSentenceMention, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
@@ -13,9 +12,7 @@ import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.mentions.EidosEventMention
-import org.clulab.wm.eidos.mentions.EidosTextBoundMention
+import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -44,7 +41,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
     case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention)
     //case mention: EidosRelationMention =>
-    //case mention: CrossSentenceMention =>    
+    case mention: EidosCrossSentenceMention => JLDRelation.newJLDRelation(serializer, mention)
     case mention: EidosTextBoundMention => new JLDConceptEntity(serializer, mention)
     case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
@@ -316,6 +313,8 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var 
   // This isn't necessary because attachments only show provenance, not reference to a different extraction
   //mention.eidosMentionsFromAttachments
 
+  protected def provenance(): Option[Seq[JValue]] = toJObjects(Seq(new JLDProvenance(serializer, mention)))
+
   override def toJObject: JObject = {
     val jldAttachments = mention.odinMention.attachments.toList
         .map(_.asInstanceOf[TriggeredAttachment])
@@ -336,7 +335,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var 
         ("rule" -> mention.odinMention.foundBy) ~
         ("canonicalName" -> mention.canonicalName) ~
         ("groundings" -> jldGroundings) ~
-        (JLDProvenance.singular -> toJObjects(Seq(new JLDProvenance(serializer, mention)))) ~
+        (JLDProvenance.singular -> provenance()) ~
         (JLDAttachment.plural -> toJObjects(jldAttachments))
   }
 }
@@ -381,6 +380,14 @@ object JLDRelation {
       new JLDRelationCorrelation(serializer, mention)
     else if (JLDRelationCausation.taxonomy == mention.odinMention.label)
       new JLDRelationCausation(serializer, mention)
+    else
+      throw new IllegalArgumentException("Unknown Mention: " + mention)
+  }
+
+  def newJLDRelation(serializer: JLDSerializer, mention: EidosCrossSentenceMention): JLDRelation = {
+    // Cross sentence mentions are always a coreference.
+    if (JLDRelationCoreference.taxonomy == mention.odinMention.label)
+      new JLDRelationCoreference(serializer, mention)
     else
       throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
@@ -446,6 +453,34 @@ object JLDRelationCorrelation {
   val taxonomy = "Correlation"
   val cause = "cause"
   val effect = "effect"
+}
+
+class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSentenceMention)
+  extends JLDRelation(serializer, JLDRelationCoreference.subtypeString, mention) {
+
+  override def getMentions: Seq[EidosMention] =
+      Seq(mention.eidosAnchor, mention.eidosNeighbor) ++ super.getMentions
+
+  // The provenance of this mention is just that of anchor and neighbor.
+  override protected def provenance(): Option[Seq[JValue]] = toJObjects(Seq(
+      new JLDProvenance(serializer, mention.eidosAnchor),
+      new JLDProvenance(serializer, mention.eidosNeighbor)
+  ))
+
+  override def toJObject: JObject = {
+    val jldArguments = List(
+        new JLDArgument(serializer, "anchor", mention.eidosAnchor).toJObject,
+        new JLDArgument(serializer, "reference", mention.eidosNeighbor).toJObject
+    )
+
+    super.toJObject ~
+        (JLDArgument.plural -> noneIfEmpty(jldArguments))
+  }
+}
+
+object JLDRelationCoreference {
+  val subtypeString = "coreference"
+  val taxonomy = "Coreference" // TODO: Not in the taxonomy yet.
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
@@ -578,7 +613,12 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
   }
 
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
-    val ordering = Array(JLDConceptEntity.subtypeString, JLDRelationCausation.subtypeString, JLDRelationCorrelation.subtypeString)
+    val ordering = Array(
+        JLDConceptEntity.subtypeString,
+        JLDRelationCausation.subtypeString,
+        JLDRelationCorrelation.subtypeString,
+        JLDRelationCoreference.subtypeString
+    )
     val mapOfMentions = new JIdentityHashMap[EidosMention, Int]()
 
     def lt(left: JLDExtraction, right: JLDExtraction) = {
