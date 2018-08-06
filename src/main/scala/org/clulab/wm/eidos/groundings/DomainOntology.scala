@@ -1,18 +1,22 @@
 package org.clulab.wm.eidos.groundings
 
+import java.io.{FileInputStream, ObjectInputStream}
 import java.util.{Collection => JCollection, Map => JMap}
 
-import org.clulab.processors.{Document, Processor, Sentence}
+import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
+import org.clulab.processors.{Processor, Sentence}
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) {
+@SerialVersionUID(1000L)
+class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends Serializable {
 
   protected def split(values: Option[Seq[String]]): Seq[String] =
       if (values.isEmpty) Seq.empty
@@ -25,10 +29,10 @@ class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples
 
   def path: String = escapeRoute.mkString(OntologyNode.SEPARATOR)
 
-  val route = (name +: crumbs).reverse
+  val route = (name +: crumbs).reverse.toArray
 
   // Right now it doesn't matter where these come from, so they can be combined.
-  val values: Seq[String] = split(examples) ++ split(descriptions)
+  val values: Array[String] = (split(examples) ++ split(descriptions)).toArray
 
   override def toString = path + " = " + values.toList
 }
@@ -37,12 +41,17 @@ object OntologyNode {
   val SEPARATOR = "/"
 }
 
-class DomainOntology(val name: String, val ontologyNodes: Seq[OntologyNode]) {
+@SerialVersionUID(1000L)
+class DomainOntology(val name: String, val ontologyNodes: Array[OntologyNode]) extends Serializable {
 
   def iterateOntology(wordToVec: EidosWordToVec): Seq[ConceptEmbedding] =
       ontologyNodes.map { ontologyNode =>
         ConceptEmbedding(ontologyNode.path, wordToVec.makeCompositeVector(ontologyNode.values))
       }
+
+  def save(filename: String) = {
+    Serializer.save(this, filename)
+  }
 }
 
 object DomainOntology {
@@ -52,8 +61,41 @@ object DomainOntology {
   val DESCRIPTION = "descriptions"
   val POLARITY = "polarity"
 
+  val logger = LoggerFactory.getLogger(this.getClass())
+
+  def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
+
+  // fixme: the following lines are almost directly from Serializer.  We were having problems with the ClassLoader not
+  // being able to find DomainOntology from within the webapp submodule, so we put it here.  This is not ideal
+  // and should be fixed, probably in Processors.
+  def updatedLoad[A](filename: String, classProvider: Any = this): A = {
+    val classLoader = classProvider.getClass().getClassLoader()
+    val fileInputStream = new FileInputStream(filename)
+    var objectInputStream: ObjectInputStream = null
+
+    try {
+      objectInputStream = new ClassLoaderObjectInputStream(classLoader, fileInputStream)
+
+      objectInputStream.readObject().asInstanceOf[A]
+    }
+    finally {
+      if (objectInputStream != null)
+        objectInputStream.close()
+      else
+        fileInputStream.close()
+    }
+  }
+
+  // Load from serialized
+  def load(path: String): DomainOntology = {
+    logger.info(s"Loading serialized ontology from $path")
+    val obj = updatedLoad[DomainOntology](path)
+    logger.info("Serialized Ontology successfully loaded.")
+    obj
+  }
+
   // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor, filter: Boolean) {
+  class DomainOntologyBuilder(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean) {
 
     def build(): DomainOntology = {
       val text = getTextFromResource(ontologyPath)
@@ -61,7 +103,7 @@ object DomainOntology {
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(yamlNodes, Seq.empty, Seq.empty)
 
-      new DomainOntology(name, ontologyNodes)
+      new DomainOntology(name, ontologyNodes.toArray)
     }
 
     protected val getSentences: (String => Array[Sentence]) = proc match {
@@ -138,23 +180,29 @@ object DomainOntology {
     }
   }
 
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean): DomainOntology =
-      new DomainOntologyBuilder(name, ontologyPath, proc, filter).build()
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean, loadFromSerialized: Boolean = false): DomainOntology = {
+    if (loadFromSerialized)
+      DomainOntology.load(serializedPath(name, cachedDir))
+    else {
+      logger.info("Processing yml ontology...")
+      new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
+    }
+  }
 }
 
 // These are just here for when behavior might have to start differing.
 object UNOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }
 
 object WDIOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }
 
 object FAOOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }
 
 object TopoFlowOntology {
-  def apply(name: String, ontologyPath: String, proc: Processor, filter: Boolean = true) = DomainOntology(name, ontologyPath, proc, filter)
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }

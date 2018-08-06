@@ -58,6 +58,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     text: String,
     cagRelevantOnly: Boolean): (Document, Vector[EidosMention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
 
+    def mentionOrder(m: Mention): Int = 10000 * m.sentence + m.start
+
     // preprocessing
     println(s"Processing sentence : ${text}" )
     val doc = ieSystem.annotate(text)
@@ -81,7 +83,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println("DONE .... ")
     //    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
     // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
-    (doc, mentions.sortBy(_.odinMention.start), groundedEntities, events)
+    (doc, mentions.sortBy(m => mentionOrder(m.odinMention)), groundedEntities, events)
   }
 
 

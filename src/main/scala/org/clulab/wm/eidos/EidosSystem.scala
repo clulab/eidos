@@ -26,15 +26,16 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 //  val proc: Processor = new CluProcessor()//new FastNLPProcessor() // TODO: Get from configuration file soon
+  println("Loading processor...")
   val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
 
   var debug = true // Allow external control with var
 
   override def getConf: Config = config
-
+  println("Loading W2V...")
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
   // This isn't intended to be (re)loadable.  This only happens once.
-  protected val wordToVec = EidosWordToVec(
+  val wordToVec = EidosWordToVec(
     word2vec,
     getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
 //    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
@@ -63,23 +64,27 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   )
 
   object LoadableAttributes {
-    def   masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
-    def  quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
-    def domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
-    def    quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
-    def   entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
-    def    avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    def      taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
-    def     stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
-    def   transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
-
-    def    unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
-    def   wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
-    def   faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
+    // Extraction
+    def     masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
+    def    quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
+    def   domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
+    def      quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
+    def     entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
+    def      avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
+    def        taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    // Filtering
+    def       stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    def     transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    // Ontology handling
+    def      unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
+    def     wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
+    def     faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
+    def cachedOntologiesDir: String = getPath("cachedOntologiesDir", "/org/clulab/wm/eidos/ontologies/cached/")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
     def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
+    def loadSerializedOnts: Boolean = getArgBoolean(getFullName("loadCachedOntologies"), Option(false))
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
@@ -87,17 +92,20 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, proc)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, proc)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, proc)
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
 
     def apply(): LoadableAttributes = {
+      // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath)
+
+      // Domain Ontologies:
       val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
 
       new LoadableAttributes(
@@ -114,6 +122,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     }
   }
 
+  println("Loading loadableAttributes...")
   var loadableAttributes = LoadableAttributes()
 
   // These public variables are accessed directly by clients which
