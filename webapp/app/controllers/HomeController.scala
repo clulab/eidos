@@ -121,7 +121,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val grounding = ieSystem.groundAdjective(quantifier)
     val predictedDelta = grounding.predictDelta(paramMean, paramStdev)
 
-    GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText(), quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
+    GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText, quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
   }
 
 
