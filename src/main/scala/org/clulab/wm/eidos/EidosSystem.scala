@@ -2,7 +2,7 @@ package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
-import org.clulab.processors.clu.CluProcessor
+import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
@@ -14,6 +14,7 @@ import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
+import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 
 import scala.annotation.tailrec
@@ -25,13 +26,25 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
   */
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
-//  val proc: Processor = new CluProcessor()//new FastNLPProcessor() // TODO: Get from configuration file soon
+
   println("Loading processor...")
-  val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
+  val proc: Processor = mkProcessor(config)
+
+  private def mkProcessor(config: Config): Processor = {
+    config[String]("EidosSystem.processor") match {
+      case "FastNLPProcessor" => new FastNLPProcessor
+      case "CluProcessor" => new CluProcessor
+      case "BioCluProcessor" => new BioCluProcessor
+      case "CluProcessorWithStanford" => new CluProcessorWithStanford
+      // case "SpanishCluProcessor" => new SpanishCluProcessor
+      // case "PortugueseCluProcessor" => new PortugueseCluProcessor
+    }
+  }
 
   var debug = true // Allow external control with var
 
   override def getConf: Config = config
+
   println("Loading W2V...")
   var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
   // This isn't intended to be (re)loadable.  This only happens once.
