@@ -36,8 +36,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       case "CluProcessor" => new CluProcessor
       case "BioCluProcessor" => new BioCluProcessor
       case "CluProcessorWithStanford" => new CluProcessorWithStanford
-      // case "SpanishCluProcessor" => new SpanishCluProcessor
-      // case "PortugueseCluProcessor" => new PortugueseCluProcessor
+      case "SpanishCluProcessor" => new SpanishCluProcessor
+      case "PortugueseCluProcessor" => new PortugueseCluProcessor
     }
   }
 
