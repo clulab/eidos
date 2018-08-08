@@ -52,7 +52,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // Entry method
   def parseSentence(text: String, cagRelevantOnly: Boolean) = Action {
     val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text, cagRelevantOnly)
-    println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText()}")
+    println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText}")
     val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
   }
