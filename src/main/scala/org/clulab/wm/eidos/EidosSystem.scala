@@ -141,10 +141,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   }
 
   protected def addLexiconNER(s: Sentence) = {
+    // The Portuguese parser does not currently generate entities, so we want to create an empty list here for
+    // further processing and filtering operations that expect to be able to query the entities
+    if (s.entities.isEmpty) s.entities = Some(Array.fill[String](s.words.length)("O"))
     for {
       (lexiconNERTag, i) <- ner.find(s).zipWithIndex
       if lexiconNERTag != EidosSystem.NER_OUTSIDE
     } s.entities.get(i) = lexiconNERTag
+
   }
 
   // MAIN PIPELINE METHOD
