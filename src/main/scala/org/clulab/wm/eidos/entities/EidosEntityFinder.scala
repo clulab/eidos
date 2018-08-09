@@ -45,6 +45,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 
 //    println(s"AVOID  -- \n\t${avoid.map(m => m.text + "__" + m.foundBy).mkString("\n\t")}")
 //    println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Valid Base-entities  -- \n\t${validBaseEntities.map(m => m.text).mkString("\n\t")}")
 ////    println(s"Expanded-entities  -- \n\t${expandedEntities.map(m => m.text).mkString("\n\t")}")
 //    println(s"distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
 //    println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
@@ -64,7 +65,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
       val tags = entity.sentenceObj.tags.get
 
       entity.end < tags.length &&
-          tags(entity.end).startsWith("NN")
+          tags(entity.end).startsWith("N")
     }
 
     def containsValidNounVerb(entity: Mention): Boolean = {
@@ -74,7 +75,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 
       // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
       tags.indices.exists { i =>
-        (tags(i).startsWith("NN") || tags(i).startsWith("VB")) &&
+        (tags(i).startsWith("N") || tags(i).startsWith("V")) &&
         !StopwordManager.STOP_NER.contains(entities(i))
       }
     }
@@ -82,7 +83,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     containsValidNounVerb(entity) ||
     // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
     // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
-    entity.tags.get.last.startsWith("JJ") && nextTagNN(entity)
+      (entity.tags.get.last.startsWith("JJ") || entity.tags.get.last.startsWith("ADJ")) && nextTagNN(entity)
     // Otherwise, it's not valid
   }
 
