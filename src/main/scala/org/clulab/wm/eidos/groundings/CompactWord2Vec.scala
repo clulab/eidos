@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileInputStream, ObjectInputStream}
+import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
 
 import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
 import org.clulab.wm.eidos.utils.Sourcer
@@ -31,9 +31,12 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 
   def save(filename: String): Unit = {
     val words = map.toList.sortBy(_._2).map(_._1).mkString("\n")
-    val data: CompactWord2Vec.StoreType = (words, array)
-    // TODO: Would like to write these in separate goes
-    Serializer.save(data, filename)
+    val objectOutputStream = new ObjectOutputStream(new FileOutputStream(filename))
+    // Writing is performed in two steps so that the parts can be processed separately
+    // when read back in.
+    objectOutputStream.writeObject(words)
+    objectOutputStream.writeObject(array)
+    objectOutputStream.close()
   }
 
   def dotProduct(row1: Int, row2: Int): Double = {
@@ -78,7 +81,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
       dest(i) += array(srcOffset + i)
   }
 
-  def isOutOfVocabulary(word: String): Boolean = map.contains(Word2VecUtils.sanitizeWord(word))
+  def isOutOfVocabulary(word: String): Boolean = !map.contains(Word2VecUtils.sanitizeWord(word))
 
   def makeCompositeVector(t:Iterable[String]): Array[Double] = {
     val vTotal = new Array[Double](dimension)
@@ -137,8 +140,8 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 }
 
 object CompactWord2Vec {
-  type MapType = HashMap[String, Int]
-  type ArrayType = Array[Double]
+  type MapType = mutable.HashMap[String, Int]
+  type ArrayType = Array[Float]
 
   protected type MutableMapType = mutable.HashMap[String, Int]
   protected type BuildType = (MapType, ArrayType)
@@ -184,20 +187,48 @@ object CompactWord2Vec {
   }
 
   protected def loadBin(filename: String): BuildType = {
-    val (text, array) = updatedLoad[StoreType](filename, this)
-    val words = text.split('\n')
-    val map: MapType = words.zipWithIndex.toMap.asInstanceOf[MapType]
+    // This is the original code
+//    val (text, array) = updatedLoad[StoreType](filename, this)
+//    val words = text.split('\n')
+//    val map: MapType = words.zipWithIndex.toMap.asInstanceOf[MapType]
+//    (map, array)
 
+    // This is "unrolled" for performance purposes.
+    val objectInputStream = new ClassLoaderObjectInputStream(this.getClass().getClassLoader(), new FileInputStream(filename))
+    val map: MapType = new MutableMapType()
+
+    {
+      // This is so that text can be abandoned at the end of the block, before the array is read.
+      val text = objectInputStream.readObject().asInstanceOf[String]
+      val stringBuilder = new StringBuilder
+      var count = 0
+
+      for (i <- 0 until text.size) {
+        val c = text(i)
+
+        if (c == '\n') {
+          map.put(stringBuilder.result(), count)
+          count += 1
+          stringBuilder.clear()
+        }
+        else
+          stringBuilder.append(c)
+      }
+      map.put(stringBuilder.result(), count)
+    }
+
+    val array = objectInputStream.readObject().asInstanceOf[ArrayType]
+    objectInputStream.close
     (map, array)
   }
 
   protected def norm(array: ArrayType, rowIndex: Int, rowWidth: Int) {
     var offset = rowIndex * rowWidth
-    var len = 0.0
+    var len = 0.0f
 
     for (i <- 0 until rowWidth)
       len += array(offset + i) * array(offset + i)
-    len = math.sqrt(len)
+    len = math.sqrt(len).toFloat
 
     if (len != 0)
       for (i <- 0 until rowWidth)
@@ -227,10 +258,10 @@ object CompactWord2Vec {
 
       val offset = mapIndex * dimension
       for (i <- 0 until dimension)
-        array(offset + i) = bits(i + 1).toDouble // might need toFloat later
+        array(offset + i) = bits(i + 1).toFloat
       norm(array, mapIndex, dimension)
     }
     assert(map.size == wordCount, s"The file should have had ${map.size} words.")
-    (map.toMap.asInstanceOf[MapType], array)
+    (map, array)
   }
 }
