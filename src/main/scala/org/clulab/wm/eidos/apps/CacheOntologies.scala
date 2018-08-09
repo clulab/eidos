@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.apps
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
-import org.clulab.wm.eidos.groundings.{DomainOntology, FAOOntology, UNOntology, WDIOntology}
+import org.clulab.wm.eidos.groundings._
 
 object CacheOntologies extends App {
 
@@ -31,4 +31,11 @@ object CacheOntologies extends App {
   println(s"Saving ontologies to $absoluteCachedDir...")
   domainOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, absoluteCachedDir)))
   println(s"Finished serializing ${domainOntologies.length} ontologies.")
+
+  val filenameIn = loadableAttributes.wordToVecPath
+  val filenameOut = EidosWordToVec.makeCachedFilename(absoluteCachedDir, loadableAttributes.wordToVecPath)
+  println(s"Saving vectors to $filenameOut...")
+  val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
+  word2Vec.save(filenameOut)
+  println(s"Finished serializing vectores.")
 }

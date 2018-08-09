@@ -1,8 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.Timer
 import org.slf4j.LoggerFactory
 
 trait EidosWordToVec {
@@ -27,7 +26,7 @@ class FakeWordToVec extends EidosWordToVec {
   def makeCompositeVector(t:Iterable[String]): Array[Double] = Array.emptyDoubleArray
 }
 
-class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
+class RealWordToVec(var w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
@@ -44,17 +43,17 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
   }
   
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
+    val sanitizedNameParts = canonicalNameParts.map(Word2VecUtils.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
-    val oov = sanitizedNameParts.forall(w2v.getWordVector(_).isEmpty)
+    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
 
-    if (oov)
+    if (outOfVocabulary)
       Seq.empty
     else {
       val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
-        (conceptEmbedding.concept, Word2Vec.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+        (conceptEmbedding.concept, Word2VecUtils.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
@@ -67,19 +66,18 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
 object EidosWordToVec {
   protected val logger = LoggerFactory.getLogger(this.getClass())
 
-  def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int): EidosWordToVec = {
+  def makeCachedFilename(path: String, file: String): String =
+      path + file.split('/').last + ".serialized"
+
+  def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
     if (enabled) {
       logger.info(s"Loading w2v from ${wordToVecPath}...")
-      val source = Sourcer.sourceFromResource(wordToVecPath)
 
-      try {
-        val w2v = new Word2Vec(source, None)
+      val w2v =
+        if (cached) CompactWord2Vec(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
+        else CompactWord2Vec(wordToVecPath, resource = true, cached)
 
-        new RealWordToVec(w2v, topKNodeGroundings)
-      }
-      finally {
-        source.close()
-      }
+      new RealWordToVec(w2v, topKNodeGroundings)
     }
     else
       new FakeWordToVec()
