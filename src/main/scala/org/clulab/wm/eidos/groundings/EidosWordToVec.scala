@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Timer
 import org.slf4j.LoggerFactory
@@ -43,7 +44,7 @@ class RealWordToVec(var w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
   }
   
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(Word2VecUtils.sanitizeWord(_))
+    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
     val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
@@ -53,7 +54,7 @@ class RealWordToVec(var w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     else {
       val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
-        (conceptEmbedding.concept, Word2VecUtils.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+        (conceptEmbedding.concept, Word2Vec.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
