@@ -17,7 +17,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 
   def get(word: String): Option[CompactWord2Vec.ArrayType] = {
     if (map.contains(word)) {
-      val offset = map.get(word).get * dimension
+      val offset = map(word) * dimension
       val vec = new CompactWord2Vec.ArrayType(dimension)
 
       for (i <- 0 until dimension)
@@ -30,7 +30,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
   def keys = map.keys
 
   def save(filename: String): Unit = {
-    val words = map.toList.sortBy(_._2).map(_._1).mkString("\n")
+    val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
     val objectOutputStream = new ObjectOutputStream(new FileOutputStream(filename))
     // Writing is performed in two steps so that the parts can be processed separately
     // when read back in.
@@ -140,11 +140,14 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 }
 
 object CompactWord2Vec {
-  type MapType = mutable.HashMap[String, Int]
+  protected type MutableMapType = mutable.HashMap[String, Int]
+//  protected type MutableMapType = java.util.HashMap[String, Int]
+
+  type MapType = MutableMapType // Skip conversion to immutable.
   type ArrayType = Array[Float]
 
-  protected type MutableMapType = mutable.HashMap[String, Int]
-  protected type BuildType = (MapType, ArrayType)
+  protected type BuildType = (MutableMapType, ArrayType)
+
   protected type StoreType = (String, ArrayType)
 
   protected val logger = LoggerFactory.getLogger(classOf[CompactWord2Vec])
@@ -207,7 +210,7 @@ object CompactWord2Vec {
         val c = text(i)
 
         if (c == '\n') {
-          map.put(stringBuilder.result(), count)
+          map += ((stringBuilder.result(), count))
           count += 1
           stringBuilder.clear()
         }
@@ -246,13 +249,22 @@ object CompactWord2Vec {
         else (0, 0)
     val map = new MutableMapType()
     val array = new ArrayType(wordCount * dimension)
+    var duplicates = 0
 
     for ((line, lineIndex) <- linesZipWithIndex) {
       val bits = line.split(' ')
       assert(bits.length == dimension + 1, s"${bits.length} != ${dimension + 1} found on line ${lineIndex + 1}")
       val word = bits(0)
-      assert(!map.contains(word), s"'${word}' is duplicated in the vector file.")
-      val mapIndex = map.size
+      val mapIndex =
+          if (map.contains(word)) {
+            logger.info(s"'${word}' is duplicated in the vector file.")
+            // Use space because we will not be looking for words like that.
+            // The array will not be filled in for this map.size value.
+            map.put(" " + duplicates, map.size)
+            duplicates += 1
+            map(word)
+          }
+          else map.size
       assert(mapIndex < wordCount)
       map.put(word, mapIndex)
 

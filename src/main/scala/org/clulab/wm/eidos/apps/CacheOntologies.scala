@@ -37,5 +37,5 @@ object CacheOntologies extends App {
   println(s"Saving vectors to $filenameOut...")
   val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
   word2Vec.save(filenameOut)
-  println(s"Finished serializing vectores.")
+  println(s"Finished serializing vectors.")
 }
