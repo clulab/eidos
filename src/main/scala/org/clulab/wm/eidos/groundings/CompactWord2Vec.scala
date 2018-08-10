@@ -2,11 +2,12 @@ package org.clulab.wm.eidos.groundings
 
 import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
 
-import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
+import org.clulab.embeddings.word2vec.Word2Vec
+import org.clulab.utils.ClassLoaderObjectInputStream
 import org.clulab.wm.eidos.utils.Sourcer
 import org.slf4j.LoggerFactory
 
-import scala.collection.immutable.HashMap
+//import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -81,7 +82,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
       dest(i) += array(srcOffset + i)
   }
 
-  def isOutOfVocabulary(word: String): Boolean = !map.contains(Word2VecUtils.sanitizeWord(word))
+  def isOutOfVocabulary(word: String): Boolean = !map.contains(Word2Vec.sanitizeWord(word))
 
   def makeCompositeVector(t:Iterable[String]): Array[Double] = {
     val vTotal = new Array[Double](dimension)
@@ -91,7 +92,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
       if (v.isDefined)
         add(vTotal, v.get)
     }
-    Word2VecUtils.norm(vTotal)
+    Word2Vec.norm(vTotal)
     vTotal
   }
 
@@ -100,8 +101,8 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     * IMPORTANT: words here must be words not lemmas!
     */
   def avgSimilarity(t1: Iterable[String], t2: Iterable[String]): Double = {
-    val st1 = t1.map(Word2VecUtils.sanitizeWord(_))
-    val st2 = t2.map(Word2VecUtils.sanitizeWord(_))
+    val st1 = t1.map(Word2Vec.sanitizeWord(_))
+    val st2 = t2.map(Word2Vec.sanitizeWord(_))
     val (score, pairs) = sanitizedAvgSimilarity(st1, st2)
 
     score
