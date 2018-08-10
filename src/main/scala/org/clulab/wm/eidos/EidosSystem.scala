@@ -186,7 +186,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities: Seq[Mention] = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
-
+//    println("Entities that made it to EidosSystem:")
+//    entities.foreach(e => DisplayUtils.shortDisplay(e))
     // filter entities which are entirely stop or transparent
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
     // Becky says not to filter yet

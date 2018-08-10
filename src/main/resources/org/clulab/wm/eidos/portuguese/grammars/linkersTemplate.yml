@@ -38,6 +38,18 @@ rules:
 # The rest of the rules here are PORTED FROM pos-reg_template.yml from REACH grammar
 # NB: These rules are mostly the same as the pos-reg rules, except that all instances of "auxtriggers" in the pattern trigger have been deleted.
 #
+  - name: active_voice_verb-${addlabel}
+    priority: ${ rulepriority }
+    #example: "The water quality caused an increase in poverty and a decrease in poverty."
+    example: "improved economic performance expected to cause a shift from agriculture to service industry."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = >${agents}
+      effect: Entity = >${objects}
+
+
 
   - name: ported_syntax_1_verb-${addlabel}
     priority: ${ rulepriority }
@@ -86,7 +98,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|ADV/]
       effect: Entity = (/^nsubjpass/ /conj_|${ noun_modifiers }/{,2})
       cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${preps}|${ noun_modifiers }|${objects}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
@@ -96,7 +108,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/]# & tag=/^V|RB/]
+      trigger = [word=/(?i)^(${ trigger })/]# & tag=/^V|ADV/]
       effect: Entity = acl? dobj /${ noun_modifiers }|${ conjunctions }/{,2}
       cause: Entity =
         (< /xcomp|ccomp|rcmod|appos/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
@@ -133,10 +145,11 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       effect: Entity  = <ccomp (?=/nmod_since/) nsubj
       cause: Entity = dobj
 
+  # todo: this is a specific tag that doesn't have an equiv in UDs
   - name: token_1_verb-${addlabel}
     priority: ${ rulepriority }
     # Helps in some cases of broken syntax

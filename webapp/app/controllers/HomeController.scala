@@ -1,5 +1,7 @@
 package controllers
 
+import java.text.Normalizer
+
 import javax.inject._
 import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, TextBoundMention}
 import org.clulab.processors.{Document, Sentence}
@@ -51,9 +53,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   // Entry method
   def parseSentence(text: String, cagRelevantOnly: Boolean) = Action {
-    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text, cagRelevantOnly)
+    val normalizedText = Normalizer.normalize(text, Normalizer.Form.NFD)
+    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, normalizedText, cagRelevantOnly)
     println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText}")
-    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    val json = mkJson(normalizedText, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
     Ok(json)
   }
 

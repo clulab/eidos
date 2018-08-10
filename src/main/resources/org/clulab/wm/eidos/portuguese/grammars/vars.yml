@@ -10,7 +10,7 @@ noun_modifiers: "amod|compound|name" #removed dep
 
 negTriggers: "not"
 
-objects: "dobj"
+objects: "dobj|obj"
 
 preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_than|acl_of"
 

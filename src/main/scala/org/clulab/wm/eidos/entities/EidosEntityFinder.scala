@@ -65,7 +65,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
       val tags = entity.sentenceObj.tags.get
 
       entity.end < tags.length &&
-          tags(entity.end).startsWith("N")
+          tags(entity.end).startsWith("N") || tags(entity.end).startsWith("PROPN")
     }
 
     def containsValidNounVerb(entity: Mention): Boolean = {
@@ -75,7 +75,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
 
       // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
       tags.indices.exists { i =>
-        (tags(i).startsWith("N") || tags(i).startsWith("V")) &&
+        (tags(i).startsWith("N") || tags(i).startsWith("PROPN") || tags(i).startsWith("V")) &&
         !StopwordManager.STOP_NER.contains(entities(i))
       }
     }
