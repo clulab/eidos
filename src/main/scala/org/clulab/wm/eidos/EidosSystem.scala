@@ -32,13 +32,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   val proc: Processor = mkProcessor(eidosConf)
 
   private def mkProcessor(config: Config): Processor = {
-    config[String]("processor") match {
-      case "FastNLPProcessor" => new FastNLPProcessor
-      case "CluProcessor" => new CluProcessor
-      case "BioCluProcessor" => new BioCluProcessor
-      case "CluProcessorWithStanford" => new CluProcessorWithStanford
-      case "SpanishCluProcessor" => new SpanishCluProcessor
-      case "PortugueseCluProcessor" => new PortugueseCluProcessor
+    config[String]("language") match {
+      case "english" => new FastNLPProcessor
+      case "spanish" => new SpanishCluProcessor
+      case "portuguese" => new PortugueseCluProcessor
     }
   }
 
