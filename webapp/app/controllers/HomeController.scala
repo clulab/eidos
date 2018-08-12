@@ -13,6 +13,7 @@ import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
+import com.typesafe.config.ConfigRenderOptions
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
@@ -49,6 +50,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   def buildInfo = Action {
     Ok(jsonBuildInfo)
+  }
+
+  def config = Action {
+    Ok(ieSystem.config.root.render(ConfigRenderOptions.concise.setFormatted(true).setJson(true))).as(JSON)
   }
 
   // Entry method
