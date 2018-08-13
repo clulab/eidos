@@ -28,10 +28,6 @@ stimul -> estimula
 up-regul supra-regulação
 widen -> amplia
 
-# noncausal increase triggers
-noncausal_increase_triggers: "above|above-average|better|good|greater|heav|(highs?$)|highe(r|s)|rising|widespread"
-
-
 # deacrease triggers
 # esses triggers compreendem relacoes onde o aumento de A implica na diminuição de B
 decrease_triggers: "attenu|abolish|abrog|arrest|block|collaps|constrain|(cuts?$)|cutting|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|diminish|disrupt|down-reg|
@@ -85,12 +81,47 @@ slow -> desacelera
 undermine -> enfraquece
 worse -> piora
 
+# cause triggers
+# esses triggers identificam relaçoes onde A causa B
+# NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
+cause_triggers: "caç|activat|allow|because|cataly|caus|contribut|driv|due|elicit|enabl|force|forcing|help|induc|initiat|interconvert|lead|^led$|mediat|modulat|signal|synthes|
+trigger|underli"
+caç???
+activat -> ativa
+allow -> permite
+because -> porque
+cataly -> catalisa
+caus -> causa
+contribut -> contribui
+driv -> conduz
+due -> (no similar verb)
+elicit -> deduz
+enabl -> permite, possibilita
+force -> força
+foricng (no similar)
+help -> ajuda, auxilia, colabora
+induce -> induz, provoca
+initiat -> inicia, desencadeia
+interconvert -> interconverte
+lead -> leva, condiuz
+^led$
+meadit -> media
+modulat -> modula
+signal -> sinaliza
+synthes -> sintetiza
+trigger -> desencadeia, ativa
+underli (no similar)
 
-oncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|fail|inactiv|inadequate|knockdown|lack|loss|(lows?$)|poor|scarce|scarcity|shortage|shutdown"
+
+# noncausal increase triggers
+noncausal_increase_triggers: "above|above-average|better|good|greater|heav|(highs?$)|highe(r|s)|rising|widespread"
+
+
+noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|fail|inactiv|inadequate|knockdown|lack|loss|(lows?$)|poor|scarce|scarcity|shortage|shutdown"
 #advers|perturb|resist|
 
-# NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
-cause_triggers: "caç|activat|allow|because|cataly|caus|contribut|driv|due|elicit|enabl|force|forcing|help|induc|initiat|interconvert|lead|^led$|mediat|modulat|signal|synthes|trigger|underli"
+
+
 nonavoid_causal_triggers: "produc"
 reverse_direction_cause_triggers: "result|effect|consequence"
 
