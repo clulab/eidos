@@ -37,6 +37,7 @@ train*.dat
 xgboostOut/
 null_*
 vectors.txt
+glove.840B.300d.vectors.txt
 
 # Python binary files
 *.pyc
