@@ -11,7 +11,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-  val procVer = "7.4.1"//-SNAPSHOT"
+  val procVer = "7.3.1"
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
@@ -81,12 +81,25 @@ pomExtra :=
 // end publishing settings
 //
 
-lazy val core = project in file(".")
+lazy val core = (project in file("."))
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoPackage := "org.clulab.wm.eidos",
+    buildInfoOptions += BuildInfoOption.BuildTime,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
+      "gitCurrentBranch" -> { git.gitCurrentBranch.value },
+      "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
+      "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
+      "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
+    )
+  )
 
 lazy val webapp = project
   .enablePlugins(PlayScala)
   .aggregate(core)
   .dependsOn(core)
+
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
@@ -110,3 +123,7 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
+// scaladoc hosting
+enablePlugins(SiteScaladocPlugin)
+enablePlugins(GhpagesPlugin)
+git.remoteRepo := "git@github.com:clulab/eidos.git"

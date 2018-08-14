@@ -1,13 +1,14 @@
 increase_triggers: "acceler|aid|augment|boost|compound|doubl|deep|elev|enhanc|exacerbat|exorbitant|favorable|height|improv|increas|intens|prolong|promot|rais|reactivat|restor|spike|spread|stimul|synerg|up-regul|upregul|widen"
 noncausal_increase_triggers: "above|above-average|better|good|greater|heav|(highs?$)|highe(r|s)|rising|widespread"
 
-decrease_triggers: "attenu|abolish|abrog|arrest|block|collaps|constrain|(cuts?$)|cutting|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|diminish|disrupt|down-reg|downreg|drop|dysregul|elimin|eras|erod|exhaust|impair|imped|inhibit|limit|less|lower|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin|worse"
+decrease_triggers: "attenu|abolish|abrog|arrest|block|collaps|constrain|(cuts?$)|cutting|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|diminish|disrupt|down-reg|downreg|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|limit|less|lower|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin|worse"
 noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|fail|inactiv|inadequate|knockdown|lack|loss|(lows?$)|poor|scarce|scarcity|shortage|shutdown"
 #advers|perturb|resist|
 
 # NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
 cause_triggers: "activat|allow|because|cataly|caus|contribut|driv|due|elicit|enabl|force|forcing|help|induc|initiat|interconvert|lead|^led$|mediat|modulat|signal|synthes|trigger|underli"
 nonavoid_causal_triggers: "produc"
+reverse_direction_cause_triggers: "result|effect|consequence"
 
 affect_triggers: "affect|alter|(displaces?$)|chang|influenc|modifi|modify"
 nonavoid_affect_triggers: "impact"

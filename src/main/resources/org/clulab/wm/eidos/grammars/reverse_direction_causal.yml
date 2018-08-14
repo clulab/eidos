@@ -1,14 +1,5 @@
-vars:
-  agents: "nsubj | nsubjpass | csubj | csubjpass | <acl"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
-  conjunctions: "appos|conj|conj_|cc"
-  complements: "xcomp|ccomp"
-  noun_modifiers: "amod|compound|dep|name"
-  negTriggers: "not"
-  objects: "dobj"
-  preps: "nmod_of|nmod_in|nmod_to"
-  prep_dobjs: "nmod"
-  quant_modifiers: "amod|advmod"
-  # Todo: nmod_from "X will follow from Y"
+vars: org/clulab/wm/eidos/grammars/vars.yml
+
 
 rules:
 
@@ -23,3 +14,11 @@ rules:
       cause: Entity  = nsubj /^nmod_/?
       effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
 
+  - name: reverse_causal-noun-2
+    priority: ${ rulepriority }
+    example: "The immediate consequence of drought is a fall in crop production"
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      cause: Entity  = >nmod_of
+      effect: Entity = <nsubj >/${preps}/?

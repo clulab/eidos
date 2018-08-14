@@ -1,12 +1,10 @@
 package org.clulab.wm.eidos.serialization.json
 
-import org.clulab.odin.Mention
+import org.clulab.odin.{Attachment, CrossSentenceMention, Mention}
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding}
-import org.clulab.wm.eidos.serialization.json.odin.{JLDCorpus => JLDOdinCorpus}
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
@@ -27,22 +25,13 @@ class TestJLDSerializer extends Test {
   }
   
   def serialize(corpus: Corpus) = {
-    val json1 = {
-      val jldCorpus = new JLDOdinCorpus(corpus, TestUtils.ieSystem)
-      val jValue = jldCorpus.serialize()
-      stringify(jValue, true)
-    }
-    
-    val json2 = {
+    val json = {
       val jldCorpus = new JLDEidosCorpus(corpus, TestUtils.ieSystem)
       val jValue = jldCorpus.serialize()
       stringify(jValue, true)
     }
     
-//    if (json1 != json2)
-//      println(json1 + json2)
-      
-    json1 + json2
+    json
   }
   
   def inspect(string: String): Unit =
@@ -123,7 +112,38 @@ class TestJLDSerializer extends Test {
     inspect(json)
     json should not be empty
   }
-  
+
+  it should "work with cross-sentence mentions" in {
+
+    def addCrossSentenceMention(prevAnnotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+      val prevOdinMentions = prevAnnotatedDocument.odinMentions
+      val firstMention = prevOdinMentions.head
+      val lastMention = prevOdinMentions.last
+      val crossSentenceMention = new CrossSentenceMention(
+        Seq("Coreference", "label1", "label2", "...", "labelN"),
+        firstMention,
+        lastMention,
+        Map(("first" -> Seq(firstMention)), ("last" -> Seq(lastMention))),
+        firstMention.document,
+        true,
+        "Found by me",
+        Set.empty
+      )
+      val nextOdinMentions = crossSentenceMention +: prevOdinMentions
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, TestUtils.ieSystem.loadableAttributes.stopwordManager, TestUtils.ieSystem)
+      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
+
+      nextAnnotatedDocument
+    }
+
+    val prevAnnotatedDocument = newTitledAnnotatedDocument(p1, "p1")
+    val nextAnnotatedDocument = addCrossSentenceMention(prevAnnotatedDocument)
+    val json = serialize(Seq(nextAnnotatedDocument))
+
+    inspect(json)
+    json should not be empty
+  }
+
   it should "serialize very complex documents" in {
     val json = serialize(Seq(
         newTitledAnnotatedDocument(p1, "p1"), 

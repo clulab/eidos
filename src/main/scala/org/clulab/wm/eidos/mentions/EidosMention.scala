@@ -2,10 +2,7 @@ package org.clulab.wm.eidos.mentions
 
 import java.util.IdentityHashMap
 
-import org.clulab.odin.EventMention
-import org.clulab.odin.Mention
-import org.clulab.odin.RelationMention
-import org.clulab.odin.TextBoundMention
+import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.struct.Interval
@@ -82,6 +79,8 @@ class IdentityBagger[T] extends Bagger[T] {
 
 abstract class EidosMention(val odinMention: Mention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
     mentionMapper: MentionMapper) /* extends Mention if really needs to */ {
+  type StringAndStart = (String, Int)
+
   // This must happen before the remap in case arguments point back to this
   mentionMapper.put(odinMention, this)
 
@@ -105,8 +104,32 @@ abstract class EidosMention(val odinMention: Mention, stopwordManaging: Stopword
     odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, stopwordManaging, ontologyGrounder, mentionMapper))
   }
 
-  val canonicalName: String // Determined by subclass
-  val grounding: Groundings // Determined by subclass, in part because dependent on canonicalName
+  protected def remapOdinMention(odinMention: Mention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder, mentionMapper: MentionMapper): EidosMention =
+      EidosMention.asEidosMentions(Seq(odinMention), stopwordManaging, ontologyGrounder, mentionMapper)(0)
+
+  // This is lazy because canonicalMentions is called and that may be overridden in the derived class.
+  // The overriden method will not be called in this constructor.
+  lazy val canonicalName: String = {
+    // Sentence has been added to account for cross sentence mentions.
+    def lessThan(left: Mention, right: Mention): Boolean =
+        if (left.sentence != right.sentence)
+          left.sentence < right.sentence
+        else if (left.start != right.start)
+          left.start < right.start
+        // This one shouldn't really be necessary.
+        else if (left.end != right.end)
+          left.end < right.end
+        else
+          false // False is needed to preserve order on tie.
+
+    canonicalMentions.sortWith(lessThan).map(canonicalFormSimple).mkString(" ")
+  }
+
+  // Return any mentions that are involved in the canonical name.  By default, the argument values.
+  protected def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
+
+  // This is similarly lazy because groundOntology calls canonicalName.
+  lazy val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
 
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
@@ -125,14 +148,11 @@ abstract class EidosMention(val odinMention: Mention, stopwordManaging: Stopword
       if !removeNER(ner)
     } yield lemma
 
-    // fixme -- better and cleaner backoff
-    if (contentLemmas.isEmpty) {
-      m.text
-    } else {
+    if (contentLemmas.isEmpty)
+      m.text // fixme -- better and cleaner backoff
+    else
       contentLemmas.mkString(" ").trim.replaceAll(" +", " ")
-    }
 //    println("  * result: " + contentLemmas.mkString(" "))
-
   }
 }
 
@@ -150,6 +170,7 @@ object EidosMention {
       case mention: TextBoundMention => new EidosTextBoundMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
       case mention: EventMention => new EidosEventMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
       case mention: RelationMention => new EidosRelationMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
+      case mention: CrossSentenceMention => new EidosCrossSentenceMention(mention, stopwordManaging, ontologyGrounder, mentionMapper)
       case _ => throw new IllegalArgumentException("Unknown Mention: " + odinMention)
     }
   }
@@ -176,6 +197,10 @@ object EidosMention {
         odinMention.attachments.asInstanceOf[Set[EidosAttachment]].flatMap(_.attachmentMentions).foreach(addMention)
         if (odinMention.isInstanceOf[EventMention])
           addMention(odinMention.asInstanceOf[EventMention].trigger)
+        if (odinMention.isInstanceOf[CrossSentenceMention]) {
+          addMention(odinMention.asInstanceOf[CrossSentenceMention].anchor)
+          addMention(odinMention.asInstanceOf[CrossSentenceMention].neighbor)
+        }
       })
     }
 
@@ -201,8 +226,7 @@ class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, stopword
     mentionMapper: MentionMapper)
     extends EidosMention(odinTextBoundMention, stopwordManaging, ontologyGrounder, mentionMapper) {
 
-  override val canonicalName: String = canonicalFormSimple(odinMention)
-  override val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
+  protected override def canonicalMentions: Seq[Mention] = Seq(odinMention)
 }
 
 class EidosEventMention(val odinEventMention: EventMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
@@ -211,34 +235,29 @@ class EidosEventMention(val odinEventMention: EventMention, stopwordManaging: St
 
   val odinTrigger = odinEventMention.trigger
 
-  val eidosTrigger = remapOdinTrigger(odinEventMention.trigger, ontologyGrounder, mentionMapper)
+  val eidosTrigger = remapOdinMention(odinTrigger, stopwordManaging, ontologyGrounder, mentionMapper)
 
-  protected def remapOdinTrigger(odinMention: Mention, ontologyGrounder: MultiOntologyGrounder, mentionMapper: MentionMapper): EidosMention =
-      mentionMapper.getOrElse(odinMention, EidosMention.asEidosMentions(Seq(odinMention), stopwordManaging, ontologyGrounder, mentionMapper)(0))
-
-  override val canonicalName = {
-    val em = odinEventMention
-    val argCanonicalNames = em.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq
-    val argsAndTrigger = argCanonicalNames ++ Seq((canonicalFormSimple(em.trigger), em.trigger.start))
-    val sorted = argsAndTrigger.sortBy(_._2)
-
-    sorted.unzip._1.mkString(" ")
-  }
-
-  override val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
+  protected override def canonicalMentions: Seq[Mention] =
+      super.canonicalMentions ++ Seq(odinTrigger)
 }
 
 class EidosRelationMention(val odinRelationMention: RelationMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
     mentionMapper: MentionMapper)
     extends EidosMention(odinRelationMention, stopwordManaging, ontologyGrounder, mentionMapper) {
-  
-  override val canonicalName = {
-    val rm = odinRelationMention
-    val argCanonicalNames = rm.arguments.values.flatten.map(arg => (canonicalFormSimple(arg), arg.start)).toSeq
-    val sorted = argCanonicalNames.sortBy(_._2)
+}
 
-    sorted.unzip._1.mkString(" ")
-  }
+class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, stopwordManaging: StopwordManaging, ontologyGrounder: MultiOntologyGrounder,
+    mentionMapper: MentionMapper)
+    extends EidosMention(odinCrossSentenceMention, stopwordManaging, ontologyGrounder, mentionMapper) {
 
-  override val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
+  val odinAnchor = odinCrossSentenceMention.anchor
+
+  val eidosAnchor = remapOdinMention(odinAnchor, stopwordManaging, ontologyGrounder, mentionMapper)
+
+  val odinNeighbor = odinCrossSentenceMention.neighbor
+
+  val eidosNeighbor = remapOdinMention(odinNeighbor, stopwordManaging, ontologyGrounder, mentionMapper)
+
+  protected override def canonicalMentions: Seq[Mention] =
+    Seq(odinAnchor, odinNeighbor)
 }

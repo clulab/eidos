@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.groundings
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Sourcer
+import org.slf4j.LoggerFactory
 
 trait EidosWordToVec {
   type Similarities = Seq[(String, Double)]
@@ -64,9 +65,11 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
 }
 
 object EidosWordToVec {
+  protected val logger = LoggerFactory.getLogger(this.getClass())
 
   def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int): EidosWordToVec = {
     if (enabled) {
+      logger.info(s"Loading w2v from ${wordToVecPath}...")
       val source = Sourcer.sourceFromResource(wordToVecPath)
 
       try {

@@ -3,8 +3,12 @@ package org.clulab.wm.eidos.attachments
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.wm.eidos.serialization.json.odin.{JLDAttachment => JLDOdinAttachment, JLDScoredAttachment => JLDOdinScoredAttachment, JLDSerializer => JLDOdinSerializer, JLDTriggeredAttachment => JLDOdinTriggeredAttachment, JLDContextAttachment => JLDOdinContextAttachment}
-import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment, JLDContextAttachment => JLDEidosContextAttachment}
+import org.clulab.wm.eidos.serialization.json.{
+  JLDAttachment => JLDEidosAttachment,
+  JLDScoredAttachment => JLDEidosScoredAttachment,
+  JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
+  JLDSerializer => JLDEidosSerializer
+}
 import org.json4s._
 import org.json4s.JsonDSL._
 
@@ -22,7 +26,6 @@ abstract class EidosAttachment extends Attachment with Serializable {
   @BeanProperty val argumentSize: Int = 0
 
   // Support for JLD serialization
-  def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment
   def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment
 
   // Support for JSON serialization
@@ -111,9 +114,6 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
 
     mixLast(h1, sortedQuantifiers.##)
   }
-
-  def newJLDTriggeredAttachment(serializer: JLDOdinSerializer, kind: String): JLDOdinTriggeredAttachment =
-    new JLDOdinTriggeredAttachment(serializer, kind, this)
 
   def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosTriggeredAttachment =
     new JLDEidosTriggeredAttachment(serializer, kind, this)
@@ -208,9 +208,6 @@ class Quantification(trigger: String, quantifiers: Option[Seq[String]], triggerM
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Quantification]
 
-  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
-      newJLDTriggeredAttachment(serializer, Quantification.kind)
-
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Quantification.kind)
 
@@ -236,9 +233,6 @@ class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Increase]
 
-  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
-      newJLDTriggeredAttachment(serializer, Increase.kind)
-
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Increase.kind)
 
@@ -263,9 +257,6 @@ class Decrease(trigger: String, quantifiers: Option[Seq[String]], triggerMention
     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Decrease]
-
-  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
-      newJLDTriggeredAttachment(serializer, Decrease.kind)
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Decrease.kind)
@@ -329,9 +320,6 @@ object Time {
 }
 
 case class Score(score: Double) extends EidosAttachment {
-
-  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
-    new JLDOdinScoredAttachment(serializer, Score.kind, this)
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     new JLDEidosScoredAttachment(serializer, Score.kind, this)
