@@ -7,7 +7,8 @@ import org.clulab.wm.eidos.serialization.json.{
   JLDAttachment => JLDEidosAttachment,
   JLDScoredAttachment => JLDEidosScoredAttachment,
   JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
-  JLDSerializer => JLDEidosSerializer
+  JLDSerializer => JLDEidosSerializer,
+  JLDContextAttachment => JLDEidosContextAttachment
 }
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -287,9 +288,6 @@ abstract class ContextAttachment() extends EidosAttachment {
     getClass().getSimpleName() + "(" + text + ")"
   }
 
-  def newJLDContextAttachment(serializer: JLDOdinSerializer, kind: String): JLDOdinContextAttachment =
-    new JLDOdinContextAttachment(serializer, kind, this)
-
   def newJLDContextAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosContextAttachment =
     new JLDEidosContextAttachment(serializer, kind, this)
 
@@ -302,9 +300,6 @@ class Time(interval: TimeInterval) extends ContextAttachment {
 
   val text = interval.text
   val value = interval
-
-  override def newJLDAttachment(serializer: JLDOdinSerializer): JLDOdinAttachment =
-    newJLDContextAttachment(serializer, Time.kind)
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, Time.kind)
