@@ -547,7 +547,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
             // orig is to the right of trigger
             replaceMentionsInterval(expanded, Interval(trigger.end, expanded.end))
           } else {
-            sys.error("unexpected overlap of trigger and argument")
+            // Sometimes, when the sentence has very broken syntax, the dep parse allows for strange expansion patterns.
+            // In the case where the original entity subsumed the trigger... don't keep the expansion
+            logger.debug("Did not expand -- original mention overlapped trigger.")
+            orig
           }
         } else {
           expanded
