@@ -89,7 +89,6 @@ object TriggeredAttachmentSpec {
     else {
       val attachmentSpec = attachmentSpecs.head
       val attachment = attachments.find(matchAttachment(_, attachmentSpec))
-
       if (attachment.isEmpty)
         false
       else
@@ -98,12 +97,80 @@ object TriggeredAttachmentSpec {
   }
 
   def matchAttachments(mention: Mention, attachmentSpecs: Set[TriggeredAttachmentSpec]) = {
-    if (mention.attachments.size != attachmentSpecs.size)
+    if (mention.attachments.filter(_.isInstanceOf[TriggeredAttachment]).size != attachmentSpecs.size)
       false
     else {
       val attachments: Set[TriggeredAttachment] = mention.attachments
           .filter(_.isInstanceOf[TriggeredAttachment])
           .map(_.asInstanceOf[TriggeredAttachment])
+
+      recMatchAttachments(attachments, attachmentSpecs.toSeq)
+    }
+  }
+}
+
+abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
+
+ def toString(abbrev: String): String = {
+    val stringBuilder = new StringBuilder()
+
+    stringBuilder
+      .append("+")
+      .append(abbrev)
+      .append("(")
+      .append(text)
+    stringBuilder.append(")")
+      .toString()
+  }
+
+  def canEqual(other: Any): Boolean
+
+  override def hashCode: Int = {
+    val h0 = getClass().getName().##
+    val h1 = mix(h0, text.##)
+
+    h1
+  }
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case that: ContextAttachmentSpec =>
+      that.canEqual(this) &&
+        this.text == that.text
+    case _ => false
+  }
+
+  protected def matchClass(attachment: ContextAttachment): Boolean
+}
+
+object ContextAttachmentSpec {
+
+  protected def matchAttachment(attachment: ContextAttachment, attachmentSpec: ContextAttachmentSpec) = {
+    val result = attachment.text == attachmentSpec.text &&
+      attachmentSpec.matchClass(attachment)
+    result
+  }
+
+  @tailrec
+  protected def recMatchAttachments(attachments: Set[ContextAttachment], attachmentSpecs: Seq[ContextAttachmentSpec]): Boolean = {
+    if (attachments.size == 0 && attachmentSpecs.size == 0)
+      true
+    else {
+      val attachmentSpec = attachmentSpecs.head
+      val attachment = attachments.find(matchAttachment(_, attachmentSpec))
+      if (attachment.isEmpty)
+        false
+      else
+        recMatchAttachments(attachments - attachment.get, attachmentSpecs.tail)
+    }
+  }
+
+  def matchAttachments(mention: Mention, attachmentSpecs: Set[ContextAttachmentSpec]) = {
+    if (mention.attachments.filter(_.isInstanceOf[ContextAttachment]).size != attachmentSpecs.size)
+      false
+    else {
+      val attachments: Set[ContextAttachment] = mention.attachments
+        .filter(_.isInstanceOf[ContextAttachment])
+        .map(_.asInstanceOf[ContextAttachment])
 
       recMatchAttachments(attachments, attachmentSpecs.toSeq)
     }
@@ -172,7 +239,24 @@ object Inc {
   
   def apply(trigger: String, quantifiers: String*) =
       new Inc(trigger, Option(quantifiers.toSeq))
-}    
+}
+
+class TimEx(text: String) extends ContextAttachmentSpec(text) {
+  override def toString = toString(TimEx.abbrev)
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[TimEx]
+
+  override protected def matchClass(attachment: ContextAttachment): Boolean = attachment match {
+    case _: Time => true
+    case _ => false
+  }
+}
+
+object TimEx {
+  val abbrev = "TIME"
+
+  def apply(text: String) =  new TimEx(text)
+}
 
 class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
   override def toString = toString("")
@@ -190,13 +274,20 @@ object Unmarked {
     new Unmarked(trigger, Option(quantifiers.toSeq))
 }
 
-class NodeSpec(val nodeText: String, val attachmentSpecs: Set[TriggeredAttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
+class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
   var mention: Option[Mention] = None
   var tested = false
   var complaints = Seq[String]()
   
-  protected def matchAttachments(mention: Mention): Boolean =
-      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs)
+  protected def matchAttachments(mention: Mention): Boolean = (
+    TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TriggeredAttachmentSpec]).map(_.asInstanceOf[TriggeredAttachmentSpec]))
+      &&
+      (
+        getClass.getResource("/org/clulab/wm/eidos/models/timenorm_model.hdf5") == null
+          ||
+        ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[ContextAttachmentSpec]).map(_.asInstanceOf[ContextAttachmentSpec]))
+      )
+    )
 
   protected def matchText(mention: TextBoundMention): Boolean = {
     val text = mention.text
@@ -259,16 +350,16 @@ object NodeSpec {
     
   def apply(nodeText: String, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(), nodeFilter)
-  def apply(nodeText: String, attachmentSpec: TriggeredAttachmentSpec, nodeFilter: NodeFilter) =
+  def apply(nodeText: String, attachmentSpec: AttachmentSpec, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(attachmentSpec), nodeFilter)
   
-  def apply(nodeText: String, attachmentSpecs: Set[TriggeredAttachmentSpec]) =
+  def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
       new NodeSpec(nodeText, attachmentSpecs)
-  def apply(nodeText: String, attachmentSpecs: TriggeredAttachmentSpec*) =
+  def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
       new NodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
-class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[TriggeredAttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
+class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
   override def test(mentions: Seq[Mention]): Seq[String] = {
     if (!tested) {
       val matches = testSpec(mentions)
@@ -283,9 +374,9 @@ class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[TriggeredAttachmentSpe
 }
 
 object AntiNodeSpec {
-  def apply(nodeText: String, attachmentSpecs: Set[TriggeredAttachmentSpec]) =
+  def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
       new AntiNodeSpec(nodeText, attachmentSpecs)
-  def apply(nodeText: String, attachmentSpecs: TriggeredAttachmentSpec*) =
+  def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
       new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
