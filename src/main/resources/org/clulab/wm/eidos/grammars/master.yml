@@ -106,3 +106,5 @@ rules:
       action: pass
       trigger: ${correlation_triggers}
 
+  # todo: result of, outcome of as triggers -- reverse direction rules
+  # relate to as correlation trigger

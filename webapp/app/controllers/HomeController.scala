@@ -1,7 +1,7 @@
 package controllers
 
 import javax.inject._
-import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, TextBoundMention}
+import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.EidosSystem
@@ -156,14 +156,26 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def getEntityLinkerEvents(mentions: Vector[EidosMention]): Vector[(Trigger, Map[String, String])] = {
     val events = mentions.filter(_.odinMention matches "Event")
     val entityLinkingEvents = events.filter(_.odinMention matches "EntityLinker").map { e =>
-      val event = e.odinMention.asInstanceOf[EventMention]
-      val trigger = event.trigger.text
-      val arguments = event.arguments.map { a =>
-        val name = a._1
-        val arg_mentions = a._2.map(_.text).mkString(" ")
-        (name, arg_mentions)
+      e.odinMention match {
+        case em: EventMention =>
+          val event = e.odinMention.asInstanceOf[EventMention]
+          val trigger = event.trigger.text
+          val arguments = event.arguments.map { a =>
+            val name = a._1
+            val arg_mentions = a._2.map(_.text).mkString(" ")
+            (name, arg_mentions)
+          }
+          (trigger, arguments)
+        case cs: CrossSentenceMention =>
+          val arguments = cs.arguments.map { a =>
+            val name = a._1
+            val arg_mentions = a._2.map(_.text).mkString(" ")
+            (name, arg_mentions)
+          }
+          ("coref", arguments)
+        case _ => throw new RuntimeException("Unexpected event Mention type!")
       }
-      (trigger, arguments)
+
     }
 
     entityLinkingEvents

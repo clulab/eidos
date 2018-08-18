@@ -25,7 +25,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     // extract the base entities
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
     // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
-    val validBaseEntities = baseEntities.filter(isValidBaseEntity)
+    val validBaseEntities = baseEntities //fixme .filter(isValidBaseEntity)
     // expand the entities
 //    val expandedEntities: Seq[Mention] = validBaseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
 //    // split entities on likely coordinations

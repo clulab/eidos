@@ -15,6 +15,7 @@
       - IsA
       - Origin
       - TransparentLink
+      - Coreference
     - UndirectedRelation:
       - Correlation
       - SameAs

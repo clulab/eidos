@@ -3,7 +3,7 @@ package org.clulab.wm.eidos
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
-import org.clulab.processors.Sentence
+import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
 import org.clulab.struct.Interval
@@ -15,7 +15,7 @@ import utils.DisplayUtils.{displayMention, shortDisplay}
 import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
-import scala.collection.mutable.{Set => MutableSet}
+import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
@@ -54,8 +54,78 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
     val modifiedMentions = assemble2 ++ nonCausal
 
+    val afterResolving = basicDeterminerCoref(modifiedMentions.filter(_.isInstanceOf[EventMention]), state)
+
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
-    modifiedMentions
+//    modifiedMentions ++ afterResolving
+    afterResolving
+  }
+
+  def basicDeterminerCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    if (mentions.isEmpty) return mentions
+
+    val orderedBySentence = mentions.groupBy(_.sentence)
+    val numSentences = mentions.head.document.sentences.length
+    if (orderedBySentence.isEmpty) {
+      return mentions
+    } else {
+      val resolvedMentions = new ArrayBuffer[Mention]
+      for (i <- 1 until numSentences) {
+
+        for (mention <- orderedBySentence.getOrElse(i, Seq.empty[Mention])) {
+
+          // If there is an event with "this/that" as cause...
+          if (existsDeterminerCause(mention)) {
+
+            // Get Causal mentions from the previous sentence (if any)
+            val prevSentenceCausal = getPreviousSentenceCausal(orderedBySentence, i)
+            if (prevSentenceCausal.nonEmpty) {
+
+              // If there was also a causal event in the previous sentence
+              val lastOccurring = prevSentenceCausal.sortBy(-_.tokenInterval.end).head
+              // antecedant
+              val prevEffects = lastOccurring.arguments("effect")
+              // reference
+              val currCauses = mention.asInstanceOf[EventMention].arguments("cause")
+              if (prevEffects.nonEmpty && currCauses.nonEmpty) {
+                // todo: cover if there is more than one effect?
+                val antecedent = prevEffects.head
+                val anaphor = currCauses.head
+                // Make a new CrossSentence mention using the previous effect as the anchor
+                // Note: Overly simplistic, this is a first pass
+                // todo: expand approach
+                val corefMention = new CrossSentenceMention(
+                  labels = taxonomy.hypernymsFor("Coreference"),
+                  anchor = antecedent,
+                  neighbor = anaphor,
+                  arguments = Map[String, Seq[Mention]](("antecedent", Seq(antecedent)), ("anaphor", Seq(anaphor))),
+                  document = mention.document,
+                  keep = true,
+                  foundBy = s"BasicCorefAction_ant:${lastOccurring.foundBy}_ana:${mention.foundBy}",
+                  attachments = Set.empty[Attachment]
+                )
+                resolvedMentions.append(corefMention)
+
+              } else throw new RuntimeException(s"Previous or current Causal mention doesn't have effects " +
+                s"\tsent1: ${lastOccurring.sentenceObj.getSentenceText()}\n" +
+                s"\tsent2 ${mention.sentenceObj.getSentenceText()}")
+            }
+          }
+        }
+      }
+      mentions ++ resolvedMentions
+    }
+  }
+
+  def getPreviousSentenceCausal(orderedBySentence: Map[Int, Seq[Mention]], i: Int): Seq[Mention] = {
+    val prevSentenceMentions = orderedBySentence.getOrElse(i - 1, Seq.empty[Mention])
+    prevSentenceMentions.filter(_ matches "Causal")
+  }
+
+
+  def existsDeterminerCause(mention: Mention): Boolean = {
+    val corefDeterminers = Set("this", "that", "these", "those")
+    corefDeterminers.exists(det => mention.arguments("cause").head.text.toLowerCase.startsWith(det))
   }
 
   def createEventChain(causal: Seq[Mention], arg1: String, arg2: String): Seq[Mention] = {
@@ -473,25 +543,32 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
 
+  def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
+
+  def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
+    var newTokenInterval = orig.tokenInterval
+    if (mkNewInterval) {
+      // All involved token intervals, both for the original event and the expanded arguments
+      val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
+      // Find the largest span from these intervals
+      newTokenInterval = getNewTokenInterval(allIntervals)
+    }
+
+    // Make the copy based on the type of the Mention
+    val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
+
+    orig match {
+      case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+      case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+      case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+    }
+  }
 
   // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
 
     //mentions.map(m => displayMention(m))
-    def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
-    def copyWithExpanded(orig: Mention, expandedArgs: Map[String, Seq[Mention]]): Mention = {
-      // All involved token intervals, both for the original event and the expanded arguments
-      val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
-      // Find the largest span from these intervals
-      val newTokenInterval = getNewTokenInterval(allIntervals)
-      // Make the copy based on the type of the Mention
 
-      orig match {
-        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
-        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
-      }
-    }
 
     // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
     // themselves so that they can be added to the state (which happens when the Seq[Mentions] is returned at the
@@ -513,13 +590,14 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         trimmed = attached.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
-    } yield Seq(copyWithExpanded(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
+    } yield Seq(copyWithNewArgs(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
 
     // Get all the new mentions for the state -- both the events with new args and the
     val res = expansionResult.flatten
 
     keepMostCompleteEvents(res, state.updated(res))
   }
+
 
   private def replaceMentionsInterval(m: Mention, i: Interval): Mention = m match {
     case m: TextBoundMention => m.copy(tokenInterval = i)
