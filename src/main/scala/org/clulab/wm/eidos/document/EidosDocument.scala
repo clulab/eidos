@@ -14,12 +14,9 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String], documentCr
   // Currently no test checks to see if the values are preserved across serialization, but that doesn't make it right.
   @transient val times = new Array[List[TimeInterval]](sentences.length)
   @transient lazy val anchor = {
-    val dateTime =
-        if (documentCreationTime.isEmpty) LocalDateTime.now()
-        // This no longer falls back silently to now().
-        else LocalDateTime.parse(documentCreationTime.get + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
-    TimeSpan.of(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+    if (documentCreationTime.isEmpty) LocalDateTime.now()
+    // This no longer falls back silently to now().
+    else LocalDateTime.parse(documentCreationTime.get + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME)
   }
 
   protected def parseFakeTime(): Unit = times.indices.foreach(times(_) = List[TimeInterval]())
@@ -31,7 +28,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String], documentCr
           case Some(t) => t.slice(this.sentences(index).startOffsets(0), this.sentences(index).endOffsets.last)
           case _ => this.sentences(index).getSentenceText
         }
-        val intervals = timenorm.intervals(timenorm.parse(sentence_text, anchor))
+        val intervals = timenorm.intervals(timenorm.parse(sentence_text), Some(anchor))
         // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
         // Account for this by adding the starting offset of the first word of sentence.
         val offset = this.sentences(index).startOffsets(0)

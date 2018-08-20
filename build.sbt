@@ -8,7 +8,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 //EclipseKeys.withSource := true
 
-resolvers += "jitpack" at "https://jitpack.io"
+parallelExecution in Test := false
 
 libraryDependencies ++= {
   val procVer = "7.4.1"
@@ -34,8 +34,8 @@ val minorVersionRegex = "\\d+\\.(\\d+).*".r
 libraryDependencies ++= {
   scalaVersion { sv =>
     sv match {
-      case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.13_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
-      case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.13" exclude("org.slf4j", "slf4j-log4j12"))
+      case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.14_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
+      case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.14" exclude("org.slf4j", "slf4j-log4j12"))
     }
   }
 }.value
