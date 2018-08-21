@@ -8,7 +8,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 //EclipseKeys.withSource := true
 
-parallelExecution in Test := false
+resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
   val procVer = "7.4.1"
