@@ -334,7 +334,15 @@ object DumpPath extends App {
   //val fn = "/Users/bsharp/relationExtraction/RE/test.txt"
   val nCores = 20
   val dir = "/work/bsharp/relationExtraction/RE/chunked_train"
+
+  //  val outputSuffix = ".deps.headLex"
+  //  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeLexicalizeOnlyGovHead
+
   val outputSuffix = ".deps.fullyLex"
+  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeFullyLexicalized
+
+
+
   val files = findFilesPrefix(dir, "x").par
 //  val outputSuffix = ".deps.headLex"
 //  val dir = "/Users/bsharp/relationExtraction/gids/g"
@@ -343,7 +351,7 @@ object DumpPath extends App {
   files.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(nCores))
   for {
     file <- files
-  } loadInstances(file, outputSuffix, writeFullyLexicalized)
+    } loadInstances(file, outputSuffix, mode)
 
 }
 
@@ -711,6 +719,27 @@ object DumpPathGids extends App {
 
   }
 
+  def writeFullyLexicalizedWithPOS(sentence: Sentence, fields: Seq[String],
+                            e1Int: Int, e2Int: Int, e1: String, e2: String, pw: PrintWriter): Unit = {
+    // Shortest path from e1 to e1:
+    // if you want to use this instead!
+    val shortestE1E2: Seq[Seq[(Int, Int, String, String)]] = sentence.dependencies.get.shortestPathEdges(e1Int, e2Int, ignoreDirection = true)
+    // todo: you can find the "highest" node in this path to serve as the trigger
+    // todo: histogram of #hops between entities in diff datasets
+
+    val fullyLexicalizedPaths = shortestE1E2.map(path => lexicalizedPathWithPOS(sentence.words, sentence.tags.get, path))
+
+    val path = fullyLexicalizedPaths
+      // Print only one!! The first will do!
+      .head
+      // put the entities back to the desired final format
+      .replaceAll(ENTITY_1, "@entity").replaceAll(ENTITY_2, "@entity")
+
+    val toPrint = (fields.slice(0, 5) ++ Seq(path)).mkString("\t")
+    pw.println(toPrint)
+
+  }
+
   def writeLexicalizeOnlyGovHead(sentence: Sentence, fields: Seq[String],
                                  e1Int: Int, e2Int: Int, e1: String, e2: String, pw: PrintWriter): Unit = {
     // Shortest path from e1 to e1:
@@ -842,6 +871,31 @@ object DumpPathGids extends App {
     for (edge <- path.slice(1, path.length)) {
       val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
       out.append(s"${edge._4}${edge._3} $rightWord")
+    }
+
+    out.mkString(" ")
+  }
+
+  // from, to, relation, direction
+  def lexicalizedPathWithPOS(words: Seq[String], tags: Seq[String], path: Seq[(Int, Int, String, String)]): String = {
+    val out = new ArrayBuffer[String]
+    val start = path.head
+
+    val leftWord = if (start._4 == ">") words(start._1) else words(start._2)
+    val rightWord = if (start._4 == ">") words(start._2) else words(start._1)
+
+    val leftTag = if (start._4 == ">") tags(start._1) else tags(start._2)
+    val rightTag = if (start._4 == ">") tags(start._2) else tags(start._1)
+
+
+    val startRel = start._4 + start._3
+
+    out.append(s"$leftWord $leftTag $startRel $rightWord $rightTag")
+
+    for (edge <- path.slice(1, path.length)) {
+      val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
+      val rightTag = if (edge._4 == ">") tags(edge._2) else tags(edge._1)
+      out.append(s"${edge._4}${edge._3} $rightWord $rightTag")
     }
 
     out.mkString(" ")
@@ -1045,11 +1099,14 @@ object DumpPathGids extends App {
 
   val nCores = 40
 
-  val outputSuffix = ".deps.headLex"
-  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeLexicalizeOnlyGovHead
+//  val outputSuffix = ".deps.headLex"
+//  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeLexicalizeOnlyGovHead
 
 //  val outputSuffix = ".deps.fullyLex"
 //  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeFullyLexicalized
+
+  val outputSuffix = ".deps.fullyLex.pos"
+  val mode: (Sentence, Seq[String], Int, Int, String, String, PrintWriter) => Unit = writeFullyLexicalizedWithPOS
 
 
   //val dir = "/work/bsharp/relationExtraction/gids/raw/may20tmp"
