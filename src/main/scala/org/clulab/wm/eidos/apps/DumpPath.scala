@@ -740,6 +740,27 @@ object DumpPathGids extends App {
 
   }
 
+  def writeFullyLexicalizedNoDeps(sentence: Sentence, fields: Seq[String],
+                                   e1Int: Int, e2Int: Int, e1: String, e2: String, pw: PrintWriter): Unit = {
+    // Shortest path from e1 to e1:
+    // if you want to use this instead!
+    val shortestE1E2: Seq[Seq[(Int, Int, String, String)]] = sentence.dependencies.get.shortestPathEdges(e1Int, e2Int, ignoreDirection = true)
+    // todo: you can find the "highest" node in this path to serve as the trigger
+    // todo: histogram of #hops between entities in diff datasets
+
+    val fullyLexicalizedPaths = shortestE1E2.map(path => lexicalizedPathNoDeps(sentence.words, path))
+
+    val path = fullyLexicalizedPaths
+      // Print only one!! The first will do!
+      .head
+      // put the entities back to the desired final format
+      .replaceAll(ENTITY_1, "@entity").replaceAll(ENTITY_2, "@entity")
+
+    val toPrint = (fields.slice(0, 5) ++ Seq(path)).mkString("\t")
+    pw.println(toPrint)
+
+  }
+
   def writeLexicalizeOnlyGovHead(sentence: Sentence, fields: Seq[String],
                                  e1Int: Int, e2Int: Int, e1: String, e2: String, pw: PrintWriter): Unit = {
     // Shortest path from e1 to e1:
@@ -896,6 +917,23 @@ object DumpPathGids extends App {
       val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
       val rightTag = if (edge._4 == ">") tags(edge._2) else tags(edge._1)
       out.append(s"${edge._4}${edge._3} $rightWord $rightTag")
+    }
+
+    out.mkString(" ")
+  }
+
+  def lexicalizedPathNoDeps(words: Seq[String], path: Seq[(Int, Int, String, String)]): String = {
+    val out = new ArrayBuffer[String]
+    val start = path.head
+
+    val leftWord = if (start._4 == ">") words(start._1) else words(start._2)
+    val rightWord = if (start._4 == ">") words(start._2) else words(start._1)
+
+    out.append(s"$leftWord $rightWord")
+
+    for (edge <- path.slice(1, path.length)) {
+      val rightWord = if (edge._4 == ">") words(edge._2) else words(edge._1)
+      out.append(s"$rightWord")
     }
 
     out.mkString(" ")
