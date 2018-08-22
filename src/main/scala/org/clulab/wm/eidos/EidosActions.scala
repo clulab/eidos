@@ -551,7 +551,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
             // This shouldn't happen, but Odin seems to handle this situation gracefully (by not extracting anything),
             // I guess here we'll do the same (i.e., not throw an exception)
             logger.debug(s"Unexpected overlap of trigger and argument: \n\t" +
-              s"sent: [${orig.sentenceObj.getSentenceText()}]\n\tRULE: " +
+              s"sent: [${orig.sentenceObj.getSentenceText}]\n\tRULE: " +
               s"${trigger.foundBy}\n\ttrigger: ${trigger.text}\torig: [${orig.text}]\n")
             orig
           }
