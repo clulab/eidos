@@ -10,6 +10,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
+import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestEidosActions extends Test {
@@ -277,6 +278,13 @@ class TestEidosActions extends Test {
 
       afterMentions.size should be (1)
       afterMentions.head.attachments.size should be(3)
+    }
+
+    it should "not throw an Exception" in {
+      val text = "Accordingly , the Cooperative Union has agreed to process locally produced maize and haricot bean as a blended food that meets the standards set by the Bureau of Education ."
+
+      noException should be thrownBy
+        TestUtils.extractMentions(text)
     }
   }
 }
