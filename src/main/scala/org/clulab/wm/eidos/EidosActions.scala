@@ -547,7 +547,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
             // orig is to the right of trigger
             replaceMentionsInterval(expanded, Interval(trigger.end, expanded.end))
           } else {
-            sys.error("unexpected overlap of trigger and argument")
+            //throw new RuntimeException("original mention overlaps trigger")
+            // This shouldn't happen, but Odin seems to handle this situation gracefully (by not extracting anything),
+            // I guess here we'll do the same (i.e., not throw an exception)
+            logger.debug(s"Unexpected overlap of trigger and argument: \n\t" +
+              s"sent: [${orig.sentenceObj.getSentenceText}]\n\tRULE: " +
+              s"${trigger.foundBy}\n\ttrigger: ${trigger.text}\torig: [${orig.text}]\n")
+            orig
           }
         } else {
           expanded

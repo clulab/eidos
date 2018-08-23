@@ -542,11 +542,18 @@ class TestDoc3 extends Test {
     // Nodes here
     val rainfall = NodeSpec("rainfall season", Inc("above"), Quant("above average"))
     val vegetation = NodeSpec("Vegetation conditions", Dec("below"))
+
     val vegetation2 = NodeSpec("vegetation conditions", Inc("above-average"), Quant("above-average")) // Increase??
+
+    val rainfallForecasts = NodeSpec("short-and long-term rainfall forecasts", Quant("favorable"), Inc("favorable"), Dec("short-and"))
+    val agriculturalAreas = NodeSpec("agricultural areas of the western and central highlands", Inc("favorable"))
 
     val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"), Quant("most"))
     val insecurity = NodeSpec("insecurity")
-    val farmInput = NodeSpec("access to farm inputs", Dec("lack"))
+    val availability = NodeSpec("availability", Dec("lack"))
+    val longFarmInput = NodeSpec("access to farm inputs due to ongoing conflict", Dec("lack"), Quant("ongoing"))
+
+    val shortFarmInput = NodeSpec("access to farm inputs", Dec("lack"))
     val conflict = NodeSpec("ongoing conflict", Quant("ongoing"))
 
     behavior of "TestDoc3 Paragraph 14"
@@ -555,22 +562,29 @@ class TestDoc3 extends Test {
 //    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
 //      tester.test(rainfall)
 //    }
-//    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-//      tester.test(vegetation)
-//    }
+    passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
+      tester.test(vegetation)
+    }
     passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
       tester.test(vegetation2)
     }
     passingTest should "have correct edges 1" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful) // Test edges connecting them
+      tester.test(EdgeSpec(rainfallForecasts, Causal, agriculturalAreas)) should be (successful)
     }
-    // This passed before proc7.4.0.  This may be misclassified.
-    tempBrokenEntitiesTest should "have correct edges 3" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(farmInput, Causal, production)) should be (successful) // Test edges connecting them
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful)
     }
-    // This passed before proc7.4.0.  This may be misclassified.
-    tempBrokenEntitiesTest should "have correct edges 4" taggedAs(Ajay) in {
-      tester.test(EdgeSpec(conflict, Causal, farmInput)) should be (successful) // Test edges connecting them
+    passingTest should "have correct edges 3" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful)
+    }
+    passingTest should "have correct edges 4" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(availability, Causal, production)) should be (successful)
+    }
+    passingTest should "have correct edges 5" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(longFarmInput, Causal, production)) should be (successful)
+    }
+    passingTest should "have correct edges 6" taggedAs(Ajay) in {
+      tester.test(EdgeSpec(conflict, Causal, shortFarmInput)) should be (successful)
     }
   }
 
