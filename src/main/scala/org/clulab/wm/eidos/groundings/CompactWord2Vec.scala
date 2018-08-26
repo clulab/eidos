@@ -218,7 +218,7 @@ object CompactWord2Vec {
         else
           stringBuilder.append(c)
       }
-      map.put(stringBuilder.result(), count)
+      map += ((stringBuilder.result(), count))
     }
 
     val array = objectInputStream.readObject().asInstanceOf[ArrayType]
