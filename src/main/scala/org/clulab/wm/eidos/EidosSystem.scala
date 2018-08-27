@@ -11,7 +11,7 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, MESH_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.slf4j.LoggerFactory
@@ -79,6 +79,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def      unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
     def     wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
     def     faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
+    def    meshOntologyPath: String = getPath(     "meshOntology", "/org/clulab/wm/eidos/ontologies/mesh_ontology.yml")
     def cachedOntologiesDir: String = getPath("cachedOntologiesDir", "/org/clulab/wm/eidos/ontologies/cached/")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
@@ -92,9 +93,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @   UN_NAMESPACE =>   UNOntology(name,   unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @  WDI_NAMESPACE =>  WDIOntology(name,  wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @  FAO_NAMESPACE =>  FAOOntology(name,  faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @ MESH_NAMESPACE => MeshOntology(name, meshOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }

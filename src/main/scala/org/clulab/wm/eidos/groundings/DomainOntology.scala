@@ -154,7 +154,7 @@ object DomainOntology {
       val name = yamlNodes.get(DomainOntology.NAME).get.asInstanceOf[String]
       val examples = yamlNodesToStrings(yamlNodes, DomainOntology.EXAMPLES)
       val descriptions = yamlNodesToStrings(yamlNodes, DomainOntology.DESCRIPTION)
-      val polarity = yamlNodes.get(DomainOntology.POLARITY).get.asInstanceOf[Double]
+      val polarity = yamlNodes.getOrElse(DomainOntology.POLARITY, 1.0).asInstanceOf[Double]
       val filteredDescriptions =
           if (descriptions.isEmpty) descriptions
           else Some(descriptions.get.flatMap(filtered))
@@ -204,5 +204,9 @@ object FAOOntology {
 }
 
 object TopoFlowOntology {
+  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
+}
+
+object MeshOntology {
   def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) = DomainOntology(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
 }

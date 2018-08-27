@@ -52,4 +52,9 @@ class TestDomainOntology extends Test {
   ignore should "load and not have duplicates" in {
     hasDuplicates(TopoFlowOntology("topo", "/org/clulab/wm/eidos/ontologies/topoflow_ontology.yml", "",proc, filter)) should be (false)
   }
+
+  behavior of "mesh ontology"
+  it should "load and not have duplicates" in {
+    hasDuplicates(MeshOntology("mesh", "/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter)) should be (false)
+  }
 }

@@ -40,9 +40,10 @@ class EidosOntologyGrounder(var name: String, conceptEmbeddings: Seq[ConceptEmbe
 
 object EidosOntologyGrounder {
   // Namespace strings for the different in-house ontologies we typically use
-  val UN_NAMESPACE = "un"
-  val WDI_NAMESPACE = "wdi"
-  val FAO_NAMESPACE = "fao"
+  val   UN_NAMESPACE = "un"
+  val  WDI_NAMESPACE = "wdi"
+  val  FAO_NAMESPACE = "fao"
+  val MESH_NAMESPACE = "mesh"
 
   protected val logger = LoggerFactory.getLogger(this.getClass())
 
