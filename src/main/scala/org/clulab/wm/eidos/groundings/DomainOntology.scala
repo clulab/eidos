@@ -22,7 +22,9 @@ class OntologyNode(nodeName: String, parent: OntologyBranchNode) extends Seriali
   // There can already be a / in any of the stages of the route that must be escaped.
   // First, double up any existing backslashes, then escape the forward slashes with backslashes.
   protected def escaped: String =
-    nodeName.replace("\\", "\\\\").replace(OntologyNode.SEPARATOR, "\\")
+      nodeName
+          .replace(OntologyNode.ESCAPE, OntologyNode.ESCAPED_ESCAPE)
+          .replace(OntologyNode.SEPARATOR, OntologyNode.ESCAPED_SEPARATOR)
 
   def fullName: String =
       if (parent != null) parent.fullName + OntologyNode.SEPARATOR + escaped
@@ -32,7 +34,10 @@ class OntologyNode(nodeName: String, parent: OntologyBranchNode) extends Seriali
 }
 
 object OntologyNode {
+  val ESCAPE = "\\"
+  val ESCAPED_ESCAPE = ESCAPE + ESCAPE
   val SEPARATOR = "/"
+  val ESCAPED_SEPARATOR = ESCAPE + SEPARATOR
 }
 
 @SerialVersionUID(1000L)

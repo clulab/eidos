@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.system
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.Timer
 
 class TestDomainOntology extends Test {
 
@@ -26,7 +27,7 @@ class TestDomainOntology extends Test {
   }
 
   val proc = new FastNLPProcessor()
-  val filter = false
+  val filter = true
 
   // These paths must be coordinated with default values in EidosSystem.
 
@@ -48,11 +49,15 @@ class TestDomainOntology extends Test {
   // TODO: This one appears to have many duplicates.
   behavior of "topoFlow ontology"
   ignore should "load and not have duplicates" in {
-    hasDuplicates(TopoFlowOntology("topo", "/org/clulab/wm/eidos/ontologies/topoflow_ontology.yml", "",proc, filter)) should be (false)
+    hasDuplicates(TopoFlowOntology("topo", "/org/clulab/wm/eidos/ontologies/topoflow_ontology.yml", "", proc, filter)) should be (false)
   }
 
   behavior of "mesh ontology"
   it should "load and not have duplicates" in {
-    hasDuplicates(MeshOntology("mesh", "/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter)) should be (false)
+    val mesh = Timer.time("Loading mesh") {
+      MeshOntology("mesh", "/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter)
+    }
+
+    hasDuplicates(mesh) should be (false)
   }
 }
