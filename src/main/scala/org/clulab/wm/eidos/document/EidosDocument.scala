@@ -39,8 +39,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String], documentCr
           val inTimex = intervals.map(interval => (start - (interval._1._1 + offset), (interval._1._2 + offset) - end)).filter(x => x._1 >= 0 && x._2 >= 0)
         ) yield {
           inTimex.isEmpty match {
-            case false if inTimex(0)._1 == 0 => "B-TIMEX"
-            case false if inTimex(0)._1 != 0 => "I-TIMEX"
+            case false if inTimex(0)._1 == 0 => "B-Time"
+            case false if inTimex(0)._1 != 0 => "I-Time"
             case _ => norm
           }
         }

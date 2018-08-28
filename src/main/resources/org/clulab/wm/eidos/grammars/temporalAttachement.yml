@@ -17,5 +17,5 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [norm="B-TIMEX"] [norm="I-TIMEX"]*
+      trigger = [norm="B-Time"] [norm="I-Time"]*
       theme: Entity = </^nmod/ >nmod_in?
