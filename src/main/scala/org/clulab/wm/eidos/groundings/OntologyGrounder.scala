@@ -1,11 +1,12 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
 
 object Aliases {
-  type SingleGrounding = (String, Double)
-  type MultipleGrounding = Seq[SingleGrounding]
+  type SingleGrounding = (Namer, Double) // Later (Int, Double)
+  type MultipleGrounding = Seq[SingleGrounding] // Later (Namer(Int), Seq(SingleGrounding)]
   type Groundings = Map[String, OntologyGrounding]
 }
 
@@ -24,7 +25,15 @@ trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
-class EidosOntologyGrounder(var name: String, conceptEmbeddings: Seq[ConceptEmbedding], wordToVec: EidosWordToVec) extends OntologyGrounder {
+class EidosOntologyGrounder(protected var domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+
+  val conceptEmbeddings: Seq[ConceptEmbedding] =
+    0.until(domainOntology.size).map { n =>
+      new ConceptEmbedding(domainOntology.getNamer(n),
+          wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+    }
+
+  def name: String = domainOntology.name
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
@@ -49,9 +58,8 @@ object EidosOntologyGrounder {
 
   def apply(domainOntology: DomainOntology, wordToVec: EidosWordToVec) = {
     logger.info(s"Processing ${domainOntology.name} ontology...")
-    val conceptEmbeddings = domainOntology.iterateOntology(wordToVec)
 
-    new EidosOntologyGrounder(domainOntology.name, conceptEmbeddings, wordToVec)
+    new EidosOntologyGrounder(domainOntology, wordToVec)
   }
 
 //  def getConceptEmbeddings(ontologyPath: String, wordToVec: EidosWordToVec): Map[String, Seq[Double]] = {

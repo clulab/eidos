@@ -167,7 +167,7 @@ object JLDOntologyGrounding {
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
-  val jldGroundings: Option[Seq[JValue]] = toJObjects(grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1, pair._2)))
+  val jldGroundings: Option[Seq[JValue]] = toJObjects(grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1.name, pair._2)))
 
   override def toJObject: JObject =
     serializer.mkType(this) ~

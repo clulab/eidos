@@ -10,7 +10,7 @@ object GroundingUtils {
     val namespace = EidosOntologyGrounder.UN_NAMESPACE
 
     if (mention.grounding.contains(namespace) && mention.grounding(namespace).nonEmpty)
-      mention.grounding(namespace).head._1
+      mention.grounding(namespace).head._1.name
     else
       "(unavailable)"
   }

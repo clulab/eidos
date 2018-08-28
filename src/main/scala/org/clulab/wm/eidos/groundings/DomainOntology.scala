@@ -3,11 +3,12 @@ package org.clulab.wm.eidos.groundings
 import java.io.{FileInputStream, ObjectInputStream}
 import java.util.{Collection => JCollection, Map => JMap}
 
-import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
 import org.clulab.processors.{Processor, Sentence}
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
+import org.clulab.utils.{ClassLoaderObjectInputStream, Serializer}
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -16,25 +17,18 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 @SerialVersionUID(1000L)
-class OntologyNode(crumbs: Seq[String], name: String, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends Serializable {
-
-  protected def split(values: Option[Seq[String]]): Seq[String] =
-      if (values.isEmpty) Seq.empty
-      else values.get.flatMap(_.split(" +"))
+class OntologyNode(nodeName: String, parent: OntologyBranchNode) extends Serializable {
 
   // There can already be a / in any of the stages of the route that must be escaped.
   // First, double up any existing backslashes, then escape the forward slashes with backslashes.
-  protected def escapeRoute: Seq[String] =
-      route.map(_.replace("\\", "\\\\").replace(OntologyNode.SEPARATOR, "\\" + OntologyNode.SEPARATOR))
+  protected def escaped: String =
+    nodeName.replace("\\", "\\\\").replace(OntologyNode.SEPARATOR, "\\")
 
-  def path: String = escapeRoute.mkString(OntologyNode.SEPARATOR)
+  def fullName: String =
+      if (parent != null) parent.fullName + OntologyNode.SEPARATOR + escaped
+      else escaped
 
-  val route = (name +: crumbs).reverse.toArray
-
-  // Right now it doesn't matter where these come from, so they can be combined.
-  val values: Array[String] = (split(examples) ++ split(descriptions)).toArray
-
-  override def toString = path + " = " + values.toList
+  override def toString = fullName
 }
 
 object OntologyNode {
@@ -42,12 +36,31 @@ object OntologyNode {
 }
 
 @SerialVersionUID(1000L)
-class DomainOntology(val name: String, val ontologyNodes: Array[OntologyNode]) extends Serializable {
+class OntologyBranchNode(nodeName: String, parent: OntologyBranchNode) extends OntologyNode(nodeName, parent)
 
-  def iterateOntology(wordToVec: EidosWordToVec): Seq[ConceptEmbedding] =
-      ontologyNodes.map { ontologyNode =>
-        ConceptEmbedding(ontologyNode.path, wordToVec.makeCompositeVector(ontologyNode.values))
-      }
+@SerialVersionUID(1000L)
+class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
+
+  def name: String = fullName
+
+  protected def split(values: Option[Seq[String]]): Seq[String] =
+      if (values.isEmpty) Seq.empty
+      else values.get.flatMap(_.split(" +"))
+
+  // Right now it doesn't matter where these come from, so they can be combined.
+  val values: Array[String] = (split(examples) ++ split(descriptions)).toArray
+
+  override def toString = super.fullName + " = " + values.toList
+}
+
+@SerialVersionUID(1000L)
+class DomainOntology(val name: String, protected val ontologyNodes: Array[OntologyLeafNode]) extends Serializable {
+
+  def size: Integer = ontologyNodes.size
+
+  def getNamer(n: Integer): Namer = ontologyNodes(n)
+
+  def getValues(n: Integer): Array[String] = ontologyNodes(n).values
 
   def save(filename: String) = {
     Serializer.save(this, filename)
@@ -101,7 +114,7 @@ object DomainOntology {
       val text = getTextFromResource(ontologyPath)
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
-      val ontologyNodes = parseOntology(yamlNodes, Seq.empty, Seq.empty)
+      val ontologyNodes = parseOntology(null, yamlNodes)
 
       new DomainOntology(name, ontologyNodes.toArray)
     }
@@ -149,8 +162,7 @@ object DomainOntology {
     protected def yamlNodesToStrings(yamlNodes: mutable.Map[String, JCollection[Any]], name: String): Option[Seq[String]] =
       yamlNodes.get(name).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
 
-    protected def parseOntology(yamlNodes: mutable.Map[String, JCollection[Any]], ontologyNodes: Seq[OntologyNode],
-        route: Seq[String]): Seq[OntologyNode] = {
+    protected def parseOntology(parent: OntologyBranchNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
       val name = yamlNodes.get(DomainOntology.NAME).get.asInstanceOf[String]
       val examples = yamlNodesToStrings(yamlNodes, DomainOntology.EXAMPLES)
       val descriptions = yamlNodesToStrings(yamlNodes, DomainOntology.DESCRIPTION)
@@ -159,24 +171,21 @@ object DomainOntology {
           if (descriptions.isEmpty) descriptions
           else Some(descriptions.get.flatMap(filtered))
 
-      ontologyNodes :+ new OntologyNode(route, name, polarity,  examples, filteredDescriptions)
+      new OntologyLeafNode(name, parent, polarity,  examples, filteredDescriptions)
     }
 
-    protected def parseOntology(yamlNodes: Seq[Any], ontologyNodes: Seq[OntologyNode], crumbs: Seq[String]): Seq[OntologyNode] = {
-      if (yamlNodes.nonEmpty) {
-        val head = yamlNodes.head
-        if (head.isInstanceOf[String])
-          throw new Exception(s"Ontology has string (${head.asInstanceOf[String]}) where it should have a map.")
-        val map: mutable.Map[String, JCollection[Any]] = head.asInstanceOf[JMap[String, JCollection[Any]]].asScala
+    protected def parseOntology(parent: OntologyBranchNode, yamlNodes: Seq[Any]): Seq[OntologyLeafNode] = {
+      yamlNodes flatMap { yamlNode =>
+        if (yamlNode.isInstanceOf[String])
+          throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
+        val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
-        val moreOntologyNodes =
-            if (key == DomainOntology.FIELD) parseOntology(map, ontologyNodes, crumbs)
-            else parseOntology(map(key).asScala.toSeq, ontologyNodes, key +: crumbs)
 
-        parseOntology(yamlNodes.tail, moreOntologyNodes, crumbs)
+        if (key == DomainOntology.FIELD)
+          Seq(parseOntology(parent, map))
+        else
+          parseOntology(new OntologyBranchNode(key, parent), map(key).asScala.toSeq)
       }
-      else
-        ontologyNodes
     }
   }
 

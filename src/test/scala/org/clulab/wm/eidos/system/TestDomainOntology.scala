@@ -7,8 +7,7 @@ import org.clulab.wm.eidos.test.TestUtils._
 class TestDomainOntology extends Test {
 
   def hasDuplicates(domainOntology: DomainOntology): Boolean = {
-    val ontologyNodes = domainOntology.ontologyNodes
-    val pathSeq = ontologyNodes.map(_.path)
+    val pathSeq = 0.until(domainOntology.size).map { i => domainOntology.getNamer(i).name }
     val pathSet = pathSeq.toSet
 
 //    println(s"""The domain ontology "${domainOntology.name}" node count: ${ontologyNodes.length}""")
@@ -17,10 +16,9 @@ class TestDomainOntology extends Test {
     if (pathSeq.size != pathSet.size) {
       val pathBag = pathSeq.foldLeft(Map[String, Int]())((map, path) => map + (path -> (map.getOrElse(path, 0) + 1)))
       val duplicatePaths = pathBag.toSeq.filter(_._2 > 1).map(_._1)
-      val duplicateNodes = ontologyNodes.filter { ontologyNode => duplicatePaths.contains(ontologyNode.path) }
 
       println(s"""The domain ontology "${domainOntology.name}" includes duplicate nodes:""")
-      duplicateNodes.foreach(println)
+      duplicatePaths.foreach(println)
       true
     }
     else
