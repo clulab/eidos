@@ -4,7 +4,7 @@ import java.io.PrintWriter
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Serializer
-import org.clulab.odin.{EventMention, Mention}
+import org.clulab.odin.{EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
@@ -117,7 +117,8 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
   }
 
   def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention))
+    val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention, State(allOdinMentions)))
 
     for {
       mention <- mentionsToPrint
