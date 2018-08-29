@@ -75,7 +75,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         for (mention <- orderedBySentence.getOrElse(i, Seq.empty[Mention])) {
 
           // If there is an event with "this/that" as cause...
-          if (existsDeterminerCause(mention)) {
+          if (EidosActions.existsDeterminerCause(mention)) {
 
             // Get Causal mentions from the previous sentence (if any)
             val prevSentenceCausal = getPreviousSentenceCausal(orderedBySentence, i)
@@ -95,7 +95,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
                 // Note: Overly simplistic, this is a first pass
                 // todo: expand approach
                 val corefMention = new CrossSentenceMention(
-                  labels = taxonomy.hypernymsFor("Coreference"),
+                  labels = taxonomy.hypernymsFor(EidosSystem.COREF_LABEL),
                   anchor = antecedent,
                   neighbor = anaphor,
                   arguments = Map[String, Seq[Mention]](("antecedent", Seq(antecedent)), ("anaphor", Seq(anaphor))),
@@ -107,8 +107,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
                 resolvedMentions.append(corefMention)
 
               } else throw new RuntimeException(s"Previous or current Causal mention doesn't have effects " +
-                s"\tsent1: ${lastOccurring.sentenceObj.getSentenceText()}\n" +
-                s"\tsent2 ${mention.sentenceObj.getSentenceText()}")
+                s"\tsent1: ${lastOccurring.sentenceObj.getSentenceText}\n" +
+                s"\tsent2 ${mention.sentenceObj.getSentenceText}")
             }
           }
         }
@@ -119,14 +119,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def getPreviousSentenceCausal(orderedBySentence: Map[Int, Seq[Mention]], i: Int): Seq[Mention] = {
     val prevSentenceMentions = orderedBySentence.getOrElse(i - 1, Seq.empty[Mention])
-    prevSentenceMentions.filter(_ matches "Causal")
+    prevSentenceMentions.filter(_ matches EidosSystem.CAUSAL_LABEL)
   }
 
-
-  def existsDeterminerCause(mention: Mention): Boolean = {
-    val corefDeterminers = Set("this", "that", "these", "those")
-    corefDeterminers.exists(det => mention.arguments("cause").head.text.toLowerCase.startsWith(det))
-  }
 
   def createEventChain(causal: Seq[Mention], arg1: String, arg2: String): Seq[Mention] = {
     val arg1Mentions = State(causal.flatMap(_.arguments.getOrElse(arg1, Nil)))
@@ -734,7 +729,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
 object EidosActions extends Actions {
 
-
   val MAX_HOPS_EXPANDING = 5
   val AVOID_LABEL = "Avoid-Strict"
 
@@ -785,5 +779,14 @@ object EidosActions extends Actions {
     val yaml = new Yaml(new Constructor(classOf[java.util.Collection[Any]]))
     val data = yaml.load(input).asInstanceOf[java.util.Collection[Any]]
     Taxonomy(data)
+  }
+
+  def existsDeterminerCause(mention: Mention): Boolean = {
+    startsWithCorefDeterminer(mention.arguments("cause").head)
+  }
+
+  def startsWithCorefDeterminer(m: Mention): Boolean = {
+    val corefDeterminers = Set("this", "that", "these", "those")
+    corefDeterminers.exists(det => m.text.toLowerCase.startsWith(det))
   }
 }
