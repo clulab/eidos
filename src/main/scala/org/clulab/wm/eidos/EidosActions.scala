@@ -30,6 +30,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
     // expand attachments
+
+//    println("*************************************\n\t\tGLOBAL ACTION\n")
+//    println("Incoming:")
+//    mentions.foreach(displayMention)
+
     val (expandable, textBounds) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
     val expanded = expandArguments(expandable, state)
     val result = expanded ++ textBounds
@@ -54,18 +59,24 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
     val modifiedMentions = assemble2 ++ nonCausal
 
-    val afterResolving = basicDeterminerCoref(modifiedMentions.filter(_.isInstanceOf[EventMention]), state)
+    val afterResolving = basicDeterminerCoref(modifiedMentions, state)
 
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
 //    modifiedMentions ++ afterResolving
+
+//    println("Outgoing:")
+//    afterResolving.foreach(displayMention)
+//    println("*************************************\n")
+
     afterResolving
   }
 
   def basicDeterminerCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    if (mentions.isEmpty) return mentions
+    val (eventMentions, otherMentions) = mentions.partition(_.isInstanceOf[EventMention])
+    if (eventMentions.isEmpty) return mentions
 
-    val orderedBySentence = mentions.groupBy(_.sentence)
-    val numSentences = mentions.head.document.sentences.length
+    val orderedBySentence = eventMentions.groupBy(_.sentence)
+    val numSentences = eventMentions.head.document.sentences.length
     if (orderedBySentence.isEmpty) {
       return mentions
     } else {
