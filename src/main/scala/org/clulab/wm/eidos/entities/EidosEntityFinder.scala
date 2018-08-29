@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
 
@@ -25,7 +26,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     // extract the base entities
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
     // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
-    val validBaseEntities = baseEntities //fixme .filter(isValidBaseEntity)
+    val validBaseEntities = baseEntities.filter(isValidBaseEntity)
     // expand the entities
 //    val expandedEntities: Seq[Mention] = validBaseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
 //    // split entities on likely coordinations
@@ -82,7 +83,9 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     containsValidNounVerb(entity) ||
     // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
     // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
-    entity.tags.get.last.startsWith("JJ") && nextTagNN(entity)
+    entity.tags.get.last.startsWith("JJ") && nextTagNN(entity) ||
+    // Otherwise, is it a determiner that may need to be resolved downstream?
+    EidosActions.startsWithCorefDeterminer(entity)
     // Otherwise, it's not valid
   }
 
