@@ -781,6 +781,9 @@ object EidosActions extends Actions {
     ".+".r
   )
 
+  // Used for simplistic coreference identification
+  val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
+
 
   def apply(taxonomyPath: String) =
       new EidosActions(readTaxonomy(taxonomyPath))
@@ -797,7 +800,7 @@ object EidosActions extends Actions {
   }
 
   def startsWithCorefDeterminer(m: Mention): Boolean = {
-    val corefDeterminers = Set("this", "that", "these", "those")
+    val corefDeterminers = COREF_DETERMINERS
     corefDeterminers.exists(det => m.text.toLowerCase.startsWith(det))
   }
 }
