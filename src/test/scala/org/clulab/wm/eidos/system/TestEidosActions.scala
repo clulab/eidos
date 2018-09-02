@@ -112,6 +112,12 @@ class TestEidosActions extends Test {
     }
   }
 
+  def correctCoreference(m: Mention, antecedant: String, anaphor: String): Boolean = {
+    (m matches EidosSystem.COREF_LABEL) && (m.isInstanceOf[CrossSentenceMention]) &&
+      (m.arguments(EidosActions.ANTECEDENT).head.text == antecedant) &&
+      (m.arguments(EidosActions.ANAPHOR).head.text == anaphor)
+  }
+
 //  {
 //    val reader = new EidosSystem()
 //
@@ -286,5 +292,12 @@ class TestEidosActions extends Test {
       noException should be thrownBy
         TestUtils.extractMentions(text)
     }
+
+    it should "identify simple coreference relations in adjacent sentences" in {
+      val text = "Rainfall causes flooding.  This causes problems."
+      val mentions = extractMentions(text)
+      mentions.exists(m => correctCoreference(m, "flooding", "This"))
+    }
+
   }
 }

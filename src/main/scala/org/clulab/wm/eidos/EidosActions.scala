@@ -109,7 +109,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
                   labels = taxonomy.hypernymsFor(EidosSystem.COREF_LABEL),
                   anchor = antecedent,
                   neighbor = anaphor,
-                  arguments = Map[String, Seq[Mention]](("antecedent", Seq(antecedent)), ("anaphor", Seq(anaphor))),
+                  arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(antecedent)), (EidosActions.ANAPHOR, Seq(anaphor))),
                   document = mention.document,
                   keep = true,
                   foundBy = s"BasicCorefAction_ant:${lastOccurring.foundBy}_ana:${mention.foundBy}",
@@ -783,6 +783,8 @@ object EidosActions extends Actions {
 
   // Used for simplistic coreference identification
   val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
+  val ANTECEDENT: String = "antecedent"
+  val ANAPHOR: String = "anaphor"
 
 
   def apply(taxonomyPath: String) =
