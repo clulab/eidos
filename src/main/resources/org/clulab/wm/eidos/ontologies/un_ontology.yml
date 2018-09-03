@@ -4,7 +4,7 @@
       - early recovery:
         - OntologyNode:
           examples:
-          - provision of credit and training for income generation
+          - provision of provision of credit and training for income generation
           name: provision of provision of credit and training for income generation
           polarity: 1.0
       - education:
@@ -39,11 +39,8 @@
       - emergency shelter and nfi:
         - OntologyNode:
           examples:
-          - provision of household relief non-food item package
-          - e.g clothing
-          - bedding
-          - lighting
-          - stoves and cooking utensils
+          - provision of household relief non-food item package e.g clothing, bedding,
+            lighting, stoves and cooking utensils
           name: provision of household relief non-food item package
           polarity: 1.0
         - OntologyNode:
@@ -82,7 +79,6 @@
         - OntologyNode:
           examples:
           - provision of cash transfer
-          - ''
           name: provision of cash transfer
           polarity: 1.0
         - OntologyNode:
@@ -108,7 +104,6 @@
         - OntologyNode:
           examples:
           - provision of food vouchers
-          - ''
           name: provision of food vouchers
           polarity: 1.0
         - OntologyNode:
@@ -156,7 +151,6 @@
         - OntologyNode:
           examples:
           - provision of provision of seeds, fertilizers and tools
-          - ''
           name: provision of provision of seeds, fertilizers and tools
           polarity: 1.0
         - OntologyNode:
@@ -192,8 +186,7 @@
           polarity: 1.0
         - OntologyNode:
           examples:
-          - provision of clean home delivery kit distribution
-          - i.e. for childbirth
+          - provision of clean home delivery kit distribution i.e. for childbirth
           name: provision of clean home delivery kit distribution
           polarity: 1.0
         - OntologyNode:
@@ -201,14 +194,12 @@
           - provision of clinical management of sexual violence
           - counselling
           - pep
-          - ''
           name: provision of clinical management of sexual violence
           polarity: 1.0
         - OntologyNode:
           examples:
-          - provision of communicable disease outbreak control
-          - e.g. clean water to prevent cholera
-          - or preventing infection through mass vaccination
+          - provision of communicable disease outbreak control e.g. clean water to prevent
+            cholera, or preventing infection through mass vaccination
           name: provision of communicable disease outbreak control
           polarity: 1.0
         - OntologyNode:
@@ -219,27 +210,22 @@
         - OntologyNode:
           examples:
           - provision of first aid and and basic medical care
-          - ''
           name: provision of first aid and and basic medical care
           polarity: 1.0
         - OntologyNode:
           examples:
           - provision of mass measles vaccination campaign
-          - ''
           name: provision of mass measles vaccination campaign
           polarity: 1.0
         - OntologyNode:
           examples:
-          - provision of newborn and childhood essential health care services
-          - e.g diarrhea
-          - pneumonia and diphtheria  treatment
-          - ''
+          - provision of newborn and childhood essential health care services e.g diarrhea,
+            pneumonia and diphtheria  treatment,
           name: provision of newborn and childhood essential health care services
           polarity: 1.0
         - OntologyNode:
           examples:
           - provision of obstetric and newborn care
-          - ''
           name: provision of obstetric and newborn care
           polarity: 1.0
         - OntologyNode:
@@ -256,25 +242,21 @@
         - OntologyNode:
           examples:
           - provision of psychological support
-          - ''
           name: provision of psychological support
           polarity: 1.0
         - OntologyNode:
           examples:
           - provision of public health information campaign
-          - ''
           name: provision of public health information campaign
           polarity: 1.0
         - OntologyNode:
           examples:
           - provision of tetanus vaccination
-          - ''
           name: provision of tetanus vaccination
           polarity: 1.0
         - OntologyNode:
           examples:
           - provision of trauma and surgical care
-          - ''
           name: provision of trauma and surgical care
           polarity: 1.0
         - OntologyNode:
@@ -295,9 +277,8 @@
           polarity: 1.0
         - OntologyNode:
           examples:
-          - provision of infant and young child feeding
-          - e.g. breastfeeding
-          - complementary and artificial feeding
+          - provision of infant and young child feeding e.g. breastfeeding, complementary
+            and artificial feeding
           name: provision of infant and young child feeding
           polarity: 1.0
         - OntologyNode:
@@ -374,9 +355,8 @@
       - water sanitation hygiene:
         - OntologyNode:
           examples:
-          - provision of basic minimum household hygiene item package
-          - e.g. water containers
-          - bathing soap and menstrual materials
+          - provision of basic minimum household hygiene item package e.g. water containers,
+            bathing soap and menstrual materials
           name: provision of basic minimum household hygiene item package
           polarity: 1.0
         - OntologyNode:
@@ -415,9 +395,8 @@
           polarity: 1.0
         - OntologyNode:
           examples:
-          - provision of latrine construction
-          - e.g pit latrines
-          - trench latrines and septic tanks
+          - provision of latrine construction e.g pit latrines, trench latrines and septic
+            tanks
           name: provision of latrine construction
           polarity: 1.0
         - OntologyNode:
@@ -512,9 +491,7 @@
       - water sanitation hygiene:
         - OntologyNode:
           examples:
-          - creation of temporary water points
-          - e.g. hand pumps
-          - wells and taps
+          - creation of temporary water points e.g. hand pumps, wells and taps
           name: creation of temporary water points
           polarity: 1.0
     - institutional support:
