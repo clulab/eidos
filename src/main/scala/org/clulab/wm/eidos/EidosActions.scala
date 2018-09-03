@@ -735,6 +735,7 @@ object EidosActions extends Actions {
   )
 
   val VALID_INCOMING = Set[scala.util.matching.Regex](
+    "^amod$".r,
     "^compound$".r
   )
 
