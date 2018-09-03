@@ -41,7 +41,7 @@ class TestCagP3 extends Test {
    // tester.mentions.foreach(m => println("\t" + m.text))
 
     val impacts = NodeSpec("impacts of flooding")
-    val economic = NodeSpec("economic", Dec("collapse"))
+    val economic = NodeSpec("economic collapse", Dec("collapse"))
     val conflict = NodeSpec("conflict")
     val production = NodeSpec("agricultural production", Dec("reduced"))
     val insecurity = NodeSpec("2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical", Quant("critical"))

@@ -44,9 +44,9 @@ class TestCagP2 extends Test {
   
     val conflict = NodeSpec("Conflict")
     val insecurity = NodeSpec("insecurity")
-    val marketDisruption = NodeSpec("market", Dec("disruption")) //newNodeSpec("market disruption")
-    val economic = NodeSpec("economic", Dec("downturn"))
-    val cropFailure = NodeSpec("localized crop", Dec("failures"))
+    val marketDisruption = NodeSpec("market disruption", Dec("disruption")) //newNodeSpec("market disruption")
+    val economic = NodeSpec("economic downturn", Dec("downturn"))
+    val cropFailure = NodeSpec("localized crop failures", Dec("failures"))
     val foodPrices = NodeSpec("record high food prices", Inc("high"), Quant("high", "record"))
     val hunger = NodeSpec("hunger", Inc("spread"))
 
@@ -76,7 +76,7 @@ class TestCagP2 extends Test {
     val tester = new Tester(p2s3)
 
     val conflict = NodeSpec("Conflict")
-    val economic = NodeSpec("economic", Dec("decline"))
+    val economic = NodeSpec("economic decline", Dec("decline"))
     val violence = NodeSpec("violence")
     val displacement = NodeSpec("displacement")
 

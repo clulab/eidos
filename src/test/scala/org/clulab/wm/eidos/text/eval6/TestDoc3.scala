@@ -313,7 +313,7 @@ class TestDoc3 extends Test {
     val worm = NodeSpec("impact of Fall Armyworm, for which infestations have been reported in six regions of Ethiopia", Dec("reduce"))
     val rainfall4 = NodeSpec("Rainfall", Quant("moderate to heavy"))
     val flood2 = NodeSpec("potential for flooding")
-    val rainfallDeficit = NodeSpec("rainfall", Dec("deficits"), Dec("erase"))
+    val rainfallDeficit = NodeSpec("rainfall deficits", Dec("deficits"), Dec("erase"))
 
     // tests here
     passingTest should "have correct edges 1" taggedAs(Zheng) in {
