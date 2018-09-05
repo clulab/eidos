@@ -246,7 +246,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       doc.sentences.indices.foreach{ i =>
         val sentence = doc.sentences(i)
 
-        sb.append(s"<tr><td colspan='10' align='center'>Sentence ${i + 1}, equivalenceHash = ${sentence.equivalenceHash}</td></tr>")
+        sb.append(s"<tr><td colspan='10' align='center'>Sentence ${i + 1}, sentence.equivalenceHash = ${sentence.equivalenceHash}, dependencies.equivalenceHash = ${sentence.dependencies.get.equivalenceHash}</td></tr>")
         mkParseObj(sentence, sb)
     }
       sb.toString
