@@ -10,12 +10,35 @@ yaml.add_representer(type(None), represent_none)
 import sys
 from collections import defaultdict
 
-def ont_node(name, examples):
-    return {'OntologyNode': None, "name": name, 'examples': examples, 'polarity': 1.0}
+# todo: check??
+syn_relations = {"Synonym", "B is a subset of A", "A is a subset of B", "Rough synonym"}
 
-def load_intervention_types(fn):
+def ont_node(name, examples, keywords):
+    # Make sure the node name is added to the examples to be used for grounding
+    examples.append(name)
+    d = {'OntologyNode': None, "name": name, 'examples': examples, 'polarity': 1.0}
+    if keywords is not None:
+        d['keywords'] = keywords
+    return d
+
+def is_valid_synonym(s):
+    return s in syn_relations
+
+def load_intervention_types(fn, syn_file):
     # ont_node_dict = defaultdict(dict)
     # ocha_dict = defaultdict(ont_node_dict)
+
+    synonyms = defaultdict(list)
+    with open(syn_file) as f:
+        _ = f.readline()
+        for line in f:
+            fields = line.split("\t")
+            print(fields)
+            reln = fields[2]
+            if is_valid_synonym(reln):
+                node_name = fields[1].strip().lower()
+                syn = fields[3].strip().lower()
+                synonyms[node_name].append(syn)
 
 
     interventions = defaultdict(lambda: defaultdict(list))
@@ -46,15 +69,15 @@ def load_intervention_types(fn):
             if curr_class == 'provision of goods and services':
                 curr_name = "provision of " + curr_name
             if len(fields) >= 5:
-                kws = fields[4].strip().lower()
-                if kws.startswith("i.e") or kws.startswith("e.g"):
-                    curr_keywords = [curr_name + " " + kws]
-                else:
-                    curr_keywords = [curr_name] + [kw.strip().lower() for kw in kws.split(",")]
+                curr_keywords = fields[4].strip().lower()
+                # Sometimes we get '' examples -- filter them out!
+                if curr_keywords == '':
+                    curr_keywords = None
+                # curr_keywords = [kw for kw in kws if kw != '']
             else:
-                curr_keywords = [curr_name]
-            # Sometimes we get '' examples -- filter them out!
-            curr_keywords = [kw for kw in curr_keywords if kw != '']
+                curr_keywords = None
+
+
 
 
             # interventions[curr_class][curr_ocha].append(ont_node(curr_name, curr_keywords))
@@ -66,7 +89,7 @@ def load_intervention_types(fn):
             # else:
             #     interventions.append({curr_class:[]})
 
-            interventions[curr_class][curr_ocha].append(ont_node(curr_name, curr_keywords))
+            interventions[curr_class][curr_ocha].append(ont_node(curr_name, synonyms[curr_name], curr_keywords))
             # interventions[curr_class][curr_ocha]['OntologyNode']['name'] = curr_name
             # interventions[curr_class][curr_ocha]['OntologyNode']['examples'] = curr_keywords
             # interventions[curr_class][curr_ocha]['OntologyNode']['polarity'] = 1.0
@@ -97,8 +120,9 @@ def dump_yaml(d, fn):
 
 def main():
     intervention_classes_file = sys.argv[1]
-    ont_output_file = sys.argv[2]
-    info = load_intervention_types(intervention_classes_file)
+    synonyms_file = sys.argv[2]
+    ont_output_file = sys.argv[3]
+    info = load_intervention_types(intervention_classes_file, synonyms_file)
     #print(info)
     dump_yaml(info, ont_output_file)
 
