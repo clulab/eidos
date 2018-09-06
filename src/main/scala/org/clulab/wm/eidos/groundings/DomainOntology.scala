@@ -95,7 +95,7 @@ object DomainOntology {
   }
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class DomainOntologyBuilder(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean) {
+  class DomainOntologyBuilder(name: String, ontologyPath: String, proc: Processor, filter: Boolean) {
 
     def build(): DomainOntology = {
       val text = getTextFromResource(ontologyPath)
@@ -185,7 +185,7 @@ object DomainOntology {
       DomainOntology.load(serializedPath(name, cachedDir))
     else {
       logger.info("Processing yml ontology...")
-      new DomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
+      new DomainOntologyBuilder(name, ontologyPath, proc, filter).build()
     }
   }
 }

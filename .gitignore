@@ -38,6 +38,7 @@ xgboostOut/
 null_*
 vectors.txt
 glove.840B.300d.vectors.txt
+eidosCache/
 
 # Python binary files
 *.pyc

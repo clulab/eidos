@@ -16,24 +16,24 @@ object CacheOntologies extends App {
   if (ontologies.isEmpty)
     throw new RuntimeException("No ontologies were specified, please check the config file.")
 
-  val absoluteCachedDir: String = loadableAttributes.cachedOntologiesDir
+  val cacheDir: String = loadableAttributes.cacheDir
   val proc = reader.proc
 
   val domainOntologies = ontologies.map {
     _ match {
-      case name @ UN_NAMESPACE  =>  UNOntology(name, loadableAttributes.unOntologyPath,  absoluteCachedDir, proc, loadSerialized = false)
-      case name @ WDI_NAMESPACE => WDIOntology(name, loadableAttributes.wdiOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
-      case name @ FAO_NAMESPACE => FAOOntology(name, loadableAttributes.faoOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
+      case name @ UN_NAMESPACE  =>  UNOntology(name, loadableAttributes.unOntologyPath,  cacheDir, proc, loadSerialized = false)
+      case name @ WDI_NAMESPACE => WDIOntology(name, loadableAttributes.wdiOntologyPath, cacheDir, proc, loadSerialized = false)
+      case name @ FAO_NAMESPACE => FAOOntology(name, loadableAttributes.faoOntologyPath, cacheDir, proc, loadSerialized = false)
       case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
     }
   }
 
-  println(s"Saving ontologies to $absoluteCachedDir...")
-  domainOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, absoluteCachedDir)))
+  println(s"Saving ontologies to $cacheDir...")
+  domainOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, cacheDir)))
   println(s"Finished serializing ${domainOntologies.length} ontologies.")
 
   val filenameIn = loadableAttributes.wordToVecPath
-  val filenameOut = EidosWordToVec.makeCachedFilename(absoluteCachedDir, loadableAttributes.wordToVecPath)
+  val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, loadableAttributes.wordToVecPath)
   println(s"Saving vectors to $filenameOut...")
   val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
   word2Vec.save(filenameOut)
