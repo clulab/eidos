@@ -50,17 +50,17 @@ rules:
       [tag=/NN|CD/ & word=/^\u27a4/] | [word=/^\u2022/]
 
 
-  # OURS HERE:
-  - name: "triggers"
-    label: Avoid-Strict
-    priority: 1
-    type: token
-    pattern: |
-      # avoid coordinations
-      # we want any coordinated entities we might encounter to be split
-      [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${noncausal_increase_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${correlation_triggers}|${reverse_direction_cause_triggers})/] # triggers used downstream
-      # This is if we want to no avoid the increase/decrease triggers at all...
-      #[word = /(?i)^(${cause_triggers}|${correlation_triggers})/] # triggers used downstream
+  # # OURS HERE:
+  # - name: "triggers"
+  #   label: Avoid-Strict
+  #   priority: 1
+  #   type: token
+  #   pattern: |
+  #     # avoid coordinations
+  #     # we want any coordinated entities we might encounter to be split
+  #     [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${noncausal_increase_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${correlation_triggers}|${reverse_direction_cause_triggers})/] # triggers used downstream
+  #     # This is if we want to no avoid the increase/decrease triggers at all...
+  #     #[word = /(?i)^(${cause_triggers}|${correlation_triggers})/] # triggers used downstream
 
 
   - name: "gradable"
