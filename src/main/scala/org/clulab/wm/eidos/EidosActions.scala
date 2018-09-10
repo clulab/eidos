@@ -74,7 +74,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       } else {
         // odin mentions keep track of the path between the trigger and the argument
         // below we assume there is only one cause arg, so beware (see require statement abov)
-        val landed = m.paths(arg2).values.head.last._2 // when the rule matched, it landed on this
+        val landed = m.paths(arg2)(m.arguments(arg2).head).last._2 // when the rule matched, it landed on this
         // when the rule matched, it landed on this
         // println("---------")
         // println(s"rule: ${m.foundBy}")
@@ -497,7 +497,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         (argName, argPathsMap) <- orig.paths
         origPath = argPathsMap(orig.arguments(argName).head)
       } yield (argName, Map(expandedArgs(argName).head -> origPath))
-      
+
 
       orig match {
         case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
