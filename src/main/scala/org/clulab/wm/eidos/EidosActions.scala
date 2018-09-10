@@ -38,7 +38,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val merged = mergeAttachments(result, state.updated(result))
 
     // Keep most complete
-    val mostComplete = merged //keepMostCompleteEvents(merged, state.updated(merged))
+    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
 
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
@@ -75,6 +75,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         // odin mentions keep track of the path between the trigger and the argument
         // below we assume there is only one cause arg, so beware (see require statement abov)
         val landed = m.paths(arg2).values.head.last._2 // when the rule matched, it landed on this
+        // when the rule matched, it landed on this
+        // println("---------")
+        // println(s"rule: ${m.foundBy}")
+        // println(s"cause: ${m.arguments(arg2).head.text}")
+        // m.paths(arg2).keys.foreach(x => println(s"${x.text} - ${x.foundBy} - ${x.start} ${x.end}"))
+        // println("---------")
         assembleEventChain(m.asInstanceOf[EventMention], arg2Mention, landed, arg1Mentions)
       }
     }
@@ -486,10 +492,17 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       val newTokenInterval = getNewTokenInterval(allIntervals)
       // Make the copy based on the type of the Mention
 
+      val causePath = orig.paths("cause")(orig.arguments("cause").head)
+      val effectPath = orig.paths("effect")(orig.arguments("effect").head)
+      val paths = Map(
+        "cause" -> Map(expandedArgs("cause").head -> causePath),
+        "effect" -> Map(expandedArgs("effect").head -> effectPath)
+      )
+
       orig match {
         case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
         case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
-        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval)
+        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, paths = paths)
       }
     }
 
