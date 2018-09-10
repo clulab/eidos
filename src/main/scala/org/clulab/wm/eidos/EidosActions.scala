@@ -492,12 +492,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       val newTokenInterval = getNewTokenInterval(allIntervals)
       // Make the copy based on the type of the Mention
 
-      val causePath = orig.paths("cause")(orig.arguments("cause").head)
-      val effectPath = orig.paths("effect")(orig.arguments("effect").head)
-      val paths = Map(
-        "cause" -> Map(expandedArgs("cause").head -> causePath),
-        "effect" -> Map(expandedArgs("effect").head -> effectPath)
-      )
+
+      val paths = for {
+        (argName, argPathsMap) <- orig.paths
+        origPath = argPathsMap(orig.arguments(argName).head)
+      } yield (argName, Map(expandedArgs(argName).head -> origPath))
+      
 
       orig match {
         case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
