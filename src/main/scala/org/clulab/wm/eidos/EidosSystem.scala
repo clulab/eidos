@@ -44,7 +44,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     LoadableAttributes.wordToVecPath,
     getArgInt(getFullName("topKNodeGroundings"), Some(10)),
     LoadableAttributes.cacheDir,
-    LoadableAttributes.loadSerializedOnts
+    LoadableAttributes.useCachedOntologies
   )
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
@@ -95,7 +95,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
     def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-    def useSerializedOnts: Boolean = getArgBoolean(getFullName("useCachedOntologies"), Option(false))
+    def useCachedOntologies: Boolean = getArgBoolean(getFullName("useCachedOntologies"), Option(false))
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
@@ -103,9 +103,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
