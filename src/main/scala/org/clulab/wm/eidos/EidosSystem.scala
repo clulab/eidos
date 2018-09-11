@@ -80,7 +80,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def      unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
     def     wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
     def     faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
-    def            cacheDir: String = getPath(         "cacheDir", "./eidosCache/")
+    def            cacheDir: String = getPath(         "cacheDir", "./cache/")
     def       wordToVecPath: String = getPath(    "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt")
 //    def       wordToVecPath: String = getPath(      "wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt")) // NOTE: Moving to GLoVE vectors
 
