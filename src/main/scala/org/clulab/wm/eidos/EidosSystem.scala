@@ -41,9 +41,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // This isn't intended to be (re)loadable.  This only happens once.
   val wordToVec = EidosWordToVec(
     word2vec,
-    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
-//    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
-    getArgInt(getFullName("topKNodeGroundings"), Some(10))
+    LoadableAttributes.wordToVecPath,
+    getArgInt(getFullName("topKNodeGroundings"), Some(10)),
+    LoadableAttributes.cacheDir,
+    LoadableAttributes.useCachedOntologies
   )
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
@@ -84,7 +85,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def      unOntologyPath: String = getPath(     "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
     def     wdiOntologyPath: String = getPath(    "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
     def     faoOntologyPath: String = getPath(        "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
-    def cachedOntologiesDir: String = getPath("cachedOntologiesDir", "/org/clulab/wm/eidos/ontologies/cached/")
+    def            cacheDir: String = getPath(           "cacheDir", "./cache/")
+    def       wordToVecPath: String = getPath(      "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt")
+//    def       wordToVecPath: String = getPath(        "wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt")) // NOTE: Moving to GLoVE vectors
 
     def   timeNormModelPath: String = getPath(  "timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
     def  useTimeNorm: Boolean = getArgBoolean(getFullName("useTimeNorm"), Some(false))
@@ -92,7 +95,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
     def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-    def useSerializedOnts: Boolean = getArgBoolean(getFullName("useCachedOntologies"), Option(false))
+    def useCachedOntologies: Boolean = getArgBoolean(getFullName("useCachedOntologies"), Option(false))
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
@@ -100,9 +103,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
