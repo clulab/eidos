@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.apps
 
+import java.io.File
+
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
@@ -29,6 +31,7 @@ object CacheOntologies extends App {
   }
 
   println(s"Saving ontologies to $cacheDir...")
+  new File(cacheDir).mkdirs()
   domainOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, cacheDir)))
   println(s"Finished serializing ${domainOntologies.length} ontologies.")
 
