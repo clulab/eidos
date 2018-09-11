@@ -1,16 +1,18 @@
-increase_triggers: "acceler|aid|augment|boost|compound|doubl|deep|elev|enhanc|exacerbat|exorbitant|favorable|height|improv|increas|intens|prolong|promot|rais|reactivat|restor|spike|spread|stimul|synerg|up-regul|upregul|widen"
-noncausal_increase_triggers: "above|above-average|better|good|greater|heav|(highs?$)|highe(r|s)|rising|widespread"
+increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|aprofund|aument|auxili|comp|contribu|dobr|elev|espalh|estend|estimul|exacerb|exorbit|favorec|impusion|increment|melhor|prolong|promov|propag|reativ|restaur"
+noncausal_increase_triggers: "acima|melhor|bom|maior|forte|aument|difundido"
 
-decrease_triggers: "attenu|abolish|abrog|arrest|block|collaps|constrain|(cuts?$)|cutting|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|diminish|disrupt|down-reg|downreg|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|limit|less|lower|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin|worse"
-noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|fail|inactiv|inadequate|knockdown|lack|loss|(lows?$)|poor|scarce|scarcity|shortage|shutdown"
+decrease_triggers: "abaix|abol|acab|anul|apag|atenu|bloque|cancel|corr|cort|debilit|degener|degrad|depreci|desaceler|desativ|desestabiliz|destru|desvaloriz|det|dificult|diminu|dizim|elimin|encolh|encurt|enfraquec|esgot|exaur|imped|inib|invalid|limit|mitig|neg|paraliz|pior|prejudic|previn|quebr|rebaix|reduz|reprim|restring|retard|revert|revog|romp|suprim"
+noncausal_decrease_triggers: "ausencia|baix|declínio|déficit|derrub|desadequ|desativ|descontinu|deslig|escassez|escass|falha|falta|inadequ|inativ|interrompe|perda|pobre|recessão"
 #advers|perturb|resist|
 
 # NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
-cause_triggers: "caç|activat|allow|because|cataly|caus|contribut|driv|due|elicit|enabl|force|forcing|help|induc|initiat|interconvert|lead|^led$|mediat|modulat|signal|synthes|trigger|underli"
-nonavoid_causal_triggers: "produc"
-reverse_direction_cause_triggers: "result|effect|consequence"
+cause_triggers: "ajud|ativ|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|forç|induz|inici|interconvert|lev|medi|modul|permit|possibilit|provoc|sinaliz"
 
-affect_triggers: "affect|alter|(displaces?$)|chang|influenc|modifi|modify"
+nonavoid_causal_triggers: "produz"
+reverse_direction_cause_triggers: "consequencia|efeito|resultado"
+
+affect_triggers: "afet|alter|desloc|influenci|modifi|modificação"
 nonavoid_affect_triggers: "impact"
 
-correlation_triggers: "coincid|link"
+correlation_triggers: "coincid|lig"
+
