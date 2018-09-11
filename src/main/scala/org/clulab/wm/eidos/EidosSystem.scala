@@ -70,28 +70,29 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   object LoadableAttributes {
     // Extraction
-    def     masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
-    def    quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
-    def   domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
-    def      quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
-    def     entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
-    def      avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    def        taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    def     masterRulesPath: String = getPath(    "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
+    def    quantifierKBPath: String = getPath(   "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
+    def   domainParamKBPath: String = getPath(  "domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
+    def      quantifierPath: String = getPath(     "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
+    def     entityRulesPath: String = getPath(    "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
+    def      avoidRulesPath: String = getPath(     "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
+    def        taxonomyPath: String = getPath(       "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
     // Filtering
-    def       stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
-    def     transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    def       stopwordsPath: String = getPath(      "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    def     transparentPath: String = getPath(    "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
     // Ontology handling
-    def      unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
-    def     wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
-    def     faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
+    def      unOntologyPath: String = getPath(     "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
+    def     wdiOntologyPath: String = getPath(    "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
+    def     faoOntologyPath: String = getPath(        "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
     def cachedOntologiesDir: String = getPath("cachedOntologiesDir", "/org/clulab/wm/eidos/ontologies/cached/")
 
-    def timeNormModelPath: String = getPath("timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
+    def   timeNormModelPath: String = getPath(  "timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
+    def  useTimeNorm: Boolean = getArgBoolean(getFullName("useTimeNorm"), Some(false))
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
     def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-    def loadSerializedOnts: Boolean = getArgBoolean(getFullName("loadCachedOntologies"), Option(false))
+    def useSerializedOnts: Boolean = getArgBoolean(getFullName("useCachedOntologies"), Option(false))
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
@@ -99,9 +100,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = useSerializedOnts)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
@@ -114,12 +115,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
       // Domain Ontologies:
       val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
-      val timenormResource: URL = getClass.getResource(timeNormModelPath)
+
       val timenorm: Option[TemporalCharbasedParser] =
-          if (timenormResource == null) None
+          if (!useTimeNorm) None
           else {
+            val timeNormResource: URL = getClass.getResource(timeNormModelPath)
             // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            val file = Paths.get(timenormResource.toURI()).toFile().getAbsolutePath()
+            val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
             // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
             //     public native void openFile(@StdString BytePointer var1, ...
             // and needs native representation of the file.
@@ -158,7 +160,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
     val doc = EidosDocument(oldDoc, keepText, documentCreationTime)
     doc.sentences.foreach(addLexiconNER)
-    doc.parseTime(timenorm)
+    doc.parseTime(loadableAttributes.timenorm)
     doc
   }
 

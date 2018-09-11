@@ -168,20 +168,17 @@ class TestJLDSerializer extends Test {
     json should not be empty    
   }
 
-  getClass.getResource("/org/clulab/wm/eidos/models/timenorm_model.hdf5") match {
-    case null => println("It didn't do it")
-    case _ => {
-      println("it is working")
-      it should "serialize time expression" in {
-        val json = serialize(Seq(
-          newTitledAnnotatedDocument("2018-10-04", "This is a time expression")
-        ))
+  if (useTimeNorm) {
+    it should "serialize time expression" in {
+      val json = serialize(Seq(
+        newTitledAnnotatedDocument("2018-10-04", "This is a time expression")
+      ))
 
-        inspect(json)
-        json.contains("timexes") should be (true)
-        json.contains("intervals") should be (true)
-      }
+      inspect(json)
+      json.contains("timexes") should be(true)
+      json.contains("intervals") should be(true)
     }
   }
-
+  else
+    println("It didn't do it")
 }
