@@ -112,7 +112,7 @@ object DomainOntology {
       // Now we just go through the POS tagging stage, but the procedure is
       // different for different kinds of processors.
       case proc: CluProcessor => (text => {
-        val doc = proc.mkDocument(proc.preprocessText(text))
+        val doc = proc.mkDocument(text)
 
         // This is the key difference.  Lemmatization must happen first.
         proc.lemmatize(doc)
@@ -120,7 +120,7 @@ object DomainOntology {
         doc.sentences
       })
       case proc: ShallowNLPProcessor => (text => {
-        val doc = proc.mkDocument(proc.preprocessText(text))
+        val doc = proc.mkDocument(text)
 
         if (doc.sentences.nonEmpty)
           proc.tagPartsOfSpeech(doc)

@@ -29,7 +29,7 @@ class TestSerialization extends Test {
   behavior of "Standard Serializer"
 
   it should "serialize and deserialize mentions" in {
-    val text = "Water trucking has decreased due to the cost of fuel."
+    val text = "Water trucking has decreased due to the cost of fuel last week." // "last week" added for time
     //val text = "Food shortages cause hunger."
     val annotatedDocument = reader.extractFromText(text)
     val mentionsOut = annotatedDocument.odinMentions

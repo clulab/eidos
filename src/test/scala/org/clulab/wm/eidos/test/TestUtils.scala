@@ -81,10 +81,12 @@ object TestUtils {
           else
             result ++ Seq("Mentions:\n" + toString(mentions))
       
-      def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions))
+      def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions, useTimeNorm))
       
-      def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions))
-    }    
+      def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions, useTimeNorm))
+    }
+
+    def useTimeNorm = ieSystem.timenorm.isDefined
   }
   
   lazy val ieSystem = new EidosSystem()

@@ -87,13 +87,88 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
     pw.close()
   }
 
-  def header(): String = "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
-    "Factor A Modifiers\tFactor A Polarity\tRelation Text\tRelation Normalization\t" +
-    "Relation Modifiers\tFactor B Text\tFactor B Normalization\tFactor B Modifiers\t" +
-    "Factor B Polarity\tLocation\tTime\tEvidence\t" +
-    s"Factor A top${topN}_UNOntology\tFactor A top${topN}_FAOOntology\tFactor A top${topN}_WDIOntology" +
-    s"Factor B top${topN}_UNOntology\tFactor B top${topN}_FAOOntology\tFactor B top${topN}_WDIOntology"
+  def header(): String = {
+    "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
+      "Factor A Modifiers\tFactor A Polarity\tRelation Text\tRelation Normalization\t" +
+      "Relation Modifiers\tFactor B Text\tFactor B Normalization\tFactor B Modifiers\t" +
+      "Factor B Polarity\tLocation\tTime\tEvidence\t" +
+      s"Factor A top${topN}_UNOntology\tFactor A top${topN}_FAOOntology\tFactor A top${topN}_WDIOntology" +
+        s"Factor B top${topN}_UNOntology\tFactor B top${topN}_FAOOntology\tFactor B top${topN}_WDIOntology"
+  }
 
+
+
+  def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention))
+
+    for {
+      mention <- mentionsToPrint
+
+      source = filename
+      system = "Eidos"
+      sentence_id = mention.odinMention.sentence
+
+      cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
+      factor_a_info = EntityInfo(cause)
+
+      trigger = mention.odinMention.asInstanceOf[EventMention].trigger
+      relation_txt = ExporterUtils.removeTabAndNewline(trigger.text)
+      relation_norm = mention.label // i.e., "Causal" or "Correlation"
+      relation_modifier = ExporterUtils.getModifier(mention) // prob none
+
+      effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
+      factor_b_info = EntityInfo(effect)
+
+      location = "" // I could try here..?
+      time = ""
+      evidence = ExporterUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
+
+      row = source + "\t" + system + "\t" + sentence_id + "\t" +
+        factor_a_info.toTSV() + "\t" +
+        relation_txt + "\t" + relation_norm + "\t" + relation_modifier + "\t" +
+        factor_b_info.toTSV() + "\t" +
+        location + "\t" + time + "\t" + evidence + "\t" + factor_a_info.groundingToTSV + "\t" +
+        factor_b_info.groundingToTSV + "\n"
+
+
+    } pw.print(row)
+  }
+
+
+
+}
+
+
+case class SerializedExporter (filename: String) extends Exporter {
+  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+    val odinMentions = annotatedDocuments.flatMap(ad => ad.odinMentions)
+    Serializer.save[SerializedMentions](new SerializedMentions(odinMentions), filename + ".serialized")
+  }
+}
+
+// Helper Class to facilitate serializing the mentions
+class SerializedMentions(val mentions: Seq[Mention]) extends Serializable {}
+object SerializedMentions {
+  def load(filename: String): Seq[Mention] = Serializer.load[SerializedMentions](filename).mentions
+}
+
+case class EntityInfo(m: EidosMention, topN: Int = 5) {
+  val text = ExporterUtils.removeTabAndNewline(m.odinMention.text)
+  val norm = getBaseGrounding(m)
+  val modifier = ExporterUtils.getModifier(m)
+  val polarity = ExporterUtils.getPolarity(m)
+  val un = getGroundingsString(m, EidosOntologyGrounder.UN_NAMESPACE, topN)
+  val fao = getGroundingsString(m, EidosOntologyGrounder.FAO_NAMESPACE, topN)
+  val wdi = getGroundingsString(m, EidosOntologyGrounder.WDI_NAMESPACE, topN)
+
+  def toTSV(): String = Seq(text, norm, modifier, polarity).mkString("\t")
+
+  def groundingToTSV() = Seq(un, fao, wdi).mkString("\t")
+
+
+}
+
+object ExporterUtils {
   def getModifier(mention: EidosMention): String = {
     val attachments = mention.odinMention.attachments
     val quantTriggers = attachments
@@ -116,70 +191,5 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
     sb.mkString(", ")
   }
 
-  def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention))
-
-    for {
-      mention <- mentionsToPrint
-
-      source = filename
-      system = "Eidos"
-      sentence_id = mention.odinMention.sentence
-
-      cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
-
-      factor_a_txt = removeTabAndNewline(cause.odinMention.text)
-      factor_a_norm = getBaseGrounding(cause)
-      factor_a_modifier = getModifier(cause)
-      factor_a_polarity = getPolarity(cause)
-      factor_a_un = getGroundingsString(cause, EidosOntologyGrounder.UN_NAMESPACE, topN)
-      factor_a_fao = getGroundingsString(cause, EidosOntologyGrounder.FAO_NAMESPACE, topN)
-      factor_a_wdi = getGroundingsString(cause, EidosOntologyGrounder.WDI_NAMESPACE, topN)
-
-      trigger = mention.odinMention.asInstanceOf[EventMention].trigger
-      relation_txt = removeTabAndNewline(trigger.text)
-      relation_norm = mention.label // i.e., "Causal" or "Correlation"
-      relation_modifier = getModifier(mention) // prob none
-
-      effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
-      factor_b_txt = removeTabAndNewline(effect.odinMention.text)
-      factor_b_norm = getBaseGrounding(effect)
-      factor_b_modifier = getModifier(effect)
-      factor_b_polarity = getPolarity(effect)
-      factor_b_un = getGroundingsString(effect, EidosOntologyGrounder.UN_NAMESPACE, topN)
-      factor_b_fao = getGroundingsString(effect, EidosOntologyGrounder.FAO_NAMESPACE, topN)
-      factor_b_wdi = getGroundingsString(effect, EidosOntologyGrounder.WDI_NAMESPACE, topN)
-
-      location = "" // I could try here..?
-      time = ""
-      evidence = removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText().trim)
-
-      row = source + "\t" + system + "\t" + sentence_id + "\t" +
-        factor_a_txt + "\t" + factor_a_norm + "\t" + factor_a_modifier + "\t" + factor_a_polarity + "\t" +
-        relation_txt + "\t" + relation_norm + "\t" + relation_modifier + "\t" +
-        factor_b_txt + "\t" + factor_b_norm + "\t" + factor_b_modifier + "\t" + factor_b_polarity + "\t" +
-        location + "\t" + time + "\t" + evidence + "\t" +
-        factor_a_un + "\t" + factor_a_fao + "\t" + factor_a_wdi + "\t" +
-        factor_b_un + "\t" + factor_b_fao + "\t" + factor_b_wdi + "\n"
-
-    } pw.print(row)
-  }
-
   def removeTabAndNewline(s: String) = s.replaceAll("(\\n|\\t)", " ")
-
-}
-
-
-case class SerializedExporter (filename: String) extends Exporter {
-  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
-    val odinMentions = annotatedDocuments.flatMap(ad => ad.odinMentions)
-    Serializer.save[SerializedMentions](new SerializedMentions(odinMentions), filename + ".serialized")
-  }
-}
-
-
-// Helper Class to facilitate serializing the mentions
-class SerializedMentions(val mentions: Seq[Mention]) extends Serializable {}
-object SerializedMentions {
-  def load(filename: String): Seq[Mention] = Serializer.load[SerializedMentions](filename).mentions
 }

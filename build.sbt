@@ -8,8 +8,10 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 //EclipseKeys.withSource := true
 
+resolvers += "jitpack" at "https://jitpack.io"
+
 libraryDependencies ++= {
-  val procVer = "7.3.1"
+  val procVer = "7.4.1"
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
@@ -27,6 +29,16 @@ libraryDependencies ++= {
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   )
 }
+
+val minorVersionRegex = "\\d+\\.(\\d+).*".r
+libraryDependencies ++= {
+  scalaVersion { sv =>
+    sv match {
+      case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.14_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
+      case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.14" exclude("org.slf4j", "slf4j-log4j12"))
+    }
+  }
+}.value
 
 //
 // publishing settings

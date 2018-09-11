@@ -38,6 +38,7 @@ xgboostOut/
 null_*
 vectors.txt
 glove.840B.300d.vectors.txt
+timenorm_model.hdf5
 cache/*.serialized
 
 # Python binary files
