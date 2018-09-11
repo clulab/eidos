@@ -279,15 +279,9 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
   var tested = false
   var complaints = Seq[String]()
   
-  protected def matchAttachments(mention: Mention): Boolean = (
-    TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TriggeredAttachmentSpec]).map(_.asInstanceOf[TriggeredAttachmentSpec]))
-      &&
-      (
-        getClass.getResource("/org/clulab/wm/eidos/models/timenorm_model.hdf5") == null
-          ||
-        ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[ContextAttachmentSpec]).map(_.asInstanceOf[ContextAttachmentSpec]))
-      )
-    )
+  protected def matchAttachments(useTimeNorm: Boolean)(mention: Mention): Boolean =
+      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TriggeredAttachmentSpec]).map(_.asInstanceOf[TriggeredAttachmentSpec])) &&
+      (!useTimeNorm || ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[ContextAttachmentSpec]).map(_.asInstanceOf[ContextAttachmentSpec])))
 
   protected def matchText(mention: TextBoundMention): Boolean = {
     val text = mention.text
@@ -296,21 +290,21 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
     success
   }
     
-  protected def testSpec(mentions: Seq[Mention]): Seq[Mention] = {
+  protected def testSpec(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[Mention] = {
     val matches1 = mentions
         .filter(_.isInstanceOf[TextBoundMention])
         .map(_.asInstanceOf[TextBoundMention])
         .filter(matchText)
-        .filter(matchAttachments)
+        .filter(matchAttachments(useTimeNorm))
 
     val matches = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
     
     matches
   }
   
-  def test(mentions: Seq[Mention]): Seq[String] = {
+  def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val matches = testSpec(mentions)
+      val matches = testSpec(mentions, useTimeNorm)
       if (matches.size < 1)
         complaints = Seq("Could not find NodeSpec " + this)
       else if (matches.size > 1)
@@ -360,9 +354,9 @@ object NodeSpec {
 }
 
 class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
-  override def test(mentions: Seq[Mention]): Seq[String] = {
+  override def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val matches = testSpec(mentions)
+      val matches = testSpec(mentions, useTimeNorm)
       if (matches.size != 0)
         complaints = Seq("Could find AntiNodeSpec " + this)
       tested = true
@@ -432,10 +426,10 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
     matches
   }
   
-  def test(mentions: Seq[Mention]): Seq[String] = {
+  def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val causeComplaints = cause.test(mentions)
-      val effectComplaints = effect.test(mentions)
+      val causeComplaints = cause.test(mentions, useTimeNorm)
+      val effectComplaints = effect.test(mentions, useTimeNorm)
 
       val causeSuccess = causeComplaints.isEmpty
       val effectSuccess = effectComplaints.isEmpty
@@ -480,10 +474,10 @@ object EdgeSpec {
 class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends EdgeSpec(cause, event, effect) {
   override def toString(): String = toString("->)", "(->")
 
-  override def test(mentions: Seq[Mention]): Seq[String] = {
+  override def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val causeComplaints = cause.test(mentions)
-      val effectComplaints = effect.test(mentions)
+      val causeComplaints = cause.test(mentions, useTimeNorm)
+      val effectComplaints = effect.test(mentions, useTimeNorm)
 
       val causeSuccess = causeComplaints.isEmpty
       val effectSuccess = effectComplaints.isEmpty
