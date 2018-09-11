@@ -11,6 +11,7 @@ import org.clulab.wm.eidos.text.Dec
 import org.clulab.wm.eidos.text.Correlation
 import org.clulab.wm.eidos.text.Causal
 import org.clulab.wm.eidos.text.Affect
+import org.clulab.wm.eidos.text.TimEx
 import org.scalactic.source.Position.apply
 
 class TestCagP3 extends Test {
@@ -44,7 +45,7 @@ class TestCagP3 extends Test {
     val economic = NodeSpec("economic", Dec("collapse"))
     val conflict = NodeSpec("conflict")
     val production = NodeSpec("agricultural production", Dec("reduced"))
-    val insecurity = NodeSpec("2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical", Quant("critical"))
+    val insecurity = NodeSpec("2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical", Quant("critical"), TimEx("2017"))
     
     behavior of "p3s2"
 

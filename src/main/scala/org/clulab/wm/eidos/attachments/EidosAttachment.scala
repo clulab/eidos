@@ -2,11 +2,13 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.serialization.json.{
   JLDAttachment => JLDEidosAttachment,
   JLDScoredAttachment => JLDEidosScoredAttachment,
   JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
-  JLDSerializer => JLDEidosSerializer
+  JLDSerializer => JLDEidosSerializer,
+  JLDContextAttachment => JLDEidosContextAttachment
 }
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -14,6 +16,8 @@ import org.json4s.JsonDSL._
 import scala.beans.BeanProperty
 import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.{mix, mixLast}
+
+import org.clulab.wm.eidos.document.TimeInterval
 
 @SerialVersionUID(1L)
 abstract class EidosAttachment extends Attachment with Serializable {
@@ -273,6 +277,41 @@ object Decrease {
 
     new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
   }
+}
+
+abstract class ContextAttachment() extends EidosAttachment {
+
+  val text: String
+  val value: Object
+
+  override def toString() = {
+    getClass().getSimpleName() + "(" + text + ")"
+  }
+
+  def newJLDContextAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosContextAttachment =
+    new JLDEidosContextAttachment(serializer, kind, this)
+
+  def toJson(label: String): JValue = {
+    (EidosAttachment.TYPE -> label)
+  }
+}
+
+class Time(interval: TimeInterval) extends ContextAttachment {
+
+  val text = interval.text
+  val value = interval
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDContextAttachment(serializer, Time.kind)
+
+  override def toJson(): JValue = toJson(Time.label)
+}
+
+object Time {
+  val label = "Time"
+  val kind = "TIMEX"
+
+  def apply(interval: TimeInterval) = new Time(interval)
 }
 
 case class Score(score: Double) extends EidosAttachment {

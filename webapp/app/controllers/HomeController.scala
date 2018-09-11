@@ -9,6 +9,11 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.utils.DisplayUtils
+import org.clulab.wm.eidos.utils.DomainParams
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.TimeInterval
+import java.time.LocalDateTime
 import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
@@ -262,8 +267,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention))
-    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, causalEvents)
+    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, causalEvents, doc.asInstanceOf[EidosDocument].times)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
@@ -278,8 +283,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def mkGroundedObj(groundedEntities: Vector[GroundedEntity],
-                    mentions: Vector[EidosMention],
-                    causalEvents: Vector[(String, Map[String, String])]): String = {
+    mentions: Vector[EidosMention],
+    causalEvents: Vector[(String, Map[String, String])],
+    time: Array[List[TimeInterval]]): String = {
     var objectToReturn = ""
 
     if(groundedEntities.size > 0){
@@ -308,6 +314,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     else
       objectToReturn += ""
+
+    // TimeExpressions
+    objectToReturn += "<h2>Found TimeExpressions:</h2>"
+    for (t <-time) {
+      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
+    }
 
     // Concepts
     val entities = mentions.filter(_.odinMention matches "Entity")
@@ -348,7 +360,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.flatMap {
       case m: TextBoundMention => Some(m)
       case _ => None
@@ -385,6 +397,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Json.obj(
       "text" -> sentenceText,
       "entities" -> mkJsonFromEntities(entities ++ topLevelTBM, tbMentionToId),
+      "timexs" -> mkJsonFromTimeExpressions(time),
       "triggers" -> mkJsonFromEntities(triggers, tbMentionToId),
       "events" -> mkJsonFromEventMentions(events, tbMentionToId)
     )
@@ -419,6 +432,27 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       Json.arr(mkArgMentions(ev, tbmToId): _*)
     )
   }
+
+  def mkJsonFromTimeExpressions(time: Array[List[TimeInterval]]): Json.JsValueWrapper = {
+    var x = 0
+    val timexs = for (t <- time; i <- t) yield {
+      x += 1
+      Json.arr(
+        s"X$x",
+        "TimeExpression",
+        Json.arr(Json.arr(i.span._1,i.span._2)),
+        Json.toJson(for(d <- i.intervals) yield ((
+          d._1 match {
+          case null => "Undef"
+          case start => start.toString},
+          d._2 match {
+          case null => "Undef"
+          case end => end.toString},
+          d._3)))
+      )}
+    Json.toJson(timexs)
+  }
+
 
   def mkArgMentions(ev: EventMention, tbmToId: Map[TextBoundMention, Int]): Seq[Json.JsValueWrapper] = {
     val args = for {
