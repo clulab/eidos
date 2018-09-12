@@ -10,7 +10,7 @@ class TestGlobalAction extends Test {
 
     val tester = new Tester(text)
   
-    val rainfall = NodeSpec("rainfall", Dec("reduction"), Dec("deficits"))
+    val rainfall = NodeSpec("rainfall deficits", Dec("reduction"), Dec("deficits"))
 
     behavior of "a sentence requiring global action"
 

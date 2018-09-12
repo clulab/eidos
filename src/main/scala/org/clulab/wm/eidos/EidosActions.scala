@@ -12,10 +12,13 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.annotation.tailrec
 import utils.DisplayUtils.{displayMention, shortDisplay}
-import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
+import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_INCOMING, VALID_OUTGOING}
+import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
+
+import org.clulab.wm.eidos.document.TimeInterval
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
@@ -43,7 +46,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val merged = mergeAttachments(result, state.updated(result))
 
     // Keep most complete
-    val mostComplete = merged //keepMostCompleteEvents(merged, state.updated(merged))
+    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
 
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
@@ -150,7 +153,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       } else {
         // odin mentions keep track of the path between the trigger and the argument
         // below we assume there is only one cause arg, so beware (see require statement abov)
-        val landed = m.paths(arg2).values.head.last._2 // when the rule matched, it landed on this
+        val landed = m.paths(arg2)(m.arguments(arg2).head).last._2 // when the rule matched, it landed on this
+        // when the rule matched, it landed on this
+        // println("---------")
+        // println(s"rule: ${m.foundBy}")
+        // println(s"cause: ${m.arguments(arg2).head.text}")
+        // m.paths(arg2).keys.foreach(x => println(s"${x.text} - ${x.foundBy} - ${x.start} ${x.end}"))
+        // println("---------")
         assembleEventChain(m.asInstanceOf[EventMention], arg2Mention, landed, arg1Mentions)
       }
     }
@@ -220,7 +229,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
 
     val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-    val triggerSize = mention.attachments.toSeq.map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
+    val triggerSize = mention.attachments.toSeq.filter(_.isInstanceOf[TriggeredAttachment]).map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
     val attachArgumentsSz = argumentSize + triggerSize
 
     val res = attachArgumentsSz + modSize + numArgs + mention.tokenInterval.length
@@ -415,13 +424,24 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     } yield copyWithMod
   }
 
+  def applyTimeAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+      trigger = m.asInstanceOf[EventMention].trigger
+      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
+      time: Option[TimeInterval] = Some(m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset)(0))
+    } yield time match {
+      case None => theme
+      case Some(t) =>  theme.withAttachment(new Time(t))
+    }
+  }
+
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
     ms
   }
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
-
 
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
     def addAttachments(mention: Mention, attachments: Seq[Attachment], foundByName: String): Mention = {
@@ -453,6 +473,21 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     addAttachments(expanded, allAttachments, completeFoundBy)
   }
 
+  // Add the temporal attachments for any temporal expression
+  def attachTemporal(mention: Mention, state: State): Mention = {
+    val window = 10
+    val timeIntervals = mention.document.asInstanceOf[EidosDocument].times(mention.sentence)
+    var timeAttchment: Option[TimeInterval] = None
+    for (interval <- timeIntervals)
+      if (mention.startOffset - interval.span._2 <= window && interval.span._1 - mention.endOffset <= window)
+        timeAttchment = Some(interval)
+
+    timeAttchment match {
+      case None => mention
+      case Some(t) =>  mention.withAttachment(new Time(t))
+    }
+  }
+
 
 
   // Currently used as a GLOBAL ACTION in EidosSystem:
@@ -467,8 +502,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     val mergedEntities = for {
       (_, entities) <- entitiesBySpan
       // These are now for the same span, so only one should win as the main one.
-      flattenedAttachments = entities.flatMap(_.attachments.map(_.asInstanceOf[TriggeredAttachment]))
-      filteredAttachments = filterAttachments(flattenedAttachments)
+      flattenedTriggeredAttachments = entities.flatMap(_.attachments.filter(_.isInstanceOf[TriggeredAttachment]).map(_.asInstanceOf[TriggeredAttachment]))
+      flattenedContextAttachments = entities.flatMap(_.attachments.filter(_.isInstanceOf[ContextAttachment]).map(_.asInstanceOf[ContextAttachment]))
+      filteredAttachments = filterAttachments(flattenedTriggeredAttachments)
     } yield {
       if (filteredAttachments.nonEmpty) {
 
@@ -478,7 +514,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
         val bestEntity = tieBreaker(bestEntities)
 
-        copyWithAttachments(bestEntity, filteredAttachments)
+        copyWithAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
       }
       else
         tieBreaker(entities)
@@ -560,13 +596,19 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       newTokenInterval = getNewTokenInterval(allIntervals)
     }
 
+      val paths = for {
+        (argName, argPathsMap) <- orig.paths
+        origPath = argPathsMap(orig.arguments(argName).head)
+      } yield (argName, Map(expandedArgs(argName).head -> origPath))
+
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
 
-    orig match {
-      case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-      case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
-      case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+      orig match {
+        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
+      }
     }
   }
 
@@ -593,6 +635,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         (argType, argMentions) <- mention.arguments
         expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid))
         attached = expandedMentions.map(addSubsumedAttachments(_, state))
+        //timeattached = attached.map(attachTemporal(_, state))
+        //trimmed = timeattached.map(EntityHelper.trimEntityEdges)
         trimmed = attached.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
@@ -650,8 +694,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   //-- Entity expansion methods (brought in from EntityFinder)
   def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
     val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid, entity.sentenceObj)
-    val res = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
-    res
+    val outgoingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
+    val interval2 = traverseIncomingLocal(outgoingExpanded, maxHops, stateFromAvoid, entity.sentenceObj)
+    val incomingExpanded = outgoingExpanded.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
+    incomingExpanded
   }
 
 
@@ -689,6 +735,39 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid, sentence)
   }
 
+  /** Used by expand to selectively traverse the provided syntactic dependency graph **/
+  @tailrec
+  private def traverseIncomingLocal(
+                                     tokens: Set[Int],
+                                     newTokens: Set[Int],
+                                     incomingRelations: Array[Array[(Int, String)]],
+                                     remainingHops: Int,
+                                     sent: Int,
+                                     state: State,
+                                     sentence: Sentence
+
+                                   ): Interval = {
+    if (remainingHops == 0) {
+      val allTokens = tokens ++ newTokens
+      Interval(allTokens.min, allTokens.max + 1)
+    } else {
+      val newNewTokens = for{
+        tok <- newTokens
+        if incomingRelations.nonEmpty && tok < incomingRelations.length
+        (nextTok, dep) <- incomingRelations(tok)
+        if isValidIncomingDependency(dep)
+        if state.mentionsFor(sent, nextTok).isEmpty
+      } yield nextTok
+      traverseIncomingLocal(tokens ++ newTokens, newNewTokens, incomingRelations, remainingHops - 1, sent, state, sentence)
+    }
+  }
+  private def traverseIncomingLocal(m: Mention, numHops: Int, stateFromAvoid: State, sentence: Sentence): Interval = {
+    val incoming = incomingEdges(m.sentenceObj)
+    traverseIncomingLocal(Set.empty, m.tokenInterval.toSet, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid, sentence)
+  }
+
+
+
   def outgoingEdges(s: Sentence): Array[Array[(Int, String)]] = s.dependencies match {
     case None => sys.error("sentence has no dependencies")
     case Some(dependencies) => dependencies.outgoingEdges
@@ -710,6 +789,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       )
   }
 
+  /** Ensure incoming dependency may be safely traversed */
+  def isValidIncomingDependency(dep: String): Boolean = {
+    VALID_INCOMING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
+  }
+
   def notInvalidConjunction(dep: String, hopsRemaining: Int): Boolean = {
     // If it's not a coordination/conjunction, don't worry
     if (EntityConstraints.COORD_DEPS.exists(pattern => pattern.findFirstIn(dep).isEmpty)) {
@@ -722,10 +806,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     false
   }
-
-//  def isValidOutgoingDependency(dep: String, token: String, hopsRemaining: Int): Boolean = {
-//    isValidOutgoingDependency(dep, token) //&& notInvalidConjunction(dep, hopsRemaining)
-//  }
 
   /** Ensure current token does not have any incoming dependencies that are invalid **/
   def hasValidIncomingDependencies(tokenIdx: Int, incomingDependencies: Array[Array[(Int, String)]]): Boolean = {
@@ -743,6 +823,12 @@ object EidosActions extends Actions {
   val MAX_HOPS_EXPANDING = 5
   val AVOID_LABEL = "Avoid-Strict"
 
+  // Used for simplistic coreference identification
+  val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
+  val ANTECEDENT: String = "antecedent"
+  val ANAPHOR: String = "anaphor"
+
+  
   // avoid expanding along these dependencies
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](
 //    "^nmod_including$".r,
@@ -781,11 +867,10 @@ object EidosActions extends Actions {
     ".+".r
   )
 
-  // Used for simplistic coreference identification
-  val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
-  val ANTECEDENT: String = "antecedent"
-  val ANAPHOR: String = "anaphor"
-
+  val VALID_INCOMING = Set[scala.util.matching.Regex](
+    "^amod$".r,
+    "^compound$".r
+  )
 
   def apply(taxonomyPath: String) =
       new EidosActions(readTaxonomy(taxonomyPath))
