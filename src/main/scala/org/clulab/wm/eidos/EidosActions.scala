@@ -604,13 +604,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
 
-      orig match {
-        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
-        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
-      }
+    orig match {
+      case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+      case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+      case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
     }
   }
+
 
   // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
