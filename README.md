@@ -264,7 +264,7 @@ Eidos more than a couple of times with the vectors, then it's useful to cache a
 processed version of them along with the ontologies they work with.  This can be
 accomplished with the command
 ```
-sbt runMain com.clulab.wm.eidos.apps.CacheOntologies
+sbt "runMain com.clulab.wm.eidos.apps.CacheOntologies"
 ```
 This will by default write serialized versions of the known ontologies and configured
 vector file to `./cache/`.  To use the cached copies, set `useCachedOntologies = true`
