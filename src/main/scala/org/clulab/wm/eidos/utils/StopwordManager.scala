@@ -43,7 +43,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String) extends St
 }
 
 object StopwordManager {
-  val CONTENT_POS_PREFIXES: Set[String] = Set("NN", "VB", "JJ")
+  val CONTENT_POS_PREFIXES: Set[String] = Set("ADJ", "NOUN", "NN", "PROPN", "VERB", "VB", "JJ")
   val STOP_POS: Set[String] = Set("CD")
   val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "PERSON", "PLACE", "SET", "TIME")
 
