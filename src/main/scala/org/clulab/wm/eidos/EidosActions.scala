@@ -12,7 +12,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.annotation.tailrec
 import utils.DisplayUtils.{displayMention, shortDisplay}
-import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_OUTGOING}
+import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_INCOMING, VALID_OUTGOING}
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
@@ -611,8 +611,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   //-- Entity expansion methods (brought in from EntityFinder)
   def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
     val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid, entity.sentenceObj)
-    val res = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
-    res
+    val outgoingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
+    val interval2 = traverseIncomingLocal(outgoingExpanded, maxHops, stateFromAvoid, entity.sentenceObj)
+    val incomingExpanded = outgoingExpanded.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
+    incomingExpanded
   }
 
 
@@ -650,6 +652,39 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid, sentence)
   }
 
+  /** Used by expand to selectively traverse the provided syntactic dependency graph **/
+  @tailrec
+  private def traverseIncomingLocal(
+                                     tokens: Set[Int],
+                                     newTokens: Set[Int],
+                                     incomingRelations: Array[Array[(Int, String)]],
+                                     remainingHops: Int,
+                                     sent: Int,
+                                     state: State,
+                                     sentence: Sentence
+
+                                   ): Interval = {
+    if (remainingHops == 0) {
+      val allTokens = tokens ++ newTokens
+      Interval(allTokens.min, allTokens.max + 1)
+    } else {
+      val newNewTokens = for{
+        tok <- newTokens
+        if incomingRelations.nonEmpty && tok < incomingRelations.length
+        (nextTok, dep) <- incomingRelations(tok)
+        if isValidIncomingDependency(dep)
+        if state.mentionsFor(sent, nextTok).isEmpty
+      } yield nextTok
+      traverseIncomingLocal(tokens ++ newTokens, newNewTokens, incomingRelations, remainingHops - 1, sent, state, sentence)
+    }
+  }
+  private def traverseIncomingLocal(m: Mention, numHops: Int, stateFromAvoid: State, sentence: Sentence): Interval = {
+    val incoming = incomingEdges(m.sentenceObj)
+    traverseIncomingLocal(Set.empty, m.tokenInterval.toSet, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid, sentence)
+  }
+
+
+
   def outgoingEdges(s: Sentence): Array[Array[(Int, String)]] = s.dependencies match {
     case None => sys.error("sentence has no dependencies")
     case Some(dependencies) => dependencies.outgoingEdges
@@ -671,6 +706,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       )
   }
 
+  /** Ensure incoming dependency may be safely traversed */
+  def isValidIncomingDependency(dep: String): Boolean = {
+    VALID_INCOMING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
+  }
+
   def notInvalidConjunction(dep: String, hopsRemaining: Int): Boolean = {
     // If it's not a coordination/conjunction, don't worry
     if (EntityConstraints.COORD_DEPS.exists(pattern => pattern.findFirstIn(dep).isEmpty)) {
@@ -683,10 +723,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     false
   }
-
-//  def isValidOutgoingDependency(dep: String, token: String, hopsRemaining: Int): Boolean = {
-//    isValidOutgoingDependency(dep, token) //&& notInvalidConjunction(dep, hopsRemaining)
-//  }
 
   /** Ensure current token does not have any incoming dependencies that are invalid **/
   def hasValidIncomingDependencies(tokenIdx: Int, incomingDependencies: Array[Array[(Int, String)]]): Boolean = {
@@ -741,6 +777,11 @@ object EidosActions extends Actions {
 //    //    "case".r
 //    "^ccomp".r
     ".+".r
+  )
+
+  val VALID_INCOMING = Set[scala.util.matching.Regex](
+    "^amod$".r,
+    "^compound$".r
   )
 
 
