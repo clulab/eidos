@@ -429,10 +429,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       m <- ms
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      time: Option[TimeInterval] = Some(m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset)(0))
+      time: Option[TimeInterval] = m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset).headOption
     } yield time match {
       case None => theme
-      case Some(t) =>  theme.withAttachment(new Time(t))
+      case Some(t) => theme.withAttachment(new Time(t))
     }
   }
 
