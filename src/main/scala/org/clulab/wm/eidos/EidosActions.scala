@@ -596,10 +596,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       newTokenInterval = getNewTokenInterval(allIntervals)
     }
 
-      val paths = for {
-        (argName, argPathsMap) <- orig.paths
-        origPath = argPathsMap(orig.arguments(argName).head)
-      } yield (argName, Map(expandedArgs(argName).head -> origPath))
+    val paths = for {
+      (argName, argPathsMap) <- orig.paths
+      origPath = argPathsMap(orig.arguments(argName).head)
+    } yield (argName, Map(expandedArgs(argName).head -> origPath))
 
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
