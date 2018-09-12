@@ -1,8 +1,10 @@
 package org.clulab.wm.eidos
 
+import java.net.URL
+import java.nio.file.Paths
+
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
-import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
@@ -15,6 +17,8 @@ import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_N
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.slf4j.LoggerFactory
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.timenorm.TemporalCharbasedParser
 
 import scala.annotation.tailrec
 
@@ -37,9 +41,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   // This isn't intended to be (re)loadable.  This only happens once.
   val wordToVec = EidosWordToVec(
     word2vec,
-    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt"),
-//    getPath("wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt"), // NOTE: Moving to GLoVE vectors
-    getArgInt(getFullName("topKNodeGroundings"), Some(10))
+    LoadableAttributes.wordToVecPath,
+    getArgInt(getFullName("topKNodeGroundings"), Some(10)),
+    LoadableAttributes.cacheDir,
+    LoadableAttributes.useCachedOntologies
   )
 
   protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
@@ -60,31 +65,37 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     val engine: ExtractorEngine,
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
-    val ontologyGrounders: Seq[EidosOntologyGrounder]
+    val ontologyGrounders: Seq[EidosOntologyGrounder],
+    val timenorm: Option[TemporalCharbasedParser]
   )
 
   object LoadableAttributes {
     // Extraction
-    def     masterRulesPath: String = getPath(  "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
-    def    quantifierKBPath: String = getPath( "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
-    def   domainParamKBPath: String = getPath("domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
-    def      quantifierPath: String = getPath(   "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
-    def     entityRulesPath: String = getPath(  "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
-    def      avoidRulesPath: String = getPath(   "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    def        taxonomyPath: String = getPath(     "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    def     masterRulesPath: String = getPath(    "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
+    def    quantifierKBPath: String = getPath(   "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
+    def   domainParamKBPath: String = getPath(  "domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
+    def      quantifierPath: String = getPath(     "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
+    def     entityRulesPath: String = getPath(    "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
+    def      avoidRulesPath: String = getPath(     "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
+    def        taxonomyPath: String = getPath(       "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
     // Filtering
-    def       stopwordsPath: String = getPath(    "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
-    def     transparentPath: String = getPath(  "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    def       stopwordsPath: String = getPath(      "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
+    def     transparentPath: String = getPath(    "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
     // Ontology handling
-    def      unOntologyPath: String = getPath(   "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
-    def     wdiOntologyPath: String = getPath(  "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
-    def     faoOntologyPath: String = getPath(      "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
-    def cachedOntologiesDir: String = getPath("cachedOntologiesDir", "/org/clulab/wm/eidos/ontologies/cached/")
+    def      unOntologyPath: String = getPath(     "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
+    def     wdiOntologyPath: String = getPath(    "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
+    def     faoOntologyPath: String = getPath(        "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
+    def            cacheDir: String = getPath(           "cacheDir", "./cache/")
+    def       wordToVecPath: String = getPath(      "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt")
+//    def       wordToVecPath: String = getPath(        "wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt")) // NOTE: Moving to GLoVE vectors
+
+    def   timeNormModelPath: String = getPath(  "timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
+    def  useTimeNorm: Boolean = getArgBoolean(getFullName("useTimeNorm"), Some(false))
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
     def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-    def loadSerializedOnts: Boolean = getArgBoolean(getFullName("loadCachedOntologies"), Option(false))
+    def useCachedOntologies: Boolean = getArgBoolean(getFullName("useCachedOntologies"), Option(false))
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
@@ -92,9 +103,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         else
           ontologies.map {
             _ match {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
             }
           }
@@ -108,6 +119,18 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       // Domain Ontologies:
       val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
 
+      val timenorm: Option[TemporalCharbasedParser] =
+          if (!useTimeNorm) None
+          else {
+            val timeNormResource: URL = getClass.getResource(timeNormModelPath)
+            // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+            val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+            // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
+            //     public native void openFile(@StdString BytePointer var1, ...
+            // and needs native representation of the file.
+            Some(new TemporalCharbasedParser(file))
+          }
+
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
         DomainParams(domainParamKBPath),
@@ -117,7 +140,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         StopwordManager(stopwordsPath, transparentPath),
-        ontologyGrounders
+        ontologyGrounders,
+        timenorm
       )
     }
   }
@@ -130,13 +154,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def domainParams = loadableAttributes.domainParams
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
+  def timenorm = loadableAttributes.timenorm
 
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true): Document = {
-    val doc = proc.annotate(text, keepText)
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None): Document = {
+    val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
+    val doc = EidosDocument(oldDoc, keepText, documentCreationTime)
     doc.sentences.foreach(addLexiconNER)
+    doc.parseTime(loadableAttributes.timenorm)
     doc
   }
 
@@ -148,8 +175,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true): AnnotatedDocument = {
-    val doc = annotate(text, keepText)
+  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true, documentCreationTime: Option[String] = None): AnnotatedDocument = {
+    val doc = annotate(text, keepText, documentCreationTime)
     val odinMentions = extractFrom(doc)
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
     @tailrec

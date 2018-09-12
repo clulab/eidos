@@ -4,6 +4,10 @@ import java.io.PrintWriter
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.anafora.Data
+import java.time.LocalDateTime
 
 object DisplayUtils {
   protected val nl = "\n"
@@ -15,6 +19,7 @@ object DisplayUtils {
     printDeps: Boolean = false): String = {
 
     val sb = new StringBuffer()
+    val time = doc.asInstanceOf[EidosDocument].times
     val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
     for ((s, i) <- doc.sentences.zipWithIndex) {
       sb.append(s"sentence #$i $nl")
@@ -22,7 +27,9 @@ object DisplayUtils {
       sb.append("Tokens: " + (s.words.indices, s.words, s.tags.get).zipped.mkString(", ") + nl)
       if (printDeps) sb.append(syntacticDependenciesToString(s) + nl)
       sb.append(nl)
-      
+
+      sb.append("timeExpressions:" + nl + (displayTimeExpressions(time(i))) + nl)
+
       val sortedMentions = mentionsBySentence(i).sortBy(_.label)
       val (events, entities) = sortedMentions.partition(_ matches "Event")
       val (tbs, rels) = entities.partition(_.isInstanceOf[TextBoundMention])
@@ -34,6 +41,20 @@ object DisplayUtils {
       sb.append(s"events: $nl")
       events.foreach(e => sb.append(s"${mentionToDisplayString(e)} $nl"))
       sb.append(s"${"=" * 50} $nl")
+    }
+    sb.toString
+  }
+
+  def displayTimeExpressions(intervals: List[TimeInterval]): String = {
+    val sb = new StringBuffer()
+    for (interval <- intervals) {
+      sb.append(s"$tab span: ${interval.span._1},${interval.span._2} $nl")
+      for (i <- interval.intervals) {
+        sb.append(s"$tab start: ${i._1} $nl")
+        sb.append(s"$tab end: ${i._2} $nl")
+        sb.append(s"$tab duration: ${i._3} $nl")
+      }
+      sb.append(nl)
     }
     sb.toString
   }
@@ -119,4 +140,10 @@ object DisplayUtils {
           .replaceAll(tab, htmlTab)
 
   def htmlTab: String = "&nbsp;&nbsp;&nbsp;&nbsp;"
+
+  def webAppTimeExpressions(intervals: List[TimeInterval]): String =
+      xml.Utility.escape(displayTimeExpressions(intervals))
+          .replaceAll(nl, "<br>")
+          .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")
+  
 }

@@ -37,6 +37,12 @@ rules:
       action: applyAttachment #Should add quantifier to state of entity
       label: Quantification
 
+  - import: org/clulab/wm/eidos/grammars/temporalAttachement.yml
+    vars:
+      rulepriority: "2"
+      action: applyTimeAttachment #Should add quantifier to state of entity
+      label: Time
+
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
   - import: org/clulab/wm/eidos/grammars/modifiersTemplate.yml
     vars:
@@ -105,4 +111,8 @@ rules:
       label: Correlation
       action: pass
       trigger: ${correlation_triggers}
+
+
+  # maybe add temporal rules???
+  # import
 
