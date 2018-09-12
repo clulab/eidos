@@ -50,7 +50,7 @@ object MakeRuleTSVs extends App {
 
   // ok print them
   for ((rule, mentionsForRule) <- byRulesSet) {
-    if (rule.contains("Causal")) {
+    if (rule.contains(EidosSystem.CAUSAL_LABEL)) {
       val pw = FileUtils.printWriterFromFile(s"${outputDir}/${rule}.tsv")
       pw.println(header)
 //      println(s"MENTIONS for RULE: ${rule}")

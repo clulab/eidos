@@ -498,7 +498,7 @@ class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSente
 
 object JLDRelationCoreference {
   val subtypeString = "coreference"
-  val taxonomy = "Coreference" // TODO: Not in the taxonomy yet.
+  val taxonomy = "Coreference"
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])

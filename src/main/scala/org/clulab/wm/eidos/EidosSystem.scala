@@ -273,7 +273,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
 
     // 1) These will be "Causal" and "Correlation" which fall under "Event" if they have content
-    val cagEdgeMentions = mentions.filter(m => releventEdge(m))
+    val allMentions = State(mentions)
+    val cagEdgeMentions = mentions.filter(m => releventEdge(m, allMentions))
 
     // Should these be included as well?
 
@@ -291,22 +292,23 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       cagEdgeMentions.contains(mention) ||
       cagEdgeArguments.contains(mention)
 
-  def releventEdge(m: Mention): Boolean = {
+  def releventEdge(m: Mention, state: State): Boolean = {
     m match {
       case tb: TextBoundMention => EidosSystem.CAG_EDGES.contains(tb.label)
       case rm: RelationMention => EidosSystem.CAG_EDGES.contains(rm.label)
-      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em)
+      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em, state)
+      case cs: CrossSentenceMention => EidosSystem.CAG_EDGES.contains(cs.label)
       case _ => throw new UnsupportedClassVersionError()
     }
   }
 
-  def argumentsHaveContent(mention: EventMention): Boolean = {
+  def argumentsHaveContent(mention: EventMention, state: State): Boolean = {
     val causes: Seq[Mention] = mention.arguments.getOrElse("cause", Seq.empty)
     val effects: Seq[Mention] = mention.arguments.getOrElse("effect", Seq.empty)
 
     if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
     // then both causes and effects should have some content
-      causes.exists(loadableAttributes.stopwordManager.hasContent(_)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_))
+      causes.exists(loadableAttributes.stopwordManager.hasContent(_, state)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_, state))
     else
       true
   }
@@ -350,6 +352,12 @@ object EidosSystem {
 
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
+
+  // Taxonomy relations that should make it to final causal analysis graph
+  val CAUSAL_LABEL: String = "Causal"
+  val CORR_LABEL: String = "Correlation"
+  val COREF_LABEL: String = "Coreference"
+
   // Stateful Labels used by webapp
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"
@@ -359,5 +367,5 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES = Set("Causal", "Correlation")
+  val CAG_EDGES = Set(CAUSAL_LABEL, CORR_LABEL, COREF_LABEL)
 }

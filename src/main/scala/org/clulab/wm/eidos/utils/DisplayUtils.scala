@@ -84,6 +84,11 @@ object DisplayUtils {
         if (rel.attachments.nonEmpty) {
           sb.append(s"$tab Relation Attachments: ${attachmentsString(rel.attachments)} $nl")
         }
+      case cs: CrossSentenceMention =>
+        sb.append(argumentsToString(cs, nl, tab) + nl)
+        if (cs.attachments.nonEmpty) {
+          sb.append(s"$tab CrossSentence Attachments: ${attachmentsString(cs.attachments)} $nl")
+        }
       case _ => ()
     }
     sb.append(s"$boundary $nl")

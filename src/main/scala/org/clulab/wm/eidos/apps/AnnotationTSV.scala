@@ -4,7 +4,7 @@ import java.io.PrintWriter
 import java.util.{Calendar, Date}
 
 import com.typesafe.config.{Config, ConfigFactory}
-import org.clulab.odin.EventMention
+import org.clulab.odin.{EventMention, State}
 import org.clulab.struct.{Counter, Lexicon}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.mentions.EidosEventMention
@@ -25,7 +25,8 @@ object AnnotationTSV extends App with Configured {
   // Correct is 16 = P
 
   def mkTableRows(annotatedDocument: AnnotatedDocument, filename: String, reader: EidosSystem): (Seq[String], Counter[String]) = {
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention))
+    val allMentions = annotatedDocument.odinMentions
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention, State(allMentions)))
 
     val ruleCounter = new Counter[String]
 
