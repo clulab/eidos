@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 @SerialVersionUID(1000L)
-class OntologyNode(nodeName: String, parent: OntologyBranchNode) extends Serializable {
+class OntologyNode(var nodeName: String, var parent: OntologyBranchNode) extends Serializable {
 
   // There can already be a / in any of the stages of the route that must be escaped.
   // First, double up any existing backslashes, then escape the forward slashes with backslashes.
@@ -58,8 +58,8 @@ class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: D
   override def toString = super.fullName + " = " + values.toList
 }
 
-@SerialVersionUID(1000L)
-class DomainOntology(val name: String, protected val ontologyNodes: Array[OntologyLeafNode]) extends Serializable {
+@SerialVersionUID(1000L) // kwa was protected
+class DomainOntology(val name: String, val ontologyNodes: Array[OntologyLeafNode]) extends Serializable {
 
   def size: Integer = ontologyNodes.size
 

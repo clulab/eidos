@@ -2,8 +2,8 @@ package org.clulab.wm.eidos.apps
 
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
-import org.clulab.wm.eidos.groundings.{DomainOntology, FAOOntology, UNOntology, WDIOntology}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, MESH_NAMESPACE}
+import org.clulab.wm.eidos.groundings.{DomainOntology, FAOOntology, UNOntology, WDIOntology, MeshOntology}
 
 object CacheOntologies extends App {
 
@@ -15,20 +15,22 @@ object CacheOntologies extends App {
   val ontologies: Seq[String] = loadableAttributes.ontologies
   if (ontologies.isEmpty)
     throw new RuntimeException("No ontologies were specified, please check the config file.")
+  else {
+    val absoluteCachedDir: String = loadableAttributes.cachedOntologiesDir
+    val proc = reader.proc
 
-  val absoluteCachedDir: String = loadableAttributes.cachedOntologiesDir
-  val proc = reader.proc
+    println(s"Saving ontologies to $absoluteCachedDir...")
+    ontologies.foreach { domainOntology =>
+      var ontology = domainOntology match {
+        case name@UN_NAMESPACE => UNOntology(name, loadableAttributes.unOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
+        case name@WDI_NAMESPACE => WDIOntology(name, loadableAttributes.wdiOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
+        case name@FAO_NAMESPACE => FAOOntology(name, loadableAttributes.faoOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
+        case name@MESH_NAMESPACE => MeshOntology(name, loadableAttributes.meshOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
+        case name@_ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+      }
 
-  val domainOntologies = ontologies.map {
-    _ match {
-      case name @ UN_NAMESPACE  =>  UNOntology(name, loadableAttributes.unOntologyPath,  absoluteCachedDir, proc, loadSerialized = false)
-      case name @ WDI_NAMESPACE => WDIOntology(name, loadableAttributes.wdiOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
-      case name @ FAO_NAMESPACE => FAOOntology(name, loadableAttributes.faoOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
-      case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+      ontology.save(DomainOntology.serializedPath(ontology.name, absoluteCachedDir))
     }
+    println(s"Finished serializing ${ontologies.length} ontologies.")
   }
-
-  println(s"Saving ontologies to $absoluteCachedDir...")
-  domainOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, absoluteCachedDir)))
-  println(s"Finished serializing ${domainOntologies.length} ontologies.")
 }
