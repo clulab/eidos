@@ -37,7 +37,7 @@ rules:
       action: applyAttachment #Should add quantifier to state of entity
       label: Quantification
 
-  - import: org/clulab/wm/eidos/grammars/temporalAttachement.yml
+  - import: org/clulab/wm/eidos/english/grammars/temporalAttachment.yml
     vars:
       rulepriority: "2"
       action: applyTimeAttachment #Should add quantifier to state of entity

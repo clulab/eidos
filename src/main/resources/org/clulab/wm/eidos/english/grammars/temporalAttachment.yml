@@ -1,0 +1,11 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+rules:
+
+  - name: timeattachment1
+    priority: ${ rulepriority }
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [norm="B-Time"] [norm="I-Time"]*
+      theme: Entity = </^nmod/ >nmod_in?
