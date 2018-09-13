@@ -1,12 +1,12 @@
-increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|aprofund|aument|auxili|comp|contribu|dobr|elev|espalh|estend|estimul|exacerb|exorbit|favorec|impusion|increment|melhor|prolong|promov|propag|reativ|restaur"
+increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|aument|auxili|comp[õô]|compo(r|n|m)|compu[ns]|contribu|dobr|elev|espalh|estend|estimul|exacerb|exorbit|facilit|favorec|impulsion|increment|melhor|prolong|promov|propag|reativ|restaur"
 noncausal_increase_triggers: "acima|melhor|bom|maior|forte|aument|difundido"
 
-decrease_triggers: "abaix|abol|acab|anul|apag|atenu|bloque|cancel|corr|cort|debilit|degener|degrad|depreci|desaceler|desativ|desestabiliz|destru|desvaloriz|det|dificult|diminu|dizim|elimin|encolh|encurt|enfraquec|esgot|exaur|imped|inib|invalid|limit|mitig|neg|paraliz|pior|prejudic|previn|quebr|rebaix|reduz|reprim|restring|retard|revert|revog|romp|suprim"
+decrease_triggers: "abaix|abol|acab|anul|apag|atenu|bloque|cancel|cess|corr|cort|debilit|degener|degrad|depreci|desaceler|desativ|desestabiliz|destru|desvaloriz|dificult|diminu|dizim|elimin|encolh|encurt|enfraquec|esgot|exaur|imped|inib|invalid|limit|mitig|neg|paraliz|pior|prejudic|previn|quebr|rebaix|reduz|reprim|restring|retard|revert|revog|romp|suprim"
 noncausal_decrease_triggers: "ausencia|baix|declínio|déficit|derrub|desadequ|desativ|descontinu|deslig|escassez|escass|falha|falta|inadequ|inativ|interrompe|perda|pobre|recessão"
 #advers|perturb|resist|
 
 # NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
-cause_triggers: "ajud|ativ|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|forç|induz|inici|interconvert|lev|medi|modul|permit|possibilit|provoc|sinaliz"
+cause_triggers: "ajud|ativ|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|facilit|forç|induz|inici|interconvert|lev|medi|modul|permit|possibilit|provoc|sinaliz"
 
 nonavoid_causal_triggers: "produz"
 reverse_direction_cause_triggers: "consequencia|efeito|resultado"
