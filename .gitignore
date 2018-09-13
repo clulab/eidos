@@ -37,6 +37,8 @@ train*.dat
 xgboostOut/
 null_*
 vectors.txt
+timenorm_model.hdf5
+embeddings_november_2016.txt
 
 # Python binary files
 *.pyc
