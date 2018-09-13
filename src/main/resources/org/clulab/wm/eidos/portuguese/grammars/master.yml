@@ -38,20 +38,20 @@ rules:
 #      label: Quantification
 #
 #  #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
-#  - import: org/clulab/wm/eidos/portuguese/grammars/modifiersTemplate.yml
-#    vars:
-#      rulepriority: "3"
-#      action: applyAttachment #Should add Increase/Decrease to state of entity
-#      label: Increase
-#      trigger: ${ increase_triggers }|${ noncausal_increase_triggers }
-#
-#  - import: org/clulab/wm/eidos/portuguese/grammars/modifiersTemplate.yml
-#    vars:
-#      rulepriority: "3"
-#      action: applyAttachment #Should add Increase/Decrease to state of entity
-#      label: Decrease
-#      trigger: ${ decrease_triggers }|${ noncausal_decrease_triggers }
-#
+  - import: org/clulab/wm/eidos/portuguese/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add Increase/Decrease to state of entity
+      label: Increase
+      trigger: ${ increase_triggers }|${ noncausal_increase_triggers }
+
+  - import: org/clulab/wm/eidos/portuguese/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add Increase/Decrease to state of entity
+      label: Decrease
+      trigger: ${ decrease_triggers }|${ noncausal_decrease_triggers }
+
 #  - import: org/clulab/wm/eidos/portuguese/grammars/explicitModifiers.yml
 #    vars:
 #      rulepriority: "3"
