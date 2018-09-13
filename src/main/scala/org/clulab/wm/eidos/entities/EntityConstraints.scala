@@ -12,7 +12,7 @@ import scala.util.matching.Regex
   */
 object EntityConstraints extends LazyLogging {
 
-  val VALID_FINAL_TAG = """^(N|PROPN|V|JJ|ADJ|ADV|\-R[SR]B).*"""
+  val VALID_FINAL_TAG = """^(DT|N|PROPN|V|JJ|ADJ|ADV|\-R[SR]B).*"""
 
   val COORD_DEPS: Set[Regex] = Set("^conj_".r, "^cc".r)
 

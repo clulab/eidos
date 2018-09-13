@@ -242,13 +242,34 @@ materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A)
 stored in the cloud. Access may be limited by permission settings.  Other
 documents are included in the /doc directory of the repository.
 
-There is one [large file of
-vectors](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS)
-which is useful at runtime if you are interested in ontological grounding.  To
-use this file, download it and place it in the project's
-`src/main/resources/org/clulab/wm/eidos/w2v` directory.  Then indicate to Eidos
-that it should be used by setting `useW2V = true` in
-`src/main/resources/eidos.conf`.
+Of particular interest for those involved with grounding are two very large files
+of vectors that are used for the Word2Vec algorithm.  They are
+
+- [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
+- [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
+
+To use these files, download one or both and place them in the project's
+`src/main/resources/org/clulab/wm/eidos/w2v` directory.  The first file can be used as is, but
+the second file needs to be extracted before use with a command like
+`tar xvzf glove.840B.300d.txt.tgz`.)  Indicate to Eidos
+that they should be used by setting `useW2V = true` in
+`src/main/resources/eidos.conf`.  Only one can be used at a time, so make sure the
+appropriate one of these lines is uncommented, without the `//`.
+
+- `wordToVecPath = "/org/clulab/wm/eidos/w2v/vectors.txt"`
+- `wordToVecPath = "/org/clulab/wm/eidos/w2v/glove.840B.300d.vectors.txt"`
+
+Processing the files can consume multiple minutes of time, so if you want to run
+Eidos more than a couple of times with the vectors, then it's useful to cache a
+processed version of them along with the ontologies they work with.  This can be
+accomplished with the command
+```
+sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
+```
+This will by default write serialized versions of the known ontologies and configured
+vector file to `./cache/`.  To use the cached copies, set `useCachedOntologies = true`
+in `src/main/resources/eidos.conf`.
+
 
 
 # Notes

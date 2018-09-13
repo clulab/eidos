@@ -42,7 +42,7 @@ class TestDoc2 extends Test {
     val situation = NodeSpec("situation", Dec("deteriorating"))
     val leanSeason = NodeSpec("annual lean season", Quant("long", "unusually"), Quant("harsh"))
     val foodStocks = NodeSpec("food stocks", Dec("depleted"))
-    val foodInsecurity = NodeSpec("level of food insecurity this year", Quant("unprecedented"))
+    val foodInsecurity = NodeSpec("level of food insecurity this year", TimEx("this year"), Quant("unprecedented"))
 
     behavior of "TestDoc2 Paragraph 2"
 

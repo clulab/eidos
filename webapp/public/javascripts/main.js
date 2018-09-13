@@ -8,7 +8,7 @@ var quantifierColor = '#AED6F1';
 var quantifiedConceptColor = '#85C1E9';
 var causalEventColor = '#BB8FCE';
 var correlationEventColor = '#F7DC6F';
-
+var timeExpressionColor = '#FFA500'
 
 head.js(
     // External libraries
@@ -76,6 +76,17 @@ var collData = {
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
             "bgColor": quantifiedConceptColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+
+	// --------------------------- Context -------------------------------------
+	{
+            "type"   : "TimeExpression",
+            "labels" : ["TimeExpression", "TIMEX"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": timeExpressionColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },

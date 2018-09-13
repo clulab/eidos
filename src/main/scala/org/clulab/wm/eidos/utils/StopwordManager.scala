@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.utils
 
-import org.clulab.odin.Mention
+import org.clulab.odin._
+import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 
 trait StopwordManaging {
   def containsStopword(stopword: String): Boolean
@@ -16,6 +17,8 @@ class StopwordManager(stopwordsPath: String, transparentPath: String) extends St
 
   def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
 
+  def hasContent(mention: Mention, state: State): Boolean = hasContent(mention) || resolvedCoref(mention, state)
+
   def hasContent(mention: Mention): Boolean = {
     val lemmas = mention.lemmas.get
     val tags = mention.tags.get
@@ -28,6 +31,23 @@ class StopwordManager(stopwordsPath: String, transparentPath: String) extends St
       !containsStopword(lemmas(i)) &&
         !StopwordManager.STOP_POS.contains(tags(i)) &&
         !StopwordManager.STOP_NER.contains(entities(i))
+    }
+  }
+
+  def resolvedCoref(mention: Mention, state: State): Boolean = {
+    if (hasCorefToResolve(mention)) {
+      val corefRelations = state.allMentions.filter(m => m.matches(EidosSystem.COREF_LABEL))
+      corefRelations.exists(cr => cr.arguments.values.toSeq.flatten.contains(mention))
+    }
+    else false
+  }
+
+  def hasCorefToResolve(m: Mention): Boolean = {
+    m match {
+      case tb: TextBoundMention => EidosActions.startsWithCorefDeterminer(tb)
+      case rm: RelationMention => EidosActions.existsDeterminerCause(rm)
+      case em: EventMention => EidosActions.existsDeterminerCause(em)
+      case _ => false
     }
   }
 

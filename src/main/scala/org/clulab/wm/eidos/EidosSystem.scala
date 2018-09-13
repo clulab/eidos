@@ -1,5 +1,8 @@
 package org.clulab.wm.eidos
 
+import java.net.URL
+import java.nio.file.Paths
+
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.clu._
@@ -15,6 +18,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.timenorm.TemporalCharbasedParser
 
 import scala.annotation.tailrec
 
@@ -46,8 +51,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   // This isn't intended to be (re)loadable.  This only happens once.
   val wordToVec = EidosWordToVec(
     word2vec,
-    eidosConf[String]("wordToVecPath"),
-    eidosConf[Int]("topKNodeGroundings")
+    LoadableAttributes.wordToVecPath,
+    eidosConf[Int]("topKNodeGroundings"),
+    LoadableAttributes.cacheDir,
+    LoadableAttributes.useCachedOntologies
   )
 
   class LoadableAttributes(
@@ -59,7 +66,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val engine: ExtractorEngine,
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
-    val ontologyGrounders: Seq[EidosOntologyGrounder]
+    val ontologyGrounders: Seq[EidosOntologyGrounder],
+    val timenorm: Option[TemporalCharbasedParser]
   )
 
   object LoadableAttributes {
@@ -78,23 +86,29 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
     def     faoOntologyPath: String = eidosConf[String]("faoOntology")
-    def cachedOntologiesDir: String = eidosConf[String]("cachedOntologiesDir")
+    def cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
     def maxHops: Int = eidosConf[Int]("maxHops")
     def loadSerializedOnts: Boolean = eidosConf[Boolean]("loadCachedOntologies")
+    def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
+    def      timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
+    def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    def useCachedOntologies: Boolean = eidosConf[Boolean]("useCachedOntologies")
+
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
           Seq.empty
         else
           ontologies.map {
-            case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-            case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-            case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-            case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
+              case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
           }
+
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -105,6 +119,18 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       // Domain Ontologies:
       val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
 
+      val timenorm: Option[TemporalCharbasedParser] =
+          if (!useTimeNorm) None
+          else {
+            val timeNormResource: URL = getClass.getResource(timeNormModelPath)
+            // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+            val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+            // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
+            //     public native void openFile(@StdString BytePointer var1, ...
+            // and needs native representation of the file.
+            Some(new TemporalCharbasedParser(file))
+          }
+
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
         DomainParams(domainParamKBPath),
@@ -114,7 +140,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         StopwordManager(stopwordsPath, transparentPath),
-        ontologyGrounders
+        ontologyGrounders,
+        timenorm
       )
     }
   }
@@ -127,13 +154,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def domainParams = loadableAttributes.domainParams
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
+  def timenorm = loadableAttributes.timenorm
 
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true): Document = {
-    val doc = proc.annotate(text, keepText)
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None): Document = {
+    val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
+    val doc = EidosDocument(oldDoc, keepText, documentCreationTime)
     doc.sentences.foreach(addLexiconNER)
+    doc.parseTime(loadableAttributes.timenorm)
     doc
   }
 
@@ -149,8 +179,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true): AnnotatedDocument = {
-    val doc = annotate(text, keepText)
+  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true, documentCreationTime: Option[String] = None): AnnotatedDocument = {
+    val doc = annotate(text, keepText, documentCreationTime)
     val odinMentions = extractFrom(doc)
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
     @tailrec
@@ -248,7 +278,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
 
     // 1) These will be "Causal" and "Correlation" which fall under "Event" if they have content
-    val cagEdgeMentions = mentions.filter(m => releventEdge(m))
+    val allMentions = State(mentions)
+    val cagEdgeMentions = mentions.filter(m => releventEdge(m, allMentions))
 
     // Should these be included as well?
 
@@ -266,22 +297,23 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       cagEdgeMentions.contains(mention) ||
       cagEdgeArguments.contains(mention)
 
-  def releventEdge(m: Mention): Boolean = {
+  def releventEdge(m: Mention, state: State): Boolean = {
     m match {
       case tb: TextBoundMention => EidosSystem.CAG_EDGES.contains(tb.label)
       case rm: RelationMention => EidosSystem.CAG_EDGES.contains(rm.label)
-      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em)
+      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em, state)
+      case cs: CrossSentenceMention => EidosSystem.CAG_EDGES.contains(cs.label)
       case _ => throw new UnsupportedClassVersionError()
     }
   }
 
-  def argumentsHaveContent(mention: EventMention): Boolean = {
+  def argumentsHaveContent(mention: EventMention, state: State): Boolean = {
     val causes: Seq[Mention] = mention.arguments.getOrElse("cause", Seq.empty)
     val effects: Seq[Mention] = mention.arguments.getOrElse("effect", Seq.empty)
 
     if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
     // then both causes and effects should have some content
-      causes.exists(loadableAttributes.stopwordManager.hasContent(_)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_))
+      causes.exists(loadableAttributes.stopwordManager.hasContent(_, state)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_, state))
     else
       true
   }
@@ -325,6 +357,12 @@ object EidosSystem {
 
   val EXPAND_SUFFIX: String = "expandParams"
   val SPLIT_SUFFIX: String = "splitAtCC"
+
+  // Taxonomy relations that should make it to final causal analysis graph
+  val CAUSAL_LABEL: String = "Causal"
+  val CORR_LABEL: String = "Correlation"
+  val COREF_LABEL: String = "Coreference"
+
   // Stateful Labels used by webapp
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"
@@ -334,5 +372,5 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES = Set("Causal", "Correlation")
+  val CAG_EDGES = Set(CAUSAL_LABEL, CORR_LABEL, COREF_LABEL)
 }

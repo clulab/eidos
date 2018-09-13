@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
 
@@ -83,7 +84,9 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     containsValidNounVerb(entity) ||
     // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
     // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
-      (entity.tags.get.last.startsWith("JJ") || entity.tags.get.last.startsWith("ADJ")) && nextTagNN(entity)
+    (entity.tags.get.last.startsWith("JJ") || entity.tags.get.last.startsWith("ADJ")) && nextTagNN(entity) ||
+    // Otherwise, is it a determiner that may need to be resolved downstream?
+    EidosActions.startsWithCorefDeterminer(entity)
     // Otherwise, it's not valid
   }
 
