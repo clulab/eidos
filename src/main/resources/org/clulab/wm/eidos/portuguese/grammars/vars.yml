@@ -13,7 +13,7 @@ negTriggers: "not"
 objects: "dobj|obj"
 
 #preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_than|acl_of"
-preps: "nmod_de|nmod_em"
+preps: "nmod_de|nmod_em|nmod_sobre"
 
 prep_dobjs: "nmod"
 
