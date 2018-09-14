@@ -59,7 +59,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def config = Action {
-    Ok(ieSystem.config.root.render(ConfigRenderOptions.concise.setFormatted(true).setJson(true))).as(JSON)
+    val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
+    val jsonString = ieSystem.config.root.render(options)
+    Ok(jsonString).as(JSON)
   }
 
   // Entry method
