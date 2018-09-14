@@ -66,7 +66,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
       val tags = entity.sentenceObj.tags.get
 
       entity.end < tags.length &&
-          tags(entity.end).startsWith("N") || tags(entity.end).startsWith("PROPN")
+        (tags(entity.end).startsWith("N") || tags(entity.end).startsWith("PROPN"))
     }
 
     def containsValidNounVerb(entity: Mention): Boolean = {
