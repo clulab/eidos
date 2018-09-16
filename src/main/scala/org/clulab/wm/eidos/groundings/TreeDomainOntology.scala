@@ -28,7 +28,7 @@ class OntologyNode(var nodeName: String, var parent: OntologyBranchNode) extends
       if (parent != null) parent.fullName + DomainOntology.SEPARATOR + escaped
       else escaped
 
-  override def toString = fullName
+  override def toString: String = fullName
 }
 
 @SerialVersionUID(1000L)
@@ -52,13 +52,13 @@ class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: D
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = (split(examples) ++ split(descriptions)).toArray
 
-  override def toString = super.fullName + " = " + values.toList
+  override def toString: String = super.fullName + " = " + values.toList
 }
 
 @SerialVersionUID(1000L)
 class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends DomainOntology with Serializable {
 
-  def size: Integer = ontologyNodes.size
+  def size: Integer = ontologyNodes.length
 
   def getNamer(n: Integer): Namer = ontologyNodes(n)
 
@@ -68,7 +68,7 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends Dom
 
   def getParents(n: Integer): Seq[OntologyBranchNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
 
-  def save(filename: String) = {
+  def save(filename: String): Unit = {
     Serializer.save(this, filename)
   }
 }
@@ -94,27 +94,27 @@ object TreeDomainOntology {
       new TreeDomainOntology(ontologyNodes.toArray)
     }
 
-    protected val getSentences: (String => Array[Sentence]) = proc match {
+    protected val getSentences: String => Array[Sentence] = proc match {
       // Earlier, a complete annotation was performed.
       // val sentences = proc.annotate(text).sentences
       // Now we just go through the POS tagging stage, but the procedure is
       // different for different kinds of processors.
-      case proc: CluProcessor => (text => {
+      case proc: CluProcessor => text => {
         val doc = proc.mkDocument(text)
 
         // This is the key difference.  Lemmatization must happen first.
         proc.lemmatize(doc)
         proc.tagPartsOfSpeech(doc)
         doc.sentences
-      })
-      case proc: ShallowNLPProcessor => (text => {
+      }
+      case proc: ShallowNLPProcessor => text => {
         val doc = proc.mkDocument(text)
 
         if (doc.sentences.nonEmpty)
           proc.tagPartsOfSpeech(doc)
         // Lemmatization, if needed, would happen afterwards.
         doc.sentences
-      })
+      }
     }
 
     protected def realFiltered(text: String): Seq[String] = {
@@ -138,7 +138,7 @@ object TreeDomainOntology {
       yamlNodes.get(name).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
 
     protected def parseOntology(parent: OntologyBranchNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
-      val name = yamlNodes.get(TreeDomainOntology.NAME).get.asInstanceOf[String]
+      val name = yamlNodes(TreeDomainOntology.NAME).asInstanceOf[String]
       val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
       val descriptions = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
       val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0).asInstanceOf[Double]
