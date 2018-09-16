@@ -25,7 +25,7 @@ trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
-class EidosOntologyGrounder(var name: String, protected var domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+class EidosOntologyGrounder(var name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>

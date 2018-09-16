@@ -1,15 +1,10 @@
 package org.clulab.wm.eidos.system
 
-import java.util.IdentityHashMap
-
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Timer
-
-import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 class TestDomainOntology extends Test {
 
@@ -49,21 +44,21 @@ class TestDomainOntology extends Test {
     show1(newestOntology)
   }
 
-//  behavior of "un ontology"
-//  it should "load and not have duplicates" in {
-//    val newOntology = Timer.time("Load UN without cache") {
-//      UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = false)
-//    }
-//    val newerOntology = Timer.time("Load UN with cache") {
-//      //UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = true)
-//      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
-//    }
-//    val newestOntology = Timer.time("Load UN with cache") {
-//      UNOntology("", "./cache/un.serialized", proc, filter, loadSerialized = true)
-//    }
-//
-//    show3(newOntology, newerOntology, newestOntology)
-//  }
+  behavior of "un ontology"
+  it should "load and not have duplicates" in {
+    val newOntology = Timer.time("Load UN without cache") {
+      UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = false)
+    }
+    val newerOntology = Timer.time("Load UN with cache") {
+      //UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = true)
+      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+    }
+    val newestOntology = Timer.time("Load UN with cache") {
+      UNOntology("", "./cache/un.serialized", proc, filter, loadSerialized = true)
+    }
+
+    show3(newOntology, newerOntology, newestOntology)
+  }
 
 //  behavior of "fao ontology"
 //  it should "load and not have duplicates" in {
@@ -110,6 +105,7 @@ class TestDomainOntology extends Test {
       MeshOntology("", "./cache/mesh.serialized", proc, filter, loadSerialized = true)
     }
 
+    show1(newestOntology)
 //    show3(newOntology, newerOntology, newestOntology)
   }
 }
