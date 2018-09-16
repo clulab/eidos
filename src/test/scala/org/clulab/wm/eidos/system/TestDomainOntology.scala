@@ -33,7 +33,7 @@ class TestDomainOntology extends Test {
   }
 
   val proc = new FastNLPProcessor()
-  val filter = false
+  val filter = true
 
 
   def show1(ontology: DomainOntology): Unit = {
@@ -49,70 +49,67 @@ class TestDomainOntology extends Test {
     show1(newestOntology)
   }
 
-  behavior of "un ontology"
-  it should "load and not have duplicates" in {
-    val newOntology = Timer.time("Load UN without cache") {
-      UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = false)
-    }
-    val newerOntology = Timer.time("Load UN with cache") {
-      //UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = true)
-      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
-    }
-    val newestOntology = Timer.time("Load UN with cache") {
-      UNOntology("", "./cache/un.serialized", proc, filter, loadSerialized = true)
-    }
-
-    show3(newOntology, newerOntology, newestOntology)
-  }
+//  behavior of "un ontology"
+//  it should "load and not have duplicates" in {
+//    val newOntology = Timer.time("Load UN without cache") {
+//      UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = false)
+//    }
+//    val newerOntology = Timer.time("Load UN with cache") {
+//      //UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = true)
+//      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+//    }
+//    val newestOntology = Timer.time("Load UN with cache") {
+//      UNOntology("", "./cache/un.serialized", proc, filter, loadSerialized = true)
+//    }
+//
+//    show3(newOntology, newerOntology, newestOntology)
+//  }
 
 //  behavior of "fao ontology"
 //  it should "load and not have duplicates" in {
-//    Timer.time("Load FAO without cache") {
+//    val newOntology = Timer.time("Load FAO without cache") {
 //      FAOOntology("/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter, loadSerialized =false)
 //    }
-//    Timer.time("Load FAO with cache") {
-//      FAOOntology("/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter, loadSerialized = true)
+//    val newerOntology = Timer.time("Load FAO with cache") {
+//      //FAOOntology("/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter, loadSerialized = true)
+//      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
 //    }
-//  }
+//    val newestOntology = Timer.time("Load FAO with cache") {
+//      FAOOntology("", "./cache/fao.serialized", proc, filter, loadSerialized = true)
+//    }
 //
+//    show3(newOntology, newerOntology, newestOntology)
+//  }
+
 //  behavior of "wdi ontology"
 //  it should "load and not have duplicates" in {
-//    Timer.time("Load WDI without cache") {
+//    val newOntology = Timer.time("Load WDI without cache") {
 //      WDIOntology("/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter, loadSerialized = false)
 //    }
-//    Timer.time("Load WDI with cache") {
-//      WDIOntology("/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter, loadSerialized = true)
+//    val newerOntology = Timer.time("Load WDI with cache") {
+//      //WDIOntology("/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter, loadSerialized = true)
+//      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
 //    }
-//  }
+//    val newestOntology = Timer.time("Load WDI with cache") {
+//      WDIOntology("", "./cache/wdi.serialized", proc, filter, loadSerialized = true)
+//    }
 //
-//  behavior of "mesh ontology"
-//  it should "load and not have duplicates" in {
-//    Timer.time("Load MeSH without cache") {
+//    show3(newOntology, newerOntology, newestOntology)
+//  }
+
+  behavior of "mesh ontology"
+  it should "load and not have duplicates" in {
+//    val newOntology = Timer.time("Load MeSH without cache") {
 //      MeshOntology("/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter, loadSerialized = false)
 //    }
-//    val mesh = Timer.time("Load MeSH with cache") {
-//      MeshOntology("/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter, loadSerialized = true)
+//    val newerOntology = Timer.time("Load MeSH with cache") {
+//      //MeshOntology("/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter, loadSerialized = true)
+//      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
 //    }
+    val newestOntology = Timer.time("Load MeSH with cache") {
+      MeshOntology("", "./cache/mesh.serialized", proc, filter, loadSerialized = true)
+    }
 
-//    mesh.ontologyNodes.foreach { ontologyNode =>
-//      println(ontologyNode.name)
-//    }
-
-//    val mapOfNodes = new IdentityHashMap[OntologyNode, String]()
-//    mesh.ontologyNodes.foreach { ontologyNode =>
-//      mapOfNodes.put(ontologyNode, ontologyNode.nodeName)
-//
-//      var branchNode = ontologyNode.parent
-//      while (branchNode != null) {
-//        mapOfNodes.put(branchNode, branchNode.nodeName)
-//        branchNode = branchNode.parent
-//      }
-//    }
-
-//    mapOfNodes.keySet.asScala.foreach { ontologyNode =>
-//      println(ontologyNode.nodeName)
-//    }
-
-//    hasDuplicates("mesh", mesh) should be (false)
-//  }
+//    show3(newOntology, newerOntology, newestOntology)
+  }
 }
