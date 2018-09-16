@@ -1,0 +1,200 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+#
+# The government promotes improved cultivar to boost agricultural production for ensuring food security.
+# However, the policy to seriously cut down the use of inorganic fertilizer and phase out the fertilizer subsidy results in deteriorating biophysical conditions, less use of inorganic fertilizer, less water, significantly reduced farm sizes which lead to low benefit from the improved cultivar.
+#
+
+
+#Rules with "ported" in the name means that they are adaped from the positive_regulation_template.yml in REACH
+rules:
+
+# ------------------- Verbal Triggers --------------------------
+  - name: ${ label }_ported_syntax_1_verb
+    priority: ${ rulepriority }
+    example: "small increase in small puppies"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
+      theme: Entity = nmod_by? (${objects}|${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      quantifier:Quantifier? = ${quant_modifiers}
+
+  # old name: ${ label }_syntax_1_verb_edited
+  # Used when the thing being modified is the agent of the modification (e.g., nsubj)
+  - name: ${ label }_syntax_verb_agent
+    priority: ${ rulepriority }
+    example: "Poverty levels continue to increase." #(requires the >complement)
+    # food imports will decrease
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/ & !outgoing=/dobj|${complements}/ ]  # original rule had RB as possible tag
+      theme: Entity = >${complements}? (?! [outgoing=/dobj|${complements}/]) ${ agents }
+      quantifier:Quantifier? = ${quant_modifiers}
+
+  # Note: Captures passive voice; thus verb must be VBD|VBN
+  - name: ${ label }_ported_syntax_2_verb
+    priority: ${ rulepriority }
+    example: "wheat production in the region will be diminished .. wheat production in the region are higher."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB|JJR/]
+      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_ported_syntax_6_verb
+    priority: ${ rulepriority }
+    example: "Better and well-functioning agricultural credit and market services for both established and emerging farmers ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBN|RB/]
+      theme: Entity = (< /amod|xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+  #Trying to capture "improved cultivar" as Increase cultivar
+  - name: ${ label}_rule_1
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/VBN/]
+      theme: Entity = <amod
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  #Trying to capture "phase out the fertilizer subsidy"
+  - name: ${ label }_rule_2
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/NN/] [word=/out/ & tag=/IN/]
+      theme: Entity = <case
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  - name: ${ label }_rule_3
+    priority: ${ rulepriority }
+    example: "deteriorating biophysical conditions"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^${ trigger }/ & tag=/VBG/]
+      theme: Entity = <amod
+      quantifier: Quantifier? = ${quant_modifiers}
+
+# ------------------- Other Triggers --------------------------
+
+  - name: ${ label}_adjective_rule_1
+    priority:  ${ rulepriority }
+    example: "less water"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]   #word=/(?i)^(${ trigger })/
+      theme: Entity = <${ noun_modifiers }
+      quantifier: Quantifier* = ${quant_modifiers}
+
+
+  - name: ${ label}_adjective_rule_2
+    priority:  ${ rulepriority }
+    example: "above average"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/] [mention=Quantifier]
+      theme: Entity = </${ complements }/? >${ agents }
+      quantifier: Quantifier? = ${quant_modifiers}
+
+
+  - name: ${ label}_adjective_rule_3
+    priority:  ${ rulepriority }
+    example: "heavier than normal"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/] [lemma=/than/] [mention=Quantifier]
+      theme: Entity = >nmod_than
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  - name: ${ label}_adjective_rule_4
+    priority:  ${ rulepriority }
+    example: "heavier than normal"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      theme: Entity = nmod_for
+      quantifier: Quantifier? = ${quant_modifiers}
+
+
+# ------------------- Copular Constructions --------------------------
+
+  - name: ported_copula_mods-${label}
+    priority: ${ rulepriority }
+    #Original example: "A is an activator of B"
+    example: "Livestock conditions were generally good due to adequate pasture"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger =   [lemma=/${ trigger }/ & !outgoing=dobj]
+      theme: Entity = (?= /(aux|cop)/ [lemma=/be/ & tag=/^V/]) nsubj
+      #todo: Quantifiers ?
+
+  - name: ported_copula_mods-1-${label}
+    priority: ${ rulepriority }
+    #Original example: "A is lowering the rates of B"
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger =   [lemma=/${ trigger }/ & outgoing=dobj]
+      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) dobj
+      #todo: Quantifiers ?
+
+# ------------------- Nominal Triggers --------------------------
+  - name: ${ label }_ported_syntax_1_noun
+    priority: ${ rulepriority }
+    example: "massive increases in agricultural production"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /${ preps }/{1,2} /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+  - name: ${ label }_ported_syntax_2_noun
+    priority: ${ rulepriority }
+    example: "technological progress"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /${ preps }$/? /${ noun_modifiers }/{1,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+  - name: ${ label }_ported_syntax_3_noun
+    priority: ${ rulepriority }
+    example: "exhaustion of coping capacities"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_surface_VBN
+    priority: ${ rulepriority }
+    example: "exhaustion of coping capacities"
+    label: ${ label }
+    action: ${ action }
+    type: token
+    pattern: |
+      @theme: Entity
+      [lemma=have]
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=/dobj|${complements}/])

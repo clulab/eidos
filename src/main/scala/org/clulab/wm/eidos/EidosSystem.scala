@@ -5,10 +5,10 @@ import java.nio.file.Paths
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
+import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.utils.Configured
 import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
@@ -16,6 +16,7 @@ import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
+import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
@@ -27,34 +28,34 @@ case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Menti
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Configured with StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
-//  val proc: Processor = new CluProcessor()//new FastNLPProcessor() // TODO: Get from configuration file soon
+
+  val eidosConf = config[Config]("EidosSystem")
+
   println("Loading processor...")
-  val proc: Processor = new FastNLPProcessor() // TODO: Get from configuration file soon
+  val proc: Processor = mkProcessor(eidosConf)
+
+  private def mkProcessor(config: Config): Processor = {
+    config[String]("language") match {
+      case "english" => new FastNLPProcessor
+      case "spanish" => new SpanishCluProcessor
+      case "portuguese" => new PortugueseCluProcessor
+    }
+  }
 
   var debug = true // Allow external control with var
 
-  override def getConf: Config = config
   println("Loading W2V...")
-  var word2vec = getArgBoolean(getFullName("useW2V"), Some(false)) // Turn this on and off here
+  var word2vec = eidosConf[Boolean]("useW2V") // Turn this on and off here
   // This isn't intended to be (re)loadable.  This only happens once.
   val wordToVec = EidosWordToVec(
     word2vec,
     LoadableAttributes.wordToVecPath,
-    getArgInt(getFullName("topKNodeGroundings"), Some(10)),
+    eidosConf[Int]("topKNodeGroundings"),
     LoadableAttributes.cacheDir,
     LoadableAttributes.useCachedOntologies
   )
-
-  protected def getFullName(name: String) = EidosSystem.PREFIX + "." + name
-
-  protected def getPath(name: String, defaultValue: String): String = {
-    val path = getArgString(getFullName(name), Option(defaultValue))
-
-    EidosSystem.logger.info(name + ": " + path)
-    path
-  }
 
   class LoadableAttributes(
     // These are the values which can be reloaded.  Query them for current assignments.
@@ -71,44 +72,43 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
 
   object LoadableAttributes {
     // Extraction
-    def     masterRulesPath: String = getPath(    "masterRulesPath", "/org/clulab/wm/eidos/grammars/master.yml")
-    def    quantifierKBPath: String = getPath(   "quantifierKBPath", "/org/clulab/wm/eidos/quantifierKB/gradable_adj_fullmodel.kb")
-    def   domainParamKBPath: String = getPath(  "domainParamKBPath", "/org/clulab/wm/eidos/quantifierKB/domain_parameters.kb")
-    def      quantifierPath: String = getPath(     "quantifierPath",  "org/clulab/wm/eidos/lexicons/Quantifier.tsv")
-    def     entityRulesPath: String = getPath(    "entityRulesPath", "/org/clulab/wm/eidos/grammars/entities/grammar/entities.yml")
-    def      avoidRulesPath: String = getPath(     "avoidRulesPath", "/org/clulab/wm/eidos/grammars/avoidLocal.yml")
-    def        taxonomyPath: String = getPath(       "taxonomyPath", "/org/clulab/wm/eidos/grammars/taxonomy.yml")
+    def     masterRulesPath: String = eidosConf[String]("masterRulesPath")
+    def    quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
+    def   domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
+    def      quantifierPath: String = eidosConf[String]("quantifierPath")
+    def     entityRulesPath: String = eidosConf[String]("entityRulesPath")
+    def      avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
+    def        taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
-    def       stopwordsPath: String = getPath(      "stopWordsPath", "/org/clulab/wm/eidos/filtering/stops.txt")
-    def     transparentPath: String = getPath(    "transparentPath", "/org/clulab/wm/eidos/filtering/transparent.txt")
+    def       stopwordsPath: String = eidosConf[String]("stopWordsPath")
+    def     transparentPath: String = eidosConf[String]("transparentPath")
     // Ontology handling
-    def      unOntologyPath: String = getPath(     "unOntologyPath", "/org/clulab/wm/eidos/ontologies/un_ontology.yml")
-    def     wdiOntologyPath: String = getPath(    "wdiOntologyPath", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml")
-    def     faoOntologyPath: String = getPath(        "faoOntology", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml")
-    def            cacheDir: String = getPath(           "cacheDir", "./cache/")
-    def       wordToVecPath: String = getPath(      "wordToVecPath", "/org/clulab/wm/eidos/w2v/vectors.txt")
-//    def       wordToVecPath: String = getPath(        "wordToVecPath", "/org/clulab/wm/eidos/w2v/glove.840B.300d.txt")) // NOTE: Moving to GLoVE vectors
-
-    def   timeNormModelPath: String = getPath(  "timeNormModelPath", "/org/clulab/wm/eidos/models/timenorm_model.hdf5")
-    def  useTimeNorm: Boolean = getArgBoolean(getFullName("useTimeNorm"), Some(false))
+    def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
+    def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
+    def     faoOntologyPath: String = eidosConf[String]("faoOntology")
+    def cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
-    def ontologies: Seq[String] = getArgStrings(getFullName("ontologies"), Some(Seq.empty))
-    def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
-    def useCachedOntologies: Boolean = getArgBoolean(getFullName("useCachedOntologies"), Option(false))
+    def ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
+    def maxHops: Int = eidosConf[Int]("maxHops")
+    def loadSerializedOnts: Boolean = eidosConf[Boolean]("loadCachedOntologies")
+    def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
+    def      timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
+    def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    def useCachedOntologies: Boolean = eidosConf[Boolean]("useCachedOntologies")
+
 
     protected def domainOntologies: Seq[DomainOntology] =
         if (!word2vec)
           Seq.empty
         else
           ontologies.map {
-            _ match {
               case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
               case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
               case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
               case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
-            }
           }
+
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -168,10 +168,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   }
 
   protected def addLexiconNER(s: Sentence) = {
+    // The Portuguese parser does not currently generate entities, so we want to create an empty list here for
+    // further processing and filtering operations that expect to be able to query the entities
+    if (s.entities.isEmpty) s.entities = Some(Array.fill[String](s.words.length)("O"))
     for {
       (lexiconNERTag, i) <- ner.find(s).zipWithIndex
       if lexiconNERTag != EidosSystem.NER_OUTSIDE
     } s.entities.get(i) = lexiconNERTag
+
   }
 
   // MAIN PIPELINE METHOD
@@ -209,7 +213,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities: Seq[Mention] = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
-
+//    println("Entities that made it to EidosSystem:")
+//    entities.foreach(e => DisplayUtils.shortDisplay(e))
     // filter entities which are entirely stop or transparent
     //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
     // Becky says not to filter yet

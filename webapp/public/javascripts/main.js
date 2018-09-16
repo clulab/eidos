@@ -399,11 +399,11 @@ head.ready(function() {
 
         // collect form data
         var formData = {
-            'sent': $('textarea[name=text]').val(),
+            'text': $('textarea[name=text]').val(),
             'cagRelevantOnly': $('input[name=cagRelevantOnly]').is(':checked')
         }
 
-        if (!formData.sent.trim()) {
+        if (!formData.text.trim()) {
             alert("Please write something.");
             return;
         }
@@ -414,7 +414,7 @@ head.ready(function() {
         // process the form
         $.ajax({
             type: 'GET',
-            url: 'parseSentence',
+            url: 'parseText',
             data: formData,
             dataType: 'json',
             encode: true

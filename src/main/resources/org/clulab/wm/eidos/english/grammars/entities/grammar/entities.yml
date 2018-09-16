@@ -1,4 +1,4 @@
-taxonomy: org/clulab/wm/eidos/grammars/entities/grammar/taxonomy.yml
+taxonomy: org/clulab/wm/eidos/english/grammars/entities/grammar/taxonomy.yml
 
 rules:
   - name: simple-np

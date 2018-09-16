@@ -1,5 +1,7 @@
 package controllers
 
+import java.text.Normalizer
+
 import javax.inject._
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
@@ -17,6 +19,7 @@ import java.time.LocalDateTime
 import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
+import com.typesafe.config.ConfigRenderOptions
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
@@ -55,11 +58,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(jsonBuildInfo)
   }
 
+  def config = Action {
+    val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
+    val jsonString = ieSystem.config.root.render(options)
+    Ok(jsonString).as(JSON)
+  }
+
   // Entry method
-  def parseSentence(text: String, cagRelevantOnly: Boolean) = Action {
+  def parseText(text: String, cagRelevantOnly: Boolean) = Action {
     val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text, cagRelevantOnly)
     println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText}")
-    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents)
     Ok(json)
   }
 
