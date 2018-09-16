@@ -149,7 +149,7 @@ object CompactDomainOntology {
     protected def mkNodeStringMap(parentMap: IdentityHashMap[OntologyBranchNode, (Int, Int)]): MutableHashMap[String, Int] = {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
 
-      parentMap.keySet().forEach { ontologyBranchNode =>
+      parentMap.keySet().asScala.foreach { ontologyBranchNode =>
         append(stringMap, ontologyBranchNode.escaped)
       }
       0.until(treeDomainOntology.size).foreach { i =>
