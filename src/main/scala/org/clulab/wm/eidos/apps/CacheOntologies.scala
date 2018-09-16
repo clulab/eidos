@@ -22,17 +22,19 @@ object CacheOntologies extends App {
 
     println(s"Saving ontologies to $absoluteCachedDir...")
     ontologies.foreach { domainOntology =>
+      val serializedPath = DomainOntologies.serializedPath(domainOntology, absoluteCachedDir)
+
       val ontology: DomainOntology = domainOntology match {
-        case   UN_NAMESPACE =>   UNOntology(domainOntology, loadableAttributes.unOntologyPath,   absoluteCachedDir, proc, loadSerialized = false)
-        case  WDI_NAMESPACE =>  WDIOntology(domainOntology, loadableAttributes.wdiOntologyPath,  absoluteCachedDir, proc, loadSerialized = false)
-        case  FAO_NAMESPACE =>  FAOOntology(domainOntology, loadableAttributes.faoOntologyPath,  absoluteCachedDir, proc, loadSerialized = false)
-        case MESH_NAMESPACE => MeshOntology(domainOntology, loadableAttributes.meshOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
+        case   UN_NAMESPACE =>   UNOntology(loadableAttributes.unOntologyPath,   serializedPath, proc, loadSerialized = false)
+        case  WDI_NAMESPACE =>  WDIOntology(loadableAttributes.wdiOntologyPath,  serializedPath, proc, loadSerialized = false)
+        case  FAO_NAMESPACE =>  FAOOntology(loadableAttributes.faoOntologyPath,  serializedPath, proc, loadSerialized = false)
+        case MESH_NAMESPACE => MeshOntology(loadableAttributes.meshOntologyPath, serializedPath, proc, loadSerialized = false)
         case _ => throw new IllegalArgumentException("Ontology " + domainOntology + " is not recognized.")
       }
       val treeDomainOntology = ontology.asInstanceOf[TreeDomainOntology]
       val compactDomainOntology = new CompactDomainOntologyBuilder(treeDomainOntology).build()
 
-      compactDomainOntology.save(DomainOntologies.serializedPath(domainOntology, absoluteCachedDir))
+      compactDomainOntology.save(serializedPath)
     }
     println(s"Finished serializing ${ontologies.length} ontologies.")
   }

@@ -87,19 +87,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
     def maxHops: Int = getArgInt(getFullName("maxHops"), Some(15))
     def loadSerializedOnts: Boolean = getArgBoolean(getFullName("loadCachedOntologies"), Option(false))
 
-    protected def domainOntologies: Seq[DomainOntology] =
-        if (!word2vec)
-          Seq.empty
-        else
-          ontologies.map {
-            _ match {
-              case name @   UN_NAMESPACE =>   UNOntology(name,   unOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @  WDI_NAMESPACE =>  WDIOntology(name,  wdiOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @  FAO_NAMESPACE =>  FAOOntology(name,  faoOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ MESH_NAMESPACE => MeshOntology(name, meshOntologyPath, cachedOntologiesDir, proc, loadSerialized = loadSerializedOnts)
-              case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
-            }
-          }
+    protected def domainOntology(name: String): DomainOntology = {
+      val serializedPath: String = DomainOntologies.serializedPath(name, cachedOntologiesDir)
+
+      name match {
+        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
+        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
+        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
+        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
+        case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+      }
+    }
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -108,7 +106,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Conf
       val actions = EidosActions(taxonomyPath)
 
       // Domain Ontologies:
-      val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
+      val ontologyGrounders =
+          if (word2vec) ontologies.map(ontology => EidosOntologyGrounder(ontology, domainOntology(ontology), wordToVec))
+          else Seq.empty
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),

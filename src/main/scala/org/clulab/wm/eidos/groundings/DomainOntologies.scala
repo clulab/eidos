@@ -10,41 +10,38 @@ object DomainOntologies {
 
   def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
 
-  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false): DomainOntology = {
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false): DomainOntology = {
     if (loadSerialized)
-      CompactDomainOntology.load(serializedPath(name, cachedDir))
+      CompactDomainOntology.load(serializedPath)
     else {
       logger.info("Processing yml ontology...")
-      val tree = new TreeDomainOntologyBuilder(name, ontologyPath, cachedDir, proc, filter).build()
-      // This is how it might be done in the compactor
-      val compact = new CompactDomainOntologyBuilder(tree).build()
-      tree
+      new TreeDomainOntologyBuilder(ontologyPath, proc, filter).build()
     }
   }
 }
 
 // These are just here for when behavior might have to start differing.
 object UNOntology {
-  def apply(name: String, ontologyPath: String, cacheDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
-      DomainOntologies(name, ontologyPath, cacheDir, proc, filter, loadSerialized)
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
+      DomainOntologies(ontologyPath, serializedPath, proc, filter, loadSerialized)
 }
 
 object WDIOntology {
-  def apply(name: String, ontologyPath: String, cacheDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
-      DomainOntologies(name, ontologyPath, cacheDir, proc, filter, loadSerialized)
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
+      DomainOntologies(ontologyPath, serializedPath, proc, filter, loadSerialized)
 }
 
 object FAOOntology {
-  def apply(name: String, ontologyPath: String, cacheDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
-      DomainOntologies(name, ontologyPath, cacheDir, proc, filter, loadSerialized)
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
+      DomainOntologies(ontologyPath, serializedPath, proc, filter, loadSerialized)
 }
 
 object TopoFlowOntology {
-  def apply(name: String, ontologyPath: String, cacheDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
-      DomainOntologies(name, ontologyPath, cacheDir, proc, filter, loadSerialized)
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
+      DomainOntologies(ontologyPath, serializedPath, proc, filter, loadSerialized)
 }
 
 object MeshOntology {
-  def apply(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
-      DomainOntologies(name, ontologyPath, cachedDir, proc, filter, loadSerialized)
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, filter: Boolean = true, loadSerialized: Boolean = false) =
+      DomainOntologies(ontologyPath, serializedPath, proc, filter, loadSerialized)
 }

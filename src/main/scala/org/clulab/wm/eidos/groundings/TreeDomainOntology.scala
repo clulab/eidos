@@ -56,7 +56,7 @@ class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: D
 }
 
 @SerialVersionUID(1000L)
-class TreeDomainOntology(val name: String, val ontologyNodes: Array[OntologyLeafNode]) extends DomainOntology with Serializable {
+class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends DomainOntology with Serializable {
 
   def size: Integer = ontologyNodes.size
 
@@ -83,7 +83,7 @@ object TreeDomainOntology {
   def load(path: String): TreeDomainOntology = DomainOntology.updatedLoad[TreeDomainOntology](path)
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class TreeDomainOntologyBuilder(name: String, ontologyPath: String, cachedDir: String, proc: Processor, filter: Boolean) {
+  class TreeDomainOntologyBuilder(ontologyPath: String, proc: Processor, filter: Boolean) {
 
     def build(): TreeDomainOntology = {
       val text = getTextFromResource(ontologyPath)
@@ -91,7 +91,7 @@ object TreeDomainOntology {
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(null, yamlNodes)
 
-      new TreeDomainOntology(name, ontologyNodes.toArray)
+      new TreeDomainOntology(ontologyNodes.toArray)
     }
 
     protected val getSentences: (String => Array[Sentence]) = proc match {

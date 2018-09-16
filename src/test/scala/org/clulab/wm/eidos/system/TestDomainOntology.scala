@@ -3,17 +3,17 @@ package org.clulab.wm.eidos.system
 import java.util.IdentityHashMap
 
 import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Timer
 
 import scala.collection.JavaConverters._
-
 import scala.collection.mutable
 
 class TestDomainOntology extends Test {
 
-  def hasDuplicates(domainOntology: DomainOntology): Boolean = {
+  def hasDuplicates(name: String, domainOntology: DomainOntology): Boolean = {
     val pathSeq = 0.until(domainOntology.size).map { i => domainOntology.getNamer(i).name }
     val pathSet = pathSeq.toSet
 
@@ -24,7 +24,7 @@ class TestDomainOntology extends Test {
       val pathBag = pathSeq.foldLeft(Map[String, Int]())((map, path) => map + (path -> (map.getOrElse(path, 0) + 1)))
       val duplicatePaths = pathBag.toSeq.filter(_._2 > 1).map(_._1)
 
-      println(s"""The domain ontology "${domainOntology.name}" includes duplicate nodes:""")
+      println(s"""The domain ontology "$name" includes duplicate nodes:""")
       duplicatePaths.foreach(println)
       true
     }
@@ -35,66 +35,84 @@ class TestDomainOntology extends Test {
   val proc = new FastNLPProcessor()
   val filter = false
 
-  // These paths must be coordinated with default values in EidosSystem.
+
+  def show1(ontology: DomainOntology): Unit = {
+    0.until(ontology.size).foreach { i =>
+      println(ontology.getNamer(i).name + " = " + ontology.getValues(i).mkString(", "))
+    }
+    println
+  }
+
+  def show3(newOntology: DomainOntology, newerOntology: DomainOntology, newestOntology: DomainOntology): Unit = {
+    show1(newOntology)
+    show1(newerOntology)
+    show1(newestOntology)
+  }
 
   behavior of "un ontology"
   it should "load and not have duplicates" in {
-    Timer.time("Load UN without cache") {
-      UNOntology("un", "/org/clulab/wm/eidos/ontologies/un_ontology.yml", "./cache/", proc, filter, loadSerialized = false)
+    val newOntology = Timer.time("Load UN without cache") {
+      UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = false)
     }
-    Timer.time("Load UN with cache") {
-      UNOntology("un", "/org/clulab/wm/eidos/ontologies/un_ontology.yml", "./cache/", proc, filter, loadSerialized = true)
+    val newerOntology = Timer.time("Load UN with cache") {
+      //UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = true)
+      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
     }
+    val newestOntology = Timer.time("Load UN with cache") {
+      UNOntology("", "./cache/un.serialized", proc, filter, loadSerialized = true)
+    }
+
+    show3(newOntology, newerOntology, newestOntology)
   }
 
-  behavior of "fao ontology"
-  it should "load and not have duplicates" in {
-    Timer.time("Load FAO without cache") {
-      FAOOntology("fao", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "./cache/", proc, filter, loadSerialized =false)
-    }
-    Timer.time("Load FAO with cache") {
-      FAOOntology("fao", "/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "./cache/", proc, filter, loadSerialized = true)
-    }
-  }
-
-  behavior of "wdi ontology"
-  it should "load and not have duplicates" in {
-    Timer.time("Load WDI without cache") {
-      WDIOntology("wdi", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "./cache/", proc, filter, loadSerialized = false)
-    }
-    Timer.time("Load WDI with cache") {
-      WDIOntology("wdi", "/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "./cache/", proc, filter, loadSerialized = true)
-    }
-  }
-
-  behavior of "mesh ontology"
-  it should "load and not have duplicates" in {
-    Timer.time("Load MeSH without cache") {
-      MeshOntology("mesh", "/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "./cache/", proc, filter, loadSerialized = false)
-    }
-    val mesh = Timer.time("Load MeSH with cache") {
-      MeshOntology("mesh", "/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "./cache/", proc, filter, loadSerialized = true)
-    }
+//  behavior of "fao ontology"
+//  it should "load and not have duplicates" in {
+//    Timer.time("Load FAO without cache") {
+//      FAOOntology("/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter, loadSerialized =false)
+//    }
+//    Timer.time("Load FAO with cache") {
+//      FAOOntology("/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter, loadSerialized = true)
+//    }
+//  }
+//
+//  behavior of "wdi ontology"
+//  it should "load and not have duplicates" in {
+//    Timer.time("Load WDI without cache") {
+//      WDIOntology("/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter, loadSerialized = false)
+//    }
+//    Timer.time("Load WDI with cache") {
+//      WDIOntology("/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter, loadSerialized = true)
+//    }
+//  }
+//
+//  behavior of "mesh ontology"
+//  it should "load and not have duplicates" in {
+//    Timer.time("Load MeSH without cache") {
+//      MeshOntology("/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter, loadSerialized = false)
+//    }
+//    val mesh = Timer.time("Load MeSH with cache") {
+//      MeshOntology("/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter, loadSerialized = true)
+//    }
 
 //    mesh.ontologyNodes.foreach { ontologyNode =>
 //      println(ontologyNode.name)
 //    }
 
-    val mapOfNodes = new IdentityHashMap[OntologyNode, String]()
-    mesh.ontologyNodes.foreach { ontologyNode =>
-      mapOfNodes.put(ontologyNode, ontologyNode.nodeName)
-
-      var branchNode = ontologyNode.parent
-      while (branchNode != null) {
-        mapOfNodes.put(branchNode, branchNode.nodeName)
-        branchNode = branchNode.parent
-      }
-    }
+//    val mapOfNodes = new IdentityHashMap[OntologyNode, String]()
+//    mesh.ontologyNodes.foreach { ontologyNode =>
+//      mapOfNodes.put(ontologyNode, ontologyNode.nodeName)
+//
+//      var branchNode = ontologyNode.parent
+//      while (branchNode != null) {
+//        mapOfNodes.put(branchNode, branchNode.nodeName)
+//        branchNode = branchNode.parent
+//      }
+//    }
 
 //    mapOfNodes.keySet.asScala.foreach { ontologyNode =>
 //      println(ontologyNode.nodeName)
 //    }
 
-    hasDuplicates(mesh) should be (false)
-  }
+//    hasDuplicates("mesh", mesh) should be (false)
+//  }
 }
