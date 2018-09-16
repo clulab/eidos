@@ -2,8 +2,9 @@ package org.clulab.wm.eidos.apps
 
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, MESH_NAMESPACE}
-import org.clulab.wm.eidos.groundings.{DomainOntology, FAOOntology, UNOntology, WDIOntology, MeshOntology}
+import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
+import org.clulab.wm.eidos.groundings._
 
 object CacheOntologies extends App {
 
@@ -21,15 +22,17 @@ object CacheOntologies extends App {
 
     println(s"Saving ontologies to $absoluteCachedDir...")
     ontologies.foreach { domainOntology =>
-      var ontology = domainOntology match {
-        case name@UN_NAMESPACE => UNOntology(name, loadableAttributes.unOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
-        case name@WDI_NAMESPACE => WDIOntology(name, loadableAttributes.wdiOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
-        case name@FAO_NAMESPACE => FAOOntology(name, loadableAttributes.faoOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
-        case name@MESH_NAMESPACE => MeshOntology(name, loadableAttributes.meshOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
-        case name@_ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+      val ontology: DomainOntology = domainOntology match {
+        case   UN_NAMESPACE =>   UNOntology(domainOntology, loadableAttributes.unOntologyPath,   absoluteCachedDir, proc, loadSerialized = false)
+        case  WDI_NAMESPACE =>  WDIOntology(domainOntology, loadableAttributes.wdiOntologyPath,  absoluteCachedDir, proc, loadSerialized = false)
+        case  FAO_NAMESPACE =>  FAOOntology(domainOntology, loadableAttributes.faoOntologyPath,  absoluteCachedDir, proc, loadSerialized = false)
+        case MESH_NAMESPACE => MeshOntology(domainOntology, loadableAttributes.meshOntologyPath, absoluteCachedDir, proc, loadSerialized = false)
+        case _ => throw new IllegalArgumentException("Ontology " + domainOntology + " is not recognized.")
       }
+      val treeDomainOntology = ontology.asInstanceOf[TreeDomainOntology]
+      val compactDomainOntology = new CompactDomainOntologyBuilder(treeDomainOntology).build()
 
-      ontology.save(DomainOntology.serializedPath(ontology.name, absoluteCachedDir))
+      compactDomainOntology.save(DomainOntologies.serializedPath(domainOntology, absoluteCachedDir))
     }
     println(s"Finished serializing ${ontologies.length} ontologies.")
   }
