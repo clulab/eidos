@@ -143,7 +143,7 @@ class TestDomainOntology extends Test {
   }
 
   behavior of "mesh ontology"
-  it should "load and not have duplicates" in {
+  ignore should "load and not have duplicates" in {
     val path = baseDir + "/mesh_ontology.yml"
 
     val newOntology = Timer.time("Load MeSH without cache") {
