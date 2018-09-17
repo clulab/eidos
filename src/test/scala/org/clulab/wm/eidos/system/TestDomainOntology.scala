@@ -159,10 +159,10 @@ class TestDomainOntology extends Test {
           MeshOntology(path, "", proc, filter, useCache = true)
         }
 
-    //    val newestOntology = Timer.time("Load MeSH with cache") {
+//    val newestOntology = Timer.time("Load MeSH with cache") {
 //      MeshOntology("", cachePath("mesh"), proc, filter, useCache = true)
 //    }
-
+//
 //    show3(newOntology, newerOntology, newestOntology)
 
     hasDuplicates("mesh", newOntology) should be (false)
