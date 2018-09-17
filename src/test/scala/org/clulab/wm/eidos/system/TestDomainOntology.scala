@@ -27,6 +27,7 @@ class TestDomainOntology extends Test {
       false
   }
 
+  val baseDir = "/org/clulab/wm/eidos/english/ontologies"
   val proc = new FastNLPProcessor()
   val filter = true
 
@@ -44,18 +45,22 @@ class TestDomainOntology extends Test {
     show1(newestOntology)
   }
 
+  def cachePath(name: String): String = s"./cache/english/${name}.serialized"
+
   behavior of "un ontology"
   it should "load and not have duplicates" in {
+    val path = baseDir + "/un_ontology.yml"
+
     val newOntology = Timer.time("Load UN without cache") {
-      UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = false)
+      UNOntology(path, "", proc, filter, loadSerialized = false)
     }
     val newerOntology = Timer.time("Load UN with cache") {
-      //UNOntology("/org/clulab/wm/eidos/ontologies/un_ontology.yml", "", proc, filter, loadSerialized = true)
+      //UNOntology(path, "", proc, filter, loadSerialized = true)
       new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
     }
 
 //    val newestOntology = Timer.time("Load UN with cache") {
-//      UNOntology("", "./cache/un.serialized", proc, filter, loadSerialized = true)
+//      UNOntology("", cachePath("un"), proc, filter, loadSerialized = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -66,15 +71,17 @@ class TestDomainOntology extends Test {
 
   behavior of "fao ontology"
   it should "load and not have duplicates" in {
+    val path = baseDir + "/fao_variable_ontology.yml"
+
     val newOntology = Timer.time("Load FAO without cache") {
-      FAOOntology("/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter, loadSerialized =false)
+      FAOOntology(path, "", proc, filter, loadSerialized =false)
     }
     val newerOntology = Timer.time("Load FAO with cache") {
-      //FAOOntology("/org/clulab/wm/eidos/ontologies/fao_variable_ontology.yml", "", proc, filter, loadSerialized = true)
+      //FAOOntology(path, "", proc, filter, loadSerialized = true)
       new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
     }
 //    val newestOntology = Timer.time("Load FAO with cache") {
-//      FAOOntology("", "./cache/fao.serialized", proc, filter, loadSerialized = true)
+//      FAOOntology("", cachePath("fao"), proc, filter, loadSerialized = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -85,15 +92,17 @@ class TestDomainOntology extends Test {
 
   behavior of "wdi ontology"
   it should "load and not have duplicates" in {
+    val path = baseDir + "/wdi_ontology.yml"
+
     val newOntology = Timer.time("Load WDI without cache") {
-      WDIOntology("/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter, loadSerialized = false)
+      WDIOntology(path, "", proc, filter, loadSerialized = false)
     }
     val newerOntology = Timer.time("Load WDI with cache") {
-      //WDIOntology("/org/clulab/wm/eidos/ontologies/wdi_ontology.yml", "", proc, filter, loadSerialized = true)
+      //WDIOntology(path, "", proc, filter, loadSerialized = true)
       new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
     }
 //    val newestOntology = Timer.time("Load WDI with cache") {
-//      WDIOntology("", "./cache/wdi.serialized", proc, filter, loadSerialized = true)
+//      WDIOntology("", cachePath("wdi"), proc, filter, loadSerialized = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -105,18 +114,28 @@ class TestDomainOntology extends Test {
   // TODO: This one appears to have many duplicates.
   behavior of "topoFlow ontology"
   ignore should "load and not have duplicates" in {
-    hasDuplicates(TopoFlowOntology("topo", "/org/clulab/wm/eidos/english/ontologies/topoflow_ontology.yml", "",proc, filter)) should be (false)
+    val path = baseDir + "/topoflow_ontology.yml"
+
+    val newOntology = Timer.time("Load TOPO without cache") {
+      TopoFlowOntology(path, "", proc, filter, loadSerialized = false)
+    }
+
+    hasDuplicates("topo", newOntology) should be (false)
+  }
+
   behavior of "mesh ontology"
   it should "load and not have duplicates" in {
+    val path = baseDir + "/mesh_ontology.yml"
+
     val newOntology = Timer.time("Load MeSH without cache") {
-      MeshOntology("/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter, loadSerialized = false)
+      MeshOntology(path, "", proc, filter, loadSerialized = false)
     }
     val newerOntology = Timer.time("Load MeSH with cache") {
-      //MeshOntology("/org/clulab/wm/eidos/ontologies/mesh_ontology.yml", "", proc, filter, loadSerialized = true)
+      //MeshOntology(path, "", proc, filter, loadSerialized = true)
       new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
     }
 //    val newestOntology = Timer.time("Load MeSH with cache") {
-//      MeshOntology("", "./cache/mesh.serialized", proc, filter, loadSerialized = true)
+//      MeshOntology("", cachePath("mesh"), proc, filter, loadSerialized = true)
 //    }
 
 //    show3(newOntology, newerOntology, newestOntology)

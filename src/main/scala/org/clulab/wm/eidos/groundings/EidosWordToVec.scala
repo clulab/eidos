@@ -69,7 +69,7 @@ object EidosWordToVec {
   protected val logger = LoggerFactory.getLogger(this.getClass())
 
   def makeCachedFilename(path: String, file: String): String =
-      path + file.split('/').last + ".serialized"
+      path + "/" + file.split('/').last + ".serialized"
 
   def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
     if (enabled) {

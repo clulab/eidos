@@ -85,7 +85,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // Ontology handling
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
-    def     faoOntologyPath: String = eidosConf[String]("faoOntology")
+    def     faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
+    def    meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
     def cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
@@ -98,7 +99,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def useCachedOntologies: Boolean = eidosConf[Boolean]("useCachedOntologies")
 
     protected def domainOntology(name: String): DomainOntology = {
-      val serializedPath: String = DomainOntologies.serializedPath(name, cachedOntologiesDir)
+      val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
         case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)

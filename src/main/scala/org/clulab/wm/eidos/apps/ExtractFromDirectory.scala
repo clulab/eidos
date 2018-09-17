@@ -6,7 +6,6 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
 
-
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
