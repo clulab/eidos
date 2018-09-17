@@ -14,8 +14,6 @@
     - DirectedRelation:
       - Causal
       - IsA
-      - Origin
-      - TransparentLink
       - Coreference
     - UndirectedRelation:
       - Correlation

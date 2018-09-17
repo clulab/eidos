@@ -362,6 +362,8 @@ object EidosSystem {
   val CAUSAL_LABEL: String = "Causal"
   val CORR_LABEL: String = "Correlation"
   val COREF_LABEL: String = "Coreference"
+  // Taxonomy relations for other uses
+  val RELATION_LABEL: String = "EntityLinker"
 
   // Stateful Labels used by webapp
   val INC_LABEL_AFFIX = "-Inc"

@@ -71,7 +71,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 //    afterResolving.foreach(displayMention)
 //    println("*************************************\n")
 
-    afterResolving
+    val afterHedging = HypothesisHandler.detectHypotheses(afterResolving, state)
+
+    afterHedging
   }
 
   def basicDeterminerCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
