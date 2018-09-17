@@ -29,6 +29,7 @@ class TestDomainOntology extends Test {
 
   val baseDir = "/org/clulab/wm/eidos/english/ontologies"
   val proc = new FastNLPProcessor()
+  val convert = true
   val filter = true
 
 
@@ -54,13 +55,18 @@ class TestDomainOntology extends Test {
     val newOntology = Timer.time("Load UN without cache") {
       UNOntology(path, "", proc, filter, useCache = false)
     }
-    val newerOntology = Timer.time("Load UN with cache") {
-      //UNOntology(path, "", proc, filter, loadSerialized = true)
-      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
-    }
+    val newerOntology =
+      if (convert)
+        Timer.time("Convert UN to compact") {
+          new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        }
+      else
+        Timer.time("Load UN from cache") {
+          UNOntology(path, "", proc, filter, useCache = true)
+        }
 
-//    val newestOntology = Timer.time("Load UN with cache") {
-//      UNOntology("", cachePath("un"), proc, filter, loadSerialized = true)
+//    val newestOntology = Timer.time("Load UN from cache") {
+//      UNOntology("", cachePath("un"), proc, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -76,12 +82,19 @@ class TestDomainOntology extends Test {
     val newOntology = Timer.time("Load FAO without cache") {
       FAOOntology(path, "", proc, filter, useCache =false)
     }
-    val newerOntology = Timer.time("Load FAO with cache") {
-      //FAOOntology(path, "", proc, filter, loadSerialized = true)
-      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
-    }
+    val newerOntology =
+      if (convert)
+        Timer.time("Convert FAO to compact") {
+          new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        }
+      else
+        Timer.time("Load FAO from cache") {
+          FAOOntology(path, "", proc, filter, useCache = true)
+        }
+
+
 //    val newestOntology = Timer.time("Load FAO with cache") {
-//      FAOOntology("", cachePath("fao"), proc, filter, loadSerialized = true)
+//      FAOOntology("", cachePath("fao"), proc, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -97,12 +110,18 @@ class TestDomainOntology extends Test {
     val newOntology = Timer.time("Load WDI without cache") {
       WDIOntology(path, "", proc, filter, useCache = false)
     }
-    val newerOntology = Timer.time("Load WDI with cache") {
-      //WDIOntology(path, "", proc, filter, loadSerialized = true)
-      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
-    }
+    val newerOntology =
+      if (convert)
+        Timer.time("Convert WDI to compact") {
+        new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        }
+      else
+        Timer.time("Load WDI from cache") {
+          WDIOntology(path, "", proc, filter, useCache = true)
+        }
+
 //    val newestOntology = Timer.time("Load WDI with cache") {
-//      WDIOntology("", cachePath("wdi"), proc, filter, loadSerialized = true)
+//      WDIOntology("", cachePath("wdi"), proc, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -130,12 +149,18 @@ class TestDomainOntology extends Test {
     val newOntology = Timer.time("Load MeSH without cache") {
       MeshOntology(path, "", proc, filter, useCache = false)
     }
-    val newerOntology = Timer.time("Load MeSH with cache") {
-      //MeshOntology(path, "", proc, filter, loadSerialized = true)
-      new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
-    }
-//    val newestOntology = Timer.time("Load MeSH with cache") {
-//      MeshOntology("", cachePath("mesh"), proc, filter, loadSerialized = true)
+    val newerOntology =
+      if (convert)
+        Timer.time("Convert MeSH to compact") {
+          new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        }
+      else
+        Timer.time("Load MeSH from cache") {
+          MeshOntology(path, "", proc, filter, useCache = true)
+        }
+
+    //    val newestOntology = Timer.time("Load MeSH with cache") {
+//      MeshOntology("", cachePath("mesh"), proc, filter, useCache = true)
 //    }
 
 //    show3(newOntology, newerOntology, newestOntology)
