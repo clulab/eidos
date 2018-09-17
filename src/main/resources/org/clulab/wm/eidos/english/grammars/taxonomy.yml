@@ -1,0 +1,24 @@
+- Entity:
+  - Param
+  - Agrovoc
+  - Concept
+- Transparent
+- Quantifier
+- Event:
+  - EntityModifier:
+    - Quantification
+    - Increase
+    - Decrease
+    - Time
+  - EntityLinker:
+    - DirectedRelation:
+      - Causal
+      - IsA
+      - Origin
+      - TransparentLink
+      - Coreference
+    - UndirectedRelation:
+      - Correlation
+      - SameAs
+- Avoid:
+  - Avoid-Strict

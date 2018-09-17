@@ -12,14 +12,26 @@ class TestResources extends Test {
 
   def test(file: File): Unit = {
     val path = file.getCanonicalPath()
-    val stream = Source.fromFile(file, "ascii") // , utf8)
 
-    val contents = stream.mkString
-    
     it should "not have any Unicode characters in " + path in {
-      val index = contents.indexWhere(c => (c < 32 || 127 < c) && c != '\r' && c != '\n' && c != '\t')
-      
-      index should be < 0
+      val stream = Source.fromFile(file, "utf8")
+      var lineNo = 0
+      var count = 0
+
+      stream.getLines().foreach { line =>
+        val badCharAndIndex = line.zipWithIndex.filter { case (c: Char, index: Int) =>
+          (c < 32 || 127 < c) && c != '\r' && c != '\n' && c != '\t'
+        }
+        val complaints = badCharAndIndex.map { case (c: Char, index: Int) =>
+          "'" + c + "' found at index " + index + "."
+        }
+
+        lineNo += 1
+        complaints.foreach(complaint => println("Line " + lineNo + ": " + complaint))
+        count += complaints.size
+      }
+
+      count should be (0)
     }
   }
   
@@ -27,12 +39,15 @@ class TestResources extends Test {
   type Operation = (File) => Unit
 
   val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
-  val unwantedSuffixes = Seq("vectors.txt")
+  val unwantedSuffixes = Seq("vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml", "/portuguese/grammars/triggers-temp-translation.yml")
 
-  def fileMatches(file: File): Boolean = 
-      wantedSuffixes.exists(suffix => file.getCanonicalPath().endsWith(suffix)) &&
-      !unwantedSuffixes.exists(suffix => file.getCanonicalPath.endsWith(suffix))
-    
+  def fileMatches(file: File): Boolean = {
+    val canonicalPath = file.getCanonicalPath().replace('\\', '/')
+
+    wantedSuffixes.exists(suffix => canonicalPath.endsWith(suffix)) &&
+    !unwantedSuffixes.exists(suffix => canonicalPath.endsWith(suffix))
+  }
+
   def directoryMatches(file: File): Boolean = true
   
   def doOperation(path: String)(operation: Operation): Unit = {

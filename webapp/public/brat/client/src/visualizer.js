@@ -261,7 +261,8 @@ var Visualizer = (function($, window, undefined) {
           'normalizations',
           'relations',
           'triggers',
-          ], function(attrNo, attr) {
+          'timexs',
+      ], function(attrNo, attr) {
         if (sourceData[attr] === undefined) {
           sourceData[attr] = [];
         }
@@ -541,6 +542,16 @@ var Visualizer = (function($, window, undefined) {
           span.splitMultilineOffsets(data.text);
           data.spans[entity[0]] = span;
         });
+
+          $.each(sourceData.timexs, function(timexNo, timex) {
+          // offsets given as array of (start, end) pairs
+          var span =
+              //      (id,        type,      offsets,   generalType)
+              new Span(timex[0], timex[1], timex[2], 'timex');
+          span.splitMultilineOffsets(data.text);
+          data.spans[timex[0]] = span;
+        });
+
         var triggerHash = {};
         $.each(sourceData.triggers, function(triggerNo, trigger) {
                        //       (id,         type,       offsets,    generalType)
@@ -558,6 +569,16 @@ var Visualizer = (function($, window, undefined) {
           data.spans[eventDesc.id] = span;
         });
 
+        // // Context
+        // $.each(sourceData.timeexes, function(entityNo, entity) {
+        //   // offsets given as array of (start, end) pairs
+        //   var span =
+        //       //      (id,        type,      offsets,   generalType)
+        //       new Span(entity[0], entity[1], entity[2], 'entity');
+        //   span.splitMultilineOffsets(data.text);
+        //   data.spans[entity[0]] = span;
+        // });
+          
         // XXX modifications: delete later
         $.each(sourceData.modifications, function(modNo, mod) {
           // mod: [id, spanId, modification]

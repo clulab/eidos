@@ -102,6 +102,10 @@ class TestDomainOntology extends Test {
     hasDuplicates("wdi", newerOntology) should be (false)
   }
 
+  // TODO: This one appears to have many duplicates.
+  behavior of "topoFlow ontology"
+  ignore should "load and not have duplicates" in {
+    hasDuplicates(TopoFlowOntology("topo", "/org/clulab/wm/eidos/english/ontologies/topoflow_ontology.yml", "",proc, filter)) should be (false)
   behavior of "mesh ontology"
   it should "load and not have duplicates" in {
     val newOntology = Timer.time("Load MeSH without cache") {

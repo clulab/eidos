@@ -227,7 +227,7 @@ class TestDoc8 extends Test {
 
     val econCrisis = NodeSpec("Economic crisis")
     val hyperinflation = NodeSpec("drastic hyperinflation", Quant("drastic"))
-    val marketFailures = NodeSpec("market", Dec("failures"))
+    val marketFailures = NodeSpec("market failures", Dec("failures"))
     val foodSystems = NodeSpec("food systems", Dec("destabilised"))
     val accessToFood = NodeSpec("household access to food", Dec("destabilised"))
     val income = NodeSpec("income", Dec("destabilised"))

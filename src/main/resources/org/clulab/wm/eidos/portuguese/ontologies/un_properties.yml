@@ -1,0 +1,82 @@
+- UN_properties:
+  - properties:
+    - OntologyNode:
+      examples:
+      - price
+      - cost
+      - expense
+      - credit
+      - budget
+      - cash
+      name: price
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - rate
+      name: rate
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - proportion
+      - percentage
+      - ratio
+      - fraction
+      - portion
+      name: proportion
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - feet
+      - meter
+      - inch
+      - yard
+      - mile
+      - kilometer
+      name: distance
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - acre
+      - hectare
+      name: area
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - ton
+      - tonne
+      - gram
+      - kilogram
+      - pound
+      - ounce
+      name: weight
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - liter
+      - gallon
+      name: volume
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - deep
+      - depth
+      name: depth
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - latitude
+      - longitude
+      - latlong
+      - coordinates
+      name: spatial_coordinates
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - temperature
+      - degree celsius
+      - fahrenheit
+      - kelvin
+      - C
+      - F
+      name: temperature
+      polarity: 1.0

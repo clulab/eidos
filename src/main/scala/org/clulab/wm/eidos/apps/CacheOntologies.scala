@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.apps
 
+import java.io.File
+
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
@@ -38,4 +40,16 @@ object CacheOntologies extends App {
     }
     println(s"Finished serializing ${ontologies.length} ontologies.")
   }
+
+  println(s"Saving ontologies to $cacheDir...")
+  new File(cacheDir).mkdirs()
+  domainOntologies.foreach(ont => ont.save(DomainOntology.serializedPath(ont.name, cacheDir)))
+  println(s"Finished serializing ${domainOntologies.length} ontologies.")
+
+  val filenameIn = loadableAttributes.wordToVecPath
+  val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, loadableAttributes.wordToVecPath)
+  println(s"Saving vectors to $filenameOut...")
+  val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
+  word2Vec.save(filenameOut)
+  println(s"Finished serializing vectors.")
 }

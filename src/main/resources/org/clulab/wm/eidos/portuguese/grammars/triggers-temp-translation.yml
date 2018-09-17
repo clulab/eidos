@@ -1,0 +1,257 @@
+# increase triggers
+# esses triggers compreendem relações em que o aumento de A implica no aumento de B
+increase_triggers: "acceler|aid|augment|boost|compound|doubl|deep|elev|enhanc|exacerbat|exorbitant|favorable|height|improv|increas|intens|prolong|promot|rais|reactivat|restor|spike|
+spread|stimul|synerg|up-regul|upregul|widen"
+
+acceler -> acelerar
+aid -> ajuda, auxilia, apoia, contribui
+augment -> aumenta
+boost -> impulsiona, aumenta
+compound -> compõe
+doubl -> dobra
+deep -> aprofunda
+elev -> eleva
+enhanc -> aumenta, eleva
+exacerbat -> exacerba, agrava
+exorbitant -> exorbita
+favorable -> favorece
+height -> eleva
+improv -> melhora, aperfeiçoa, aprimora
+increase -> aumenta, acrescenta, incrementa
+intens -> intensifica
+prolong -> prolonga
+promot -> promove
+raise -> eleva, aumenta
+reactivat -> reativar
+restor -> restaurar
+spread -> espalhar, propagar, estender
+stimul -> estimula
+up-regul supra-regulação
+widen -> amplia
+
+# combination of triggers:
+
+aceler
+acrescent
+agrav
+ajud
+ampli
+aperfeiço
+apoi
+aprimor
+aprofund
+aument
+auxili
+comp
+contribu
+dobr
+elev
+espalh
+estend
+estimul
+exacerb
+exorbit
+favorec
+impusion
+increment
+melhor
+prolong
+promov
+propag
+reativ
+restaur
+
+# deacrease triggers
+# esses triggers compreendem relacoes onde o aumento de A implica na diminuição de B
+decrease_triggers: "attenu|abolish|abrog|arrest|block|collaps|constrain|(cuts?$)|cutting|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|diminish|disrupt|down-reg|
+downreg|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|limit|less|lower|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk
+|slow|starv|suppress|supress|undermin|worse"
+attenu -> atenuar, enfraquecer
+abolish -> anular, abolir
+abrog -> revogar
+arrest -> reprimir, deter, impedir
+block -> bloquear, paralizar
+collaps (does not have a similar verb in portuguese)
+constrain -> restringe
+cuts -> cortar, reduzir, suprimir
+deactiv -> desativar
+decimat -> dizima
+decrease -> reduz, diminui
+degrad -> degrada
+depreciat -> deprecia, desvaloriza
+depress -> debilita, desvaloriza
+destabili -> desestabiliza
+deregul (no similar verb)
+deterioar -> deteriora, degenera, piora
+diminish -> diminui
+disrupt -> quebra, rompe
+down-reg -> infra-regulação
+drop -> abaixa
+dysregul (no similar verb)
+elimin -> elimina, suprime
+ends -> destrói, acaba
+eras -> apaga
+erod -> corroe
+exhaust -> esgota, exaure
+impair -> prejudica, debilita, enfraquece
+imped -> dificulta, impede, retarda
+inhibit -> inibe
+limit -> limita
+less -> diminui, reduz, atenua
+lower -> abaixa, rebaixa
+negat -> nega, invalida
+nullifi -> anula, cancela
+prevent -> previne
+reduce -> reduz
+relieve -> mitiga
+repress -> reprime
+restrict -> restringe
+revers -> reverte
+sequester (no similar verb)
+short -> encurta
+shrink -> encolhe
+slow -> desacelera
+undermine -> enfraquece
+worse -> piora
+
+# combination of triggers
+
+abaix
+abol
+acab
+anul
+apag
+atenu
+bloque
+cancel
+corr
+cort
+debilit
+degener
+degrad
+depreci
+desaceler
+desativ
+desestabiliz
+destru
+desvaloriz
+det
+dificult
+diminu
+dizim
+elimin
+encolh
+encurt
+enfraquec
+esgot
+exaur
+imped
+inib
+invalid
+limit
+mitig
+neg
+paraliz
+pior
+prejudic
+previn
+quebr
+rebaix
+reduz
+reprim
+restring
+retard
+revert
+revog
+romp
+suprim
+
+# cause triggers
+# esses triggers identificam relaçoes onde A causa B
+# NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
+cause_triggers: "caç|activat|allow|because|cataly|caus|contribut|driv|due|elicit|enabl|force|forcing|help|induc|initiat|interconvert|lead|^led$|mediat|modulat|signal|synthes|
+trigger|underli"
+caç???
+activat -> ativa
+allow -> permite
+because -> porque
+cataly -> catalisa
+caus -> causa
+contribut -> contribui
+driv -> conduz
+due -> (no similar verb)
+elicit -> deduz
+enabl -> permite, possibilita
+force -> força
+foricng (no similar)
+help -> ajuda, auxilia, colabora
+induce -> induz, provoca
+initiat -> inicia, desencadeia
+interconvert -> interconverte
+lead -> leva, condiuz
+^led$
+meadit -> media
+modulat -> modula
+signal -> sinaliza
+synthes -> sintetiza
+trigger -> desencadeia, ativa
+underli (no similar)
+
+
+ajud
+ativ
+auxili
+catalis
+caus
+colabor
+conduz
+contribu
+deduz
+desencade
+forç
+induz
+inici
+interconvert
+lev
+medi
+modul
+permit
+possibilit
+provoc
+sinaliz
+
+
+# noncausal increase triggers
+noncausal_increase_triggers: "above|above-average|better|good|greater|heav|(highs?$)|highe(r|s)|rising|widespread"
+
+acima|melhor|bom|maior|forte|aument|difundido
+
+noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|fail|inactiv|inadequate|knockdown|lack|loss|(lows?$)|poor|scarce|scarcity|shortage|shutdown"
+#advers|perturb|resist|
+
+ausencia|
+decinio
+déficit
+descontinu
+recessão
+falha
+desativ
+inativ
+inadequ
+desadequ
+derrub
+falta
+perda
+pobre
+escasso
+interrompe
+escassez
+deslig
+
+nonavoid_causal_triggers: "produz"
+reverse_direction_cause_triggers: "rersultado|efeito|consequencia"
+
+affect_triggers: "afet|alter|desloc|influenci|modifi|modificação"
+nonavoid_affect_triggers: "impact"
+
+correlation_triggers: "coincid|linc"

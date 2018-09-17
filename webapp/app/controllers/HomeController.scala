@@ -1,16 +1,25 @@
 package controllers
 
+import java.text.Normalizer
+
 import javax.inject._
-import org.clulab.odin.{Attachment, EventMention, Mention, RelationMention, TextBoundMention}
+import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
+import org.clulab.struct.DirectedGraph
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.utils.DisplayUtils
+import org.clulab.wm.eidos.utils.DomainParams
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.TimeInterval
+import java.time.LocalDateTime
 import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
+import com.typesafe.config.ConfigRenderOptions
 import play.api._
 import play.api.mvc._
 import play.api.libs.json._
@@ -49,11 +58,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(jsonBuildInfo)
   }
 
+  def config = Action {
+    val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
+    val jsonString = ieSystem.config.root.render(options)
+    Ok(jsonString).as(JSON)
+  }
+
   // Entry method
-  def parseSentence(text: String, cagRelevantOnly: Boolean) = Action {
+  def parseText(text: String, cagRelevantOnly: Boolean) = Action {
     val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text, cagRelevantOnly)
     println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText}")
-    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents) // we only handle a single sentence
+    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents)
     Ok(json)
   }
 
@@ -156,14 +171,26 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def getEntityLinkerEvents(mentions: Vector[EidosMention]): Vector[(Trigger, Map[String, String])] = {
     val events = mentions.filter(_.odinMention matches "Event")
     val entityLinkingEvents = events.filter(_.odinMention matches "EntityLinker").map { e =>
-      val event = e.odinMention.asInstanceOf[EventMention]
-      val trigger = event.trigger.text
-      val arguments = event.arguments.map { a =>
-        val name = a._1
-        val arg_mentions = a._2.map(_.text).mkString(" ")
-        (name, arg_mentions)
+      e.odinMention match {
+        case em: EventMention =>
+          val event = e.odinMention.asInstanceOf[EventMention]
+          val trigger = event.trigger.text
+          val arguments = event.arguments.map { a =>
+            val name = a._1
+            val arg_mentions = a._2.map(_.text).mkString(" ")
+            (name, arg_mentions)
+          }
+          (trigger, arguments)
+        case cs: CrossSentenceMention =>
+          val arguments = cs.arguments.map { a =>
+            val name = a._1
+            val arg_mentions = a._2.map(_.text).mkString(" ")
+            (name, arg_mentions)
+          }
+          ("coref", arguments)
+        case _ => throw new RuntimeException("Unexpected event Mention type!")
       }
-      (trigger, arguments)
+
     }
 
     entityLinkingEvents
@@ -185,22 +212,41 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   )
 
   protected def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
-    def getTdAt(option: Option[Array[String]], n: Int): String = {
-      val text = if (option.isEmpty) ""
-      else option.get(n)
 
-      "<td>" + xml.Utility.escape(text) + "</td>"
+    def getTd(text: String): String = "<td>" + xml.Utility.escape(text) + "</td>"
+
+    def getTdAtOptString(option: Option[Array[String]], n: Int): String = {
+      val text =
+          if (option.isEmpty) ""
+          else option.get(n)
+
+      getTd(text)
+    }
+
+    def getTdAtString(values: Array[String], n: Int): String = getTd(values(n))
+
+    def getTdAtInt(values: Array[Int], n: Int): String = getTd(values(n).toString)
+
+
+    def edgesToString(to: Int): String = {
+      val edges = sentence.dependencies.get.incomingEdges(to)
+
+      edges.map(edge => sentence.words(edge._1) + "==" + edge._2 + "=>" + sentence.words(to)).mkString(", ")
     }
 
     sentence.words.indices.foreach { i =>
       sb
         .append("<tr>")
-        .append("<td>" + xml.Utility.escape(sentence.words(i)) + "</td>")
-        .append(getTdAt(sentence.tags, i))
-        .append(getTdAt(sentence.lemmas, i))
-        .append(getTdAt(sentence.entities, i))
-        .append(getTdAt(sentence.norms, i))
-        .append(getTdAt(sentence.chunks, i))
+        .append(getTdAtString(sentence.raw, i))
+        .append(getTdAtInt(sentence.startOffsets, i))
+        .append(getTdAtInt(sentence.endOffsets, i))
+        .append(getTdAtString(sentence.words, i))
+        .append(getTdAtOptString(sentence.tags, i))
+        .append(getTdAtOptString(sentence.lemmas, i))
+        .append(getTdAtOptString(sentence.entities, i))
+        .append(getTdAtOptString(sentence.norms, i))
+        .append(getTdAtOptString(sentence.chunks, i))
+        .append(getTd(edgesToString(i)))
         .append("</tr>")
     }
   }
@@ -209,17 +255,26 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       val header =
       """
         |  <tr>
+        |    <th>Text</th>
+        |    <th>Start</th>
+        |    <th>End</th>
         |    <th>Word</th>
-        |    <th>Tag</th>
-        |    <th>Lemma</th>
-        |    <th>Entity</th>
-        |    <th>Norm</th>
-        |    <th>Chunk</th>
+        |    <th>Tags</th>
+        |    <th>Lemmas</th>
+        |    <th>Entities</th>
+        |    <th>Norms</th>
+        |    <th>Chunks</th>
+        |    <th>Dependencies</th>
         |  </tr>
       """.stripMargin
       val sb = new StringBuilder(header)
 
-      doc.sentences.foreach(mkParseObj(_, sb))
+      doc.sentences.indices.foreach{ i =>
+        val sentence = doc.sentences(i)
+
+        sb.append(s"<tr><td colspan='10' align='center'>Sentence ${i + 1}, sentence.equivalenceHash = ${sentence.equivalenceHash}, dependencies.equivalenceHash = ${sentence.dependencies.get.equivalenceHash}</td></tr>")
+        mkParseObj(sentence, sb)
+    }
       sb.toString
   }
 
@@ -233,8 +288,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention))
-    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, causalEvents)
+    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, causalEvents, doc.asInstanceOf[EidosDocument].times)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
@@ -249,8 +304,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def mkGroundedObj(groundedEntities: Vector[GroundedEntity],
-                    mentions: Vector[EidosMention],
-                    causalEvents: Vector[(String, Map[String, String])]): String = {
+    mentions: Vector[EidosMention],
+    causalEvents: Vector[(String, Map[String, String])],
+    time: Array[List[TimeInterval]]): String = {
     var objectToReturn = ""
 
     if(groundedEntities.size > 0){
@@ -279,6 +335,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     else
       objectToReturn += ""
+
+    // TimeExpressions
+    objectToReturn += "<h2>Found TimeExpressions:</h2>"
+    for (t <-time) {
+      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
+    }
 
     // Concepts
     val entities = mentions.filter(_.odinMention matches "Entity")
@@ -319,7 +381,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.flatMap {
       case m: TextBoundMention => Some(m)
       case _ => None
@@ -356,6 +418,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Json.obj(
       "text" -> sentenceText,
       "entities" -> mkJsonFromEntities(entities ++ topLevelTBM, tbMentionToId),
+      "timexs" -> mkJsonFromTimeExpressions(time),
       "triggers" -> mkJsonFromEntities(triggers, tbMentionToId),
       "events" -> mkJsonFromEventMentions(events, tbMentionToId)
     )
@@ -390,6 +453,27 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       Json.arr(mkArgMentions(ev, tbmToId): _*)
     )
   }
+
+  def mkJsonFromTimeExpressions(time: Array[List[TimeInterval]]): Json.JsValueWrapper = {
+    var x = 0
+    val timexs = for (t <- time; i <- t) yield {
+      x += 1
+      Json.arr(
+        s"X$x",
+        "TimeExpression",
+        Json.arr(Json.arr(i.span._1,i.span._2)),
+        Json.toJson(for(d <- i.intervals) yield ((
+          d._1 match {
+          case null => "Undef"
+          case start => start.toString},
+          d._2 match {
+          case null => "Undef"
+          case end => end.toString},
+          d._3)))
+      )}
+    Json.toJson(timexs)
+  }
+
 
   def mkArgMentions(ev: EventMention, tbmToId: Map[TextBoundMention, Int]): Seq[Json.JsValueWrapper] = {
     val args = for {

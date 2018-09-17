@@ -28,7 +28,7 @@ class FakeWordToVec extends EidosWordToVec {
   def makeCompositeVector(t:Iterable[String]): Array[Double] = Array.emptyDoubleArray
 }
 
-class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
+class RealWordToVec(var w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
@@ -48,9 +48,9 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
     val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
-    val oov = sanitizedNameParts.forall(w2v.getWordVector(_).isEmpty)
+    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
 
-    if (oov)
+    if (outOfVocabulary)
       Seq.empty
     else {
       val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
@@ -68,19 +68,18 @@ class RealWordToVec(var w2v: Word2Vec, topKNodeGroundings: Int) extends EidosWor
 object EidosWordToVec {
   protected val logger = LoggerFactory.getLogger(this.getClass())
 
-  def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int): EidosWordToVec = {
+  def makeCachedFilename(path: String, file: String): String =
+      path + file.split('/').last + ".serialized"
+
+  def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
     if (enabled) {
       logger.info(s"Loading w2v from ${wordToVecPath}...")
-      val source = Sourcer.sourceFromResource(wordToVecPath)
 
-      try {
-        val w2v = new Word2Vec(source, None)
+      val w2v =
+        if (cached) CompactWord2Vec(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
+        else CompactWord2Vec(wordToVecPath, resource = true, cached)
 
-        new RealWordToVec(w2v, topKNodeGroundings)
-      }
-      finally {
-        source.close()
-      }
+      new RealWordToVec(w2v, topKNodeGroundings)
     }
     else
       new FakeWordToVec()
