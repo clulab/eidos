@@ -22,25 +22,25 @@ object CacheOntologies extends App {
   if (ontologies.isEmpty)
     throw new RuntimeException("No ontologies were specified, please check the config file.")
   else {
-//    val proc = reader.proc
-//
-//    println(s"Saving ontologies to $cacheDir...")
-//    ontologies.foreach { domainOntology =>
-//      val serializedPath = DomainOntologies.serializedPath(domainOntology, cacheDir)
-//
-//      val ontology: DomainOntology = domainOntology match {
-//        case   UN_NAMESPACE =>   UNOntology(loadableAttributes.unOntologyPath,   serializedPath, proc, loadSerialized = false)
-//        case  WDI_NAMESPACE =>  WDIOntology(loadableAttributes.wdiOntologyPath,  serializedPath, proc, loadSerialized = false)
-//        case  FAO_NAMESPACE =>  FAOOntology(loadableAttributes.faoOntologyPath,  serializedPath, proc, loadSerialized = false)
-//        case MESH_NAMESPACE => MeshOntology(loadableAttributes.meshOntologyPath, serializedPath, proc, loadSerialized = false)
-//        case _ => throw new IllegalArgumentException("Ontology " + domainOntology + " is not recognized.")
-//      }
-//      val treeDomainOntology = ontology.asInstanceOf[TreeDomainOntology]
-//      val compactDomainOntology = new CompactDomainOntologyBuilder(treeDomainOntology).build()
-//
-//      compactDomainOntology.save(serializedPath)
-//    }
-//    println(s"Finished serializing ${ontologies.length} ontologies.")
+    val proc = reader.proc
+
+    println(s"Saving ontologies to $cacheDir...")
+    ontologies.foreach { domainOntology =>
+      val serializedPath = DomainOntologies.serializedPath(domainOntology, cacheDir)
+
+      val ontology: DomainOntology = domainOntology match {
+        case   UN_NAMESPACE =>   UNOntology(loadableAttributes.unOntologyPath,   serializedPath, proc, useCache = false)
+        case  WDI_NAMESPACE =>  WDIOntology(loadableAttributes.wdiOntologyPath,  serializedPath, proc, useCache = false)
+        case  FAO_NAMESPACE =>  FAOOntology(loadableAttributes.faoOntologyPath,  serializedPath, proc, useCache = false)
+        case MESH_NAMESPACE => MeshOntology(loadableAttributes.meshOntologyPath, serializedPath, proc, useCache = false)
+        case _ => throw new IllegalArgumentException("Ontology " + domainOntology + " is not recognized.")
+      }
+      val treeDomainOntology = ontology.asInstanceOf[TreeDomainOntology]
+      val compactDomainOntology = new CompactDomainOntologyBuilder(treeDomainOntology).build()
+
+      compactDomainOntology.save(serializedPath)
+    }
+    println(s"Finished serializing ${ontologies.length} ontologies.")
   }
 
   val filenameIn = loadableAttributes.wordToVecPath
