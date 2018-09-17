@@ -97,7 +97,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     def    useCache: Boolean = eidosConf[Boolean]("useCache")
 
-    protected def domainOntology(name: String): DomainOntology = {
+    protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
@@ -117,7 +117,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
       // Domain Ontologies:
       val ontologyGrounders =
-          if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, domainOntology(ontology), wordToVec)).seq
+          if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology), wordToVec)).seq
           else Seq.empty
 
       val timenorm: Option[TemporalCharbasedParser] =
