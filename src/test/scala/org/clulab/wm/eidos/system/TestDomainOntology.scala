@@ -52,7 +52,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/un_ontology.yml"
 
     val newOntology = Timer.time("Load UN without cache") {
-      UNOntology(path, "", proc, filter, loadSerialized = false)
+      UNOntology(path, "", proc, filter, useCache = false)
     }
     val newerOntology = Timer.time("Load UN with cache") {
       //UNOntology(path, "", proc, filter, loadSerialized = true)
@@ -74,7 +74,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/fao_variable_ontology.yml"
 
     val newOntology = Timer.time("Load FAO without cache") {
-      FAOOntology(path, "", proc, filter, loadSerialized =false)
+      FAOOntology(path, "", proc, filter, useCache =false)
     }
     val newerOntology = Timer.time("Load FAO with cache") {
       //FAOOntology(path, "", proc, filter, loadSerialized = true)
@@ -95,7 +95,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/wdi_ontology.yml"
 
     val newOntology = Timer.time("Load WDI without cache") {
-      WDIOntology(path, "", proc, filter, loadSerialized = false)
+      WDIOntology(path, "", proc, filter, useCache = false)
     }
     val newerOntology = Timer.time("Load WDI with cache") {
       //WDIOntology(path, "", proc, filter, loadSerialized = true)
@@ -117,7 +117,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/topoflow_ontology.yml"
 
     val newOntology = Timer.time("Load TOPO without cache") {
-      TopoFlowOntology(path, "", proc, filter, loadSerialized = false)
+      TopoFlowOntology(path, "", proc, filter, useCache = false)
     }
 
     hasDuplicates("topo", newOntology) should be (false)
@@ -128,7 +128,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/mesh_ontology.yml"
 
     val newOntology = Timer.time("Load MeSH without cache") {
-      MeshOntology(path, "", proc, filter, loadSerialized = false)
+      MeshOntology(path, "", proc, filter, useCache = false)
     }
     val newerOntology = Timer.time("Load MeSH with cache") {
       //MeshOntology(path, "", proc, filter, loadSerialized = true)

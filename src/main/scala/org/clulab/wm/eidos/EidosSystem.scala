@@ -13,7 +13,7 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, MESH_NAMESPACE}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
@@ -54,7 +54,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     LoadableAttributes.wordToVecPath,
     eidosConf[Int]("topKNodeGroundings"),
     LoadableAttributes.cacheDir,
-    LoadableAttributes.useCachedOntologies
+    LoadableAttributes.useCache
   )
 
   class LoadableAttributes(
@@ -87,25 +87,24 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
     def     faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
     def    meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
-    def cacheDir: String = eidosConf[String]("cacheDir")
+    def            cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
     def maxHops: Int = eidosConf[Int]("maxHops")
-    def loadSerializedOnts: Boolean = eidosConf[Boolean]("loadCachedOntologies")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
-    def      timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
+    def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
     def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    def useCachedOntologies: Boolean = eidosConf[Boolean]("useCachedOntologies")
+    def    useCache: Boolean = eidosConf[Boolean]("useCache")
 
     protected def domainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
-        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
-        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
-        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, loadSerialized = loadSerializedOnts)
+        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, useCache = useCache)
+        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, useCache = useCache)
+        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, useCache = useCache)
+        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, useCache = useCache)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
     }
@@ -118,7 +117,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
       // Domain Ontologies:
       val ontologyGrounders =
-          if (word2vec) ontologies.map(ontology => EidosOntologyGrounder(ontology, domainOntology(ontology), wordToVec))
+          if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, domainOntology(ontology), wordToVec)).seq
           else Seq.empty
 
       val timenorm: Option[TemporalCharbasedParser] =
