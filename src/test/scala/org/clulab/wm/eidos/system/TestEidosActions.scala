@@ -118,6 +118,10 @@ class TestEidosActions extends Test {
       (m.arguments(EidosActions.ANAPHOR).head.text == anaphor)
   }
 
+  def hasHedging(m: Mention, term: String): Boolean= {
+    val hedged = m.attachments.filter(_.isInstanceOf[Hedging])
+    hedged.exists(h => h.asInstanceOf[Hedging].text == term )
+  }
 //  {
 //    val reader = new EidosSystem()
 //
@@ -298,6 +302,14 @@ class TestEidosActions extends Test {
       val mentions = extractMentions(text)
       mentions.exists(m => correctCoreference(m, "flooding", "This"))
     }
+
+    it should "identify hedging" in {
+      val text = "Rainfall is likely to cause flooding."
+      val mentions = extractMentions(text)
+      mentions.exists(m => hasHedging(m, "likely")) should be (true)
+    }
+
+
 
   }
 }

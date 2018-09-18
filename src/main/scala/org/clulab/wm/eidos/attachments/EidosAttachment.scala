@@ -314,6 +314,24 @@ object Time {
   def apply(interval: TimeInterval) = new Time(interval)
 }
 
+
+class Hedging(hedgingTerms: Seq[String]) extends ContextAttachment {
+  val text = hedgingTerms.mkString(", ")
+  val value = hedgingTerms
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDContextAttachment(serializer, Hedging.kind)
+
+  override def toJson(): JValue = toJson(Hedging.label)
+}
+
+object Hedging {
+  val label = "Hedging"
+  val kind = "HEDGE"
+
+  def apply(hedgingTerms: Seq[String]): Hedging = new Hedging(hedgingTerms)
+}
+
 case class Score(score: Double) extends EidosAttachment {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
