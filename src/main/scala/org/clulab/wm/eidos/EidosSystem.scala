@@ -85,7 +85,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // Ontology handling
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
-    def     faoOntologyPath: String = eidosConf[String]("faoOntology")
+    def     faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
     def cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
