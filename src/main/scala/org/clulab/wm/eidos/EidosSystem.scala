@@ -160,11 +160,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def reload() = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None): Document = {
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
     val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
     val doc = EidosDocument(oldDoc, keepText, documentCreationTime)
     doc.sentences.foreach(addLexiconNER)
     doc.parseTime(loadableAttributes.timenorm)
+    doc.id = filename
     doc
   }
 
@@ -180,8 +181,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   }
 
   // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true, documentCreationTime: Option[String] = None): AnnotatedDocument = {
-    val doc = annotate(text, keepText, documentCreationTime)
+  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
+                      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
+    val doc = annotate(text, keepText, documentCreationTime, filename)
     val odinMentions = extractFrom(doc)
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
     @tailrec
