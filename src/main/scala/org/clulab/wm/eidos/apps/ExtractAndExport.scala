@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import java.io.PrintWriter
 
+import ai.lum.common.StringUtils._
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Serializer
 import org.clulab.odin.{EventMention, Mention, State}
@@ -57,7 +58,7 @@ object ExtractAndExport extends App with Configured {
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
-    val annotatedDocuments = Seq(reader.extractFromText(text))
+    val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
     // 4. Export to all desired formats
     exporters.foreach(_.export(annotatedDocuments))
   }
@@ -109,6 +110,8 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
       system = "Eidos"
       sentence_id = mention.odinMention.sentence
 
+      // For now, only put EidosEventMentions in the mitre tsv
+      if mention.isInstanceOf[EidosEventMention]
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
       factor_a_info = EntityInfo(cause)
 
@@ -154,7 +157,7 @@ object SerializedMentions {
 }
 
 case class EntityInfo(m: EidosMention, topN: Int = 5) {
-  val text = ExporterUtils.removeTabAndNewline(m.odinMention.text)
+  val text = m.odinMention.text
   val norm = getBaseGrounding(m)
   val modifier = ExporterUtils.getModifier(m)
   val polarity = ExporterUtils.getPolarity(m)
@@ -162,9 +165,9 @@ case class EntityInfo(m: EidosMention, topN: Int = 5) {
   val fao = getGroundingsString(m, EidosOntologyGrounder.FAO_NAMESPACE, topN)
   val wdi = getGroundingsString(m, EidosOntologyGrounder.WDI_NAMESPACE, topN)
 
-  def toTSV(): String = Seq(text, norm, modifier, polarity).mkString("\t")
+  def toTSV(): String = Seq(text, norm, modifier, polarity).map(_.normalizeSpace).mkString("\t")
 
-  def groundingToTSV() = Seq(un, fao, wdi).mkString("\t")
+  def groundingToTSV() = Seq(un, fao, wdi).map(_.normalizeSpace).mkString("\t")
 
 
 }
@@ -177,7 +180,7 @@ object ExporterUtils {
       .map(quant => quant.asInstanceOf[Quantification].trigger)
       .map(t => t.toLowerCase)
 
-    if (quantTriggers.nonEmpty) s"${quantTriggers.mkString(", ")}" else ""
+    if (quantTriggers.nonEmpty) s"${quantTriggers.mkString(", ")}".normalizeSpace else ""
   }
 
   //fixme: not working -- always ;

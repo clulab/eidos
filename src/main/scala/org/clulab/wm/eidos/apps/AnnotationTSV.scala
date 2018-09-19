@@ -11,6 +11,7 @@ import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import ai.lum.common.StringUtils._
 
 object AnnotationTSV extends App with Configured {
 
@@ -30,17 +31,22 @@ object AnnotationTSV extends App with Configured {
 
     val ruleCounter = new Counter[String]
 
+    var numMoreThanOne = 0
+
     val rows = for {
       mention <- mentionsToPrint
 
       source = filename
       sentence_id = mention.odinMention.sentence
 
+      // Currently we're not going to output CrossSentenceMentions
+      if mention.isInstanceOf[EidosEventMention]
+
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
       factor_a_info = EntityInfo(cause)
 
       trigger = mention.odinMention.asInstanceOf[EventMention].trigger
-      relation_txt = ExporterUtils.removeTabAndNewline(trigger.text)
+      relation_txt = trigger.text.normalizeSpace
       relation_norm = mention.label // i.e., "Causal" or "Correlation"
       relation_modifier = ExporterUtils.getModifier(mention) // prob none
 
@@ -49,7 +55,7 @@ object AnnotationTSV extends App with Configured {
 
       location = "" // I could try here..?
       time = ""
-      evidence = ExporterUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
+      evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
       foundby = mention.odinMention.foundBy
       _ = ruleCounter.incrementCount(foundby) // a hack
 
