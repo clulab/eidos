@@ -30,9 +30,7 @@ object AnnotationTSV extends App with Configured {
     val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention, State(allMentions)))
 
     val ruleCounter = new Counter[String]
-
-    var numMoreThanOne = 0
-
+    
     val rows = for {
       mention <- mentionsToPrint
 
