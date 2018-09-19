@@ -125,7 +125,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           else {
             val timeNormResource: URL = getClass.getResource(timeNormModelPath)
             // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+     //       val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+            val file = "./cache/english/timenorm_model.hdf5"
             // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
             //     public native void openFile(@StdString BytePointer var1, ...
             // and needs native representation of the file.
