@@ -62,7 +62,28 @@ rules:
 #      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 #      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
-  - name: ported_syntax_1_verb_1-${addlabel}
+  - name: george_causa_de-${addlabel}
+    priority: ${ rulepriority }
+    example: "Existe um consenso de que a causa da enchente é a chuva."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(causa)/ & tag=/^NOUN/]
+      cause: Entity = (<${agents})
+      effect: Entity = nmod_de
+
+  - name: george_relcl-${addlabel}
+    priority: ${ rulepriority }
+    example: "Por assim ser , a inclusão social que Xuxa promove se dá justamente com base na devoção da apresentadora às crianças por meio de seus produtos ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(promove)/ & tag=/^V/]
+      cause: Entity = ${agents}
+      effect: Entity = </acl:relcl/
+
+
+  - name: ported_syntax_1_verb_1_includeConj-${addlabel}
     priority: ${ rulepriority }
     #example: "The water quality caused an increase in poverty and a decrease in poverty."
     example: "improved economic performance expected to cause a shift from agriculture to service industry."
@@ -70,10 +91,11 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/ (${ agents })
-      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = </${adverbial_clause}/ (${ agents }) # passed
+      effect: Entity = conj obj
 
-  - name: ported_syntax_1_verb_2-${addlabel}
+
+  - name: ported_syntax_1_verb-${addlabel}
     priority: ${ rulepriority }
     #example: "The water quality caused an increase in poverty and a decrease in poverty."
     example: "improved economic performance expected to cause a shift from agriculture to service industry."
@@ -81,32 +103,12 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/ (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{1,2}
+      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
       effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
-  - name: ported_syntax_1_verb_3-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{1,2}
-      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
-  - name: ported_syntax_1_verb_4-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
-      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
-  - name: ported_syntax_1_verb_n1-${addlabel}
+  - name: ported_syntax_1_verb_n2_fixed-${addlabel}
     priority: ${ rulepriority }
     #example: "The water quality caused an increase in poverty and a decrease in poverty."
     example: "improved economic performance expected to cause a shift from agriculture to service industry."
@@ -115,7 +117,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_por (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = xcomp (obj|ccomp|(conj obj))
 
   - name: ported_syntax_1_verb_n2-${addlabel}
     priority: ${ rulepriority }
@@ -126,7 +128,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_by? (xcomp)
+      effect: Entity = xcomp
 
   - name: ported_syntax_1_verb_n3-${addlabel}
     priority: ${ rulepriority }
@@ -137,18 +139,9 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_by? (${objects})
-
-  - name: ported_syntax_1_verb_n4-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_by? (${complements})
+      effect: Entity = (${objects}|ccomp) /conj/{,2}
+      # add agents?
+      # advcl -> obj -> conj
 
   - name: ported_syntax_1_verb_n5-${addlabel}
     priority: ${ rulepriority }
@@ -159,22 +152,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{1,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-
-  - name: ported_syntax_1_verb_n6-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
-
-
-
-
+      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{1,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
 
 #  - name: ported_syntax_5_verb-${addlabel}
