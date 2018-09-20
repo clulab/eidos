@@ -6,10 +6,8 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
       tag.startsWith("NN") ||
       tag.startsWith("VB")
 
-  protected def removeNER(ner: String) = StopwordManager.STOP_NER.contains(ner)
-
   def isCanonical(lemma: String, tag: String, ner: String): Boolean =
     isContentTag(tag) &&
     !stopwordManaging.containsStopword(lemma) &&
-    !removeNER(ner)
+    !StopwordManager.STOP_NER.contains(ner)
 }
