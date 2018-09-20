@@ -97,14 +97,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     def    useCache: Boolean = eidosConf[Boolean]("useCache")
 
+    val canonicalizer = new Canonicalizer(EidosSystem.this)
+
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, useCache = useCache)
-        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, useCache = useCache)
-        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, useCache = useCache)
-        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, useCache = useCache)
+        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
     }
@@ -201,7 +203,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
-    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
