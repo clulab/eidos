@@ -117,7 +117,7 @@ object TreeDomainOntology {
     }
 
     protected def realFiltered(text: String): Seq[String] = {
-      getSentences(text).flatMap { sentence =>
+      val result = getSentences(text).flatMap { sentence =>
         val lemmas: Array[String] = sentence.lemmas.get
         val tags: Array[String] = sentence.tags.get
         val ners: Array[String] = sentence.entities.get
@@ -127,6 +127,7 @@ object TreeDomainOntology {
           if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
         } yield lemmas(i)
       }
+      result // breakpoint
     }
 
     protected def fakeFiltered(text: String): Seq[String] = text.split(" +")
