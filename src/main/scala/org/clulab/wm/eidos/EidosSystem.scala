@@ -238,7 +238,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
 
     // Create an UndirectedRelation Mention to contain the sameAs grounding information
-    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
+    def sameAs(a: Mention, b: Mention, score: Float): Mention = {
       // Build a Relation Mention (no trigger)
       new CrossSentenceMention(
         labels = Seq("SameAs"),
@@ -338,7 +338,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(string1: String, string2: String): Double = wordToVec.stringSimilarity(string1, string2)
+  def stringSimilarity(string1: String, string2: String): Float = wordToVec.stringSimilarity(string1, string2)
 
   /*
      Debugging Methods

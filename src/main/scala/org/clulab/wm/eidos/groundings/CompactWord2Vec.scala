@@ -40,10 +40,10 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     objectOutputStream.close()
   }
 
-  def dotProduct(row1: Int, row2: Int): Double = {
+  def dotProduct(row1: Int, row2: Int): Float = {
     val offset1 = row1 * dimension
     val offset2 = row2 * dimension
-    var sum = 0.0
+    var sum = 0.0f
 
     for (i <- 0 until dimension)
       sum += array(offset1 + i) * array(offset2 + i)
@@ -57,7 +57,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     * @param w2 The second word
     * @return The cosine similarity of the two corresponding vectors
     */
-  def similarity(w1: String, w2: String): Double = {
+  def similarity(w1: String, w2: String): Float = {
     val v1o = map.get(w1)
     if (v1o.isEmpty) return -1
     val v2o = map.get(w2)
@@ -75,7 +75,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
       array(destOffset + i) += array(srcOffset + i)
   }
 
-  protected def add(dest: Array[Double], src: Int): Unit = {
+  protected def add(dest: Array[Float], src: Int): Unit = {
     val srcOffset = src * dimension
 
     for (i <- 0 until dimension)
@@ -84,23 +84,43 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 
   def isOutOfVocabulary(word: String): Boolean = !map.contains(Word2Vec.sanitizeWord(word))
 
-  def makeCompositeVector(t:Iterable[String]): Array[Double] = {
-    val vTotal = new Array[Double](dimension)
+  /** Normalizes this vector to length 1, in place */
+  def norm(weights: Array[Float]): Array[Float] = {
+    var i = 0
+    var len = 0.0f
+
+    while (i < weights.length) {
+      len += weights(i) * weights(i)
+      i += 1
+    }
+    len = math.sqrt(len).toFloat
+
+    i = 0
+    if (len != 0) {
+      while (i < weights.length) {
+        weights(i) /= len
+        i += 1
+      }
+    }
+    weights
+  }
+
+  def makeCompositeVector(t: Iterable[String]): Array[Float] = {
+    val vTotal = new Array[Float](dimension)
 
     for (s <- t) {
       val v = map.get(s)
       if (v.isDefined)
         add(vTotal, v.get)
     }
-    Word2Vec.norm(vTotal)
-    vTotal
+    norm(vTotal)
   }
 
   /**
     * Finds the average word2vec similarity between any two words in these two texts
     * IMPORTANT: words here must be words not lemmas!
     */
-  def avgSimilarity(t1: Iterable[String], t2: Iterable[String]): Double = {
+  def avgSimilarity(t1: Iterable[String], t2: Iterable[String]): Float = {
     val st1 = t1.map(Word2Vec.sanitizeWord(_))
     val st2 = t2.map(Word2Vec.sanitizeWord(_))
     val (score, pairs) = sanitizedAvgSimilarity(st1, st2)
@@ -113,11 +133,11 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     * IMPORTANT: words here must already be normalized using Word2VecUtils.sanitizeWord()!
     * Changelog: (Peter/June 4/2014) Now returns words list of pairwise scores, for optional answer justification.
     */
-  protected def sanitizedAvgSimilarity(t1: Iterable[String], t2: Iterable[String]): (Double, ArrayBuffer[(Double, String, String)]) = {
+  protected def sanitizedAvgSimilarity(t1: Iterable[String], t2: Iterable[String]): (Float, ArrayBuffer[(Float, String, String)]) = {
     // Top words
-    val pairs = new ArrayBuffer[(Double, String, String)]
+    val pairs = new ArrayBuffer[(Float, String, String)]
 
-    var avg = 0.0
+    var avg = 0.0f
     var count = 0
     for (s1 <- t1) {
       val v1 = map.get(s1)

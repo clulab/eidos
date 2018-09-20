@@ -41,7 +41,7 @@ class OntologyBranchNode(nodeName: String, parent: OntologyBranchNode) extends O
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Double, names: Seq[String], examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
+class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Float, names: Seq[String], examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
 
   def name: String = fullName
 
@@ -147,7 +147,7 @@ object TreeDomainOntology {
       val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)
       val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
       val descriptions: Option[Seq[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
-      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0).asInstanceOf[Double]
+      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
 
       val filteredNames = names.flatMap(filtered)
       val filteredExamples = examples.map(_.flatMap(filtered))
