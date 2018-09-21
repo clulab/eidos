@@ -107,19 +107,6 @@ rules:
 #      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 #
 
-
-  - name: ported_syntax_1_verb_n1-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
-      effect: Entity = nmod_por (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-
-
   - name: ported_syntax_1_verb_n2_fixed-${addlabel}
     priority: ${ rulepriority }
     #example: "The water quality caused an increase in poverty and a decrease in poverty."
@@ -130,30 +117,8 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity = xcomp (obj|ccomp|(conj obj))
+    # only need to follow anything beound a verb if there is no direct link, otherwise actions  take care of it
 
-  - name: ported_syntax_1_verb_n2-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = xcomp
-
-  - name: ported_syntax_1_verb_n3-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = (${objects}|ccomp) /conj/{,2}
-      # add agents?
-      # advcl -> obj -> conj
 
   - name: ported_syntax_1_verb_n5-${addlabel}
     priority: ${ rulepriority }
@@ -164,21 +129,75 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{1,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{1,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
 
-  - name: ported_syntax_5_verb-${addlabel}
+#  - name: ported_syntax_5_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    example: ""
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/]
+#      effect: Entity = acl? (${ objects }) /${ noun_modifiers }|${ conjunctions }/{,2}
+#      cause: Entity =
+#        (< /ccomp|rcmod|appos/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
+#        # added advcl (maybe wrong?)
+#        (?! /${agents}/ [tag=PRON])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
+
+  - name: ported_syntax_5_verb_1-${addlabel}
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]
-      effect: Entity = acl? obj /${ noun_modifiers }|${ conjunctions }/{,2}
+      effect: Entity = acl? (${ objects }) /${ noun_modifiers }|${ conjunctions }/{,2}
       cause: Entity =
-        (< /ccomp|rcmod|appos/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
+        (< /ccomp/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
         # added advcl (maybe wrong?)
         (?! /${agents}/ [tag=PRON])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
+
+  - name: ported_syntax_5_verb_2-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      effect: Entity = acl? (${ objects }) /${ noun_modifiers }|${ conjunctions }/{,2}
+      cause: Entity =
+        (< /rcmod/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
+        # added advcl (maybe wrong?)
+        (?! /${agents}/ [tag=PRON])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
+
+  - name: ported_syntax_5_verb_3-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      effect: Entity = acl? (${ objects }) /${ noun_modifiers }|${ conjunctions }/{,2}
+      cause: Entity =
+        (< /appos/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
+        # added advcl (maybe wrong?)
+        (?! /${agents}/ [tag=PRON])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
+
+
+  - name: ported_syntax_5_verb_4-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      effect: Entity = acl? (${ objects }) /${ noun_modifiers }|${ conjunctions }/{,2}
+      cause: Entity =
+        (< /advcl/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
+        # added advcl (maybe wrong?)
+        (?! /${agents}/ [tag=PRON])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
+
 
 #  - name: ported_syntax_5_verb_2-${addlabel}
 #    priority: ${ rulepriority }
