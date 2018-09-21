@@ -131,7 +131,7 @@ rules:
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity = xcomp (obj|ccomp|(conj obj))
 
-  - name: ported_syntax_1_verb_n2_fixed-${addlabel}
+  - name: ported_syntax_1_verb_n2-${addlabel}
     priority: ${ rulepriority }
     #example: "The water quality caused an increase in poverty and a decrease in poverty."
     example: "improved economic performance expected to cause a shift from agriculture to service industry."
