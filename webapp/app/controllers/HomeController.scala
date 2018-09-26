@@ -66,9 +66,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   // Entry method
   def parseText(text: String, cagRelevantOnly: Boolean) = Action {
-    val (doc, eidosMentions, groundedEntities, causalEvents) = processPlaySentence(ieSystem, text, cagRelevantOnly)
+    val (doc, eidosMentions, groundedEntities) = processPlaySentence(ieSystem, text, cagRelevantOnly)
     println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText}")
-    val json = mkJson(text, doc, eidosMentions, groundedEntities, causalEvents)
+    val json = mkJson(text, doc, eidosMentions, groundedEntities)
     Ok(json)
   }
 
@@ -76,7 +76,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def processPlaySentence(
     ieSystem: EidosSystem,
     text: String,
-    cagRelevantOnly: Boolean): (Document, Vector[EidosMention], Vector[GroundedEntity], Vector[(Trigger, Map[String, String])]) = {
+    cagRelevantOnly: Boolean): (Document, Vector[EidosMention], Vector[GroundedEntity]) = {
 
     def mentionOrder(m: Mention): Int = 10000 * m.sentence + m.start
 
@@ -97,13 +97,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println(s"Grounding the gradable adjectives ... ")
     val groundedEntities = groundEntities(ieSystem, mentions)
 
-    println(s"Getting entity linking events ... ")
-    val events = getEntityLinkerEvents(mentions)
-
     println("DONE .... ")
     //    println(s"Grounded Adjectives : ${groundedAdjectives.size}")
     // return the sentence and all the mentions extracted ... TODO: fix it to process all the sentences in the doc
-    (doc, mentions.sortBy(m => mentionOrder(m.odinMention)), groundedEntities, events)
+    (doc, mentions.sortBy(m => mentionOrder(m.odinMention)), groundedEntities)
   }
 
 
@@ -165,36 +162,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     gms.flatten.toVector
   }
-  
-  
 
-  def getEntityLinkerEvents(mentions: Vector[EidosMention]): Vector[(Trigger, Map[String, String])] = {
-    val events = mentions.filter(_.odinMention matches "Event")
-    val entityLinkingEvents = events.filter(_.odinMention matches "EntityLinker").map { e =>
-      e.odinMention match {
-        case em: EventMention =>
-          val event = e.odinMention.asInstanceOf[EventMention]
-          val trigger = event.trigger.text
-          val arguments = event.arguments.map { a =>
-            val name = a._1
-            val arg_mentions = a._2.map(_.text).mkString(" ")
-            (name, arg_mentions)
-          }
-          (trigger, arguments)
-        case cs: CrossSentenceMention =>
-          val arguments = cs.arguments.map { a =>
-            val name = a._1
-            val arg_mentions = a._2.map(_.text).mkString(" ")
-            (name, arg_mentions)
-          }
-          ("coref", arguments)
-        case _ => throw new RuntimeException("Unexpected event Mention type!")
-      }
 
-    }
-
-    entityLinkingEvents
-  }
 
   val jsonBuildInfo: JsValue = Json.obj(
     "name" -> BuildInfo.name,
@@ -278,7 +247,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       sb.toString
   }
 
-  def mkJson(text: String, doc: Document, eidosMentions: Vector[EidosMention], groundedEntities: Vector[GroundedEntity], causalEvents: Vector[(String, Map[String, String])] ): JsValue = {
+  def mkJson(text: String, doc: Document, eidosMentions: Vector[EidosMention], groundedEntities: Vector[GroundedEntity] ): JsValue = {
     println("Found mentions (in mkJson):")
     eidosMentions.foreach(eidosMention => DisplayUtils.displayMention(eidosMention.odinMention))
 
@@ -289,7 +258,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "relations" -> mkJsonFromDependencies(doc)
       )
     val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, causalEvents, doc.asInstanceOf[EidosDocument].times)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, doc.asInstanceOf[EidosDocument].times)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
@@ -303,10 +272,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkGroundedObj(groundedEntities: Vector[GroundedEntity],
-    mentions: Vector[EidosMention],
-    causalEvents: Vector[(String, Map[String, String])],
-    time: Array[List[TimeInterval]]): String = {
+  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Array[List[TimeInterval]]): String = {
+
     var objectToReturn = ""
 
     if(groundedEntities.size > 0){
