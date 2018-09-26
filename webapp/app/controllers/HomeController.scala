@@ -391,6 +391,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       case m: EventMention => Some(m)
       case _ => None
     }
+    // collect relation mentions for display
+    val relations = mentions.flatMap {
+      case m: RelationMention => Some(m)
+      case _ => None
+    }
     // collect triggers for event mentions
     val triggers = events.flatMap { e =>
       val argTriggers = for {
@@ -401,7 +406,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     }
     // collect event arguments as text bound mentions
     val entities = for {
-      e <- events
+      e <- events ++ relations
       a <- e.arguments.values.flatten
     } yield a match {
       case m: TextBoundMention => m
@@ -410,7 +415,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     }
     // generate id for each textbound mention
     val tbMentionToId = (entities ++ triggers ++ topLevelTBM)
-        .distinct
+      .distinct
       .zipWithIndex
       .map { case (m, i) => (m, i + 1) }
       .toMap
@@ -420,7 +425,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       "entities" -> mkJsonFromEntities(entities ++ topLevelTBM, tbMentionToId),
       "timexs" -> mkJsonFromTimeExpressions(time),
       "triggers" -> mkJsonFromEntities(triggers, tbMentionToId),
-      "events" -> mkJsonFromEventMentions(events, tbMentionToId)
+      "events" -> mkJsonFromEventMentions(events, tbMentionToId),
+      "relations" -> mkJsonFromRelationMentions(relations, tbMentionToId)
     )
   }
 
@@ -451,6 +457,33 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       s"E$i",
       s"T${tbmToId(ev.trigger)}",
       Json.arr(mkArgMentions(ev, tbmToId): _*)
+    )
+  }
+
+  def mkJsonFromRelationMentions(rr: Seq[RelationMention], tbmToId: Map[TextBoundMention, Int]): Json.JsValueWrapper = {
+    var i = 0
+    val jsonRelations = for (r <- rr) yield {
+      i += 1
+      mkJsonFromRelationMention(r, i, tbmToId)
+    }
+    Json.arr(jsonRelations: _*)
+  }
+
+  def getArg(r: RelationMention, name: String): TextBoundMention = r.arguments(name).head match {
+    case m: TextBoundMention => m
+    case m: EventMention => m.trigger
+    case m: RelationMention => ???
+  }
+
+  def mkJsonFromRelationMention(r: RelationMention, i: Int, tbmToId: Map[TextBoundMention, Int]): Json.JsValueWrapper = {
+    Json.arr(
+      s"R$i",
+      r.label,
+      // arguments are hardcoded to ensure the direction (controller -> controlled)
+      Json.arr(
+        Json.arr("cause", "T" + tbmToId(getArg(r, "cause"))),
+        Json.arr("effect", "T" + tbmToId(getArg(r, "effect")))
+      )
     )
   }
 
