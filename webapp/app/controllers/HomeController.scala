@@ -1,32 +1,21 @@
 package controllers
 
-import java.text.Normalizer
-
 import javax.inject._
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
-import org.clulab.sequences.LexiconNER
-import org.clulab.struct.DirectedGraph
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
-import org.clulab.wm.eidos.utils.DisplayUtils
-import org.clulab.wm.eidos.utils.DomainParams
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
-import java.time.LocalDateTime
-import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding}
+
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
 import com.typesafe.config.ConfigRenderOptions
-import play.api._
 import play.api.mvc._
 import play.api.libs.json._
-
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
@@ -349,36 +338,28 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]]): Json.JsValueWrapper = {
-    val topLevelTBM = mentions.flatMap {
-      case m: TextBoundMention => Some(m)
-      case _ => None
-    }
+    val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
+
     // collect event mentions for display
-    val events = mentions.flatMap {
-      case m: EventMention => Some(m)
-      case _ => None
-    }
+    val events = mentions.collect { case m: EventMention => m }
+
     // collect relation mentions for display
-    val relations = mentions.flatMap {
-      case m: RelationMention => Some(m)
-      case _ => None
-    }
+    val relations = mentions.collect { case m: RelationMention => m }
+
     // collect triggers for event mentions
-    val triggers = events.flatMap { e =>
-      val argTriggers = for {
-        a <- e.arguments.values
-        if a.isInstanceOf[EventMention]
-      } yield a.asInstanceOf[EventMention].trigger
-      e.trigger +: argTriggers.toSeq
+    val triggers: Vector[TextBoundMention] = events.flatMap { e =>
+      val argTriggers = e.arguments.values.flatten.collect { case m: EventMention => m.trigger }
+      e.trigger +: argTriggers.toVector
     }
+
     // collect event arguments as text bound mentions
-    val entities = for {
-      e <- events ++ relations
-      a <- e.arguments.values.flatten
-    } yield a match {
-      case m: TextBoundMention => m
-      case m: RelationMention => new TextBoundMention(m.labels, m.tokenInterval, m.sentence, m.document, m.keep, m.foundBy)
-      case m: EventMention => m.trigger
+    val entities: Vector[TextBoundMention] = (events ++ relations).flatMap { e =>
+      val tbms = e.arguments.values.flatten.collect {
+        case m: TextBoundMention => m
+        case m: RelationMention => new TextBoundMention(m.labels, m.tokenInterval, m.sentence, m.document, m.keep, m.foundBy)
+        case m: EventMention => m.trigger
+      }
+      tbms.toVector
     }
     // generate id for each textbound mention
     val tbMentionToId = (entities ++ triggers ++ topLevelTBM)
