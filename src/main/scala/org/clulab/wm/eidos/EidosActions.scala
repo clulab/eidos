@@ -841,7 +841,7 @@ object EidosActions extends Actions {
     "^nmod_due_to".r,
 //    "^nmod_among".r
     "^conj".r,
-    "^cc".r,
+    "^cc$".r,
     "^punct".r
 
   )

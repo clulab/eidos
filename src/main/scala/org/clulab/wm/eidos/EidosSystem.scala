@@ -13,7 +13,7 @@ import org.clulab.wm.eidos.attachments.Score
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
@@ -54,7 +54,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     LoadableAttributes.wordToVecPath,
     eidosConf[Int]("topKNodeGroundings"),
     LoadableAttributes.cacheDir,
-    LoadableAttributes.useCachedOntologies
+    LoadableAttributes.useCache
   )
 
   class LoadableAttributes(
@@ -86,29 +86,28 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
     def     faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
-    def cacheDir: String = eidosConf[String]("cacheDir")
+    def    meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
+    def            cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
     def maxHops: Int = eidosConf[Int]("maxHops")
-    def loadSerializedOnts: Boolean = eidosConf[Boolean]("loadCachedOntologies")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
-    def      timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
+    def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
     def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    def useCachedOntologies: Boolean = eidosConf[Boolean]("useCachedOntologies")
+    def    useCache: Boolean = eidosConf[Boolean]("useCache")
 
+    protected def mkDomainOntology(name: String): DomainOntology = {
+      val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
-    protected def domainOntologies: Seq[DomainOntology] =
-        if (!word2vec)
-          Seq.empty
-        else
-          ontologies.map {
-              case name @ UN_NAMESPACE  =>  UNOntology(name,  unOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
-              case name @ WDI_NAMESPACE => WDIOntology(name, wdiOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
-              case name @ FAO_NAMESPACE => FAOOntology(name, faoOntologyPath, cacheDir, proc, loadSerialized = useCachedOntologies)
-              case name @ _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
-          }
-
+      name match {
+        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, useCache = useCache)
+        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, useCache = useCache)
+        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, useCache = useCache)
+        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, useCache = useCache)
+        case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
+      }
+    }
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -117,7 +116,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       val actions = EidosActions(taxonomyPath)
 
       // Domain Ontologies:
-      val ontologyGrounders = domainOntologies.map(EidosOntologyGrounder(_, wordToVec))
+      val ontologyGrounders =
+          if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology), wordToVec)).seq
+          else Seq.empty
 
       val timenorm: Option[TemporalCharbasedParser] =
           if (!useTimeNorm) None
