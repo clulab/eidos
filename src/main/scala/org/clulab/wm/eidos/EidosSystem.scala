@@ -10,6 +10,7 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.attachments.Score
+import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
@@ -204,8 +205,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
+    val withNegation = detectNegations(eidosMentions)
+    handleNegations(withNegation)
 
-    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
+
+    new AnnotatedDocument(doc, cagRelevant, withNegation)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {

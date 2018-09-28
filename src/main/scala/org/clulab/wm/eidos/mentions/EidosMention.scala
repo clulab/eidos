@@ -237,6 +237,8 @@ class EidosEventMention(val odinEventMention: EventMention, stopwordManaging: St
 
   val eidosTrigger = remapOdinMention(odinTrigger, stopwordManaging, ontologyGrounder, mentionMapper)
 
+  var negations = Set.empty[Mention]
+
   protected override def canonicalMentions: Seq[Mention] =
       super.canonicalMentions ++ Seq(odinTrigger)
 }

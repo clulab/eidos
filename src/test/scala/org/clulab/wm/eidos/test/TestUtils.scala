@@ -92,4 +92,5 @@ object TestUtils {
   lazy val ieSystem = new EidosSystem()
 
   def extractMentions(text: String): Seq[Mention] = ieSystem.extractFromText(text, cagRelevantOnly = false).odinMentions
+  def extractEidosMentions(text: String): Seq[EidosMention] = ieSystem.extractFromText(text, cagRelevantOnly = false).eidosMentions
 }
