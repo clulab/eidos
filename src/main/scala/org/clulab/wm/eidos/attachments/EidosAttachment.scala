@@ -332,6 +332,23 @@ object Hedging {
   def apply(hedgingTerms: Seq[String]): Hedging = new Hedging(hedgingTerms)
 }
 
+class Negation(hedgingTerms: Seq[String]) extends ContextAttachment {
+  val text = hedgingTerms.mkString(", ")
+  val value = hedgingTerms
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDContextAttachment(serializer, Hedging.kind)
+
+  override def toJson(): JValue = toJson(Hedging.label)
+}
+
+object Negation {
+  val label = "Hedging"
+  val kind = "HEDGE"
+
+  def apply(hedgingTerms: Seq[String]): Hedging = new Hedging(hedgingTerms)
+}
+
 case class Score(score: Double) extends EidosAttachment {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
