@@ -97,7 +97,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     def    useCache: Boolean = eidosConf[Boolean]("useCache")
 
-    val canonicalizer = new Canonicalizer(EidosSystem.this)
+    val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
+    val canonicalizer = new Canonicalizer(stopwordManager)
 
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
@@ -142,7 +143,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 //        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
-        StopwordManager(stopwordsPath, transparentPath),
+        stopwordManager,
         ontologyGrounders,
         timenorm
       )
