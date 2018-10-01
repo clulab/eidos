@@ -330,8 +330,8 @@ object Hedging {
   val label = "Hedging"
   val kind = "HEDGE"
 
-  def apply(hedgingTerms: Seq[String]): Hedging = Hedging(hedgingTerms.length.toString, Some(hedgingTerms))
-  def apply(num: String, hts: Option[Seq[String]]) = new Hedging(num, hts)
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new Hedging(trigger, quantifiers)
+
 }
 
 case class Score(score: Double) extends EidosAttachment {
