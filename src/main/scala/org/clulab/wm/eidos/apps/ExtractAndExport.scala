@@ -8,7 +8,7 @@ import org.clulab.utils.Serializer
 import org.clulab.odin.{Attachment, EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Configured
-import org.clulab.wm.eidos.attachments.{Decrease, Hedging, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
@@ -174,7 +174,8 @@ object ExporterUtils {
   def getModifier(mention: EidosMention): String = {
     def quantHedgeString(a: Attachment): Option[String] = a match {
       case q: Quantification => Some(f"Quant(${q.trigger.toLowerCase})")
-      case h: Hedging => Some(f"Hedged(${h.quantifiers.get.mkString(",")})")
+      case h: Hedging => Some(f"Hedged(${h.trigger.toLowerCase})")
+      case n: Negation => Some(f"Negated(${n.trigger.toLowerCase})")
       case _ => None
     }
 

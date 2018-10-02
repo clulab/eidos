@@ -10,6 +10,7 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.attachments.Score
+import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
