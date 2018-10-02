@@ -205,11 +205,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
-    val withNegation = detectNegations(eidosMentions)
-    handleNegations(withNegation)
 
-
-    new AnnotatedDocument(doc, cagRelevant, withNegation)
+    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {

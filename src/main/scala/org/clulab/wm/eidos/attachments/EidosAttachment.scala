@@ -334,21 +334,23 @@ object Hedging {
 
 }
 
-class Negation(hedgingTerms: Seq[String]) extends ContextAttachment {
-  val text = hedgingTerms.mkString(", ")
-  val value = hedgingTerms
+class Negation(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
+              quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
-  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
-    newJLDContextAttachment(serializer, Hedging.kind)
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Negation]
 
-  override def toJson(): JValue = toJson(Hedging.label)
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Negation.kind)
+
+  override def toJson(): JValue = toJson(trigger)
 }
 
-object Negation {
-  val label = "Hedging"
-  val kind = "HEDGE"
 
-  def apply(hedgingTerms: Seq[String]): Hedging = new Hedging(hedgingTerms)
+object Negation {
+  val label = "Negation"
+  val kind = "NEGATION"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new Negation(trigger, quantifiers)
+
 }
 
 case class Score(score: Double) extends EidosAttachment {

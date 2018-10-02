@@ -122,6 +122,8 @@ class TestEidosActions extends Test {
     val hedged = m.attachments.filter(_.isInstanceOf[Hedging])
     hedged.exists(h => h.asInstanceOf[Hedging].quantifiers.get.contains(term) )
   }
+
+
 //  {
 //    val reader = new EidosSystem()
 //
@@ -308,8 +310,6 @@ class TestEidosActions extends Test {
       val mentions = extractMentions(text)
       mentions.exists(m => hasHedging(m, "likely")) should be (true)
     }
-
-
 
   }
 }

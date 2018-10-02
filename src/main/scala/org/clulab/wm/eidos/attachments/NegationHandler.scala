@@ -2,9 +2,8 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin._
 import org.clulab.wm.eidos.EidosSystem
-//import org.clulab.reach.mentions._
+import scala.collection.mutable.ArrayBuffer
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 
 
 /**
@@ -15,29 +14,10 @@ import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
   */
 object NegationHandler {
 
-  def detectNegations(mentions: Seq[EidosMention]): Seq[EidosMention] = {
-
-
-    val state = State(mentions.map(_.odinMention))
+  def detectNegations(mentions: Seq[Mention]): Seq[Mention] = {
     // do something very smart to handle negated events
     // and then return the mentions
-
-    // Iterate over the BioEventMentions
-    val djskdjs = for (m <- mentions) {
-      m match {
-        case event: EventMention =>
-
-
-
-          m
-        // Resolve Negations and attach
-
-        ///////////////////////////////////////////////////
-        case _ => m
-      }
-    }
-
-
+    mentions.map(detectNegation(_))
   }
 
   def detectNegation(m: Mention): Mention = {
@@ -76,11 +56,11 @@ object NegationHandler {
   def handleNegations(m: EventMention, negations: Set[Mention]): Mention = {
     if (m matches EidosSystem.RELATION_LABEL) {
       // count the negations
-      val negAttachments = negations match {
+      val withNeg = negations match {
         // 0 or 1 Neg modifications means no change...
-        case noChange if noChange.size <= 1 => Set.empty[Attachment]
+        case noChange if noChange.size <= 1 => m
         // if we have an even number of Negations, remove them all
-        case pos if pos.size % 2 == 0 => Set.empty[Attachment]
+        case pos if pos.size % 2 == 0 => m
         // if we have an odd number, report only the first...
         case neg if neg.size % 2 != 0 =>
           val singleNeg =
@@ -88,10 +68,10 @@ object NegationHandler {
               .toSeq
               .sortBy(_.tokenInterval)
               .head
-          Set()
+          m.withAttachment(Negation(singleNeg.text, None))
       }
-
-    }
+      withNeg
+    } else m
   }
 
   def gatherNegDepNegations(event: EventMention):Seq[Mention] = {
@@ -105,18 +85,22 @@ object NegationHandler {
       case None => Array.empty
     }
 
-    val negations: Seq[Mention] = for {
+    val negations = new ArrayBuffer[Mention]
+
+    for {
       tok <- event.tokenInterval
       out <- outgoing.lift(tok)
       (ix, label) <- out
       if label == "neg"
-    } yield new TextBoundMention(
-      Seq("Negation_trigger"),
-      Interval(ix),
-      sentence = event.sentence,
-      document = event.document,
-      keep = event.keep,
-      foundBy = event.foundBy
+    } negations.append(
+      new TextBoundMention(
+        Seq("Negation_trigger"),
+        Interval(ix),
+        sentence = event.sentence,
+        document = event.document,
+        keep = event.keep,
+        foundBy = event.foundBy
+      )
     )
 
     negations
@@ -177,32 +161,4 @@ object NegationHandler {
       foundBy = event.foundBy
     )
   }
-
-
-
-  //  // Alter Negation modifications in-place
-//  def handleNegations(ms: Seq[EidosMention]): Unit = {
-//    ms foreach {
-//      case m: EidosEventMention =>
-//        val negationModifications = m.negations
-//
-//        // count the negations
-//        negationModifications match {
-//          // 0 or 1 Neg modifications means no change...
-//          case noChange if noChange.size <= 1 => ()
-//          // if we have an even number of Negations, remove them all
-//          case pos if pos.size % 2 == 0 => m.negations = Set.empty
-//          // if we have an odd number, report only the first...
-//          case neg if neg.size % 2 != 0 =>
-//            val singleNeg =
-//              negationModifications
-//                .toSeq
-//                .sortBy(_.tokenInterval)
-//                .head
-//            m.negations = Set(singleNeg)
-//        }
-//      case _ => ()
-//    }
-//  }
-
 }
