@@ -120,7 +120,7 @@ class TestEidosActions extends Test {
 
   def hasHedging(m: Mention, term: String): Boolean= {
     val hedged = m.attachments.filter(_.isInstanceOf[Hedging])
-    hedged.exists(h => h.asInstanceOf[Hedging].quantifiers.get.contains(term) )
+    hedged.exists(h => h.asInstanceOf[Hedging].trigger == term)
   }
 //  {
 //    val reader = new EidosSystem()
