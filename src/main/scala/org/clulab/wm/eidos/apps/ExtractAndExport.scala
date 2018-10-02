@@ -174,8 +174,8 @@ object ExporterUtils {
   def getModifier(mention: EidosMention): String = {
     def quantHedgeString(a: Attachment): Option[String] = a match {
       case q: Quantification => Some(f"Quant(${q.trigger.toLowerCase})")
-      case h: Hedging => Some(f"Hedged(${h.trigger})")
-      case n: Negation => Some(f"Negated(${n.trigger})")
+      case h: Hedging => Some(f"Hedged(${h.trigger.toLowerCase})")
+      case n: Negation => Some(f"Negated(${n.trigger.toLowerCase})")
       case _ => None
     }
 
