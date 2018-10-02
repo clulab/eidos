@@ -8,13 +8,14 @@ import org.clulab.wm.eidos.test.TestUtils._
 class TestNegation extends Test {
 
   def hasNegation(m: Mention): Boolean = m.attachments.exists(_.isInstanceOf[Negation])
+
   it should "find no negation when not negated" in {
     val text1 = "Rainfall causes flooding."
     val mentions1 = extractMentions(text1)
     mentions1.filter(em => em.isInstanceOf[EventMention]).exists(hasNegation) should be (false)
   }
 
-  it should "find no negation when there is a single negation" in {
+  it should "find negation when there is a single negation" in {
     val text1 = "Rainfall does not cause flooding."
     val mentions1 = extractMentions(text1)
     mentions1.filter(em => em.isInstanceOf[EventMention]).exists(hasNegation) should be (true)

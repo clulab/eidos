@@ -57,8 +57,8 @@ object NegationHandler {
     if (m matches EidosSystem.RELATION_LABEL) {
       // count the negations
       val withNeg = negations match {
-        // 0 or 1 Neg modifications means no change...
-        case noChange if noChange.size <= 1 => m
+        // 0 Neg modifications means no change...
+        case noChange if noChange.size == 0 => m
         // if we have an even number of Negations, remove them all
         case pos if pos.size % 2 == 0 => m
         // if we have an odd number, report only the first...
