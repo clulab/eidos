@@ -2,27 +2,23 @@ package org.clulab.wm.eidos.apps
 
 import java.io.PrintWriter
 
-import com.typesafe.config.{Config, ConfigFactory}
+import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.word2vec.Word2Vec
-import org.clulab.processors.fastnlp.FastNLPProcessor
-import org.clulab.utils.Configured
 import org.clulab.wm.eidos.utils.PassThruNamer
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps.ExtractAndExport.getArgString
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, OntologyNode}
 import org.clulab.wm.eidos.utils.FileUtils.printWriterFromFile
 
-object OntologyMapper extends App with Configured {
+object OntologyMapper extends App {
 
-  val proc = new FastNLPProcessor()
   val reader = new EidosSystem()
+  val proc = reader.proc
   val w2v = reader.wordToVec
 
-  val config = ConfigFactory.load("eidos")
-  override def getConf: Config = config
+  val config = reader.config
 
-  val outputFile = getArgString("apps.ontologymapper.outfile", None)
-  val topN = getArgInt("apps.groundTopN", Some(5))
+  val outputFile: String = config[String]("apps.ontologymapper.outfile")
+  val topN: Int = config[Int]("apps.groundTopN")
 
   // Do something...
   mapIndicators(reader, outputFile, topN)

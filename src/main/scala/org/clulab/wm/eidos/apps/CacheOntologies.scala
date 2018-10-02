@@ -5,7 +5,6 @@ import java.io.File
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps.OntologyMapper.{config, getArgInt, getArgString}
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.groundings._
