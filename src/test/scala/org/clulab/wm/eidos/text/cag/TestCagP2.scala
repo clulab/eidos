@@ -19,7 +19,7 @@ class TestCagP2 extends Test {
     val economicCrisis = NodeSpec("South Sudan's economic crisis")
     val sudanesePound = NodeSpec("rapidly depreciating value of the South Sudanese Pound (SSP)", Dec("depreciating", "rapidly"))
     val hardCurrency = NodeSpec("hard currency", Dec("shortages"))
-    val oilPrices = NodeSpec("oil prices", Dec("declines"))
+    val oilPrices = NodeSpec("global declines in oil prices", Dec("declines"))
     val dependenceOnImports = NodeSpec("significant dependence on imports", Quant("significant"))
     
     behavior of "p2s1"
