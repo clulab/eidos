@@ -1,0 +1,105 @@
+vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
+
+
+rules:
+
+
+# ------------------- Previous Grammar Unsorted --------------------------
+
+  #
+  # param is nominal subject of verb: "PARAM increases/decreases with _____ "
+  #
+#  - name: with-${addlabel}-1
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: ""
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !outgoing=/dobj/]
+#      effect: Entity = <xcomp? nsubj
+#      cause: Entity = nmod_with /${ preps }/{,2}
+
+  #
+  # "subject increases/decreases Y with X "
+  #
+#  - name: with-${addlabel}-2
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: ""
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & outgoing=/dobj/]
+#      effect: Entity = dobj
+#      cause: Entity = nmod_with /${ preps }/{,2}
+
+  - name: ported_syntax_1_verb_1_includeConj-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = </${adverbial_clause}/ (${ agents }) # passed
+      effect: Entity = conj /obj/{,3}
+
+
+  - name: george_causa_de-${addlabel}
+    priority: ${ rulepriority }
+    example: "Existe um consenso de que a causa da enchente é a chuva."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(causa)/ & tag=/^NOUN/]
+      cause: Entity = (<${agents})
+      effect: Entity = nmod_de
+
+  - name: george_relcl_promove-${addlabel}
+    priority: ${ rulepriority }
+    example: "Por assim ser , a inclusão social que Xuxa promove se dá justamente com base na devoção da apresentadora às crianças por meio de seus produtos ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(promove|favorece)/ & tag=/^V/]
+      cause: Entity = ${agents}
+      effect: Entity = </acl:relcl/
+
+  - name: george_relcl_favorece-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(favorece)/ & tag=/^V/]
+      cause: Entity = obj
+      effect: Entity = <acl:relcl <nsubj
+
+  - name: george_maximizar-${addlabel}
+    priority: ${ rulepriority }
+    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(maximiz)/ & tag=/^V/]
+      cause: Entity = (${ agents }) (<${ preps }) (${ agents })
+      effect: Entity = (${ objects })
+
+  - name: george_causada_por-${addlabel}
+    priority: ${ rulepriority }
+    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
+    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas sérios"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (obl|obj)
+      effect: Entity = (nsubj:pass|${ agents })
+
+  - name: george_devido_a-${addlabel}
+    priority: ${ rulepriority }
+    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(melh)/ & tag=/^V/]
+      cause: Entity = (advmod  [word=devido]) (obl|obj)
+      effect: Entity = nsubj:pass

@@ -62,37 +62,10 @@ rules:
 #      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 #      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
-  - name: george_causa_de-${addlabel}
-    priority: ${ rulepriority }
-    example: "Existe um consenso de que a causa da enchente é a chuva."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(causa)/ & tag=/^NOUN/]
-      cause: Entity = (<${agents})
-      effect: Entity = nmod_de
-
-  - name: george_relcl-${addlabel}
-    priority: ${ rulepriority }
-    example: "Por assim ser , a inclusão social que Xuxa promove se dá justamente com base na devoção da apresentadora às crianças por meio de seus produtos ."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(promove)/ & tag=/^V/]
-      cause: Entity = ${agents}
-      effect: Entity = </acl:relcl/
 
 
-  - name: ported_syntax_1_verb_1_includeConj-${addlabel}
-    priority: ${ rulepriority }
-    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/ (${ agents }) # passed
-      effect: Entity = conj /obj/{,3}
+
+
 
   - name: ported_syntax_1_verb-${addlabel}
     priority: ${ rulepriority }
@@ -103,7 +76,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = </${adverbial_clause}/? (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
-      effect: Entity = prepc_by? (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
   - name: ported_syntax_5_verb-${addlabel}
     priority: ${ rulepriority }
@@ -130,7 +103,7 @@ rules:
 #      effect: Entity = xcomp (obj|ccomp|(conj obj))
 #    # only need to follow anything beound a verb if there is no direct link, otherwise actions  take care of it
 
-  - name: ported_syntax_5_verb_1-${addlabel}
+  - name: ported_syntax_5_verb_ccomp-${addlabel}
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
@@ -144,17 +117,17 @@ rules:
         (?! /${agents}/ [tag=PRON])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
 
 
-#  # Handles occurrence of prep_by when NOT passive voice
-#  # misfires on "floods caused by rain"
-#  - name: ported_syntax_1c_verb-${addlabel}
-#    priority: ${ rulepriority }
-#    example: "The water quality caused poverty by an increase in productivity."
-#    label: ${ label }
-#    action: ${ action }
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-#      cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-#      effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+  # Handles occurrence of prep_by when NOT passive voice
+  # misfires on "floods caused by rain"
+  - name: ported_syntax_1c_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "The water quality caused poverty by an increase in productivity."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
   #Handles occurrence of prep_by when NOT passive voice
   #misfires on "floods caused by rain"
