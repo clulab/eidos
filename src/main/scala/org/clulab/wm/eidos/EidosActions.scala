@@ -485,7 +485,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         timeAttchment = Some(interval)
 
     timeAttchment match {
-      case None => mention
+      case None => mention//.withAttachment(new Time(mention.document.asInstanceOf[EidosDocument].getDCT()))
       case Some(t) =>  mention.withAttachment(new Time(t))
     }
   }

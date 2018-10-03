@@ -609,6 +609,33 @@ object JLDTimex {
 }
 
 
+class JLDDCT(serializer:JLDSerializer, val interval: TimeInterval)
+// The document, sentence, index above will be used to recognized words.
+  extends JLDObject(serializer, JLDDCT.typename, interval) {
+
+  override def toJObject(): JObject = {
+
+    val text = interval.text
+    val start = interval.intervals(0)._1
+    val end = interval.intervals(0)._2
+    val duration = interval.intervals(0)._3
+
+    serializer.mkType(this) ~
+      serializer.mkId(this) ~
+      ("text" -> Option(text).getOrElse("")) ~
+      ("start" -> Option(start).getOrElse("Undef").toString) ~
+      ("end" -> Option(end).getOrElse("Undef").toString) ~
+      ("duration" -> duration)
+  }
+}
+
+object JLDDCT {
+  val singular = "dct"
+  val typename = "DCT"
+}
+
+
+
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
     extends JLDObject(serializer, "Sentence", sentence) {
 
@@ -641,11 +668,14 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
   override def toJObject: JObject = {
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
     val jldText = annotatedDocument.document.text.map(text => text)
+    val dct = annotatedDocument.document.asInstanceOf[EidosDocument].getDCT()
+    val jldDCT = new JLDDCT(serializer, dct)
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
         ("title" -> annotatedDocument.document.id) ~
         ("text" -> jldText) ~
+        ("dct" -> jldDCT.toJObject()) ~
         (JLDSentence.plural -> toJObjects(jldSentences))
   }
 }

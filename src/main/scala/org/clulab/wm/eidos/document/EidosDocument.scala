@@ -59,6 +59,10 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
       this.anchor = Some(timenorm.get.dct(timenorm.get.parse(documentCreationTime.get)))
   }
 
+  def getDCT(): TimeInterval = {
+    new TimeInterval((-1, -1), List((null, null, 0)), null)
+  }
+
   def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
      if (timenorm.isDefined) parseRealTime(timenorm.get)
      else parseFakeTime()
