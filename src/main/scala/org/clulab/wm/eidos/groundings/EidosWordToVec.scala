@@ -2,11 +2,12 @@ package org.clulab.wm.eidos.groundings
 
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidos.utils.Sourcer
 import org.slf4j.LoggerFactory
 
 trait EidosWordToVec {
-  type Similarities = Seq[(String, Double)]
+  type Similarities = Seq[(Namer, Double)]
 
   def stringSimilarity(string1: String, string2: String): Double
   def calculateSimilarity(mention1: Mention, mention2: Mention): Double
@@ -54,7 +55,7 @@ class RealWordToVec(var w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     else {
       val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
-        (conceptEmbedding.concept, Word2Vec.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+        (conceptEmbedding.namer, Word2Vec.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
@@ -68,7 +69,7 @@ object EidosWordToVec {
   protected val logger = LoggerFactory.getLogger(this.getClass())
 
   def makeCachedFilename(path: String, file: String): String =
-      path + file.split('/').last + ".serialized"
+      path + "/" + file.split('/').last + ".serialized"
 
   def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
     if (enabled) {
