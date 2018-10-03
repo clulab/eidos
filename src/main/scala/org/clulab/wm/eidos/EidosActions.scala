@@ -32,12 +32,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    // expand attachments
 
-//    println("*************************************\n\t\tGLOBAL ACTION\n")
-//    println("Incoming:")
-//    mentions.foreach(displayMention)
-
+    // expand arguments
     val (expandable, textBounds) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
     val expanded = expandArguments(expandable, state)
     val result = expanded ++ textBounds
@@ -45,12 +41,9 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // Merge attachments
     val merged = mergeAttachments(result, state.updated(result))
 
-    // Keep most complete
-    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
-
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
-    val (causal, nonCausal) = mostComplete.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val (causal, nonCausal) = merged.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
 
     val assemble1 = createEventChain(causal, "effect", "cause")
     // FIXME please
@@ -62,18 +55,12 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
     val modifiedMentions = assemble2 ++ nonCausal
 
+    // Basic coreference, hedging, and negation
     val afterResolving = basicDeterminerCoref(modifiedMentions, state)
-
-    // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
-//    modifiedMentions ++ afterResolving
-
-//    println("Outgoing:")
-//    afterResolving.foreach(displayMention)
-//    println("*************************************\n")
-
     val afterHedging = HypothesisHandler.detectHypotheses(afterResolving, state)
     val afterNegation = NegationHandler.detectNegations(afterHedging)
 
+    // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
     afterNegation
   }
 
@@ -287,7 +274,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     }
 
 
-    val triggerGroups = events.groupBy(event => (event.sentence, event.label, event.trigger))
+    val triggerGroups = events.groupBy(event => (event.sentence, event.label, event.trigger.tokenInterval))
+
     val filteredForArgumentSubsumption = for {
       (_, eventsInGroup) <- triggerGroups
 
@@ -329,22 +317,15 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   // Remove incomplete Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
-//<<<<<<< HEAD
-
     val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
     // Filter out duplicate (or subsumed) events.  Strict containment used -- i.e. simply overlapping args is not
     // enough to be filtered out here.
     val events = filterSubstringArgumentEvents(baseEvents.map(_.asInstanceOf[EventMention]))
 
-//=======
-//    val (events, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
-//    val (textBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
-//    // remove incomplete entities (i.e. under specified when more fully specified exists)
-//>>>>>>> master
-
     // Entities
     val (baseTextBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
     val textBounds = filterSubstringEntities(baseTextBounds.map(_.asInstanceOf[TextBoundMention]))
+
 
     // remove incomplete entities (i.e. under specified when more fully specified exists)
     val tbMentionGroupings =
@@ -374,6 +355,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
       }
 
     val res = completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
+
+    // Useful for debug
     res
   }
 
@@ -617,10 +600,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-
-    //mentions.map(m => displayMention(m))
-
-
     // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
     // themselves so that they can be added to the state (which happens when the Seq[Mentions] is returned at the
     // end of the action
@@ -648,7 +627,10 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // Get all the new mentions for the state -- both the events with new args and the
     val res = expansionResult.flatten
 
-    keepMostCompleteEvents(res, state.updated(res))
+    val mc = keepMostCompleteEvents(res, state.updated(res))
+
+    // Useful for debug
+    mc
   }
 
 
@@ -660,7 +642,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   // Do the expansion, but if the expansion causes you to suck up something we wanted to avoid, split at the
   // avoided thing and keep the half containing the origina (pre-expansion) entity.
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
-
     val expanded = expand(orig, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid)
     //println(s"orig: ${orig.text}\texpanded: ${expanded.text}")
    
@@ -696,11 +677,14 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   //-- Entity expansion methods (brought in from EntityFinder)
   def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention = {
-    val interval = traverseOutgoingLocal(entity, maxHops, stateFromAvoid, entity.sentenceObj)
-    val outgoingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
-    val interval2 = traverseIncomingLocal(outgoingExpanded, maxHops, stateFromAvoid, entity.sentenceObj)
-    val incomingExpanded = outgoingExpanded.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
-    incomingExpanded
+    // Expand the incoming to recapture any triggers which were avoided
+    val interval1 = traverseIncomingLocal(entity, maxHops, stateFromAvoid, entity.sentenceObj)
+    val incomingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval1)
+    // Expand on outgoing deps
+    val interval2 = traverseOutgoingLocal(incomingExpanded, maxHops, stateFromAvoid, entity.sentenceObj)
+    val outgoingExpanded = incomingExpanded.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
+
+    outgoingExpanded
   }
 
 
