@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.{DCT, TimeInterval}
 import org.clulab.wm.eidos.serialization.json.{
   JLDAttachment => JLDEidosAttachment,
   JLDScoredAttachment => JLDEidosScoredAttachment,
@@ -16,7 +16,6 @@ import org.json4s.JsonDSL._
 import scala.beans.BeanProperty
 import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.{mix, mixLast}
-
 import org.clulab.wm.eidos.document.TimeInterval
 
 @SerialVersionUID(1L)
@@ -312,6 +311,24 @@ object Time {
   val kind = "TIMEX"
 
   def apply(interval: TimeInterval) = new Time(interval)
+}
+
+class DCTime(dct: DCT) extends ContextAttachment {
+
+  val text = dct.text
+  val value = dct
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDContextAttachment(serializer, DCTime.kind)
+
+  override def toJson(): JValue = toJson(DCTime.label)
+}
+
+object DCTime {
+  val label = "Time"
+  val kind = "TIMEX"
+
+  def apply(dct: DCT) = new DCTime(dct)
 }
 
 

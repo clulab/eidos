@@ -9,7 +9,6 @@ import org.clulab.wm.eidos.utils.FileUtils
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
-
   val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
@@ -27,7 +26,6 @@ object ExtractFromDirectory extends App {
     val mentionsJSONLD = corpus.serialize()
     // 5. Write to output file
     pw.println(stringify(mentionsJSONLD, pretty = true))
-
     pw.close()
   }
 }

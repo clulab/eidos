@@ -306,7 +306,7 @@ class TestDoc3 extends Test {
     val cropCond = NodeSpec("Cropping conditions", Inc("favorable"), Quant("favorable"))
     val rainfall = NodeSpec("good performance of seasonal rainfall", Quant("good"), Inc("good"))
     val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average","persistently", "well"), Quant("above-average", "persistently", "well"))
-    val flood = NodeSpec("flooding", TimEx("coming weeks"))
+    val flood = NodeSpec("flooding", TimEx("weeks"))
     val rainfall3 = NodeSpec("continued rains")
     val worm = NodeSpec("impact of Fall Armyworm, for which infestations have been reported in six regions of Ethiopia", Dec("reduce"))
     val rainfall4 = NodeSpec("Rainfall", Quant("moderate to heavy"))
@@ -650,5 +650,4 @@ class TestDoc3 extends Test {
     }
 
   }
-
 }

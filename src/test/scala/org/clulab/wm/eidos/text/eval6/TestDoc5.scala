@@ -147,7 +147,7 @@ class TestDoc5 extends Test {
 
     val factors = NodeSpec("macroeconomic factors")
     val prices = NodeSpec("exorbitant staple food prices", Inc("exorbitant"))
-    val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("oil revenue since 2014"))
+    val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("oil revenue since"))
     val reserves = NodeSpec("both foreign currency reserves", Dec("drop", "sharp"))
     val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"))
     val factors2 = NodeSpec("factors")
