@@ -98,14 +98,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     def    useCache: Boolean = eidosConf[Boolean]("useCache")
 
+    val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
+    val canonicalizer = new Canonicalizer(stopwordManager)
+
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, useCache = useCache)
-        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, useCache = useCache)
-        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, useCache = useCache)
-        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, useCache = useCache)
+        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
     }
@@ -141,7 +144,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 //        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
-        StopwordManager(stopwordsPath, transparentPath),
+        stopwordManager,
         ontologyGrounders,
         timenorm
       )
@@ -204,7 +207,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
-    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
+    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
     new AnnotatedDocument(doc, cagRelevant, eidosMentions)
   }
@@ -239,7 +242,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
 
     // Create an UndirectedRelation Mention to contain the sameAs grounding information
-    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
+    def sameAs(a: Mention, b: Mention, score: Float): Mention = {
       // Build a Relation Mention (no trigger)
       new CrossSentenceMention(
         labels = Seq("SameAs"),
@@ -339,7 +342,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(string1: String, string2: String): Double = wordToVec.stringSimilarity(string1, string2)
+  def stringSimilarity(string1: String, string2: String): Float = wordToVec.stringSimilarity(string1, string2)
 
   /*
      Debugging Methods

@@ -75,22 +75,22 @@ object OntologyMapper extends App {
 
   // todo query expansion
 
-  def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Double] = {
+  def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
     val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
     reader.wordToVec.makeCompositeVector(selectWords(words, contentOnly))
   }
 
-  def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Double = {
+  def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Float = {
     dotProduct(mkMWEmbedding(a, reader), mkMWEmbedding(b, reader))
   }
 
-  def weightedParentScore(path1: String, path2: String, reader: EidosSystem): Double = {
+  def weightedParentScore(path1: String, path2: String, reader: EidosSystem): Float = {
     // like entity/natural_resource/water ==> Seq(entity, natural_resource, water)
     // reverse: Seq(water, natural_resource, water)
     val parents1 = getParents(path1).reverse
     val parents2 = getParents(path2).reverse
     val k = math.min(parents1.length, parents2.length)
-    var avg: Double = 0.0
+    var avg = 0.0f
     for (i <- 0 until k) {
       val score = mweStringSimilarity(parents1(i), parents2(i), reader)
       avg += score / (i + 1)
@@ -118,9 +118,9 @@ object OntologyMapper extends App {
     ???
   }
 
-  def dotProduct(v1:Array[Double], v2:Array[Double]):Double = {
+  def dotProduct(v1:Array[Float], v2:Array[Float]):Float = {
     assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
-    var sum = 0.0
+    var sum = 0.0f
     var i = 0
     while(i < v1.length) {
       sum += v1(i) * v2(i)
@@ -129,7 +129,7 @@ object OntologyMapper extends App {
     sum
   }
 
-  def pairwiseScore(ce1: ConceptEmbedding, ce2: ConceptEmbedding, reader: EidosSystem): Double = {
+  def pairwiseScore(ce1: ConceptEmbedding, ce2: ConceptEmbedding, reader: EidosSystem): Float = {
     // Semantic similarity between leaf nodes (based on their examples)
     val examplesScore = dotProduct(ce1.embedding, ce2.embedding)
     // Semantic similarity of the parents (going up the hierarchy, more weight closer to leaves)
@@ -137,15 +137,15 @@ object OntologyMapper extends App {
     // Similarity between the indicator an the ontology concept ancestors
     val indicatorToAncestorScore = weightedNodeToParentScore(ce1.namer.name, ce2.namer.name, reader)
 
-    0.8 * examplesScore + 0.1 * structureScore //+ 0.3 * indicatorToAncestorScore
+    0.8f * examplesScore + 0.1f * structureScore //+ 0.3 * indicatorToAncestorScore
   }
 
-  def mostSimilarIndicators(concepts: Seq[ConceptEmbedding], indicators: Seq[ConceptEmbedding], n: Int = 10, reader: EidosSystem): Seq[(String, Seq[(String, Double)])] = {
+  def mostSimilarIndicators(concepts: Seq[ConceptEmbedding], indicators: Seq[ConceptEmbedding], n: Int = 10, reader: EidosSystem): Seq[(String, Seq[(String, Float)])] = {
     concepts.map(c => (c.namer.name, mostSimilar(c, indicators, n, reader)))
   }
 
   // n is to limit the number returned, 0 means return all
-  def mostSimilar(concept: ConceptEmbedding, indicators: Seq[ConceptEmbedding], n: Int, reader: EidosSystem): Seq[(String, Double)] = {
+  def mostSimilar(concept: ConceptEmbedding, indicators: Seq[ConceptEmbedding], n: Int, reader: EidosSystem): Seq[(String, Float)] = {
     println(s"comparing $concept...")
     val comparisons = indicators.map(indicator => (indicator.namer.name, pairwiseScore(concept, indicator, reader)))//.filter(p => p._2 > 0.7)
     if (n > 0) {

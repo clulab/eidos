@@ -5,8 +5,8 @@ import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
 
 object Aliases {
-  type SingleGrounding = (Namer, Double) // Later (Int, Double)
-  type MultipleGrounding = Seq[SingleGrounding] // Later (Namer(Int), Seq(SingleGrounding)]
+  type SingleGrounding = (Namer, Float)
+  type MultipleGrounding = Seq[SingleGrounding]
   type Groundings = Map[String, OntologyGrounding]
 }
 
