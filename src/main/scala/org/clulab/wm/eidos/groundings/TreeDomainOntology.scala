@@ -41,12 +41,12 @@ class OntologyBranchNode(nodeName: String, parent: OntologyBranchNode) extends O
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Float, names: Seq[String], examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
+class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
 
   def name: String = fullName
 
   // Right now it doesn't matter where these come from, so they can be combined.
-  val values: Array[String] = (names ++ examples.getOrElse(Seq.empty) ++ descriptions.getOrElse(Seq.empty)).toArray
+  val values: Array[String] = (/*names ++*/ examples.getOrElse(Seq.empty) ++ descriptions.getOrElse(Seq.empty)).toArray
 
   override def toString(): String = super.fullName + " = " + values.toList
 }
@@ -144,17 +144,18 @@ object TreeDomainOntology {
     }
 
     protected def parseOntology(parent: OntologyBranchNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
+      /* We're going without the names for now. */
       val name = yamlNodes(TreeDomainOntology.NAME).asInstanceOf[String]
-      val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)
+      /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
       val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
       val descriptions: Option[Seq[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
       val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
 
-      val filteredNames = names.flatMap(filtered)
+      /*val filteredNames = names.flatMap(filtered)*/
       val filteredExamples = examples.map(_.flatMap(filtered))
       val filteredDescriptions = descriptions.map(_.flatMap(filtered))
 
-      val res = new OntologyLeafNode(name, parent, polarity, filteredNames, filteredExamples, filteredDescriptions)
+      val res = new OntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions)
       res
     }
 
