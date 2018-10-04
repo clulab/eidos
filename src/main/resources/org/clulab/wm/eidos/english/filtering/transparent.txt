@@ -126,6 +126,7 @@ role
 safety
 sample
 series
+situation
 size
 smallholder
 state
