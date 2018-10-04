@@ -2,12 +2,13 @@ package org.clulab.wm.eidos.apps
 
 import java.io.PrintWriter
 
+import ai.lum.common.StringUtils._
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Serializer
-import org.clulab.odin.{EventMention, Mention, State}
+import org.clulab.odin.{Attachment, EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Configured
-import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
@@ -17,8 +18,6 @@ import org.clulab.wm.eidos.utils.FileUtils.{findFiles, printWriterFromFile}
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
-
-
 
 
 /**
@@ -57,7 +56,7 @@ object ExtractAndExport extends App with Configured {
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
-    val annotatedDocuments = Seq(reader.extractFromText(text))
+    val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
     // 4. Export to all desired formats
     exporters.foreach(_.export(annotatedDocuments))
   }
@@ -109,6 +108,8 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
       system = "Eidos"
       sentence_id = mention.odinMention.sentence
 
+      // For now, only put EidosEventMentions in the mitre tsv
+      if mention.isInstanceOf[EidosEventMention]
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
       factor_a_info = EntityInfo(cause)
 
@@ -154,7 +155,7 @@ object SerializedMentions {
 }
 
 case class EntityInfo(m: EidosMention, topN: Int = 5) {
-  val text = ExporterUtils.removeTabAndNewline(m.odinMention.text)
+  val text = m.odinMention.text
   val norm = getBaseGrounding(m)
   val modifier = ExporterUtils.getModifier(m)
   val polarity = ExporterUtils.getPolarity(m)
@@ -162,22 +163,26 @@ case class EntityInfo(m: EidosMention, topN: Int = 5) {
   val fao = getGroundingsString(m, EidosOntologyGrounder.FAO_NAMESPACE, topN)
   val wdi = getGroundingsString(m, EidosOntologyGrounder.WDI_NAMESPACE, topN)
 
-  def toTSV(): String = Seq(text, norm, modifier, polarity).mkString("\t")
+  def toTSV(): String = Seq(text, norm, modifier, polarity).map(_.normalizeSpace).mkString("\t")
 
-  def groundingToTSV() = Seq(un, fao, wdi).mkString("\t")
+  def groundingToTSV() = Seq(un, fao, wdi).map(_.normalizeSpace).mkString("\t")
 
 
 }
 
 object ExporterUtils {
   def getModifier(mention: EidosMention): String = {
-    val attachments = mention.odinMention.attachments
-    val quantTriggers = attachments
-      .filter(a => a.isInstanceOf[Quantification])
-      .map(quant => quant.asInstanceOf[Quantification].trigger)
-      .map(t => t.toLowerCase)
+    def quantHedgeString(a: Attachment): Option[String] = a match {
+      case q: Quantification => Some(f"Quant(${q.trigger.toLowerCase})")
+      case h: Hedging => Some(f"Hedged(${h.trigger.toLowerCase})")
+      case n: Negation => Some(f"Negated(${n.trigger.toLowerCase})")
+      case _ => None
+    }
 
-    if (quantTriggers.nonEmpty) s"${quantTriggers.mkString(", ")}" else ""
+    val attachments = mention.odinMention.attachments.map(quantHedgeString).toSeq.filter(_.isDefined)
+
+    val modifierString = attachments.map(a => a.get).mkString(", ")
+    modifierString
   }
 
   //fixme: not working -- always ;

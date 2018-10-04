@@ -2,14 +2,15 @@ package org.clulab.wm.eidos.apps
 
 import java.io.File
 
-import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.utils.Canonicalizer
 
-object CacheOntologies extends App {
+object CacheOntologies extends App with Configured {
 
   val config = ConfigFactory.load("eidos")
       .withValue("EidosSystem.useW2V", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
@@ -51,4 +52,13 @@ object CacheOntologies extends App {
   val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
   word2Vec.save(filenameOut)
   println(s"Finished serializing vectors.")
+
+  // Update the indicator mapping file
+  val config2 = ConfigFactory.load("eidos")
+    .withValue("EidosSystem.useW2V", ConfigValueFactory.fromAnyRef(true, "DO use vectors when mapping ontologies."))
+  override def getConf: Config = config2
+  val reader2 = new EidosSystem(config2)
+  val outputFile = getArgString("apps.ontologymapper.outfile", None)
+  val topN = getArgInt("apps.groundTopN", Some(5))
+  OntologyMapper.mapIndicators(reader2, outputFile, topN)
 }
