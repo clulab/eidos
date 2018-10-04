@@ -475,22 +475,14 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     addAttachments(expanded, allAttachments, completeFoundBy)
   }
 
-  // Add the temporal attachments for any temporal expression
-  def attachTemporal(mention: Mention, state: State): Mention = {
-    val window = 10
-    val timeIntervals = mention.document.asInstanceOf[EidosDocument].times(mention.sentence)
-    var timeAttchment: Option[TimeInterval] = None
-    for (interval <- timeIntervals)
-      if (mention.startOffset - interval.span._2 <= window && interval.span._1 - mention.endOffset <= window)
-        timeAttchment = Some(interval)
-
-    timeAttchment match {
-      case None => mention
-      case Some(t) =>  mention.withAttachment(new Time(t))
-    }
+  // Add the dct attachment if there is no temporal attachment
+  def attachDCT(m: Mention, state: State): Mention = {
+    val dct = m.document.asInstanceOf[EidosDocument].getDCT()
+    if (dct.isDefined && m.attachments.filter(_.isInstanceOf[Time]).isEmpty)
+      m.withAttachment(new DCTime(dct.get))
+    else
+      m
   }
-
-
 
   // Currently used as a GLOBAL ACTION in EidosSystem:
   // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
@@ -637,9 +629,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         (argType, argMentions) <- mention.arguments
         expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid))
         attached = expandedMentions.map(addSubsumedAttachments(_, state))
-        //timeattached = attached.map(attachTemporal(_, state))
-        //trimmed = timeattached.map(EntityHelper.trimEntityEdges)
-        trimmed = attached.map(EntityHelper.trimEntityEdges)
+        dctattached = attached.map(attachDCT(_, state))
+        trimmed = dctattached.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
     } yield Seq(copyWithNewArgs(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
