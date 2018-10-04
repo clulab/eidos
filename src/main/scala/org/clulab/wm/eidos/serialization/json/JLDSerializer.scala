@@ -153,7 +153,7 @@ object JLDArgument {
   val plural = "arguments"
 }
 
-class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Double)
+class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float)
     extends JLDObject(serializer, "Grounding") {
 
   override def toJObject: JObject =

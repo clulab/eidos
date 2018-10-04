@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.apps
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.mentions.{EidosMention, EidosTextBoundMention}
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
+import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.DisplayUtils.{displayMention, displayMentions}
 import org.json4s.jackson.JsonMethods._
 
@@ -20,7 +21,7 @@ object ExampleGenerator extends App {
 
   // extract mentions from annotated document
   val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
-  val eidosMentions = EidosMention.asEidosMentions(mentions, ieSystem, ieSystem)
+  val eidosMentions = EidosMention.asEidosMentions(mentions, new Canonicalizer(ieSystem), ieSystem)
 
   // Display the groundings for all entities
   for (e <- eidosMentions.filter(_.odinMention matches "Entity")) {

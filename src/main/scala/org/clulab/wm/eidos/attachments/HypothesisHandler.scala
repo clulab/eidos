@@ -125,7 +125,11 @@ object HypothesisHandler {
 
   // If any hedging was found, store it as an attachment
   def withApplicableHedging(m: Mention, hedgedLemmas: Seq[String]): Mention = {
-    if (hedgedLemmas.isEmpty) m else m.withAttachment(Hedging(hedgedLemmas))
+    var finalMention = m
+    for (hl <- hedgedLemmas) {
+      finalMention = finalMention.withAttachment(Hedging(hl, None))
+    }
+    finalMention
   }
 
 }
