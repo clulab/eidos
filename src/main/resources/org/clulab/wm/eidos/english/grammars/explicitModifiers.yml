@@ -34,6 +34,16 @@ rules:
       trigger = [word=/(?i)^(limit|little)/] to no
       theme: Entity = <neg
 
+  - name: Decrease_explicit_neg_dep
+    priority: ${ rulepriority }
+    example: "... was no exchange of goods ..."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [incoming=neg]
+      theme: Entity = <neg
+      
+
 # ------------------- Specific Increase --------------------------
 
   - name: increase_explicit_increaseup_1

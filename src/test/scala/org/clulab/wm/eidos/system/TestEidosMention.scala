@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.mentions.{HashCodeBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.cag.CAG._
-import org.clulab.wm.eidos.utils.StopwordManaging
+import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManaging}
 
 class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrounder {
   
@@ -44,7 +44,7 @@ class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrou
 
     val odinMentions = reachableOdinMentions // These should already be distinct
     val distinctOdinMentions = new HashCodeBagger[Mention].put(odinMentions).get() // This shouldn't make a difference
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, this, this)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions, new Canonicalizer(this), this)
     odinMentions.size should be (distinctOdinMentions.size)
     odinMentions.size should be (eidosMentions.size)
 
@@ -93,7 +93,7 @@ than in the corresponding period two years earlier.
   it should "properly make canonical form" in {
     val text3 = "The seasonal rainfall in July was decreased by the government policy."
     val odinMentions3 = TestUtils.extractMentions(text3)
-    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, this, this)
+    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, new Canonicalizer(this), this)
 
 //    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 

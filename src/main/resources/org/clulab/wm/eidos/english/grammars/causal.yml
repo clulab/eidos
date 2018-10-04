@@ -114,7 +114,7 @@ rules:
     example: "Conflict and economic decline have led to violence and displacement."
     pattern: |
       trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to /${preps}/{,4}
+      effect: Entity = nmod_to /(${preps}|${noun_modifiers})/{,4}
       cause: Entity = <ccomp? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
 
   - name: contribToSyntax1-${addlabel}

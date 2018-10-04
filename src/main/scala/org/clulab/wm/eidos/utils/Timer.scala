@@ -7,14 +7,24 @@ object Timer {
 
   // See http://biercoff.com/easily-measuring-code-execution-time-in-scala/
   def time[R](description: String)(block: => R): R = {
-    logger.info("Start: " + description)
-
     val t0 = System.currentTimeMillis()
-    val result: R = block    // call-by-name
-    val t1 = System.currentTimeMillis()
+    logger.info("Start " + t0 + " ms: " + description)
 
-    logger.info("Stop: " + description)
-    logger.info(s"Time: " + (t1 - t0) / 1000 + " sec.")
+    val result: R = block    // call-by-name
+
+    val t1 = System.currentTimeMillis()
+    logger.info(" Stop " + t1 + " ms: " + description)
+
+    val diff = t1 - t0
+    logger.info(s" Diff " + diff + " ms: " + description)
+
+    val  days = (diff / (1000 * 60 * 60 * 24))
+    val hours = (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    val  mins = (diff % (1000 * 60 * 60)) / (1000 * 60)
+    val  secs = (diff % (1000 * 60)) / (1000)
+    val msecs = (diff % (1000))
+
+    logger.info(f" Time $days:$hours%02d:$mins%02d:$secs%02d.$msecs%03d")
     result
   }
 }

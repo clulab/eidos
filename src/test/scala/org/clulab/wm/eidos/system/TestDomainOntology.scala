@@ -1,10 +1,12 @@
 package org.clulab.wm.eidos.system
 
+import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidos.utils.{Canonicalizer, Timer}
 
 class TestDomainOntology extends Test {
 
@@ -28,7 +30,11 @@ class TestDomainOntology extends Test {
   }
 
   val baseDir = "/org/clulab/wm/eidos/english/ontologies"
-  val proc = new FastNLPProcessor()
+  val config = ConfigFactory.load("eidos")
+      .withValue("EidosSystem.useW2V", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
+  val reader = new EidosSystem(config)
+  val proc = reader.proc
+  val canonicalizer = new Canonicalizer(reader)
   val convert = true
   val filter = true
 
@@ -53,7 +59,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/un_ontology.yml"
 
     val newOntology = Timer.time("Load UN without cache") {
-      UNOntology(path, "", proc, filter, useCache = false)
+      UNOntology(path, "", proc, canonicalizer, filter, useCache = false)
     }
     val newerOntology =
       if (convert)
@@ -62,7 +68,7 @@ class TestDomainOntology extends Test {
         }
       else
         Timer.time("Load UN from cache") {
-          UNOntology(path, "", proc, filter, useCache = true)
+          UNOntology(path, "", proc, canonicalizer, filter, useCache = true)
         }
 
 //    val newestOntology = Timer.time("Load UN from cache") {
@@ -80,7 +86,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/fao_variable_ontology.yml"
 
     val newOntology = Timer.time("Load FAO without cache") {
-      FAOOntology(path, "", proc, filter, useCache =false)
+      FAOOntology(path, "", proc, canonicalizer, filter, useCache =false)
     }
     val newerOntology =
       if (convert)
@@ -89,7 +95,7 @@ class TestDomainOntology extends Test {
         }
       else
         Timer.time("Load FAO from cache") {
-          FAOOntology(path, "", proc, filter, useCache = true)
+          FAOOntology(path, "", proc, canonicalizer, filter, useCache = true)
         }
 
 
@@ -108,7 +114,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/wdi_ontology.yml"
 
     val newOntology = Timer.time("Load WDI without cache") {
-      WDIOntology(path, "", proc, filter, useCache = false)
+      WDIOntology(path, "", proc, canonicalizer, filter, useCache = false)
     }
     val newerOntology =
       if (convert)
@@ -117,7 +123,7 @@ class TestDomainOntology extends Test {
         }
       else
         Timer.time("Load WDI from cache") {
-          WDIOntology(path, "", proc, filter, useCache = true)
+          WDIOntology(path, "", proc, canonicalizer, filter, useCache = true)
         }
 
 //    val newestOntology = Timer.time("Load WDI with cache") {
@@ -136,7 +142,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/topoflow_ontology.yml"
 
     val newOntology = Timer.time("Load TOPO without cache") {
-      TopoFlowOntology(path, "", proc, filter, useCache = false)
+      TopoFlowOntology(path, "", proc, canonicalizer, filter, useCache = false)
     }
 
     hasDuplicates("topo", newOntology) should be (false)
@@ -147,7 +153,7 @@ class TestDomainOntology extends Test {
     val path = baseDir + "/mesh_ontology.yml"
 
     val newOntology = Timer.time("Load MeSH without cache") {
-      MeshOntology(path, "", proc, filter, useCache = false)
+      MeshOntology(path, "", proc, canonicalizer, filter, useCache = false)
     }
     val newerOntology =
       if (convert)
@@ -156,7 +162,7 @@ class TestDomainOntology extends Test {
         }
       else
         Timer.time("Load MeSH from cache") {
-          MeshOntology(path, "", proc, filter, useCache = true)
+          MeshOntology(path, "", proc, canonicalizer, filter, useCache = true)
         }
 
 //    val newestOntology = Timer.time("Load MeSH with cache") {

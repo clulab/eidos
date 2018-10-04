@@ -5,3 +5,5 @@ trait Namer {
 
   override def toString(): String = name
 }
+
+class PassThruNamer(val name: String) extends Namer

@@ -79,7 +79,7 @@ class TestRaps1 extends Test {
     val sent23 = "The transformation however starts under extremely difficult conditions, characterized by large account deficit and liquidity challenges and limited direct foreign investment due to lack of clarity on investment security and high interest rates."
     val tester = new Tester(sent23)
 
-    val account = NodeSpec("account deficit", Dec("deficit", "large"), Quant("large"))
+    val account = NodeSpec("large account deficit", Dec("deficit", "large"), Quant("large"))
     val invest = NodeSpec("limited direct foreign investment", Dec("limited"))
     val noClarity = NodeSpec("clarity", Dec("lack"))
     val interestRates = NodeSpec("interest rates", Quant("high"), Inc("high"))
