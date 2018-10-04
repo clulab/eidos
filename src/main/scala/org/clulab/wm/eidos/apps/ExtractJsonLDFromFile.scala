@@ -10,18 +10,12 @@ object ExtractJsonLDFromFile extends App {
   val outputFile = if (args.size > 1) args(1) else args(0) + ".jsonld"
   lazy val reader = new EidosSystem()
 
-  Timer.time("Prime the pump") {
-    reader.extractFromText("This is a test.") // Just get all loading taken care of
-  }
-
   // 1. Get the input file contents
   val text = FileUtils.getTextFromFile(inputFile)
   // 2. Open corresponding output file
   val pw = FileUtils.printWriterFromFile(outputFile)
   // 3. Extract causal mentions from the text
-  val annotatedDocument = Timer.time("Just extraction") {
-    reader.extractFromText(text, documentCreationTime = Some("2018-09-07"))
-  }
+  val annotatedDocument = reader.extractFromText(text)
   // 4. Convert to an object that can be serialized as desired
   val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
   // 5. Convert to JSON
