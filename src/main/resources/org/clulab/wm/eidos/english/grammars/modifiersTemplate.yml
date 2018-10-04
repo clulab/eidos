@@ -197,4 +197,5 @@ rules:
     pattern: |
       @theme: Entity
       [lemma=have]
-      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=/dobj|${complements}/])
+      ((?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=/dobj|${complements}/]) |
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/] due to) )
