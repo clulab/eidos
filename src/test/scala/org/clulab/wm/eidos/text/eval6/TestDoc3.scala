@@ -548,10 +548,10 @@ class TestDoc3 extends Test {
 
     val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"), Quant("most"))
     val insecurity = NodeSpec("insecurity")
-    val availability = NodeSpec("availability", Dec("lack"))
-    val longFarmInput = NodeSpec("access to farm inputs due to ongoing conflict", Dec("lack"), Quant("ongoing"))
+    val availability = NodeSpec("lack of availability and/or access to farm inputs", Dec("lack"))
+    //val longFarmInput = NodeSpec("access to farm inputs due to ongoing conflict", Dec("lack"), Quant("ongoing"))
 
-    val shortFarmInput = NodeSpec("access to farm inputs", Dec("lack"))
+//    val shortFarmInput = NodeSpec("access to farm inputs", Dec("lack"))
     val conflict = NodeSpec("ongoing conflict", Quant("ongoing"))
 
     behavior of "TestDoc3 Paragraph 14"
@@ -578,11 +578,11 @@ class TestDoc3 extends Test {
     passingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(availability, Causal, production)) should be (successful)
     }
-    passingTest should "have correct edges 5" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(shortFarmInput, Causal, production)) should be (successful)
-    }
+//    passingTest should "have correct edges 5" taggedAs(Somebody) in {
+//      tester.test(EdgeSpec(shortFarmInput, Causal, production)) should be (successful)
+//    }
     passingTest should "have correct edges 6" taggedAs(Ajay) in {
-      tester.test(EdgeSpec(conflict, Causal, shortFarmInput)) should be (successful)
+      tester.test(EdgeSpec(conflict, Causal, availability)) should be (successful)
     }
   }
 

@@ -825,6 +825,7 @@ object EidosActions extends Actions {
     "^nmod_as".r,
     "^nmod_due_to".r,
 //    "^nmod_among".r
+    "^case".r,
     "^conj".r,
     "^cc$".r,
     "^punct".r
@@ -856,7 +857,8 @@ object EidosActions extends Actions {
 
   val VALID_INCOMING = Set[scala.util.matching.Regex](
     "^amod$".r,
-    "^compound$".r
+    "^compound$".r,
+    "^nmod_of".r
   )
 
   def apply(taxonomyPath: String) =
