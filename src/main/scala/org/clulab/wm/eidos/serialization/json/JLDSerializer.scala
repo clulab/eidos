@@ -669,7 +669,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
     val jldText = annotatedDocument.document.text.map(text => text)
     val dct = annotatedDocument.document.asInstanceOf[EidosDocument].getDCT()
-    val jldDCT = dct.map(dct => new JLDDCT(serializer, dct).toJObject)
+    val jldDCT = dct.map(new JLDDCT(serializer, _).toJObject)
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
