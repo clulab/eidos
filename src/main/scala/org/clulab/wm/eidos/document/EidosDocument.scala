@@ -59,9 +59,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
       this.anchor = Some(new DCT(timenorm.get.dct(timenorm.get.parse(documentCreationTime.get)), documentCreationTime.get))
   }
 
-  def getDCT(): Option[DCT] = {
-    this.anchor
-  }
+  def getDCT(): Option[DCT] = this.anchor
 
   def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
      if (timenorm.isDefined) parseRealTime(timenorm.get)

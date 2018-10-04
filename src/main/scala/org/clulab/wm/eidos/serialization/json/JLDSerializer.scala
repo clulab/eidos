@@ -4,7 +4,7 @@ import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
 
-import org.clulab.odin.{Attachment, CrossSentenceMention, Mention}
+import org.clulab.odin.{Attachment, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
@@ -617,15 +617,15 @@ class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 
   override def toJObject(): JObject = {
 
-    val text = dct.text
-    val start = dct.interval.start
-    val end = dct.interval.end
+    val text = Option(dct.text)
+    val start = Option(dct.interval.start).map(_.toString)
+    val end = Option(dct.interval.end).map(_.toString)
 
     serializer.mkType(this) ~
       serializer.mkId(this) ~
-      ("text" -> Option(text).getOrElse("")) ~
-      ("start" -> Option(start).getOrElse("Undef").toString) ~
-      ("end" -> Option(end).getOrElse("Undef").toString)
+      ("text" -> text) ~
+      ("start" -> start) ~
+      ("end" -> end)
   }
 }
 
@@ -669,7 +669,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
     val jldText = annotatedDocument.document.text.map(text => text)
     val dct = annotatedDocument.document.asInstanceOf[EidosDocument].getDCT()
-    val jldDCT = if (dct.isDefined) Some((new JLDDCT(serializer, dct.get)).toJObject) else None
+    val jldDCT = dct.map(dct => new JLDDCT(serializer, dct).toJObject)
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
