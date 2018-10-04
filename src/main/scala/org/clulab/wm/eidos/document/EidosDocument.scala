@@ -12,7 +12,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   // TODO: @transient here means these values aren't serialized, which sort of defeats the purpose of serialization.
   // Currently no test checks to see if the values are preserved across serialization, but that doesn't make it right.
   @transient val times = new Array[List[TimeInterval]](sentences.length)
-  @transient protected var anchor: Option[Interval] = None
+  protected var anchor: Option[DCT] = None
 
   protected def parseFakeTime(): Unit = times.indices.foreach(times(_) = List[TimeInterval]())
 
@@ -25,7 +25,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
             case _ => this.sentences(index).getSentenceText
           }
           val intervals = if (this.anchor.isDefined)
-            timenorm.intervals(timenorm.parse(sentence_text), this.anchor)
+            timenorm.intervals(timenorm.parse(sentence_text), Some(this.anchor.get.interval))
           else
             timenorm.intervals(timenorm.parse(sentence_text))
           // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
@@ -56,11 +56,11 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
   def parseDCT(timenorm: Option[TemporalCharbasedParser], documentCreationTime:Option[String]): Unit = {
     if (timenorm.isDefined && documentCreationTime.isDefined)
-      this.anchor = Some(timenorm.get.dct(timenorm.get.parse(documentCreationTime.get)))
+      this.anchor = Some(new DCT(timenorm.get.dct(timenorm.get.parse(documentCreationTime.get)), documentCreationTime.get))
   }
 
-  def getDCT(): TimeInterval = {
-    new TimeInterval((-1, -1), List((null, null, 0)), null)
+  def getDCT(): Option[DCT] = {
+    this.anchor
   }
 
   def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
@@ -82,3 +82,4 @@ object EidosDocument {
 }
 
 class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, LocalDateTime, Long)], val text: String)
+class DCT(val interval: Interval, val text: String)

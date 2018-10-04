@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
-import org.clulab.wm.eidos.document.{EidosDocument, TimeInterval}
+import org.clulab.wm.eidos.document.{DCT, EidosDocument, TimeInterval}
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -337,7 +337,9 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var 
         .map(_.asInstanceOf[TriggeredAttachment])
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldCAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[ContextAttachment]).map(attachment => newJLDAttachment(attachment))
+    //val jldCAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[ContextAttachment]).map(attachment => newJLDAttachment(attachment))
+    val jldTAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[Time]).map(attachment => newJLDAttachment(attachment))
+    val jldDAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[DCTime]).map(attachment => newJLDAttachment(attachment))
 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
@@ -354,7 +356,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var 
         ("canonicalName" -> mention.canonicalName) ~
         ("groundings" -> jldGroundings) ~
         (JLDProvenance.singular -> provenance()) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments))
+        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldTAttachments ++ jldDAttachments))
   }
 }
 
@@ -609,23 +611,21 @@ object JLDTimex {
 }
 
 
-class JLDDCT(serializer:JLDSerializer, val interval: TimeInterval)
+class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.
-  extends JLDObject(serializer, JLDDCT.typename, interval) {
+  extends JLDObject(serializer, JLDDCT.typename, dct) {
 
   override def toJObject(): JObject = {
 
-    val text = interval.text
-    val start = interval.intervals(0)._1
-    val end = interval.intervals(0)._2
-    val duration = interval.intervals(0)._3
+    val text = dct.text
+    val start = dct.interval.start
+    val end = dct.interval.end
 
     serializer.mkType(this) ~
       serializer.mkId(this) ~
       ("text" -> Option(text).getOrElse("")) ~
       ("start" -> Option(start).getOrElse("Undef").toString) ~
-      ("end" -> Option(end).getOrElse("Undef").toString) ~
-      ("duration" -> duration)
+      ("end" -> Option(end).getOrElse("Undef").toString)
   }
 }
 
@@ -669,13 +669,13 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
     val jldText = annotatedDocument.document.text.map(text => text)
     val dct = annotatedDocument.document.asInstanceOf[EidosDocument].getDCT()
-    val jldDCT = new JLDDCT(serializer, dct)
+    val jldDCT = if (dct.isDefined) Some((new JLDDCT(serializer, dct.get)).toJObject) else None
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
         ("title" -> annotatedDocument.document.id) ~
         ("text" -> jldText) ~
-        ("dct" -> jldDCT.toJObject()) ~
+        ("dct" -> jldDCT) ~
         (JLDSentence.plural -> toJObjects(jldSentences))
   }
 }

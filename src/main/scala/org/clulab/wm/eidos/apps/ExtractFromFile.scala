@@ -23,7 +23,7 @@ object ExtractFromFile extends App {
   for (filename <- files) {
     val text = FileUtils.getTextFromFile(filename)
     println(s"There are ${text.split('\n').length} lines in the file...")
-    val annotatedDoc = ieSystem.extractFromText(text, documentCreationTime = Some("2018-09-07"))
+    val annotatedDoc = ieSystem.extractFromText(text)
     val doc = annotatedDoc.document
     pw.println(s"Filename: ${filename.getName}")
 
