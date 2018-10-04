@@ -5,10 +5,10 @@ import java.io.PrintWriter
 import ai.lum.common.StringUtils._
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Serializer
-import org.clulab.odin.{EventMention, Mention, State}
+import org.clulab.odin.{Attachment, EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Configured
-import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
@@ -18,8 +18,6 @@ import org.clulab.wm.eidos.utils.FileUtils.{findFiles, printWriterFromFile}
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
-
-
 
 
 /**
@@ -174,13 +172,17 @@ case class EntityInfo(m: EidosMention, topN: Int = 5) {
 
 object ExporterUtils {
   def getModifier(mention: EidosMention): String = {
-    val attachments = mention.odinMention.attachments
-    val quantTriggers = attachments
-      .filter(a => a.isInstanceOf[Quantification])
-      .map(quant => quant.asInstanceOf[Quantification].trigger)
-      .map(t => t.toLowerCase)
+    def quantHedgeString(a: Attachment): Option[String] = a match {
+      case q: Quantification => Some(f"Quant(${q.trigger.toLowerCase})")
+      case h: Hedging => Some(f"Hedged(${h.trigger.toLowerCase})")
+      case n: Negation => Some(f"Negated(${n.trigger.toLowerCase})")
+      case _ => None
+    }
 
-    if (quantTriggers.nonEmpty) s"${quantTriggers.mkString(", ")}".normalizeSpace else ""
+    val attachments = mention.odinMention.attachments.map(quantHedgeString).toSeq.filter(_.isDefined)
+
+    val modifierString = attachments.map(a => a.get).mkString(", ")
+    modifierString
   }
 
   //fixme: not working -- always ;

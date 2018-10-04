@@ -14,7 +14,7 @@ class TestCagP1 extends Test {
     val economy = NodeSpec("economy", Dec("collapsing"))
     val cerealProduction = NodeSpec("cereal production", Dec("low"), Quant("low"))
     val rainfall = NodeSpec("poor rainfall in southeastern areas", Dec("poor"), Quant("poor"))
-    val copingCapacities = NodeSpec("coping capacities after several years of crisis", Dec("exhaustion"))
+    val copingCapacities = NodeSpec("coping capacities after several years of crisis", Dec("exhaustion"), TimEx("several years"))
 
     behavior of "p1s1"
 
