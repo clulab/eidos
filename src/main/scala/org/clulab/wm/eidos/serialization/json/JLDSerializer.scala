@@ -618,8 +618,8 @@ class JLDDCT(serializer:JLDSerializer, val dct: DCT)
   override def toJObject(): JObject = {
 
     val text = Option(dct.text)
-    val start = Option(dct.interval.start).map(_.toString)
-    val end = Option(dct.interval.end).map(_.toString)
+    val start = if (dct.interval.isDefined) Some(dct.interval.start.toString) else None
+    val end = if (dct.interval.isDefined) Some(dct.interval.end.toString) else None
 
     serializer.mkType(this) ~
       serializer.mkId(this) ~
