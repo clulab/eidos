@@ -86,6 +86,17 @@ rules:
       cause: Entity = nmod_to (${ conjunctions })?
       effect: Entity = <advmod|<amod (</${preps}/{,2} | >/${preps}/{,2})
 
+  - name: dueToSyntax6-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "Domestic agricultural production has decreased due to below-average rainfall."
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = nmod_to (${ conjunctions })?
+      effect: Entity = <xcomp >/${agents}/
+
+
 #  - name: dueToSyntax6-${addlabel}
 #    priority: ${rulepriority}
 #    label: ${label}
