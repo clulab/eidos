@@ -16,7 +16,7 @@ class HypothesisHandler(hintsFile: String) {
   val degree = 2 // Degree up to which we should follow the links in the graph
 
   // These are the words that hint a hypothesis going on
-  protected def hints = FileUtils.getCommentedTextsFromResource(hintsFile).toSet
+  protected val hints = FileUtils.getCommentedTextsFromResource(hintsFile).toSet
 
   def detectHypotheses(mentions: Seq[Mention], state: State): Seq[Mention] = mentions.map(addAnyHedging)
 
