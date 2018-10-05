@@ -3,35 +3,6 @@ vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
 
 rules:
 
-
-# ------------------- Previous Grammar Unsorted --------------------------
-
-  #
-  # param is nominal subject of verb: "PARAM increases/decreases with _____ "
-  #
-#  - name: with-${addlabel}-1
-#    priority: ${rulepriority}
-#    label: ${label}
-#    action: ${ action }
-#    example: ""
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !outgoing=/dobj/]
-#      effect: Entity = <xcomp? nsubj
-#      cause: Entity = nmod_with /${ preps }/{,2}
-
-  #
-  # "subject increases/decreases Y with X "
-  #
-#  - name: with-${addlabel}-2
-#    priority: ${rulepriority}
-#    label: ${label}
-#    action: ${ action }
-#    example: ""
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & outgoing=/dobj/]
-#      effect: Entity = dobj
-#      cause: Entity = nmod_with /${ preps }/{,2}
-
   - name: ported_syntax_1_verb_1_includeConj-${addlabel}
     priority: ${ rulepriority }
     example: ""
@@ -79,7 +50,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(maximiz)/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = (${ agents }) (<${ preps }) (${ agents })
       effect: Entity = (${ objects })
 
@@ -97,9 +68,10 @@ rules:
   - name: george_devido_a-${addlabel}
     priority: ${ rulepriority }
     example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
+    # here we can check the correct verb for melhorada
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(melh)/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = (advmod  [word=devido]) (obl|obj)
       effect: Entity = nsubj:pass
