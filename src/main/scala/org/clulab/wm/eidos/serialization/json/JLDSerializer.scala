@@ -565,17 +565,18 @@ object JLDWord {
   val typename = "Word"
 }
 
-
 class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val end: LocalDateTime, val duration: Long)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimeInterval.typename) {
   
   override def toJObject(): JObject = {
+    val startDateTime = Option(start).map(_.toString)
+    val endDateTime = Option(end).map(_.toString)
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
-        ("start" -> Option(start).getOrElse("Undef").toString) ~
-        ("end" -> Option(end).getOrElse("Undef").toString) ~
+        ("start" -> startDateTime) ~
+        ("end" -> endDateTime) ~
         ("duration" -> duration)
   }
 }
@@ -610,7 +611,6 @@ object JLDTimex {
   val typename = "TimeExpression"
 }
 
-
 class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDDCT.typename, dct) {
@@ -633,8 +633,6 @@ object JLDDCT {
   val singular = "dct"
   val typename = "DCT"
 }
-
-
 
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
     extends JLDObject(serializer, "Sentence", sentence) {
