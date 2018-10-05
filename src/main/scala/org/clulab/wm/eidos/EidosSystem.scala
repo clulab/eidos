@@ -9,7 +9,7 @@ import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.attachments.Score
+import org.clulab.wm.eidos.attachments.{HypothesisHandler, Score}
 import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
@@ -67,6 +67,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val engine: ExtractorEngine,
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
+    val hedgingHandler: HypothesisHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val timenorm: Option[TemporalCharbasedParser]
   )
@@ -83,6 +84,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // Filtering
     def       stopwordsPath: String = eidosConf[String]("stopWordsPath")
     def     transparentPath: String = eidosConf[String]("transparentPath")
+    // Hedging and TODO: Negation
+    def       hedgingPath: String = eidosConf[String]("hedgingPath")
     // Ontology handling
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
@@ -100,6 +103,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
     val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
     val canonicalizer = new Canonicalizer(stopwordManager)
+    val hypothesisHandler = HypothesisHandler(hedgingPath)
 
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
@@ -146,6 +150,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         stopwordManager,
+        hypothesisHandler,
         ontologyGrounders,
         timenorm
       )
@@ -209,9 +214,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
-    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, new Canonicalizer(loadableAttributes.stopwordManager), this)
+    // TODO: handle hedging and negation...
+    val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
+    val eidosMentions = EidosMention.asEidosMentions(afterHedging, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
-    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
+    new AnnotatedDocument(doc, afterHedging, eidosMentions)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {

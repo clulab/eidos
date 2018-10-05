@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.attachments
 import org.clulab.odin._
 import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.utils.FileUtils
 
 /**
   * Taken from Reach (1.4.0), the information system developed for the DARPA Big Mechanism program
@@ -10,55 +11,12 @@ import org.clulab.wm.eidos.EidosSystem
   *
   * Adapted for use in Eidos
   */
-object HypothesisHandler {
+class HypothesisHandler(hintsFile: String) {
 
   val degree = 2 // Degree up to which we should follow the links in the graph
 
   // These are the words that hint a hypothesis going on
-  val hints = Set(
-    "argue",
-    "argument",
-    "anticipate",
-    "believe",
-    "belief",
-    "can",
-    "conjecture",
-    "consider",
-    "could",
-    "expect",
-    "hint",
-    "hypothesis",
-    "hypotheses",
-    "hypothesize",
-    "if", // keep?
-    "implication",
-    "imply",
-    "indicate",
-    "likelihood",
-    "likely",
-    "may",
-    "maybe",
-    "might",
-    "possible",
-    "possibly",
-    "predict",
-    "prediction",
-    "previous",
-    "previously",
-    "probable",
-    "probably",
-    "proposal",
-    "propose",
-    "question",
-    "should",
-    "speculate",
-    "speculation",
-    "suggest",
-    "suspect",
-    "theorize",
-    "theory",
-    "think",
-    "whether")
+  protected def hints = FileUtils.getCommentedTextsFromResource(hintsFile).toSet
 
   def detectHypotheses(mentions: Seq[Mention], state: State): Seq[Mention] = mentions.map(addAnyHedging)
 
@@ -132,4 +90,9 @@ object HypothesisHandler {
     finalMention
   }
 
+}
+
+object HypothesisHandler {
+
+  def apply(hintsFile: String) = new HypothesisHandler(hintsFile)
 }

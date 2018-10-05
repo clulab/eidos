@@ -57,8 +57,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     // Basic coreference, hedging, and negation
     val afterResolving = basicDeterminerCoref(modifiedMentions, state)
-    val afterHedging = HypothesisHandler.detectHypotheses(afterResolving, state)
-    val afterNegation = NegationHandler.detectNegations(afterHedging)
+//    val afterHedging = HypothesisHandler.detectHypotheses(afterResolving, state)
+    val afterNegation = NegationHandler.detectNegations(afterResolving)
 
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
     afterNegation
