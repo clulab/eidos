@@ -810,6 +810,7 @@ object EidosActions extends Actions {
   // avoid expanding along these dependencies
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](
 //    "^nmod_including$".r,
+    "acl:relcl".r,
     "^nmod_without$".r,
     "^nmod_except".r,
     "^nmod_since".r,
@@ -819,7 +820,8 @@ object EidosActions extends Actions {
     "^case".r,
     "^conj".r,
     "^cc$".r,
-    "^punct".r
+    "^punct".r,
+    "^ref$".r
 
   )
 
