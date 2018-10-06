@@ -257,3 +257,13 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
       cause: Entity = nmod_given [tag=/^N/] #(${ conjunctions })? #/${noun_modifiers}/{,2} #
       effect: Entity = nsubj /${noun_modifiers}/{,2}
+
+  - name: ${ label }_little_if_any
+    priority: ${ rulepriority }
+    label: ${label}
+    action: ${ action }
+    example: "import requirements are higher than usual given below-average harvests"
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = <xcomp? >/${agents}/
+      effect: Entity = >/${objects}/ [word=little] nmod_if
