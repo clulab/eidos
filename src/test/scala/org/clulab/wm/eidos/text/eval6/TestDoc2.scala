@@ -39,21 +39,12 @@ class TestDoc2 extends Test {
                """
     val tester = new Tester(text)
 
-    val situation = NodeSpec("situation", Dec("deteriorating"))
-    val leanSeason = NodeSpec("annual lean season", Quant("long", "unusually"), Quant("harsh"))
+    val situation = NodeSpec("deteriorating situation", Dec("deteriorating"))
+    val leanSeason = NodeSpec("unusually long and harsh annual lean season", Quant("harsh"))
     val foodStocks = NodeSpec("food stocks", Dec("depleted"))
     val foodInsecurity = NodeSpec("level of food insecurity this year", Quant("unprecedented"))
 
     behavior of "TestDoc2 Paragraph 2"
-
-//    passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-//      tester.test(situation) should be(successful)
-//    }
-
-//      //this is passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
-//    failingTest should "have correct singleton node 2" taggedAs(Mithun) in {
-//      tester.test(leanSeason) should be(successful)
-//    }
 
     passingTest should "have correct singleton node 3" taggedAs(Mithun) in {
       tester.test(foodStocks) should be(successful)
@@ -64,7 +55,7 @@ class TestDoc2 extends Test {
     }
 
     //this is dependant on the lean season thing above. i.e passing from mithun's side, but will pass once zheng fixes the "merging entities bug"
-    failingTest should "have correct edge 1" taggedAs(Mithun) in {
+    passingTest should "have correct edge 1" taggedAs(Mithun) in {
       tester.test(EdgeSpec(situation, Correlation, leanSeason)) should be(successful)
     }
 
@@ -81,10 +72,10 @@ class TestDoc2 extends Test {
     val hunger = NodeSpec("level of hunger", Quant("highest"))
 
     behavior of "TestDoc2 Paragraph 3"
-
-    failingTest should "have correct singleton node 1" taggedAs(Mithun) in {
-      tester.test(hunger) should be (successful)
-    }
+    // removing because we no longer expand entities when they are not part of a causal event
+//    failingTest should "have correct singleton node 1" taggedAs(Mithun) in {
+//      tester.test(hunger) should be (successful)
+//    }
   }
 
   { // Paragraph 4
@@ -218,7 +209,7 @@ class TestDoc2 extends Test {
 
     behavior of "TestDoc2 Paragraph 9"
 
-    failingTest should "have correct singleton node 1" taggedAs(Vikas) in {
+    passingTest should "have correct singleton node 1" taggedAs(Vikas) in {
       tester.test(malnutrition) should be (successful)
     }
   }

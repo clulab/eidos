@@ -262,7 +262,7 @@ rules:
     priority: ${ rulepriority }
     label: ${label}
     action: ${ action }
-    example: "import requirements are higher than usual given below-average harvests"
+    example: "Currently, most crop cultivation is done on small farms, producing little if any marketable surplus."
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = <xcomp? >/${agents}/

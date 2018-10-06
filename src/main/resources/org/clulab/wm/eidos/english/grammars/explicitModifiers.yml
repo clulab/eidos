@@ -46,7 +46,7 @@ rules:
   # Surely this can be made more generic, but it's a start
   - name: Decrease_explicit_little_if_any
     priority: ${ rulepriority }
-    example: "... X is no longer occurring ..."
+    example: "Currently, most crop cultivation  produces little if any marketable surplus."
     label: Decrease
     action: ${ action }
     pattern: |
