@@ -138,6 +138,16 @@ rules:
       effect: Entity = nmod_to nmod_in [tag=/^N/] (${ conjunctions })? #/${noun_modifiers}/{,2} #
       cause: Entity = nsubj nmod_in /${noun_modifiers}/{,2}
 
+  - name: is_critical_to-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
+    pattern: |
+      trigger = [lemma="critical"] (?=[word=to])
+      effect: Entity = xcomp [tag=/^V/]
+      cause: Entity = /${agents}/
+
 
 # ------------------- Explicitly Causal REACH --------------------------
 

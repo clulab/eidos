@@ -177,6 +177,16 @@ rules:
       theme: Entity = /${ preps }$/? /${ noun_modifiers }/{1,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
+  - name: ${ label }_ported_syntax_2_noun_rev
+    priority: ${ rulepriority }
+    example: "technological progress"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/ & entity=O]
+      theme: Entity = </${ noun_modifiers }/{1,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
   - name: ${ label }_ported_syntax_3_noun
     priority: ${ rulepriority }
     example: "exhaustion of coping capacities"
