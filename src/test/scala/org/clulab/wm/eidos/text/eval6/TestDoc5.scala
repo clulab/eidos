@@ -390,22 +390,22 @@ class TestDoc5 extends Test {
       |lives over the coming year.
       """
 
-    val action = NodeSpec("Urgent action to end the conflict")
+    val action = NodeSpec("Urgent action to end the conflict", Dec("end"))
     val access = NodeSpec("humanitarian access to severely food insecure populations", Inc("improve"))
-    val assistance = NodeSpec("size and scope of emergency assitance", Inc("increase"))
+    val assistance = NodeSpec("increase size and scope of emergency assistance delivery", Inc("increase"), Quant("critical"))
     val lives = NodeSpec("lives", Inc("save"))
 
     behavior of "TestDoc5 Paragraph 8"
 
     val tester = new Tester(text)
 
-    failingTest should "have correct edges 1" taggedAs(Mihai) in {
+    brokenSyntaxTest should "have correct edges 1" taggedAs(Mihai) in {
       tester.test(EdgeSpec(action, Causal, lives)) should be (successful)
     }
-    failingTest should "have correct edges 2" taggedAs(Mihai) in {
+    brokenSyntaxTest should "have correct edges 2" taggedAs(Mihai) in {
       tester.test(EdgeSpec(access, Causal, lives)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Mihai) in {
+    passingTest should "have correct edges 3" taggedAs(Mihai) in {
       tester.test(EdgeSpec(assistance, Causal, lives)) should be (successful)
     }
   }
