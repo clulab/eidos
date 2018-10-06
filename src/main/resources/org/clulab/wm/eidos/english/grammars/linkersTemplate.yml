@@ -47,12 +47,22 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?! due to)# original rule had RB as possible tag
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-
-      # old previous ones -- removed the preps because they were waaaay over-matching:
-      #cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
-      #effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      cause: Entity =
+        # optionally reverse traverse an advcl
+        </${adverbial_clause}/?
+        # agents (i.e., noun subjects)
+        (${ agents })
+        # optionally you can follow specified modifiers
+        /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2}
+        # if you land on another trigger, you are then licensed to follow more preps
+        ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity =
+        # direct objects or things like xcomp
+        (${objects} | ${complements})
+        # optionally you can follow specified modifiers
+        /${noun_modifiers}|${ preps }/{,2}
+        # if you land on another trigger, you are then licensed to follow more preps
+        ([word=/(?i)^(${ trigger })/]/ ${ preps }/{,2})?
 
 
   # Handles occurrence of prep_by when NOT passive voice
