@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
+import org.json4s
 import org.json4s.{JField, JObject, JString, JValue}
 import org.json4s.jackson.JsonMethods.parse
 
@@ -35,7 +36,7 @@ object FilteredExtractMetaFromDirectory extends App {
     else string.substring(0, index)
   }
 
-  def getDate(json: JValue, name: String): Option[String] = {
+  def getMetaValue(json: JValue, name: String): Option[String] = {
     val values: List[String] = for {
       JObject(child) <- json
       JField("MT", JObject(mt)) <- child
@@ -64,32 +65,54 @@ object FilteredExtractMetaFromDirectory extends App {
   def reformat(documentCreationTime: Option[String]): Option[String] =
       documentCreationTime.map(dct => dct.substring(0, 4) + "-" + dct.substring(4, 6) + "-" + dct.substring(6, 8))
 
-  def getDocumentCreationTime(metaDir: String, textFile: File): Option[String] = {
+  def getMetaData(metaDir: String, textFile: File): Option[JValue] = {
     val textFileName = textFile.getName()
     val metaFileName = metaDir + "/" + beforeFirst(afterLast(textFileName, '_'), '.') + ".json"
     val file = new File(metaFileName)
-    val documentCreationTime: Option[String] = if (file.exists()) {
+    val json = if (file.exists()) {
       val text = FileUtils.getTextFromFile(file)
-      val json: JValue = parse(text)
-      val goodDate = getDate(json, "creation date")
-      val betterDate =
-          if (goodDate.isDefined) goodDate
-          else getDate(json, "publicationDate")
-      val bestDate =
-        if (betterDate.isDefined) {
-          val date = betterDate.get
+      val json = parse(text)
 
-          if (date.size >= 10 && date.take(2) == "D:") Some(date.drop(2).take(8))
-          else if (date.size == 4 && date.forall(c => '0' <= c && c <= '9')) Some(date + "0101")
-          else None
-        }
-        else
-          betterDate
+      Some(json)
+    }
+    else None
+
+    json
+  }
+
+  def getDocumentTitle(json: Option[JValue]): Option[String] = {
+    val documentTitle = json.flatMap { json =>
+      val goodTitle = getMetaValue(json, "title")
+
+      goodTitle
+    }
+    documentTitle
+  }
+
+  def getDocumentCreationTime(json: Option[JValue]): Option[String] = {
+    val documentCreationTime = json.flatMap { json =>
+      val goodDate: Option[String] = getMetaValue(json, "creation date")
+      val betterDate: Option[String] =
+          if (goodDate.isDefined) goodDate
+          else getMetaValue(json, "publicationDate")
+      val bestDate: Option[String] =
+          if (betterDate.isDefined) {
+            val date = betterDate.get
+
+            if (date.size >= 10 && date.take(2) == "D:") {
+              val dateOnly: Option[String] = Some(date.drop(2).take(8))
+
+              reformat(sanitize(dateOnly))
+            } // + "T" + date.drop(10))
+            else Some(date)
+  //          else if (date.size == 4 && date.forall(c => '0' <= c && c <= '9')) Some(date + "0101")
+  //          else None
+          }
+          else
+            betterDate
       bestDate
     }
-    else
-      None
-    reformat(sanitize(documentCreationTime))
+    documentCreationTime.map(_ + ".")
   }
 
   val intervals = Seq(
@@ -160,9 +183,12 @@ object FilteredExtractMetaFromDirectory extends App {
         println(s"Extracting from ${file.getName}")
         // 2. Get the input file contents
         val text = FileUtils.getTextFromFile(file)
-        val documentCreationTime = getDocumentCreationTime(metaDir, file)
+        val json = getMetaData(metaDir, file)
+        val documentCreationTime = getDocumentCreationTime(json)
+        val documentTitle = getDocumentTitle(json)
         // 3. Extract causal mentions from the text
         val annotatedDocuments = Seq(reader.extractFromText(text, documentCreationTime = documentCreationTime))
+        annotatedDocuments.head.document.id = documentTitle
         // 4. Convert to JSON
         val corpus = new JLDCorpus(annotatedDocuments, reader)
         val mentionsJSONLD = corpus.serialize()
