@@ -147,6 +147,17 @@ rules:
       effect: Entity  = <ccomp (?=/nmod_since/) nsubj
       cause: Entity = dobj
 
+  - name: syntax_10_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "Provide emergency support to protect and rebuild livelihoods... Provide emergency wages to protect and rebuild livelihoods."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
+      effect: Entity  = >dobj? >/(acl_to|advcl_to)/{1,2} >/${objects}/? /${conjunctions}/{,2}
+      cause: Entity = >dobj
+
+
   - name: token_1_verb-${addlabel}
     priority: ${ rulepriority }
     # Helps in some cases of broken syntax

@@ -811,11 +811,13 @@ object EidosActions extends Actions {
   val INVALID_OUTGOING = Set[scala.util.matching.Regex](
 //    "^nmod_including$".r,
     "acl:relcl".r,
+    "advcl_to".r,
     "^nmod_without$".r,
     "^nmod_except".r,
     "^nmod_since".r,
     "^nmod_as".r,
     "^nmod_due_to".r,
+    "^nmod_given".r,
 //    "^nmod_among".r
     "^case".r,
     "^conj".r,
