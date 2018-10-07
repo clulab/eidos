@@ -23,11 +23,12 @@ class TestDoc6 extends Test {
     val stocks = NodeSpec("stocks", Dec("depleted"))
     val leanSeason = NodeSpec("lean season", Unmarked("started earlier"))
     val foodSecurity = NodeSpec("food security", Dec("deteriorate"))
-    val foodAccess = NodeSpec("food access", Dec("low", "very"))
+    val foodAccess = NodeSpec("expected very low food access during this time", Dec("low"), Quant("low"))
     val risk = NodeSpec("risk of Famine")
+    val tempRisk = NodeSpec("there remains a risk of Famine (IPC Phase 5) in a worst-case scenario of an extended absence", Dec("absence"))
     val assistance = NodeSpec("assistance", Dec("absence"))
-    val action = NodeSpec("urgent action")
-    val conflict = NodeSpec("ongoing conflict", Dec("end"))
+    val action = NodeSpec("Urgent action")
+    val conflict = NodeSpec("ongoing conflict", Dec("end"), Quant("ongoing"))
     val assistance1 = NodeSpec("unhindered delivery of humanitarian assistance")
     
     behavior of "TestDoc6 Paragraph 1"
@@ -40,8 +41,9 @@ class TestDoc6 extends Test {
     futureWorkTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(stocks, Causal, foodSecurity)) should be (successful)
     }
+    // TODO, the risk val above would be better
     failingTest should "have correct edges 3" taggedAs(Adarsh) in {
-      tester.test(EdgeSpec(foodAccess, Causal, risk)) should be (successful)
+      tester.test(EdgeSpec(foodAccess, Correlation, tempRisk)) should be (successful)
     }
     // Is this get-able?
     failingTest should "have correct edges 4" taggedAs(Adarsh) in {
@@ -50,10 +52,10 @@ class TestDoc6 extends Test {
     // These two should prob really be an EdgeSpec(conflict, Correlation, assistance1) -- 
     // todo: I think we could get this as [if X -> A and X -> B (within a single sentence), then A Corr B]
     // todo: as is, we'll get this as 2 causal events and "action" is likely a stop word here...
-    failingTest should "have correct edges 5" taggedAs(Adarsh) in {
+    passingTest should "have correct edges 5" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(action, Causal, conflict)) should be (successful)
     }
-    failingTest should "have correct edges 6" taggedAs(Adarsh) in {
+    passingTest should "have correct edges 6" taggedAs(Adarsh) in {
       tester.test(EdgeSpec(action, Causal, assistance1)) should be (successful)
     }
 
@@ -109,6 +111,7 @@ class TestDoc6 extends Test {
   }
 
   { // Paragraph 3
+    //todo something smart with Despite and Correlation...
     val text = """
      |Despite the Cessation of Hostilities (COH) agreement signed in late December, armed
      |clashes between Government forces and armed opposition continue in Unity, Central
@@ -120,7 +123,7 @@ class TestDoc6 extends Test {
      |relocation of the remaining 562 IDPs in Melut PoC prior to the closure of the camp.
      """
 
-    val tension = NodeSpec("tension", Inc("high"))
+    val tension = NodeSpec("tension", Inc("high"), Quant("high"))
     val clashes = NodeSpec("inter-communal clashes have occurred")
     val armedGroups = NodeSpec("various armed groups", Inc("resurgence"))
     val cattleRaiding = NodeSpec("cattle raiding", Inc("uptick"))
@@ -135,7 +138,7 @@ class TestDoc6 extends Test {
     failingTest should "have correct edges 2" taggedAs(Becky) in {
       tester.test(EdgeSpec(armedGroups, Causal, tension)) should be (successful)
     }
-    failingTest should "have correct edges 3" taggedAs(Becky) in {
+    passingTest should "have correct edges 3" taggedAs(Becky) in {
       tester.test(EdgeSpec(cattleRaiding, Causal, tension)) should be (successful)
     }
   }
@@ -176,12 +179,12 @@ class TestDoc6 extends Test {
     val tester = new Tester(text)
 
     behavior of "TestDoc6 Paragraph 5"
-
-    failingTest should "have correct singleton node 1" taggedAs(Mihai) in {
-      tester.test(food) should be (successful)
-    }
-    failingTest should "have correct singleton node 2" taggedAs(Mihai) in {
-      tester.test(needs) should be (successful)
-    }
+    // We're no longer expanding singleton nodes
+//    failingTest should "have correct singleton node 1" taggedAs(Mihai) in {
+//      tester.test(food) should be (successful)
+//    }
+//    failingTest should "have correct singleton node 2" taggedAs(Mihai) in {
+//      tester.test(needs) should be (successful)
+//    }
   }
 }
