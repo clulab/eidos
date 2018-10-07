@@ -9,7 +9,7 @@ import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.attachments.Score
+import org.clulab.wm.eidos.attachments.{Property, Score}
 import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
@@ -77,6 +77,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def    quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
     def   domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
     def      quantifierPath: String = eidosConf[String]("quantifierPath")
+    def      propertiesPath: String = eidosConf[String]("propertiesPath")
     def     entityRulesPath: String = eidosConf[String]("entityRulesPath")
     def      avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
     def        taxonomyPath: String = eidosConf[String]("taxonomyPath")
@@ -91,12 +92,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def            cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
-    def ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
-    def maxHops: Int = eidosConf[Int]("maxHops")
+    def    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
+    def               maxHops: Int = eidosConf[Int]("maxHops")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
     def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
-    def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    def    useCache: Boolean = eidosConf[Boolean]("useCache")
+    def       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    def          useCache: Boolean = eidosConf[Boolean]("useCache")
 
     val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
     val canonicalizer = new Canonicalizer(stopwordManager)
@@ -144,7 +145,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         actions,
 //        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
-        LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
+        LexiconNER(Seq(quantifierPath, propertiesPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         stopwordManager,
         ontologyGrounders,
         timenorm
@@ -206,7 +207,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
     val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
 
-
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     val eidosMentions = EidosMention.asEidosMentions(cagRelevant, new Canonicalizer(loadableAttributes.stopwordManager), this)
@@ -240,32 +240,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     //cagRelevant.toVector
   }
 
-
-  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
-
-    // Create an UndirectedRelation Mention to contain the sameAs grounding information
-    def sameAs(a: Mention, b: Mention, score: Float): Mention = {
-      // Build a Relation Mention (no trigger)
-      new CrossSentenceMention(
-        labels = Seq("SameAs"),
-        anchor = a,
-        neighbor = b,
-        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
-        document = a.document,  // todo: change?
-        keep = true,
-        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
-        attachments = Set(Score(score)))
-    }
-
-    // n choose 2
-    val sameAsRelations = for {
-      (m1, i) <- ms.zipWithIndex
-      m2 <- ms.slice(i+1, ms.length)
-      score = wordToVec.calculateSimilarity(m1, m2)
-    } yield sameAs(m1, m2, score)
-
-    sameAsRelations
-  }
 
   // Old version
   def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
