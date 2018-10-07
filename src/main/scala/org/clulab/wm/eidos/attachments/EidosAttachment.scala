@@ -61,6 +61,9 @@ object EidosAttachment {
       case Increase.label => new Increase(trigger, someQuantifications)
       case Decrease.label => new Decrease(trigger, someQuantifications)
       case Quantification.label => new Quantification(trigger, someQuantifications)
+      case Property.label => new Property(trigger, someQuantifications)
+      case Hedging.label => new Hedging(trigger, someQuantifications)
+      case Negation.label => new Negation(trigger, someQuantifications)
     }
   }
 
