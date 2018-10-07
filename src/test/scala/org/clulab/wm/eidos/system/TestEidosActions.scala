@@ -123,6 +123,11 @@ class TestEidosActions extends Test {
     hedged.exists(h => h.asInstanceOf[Hedging].trigger == term)
   }
 
+  def hasProperty(m: Mention, term: String): Boolean = {
+    val props = m.attachments.filter(_.isInstanceOf[Property])
+    props.exists(p => p.asInstanceOf[Property].trigger == term)
+  }
+
 
 //  {
 //    val reader = new EidosSystem()
@@ -309,6 +314,12 @@ class TestEidosActions extends Test {
       val text = "Rainfall is likely to cause flooding."
       val mentions = extractMentions(text)
       mentions.exists(m => hasHedging(m, "likely")) should be (true)
+    }
+
+    it should "identify properties" in {
+      val text = "Rainfall increases the price of puppies."
+      val mentions = extractMentions(text)
+      mentions.exists(m => hasProperty(m, "price")) should be (true)
     }
 
   }
