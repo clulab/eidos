@@ -172,6 +172,7 @@ object OntologyMapper extends App {
     un2wdi.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar WDI: ${mapping._2.mkString(",")}"))
 
     val pw = printWriterFromFile(outputFile)
+    val pwInterventionSpecific = printWriterFromFile(outputFile + ".no_ind_for_interventions")
 
     for (unConcept <- un2wdi.keys) {
       val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
@@ -179,6 +180,9 @@ object OntologyMapper extends App {
       val sorted = (wdiMappings ++ faoMappings).sortBy(- _._2)
       for ((indicator, score, label) <- sorted) {
         pw.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
+        if (!unConcept.startsWith("UN/interventions")) {
+          pwInterventionSpecific.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
+        }
       }
     }
 
@@ -194,6 +198,7 @@ object OntologyMapper extends App {
     //  } pw.println(s"unConcept\t$unConcept\tWB\t$wdiIndicator\t$score")
     //
     pw.close()
+    pwInterventionSpecific.close()
   }
 
   def mapOntologies(): Unit = {
