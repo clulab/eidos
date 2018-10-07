@@ -459,6 +459,24 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     addAttachments(expanded, allAttachments, completeFoundBy)
   }
 
+  def addOverlappingAttachmentsTextBounds(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+    } yield m match {
+      case tb: TextBoundMention =>
+        val attachments = getOverlappingAttachments(tb, state)
+        if (attachments.nonEmpty) tb.copy(attachments = tb.attachments ++ attachments) else tb
+      case _ => m
+    }
+  }
+
+  def getOverlappingAttachments(m: Mention, state: State): Set[Attachment] = {
+    val interval = m.tokenInterval
+    // TODO: Currently this is only Property attachments, but we can do more too
+    val overlappingProps = state.mentionsFor(m.sentence, interval, label = "Property")
+    overlappingProps.map(pm => Property(pm.text, None)).toSet
+  }
+
   // Add the dct attachment if there is no temporal attachment
   def attachDCT(m: Mention, state: State): Mention = {
     val dct = m.document.asInstanceOf[EidosDocument].getDCT()
@@ -610,7 +628,8 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = EidosActions.MAX_HOPS_EXPANDING, stateToAvoid))
         attached = expandedMentions.map(addSubsumedAttachments(_, state))
         dctattached = attached.map(attachDCT(_, state))
-        trimmed = dctattached.map(EntityHelper.trimEntityEdges)
+        propAttached = addOverlappingAttachmentsTextBounds(dctattached, state)
+        trimmed = propAttached.map(EntityHelper.trimEntityEdges)
       } yield (argType, trimmed)
 
     } yield Seq(copyWithNewArgs(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
