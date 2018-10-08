@@ -1,4 +1,4 @@
-increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|aument|auxili|comp[õô]|compo(n|m)|compor$|compu[ns]|contribu|dobr|elev|espalh|estend|estimul|exacerb|exorbit|facilit|favorec|impulsion|increment|melhor|prolong|promov|propag|reativ|restaur"
+increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|aument|auxili|comp[õô]|compo(n|m)|compor$|compu[ns]|contribu|dobr|elev|espalh|estend|estimul|exacerb|exorbit|facilit|favorec|impulsion|increment|intensifi|melhor|prolong|promov|propag|reativ|restaur"
 #remove restaur
 noncausal_increase_triggers: "acima|melhor|bom|maior|forte|aument|difundido"
 
@@ -7,7 +7,7 @@ noncausal_decrease_triggers: "ausencia|baix|declínio|déficit|derrub|desadequ|d
 #advers|perturb|resist|
 
 # NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
-cause_triggers: "ajud|ativ(a|ou|am|aram)$|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|facilit|forç|induz|inici|interconvert|lev|modul|permit|possibilit|provoc|sinaliz|determin|proporcion|apresent|propici"
+cause_triggers: "ajud|ativ(a|ou|am|aram)$|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|facilit|forç|induz|inici|interconvert|lev|modul|permit|possibilit|provoc|sinaliz|determin|proporcion|propici"
 
 nonavoid_causal_triggers: "produz"
 reverse_direction_cause_triggers: "consequencia|efeito|resultado"
@@ -31,4 +31,3 @@ correlation_triggers: "coincid|lig"
 # beneficiar
 # acentuar
 # encolher
-# intensificar

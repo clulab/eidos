@@ -3,16 +3,15 @@ vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
 
 rules:
 
-  - name: ported_syntax_1_verb_1_includeConj-${addlabel}
+  - name: causa_de-${addlabel}
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = </${adverbial_clause}/ (${ agents }) # passed
-      effect: Entity = conj /obj/{,3}
-
+      trigger = [word=/(?i)^(caus|inib)/ & tag=/^NOUN/]
+      cause: Entity = nmod_de
+      effect: Entity = nsubj
 
   - name: george_causa_de-${addlabel}
     priority: ${ rulepriority }
@@ -21,28 +20,42 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(causa)/ & tag=/^NOUN/]
-      cause: Entity = (<${agents})
-      effect: Entity = nmod_de
+      cause: Entity = ((<${agents}) [!tag=/^V/])  /conj/{,3}
+      # but I dont want agents that are verbs...
+      effect: Entity = nmod_de /conj/{,3}
 
-  - name: george_relcl_promove-${addlabel}
+  - name: george_causada_por-${addlabel}
     priority: ${ rulepriority }
-    example: "Por assim ser , a inclusão social que Xuxa promove se dá justamente com base na devoção da apresentadora às crianças por meio de seus produtos ."
+    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas sérios"
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(promove|favorece)/ & tag=/^V/]
-      cause: Entity = ${agents}
-      effect: Entity = </acl:relcl/
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (obl|obj)
+      effect: Entity = (nsubj:pass|${ agents }) /conj/{,3}
 
-  - name: george_relcl_favorece-${addlabel}
+  - name: george_devido_a-${addlabel}
+    priority: ${ rulepriority }
+    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
+    # here we can check the correct verb for melhorada
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (advmod  [word=devido]) (obl|obj) /conj/{,3}
+      effect: Entity = (nsubj:pass|obj) /conj/{,3}
+
+
+  - name: ported_syntax_1_verb_1_includeConj-${addlabel}
     priority: ${ rulepriority }
     example: ""
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(favorece)/ & tag=/^V/]
-      cause: Entity = obj
-      effect: Entity = <acl:relcl <nsubj
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = </${adverbial_clause}/ (${ agents }) # passed
+      effect: Entity = /conj/{,3} /obj/{,3}
+
 
   - name: george_maximizar-${addlabel}
     priority: ${ rulepriority }
@@ -54,24 +67,13 @@ rules:
       cause: Entity = (${ agents }) (<${ preps }) (${ agents })
       effect: Entity = (${ objects })
 
-  - name: george_causada_por-${addlabel}
-    priority: ${ rulepriority }
-    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
-    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas sérios"
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (obl|obj)
-      effect: Entity = (nsubj:pass|${ agents })
 
-  - name: george_devido_a-${addlabel}
+  - name: 2-verbs-conj-${addlabel}
     priority: ${ rulepriority }
-    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
-    # here we can check the correct verb for melhorada
+    example: "Os acessórios ortodônticos colados ainda promovem e favorecem a retenção de placa bacteriana e indultos , aumentando tanto o risco de cárie quanto o de gengivite."
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (advmod  [word=devido]) (obl|obj)
-      effect: Entity = nsubj:pass
+      cause: Entity = nsubj|(<conj nsubj)
+      effect: Entity = (conj obj)|obj
