@@ -30,7 +30,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=VERBP]
       cause: Entity = (obl|obj)
       effect: Entity = (nsubj:pass|${ agents }) /conj/{,3}
 
