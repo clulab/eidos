@@ -3,6 +3,9 @@ vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
 
 rules:
 
+
+
+
   - name: causa_de-${addlabel}
     priority: ${ rulepriority }
     example: ""
@@ -10,10 +13,10 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(caus|inib)/ & tag=/^NOUN/]
-      cause: Entity = nmod_de
-      effect: Entity = nsubj
+      cause: Entity = nsubj /conj/{,3}
+      effect: Entity = nmod_de /conj/{,3}
 
-  - name: george_causa_de-${addlabel}
+  - name: invertido_causa_de-${addlabel}
     priority: ${ rulepriority }
     example: "Existe um consenso de que a causa da enchente é a chuva."
     label: ${ label }
@@ -30,9 +33,9 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=VERBP]
-      cause: Entity = (obl|obj)
-      effect: Entity = (nsubj:pass|${ agents }) /conj/{,3}
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= [word=/por/])
+      cause: Entity = (obl) (?= case [word=/(?i)(por)/])
+      effect: Entity = (<acl|nsubj:pass|${ agents }) /conj/{,3}
 
   - name: george_devido_a-${addlabel}
     priority: ${ rulepriority }
@@ -75,5 +78,37 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = nsubj|(<conj nsubj)
-      effect: Entity = (conj obj)|obj
+      cause: Entity = (nsubj|(<conj [tag=VERBF] nsubj)) /^nmod/{,2} /^conj/{,2}
+      effect: Entity = (conj [tag=VERBF] obj)|obj /^conj/{,2}
+
+
+  - name: george_com_obl-${addlabel}
+    priority: ${ rulepriority }
+    example: "Com a infusão de solução de Ringer com lactato, o hematócrito diminuiu para 28,8% +/- 3,72%. "
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= [word=/(com|por)/])
+      cause: Entity = obl (?= case [word = /(?i)(com|dada)/]) /^nmod_/{,2}
+      effect: Entity = (nsubj:pass|${ agents }) /conj/{,3}
+
+  - name: george_acl_subj-${addlabel}
+    priority: ${ rulepriority }
+    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = <acl
+      effect: Entity = (${ objects })
+
+  - name: george_obl_obj-${addlabel}
+    priority: ${ rulepriority }
+    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      cause: Entity = <obj [lemma=/ter/] ${agents}
+      effect: Entity = <obj [lemma=/ter/] obl
+
