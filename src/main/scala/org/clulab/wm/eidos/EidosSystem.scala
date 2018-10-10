@@ -9,7 +9,7 @@ import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-//import org.clulab.wm.eidos.attachments.{HypothesisHandler, Property, Score}
+import org.clulab.wm.eidos.attachments.HypothesisHandler // , Property, Score}
 import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
