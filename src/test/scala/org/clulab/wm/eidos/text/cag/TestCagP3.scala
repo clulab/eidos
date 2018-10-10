@@ -87,7 +87,7 @@ class TestCagP3 extends Test {
   { // S5
     val tester = new Tester(p3s5)
 
-    val economic    = NodeSpec("economic", Dec("decline"))
+    val economic    = NodeSpec("economic decline", Dec("decline"))
     val accessFood  = NodeSpec("access to staple food", Dec("reduction"))
     // becky: with current tokenInterval restrictions, can't have access to clean water (i.e., split interval)
     val accessWater = NodeSpec("clean water", Dec("reduction"))

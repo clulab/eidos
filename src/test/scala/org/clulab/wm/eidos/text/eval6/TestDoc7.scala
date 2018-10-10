@@ -34,10 +34,10 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 1"
 
-    // Once the Correlation test passes, this will pass too!
-    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
-      tester.test(conflict) should be (successful) 
-    }
+    // we're not expanding entities outside of relations
+//    failingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
+//      tester.test(conflict) should be (successful)
+//    }
     passingTest should "have correct singleton node 2" taggedAs(Egoitz) in {
       tester.test(hunger) should be (successful) 
     }
@@ -97,16 +97,16 @@ class TestDoc7 extends Test {
 
     behavior of "TestDoc7 Paragraph 3"
 
-    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
+    passingTest should "have correct singleton node 1" taggedAs(Ajay) in {
       tester.test(conflict) should be (successful) 
     }
-    failingTest should "have correct edge 1" taggedAs(Ajay) in {
+    brokenSyntaxTest should "have correct edge 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, starvation)) should be (successful) 
     }
-    failingTest should "have correct edge 2" taggedAs(Ajay) in {
+    brokenSyntaxTest should "have correct edge 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, destitution)) should be (successful) 
     }
-    failingTest should "have correct edge 3" taggedAs(Ajay) in {
+    brokenSyntaxTest should "have correct edge 3" taggedAs(Ajay) in {
       tester.test(EdgeSpec(foodInsecurity, Correlation, death)) should be (successful) 
     }
   }
@@ -133,7 +133,7 @@ class TestDoc7 extends Test {
     passingTest should "have correct singleton node 1" taggedAs(Egoitz) in {
       tester.test(refugees) should be (successful) 
     }
-    // The event here should either be a DISPLACEMENT event or something like cause communities to be displaced
+    // This needs the removal of chunks in the EntityFinder...
     futureWorkTest should "have correct edge 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(insecurity, Causal, communities)) should be (successful)
     }
@@ -168,13 +168,13 @@ class TestDoc7 extends Test {
                                   Quant("deterioration"))
     
     behavior of "TestDoc7 Paragraph 5"
-
-    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
-      tester.test(humanitarianResponse) should be (successful) 
-    }
-    failingTest should "have correct singleton node 2" taggedAs(Ajay) in {
-      tester.test(foodInsecurity) should be (successful) 
-    }
+    // We're not expanding singleton nodes currently
+//    failingTest should "have correct singleton node 1" taggedAs(Ajay) in {
+//      tester.test(humanitarianResponse) should be (successful)
+//    }
+//    failingTest should "have correct singleton node 2" taggedAs(Ajay) in {
+//      tester.test(foodInsecurity) should be (successful)
+//    }
   }
   { // Paragraph 6
     val text = """
@@ -197,9 +197,10 @@ class TestDoc7 extends Test {
 //    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
 //      tester.test(foodAssistance) should be (successful)
 //    }
-    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
-      tester.test(water) should be (successful)
-    }
+    // We're not expanding singleton nodes currently
+//    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
+//      tester.test(water) should be (successful)
+//    }
 
     futureWorkTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(agriculturalTraining, IsA, livelihoodsInterventions)) should be (successful) 

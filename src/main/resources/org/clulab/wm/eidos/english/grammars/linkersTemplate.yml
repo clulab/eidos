@@ -47,12 +47,22 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?! due to)# original rule had RB as possible tag
-      cause: Entity = </${adverbial_clause}/? (${ agents }) /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-
-      # old previous ones -- removed the preps because they were waaaay over-matching:
-      #cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}|${ preps }/{,2}
-      #effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      cause: Entity =
+        # optionally reverse traverse an advcl
+        </${adverbial_clause}/?
+        # agents (i.e., noun subjects)
+        (${ agents })
+        # optionally you can follow specified modifiers
+        /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2}
+        # if you land on another trigger, you are then licensed to follow more preps
+        ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity =
+        # direct objects or things like xcomp
+        (${objects} | ${complements})
+        # optionally you can follow specified modifiers
+        /${noun_modifiers}|${ preps }/{,2}
+        # if you land on another trigger, you are then licensed to follow more preps
+        ([word=/(?i)^(${ trigger })/]/ ${ preps }/{,2})?
 
 
   # Handles occurrence of prep_by when NOT passive voice
@@ -136,6 +146,17 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
       effect: Entity  = <ccomp (?=/nmod_since/) nsubj
       cause: Entity = dobj
+
+  - name: syntax_10_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "Provide emergency support to protect and rebuild livelihoods... Provide emergency wages to protect and rebuild livelihoods."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VB/]
+      effect: Entity  = >dobj? >/(acl_to|advcl_to)/{1,2} >/${objects}/? /${conjunctions}/{,2}
+      cause: Entity = >dobj
+
 
   - name: token_1_verb-${addlabel}
     priority: ${ rulepriority }
@@ -257,3 +278,13 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
       cause: Entity = nmod_given [tag=/^N/] #(${ conjunctions })? #/${noun_modifiers}/{,2} #
       effect: Entity = nsubj /${noun_modifiers}/{,2}
+
+  - name: ${ label }_little_if_any
+    priority: ${ rulepriority }
+    label: ${label}
+    action: ${ action }
+    example: "Currently, most crop cultivation is done on small farms, producing little if any marketable surplus."
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = <xcomp? >/${agents}/
+      effect: Entity = >/${objects}/ [word=little] nmod_if

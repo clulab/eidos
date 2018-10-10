@@ -42,7 +42,17 @@ rules:
     pattern: |
       trigger = [incoming=neg]
       theme: Entity = <neg
-      
+
+  # Surely this can be made more generic, but it's a start
+  - name: Decrease_explicit_little_if_any
+    priority: ${ rulepriority }
+    example: "Currently, most crop cultivation  produces little if any marketable surplus."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = little if any
+      theme: Entity = >nmod_if
+
 
 # ------------------- Specific Increase --------------------------
 
