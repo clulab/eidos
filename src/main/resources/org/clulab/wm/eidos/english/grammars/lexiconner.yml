@@ -11,3 +11,10 @@ rules:
       type: token
       pattern: |
         [entity="B-Quantifier"] [entity="I-Quantifier"]* (to [entity="B-Quantifier"] [entity="I-Quantifier"]*)?
+
+    - name: property-lexiconner
+      label: Property
+      priority: ${rulepriority}
+      type: token
+      pattern: |
+        [entity="B-Property"] [entity="I-Property"]*

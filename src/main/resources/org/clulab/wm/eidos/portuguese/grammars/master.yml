@@ -14,7 +14,7 @@ rules:
 #      rulepriority: "1"
 
 #  #Quantifiers
-#  - import: org/clulab/wm/eidos/portuguese/grammars/quantifiers.yml
+#  - import: org/clulab/wm/eidos/portuguese/grammars/lexiconner.yml
 #    vars:
 #      rulepriority: "1"
 

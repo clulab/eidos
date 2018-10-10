@@ -1,0 +1,760 @@
+unConcept	UN/events/weather/precipitation	WB	WDI/Average_precipitation_in_depth_(mm_per_year)	0.5936226
+unConcept	UN/events/weather/precipitation	WB	WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)	0.47742745
+unConcept	UN/events/weather/precipitation	WB	FAO/events/Area/Cropland and grassland organic soils	0.42911816
+unConcept	UN/events/weather/precipitation	WB	FAO/events/Emissions (CH4) (Burning - savanna)/Closed shrubland	0.4248569
+unConcept	UN/events/weather/precipitation	WB	FAO/events/Emissions (N2O) (Burning - savanna)/Closed shrubland	0.42457294
+unConcept	UN/events/weather/precipitation	WB	FAO/events/Emissions (CO2eq) (Burning - savanna)/Closed shrubland	0.42445338
+unConcept	UN/events/weather/precipitation	WB	FAO/events/Emissions (CO2eq) from CH4 (Burning - savanna)/Closed shrubland	0.4243761
+unConcept	UN/events/weather/precipitation	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.3954064
+unConcept	UN/events/weather/precipitation	WB	WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)	0.3575017
+unConcept	UN/events/weather/precipitation	WB	WDI/Surface_area_(sq._km)	0.34318584
+unConcept	UN/temporal/month	WB	FAO/events/Value/Depth of the food deficit (kcal\/capita\/day) (3-year average)	0.06676378
+unConcept	UN/temporal/month	WB	FAO/events/Value/Average protein supply (g\/capita\/day) (3-year average)	0.065592594
+unConcept	UN/temporal/month	WB	FAO/events/Value/Average supply of protein of animal origin (g\/capita\/day) (3-year average)	0.06543697
+unConcept	UN/temporal/month	WB	WDI/Lead_time_to_import,_median_case_(days)	0.049097992
+unConcept	UN/temporal/month	WB	WDI/Lead_time_to_export,_median_case_(days)	0.04768155
+unConcept	UN/temporal/month	WB	WDI/Power_outages_in_firms_in_a_typical_month_(number)	0.047653243
+unConcept	UN/temporal/month	WB	WDI/GDP_deflator_(base_year_varies_by_country)	0.047191568
+unConcept	UN/temporal/month	WB	FAO/events/Value/Prevalence of undernourishment (%) (3-year average)	0.046688225
+unConcept	UN/temporal/month	WB	WDI/Proportion_of_women_subjected_to_physical_and\/or_sexual_violence_in_the_last_12_months_(%_of_women_age_15-49)	0.046389986
+unConcept	UN/temporal/month	WB	FAO/events/Value/Per capita food supply variability (kcal\/capita\/day)	0.04594797
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	WDI/Transport_services_(%_of_service_imports,_BoP)	0.69075537
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	WDI/Transport_services_(%_of_service_exports,_BoP)	0.690005
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	WDI/Railways,_passengers_carried_(million_passenger-km)	0.68979347
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	WDI/Transport_services_(%_of_commercial_service_imports)	0.6781182
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	WDI/Transport_services_(%_of_commercial_service_exports)	0.67695665
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	FAO/events/Production/Wood fuel, non-coniferous (production)	0.37851524
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	FAO/events/Value/Value of food imports over total merchandise exports (%) (3-year average)	0.37704724
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	FAO/events/Production/Wood fuel, coniferous (production)	0.37659052
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	FAO/events/Area/Total area equipped for irrigation	0.37489706
+unConcept	UN/entities/human/infrastructure/transportation/transportation_methods	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)	0.37160677
+unConcept	UN/temporal/seasons/crop_season	WB	FAO/events/Area harvested/Maize	0.6098286
+unConcept	UN/temporal/seasons/crop_season	WB	FAO/events/Area harvested/Coarse Grain, Total	0.604062
+unConcept	UN/temporal/seasons/crop_season	WB	FAO/events/Area harvested/Cassava	0.60366845
+unConcept	UN/temporal/seasons/crop_season	WB	FAO/events/Area harvested/Pineapples	0.5974011
+unConcept	UN/temporal/seasons/crop_season	WB	FAO/events/Area harvested/Millet	0.59392685
+unConcept	UN/temporal/seasons/crop_season	WB	WDI/Cereal_production_(metric_tons)	0.5243847
+unConcept	UN/temporal/seasons/crop_season	WB	WDI/Cereal_yield_(kg_per_hectare)	0.51033884
+unConcept	UN/temporal/seasons/crop_season	WB	WDI/Land_under_cereal_production_(hectares)	0.4932562
+unConcept	UN/temporal/seasons/crop_season	WB	WDI/Permanent_cropland_(%_of_land_area)	0.4475979
+unConcept	UN/temporal/seasons/crop_season	WB	WDI/Agricultural_land_(%_of_land_area)	0.43182236
+unConcept	UN/events/human/agriculture/planting	WB	FAO/events/Share in Forest area/Planted forest	0.5966235
+unConcept	UN/events/human/agriculture/planting	WB	WDI/Aquaculture_production_(metric_tons)	0.5324171
+unConcept	UN/events/human/agriculture/planting	WB	WDI/Permanent_cropland_(%_of_land_area)	0.51056945
+unConcept	UN/events/human/agriculture/planting	WB	WDI/Fertilizer_consumption_(%_of_fertilizer_production)	0.50521505
+unConcept	UN/events/human/agriculture/planting	WB	WDI/Fertilizer_consumption_(kilograms_per_hectare_of_arable_land)	0.5029605
+unConcept	UN/events/human/agriculture/planting	WB	WDI/Total_fisheries_production_(metric_tons)	0.50031984
+unConcept	UN/events/human/agriculture/planting	WB	FAO/events/Emissions (CO2eq) (Manure management)/Cattle, dairy	0.486037
+unConcept	UN/events/human/agriculture/planting	WB	FAO/events/Indirect emissions (CO2eq) (Manure management)/Cattle, dairy	0.48508316
+unConcept	UN/events/human/agriculture/planting	WB	FAO/events/Direct emissions (CO2eq) (Manure management)/Cattle, dairy	0.48470822
+unConcept	UN/events/human/agriculture/planting	WB	FAO/events/Emissions (CH4) (Manure management)/Cattle, dairy	0.48373795
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.7029252
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	WDI/People_using_safely_managed_drinking_water_services_(%_of_population)	0.6785213
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	WDI/People_using_safely_managed_drinking_water_services,_rural_(%_of_rural_population)	0.6759773
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	WDI/People_using_safely_managed_drinking_water_services,_urban_(%_of_urban_population)	0.6758712
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)	0.66938895
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	FAO/events/Area/Cropland and grassland organic soils	0.6161218
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5925457
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.59094757
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Grassland organic soils	0.59047997
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/water	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Grassland organic soils	0.58888185
+unConcept	UN/events/human/death	WB	WDI/Completeness_of_infant_death_reporting_(%_of_reported_infant_deaths_to_estimated_infant_deaths)	0.6328637
+unConcept	UN/events/human/death	WB	WDI/Mortality_from_CVD,_cancer,_diabetes_or_CRD_between_exact_ages_30_and_70_(%)	0.61050624
+unConcept	UN/events/human/death	WB	WDI/Lifetime_risk_of_maternal_death_(%)	0.59481835
+unConcept	UN/events/human/death	WB	WDI/Cause_of_death,_by_non-communicable_diseases_(%_of_total)	0.5943775
+unConcept	UN/events/human/death	WB	WDI/Cause_of_death,_by_communicable_diseases_and_maternal,_prenatal_and_nutrition_conditions_(%_of_total)	0.5877532
+unConcept	UN/events/human/death	WB	FAO/events/Value/Prevalence of exclusive breastfeeding among infants (0-5 months)	0.551896
+unConcept	UN/events/human/death	WB	FAO/events/Value/Prevalence of anemia among women of reproductive age (15-49 years)	0.52602243
+unConcept	UN/events/human/death	WB	FAO/events/Value/Prevalence of undernourishment (%) (3-year average)	0.4717412
+unConcept	UN/events/human/death	WB	FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)	0.35228986
+unConcept	UN/events/human/death	WB	FAO/events/Density of livestock in the agricultural area/Sheep and Goats	0.3437116
+unConcept	UN/entities/food_availability	WB	FAO/events/Value/Number of severely food insecure people	0.8017463
+unConcept	UN/entities/food_availability	WB	WDI/Land_under_cereal_production_(hectares)	0.68641424
+unConcept	UN/entities/food_availability	WB	FAO/events/Area harvested/Cereals (Rice Milled Eqv)	0.6843112
+unConcept	UN/entities/food_availability	WB	FAO/events/Production/Cereals excluding rice	0.6801296
+unConcept	UN/entities/food_availability	WB	WDI/Food_imports_(%_of_merchandise_imports)	0.6611972
+unConcept	UN/entities/food_availability	WB	FAO/events/Production/Meat, Total	0.65938896
+unConcept	UN/entities/food_availability	WB	FAO/events/Production/Cereals,Total	0.65859663
+unConcept	UN/entities/food_availability	WB	WDI/Food_exports_(%_of_merchandise_exports)	0.6576981
+unConcept	UN/entities/food_availability	WB	WDI/Cereal_production_(metric_tons)	0.655737
+unConcept	UN/entities/food_availability	WB	WDI/Cereal_yield_(kg_per_hectare)	0.63925433
+unConcept	UN/entities/human/financial/economic/fuel	WB	WDI/Fossil_fuel_energy_consumption_(%_of_total)	0.81001586
+unConcept	UN/entities/human/financial/economic/fuel	WB	FAO/events/Production/Oil, cottonseed	0.70649034
+unConcept	UN/entities/human/financial/economic/fuel	WB	FAO/events/Production/Oil, groundnut	0.7034992
+unConcept	UN/entities/human/financial/economic/fuel	WB	FAO/events/Production/Wood fuel	0.6937208
+unConcept	UN/entities/human/financial/economic/fuel	WB	FAO/events/Production/Wood fuel, non-coniferous (production)	0.6924642
+unConcept	UN/entities/human/financial/economic/fuel	WB	FAO/events/Production/Wood fuel, coniferous (production)	0.68206215
+unConcept	UN/entities/human/financial/economic/fuel	WB	WDI/Electricity_production_from_oil,_gas_and_coal_sources_(%_of_total)	0.67905396
+unConcept	UN/entities/human/financial/economic/fuel	WB	WDI/Energy_imports,_net_(%_of_energy_use)	0.6689712
+unConcept	UN/entities/human/financial/economic/fuel	WB	WDI/Fuel_imports_(%_of_merchandise_imports)	0.6597029
+unConcept	UN/entities/human/financial/economic/fuel	WB	WDI/Fuel_exports_(%_of_merchandise_exports)	0.6586428
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	FAO/events/Area/Cropland and grassland organic soils	0.6491635
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	WDI/Arable_land_(hectares)	0.6343908
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	WDI/Agricultural_land_(%_of_land_area)	0.6320246
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	WDI/Rural_land_area_where_elevation_is_below_5_meters_(%_of_total_land_area)	0.6219374
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	WDI/Urban_land_area_where_elevation_is_below_5_meters_(%_of_total_land_area)	0.6207196
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	WDI/Agricultural_land_(sq._km)	0.61876994
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	FAO/events/Area/Permanent meadows and pastures	0.60844326
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	FAO/events/Value/Rail-lines density (per 100 square km of land area)	0.607443
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5896662
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/land	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.588068
+unConcept	UN/entities/natural/chemical	WB	WDI/Other_greenhouse_gas_emissions,_HFC,_PFC_and_SF6_(thousand_metric_tons_of_CO2_equivalent)	0.63235545
+unConcept	UN/entities/natural/chemical	WB	WDI/CO2_emissions_(kt)	0.6113365
+unConcept	UN/entities/natural/chemical	WB	WDI/Agricultural_nitrous_oxide_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.60844517
+unConcept	UN/entities/natural/chemical	WB	WDI/CO2_emissions_(metric_tons_per_capita)	0.60774475
+unConcept	UN/entities/natural/chemical	WB	WDI/Agricultural_nitrous_oxide_emissions_(%_of_total)	0.60543746
+unConcept	UN/entities/natural/chemical	WB	FAO/events/Emissions (CO2eq)/Enteric Fermentation	0.60469615
+unConcept	UN/entities/natural/chemical	WB	FAO/events/Emissions (CO2eq) from CH4/Enteric Fermentation	0.60210854
+unConcept	UN/entities/natural/chemical	WB	FAO/events/Emissions (CO2eq)/Burning - Crop residues	0.57152617
+unConcept	UN/entities/natural/chemical	WB	FAO/events/Emissions (CO2eq) from CH4/Burning - Crop residues	0.56893855
+unConcept	UN/entities/natural/chemical	WB	FAO/events/Emissions (CO2eq) from N2O/Burning - Crop residues	0.5669978
+unConcept	UN/events/human/conflict	WB	WDI/Battle-related_deaths_(number_of_people)	0.5172599
+unConcept	UN/events/human/conflict	WB	FAO/events/Value/Political stability and absence of violence\/terrorism (index)	0.47754428
+unConcept	UN/events/human/conflict	WB	WDI/Intentional_homicides_(per_100,000_people)	0.4430911
+unConcept	UN/events/human/conflict	WB	WDI/Presence_of_peace_keepers_(number_of_troops,_police,_and_military_observers_in_mandate)	0.416351
+unConcept	UN/events/human/conflict	WB	WDI/Internally_displaced_persons,_new_displacement_associated_with_conflict_and_violence_(number_of_cases)	0.40207118
+unConcept	UN/events/human/conflict	WB	WDI/Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)	0.3983346
+unConcept	UN/events/human/conflict	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.335987
+unConcept	UN/events/human/conflict	WB	FAO/events/Producing Animals\/Slaughtered/Sheep and Goat Meat	0.3298486
+unConcept	UN/events/human/conflict	WB	FAO/events/Biomass burned (dry matter)/Burning - all categories	0.21378249
+unConcept	UN/events/human/conflict	WB	FAO/events/Producing Animals\/Slaughtered/Hides, cattle, fresh	0.21202466
+unConcept	UN/entities/human/infrastructure/building	WB	WDI/Gross_fixed_capital_formation_(%_of_GDP)	0.61527956
+unConcept	UN/entities/human/infrastructure/building	WB	WDI/Gross_fixed_capital_formation_(constant_LCU)	0.60039324
+unConcept	UN/entities/human/infrastructure/building	WB	WDI/Gross_fixed_capital_formation_(constant_2010_US$)	0.59992486
+unConcept	UN/entities/human/infrastructure/building	WB	WDI/Gross_fixed_capital_formation_(current_LCU)	0.5994132
+unConcept	UN/entities/human/infrastructure/building	WB	WDI/Gross_fixed_capital_formation_(current_US$)	0.5989413
+unConcept	UN/entities/human/infrastructure/building	WB	FAO/events/Area/Total area equipped for irrigation	0.5199783
+unConcept	UN/entities/human/infrastructure/building	WB	FAO/events/Value/Access to improved sanitation facilities (%)	0.5030921
+unConcept	UN/entities/human/infrastructure/building	WB	FAO/events/Share in Forest area/Planted forest	0.48287296
+unConcept	UN/entities/human/infrastructure/building	WB	FAO/events/Area/Cropland and grassland organic soils	0.47315097
+unConcept	UN/entities/human/infrastructure/building	WB	FAO/events/Share in Agricultural area/Total area equipped for irrigation	0.45287263
+unConcept	UN/entities/human/infrastructure/electrical	WB	WDI/Renewable_electricity_output_(%_of_total_electricity_output)	0.6709709
+unConcept	UN/entities/human/infrastructure/electrical	WB	WDI/Electricity_production_from_hydroelectric_sources_(%_of_total)	0.6638536
+unConcept	UN/entities/human/infrastructure/electrical	WB	WDI/Electricity_production_from_nuclear_sources_(%_of_total)	0.65116525
+unConcept	UN/entities/human/infrastructure/electrical	WB	WDI/Electric_power_consumption_(kWh_per_capita)	0.6427762
+unConcept	UN/entities/human/infrastructure/electrical	WB	WDI/Electricity_production_from_coal_sources_(%_of_total)	0.6316998
+unConcept	UN/entities/human/infrastructure/electrical	WB	FAO/events/Production/Wood fuel, non-coniferous (production)	0.5424605
+unConcept	UN/entities/human/infrastructure/electrical	WB	FAO/events/Production/Wood fuel	0.53950113
+unConcept	UN/entities/human/infrastructure/electrical	WB	FAO/events/Production/Wood fuel, coniferous (production)	0.5394136
+unConcept	UN/entities/human/infrastructure/electrical	WB	FAO/events/Value/Average dietary energy supply adequacy (%) (3-year average)	0.53809845
+unConcept	UN/entities/human/infrastructure/electrical	WB	FAO/events/Share in Forest area/Planted forest	0.49398637
+unConcept	UN/entities/human/livelihood	WB	WDI/Benefit_incidence_of_unemployment_benefits_and_ALMP_to_poorest_quintile_(%_of_total_U\/ALMP_benefits)	0.62674195
+unConcept	UN/entities/human/livelihood	WB	WDI/Coverage_of_unemployment_benefits_and_ALMP_(%_of_population)	0.61531395
+unConcept	UN/entities/human/livelihood	WB	WDI/Coverage_of_unemployment_benefits_and_ALMP_in_poorest_quintile_(%_of_population)	0.61345553
+unConcept	UN/entities/human/livelihood	WB	WDI/Coverage_of_unemployment_benefits_and_ALMP_in_richest_quintile_(%_of_population)	0.61197317
+unConcept	UN/entities/human/livelihood	WB	WDI/Coverage_of_unemployment_benefits_and_ALMP_in_4th_quintile_(%_of_population)	0.60919666
+unConcept	UN/entities/human/livelihood	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Recurrent (Central Government)	0.51853245
+unConcept	UN/entities/human/livelihood	WB	FAO/events/Value Local Currency, 2010 base year/Value Added Deflator (Agriculture, forestry and fishery)	0.51775765
+unConcept	UN/entities/human/livelihood	WB	FAO/events/Value US$, 2010 base year/Value Added Deflator (Agriculture, forestry and fishery)	0.51769674
+unConcept	UN/entities/human/livelihood	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing (Central Government)	0.51684135
+unConcept	UN/entities/human/livelihood	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Recurrent (Central Government)	0.5083948
+unConcept	UN/entities/natural/pest	WB	FAO/events/Indirect emissions (CO2eq) (Manure on pasture)/All Animals	0.63421804
+unConcept	UN/entities/natural/pest	WB	FAO/events/Direct emissions (CO2eq) (Manure on pasture)/All Animals	0.6336679
+unConcept	UN/entities/natural/pest	WB	FAO/events/Emissions (CO2eq) (Manure on pasture)/All Animals	0.633375
+unConcept	UN/entities/natural/pest	WB	FAO/events/Indirect emissions (N2O) (Manure on pasture)/All Animals	0.6328014
+unConcept	UN/entities/natural/pest	WB	FAO/events/Emissions (N2O) (Manure on pasture)/All Animals	0.6319652
+unConcept	UN/entities/natural/pest	WB	WDI/Aquaculture_production_(metric_tons)	0.5979334
+unConcept	UN/entities/natural/pest	WB	WDI/Permanent_cropland_(%_of_land_area)	0.58166337
+unConcept	UN/entities/natural/pest	WB	WDI/Plant_species_(higher),_threatened	0.5692402
+unConcept	UN/entities/natural/pest	WB	WDI/Agricultural_land_(%_of_land_area)	0.5578813
+unConcept	UN/entities/natural/pest	WB	WDI/Total_fisheries_production_(metric_tons)	0.55547684
+unConcept	UN/events/human/health_intervention	WB	WDI/Immunization,_measles_(%_of_children_ages_12-23_months)	0.68361956
+unConcept	UN/events/human/health_intervention	WB	WDI/Immunization,_DPT_(%_of_children_ages_12-23_months)	0.6672675
+unConcept	UN/events/human/health_intervention	WB	WDI/Antiretroviral_therapy_coverage_for_PMTCT_(%_of_pregnant_women_living_with_HIV)	0.59258664
+unConcept	UN/events/human/health_intervention	WB	WDI/Immunization,_HepB3_(%_of_one-year-old_children)	0.5920266
+unConcept	UN/events/human/health_intervention	WB	WDI/Incidence_of_malaria_(per_1,000_population_at_risk)	0.5628454
+unConcept	UN/events/human/health_intervention	WB	FAO/events/Value/Prevalence of exclusive breastfeeding among infants (0-5 months)	0.44670206
+unConcept	UN/events/human/health_intervention	WB	FAO/events/Value/Prevalence of anemia among women of reproductive age (15-49 years)	0.39681748
+unConcept	UN/events/human/health_intervention	WB	FAO/events/Manure treated (N content)/Cattle, dairy	0.36991432
+unConcept	UN/events/human/health_intervention	WB	FAO/events/Density of livestock in the agricultural area/Cattle	0.36772916
+unConcept	UN/events/human/health_intervention	WB	FAO/events/Density of livestock in the agricultural area/Major livestock types	0.36739647
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	FAO/events/Area/Total area equipped for irrigation	0.67517704
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	WDI/People_using_safely_managed_drinking_water_services,_rural_(%_of_rural_population)	0.62469584
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	WDI/People_using_safely_managed_drinking_water_services,_urban_(%_of_urban_population)	0.62246585
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	WDI/People_using_safely_managed_drinking_water_services_(%_of_population)	0.61437076
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	WDI/People_using_at_least_basic_drinking_water_services,_rural_(%_of_rural_population)	0.61068946
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	WDI/Annual_freshwater_withdrawals,_agriculture_(%_of_total_freshwater_withdrawal)	0.609447
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5917962
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5904877
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	FAO/events/Area/Cropland and grassland organic soils	0.58912945
+unConcept	UN/entities/natural/crop_technology/irrigation	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Grassland organic soils	0.5887356
+unConcept	UN/events/human/famine	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.5331869
+unConcept	UN/events/human/famine	WB	FAO/events/Value/Prevalence of undernourishment (%) (3-year average)	0.43454215
+unConcept	UN/events/human/famine	WB	WDI/Incidence_of_malaria_(per_1,000_population_at_risk)	0.42922032
+unConcept	UN/events/human/famine	WB	WDI/Cause_of_death,_by_communicable_diseases_and_maternal,_prenatal_and_nutrition_conditions_(%_of_total)	0.42385304
+unConcept	UN/events/human/famine	WB	WDI/Cause_of_death,_by_non-communicable_diseases_(%_of_total)	0.40123782
+unConcept	UN/events/human/famine	WB	FAO/events/Density of livestock in the agricultural area/Major livestock types	0.38460982
+unConcept	UN/events/human/famine	WB	FAO/events/Density of livestock in the agricultural area/Cattle	0.38301262
+unConcept	UN/events/human/famine	WB	WDI/Mortality_from_CVD,_cancer,_diabetes_or_CRD_between_exact_ages_30_and_70_(%)	0.38273025
+unConcept	UN/events/human/famine	WB	WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)	0.36910334
+unConcept	UN/events/human/famine	WB	FAO/events/Area harvested/Sugar cane	0.3685771
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	FAO/events/Residues (Crop residues)/Sorghum	0.6452417
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	FAO/events/Emissions (CO2eq) from N2O/Crop Residues	0.6389202
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	FAO/events/Emissions (CO2eq)/Crop Residues	0.6382414
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	FAO/events/Residues (Crop residues)/Maize	0.6349313
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	FAO/events/Residues (Crop residues)/Millet	0.63143367
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	WDI/Agricultural_nitrous_oxide_emissions_(%_of_total)	0.61204326
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	WDI/Agricultural_nitrous_oxide_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.61185706
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	WDI/Agricultural_methane_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.5735328
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	WDI/Agricultural_methane_emissions_(%_of_total)	0.571966
+unConcept	UN/entities/natural/crop_technology/pesticide	WB	WDI/Fertilizer_consumption_(%_of_fertilizer_production)	0.5530809
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	WDI/Air_transport,_registered_carrier_departures_worldwide	0.5314933
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	WDI/Air_transport,_freight_(million_ton-km)	0.5138828
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	WDI/Railways,_passengers_carried_(million_passenger-km)	0.46434647
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	WDI/Air_transport,_passengers_carried	0.45723063
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	WDI/Transport_services_(%_of_commercial_service_exports)	0.41500133
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Capital (Central Government)	0.27962276
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	FAO/events/Food aid shipments/Rice Total	0.27884644
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	FAO/events/Food aid shipments/Other Non-Cereals	0.27783927
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	FAO/events/Food aid shipments/Edible Fat Total	0.27748838
+unConcept	UN/entities/human/infrastructure/shipping_facilities_air	WB	FAO/events/Food aid shipments/Sugar Total	0.27718553
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland organic soils	0.74672526
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland organic soils	0.7449707
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.74469274
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Grassland organic soils	0.7439977
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.7429381
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	WDI/Agricultural_methane_emissions_(%_of_total)	0.63928753
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	WDI/Agricultural_nitrous_oxide_emissions_(%_of_total)	0.63864434
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	WDI/Agricultural_nitrous_oxide_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.63306314
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	WDI/Agricultural_methane_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.6316965
+unConcept	UN/events/nature_impact/pollution/land_pollution	WB	WDI/People_using_safely_managed_drinking_water_services,_rural_(%_of_rural_population)	0.6162343
+unConcept	UN/entities/natural/biology/ecosystem	WB	FAO/events/Area/Cropland and grassland organic soils	0.6076746
+unConcept	UN/entities/natural/biology/ecosystem	WB	WDI/Mammal_species,_threatened	0.60594857
+unConcept	UN/entities/natural/biology/ecosystem	WB	WDI/Total_fisheries_production_(metric_tons)	0.6019411
+unConcept	UN/entities/natural/biology/ecosystem	WB	WDI/Fish_species,_threatened	0.592088
+unConcept	UN/entities/natural/biology/ecosystem	WB	WDI/Plant_species_(higher),_threatened	0.5749543
+unConcept	UN/entities/natural/biology/ecosystem	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Grassland organic soils	0.5734079
+unConcept	UN/entities/natural/biology/ecosystem	WB	WDI/Marine_protected_areas_(%_of_territorial_waters)	0.57308924
+unConcept	UN/entities/natural/biology/ecosystem	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Grassland organic soils	0.57190734
+unConcept	UN/entities/natural/biology/ecosystem	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.56986094
+unConcept	UN/entities/natural/biology/ecosystem	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5683603
+unConcept	UN/entities/human/government/government_actions/census	WB	WDI/Account_ownership_at_a_financial_institution_or_with_a_mobile-money-service_provider,_older_adults_(%_of_population_ages_25+)	0.49467573
+unConcept	UN/entities/human/government/government_actions/census	WB	WDI/Account_ownership_at_a_financial_institution_or_with_a_mobile-money-service_provider,_young_adults_(%_of_population_ages_15-24)	0.4942668
+unConcept	UN/entities/human/government/government_actions/census	WB	WDI/Account_ownership_at_a_financial_institution_or_with_a_mobile-money-service_provider,_primary_education_or_less_(%_of_population_ages_15+)	0.49245903
+unConcept	UN/entities/human/government/government_actions/census	WB	WDI/Account_ownership_at_a_financial_institution_or_with_a_mobile-money-service_provider,_secondary_education_or_more_(%_of_population_ages_15+)	0.4911128
+unConcept	UN/entities/human/government/government_actions/census	WB	WDI/Account_ownership_at_a_financial_institution_or_with_a_mobile-money-service_provider,_poorest_40%_(%_of_population_ages_15+)	0.4894804
+unConcept	UN/entities/human/government/government_actions/census	WB	FAO/events/Rural population/Population - Est. & Proj.	0.3605175
+unConcept	UN/entities/human/government/government_actions/census	WB	FAO/events/Urban population/Population - Est. & Proj.	0.3593417
+unConcept	UN/entities/human/government/government_actions/census	WB	FAO/events/Value/Prevalence of undernourishment (%) (3-year average)	0.3216947
+unConcept	UN/entities/human/government/government_actions/census	WB	FAO/events/Value/Percentage of arable land equipped for irrigation (%) (3-year average)	0.29424158
+unConcept	UN/entities/human/government/government_actions/census	WB	FAO/events/Value/Percentage of children under 5 years of age who are overweight	0.29320997
+unConcept	UN/entities/human/food/food_insecurity	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.7222606
+unConcept	UN/entities/human/food/food_insecurity	WB	FAO/events/Value/Number of severely food insecure people	0.6195181
+unConcept	UN/entities/human/food/food_insecurity	WB	WDI/Prevalence_of_undernourishment_(%_of_population)	0.5604986
+unConcept	UN/entities/human/food/food_insecurity	WB	WDI/Depth_of_the_food_deficit_(kilocalories_per_person_per_day)	0.55667156
+unConcept	UN/entities/human/food/food_insecurity	WB	FAO/events/Value/Per capita food supply variability (kcal\/capita\/day)	0.54832107
+unConcept	UN/entities/human/food/food_insecurity	WB	FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)	0.5445868
+unConcept	UN/entities/human/food/food_insecurity	WB	WDI/Rural_poverty_gap_at_national_poverty_lines_(%)	0.51907194
+unConcept	UN/entities/human/food/food_insecurity	WB	WDI/Urban_poverty_gap_at_national_poverty_lines_(%)	0.51852125
+unConcept	UN/entities/human/food/food_insecurity	WB	WDI/Diarrhea_treatment_(%_of_children_under_5_receiving_oral_rehydration_and_continued_feeding)	0.51538277
+unConcept	UN/entities/human/food/food_insecurity	WB	FAO/events/Value/Prevalence of undernourishment (%) (3-year average)	0.4999389
+unConcept	UN/entities/natural/soil/soil_contents	WB	FAO/events/Area/Cropland organic soils	0.66007835
+unConcept	UN/entities/natural/soil/soil_contents	WB	FAO/events/Area/Grassland organic soils	0.66001195
+unConcept	UN/entities/natural/soil/soil_contents	WB	FAO/events/Implied emission factor for N2O (Cultivation of organic soils)/Cropland organic soils	0.6535224
+unConcept	UN/entities/natural/soil/soil_contents	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland organic soils	0.6368674
+unConcept	UN/entities/natural/soil/soil_contents	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland organic soils	0.6349295
+unConcept	UN/entities/natural/soil/soil_contents	WB	WDI/People_using_safely_managed_drinking_water_services_(%_of_population)	0.5011986
+unConcept	UN/entities/natural/soil/soil_contents	WB	WDI/People_using_safely_managed_drinking_water_services,_rural_(%_of_rural_population)	0.4946827
+unConcept	UN/entities/natural/soil/soil_contents	WB	WDI/People_using_safely_managed_drinking_water_services,_urban_(%_of_urban_population)	0.49439183
+unConcept	UN/entities/natural/soil/soil_contents	WB	WDI/Agricultural_nitrous_oxide_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.49103722
+unConcept	UN/entities/natural/soil/soil_contents	WB	WDI/Agricultural_nitrous_oxide_emissions_(%_of_total)	0.49030298
+unConcept	UN/events/human/agriculture/farming	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.6926807
+unConcept	UN/events/human/agriculture/farming	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Grassland organic soils	0.6913601
+unConcept	UN/events/human/agriculture/farming	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.69073224
+unConcept	UN/events/human/agriculture/farming	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Grassland organic soils	0.68941164
+unConcept	UN/events/human/agriculture/farming	WB	FAO/events/Density of livestock in the agricultural area/Major livestock types	0.6825053
+unConcept	UN/events/human/agriculture/farming	WB	WDI/Cereal_production_(metric_tons)	0.6623166
+unConcept	UN/events/human/agriculture/farming	WB	WDI/Land_under_cereal_production_(hectares)	0.6562655
+unConcept	UN/events/human/agriculture/farming	WB	WDI/Cereal_yield_(kg_per_hectare)	0.6503282
+unConcept	UN/events/human/agriculture/farming	WB	WDI/Permanent_cropland_(%_of_land_area)	0.6437805
+unConcept	UN/events/human/agriculture/farming	WB	WDI/Agricultural_land_(%_of_land_area)	0.64012367
+unConcept	UN/entities/human/farming	WB	FAO/events/Indirect emissions (N2O that volatilises) (Manure on pasture)/Cattle, dairy	0.65396255
+unConcept	UN/entities/human/farming	WB	FAO/events/Direct emissions (CO2eq) (Manure on pasture)/Cattle, dairy	0.653481
+unConcept	UN/entities/human/farming	WB	FAO/events/Indirect emissions (CO2eq) (Manure on pasture)/Cattle, dairy	0.6531285
+unConcept	UN/entities/human/farming	WB	FAO/events/Direct emissions (N2O) (Manure on pasture)/Cattle, dairy	0.6529534
+unConcept	UN/entities/human/farming	WB	FAO/events/Indirect emissions (N2O) (Manure on pasture)/Cattle, dairy	0.6528063
+unConcept	UN/entities/human/farming	WB	WDI/Agricultural_land_(%_of_land_area)	0.5382679
+unConcept	UN/entities/human/farming	WB	WDI/Total_fisheries_production_(metric_tons)	0.53190565
+unConcept	UN/entities/human/farming	WB	WDI/Agricultural_land_(sq._km)	0.53054553
+unConcept	UN/entities/human/farming	WB	WDI/Permanent_cropland_(%_of_land_area)	0.5131211
+unConcept	UN/entities/human/farming	WB	WDI/Agricultural_machinery,_tractors_per_100_sq._km_of_arable_land	0.50815064
+unConcept	UN/entities/human/health/disease	WB	WDI/Children_(ages_0-14)_newly_infected_with_HIV	0.70637226
+unConcept	UN/entities/human/health/disease	WB	WDI/Adults_(ages_15+)_newly_infected_with_HIV	0.7063364
+unConcept	UN/entities/human/health/disease	WB	WDI/Incidence_of_malaria_(per_1,000_population_at_risk)	0.68317974
+unConcept	UN/entities/human/health/disease	WB	WDI/Cause_of_death,_by_non-communicable_diseases_(%_of_total)	0.67743343
+unConcept	UN/entities/human/health/disease	WB	WDI/Prevalence_of_HIV,_total_(%_of_population_ages_15-49)	0.64134556
+unConcept	UN/entities/human/health/disease	WB	FAO/events/Value/Prevalence of anemia among women of reproductive age (15-49 years)	0.55473423
+unConcept	UN/entities/human/health/disease	WB	FAO/events/Value/Prevalence of exclusive breastfeeding among infants (0-5 months)	0.45883048
+unConcept	UN/entities/human/health/disease	WB	FAO/events/Producing Animals\/Slaughtered/Skins, sheep, fresh	0.4276788
+unConcept	UN/entities/human/health/disease	WB	FAO/events/Losses from manure treated (N content)/All Animals	0.42314017
+unConcept	UN/entities/human/health/disease	WB	FAO/events/Losses from manure treated (N content)/Cattle	0.42217293
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Grassland organic soils	0.6033023
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Grassland organic soils	0.60154766
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5996564
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5979018
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	FAO/events/Emissions (CO2eq) (Burning - savanna)/Grassland	0.5882921
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(current_US$)	0.52596575
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(%_of_GNI)	0.52514845
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	WDI/Adjusted_net_savings,_excluding_particulate_emission_damage_(current_US$)	0.51044893
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	WDI/Adjusted_net_savings,_excluding_particulate_emission_damage_(%_of_GNI)	0.50983554
+unConcept	UN/events/nature_impact/pollution/climate_change	WB	WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)	0.47424546
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	WDI/Air_transport,_passengers_carried	0.6106171
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	WDI/Air_transport,_registered_carrier_departures_worldwide	0.5711258
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	WDI/Air_transport,_freight_(million_ton-km)	0.488521
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	FAO/events/Value Local Currency, 2010 base year/GDP Deflator	0.4336271
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	FAO/events/Value US$, 2010 base year/GDP Deflator	0.43037033
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	WDI/Railways,_passengers_carried_(million_passenger-km)	0.41480228
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	WDI/CO2_emissions_from_transport_(%_of_total_fuel_combustion)	0.40971816
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	FAO/events/Value Local Currency, 2010 base year/Gross Fixed Capital Formation Deflator	0.33631894
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	FAO/events/Value US$, 2010 base year/Gross Fixed Capital Formation Deflator	0.33306217
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/air	WB	FAO/events/Production/Wood fuel	0.268339
+unConcept	UN/events/human/human_migration	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.51920986
+unConcept	UN/events/human/human_migration	WB	WDI/Net_migration	0.4785582
+unConcept	UN/events/human/human_migration	WB	WDI/Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)	0.45873517
+unConcept	UN/events/human/human_migration	WB	WDI/Rural_population	0.43143743
+unConcept	UN/events/human/human_migration	WB	WDI/Refugee_population_by_country_or_territory_of_origin	0.42993987
+unConcept	UN/events/human/human_migration	WB	WDI/Population,_male	0.41067111
+unConcept	UN/events/human/human_migration	WB	FAO/events/Density of livestock in the agricultural area/Sheep and Goats	0.369408
+unConcept	UN/events/human/human_migration	WB	FAO/events/Density of livestock in the agricultural area/Sheep	0.36799642
+unConcept	UN/events/human/human_migration	WB	FAO/events/Density of livestock in the agricultural area/Major livestock types	0.3631587
+unConcept	UN/events/human/human_migration	WB	FAO/events/Value/Rail-lines density (per 100 square km of land area)	0.36232337
+unConcept	UN/events/nature_impact/forestry	WB	FAO/events/Direct emissions (N2O) (Manure management)/Poultry Birds	0.65416425
+unConcept	UN/events/nature_impact/forestry	WB	FAO/events/Indirect emissions (N2O) (Manure management)/Poultry Birds	0.6541491
+unConcept	UN/events/nature_impact/forestry	WB	FAO/events/Direct emissions (CO2eq) (Manure management)/Poultry Birds	0.6539152
+unConcept	UN/events/nature_impact/forestry	WB	FAO/events/Indirect emissions (CO2eq) (Manure management)/Poultry Birds	0.6534937
+unConcept	UN/events/nature_impact/forestry	WB	FAO/events/Emissions (N2O) (Manure management)/Poultry Birds	0.652571
+unConcept	UN/events/nature_impact/forestry	WB	WDI/Total_fisheries_production_(metric_tons)	0.58363193
+unConcept	UN/events/nature_impact/forestry	WB	WDI/CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)	0.55259216
+unConcept	UN/events/nature_impact/forestry	WB	WDI/GHG_net_emissions\/removals_by_LUCF_(Mt_of_CO2_equivalent)	0.54468554
+unConcept	UN/events/nature_impact/forestry	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(current_US$)	0.5398181
+unConcept	UN/events/nature_impact/forestry	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(%_of_GNI)	0.53960747
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	WDI/CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)	0.644342
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	WDI/CPIA_policies_for_social_inclusion\/equity_cluster_average_(1=low_to_6=high)	0.62092626
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)	0.6013924
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.5776083
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	WDI/Adjusted_net_national_income_(annual_%_growth)	0.5704697
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	FAO/events/Value Local Currency, 2010 base year/Value Added Deflator (Agriculture, forestry and fishery)	0.4444264
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	FAO/events/Value US$, 2010 base year/Value Added Deflator (Agriculture, forestry and fishery)	0.44116962
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	FAO/events/Emissions (CO2eq) (Manure management)/All Animals	0.41901386
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	FAO/events/Direct emissions (CO2eq) (Manure management)/All Animals	0.41804725
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/resource	WB	FAO/events/Indirect emissions (CO2eq) (Manure management)/All Animals	0.41758946
+unConcept	UN/entities/human/infrastructure/water_management	WB	WDI/People_using_safely_managed_drinking_water_services,_urban_(%_of_urban_population)	0.66035974
+unConcept	UN/entities/human/infrastructure/water_management	WB	WDI/People_using_safely_managed_drinking_water_services_(%_of_population)	0.6599298
+unConcept	UN/entities/human/infrastructure/water_management	WB	WDI/People_using_safely_managed_drinking_water_services,_rural_(%_of_rural_population)	0.65846676
+unConcept	UN/entities/human/infrastructure/water_management	WB	WDI/People_using_at_least_basic_sanitation_services,_urban_(%_of_urban_population)	0.647971
+unConcept	UN/entities/human/infrastructure/water_management	WB	WDI/Annual_freshwater_withdrawals,_domestic_(%_of_total_freshwater_withdrawal)	0.64772946
+unConcept	UN/entities/human/infrastructure/water_management	WB	FAO/events/Value/Access to improved sanitation facilities (%)	0.6037386
+unConcept	UN/entities/human/infrastructure/water_management	WB	FAO/events/Area/Total area equipped for irrigation	0.57560974
+unConcept	UN/entities/human/infrastructure/water_management	WB	FAO/events/Area/Cropland and grassland organic soils	0.55059785
+unConcept	UN/entities/human/infrastructure/water_management	WB	FAO/events/Value/Access to improved water sources (%)	0.54373205
+unConcept	UN/entities/human/infrastructure/water_management	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.5201712
+unConcept	UN/entities/human/financial/economic/market	WB	WDI/Portfolio_equity,_net_inflows_(BoP,_current_US$)	0.5857944
+unConcept	UN/entities/human/financial/economic/market	WB	WDI/Market_capitalization_of_listed_domestic_companies_(current_US$)	0.58080226
+unConcept	UN/entities/human/financial/economic/market	WB	WDI/Real_effective_exchange_rate_index_(2010_=_100)	0.5665279
+unConcept	UN/entities/human/financial/economic/market	WB	WDI/Foreign_direct_investment,_net_inflows_(%_of_GDP)	0.5639055
+unConcept	UN/entities/human/financial/economic/market	WB	WDI/Market_capitalization_of_listed_domestic_companies_(%_of_GDP)	0.56346494
+unConcept	UN/entities/human/financial/economic/market	WB	FAO/events/Stocks/Cattle and Buffaloes	0.5367943
+unConcept	UN/entities/human/financial/economic/market	WB	FAO/events/Stocks/Poultry Birds	0.53627884
+unConcept	UN/entities/human/financial/economic/market	WB	FAO/events/Stocks/Sheep and Goats	0.53176284
+unConcept	UN/entities/human/financial/economic/market	WB	FAO/events/Stocks/Sheep	0.52841353
+unConcept	UN/entities/human/financial/economic/market	WB	FAO/events/Stocks/Equidae	0.521272
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	WDI/Rail_lines_(total_route-km)	0.59721935
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	WDI/Mortality_caused_by_road_traffic_injury_(per_100,000_people)	0.5224296
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	WDI/Railways,_passengers_carried_(million_passenger-km)	0.48246953
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	WDI/Gross_fixed_capital_formation_(%_of_GDP)	0.42714885
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	WDI/Gross_fixed_capital_formation_(constant_2010_US$)	0.42197162
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	FAO/events/Area/Permanent meadows and pastures	0.2934617
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	FAO/events/Area/Primary forest	0.27964926
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	FAO/events/Area/Planted forest	0.2788571
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	FAO/events/Share in Agricultural area/Permanent meadows and pastures	0.2653209
+unConcept	UN/entities/human/infrastructure/transportation/road	WB	FAO/events/Value/Rail-lines density (per 100 square km of land area)	0.26109153
+unConcept	UN/entities/human/financial/economic/poverty	WB	WDI/Rural_poverty_gap_at_national_poverty_lines_(%)	0.67363185
+unConcept	UN/entities/human/financial/economic/poverty	WB	WDI/Urban_poverty_gap_at_national_poverty_lines_(%)	0.6726444
+unConcept	UN/entities/human/financial/economic/poverty	WB	WDI/Poverty_gap_at_national_poverty_lines_(%)	0.66118634
+unConcept	UN/entities/human/financial/economic/poverty	WB	WDI/Rural_poverty_headcount_ratio_at_national_poverty_lines_(%_of_rural_population)	0.6449585
+unConcept	UN/entities/human/financial/economic/poverty	WB	WDI/Urban_poverty_headcount_ratio_at_national_poverty_lines_(%_of_urban_population)	0.6448695
+unConcept	UN/entities/human/financial/economic/poverty	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.5658475
+unConcept	UN/entities/human/financial/economic/poverty	WB	FAO/events/Value/Prevalence of undernourishment (%) (3-year average)	0.44542068
+unConcept	UN/entities/human/financial/economic/poverty	WB	FAO/events/Value/Political stability and absence of violence\/terrorism (index)	0.36331603
+unConcept	UN/entities/human/financial/economic/poverty	WB	FAO/events/Urban population/Population - Est. & Proj.	0.35541174
+unConcept	UN/entities/human/financial/economic/poverty	WB	FAO/events/Rural population/Population - Est. & Proj.	0.35421532
+unConcept	UN/entities/natural/crop	WB	WDI/Land_under_cereal_production_(hectares)	0.8035363
+unConcept	UN/entities/natural/crop	WB	FAO/events/Area harvested/Vegetables Primary	0.7983855
+unConcept	UN/entities/natural/crop	WB	FAO/events/Area harvested/Citrus Fruit,Total	0.7917429
+unConcept	UN/entities/natural/crop	WB	FAO/events/Production/Beer of barley	0.7804283
+unConcept	UN/entities/natural/crop	WB	FAO/events/Area harvested/Cereals (Rice Milled Eqv)	0.77943075
+unConcept	UN/entities/natural/crop	WB	FAO/events/Area harvested/Watermelons	0.77746415
+unConcept	UN/entities/natural/crop	WB	WDI/Cereal_yield_(kg_per_hectare)	0.77262944
+unConcept	UN/entities/natural/crop	WB	WDI/Cereal_production_(metric_tons)	0.75426984
+unConcept	UN/entities/natural/crop	WB	WDI/Livestock_production_index_(2004-2006_=_100)	0.7265578
+unConcept	UN/entities/natural/crop	WB	WDI/Food_exports_(%_of_merchandise_exports)	0.71666616
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	WDI/Rail_lines_(total_route-km)	0.5039023
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	WDI/Railways,_passengers_carried_(million_passenger-km)	0.3996329
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	WDI/Urban_land_area_where_elevation_is_below_5_meters_(sq._km)	0.38454187
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	WDI/Rural_land_area_where_elevation_is_below_5_meters_(sq._km)	0.3836437
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	WDI/Gross_fixed_capital_formation_(%_of_GDP)	0.3800857
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	FAO/events/Share in Agricultural area/Permanent meadows and pastures	0.2727909
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	FAO/events/Area/Permanent meadows and pastures	0.27197123
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	FAO/events/Area/Total area equipped for irrigation	0.27139956
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	FAO/events/Value/Rail-lines density (per 100 square km of land area)	0.26951027
+unConcept	UN/entities/human/infrastructure/transportation/bridge	WB	FAO/events/Share in Agricultural area/Total area equipped for irrigation	0.26410237
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	FAO/events/Emissions (CO2eq)/Manure Management	0.81388974
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	FAO/events/Emissions (CO2eq) from CH4/Manure Management	0.8055238
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	FAO/events/Emissions (CO2eq) from N2O/Agricultural Soils	0.80277306
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	FAO/events/Emissions (CO2eq) from N2O/Manure Management	0.8011072
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	FAO/events/Emissions (CO2eq) (Enteric)/Mules and Asses	0.7917461
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	WDI/Other_greenhouse_gas_emissions,_HFC,_PFC_and_SF6_(thousand_metric_tons_of_CO2_equivalent)	0.7533182
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	WDI/CO2_emissions_from_gaseous_fuel_consumption_(kt)	0.74473834
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	WDI/CO2_emissions_from_gaseous_fuel_consumption_(%_of_total)	0.74017596
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	WDI/CO2_emissions_from_solid_fuel_consumption_(kt)	0.72510993
+unConcept	UN/events/nature_impact/pollution/air_pollution	WB	WDI/Other_greenhouse_gas_emissions_(%_change_from_1990)	0.720791
+unConcept	UN/entities/human/food/food_security	WB	FAO/events/Value/Number of severely food insecure people	0.73146695
+unConcept	UN/entities/human/food/food_security	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.575713
+unConcept	UN/entities/human/food/food_security	WB	FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Food (PIN)	0.5507688
+unConcept	UN/entities/human/food/food_security	WB	FAO/events/Food aid shipments/Cereals	0.5487605
+unConcept	UN/entities/human/food/food_security	WB	WDI/Coverage_of_social_safety_net_programs_(%_of_population)	0.5357752
+unConcept	UN/entities/human/food/food_security	WB	WDI/Coverage_of_social_safety_net_programs_in_poorest_quintile_(%_of_population)	0.5317002
+unConcept	UN/entities/human/food/food_security	WB	WDI/Coverage_of_social_safety_net_programs_in_2nd_quintile_(%_of_population)	0.53034693
+unConcept	UN/entities/human/food/food_security	WB	WDI/Coverage_of_social_safety_net_programs_in_3rd_quintile_(%_of_population)	0.53029543
+unConcept	UN/entities/human/food/food_security	WB	WDI/Coverage_of_social_safety_net_programs_in_4th_quintile_(%_of_population)	0.5293188
+unConcept	UN/entities/human/food/food_security	WB	FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)	0.512815
+unConcept	UN/events/nature_impact/resource_management	WB	FAO/events/Direct emissions (N2O) (Manure management)/All Animals	0.67515683
+unConcept	UN/events/nature_impact/resource_management	WB	FAO/events/Indirect emissions (N2O) (Manure management)/All Animals	0.6751417
+unConcept	UN/events/nature_impact/resource_management	WB	FAO/events/Direct emissions (CO2eq) (Manure management)/All Animals	0.6749078
+unConcept	UN/events/nature_impact/resource_management	WB	FAO/events/Indirect emissions (CO2eq) (Manure management)/All Animals	0.6744863
+unConcept	UN/events/nature_impact/resource_management	WB	FAO/events/Emissions (N2O) (Manure management)/All Animals	0.6735636
+unConcept	UN/events/nature_impact/resource_management	WB	WDI/CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)	0.66588336
+unConcept	UN/events/nature_impact/resource_management	WB	WDI/CPIA_economic_management_cluster_average_(1=low_to_6=high)	0.59437454
+unConcept	UN/events/nature_impact/resource_management	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(%_of_GNI)	0.5764312
+unConcept	UN/events/nature_impact/resource_management	WB	WDI/CPIA_public_sector_management_and_institutions_cluster_average_(1=low_to_6=high)	0.57429606
+unConcept	UN/events/nature_impact/resource_management	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(current_US$)	0.5708697
+unConcept	UN/events/natural_disaster/drought	WB	WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)	0.53254855
+unConcept	UN/events/natural_disaster/drought	WB	FAO/events/Area harvested/Maize	0.52671576
+unConcept	UN/events/natural_disaster/drought	WB	FAO/events/Area harvested/Cassava	0.52480435
+unConcept	UN/events/natural_disaster/drought	WB	FAO/events/Area harvested/Millet	0.52078277
+unConcept	UN/events/natural_disaster/drought	WB	FAO/events/Area harvested/Coarse Grain, Total	0.5169792
+unConcept	UN/events/natural_disaster/drought	WB	FAO/events/Area harvested/Melons, other (inc.cantaloupes)	0.50822186
+unConcept	UN/events/natural_disaster/drought	WB	WDI/Cereal_production_(metric_tons)	0.3996183
+unConcept	UN/events/natural_disaster/drought	WB	WDI/Land_under_cereal_production_(hectares)	0.37179828
+unConcept	UN/events/natural_disaster/drought	WB	WDI/Cereal_yield_(kg_per_hectare)	0.36594123
+unConcept	UN/events/natural_disaster/drought	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.35630277
+unConcept	UN/events/human/agriculture/food_production	WB	WDI/Cereal_production_(metric_tons)	0.78286475
+unConcept	UN/events/human/agriculture/food_production	WB	WDI/Land_under_cereal_production_(hectares)	0.78241724
+unConcept	UN/events/human/agriculture/food_production	WB	WDI/Cereal_yield_(kg_per_hectare)	0.7639711
+unConcept	UN/events/human/agriculture/food_production	WB	FAO/events/Area harvested/Rice, paddy	0.7605991
+unConcept	UN/events/human/agriculture/food_production	WB	FAO/events/Area harvested/Wheat	0.7568017
+unConcept	UN/events/human/agriculture/food_production	WB	FAO/events/Area harvested/Cereals (Rice Milled Eqv)	0.75385857
+unConcept	UN/events/human/agriculture/food_production	WB	FAO/events/Area harvested/Sorghum	0.73629457
+unConcept	UN/events/human/agriculture/food_production	WB	FAO/events/Area harvested/Maize	0.71947837
+unConcept	UN/events/human/agriculture/food_production	WB	WDI/Food_exports_(%_of_merchandise_exports)	0.63977647
+unConcept	UN/events/human/agriculture/food_production	WB	WDI/Food_imports_(%_of_merchandise_imports)	0.6394723
+unConcept	UN/events/human/intervention/intervention	WB	WDI/Net_ODA_provided,_total_(current_US$)	0.5900642
+unConcept	UN/events/human/intervention/intervention	WB	WDI/Net_ODA_provided,_total_(constant_2015_US$)	0.57138425
+unConcept	UN/events/human/intervention/intervention	WB	WDI/Net_bilateral_aid_flows_from_DAC_donors,_European_Union_institutions_(current_US$)	0.56830704
+unConcept	UN/events/human/intervention/intervention	WB	WDI/Net_bilateral_aid_flows_from_DAC_donors,_Japan_(current_US$)	0.5643677
+unConcept	UN/events/human/intervention/intervention	WB	WDI/Net_bilateral_aid_flows_from_DAC_donors,_United_States_(current_US$)	0.56384665
+unConcept	UN/events/human/intervention/intervention	WB	FAO/events/Food aid shipments/Other Non-Cereals	0.48693883
+unConcept	UN/events/human/intervention/intervention	WB	FAO/events/Food aid shipments/Non-Cereals	0.48573568
+unConcept	UN/events/human/intervention/intervention	WB	FAO/events/Food aid shipments/Rice Total	0.4834833
+unConcept	UN/events/human/intervention/intervention	WB	FAO/events/Food aid shipments/Edible Fat Total	0.48348016
+unConcept	UN/events/human/intervention/intervention	WB	FAO/events/Food aid shipments/Blended And Mix	0.48203045
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	FAO/events/Area/Primary forest	0.66844934
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	WDI/Total_fisheries_production_(metric_tons)	0.6649377
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	FAO/events/Area/Planted forest	0.66036123
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	FAO/events/Emissions (CO2eq) (Manure management)/All Animals	0.62737346
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	FAO/events/Emissions (CO2eq) from CH4 (Manure management)/All Animals	0.6260925
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	FAO/events/Emissions (CH4) (Manure management)/All Animals	0.6259304
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)	0.6235138
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	WDI/Capture_fisheries_production_(metric_tons)	0.60629195
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.6055188
+unConcept	UN/entities/natural/natural_resources/biotic_resources/biotic_resources	WB	WDI/Adjusted_savings:_natural_resources_depletion_(%_of_GNI)	0.5998796
+unConcept	UN/entities/human/population	WB	WDI/Rural_population	0.58616745
+unConcept	UN/entities/human/population	WB	WDI/Population_in_largest_city	0.5772101
+unConcept	UN/entities/human/population	WB	WDI/Rural_population_(%_of_total_population)	0.55919623
+unConcept	UN/entities/human/population	WB	WDI/Population_in_the_largest_city_(%_of_urban_population)	0.55543643
+unConcept	UN/entities/human/population	WB	WDI/Rural_population_growth_(annual_%)	0.55234224
+unConcept	UN/entities/human/population	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.489897
+unConcept	UN/entities/human/population	WB	FAO/events/Urban population/Population - Est. & Proj.	0.48265654
+unConcept	UN/entities/human/population	WB	FAO/events/Rural population/Population - Est. & Proj.	0.48152047
+unConcept	UN/entities/human/population	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)	0.38339815
+unConcept	UN/entities/human/population	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Capital (Central Government)	0.38243178
+unConcept	UN/entities/human/government/government_actions/organization	WB	WDI/Firms_that_spend_on_R&D_(%_of_firms)	0.46596566
+unConcept	UN/entities/human/government/government_actions/organization	WB	WDI/Procedures_to_build_a_warehouse_(number)	0.46429995
+unConcept	UN/entities/human/government/government_actions/organization	WB	WDI/Child_employment_in_services_(%_of_economically_active_children_ages_7-14)	0.46061212
+unConcept	UN/entities/human/government/government_actions/organization	WB	WDI/Research_and_development_expenditure_(%_of_GDP)	0.45823774
+unConcept	UN/entities/human/government/government_actions/organization	WB	WDI/Net_ODA_provided,_total_(%_of_GNI)	0.4572634
+unConcept	UN/entities/human/government/government_actions/organization	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Capital (Central Government)	0.3591798
+unConcept	UN/entities/human/government/government_actions/organization	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)	0.35700715
+unConcept	UN/entities/human/government/government_actions/organization	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing (Central Government)	0.3434023
+unConcept	UN/entities/human/government/government_actions/organization	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Recurrent (Central Government)	0.34281316
+unConcept	UN/entities/human/government/government_actions/organization	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)	0.3412575
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	WDI/Container_port_traffic_(TEU:_20_foot_equivalent_units)	0.49003598
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	WDI/Transport_services_(%_of_service_imports,_BoP)	0.4269077
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	WDI/Transport_services_(%_of_service_exports,_BoP)	0.42688984
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	WDI/Transport_services_(%_of_commercial_service_imports)	0.41236538
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	WDI/Transport_services_(%_of_commercial_service_exports)	0.4119109
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Capital (Central Government)	0.30494407
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)	0.3018494
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)	0.2842021
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Recurrent (Central Government)	0.27495575
+unConcept	UN/entities/human/infrastructure/shipping_facilities_water	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing (Central Government)	0.27378818
+unConcept	UN/temporal/seasons/season	WB	FAO/events/Production/Meat, game	0.46801078
+unConcept	UN/temporal/seasons/season	WB	FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Meat, game	0.4045066
+unConcept	UN/temporal/seasons/season	WB	FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Meat, game	0.40408838
+unConcept	UN/temporal/seasons/season	WB	FAO/events/Area harvested/Coarse Grain, Total	0.37972936
+unConcept	UN/temporal/seasons/season	WB	FAO/events/Area harvested/Okra	0.37826586
+unConcept	UN/temporal/seasons/season	WB	WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)	0.3220093
+unConcept	UN/temporal/seasons/season	WB	WDI/Average_precipitation_in_depth_(mm_per_year)	0.29853162
+unConcept	UN/temporal/seasons/season	WB	WDI/Cereal_production_(metric_tons)	0.28313938
+unConcept	UN/temporal/seasons/season	WB	WDI/Mortality_caused_by_road_traffic_injury_(per_100,000_people)	0.27529398
+unConcept	UN/temporal/seasons/season	WB	WDI/Cereal_yield_(kg_per_hectare)	0.27480474
+unConcept	UN/events/human/physical_insecurity	WB	FAO/events/Value/Prevalence of severe food insecurity in the total population	0.6617871
+unConcept	UN/events/human/physical_insecurity	WB	FAO/events/Value/Political stability and absence of violence\/terrorism (index)	0.5004525
+unConcept	UN/events/human/physical_insecurity	WB	WDI/Urban_poverty_gap_at_national_poverty_lines_(%)	0.40664622
+unConcept	UN/events/human/physical_insecurity	WB	WDI/Rural_poverty_gap_at_national_poverty_lines_(%)	0.40629983
+unConcept	UN/events/human/physical_insecurity	WB	WDI/Poverty_gap_at_national_poverty_lines_(%)	0.40247446
+unConcept	UN/events/human/physical_insecurity	WB	WDI/Poverty_gap_at_$5.50_a_day_(2011_PPP)_(%)	0.3826842
+unConcept	UN/events/human/physical_insecurity	WB	WDI/Poverty_gap_at_$3.20_a_day_(2011_PPP)_(%)	0.3826842
+unConcept	UN/events/human/physical_insecurity	WB	FAO/events/Value/Prevalence of undernourishment (%) (3-year average)	0.32356673
+unConcept	UN/events/human/physical_insecurity	WB	FAO/events/Value/Per capita food production variability (I$ per person constant 2004-06)	0.3073123
+unConcept	UN/events/human/physical_insecurity	WB	FAO/events/Value/Number of severely food insecure people	0.28539383
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	WDI/Fertilizer_consumption_(%_of_fertilizer_production)	0.73014677
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	FAO/events/Residues (Crop residues)/Maize	0.72815585
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	FAO/events/Residues (Crop residues)/Sorghum	0.7265595
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	FAO/events/Direct emissions (CO2eq) (Crop residues)/Sorghum	0.704872
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	FAO/events/Emissions (CO2eq) (Crop residues)/Sorghum	0.7048597
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	FAO/events/Indirect emissions (CO2eq) (Crop residues)/Sorghum	0.7047003
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	WDI/Agricultural_nitrous_oxide_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.69452584
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	WDI/Agricultural_nitrous_oxide_emissions_(%_of_total)	0.6850745
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	WDI/Fertilizer_consumption_(kilograms_per_hectare_of_arable_land)	0.63829595
+unConcept	UN/entities/natural/crop_technology/fertilizer	WB	WDI/Agricultural_methane_emissions_(thousand_metric_tons_of_CO2_equivalent)	0.6202046
+unConcept	UN/entities/human/government/government_actions/duty	WB	WDI/Domestic_general_government_health_expenditure_(%_of_current_health_expenditure)	0.59778464
+unConcept	UN/entities/human/government/government_actions/duty	WB	WDI/Net_ODA_provided,_total_(current_US$)	0.59137493
+unConcept	UN/entities/human/government/government_actions/duty	WB	WDI/Net_ODA_provided,_total_(constant_2015_US$)	0.57770455
+unConcept	UN/entities/human/government/government_actions/duty	WB	WDI/Subsidies_and_other_transfers_(current_LCU)	0.56638503
+unConcept	UN/entities/human/government/government_actions/duty	WB	WDI/Military_expenditure_(current_LCU)	0.5662938
+unConcept	UN/entities/human/government/government_actions/duty	WB	FAO/events/Direct emissions (CO2eq) (Manure management)/Mules and Asses	0.3982892
+unConcept	UN/entities/human/government/government_actions/duty	WB	FAO/events/Indirect emissions (CO2eq) (Manure management)/Mules and Asses	0.39718816
+unConcept	UN/entities/human/government/government_actions/duty	WB	FAO/events/Direct emissions (N2O) (Manure management)/Mules and Asses	0.39694303
+unConcept	UN/entities/human/government/government_actions/duty	WB	FAO/events/Indirect emissions (N2O) (Manure management)/Mules and Asses	0.3963137
+unConcept	UN/entities/human/government/government_actions/duty	WB	FAO/events/Emissions (CO2eq) (Manure management)/Mules and Asses	0.3950547
+unConcept	UN/events/human/disarmament	WB	FAO/events/Area/Agricultural area certified organic	0.40797552
+unConcept	UN/events/human/disarmament	WB	WDI/Presence_of_peace_keepers_(number_of_troops,_police,_and_military_observers_in_mandate)	0.3768463
+unConcept	UN/events/human/disarmament	WB	WDI/CPIA_macroeconomic_management_rating_(1=low_to_6=high)	0.30477852
+unConcept	UN/events/human/disarmament	WB	WDI/Time_to_export,_documentary_compliance_(hours)	0.29196072
+unConcept	UN/events/human/disarmament	WB	WDI/Cost_to_export,_documentary_compliance_(US$)	0.29106042
+unConcept	UN/events/human/disarmament	WB	WDI/Time_to_import,_documentary_compliance_(hours)	0.29008338
+unConcept	UN/events/human/disarmament	WB	FAO/events/Value/Political stability and absence of violence\/terrorism (index)	0.2781371
+unConcept	UN/events/human/disarmament	WB	FAO/events/Agriculture orientation index/DFA Commitment to Agriculture, Forestry and Fishing	0.25193647
+unConcept	UN/events/human/disarmament	WB	FAO/events/Food aid shipments/Rice Total	0.24835342
+unConcept	UN/events/human/disarmament	WB	FAO/events/Food aid shipments/Sugar Total	0.24172263
+unConcept	UN/entities/human/government/government_actions/regulation	WB	WDI/CPIA_gender_equality_rating_(1=low_to_6=high)	0.6000537
+unConcept	UN/entities/human/government/government_actions/regulation	WB	WDI/Time_spent_dealing_with_the_requirements_of_government_regulations_(%_of_senior_management_time)	0.5779572
+unConcept	UN/entities/human/government/government_actions/regulation	WB	WDI/CPIA_property_rights_and_rule-based_governance_rating_(1=low_to_6=high)	0.5411488
+unConcept	UN/entities/human/government/government_actions/regulation	WB	WDI/Nondiscrimination_clause_mentions_gender_in_the_constitution_(1=yes;_0=no)	0.52397585
+unConcept	UN/entities/human/government/government_actions/regulation	WB	WDI/CPIA_social_protection_rating_(1=low_to_6=high)	0.5225257
+unConcept	UN/entities/human/government/government_actions/regulation	WB	FAO/events/Direct emissions (CO2eq) (Manure applied)/Poultry Birds	0.36704648
+unConcept	UN/entities/human/government/government_actions/regulation	WB	FAO/events/Direct emissions (CO2eq) (Manure applied)/All Animals	0.36689317
+unConcept	UN/entities/human/government/government_actions/regulation	WB	FAO/events/Direct emissions (N2O) (Manure applied)/Poultry Birds	0.36606145
+unConcept	UN/entities/human/government/government_actions/regulation	WB	FAO/events/Indirect emissions (CO2eq) (Manure applied)/Poultry Birds	0.36593977
+unConcept	UN/entities/human/government/government_actions/regulation	WB	FAO/events/Direct emissions (N2O) (Manure applied)/All Animals	0.36590815
+unConcept	UN/entities/human/financial/economic/depreciation	WB	WDI/Interest_payments_on_external_debt_(%_of_GNI)	0.50116843
+unConcept	UN/entities/human/financial/economic/depreciation	WB	WDI/Out-of-pocket_expenditure_per_capita,_PPP_(current_international_$)	0.49147803
+unConcept	UN/entities/human/financial/economic/depreciation	WB	WDI/Primary_income_on_FDI_(current_US$)	0.4913204
+unConcept	UN/entities/human/financial/economic/depreciation	WB	WDI/Interest_payments_on_external_debt_(%_of_exports_of_goods,_services_and_primary_income)	0.48816296
+unConcept	UN/entities/human/financial/economic/depreciation	WB	WDI/Debt_service_on_external_debt,_total_(TDS,_current_US$)	0.4786216
+unConcept	UN/entities/human/financial/economic/depreciation	WB	FAO/events/Annual growth Local Currency/Gross Fixed Capital Formation	0.46104142
+unConcept	UN/entities/human/financial/economic/depreciation	WB	FAO/events/Annual growth Local Currency/Gross Domestic Product	0.44939888
+unConcept	UN/entities/human/financial/economic/depreciation	WB	FAO/events/Annual growth Local Currency/Gross Output (Agriculture)	0.4226499
+unConcept	UN/entities/human/financial/economic/depreciation	WB	FAO/events/Annual growth Local Currency/Value Added (Agriculture)	0.41870844
+unConcept	UN/entities/human/financial/economic/depreciation	WB	FAO/events/Annual growth Local Currency/Gross Output (Agriculture, Forestry and Fishing)	0.4158424
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	FAO/events/Production/Wood charcoal	0.63193434
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	WDI/Ores_and_metals_imports_(%_of_merchandise_imports)	0.6108008
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	WDI/Ores_and_metals_exports_(%_of_merchandise_exports)	0.6098597
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	WDI/Electricity_production_from_coal_sources_(%_of_total)	0.56317174
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	WDI/Adjusted_savings:_mineral_depletion_(current_US$)	0.5603768
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	WDI/Adjusted_savings:_mineral_depletion_(%_of_GNI)	0.55880904
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	FAO/events/Emissions (CO2eq) (Manure management)/Chickens, layers	0.5307945
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	FAO/events/Direct emissions (CO2eq) (Manure management)/Chickens, layers	0.5298279
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	FAO/events/Indirect emissions (CO2eq) (Manure management)/Chickens, layers	0.52937007
+unConcept	UN/entities/natural/natural_resources/abiotic_resources/material	WB	FAO/events/Emissions (CH4) (Manure management)/Chickens, layers	0.5289198
+unConcept	UN/entities/natural/crop_technology/product	WB	FAO/events/Value/Number of severely food insecure people	0.68419594
+unConcept	UN/entities/natural/crop_technology/product	WB	FAO/events/Export Value/Forest products (export\/import)	0.6393869
+unConcept	UN/entities/natural/crop_technology/product	WB	FAO/events/Import Value/Forest products (export\/import)	0.6387367
+unConcept	UN/entities/natural/crop_technology/product	WB	FAO/events/Value/Value of food imports over total merchandise exports (%) (3-year average)	0.6131792
+unConcept	UN/entities/natural/crop_technology/product	WB	WDI/Trade_(%_of_GDP)	0.5712576
+unConcept	UN/entities/natural/crop_technology/product	WB	FAO/events/Net Production Value (constant 2004-2006 1000 I$)/Food (PIN)	0.5682441
+unConcept	UN/entities/natural/crop_technology/product	WB	WDI/Forest_rents_(%_of_GDP)	0.55212474
+unConcept	UN/entities/natural/crop_technology/product	WB	WDI/Food_exports_(%_of_merchandise_exports)	0.5487704
+unConcept	UN/entities/natural/crop_technology/product	WB	WDI/Food_imports_(%_of_merchandise_imports)	0.5473445
+unConcept	UN/entities/natural/crop_technology/product	WB	WDI/Other_manufacturing_(%_of_value_added_in_manufacturing)	0.5412989
+unConcept	UN/entities/natural/crop_technology/management	WB	WDI/CPIA_structural_policies_cluster_average_(1=low_to_6=high)	0.58502555
+unConcept	UN/entities/natural/crop_technology/management	WB	WDI/Domestic_general_government_health_expenditure_(%_of_current_health_expenditure)	0.58337444
+unConcept	UN/entities/natural/crop_technology/management	WB	WDI/Research_and_development_expenditure_(%_of_GDP)	0.583333
+unConcept	UN/entities/natural/crop_technology/management	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Recurrent (Central Government)	0.5788906
+unConcept	UN/entities/natural/crop_technology/management	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Recurrent (Central Government)	0.5779686
+unConcept	UN/entities/natural/crop_technology/management	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing (Central Government)	0.5772206
+unConcept	UN/entities/natural/crop_technology/management	WB	WDI/Employment_in_agriculture_(%_of_total_employment)_(modeled_ILO_estimate)	0.5768922
+unConcept	UN/entities/natural/crop_technology/management	WB	FAO/events/Annual growth US$/Agriculture, forestry, fishing (Central Government)	0.5767409
+unConcept	UN/entities/natural/crop_technology/management	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Recurrent (Central Government)	0.5767254
+unConcept	UN/entities/natural/crop_technology/management	WB	WDI/External_health_expenditure_(%_of_current_health_expenditure)	0.57280475
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	WDI/CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)	0.46536642
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	FAO/events/Emissions (CO2eq) from N2O/Agricultural Soils	0.46432027
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	FAO/events/Emissions (CO2eq) from N2O/Manure Management	0.4604585
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	FAO/events/Emissions (CO2eq)/Manure Management	0.45976168
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	FAO/events/Emissions (CO2eq) from CH4/Manure Management	0.4573711
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(current_US$)	0.45298985
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	WDI/Adjusted_net_savings,_including_particulate_emission_damage_(%_of_GNI)	0.45298538
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	FAO/events/Emissions (CO2eq) from N2O/Cultivation of Organic Soils	0.4511481
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	WDI/Adjusted_net_savings,_excluding_particulate_emission_damage_(%_of_GNI)	0.43929797
+unConcept	UN/events/nature_impact/climate_change_mitigation	WB	WDI/Adjusted_net_savings,_excluding_particulate_emission_damage_(current_US$)	0.43910602
+unConcept	UN/entities/human/financial/economic/revenue	WB	WDI/Profit_tax_(%_of_commercial_profits)	0.76712966
+unConcept	UN/entities/human/financial/economic/revenue	WB	WDI/Taxes_on_income,_profits_and_capital_gains_(%_of_revenue)	0.75870436
+unConcept	UN/entities/human/financial/economic/revenue	WB	WDI/Primary_income_on_FDI_(current_US$)	0.75315255
+unConcept	UN/entities/human/financial/economic/revenue	WB	WDI/Taxes_on_income,_profits_and_capital_gains_(current_LCU)	0.7502077
+unConcept	UN/entities/human/financial/economic/revenue	WB	WDI/Taxes_on_income,_profits_and_capital_gains_(%_of_total_taxes)	0.74991703
+unConcept	UN/entities/human/financial/economic/revenue	WB	FAO/events/Share of Value Added (Agriculture, Forestry and Fishing)/Value Added (Total Manufacturing)	0.5304621
+unConcept	UN/entities/human/financial/economic/revenue	WB	FAO/events/Share of Total/Value Added (Agriculture, Forestry and Fishing)	0.5227745
+unConcept	UN/entities/human/financial/economic/revenue	WB	FAO/events/Share of Value Added (Agriculture, Forestry and Fishing)/Value Added (Agriculture)	0.52194977
+unConcept	UN/entities/human/financial/economic/revenue	WB	FAO/events/Share of GDP in Local Currency/Value Added (Total Manufacturing)	0.5207498
+unConcept	UN/entities/human/financial/economic/revenue	WB	FAO/events/Share of GDP in US$/Value Added (Total Manufacturing)	0.51548135
+unConcept	UN/entities/natural/biology/fauna	WB	FAO/events/Producing Animals\/Slaughtered/Meat, sheep	0.6418241
+unConcept	UN/entities/natural/biology/fauna	WB	FAO/events/Producing Animals\/Slaughtered/Meat, goat	0.6388558
+unConcept	UN/entities/natural/biology/fauna	WB	FAO/events/Producing Animals\/Slaughtered/Meat, camel	0.62881565
+unConcept	UN/entities/natural/biology/fauna	WB	FAO/events/Producing Animals\/Slaughtered/Skins, sheep, fresh	0.62045044
+unConcept	UN/entities/natural/biology/fauna	WB	FAO/events/Producing Animals\/Slaughtered/Meat, chicken	0.61867046
+unConcept	UN/entities/natural/biology/fauna	WB	WDI/Mammal_species,_threatened	0.60422707
+unConcept	UN/entities/natural/biology/fauna	WB	WDI/Fish_species,_threatened	0.56591773
+unConcept	UN/entities/natural/biology/fauna	WB	WDI/Total_fisheries_production_(metric_tons)	0.55186826
+unConcept	UN/entities/natural/biology/fauna	WB	WDI/Aquaculture_production_(metric_tons)	0.54175556
+unConcept	UN/entities/natural/biology/fauna	WB	WDI/Bird_species,_threatened	0.5185264
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	WDI/CO2_emissions_from_gaseous_fuel_consumption_(kt)	0.6081944
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	WDI/CO2_emissions_from_gaseous_fuel_consumption_(%_of_total)	0.60307765
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	WDI/Energy_related_methane_emissions_(%_of_total)	0.6012594
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	WDI/CO2_emissions_from_liquid_fuel_consumption_(kt)	0.60102767
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	WDI/Nitrous_oxide_emissions_in_energy_sector_(%_of_total)	0.5981165
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	FAO/events/Emissions (CO2eq)/Enteric Fermentation	0.5129662
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	FAO/events/Emissions (CO2eq) from CH4/Enteric Fermentation	0.5109857
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	FAO/events/Production/Wood fuel, coniferous (production)	0.49813735
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	FAO/events/Production/Wood fuel	0.49801892
+unConcept	UN/entities/natural/natural_resources/solar_radiation	WB	FAO/events/Production/Wood fuel, non-coniferous (production)	0.49504715
+unConcept	UN/entities/natural/watershed	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.36075288
+unConcept	UN/entities/natural/watershed	WB	WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)	0.3482721
+unConcept	UN/entities/natural/watershed	WB	WDI/Annual_freshwater_withdrawals,_agriculture_(%_of_total_freshwater_withdrawal)	0.33770943
+unConcept	UN/entities/natural/watershed	WB	WDI/Annual_freshwater_withdrawals,_domestic_(%_of_total_freshwater_withdrawal)	0.33592042
+unConcept	UN/entities/natural/watershed	WB	WDI/Annual_freshwater_withdrawals,_industry_(%_of_total_freshwater_withdrawal)	0.3291322
+unConcept	UN/entities/natural/watershed	WB	FAO/events/Implied emission factor for N2O (Cultivation of organic soils)/Grassland organic soils	0.3021684
+unConcept	UN/entities/natural/watershed	WB	FAO/events/Implied emission factor for CH4 (Burning - savanna)/Woody savanna	0.29396853
+unConcept	UN/entities/natural/watershed	WB	FAO/events/Implied emission factor for N2O (Burning - savanna)/Woody savanna	0.29245868
+unConcept	UN/entities/natural/watershed	WB	FAO/events/Implied emission factor for CH4 (Burning - savanna)/Grassland	0.28897467
+unConcept	UN/entities/natural/watershed	WB	FAO/events/Implied emission factor for CH4 (Burning - savanna)/Open shrubland	0.28771716
+unConcept	UN/entities/GPE	WB	WDI/Gross_fixed_capital_formation_(annual_%_growth)	0.4816885
+unConcept	UN/entities/GPE	WB	WDI/Adjusted_savings:_consumption_of_fixed_capital_(%_of_GNI)	0.47173372
+unConcept	UN/entities/GPE	WB	WDI/Adjusted_savings:_consumption_of_fixed_capital_(current_US$)	0.4694483
+unConcept	UN/entities/GPE	WB	WDI/Population_in_largest_city	0.46808013
+unConcept	UN/entities/GPE	WB	WDI/Gross_fixed_capital_formation_(constant_LCU)	0.46568778
+unConcept	UN/entities/GPE	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Capital (Central Government)	0.4577982
+unConcept	UN/entities/GPE	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)	0.45122996
+unConcept	UN/entities/GPE	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)	0.43174914
+unConcept	UN/entities/GPE	WB	FAO/events/Area/Arable land and Permanent crops	0.32959267
+unConcept	UN/entities/GPE	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Recurrent (Central Government)	0.32872707
+unConcept	UN/entities/human/government/government_entity	WB	WDI/Government_expenditure_on_education,_total_(%_of_government_expenditure)	0.5558294
+unConcept	UN/entities/human/government/government_entity	WB	WDI/Procedures_to_build_a_warehouse_(number)	0.54756874
+unConcept	UN/entities/human/government/government_entity	WB	WDI/Claims_on_other_sectors_of_the_domestic_economy_(%_of_GDP)	0.52721965
+unConcept	UN/entities/human/government/government_entity	WB	WDI/Claims_on_other_sectors_of_the_domestic_economy_(annual_growth_as_%_of_broad_money)	0.52598226
+unConcept	UN/entities/human/government/government_entity	WB	WDI/Net_ODA_provided,_total_(current_US$)	0.5252008
+unConcept	UN/entities/human/government/government_entity	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Capital (Central Government)	0.5211894
+unConcept	UN/entities/human/government/government_entity	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)	0.51471686
+unConcept	UN/entities/human/government/government_entity	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)	0.5022786
+unConcept	UN/entities/human/government/government_entity	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing (Central Government)	0.5012841
+unConcept	UN/entities/human/government/government_entity	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Recurrent (Central Government)	0.50054395
+unConcept	UN/entities/human/fishery	WB	FAO/events/Value US$/Agriculture, forestry, fishing (Central Government)	0.6811092
+unConcept	UN/entities/human/fishery	WB	FAO/events/Annual growth US$/Agriculture, forestry, fishing (Central Government)	0.68056756
+unConcept	UN/entities/human/fishery	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing (Central Government)	0.6801428
+unConcept	UN/entities/human/fishery	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Recurrent (Central Government)	0.67727447
+unConcept	UN/entities/human/fishery	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Recurrent (Central Government)	0.6763081
+unConcept	UN/entities/human/fishery	WB	WDI/Total_fisheries_production_(metric_tons)	0.65874314
+unConcept	UN/entities/human/fishery	WB	WDI/Capture_fisheries_production_(metric_tons)	0.59274435
+unConcept	UN/entities/human/fishery	WB	WDI/Aquaculture_production_(metric_tons)	0.5696047
+unConcept	UN/entities/human/fishery	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.47465938
+unConcept	UN/entities/human/fishery	WB	WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)	0.46982244
+unConcept	UN/events/natural_disaster/storm	WB	WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)	0.42436704
+unConcept	UN/events/natural_disaster/storm	WB	FAO/events/Burned Area/Closed shrubland	0.3786512
+unConcept	UN/events/natural_disaster/storm	WB	WDI/Average_precipitation_in_depth_(mm_per_year)	0.37769687
+unConcept	UN/events/natural_disaster/storm	WB	FAO/events/Burned Area/Open shrubland	0.37546253
+unConcept	UN/events/natural_disaster/storm	WB	FAO/events/Burned Area/Closed and open shrubland	0.37325925
+unConcept	UN/events/natural_disaster/storm	WB	FAO/events/Emissions (CO2eq) (Burning - savanna)/Closed shrubland	0.33052704
+unConcept	UN/events/natural_disaster/storm	WB	FAO/events/Emissions (CH4) (Burning - savanna)/Closed shrubland	0.33004403
+unConcept	UN/events/natural_disaster/storm	WB	WDI/Agricultural_irrigated_land_(%_of_total_agricultural_land)	0.26345018
+unConcept	UN/events/natural_disaster/storm	WB	WDI/Electricity_production_from_renewable_sources,_excluding_hydroelectric_(%_of_total)	0.26030782
+unConcept	UN/events/natural_disaster/storm	WB	WDI/Electricity_production_from_renewable_sources,_excluding_hydroelectric_(kWh)	0.2598477
+unConcept	UN/entities/human/education	WB	WDI/School_enrollment,_secondary_(%_net)	0.7333647
+unConcept	UN/entities/human/education	WB	WDI/School_enrollment,_secondary,_female_(%_net)	0.7314678
+unConcept	UN/entities/human/education	WB	WDI/School_enrollment,_secondary,_male_(%_net)	0.7301547
+unConcept	UN/entities/human/education	WB	WDI/Primary_education,_teachers	0.72193503
+unConcept	UN/entities/human/education	WB	WDI/Secondary_education,_teachers	0.71889037
+unConcept	UN/entities/human/education	WB	FAO/events/Value/Access to improved sanitation facilities (%)	0.37461436
+unConcept	UN/entities/human/education	WB	FAO/events/Agriculture orientation index/DFA Commitment to Agriculture, Forestry and Fishing	0.34703094
+unConcept	UN/entities/human/education	WB	FAO/events/Value/Prevalence of exclusive breastfeeding among infants (0-5 months)	0.3396058
+unConcept	UN/entities/human/education	WB	FAO/events/Value/Percentage of children under 5 years of age who are overweight	0.3120853
+unConcept	UN/entities/human/education	WB	FAO/events/Value/Percentage of arable land equipped for irrigation (%) (3-year average)	0.30321634
+unConcept	UN/events/crisis	WB	FAO/events/Value/Political stability and absence of violence\/terrorism (index)	0.38278002
+unConcept	UN/events/crisis	WB	WDI/Time_to_resolve_insolvency_(years)	0.37050208
+unConcept	UN/events/crisis	WB	WDI/CPIA_macroeconomic_management_rating_(1=low_to_6=high)	0.35210866
+unConcept	UN/events/crisis	WB	WDI/CPIA_debt_policy_rating_(1=low_to_6=high)	0.34759802
+unConcept	UN/events/crisis	WB	FAO/events/Food aid shipments/Non-Cereals	0.34673396
+unConcept	UN/events/crisis	WB	FAO/events/Food aid shipments/Other Non-Cereals	0.34437022
+unConcept	UN/events/crisis	WB	WDI/Undisbursed_external_debt,_official_creditors_(UND,_current_US$)	0.34081998
+unConcept	UN/events/crisis	WB	FAO/events/Food aid shipments/Rice Total	0.34043002
+unConcept	UN/events/crisis	WB	FAO/events/Food aid shipments/Blended And Mix	0.33505535
+unConcept	UN/events/crisis	WB	WDI/Net_official_aid_received_(current_US$)	0.32909432
+unConcept	UN/entities/human/health/nutrient	WB	WDI/Vitamin_A_supplementation_coverage_rate_(%_of_children_ages_6-59_months)	0.6129137
+unConcept	UN/entities/human/health/nutrient	WB	FAO/events/Milk Animals/Milk, whole fresh cow	0.5273085
+unConcept	UN/entities/human/health/nutrient	WB	FAO/events/Gross Production Value (constant 2004-2006 1000 I$)/Milk, whole fresh cow	0.5124101
+unConcept	UN/entities/human/health/nutrient	WB	WDI/Exclusive_breastfeeding_(%_of_children_under_6_months)	0.5107221
+unConcept	UN/entities/human/health/nutrient	WB	FAO/events/Production/Milk, whole fresh cow	0.5107093
+unConcept	UN/entities/human/health/nutrient	WB	FAO/events/Production/Cheese, whole cow milk	0.5094611
+unConcept	UN/entities/human/health/nutrient	WB	FAO/events/Manure treated (N content)/Chickens, layers	0.4962024
+unConcept	UN/entities/human/health/nutrient	WB	WDI/Diarrhea_treatment_(%_of_children_under_5_who_received_ORS_packet)	0.47944224
+unConcept	UN/entities/human/health/nutrient	WB	WDI/Food_imports_(%_of_merchandise_imports)	0.45992327
+unConcept	UN/entities/human/health/nutrient	WB	WDI/Livestock_production_index_(2004-2006_=_100)	0.4584288
+unConcept	UN/entities/natural/biology/flora	WB	WDI/Permanent_cropland_(%_of_land_area)	0.67727447
+unConcept	UN/entities/natural/biology/flora	WB	FAO/events/Area/Cropland and grassland organic soils	0.6637568
+unConcept	UN/entities/natural/biology/flora	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Grassland organic soils	0.6410804
+unConcept	UN/entities/natural/biology/flora	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Grassland organic soils	0.6395798
+unConcept	UN/entities/natural/biology/flora	WB	WDI/Forest_area_(%_of_land_area)	0.63907707
+unConcept	UN/entities/natural/biology/flora	WB	FAO/events/Emissions (CO2eq) (Cultivation of organic soils)/Cropland and grassland organic soils	0.63890046
+unConcept	UN/entities/natural/biology/flora	WB	FAO/events/Emissions (N2O) (Cultivation of organic soils)/Cropland and grassland organic soils	0.63739985
+unConcept	UN/entities/natural/biology/flora	WB	WDI/Forest_area_(sq._km)	0.6346725
+unConcept	UN/entities/natural/biology/flora	WB	WDI/Agricultural_land_(%_of_land_area)	0.61878526
+unConcept	UN/entities/natural/biology/flora	WB	WDI/Agricultural_land_(sq._km)	0.6139717
+unConcept	UN/entities/human/financial/economic/inflation	WB	WDI/Inflation,_GDP_deflator_(annual_%)	0.682474
+unConcept	UN/entities/human/financial/economic/inflation	WB	WDI/Real_interest_rate_(%)	0.5635933
+unConcept	UN/entities/human/financial/economic/inflation	WB	WDI/Inflation,_consumer_prices_(annual_%)	0.54701275
+unConcept	UN/entities/human/financial/economic/inflation	WB	FAO/events/Annual growth Local Currency/Gross Output (Agriculture)	0.52420044
+unConcept	UN/entities/human/financial/economic/inflation	WB	WDI/GDP_deflator_(base_year_varies_by_country)	0.5103594
+unConcept	UN/entities/human/financial/economic/inflation	WB	FAO/events/Annual growth Local Currency/Gross Output (Agriculture, Forestry and Fishing)	0.5075063
+unConcept	UN/entities/human/financial/economic/inflation	WB	WDI/Interest_rate_spread_(lending_rate_minus_deposit_rate,_%)	0.49042076
+unConcept	UN/entities/human/financial/economic/inflation	WB	FAO/events/Value US$, 2005 prices/Gross Output (Agriculture)	0.47073892
+unConcept	UN/entities/human/financial/economic/inflation	WB	FAO/events/Ratio, 2005 prices/Gross Fixed Capital Formation to GDP ratio	0.45744425
+unConcept	UN/entities/human/financial/economic/inflation	WB	FAO/events/Value US$, 2005 prices/Total FDI inflows	0.455246
+unConcept	UN/entities/human/financial/economic/economy	WB	WDI/General_government_final_consumption_expenditure_(annual_%_growth)	0.7003504
+unConcept	UN/entities/human/financial/economic/economy	WB	WDI/Gross_national_expenditure_(%_of_GDP)	0.6849496
+unConcept	UN/entities/human/financial/economic/economy	WB	WDI/Government_expenditure_on_education,_total_(%_of_government_expenditure)	0.68299115
+unConcept	UN/entities/human/financial/economic/economy	WB	WDI/Gross_national_expenditure_deflator_(base_year_varies_by_country)	0.6827739
+unConcept	UN/entities/human/financial/economic/economy	WB	WDI/External_debt_stocks,_long-term_public_sector_(DOD,_current_US$)	0.67921394
+unConcept	UN/entities/human/financial/economic/economy	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Capital (Central Government)	0.55381423
+unConcept	UN/entities/human/financial/economic/economy	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing (Central Government)	0.5285233
+unConcept	UN/entities/human/financial/economic/economy	WB	FAO/events/Value US$, 2005 prices/Agriculture, forestry, fishing, Recurrent (Central Government)	0.5270795
+unConcept	UN/entities/human/financial/economic/economy	WB	FAO/events/Value Local Currency/Agriculture, forestry, fishing, Capital (Central Government)	0.5171474
+unConcept	UN/entities/human/financial/economic/economy	WB	FAO/events/Value US$/Agriculture, forestry, fishing, Capital (Central Government)	0.5102159
+unConcept	UN/events/natural_disaster/flooding	WB	WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)	0.5363727
+unConcept	UN/events/natural_disaster/flooding	WB	WDI/Agricultural_irrigated_land_(%_of_total_agricultural_land)	0.42799592
+unConcept	UN/events/natural_disaster/flooding	WB	WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)	0.40223113
+unConcept	UN/events/natural_disaster/flooding	WB	WDI/People_using_safely_managed_drinking_water_services,_rural_(%_of_rural_population)	0.3798871
+unConcept	UN/events/natural_disaster/flooding	WB	WDI/People_using_at_least_basic_drinking_water_services,_rural_(%_of_rural_population)	0.37950617
+unConcept	UN/events/natural_disaster/flooding	WB	FAO/events/Burned Area/Closed shrubland	0.37401593
+unConcept	UN/events/natural_disaster/flooding	WB	FAO/events/Carbon stock in living biomass/Forest	0.37044924
+unConcept	UN/events/natural_disaster/flooding	WB	FAO/events/Burned Area/Open shrubland	0.36459458
+unConcept	UN/events/natural_disaster/flooding	WB	FAO/events/Burned Area/Closed and open shrubland	0.35846674
+unConcept	UN/events/natural_disaster/flooding	WB	FAO/events/Emissions (CO2eq) (Burning - savanna)/Closed shrubland	0.35582846
