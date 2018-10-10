@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.attachments
 import org.clulab.odin._
 import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.utils.MentionUtils
 
 /**
   * Taken from Reach (1.4.0), the information system developed for the DARPA Big Mechanism program
@@ -125,11 +126,8 @@ object HypothesisHandler {
 
   // If any hedging was found, store it as an attachment
   def withApplicableHedging(m: Mention, hedgedLemmas: Seq[String]): Mention = {
-    var finalMention = m
-    for (hl <- hedgedLemmas) {
-      finalMention = finalMention.withAttachment(Hedging(hl, None))
-    }
-    finalMention
-  }
+    val attachments = hedgedLemmas.map(Hedging(_, None))
 
+    MentionUtils.withAttachments(m, attachments)
+  }
 }
