@@ -9,6 +9,7 @@ atividade
 adição
 ajuste
 administração
+apresentação
 adulto
 agente
 fim
@@ -75,6 +76,7 @@ importância
 melhora
 incidência
 indicação
+indicador
 indivíduo
 ingestão
 intervenção

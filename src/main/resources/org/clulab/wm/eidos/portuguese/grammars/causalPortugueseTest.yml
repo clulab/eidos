@@ -27,17 +27,17 @@ rules:
       # but I dont want agents that are verbs...
       effect: Entity = nmod_de /conj/{,3}
 
-  - name: george_causada_por-${addlabel}
+  - name: trigger+por-${addlabel}
     priority: ${ rulepriority }
     example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas sérios"
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= [word=/por/])
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/por/]|[tag=ADV]))
       cause: Entity = (obl) (?= case [word=/(?i)(por)/])
-      effect: Entity = (<acl|nsubj:pass|${ agents }) /conj/{,3}
+      effect: Entity = (<acl|nsubj:pass|${ agents }) /conj|<conj/{,3}
 
-  - name: george_devido_a-${addlabel}
+  - name: trigger+a-${addlabel}
     priority: ${ rulepriority }
     example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
     # here we can check the correct verb for melhorada
@@ -74,6 +74,7 @@ rules:
   - name: 2-verbs-conj-${addlabel}
     priority: ${ rulepriority }
     example: "Os acessórios ortodônticos colados ainda promovem e favorecem a retenção de placa bacteriana e indultos , aumentando tanto o risco de cárie quanto o de gengivite."
+    # O efeito da TMV é mecânico , auxiliando a movimentar " para frente " todo o conteúdo e alongando as musculaturas abdominais .
     label: ${ label }
     action: ${ action }
     pattern: |
@@ -82,14 +83,14 @@ rules:
       effect: Entity = (conj [tag=VERBF] obj)|obj /^conj/{,2}
 
 
-  - name: george_com_obl-${addlabel}
+  - name: com_obl-${addlabel}
     priority: ${ rulepriority }
     example: "Com a infusão de solução de Ringer com lactato, o hematócrito diminuiu para 28,8% +/- 3,72%. "
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= [word=/(com|por)/])
-      cause: Entity = obl (?= case [word = /(?i)(com|dada)/]) /^nmod_/{,2}
+      cause: Entity = obl (?= case [word = /(?i)(com|dada)/]) (/^nmod_/{,2}|/conj/{,3})
       effect: Entity = (nsubj:pass|${ agents }) /conj/{,3}
 
   - name: george_acl_subj-${addlabel}
@@ -100,15 +101,15 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
       cause: Entity = <acl
-      effect: Entity = (${ objects })
+      effect: Entity = (${ objects }) /conj/{,3}
 
-  - name: george_obl_obj-${addlabel}
-    priority: ${ rulepriority }
-    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      cause: Entity = <obj [lemma=/ter/] ${agents}
-      effect: Entity = <obj [lemma=/ter/] obl
+#  - name: george_obl_obj-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+#      cause: Entity = <obj [lemma=/ter/] ${agents}
+#      effect: Entity = <obj [lemma=/ter/] obl
 
