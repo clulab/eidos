@@ -20,8 +20,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(causa)/ & tag=/^NOUN/]
-      cause: Entity = ((<${agents}) [!tag=/^V/])  /conj/{,3}
-      # but I dont want agents that are verbs...
+      cause: Entity = (((<${agents}) [!tag=/^V/]) /conj/{,3})|(<obj nsubj)
       effect: Entity = nmod_de /conj/{,3}
 
   - name: trigger+por-${addlabel}
@@ -53,7 +52,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/a/] [word=/o|a/]) )
-      cause: Entity = nsubj /conj/{,3}
+      cause: Entity = (nsubj|nsubj:pass) /conj/{,3}
       effect: Entity = obl (?= case [word = /(?i)(a)/]) /conj/{,3}
 
 

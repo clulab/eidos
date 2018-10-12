@@ -2,7 +2,7 @@ increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|au
 #remove restaur
 noncausal_increase_triggers: "acima|melhor|bom|maior|forte|aument|difundido"
 
-decrease_triggers: "abaix|abol|anul|apag|atenu|bloque|cancel|cess|cort|debilit|degener|degrad|depreci|desaceler|desativ|desestabiliz|destru|desvaloriz|dificult|diminu|dizim|elimin|encolh|encurt|enfraquec|esgot|exaur|imped|inib|invalid|limit|mitig|paraliz|pior|prejudic|previn|rebaix|reduz|reprim|restring|retard|revert|revog|suprim"
+decrease_triggers: "abaix|abol|anul|apag|atenu|bloque|cancel|cess|cort|debilit|degener|degrad|depreci|desaceler|desativ|desestabiliz|destru|desvaloriz|dificult|diminu|dizim|elimin|encolh|encurt|enfraquec|esgot|exaur|imped|inib|invalid|limit|mitig|paraliz|pior|prejudic|preven|rebaix|reduz|reprim|restring|retard|revert|revog|suprim"
 noncausal_decrease_triggers: "ausencia|baix|declínio|déficit|derrub|desadequ|desativ|descontinu|deslig|escassez|escass|falha|falta|inadequ|inativ|interromp|menor|perda|pobre|recessão|redução"
 #advers|perturb|resist|
 
