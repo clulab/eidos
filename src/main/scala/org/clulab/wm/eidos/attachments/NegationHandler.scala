@@ -12,15 +12,20 @@ import org.clulab.struct.Interval
   *
   * Adapted for use in Eidos
   */
-object NegationHandler {
+class NegationHandler(val language: String) {
 
   def detectNegations(mentions: Seq[Mention]): Seq[Mention] = {
     // do something very smart to handle negated events
     // and then return the mentions
-    mentions.map(detectNegation(_))
+    // Note that the approach can be different for different languages!
+    language match {
+      case "english" => mentions.map(detectNegationEnglish)
+      case "portuguese" => ???
+      case _ => throw new RuntimeException(s"Unsupported language: $language")
+    }
   }
 
-  def detectNegation(m: Mention): Mention = {
+  def detectNegationEnglish(m: Mention): Mention = {
     m match {
       case event: EventMention =>
         // Dependency Negations
@@ -161,4 +166,10 @@ object NegationHandler {
       foundBy = event.foundBy
     )
   }
+}
+
+object NegationHandler{
+
+  def apply(language: String): NegationHandler = new NegationHandler(language)
+
 }

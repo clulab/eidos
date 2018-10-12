@@ -9,7 +9,7 @@ import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.attachments.HypothesisHandler // , Property, Score}
+import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
@@ -33,12 +33,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   val eidosConf = config[Config]("EidosSystem")
+  val language: String = eidosConf[String]("language")
 
   println("Loading processor...")
   val proc: Processor = mkProcessor(eidosConf)
 
   private def mkProcessor(config: Config): Processor = {
-    config[String]("language") match {
+    language match {
       case "english" => new FastNLPProcessor
       case "spanish" => new SpanishCluProcessor
       case "portuguese" => new PortugueseCluProcessor
@@ -68,6 +69,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
     val hedgingHandler: HypothesisHandler,
+    val negationHandler: NegationHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val timenorm: Option[TemporalCharbasedParser]
   )
@@ -85,7 +87,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // Filtering
     def       stopwordsPath: String = eidosConf[String]("stopWordsPath")
     def     transparentPath: String = eidosConf[String]("transparentPath")
-    // Hedging and TODO: Negation
+    // Hedging
     def       hedgingPath: String = eidosConf[String]("hedgingPath")
     // Ontology handling
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
@@ -105,6 +107,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
     val canonicalizer = new Canonicalizer(stopwordManager)
     val hypothesisHandler = HypothesisHandler(hedgingPath)
+    val negationHandler = NegationHandler(language)
 
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
@@ -152,6 +155,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         LexiconNER(Seq(quantifierPath, propertiesPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
         stopwordManager,
         hypothesisHandler,
+        negationHandler,
         ontologyGrounders,
         timenorm
       )
@@ -216,9 +220,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
-    val eidosMentions = EidosMention.asEidosMentions(afterHedging, new Canonicalizer(loadableAttributes.stopwordManager), this)
+    val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
-    new AnnotatedDocument(doc, afterHedging, eidosMentions)
+    new AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {

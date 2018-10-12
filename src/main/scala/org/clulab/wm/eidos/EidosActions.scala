@@ -55,13 +55,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
     val modifiedMentions = assemble2 ++ nonCausal
 
-    // Basic coreference, hedging, and negation
+    // Basic coreference
     val afterResolving = basicDeterminerCoref(modifiedMentions, state)
-//    val afterHedging = HypothesisHandler.detectHypotheses(afterResolving, state)
-    val afterNegation = NegationHandler.detectNegations(afterResolving)
 
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
-    afterNegation
+    afterResolving
   }
 
   def basicDeterminerCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
