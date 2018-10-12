@@ -22,3 +22,12 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/]
       cause: Entity  = >nmod_of
       effect: Entity = <nsubj >/${preps}/?
+
+  - name: reverse_causal-noun-3
+    priority: ${ rulepriority }
+    example: "Domestic agricultural production has decreased as a result of below-average rainfall."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      cause: Entity  = >nmod_of
+      effect: Entity = <nmod_as >nsubj >/${preps}/?

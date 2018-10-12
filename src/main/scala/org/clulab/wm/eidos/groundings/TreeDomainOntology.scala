@@ -7,7 +7,7 @@ import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidos.utils.{Canonicalizer, Namer}
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -28,7 +28,7 @@ class OntologyNode(var nodeName: String, var parent: OntologyBranchNode) extends
       if (parent != null) parent.fullName + DomainOntology.SEPARATOR + escaped
       else escaped
 
-  override def toString: String = fullName
+  override def toString(): String = fullName
 }
 
 @SerialVersionUID(1000L)
@@ -41,18 +41,14 @@ class OntologyBranchNode(nodeName: String, parent: OntologyBranchNode) extends O
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Double, examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
+class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
 
   def name: String = fullName
 
-  protected def split(values: Option[Seq[String]]): Seq[String] =
-      if (values.isEmpty) Seq.empty
-      else values.get.flatMap(_.split(" +"))
-
   // Right now it doesn't matter where these come from, so they can be combined.
-  val values: Array[String] = (split(examples) ++ split(descriptions)).toArray
+  val values: Array[String] = (/*names ++*/ examples.getOrElse(Seq.empty) ++ descriptions.getOrElse(Seq.empty)).toArray
 
-  override def toString: String = super.fullName + " = " + values.toList
+  override def toString(): String = super.fullName + " = " + values.toList
 }
 
 @SerialVersionUID(1000L)
@@ -83,7 +79,7 @@ object TreeDomainOntology {
   def load(path: String): TreeDomainOntology = DomainOntology.updatedLoad[TreeDomainOntology](path)
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class TreeDomainOntologyBuilder(ontologyPath: String, proc: Processor, filter: Boolean) {
+  class TreeDomainOntologyBuilder(ontologyPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean) {
 
     def build(): TreeDomainOntology = {
       val text = getTextFromResource(ontologyPath)
@@ -105,29 +101,33 @@ object TreeDomainOntology {
         // This is the key difference.  Lemmatization must happen first.
         proc.lemmatize(doc)
         proc.tagPartsOfSpeech(doc)
+        proc.recognizeNamedEntities(doc)
         doc.sentences
       }
       case proc: ShallowNLPProcessor => text => {
         val doc = proc.mkDocument(text)
 
-        if (doc.sentences.nonEmpty)
+        if (doc.sentences.nonEmpty) {
           proc.tagPartsOfSpeech(doc)
-        // Lemmatization, if needed, would happen afterwards.
+          proc.lemmatize(doc)
+          proc.recognizeNamedEntities(doc)
+        }
         doc.sentences
       }
     }
 
     protected def realFiltered(text: String): Seq[String] = {
-      val sentences = getSentences(text)
+      val result = getSentences(text).flatMap { sentence =>
+        val lemmas: Array[String] = sentence.lemmas.get
+        val tags: Array[String] = sentence.tags.get
+        val ners: Array[String] = sentence.entities.get
 
-      sentences.flatMap { sentence =>
-        sentence.words.zip(sentence.tags.get).filter { wordAndPos =>
-          // Filter by POS tags which need to be kept (Nouns, Adjectives, and Verbs).
-          wordAndPos._2.contains("NN") ||
-            wordAndPos._2.contains("JJ") ||
-            wordAndPos._2.contains("VB")
-        }.map(_._1) // Get only the words.
+        for {
+          i <- lemmas.indices
+          if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
+        } yield lemmas(i)
       }
+      result // breakpoint
     }
 
     protected def fakeFiltered(text: String): Seq[String] = text.split(" +")
@@ -137,16 +137,26 @@ object TreeDomainOntology {
     protected def yamlNodesToStrings(yamlNodes: mutable.Map[String, JCollection[Any]], name: String): Option[Seq[String]] =
       yamlNodes.get(name).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
 
-    protected def parseOntology(parent: OntologyBranchNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
-      val name = yamlNodes(TreeDomainOntology.NAME).asInstanceOf[String]
-      val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
-      val descriptions = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
-      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0).asInstanceOf[Double]
-      val filteredDescriptions =
-          if (descriptions.isEmpty) descriptions
-          else Some(descriptions.get.flatMap(filtered))
+    protected def unescape(name: String): String = {
+      // Sometimes the words in names are concatenated with _
+      // TODO: We should avoid this practice
+      name.replace('_', ' ')
+    }
 
-      new OntologyLeafNode(name, parent, polarity,  examples, filteredDescriptions)
+    protected def parseOntology(parent: OntologyBranchNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
+      /* We're going without the names for now. */
+      val name = yamlNodes(TreeDomainOntology.NAME).asInstanceOf[String]
+      /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
+      val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
+      val descriptions: Option[Seq[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
+      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
+
+      /*val filteredNames = names.flatMap(filtered)*/
+      val filteredExamples = examples.map(_.flatMap(filtered))
+      val filteredDescriptions = descriptions.map(_.flatMap(filtered))
+
+      val res = new OntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions)
+      res
     }
 
     protected def parseOntology(parent: OntologyBranchNode, yamlNodes: Seq[Any]): Seq[OntologyLeafNode] = {

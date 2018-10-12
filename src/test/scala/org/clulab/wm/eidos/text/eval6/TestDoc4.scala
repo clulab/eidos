@@ -29,9 +29,7 @@ as IPC Phase 4: "Emergency".
     
     // Sentence 2
     // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
-    val conditions2 = NodeSpec(/*"the number of people facing IPC Phase 5: " +*/ "``Catastrophe'' food security conditions", Dec("declined"))
-//    val fromQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("100 000", "over"))
-//    val toQuant = NodeSpec("``Catastrophe'' food security conditions", Quant("45 000"))
+    val conditions2 = NodeSpec(""""Catastrophe" food security conditions""", Dec("declined"))
     val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
     
     behavior of "TestDoc4 Paragraph 1"
@@ -47,7 +45,7 @@ as IPC Phase 4: "Emergency".
 //      tester.test(toQuant) should be (successful)
 //    }
     // The syntax is hopelessly broken, we can removed some of the inner punctuation to try to fix or leave as is.
-    brokenSyntaxTest should "have correct edges 1" taggedAs(Somebody) in {
+    passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(operations, Causal, conditions2)) should be (successful)
     }
   }

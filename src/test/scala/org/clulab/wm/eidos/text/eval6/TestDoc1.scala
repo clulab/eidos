@@ -50,8 +50,8 @@ class TestDoc1 extends Test {
     val tester = new Tester(text)
 
     val futureWorkCrop = NodeSpec("crop cultivation", Unmarked("done on small farms"))
-    val crop = NodeSpec("crop cultivation")
-    val surplus = NodeSpec("marketable surplus", Quant("little if any"))
+    val crop = NodeSpec("most crop cultivation", Quant("most"))
+    val surplus = NodeSpec("marketable surplus", Dec("little if any"))
 
     behavior of "TestDoc1 Paragraph 2"
 

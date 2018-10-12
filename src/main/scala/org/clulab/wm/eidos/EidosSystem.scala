@@ -9,7 +9,7 @@ import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.attachments.Score
+import org.clulab.wm.eidos.attachments.HypothesisHandler // , Property, Score}
 import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
@@ -67,6 +67,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val engine: ExtractorEngine,
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
+    val hedgingHandler: HypothesisHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val timenorm: Option[TemporalCharbasedParser]
   )
@@ -77,12 +78,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def    quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
     def   domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
     def      quantifierPath: String = eidosConf[String]("quantifierPath")
+    def      propertiesPath: String = eidosConf[String]("propertiesPath")
     def     entityRulesPath: String = eidosConf[String]("entityRulesPath")
     def      avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
     def        taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
     def       stopwordsPath: String = eidosConf[String]("stopWordsPath")
     def     transparentPath: String = eidosConf[String]("transparentPath")
+    // Hedging and TODO: Negation
+    def       hedgingPath: String = eidosConf[String]("hedgingPath")
     // Ontology handling
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
@@ -91,21 +95,25 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def            cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
-    def ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
-    def maxHops: Int = eidosConf[Int]("maxHops")
+    def    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
+    def               maxHops: Int = eidosConf[Int]("maxHops")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
     def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
-    def useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    def    useCache: Boolean = eidosConf[Boolean]("useCache")
+    def       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    def          useCache: Boolean = eidosConf[Boolean]("useCache")
+
+    val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
+    val canonicalizer = new Canonicalizer(stopwordManager)
+    val hypothesisHandler = HypothesisHandler(hedgingPath)
 
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, useCache = useCache)
-        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, useCache = useCache)
-        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, useCache = useCache)
-        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, useCache = useCache)
+        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
     }
@@ -127,6 +135,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
             val timeNormResource: URL = getClass.getResource(timeNormModelPath)
             // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
             val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+            //val file = "./cache/english/timenorm_model.hdf5"
             // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
             //     public native void openFile(@StdString BytePointer var1, ...
             // and needs native representation of the file.
@@ -140,8 +149,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         actions,
 //        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
-        LexiconNER(Seq(quantifierPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
-        StopwordManager(stopwordsPath, transparentPath),
+        LexiconNER(Seq(quantifierPath, propertiesPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
+        stopwordManager,
+        hypothesisHandler,
         ontologyGrounders,
         timenorm
       )
@@ -163,8 +173,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
     val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
-    val doc = EidosDocument(oldDoc, keepText, documentCreationTime)
+    val doc = EidosDocument(oldDoc, keepText)
     doc.sentences.foreach(addLexiconNER)
+    doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
     doc.parseTime(loadableAttributes.timenorm)
     doc.id = filename
     doc
@@ -201,12 +212,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
     val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
 
-
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
-    val eidosMentions = EidosMention.asEidosMentions(cagRelevant, loadableAttributes.stopwordManager, this)
+    // TODO: handle hedging and negation...
+    val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
+    val eidosMentions = EidosMention.asEidosMentions(afterHedging, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
-    new AnnotatedDocument(doc, cagRelevant, eidosMentions)
+    new AnnotatedDocument(doc, afterHedging, eidosMentions)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
@@ -235,32 +247,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     //cagRelevant.toVector
   }
 
-
-  def populateSameAsRelations(ms: Seq[Mention]): Seq[Mention] = {
-
-    // Create an UndirectedRelation Mention to contain the sameAs grounding information
-    def sameAs(a: Mention, b: Mention, score: Double): Mention = {
-      // Build a Relation Mention (no trigger)
-      new CrossSentenceMention(
-        labels = Seq("SameAs"),
-        anchor = a,
-        neighbor = b,
-        arguments = Seq(("node1", Seq(a)), ("node2", Seq(b))).toMap,
-        document = a.document,  // todo: change?
-        keep = true,
-        foundBy = s"sameAs-${EidosSystem.SAME_AS_METHOD}",
-        attachments = Set(Score(score)))
-    }
-
-    // n choose 2
-    val sameAsRelations = for {
-      (m1, i) <- ms.zipWithIndex
-      m2 <- ms.slice(i+1, ms.length)
-      score = wordToVec.calculateSimilarity(m1, m2)
-    } yield sameAs(m1, m2, score)
-
-    sameAsRelations
-  }
 
   // Old version
   def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
@@ -339,7 +325,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   /*
       Wrapper for using w2v on some strings
    */
-  def stringSimilarity(string1: String, string2: String): Double = wordToVec.stringSimilarity(string1, string2)
+  def stringSimilarity(string1: String, string2: String): Float = wordToVec.stringSimilarity(string1, string2)
 
   /*
      Debugging Methods

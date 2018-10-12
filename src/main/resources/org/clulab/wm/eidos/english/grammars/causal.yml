@@ -37,7 +37,7 @@ rules:
     # food imports will decrease due to the exhaustion of coping capacities
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /${preps}/{,2}
+      cause: Entity = <case /${preps}|${noun_modifiers}/{,2}
       effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to)
 
   # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
@@ -86,6 +86,17 @@ rules:
       cause: Entity = nmod_to (${ conjunctions })?
       effect: Entity = <advmod|<amod (</${preps}/{,2} | >/${preps}/{,2})
 
+  - name: dueToSyntax6-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "Domestic agricultural production has decreased due to below-average rainfall."
+    pattern: |
+      trigger = [lemma="due" & tag=/JJ/]
+      cause: Entity = nmod_to (${ conjunctions })?
+      effect: Entity = <xcomp >/${agents}/
+
+
 #  - name: dueToSyntax6-${addlabel}
 #    priority: ${rulepriority}
 #    label: ${label}
@@ -114,7 +125,7 @@ rules:
     example: "Conflict and economic decline have led to violence and displacement."
     pattern: |
       trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to /${preps}/{,4}
+      effect: Entity = nmod_to /(${preps}|${noun_modifiers})/{,4}
       cause: Entity = <ccomp? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
 
   - name: contribToSyntax1-${addlabel}
@@ -126,6 +137,16 @@ rules:
       trigger = [lemma="contribute" & tag=/^VB/] (?=[word=to])
       effect: Entity = nmod_to nmod_in [tag=/^N/] (${ conjunctions })? #/${noun_modifiers}/{,2} #
       cause: Entity = nsubj nmod_in /${noun_modifiers}/{,2}
+
+  - name: is_critical_to-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
+    pattern: |
+      trigger = [word=/(?i)^(continue|critical|necessary|needed|required)/] (?=[word=to])
+      effect: Entity = xcomp [tag=/^V/] /${preps}/{,2}
+      cause: Entity = /${agents}/
 
 
 # ------------------- Explicitly Causal REACH --------------------------

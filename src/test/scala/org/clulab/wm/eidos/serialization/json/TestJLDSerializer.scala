@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.text.cag.CAG._
+import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.Seq
 
@@ -130,7 +131,7 @@ class TestJLDSerializer extends Test {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, TestUtils.ieSystem.loadableAttributes.stopwordManager, TestUtils.ieSystem)
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(TestUtils.ieSystem.loadableAttributes.stopwordManager), TestUtils.ieSystem)
       val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
 
       nextAnnotatedDocument
