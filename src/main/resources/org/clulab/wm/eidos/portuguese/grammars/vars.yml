@@ -1,6 +1,8 @@
-agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+##### maybe remove acl from here? <acl removed
 
 adverbial_clause: "advcl"
+#advmod
 
 conjunctions: "appos|conj|conj_|cc"
 
@@ -13,13 +15,16 @@ negTriggers: "not"
 objects: "dobj|obj"
 
 #preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_than|acl_of"
-preps: "nmod_de|nmod_em|nmod_sobre"
+preps: "nmod_de|nmod_em|nmod_sobre|nmod_para"
+
+#nmod_como
+#nmod_a
 
 prep_dobjs: "nmod"
 
 quant_modifiers: "amod|advmod"
 
-passive_agents: "nmod_by|nmod_agent|agent"
+passive_agents: "nmod_por|nmod_agent|agent"
 
 passive_mark_verbs: "marked|defined|indicated|characterized"
 

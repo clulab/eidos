@@ -1,0 +1,167 @@
+vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
+
+
+rules:
+
+  - name: causa_de-${addlabel}
+    priority: ${ rulepriority }
+    example: ""
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(caus|inib)/ & tag=/^NOUN/]
+      cause: Entity = nsubj /conj/{,3}
+      effect: Entity = nmod_de /conj/{,3}
+
+  - name: invertido_causa_de-${addlabel}
+    priority: ${ rulepriority }
+    example: "Existe um consenso de que a causa da enchente é a chuva."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(causa)/ & tag=/^NOUN/]
+      cause: Entity = (((<${agents}) [!tag=/^V/]) /conj/{,3})|(<obj nsubj)
+      effect: Entity = nmod_de /conj/{,3}
+
+  - name: trigger+por-${addlabel}
+    priority: ${ rulepriority }
+    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas sérios"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/por/]|[tag=ADV]))
+      cause: Entity = (obl) (?= case [word=/(?i)(por)/])
+      effect: Entity = (<acl|nsubj:pass|${ agents }) /conj|<conj/{,3}
+
+  - name: trigger+devido_a-${addlabel}
+    priority: ${ rulepriority }
+    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
+    # here we can check the correct verb for melhorada
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (advmod  [word=devido]) (obl|obj) /conj/{,3}
+      effect: Entity = (nsubj:pass|obj) /conj/{,3}
+
+  - name: levou_a-${addlabel}
+    priority: ${ rulepriority }
+    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
+    # here we can check the correct verb for melhorada
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/a/] [word=/o|a/]) )
+      cause: Entity = (nsubj|nsubj:pass) /conj/{,3}
+      effect: Entity = obl (?= case [word = /(?i)(a)/]) /conj/{,3}
+
+
+#  - name: ported_syntax_1_verb_1_includeConj-${addlabel}
+#    priority: ${ rulepriority }
+#    example: ""
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      cause: Entity = </${adverbial_clause}/ (${ agents }) # passed
+#      effect: Entity = /conj/{,3} /obj/{,3}
+
+
+  - name: ported_syntax_1_verb-${addlabel}
+    priority: ${ rulepriority }
+    #example: "The water quality caused an increase in poverty and a decrease in poverty."
+    example: "improved economic performance expected to cause a shift from agriculture to service industry."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
+      effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }|conj/{,3} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+
+
+  - name: george_maximizar-${addlabel}
+    priority: ${ rulepriority }
+    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (${ agents }) (<${ preps }) (${ agents })
+      effect: Entity = (${ objects })
+
+
+  - name: 2a-verbs-conj-${addlabel}
+    priority: ${ rulepriority }
+    example: "Os acessórios ortodônticos colados ainda promovem e favorecem a retenção de placa bacteriana e indultos , aumentando tanto o risco de cárie quanto o de gengivite."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (<conj nsubj) /^nmod/{,2} /^conj/{,2}
+      effect: Entity = obj /^conj/{,2}
+
+  - name: 2b-verbs-conj-${addlabel}
+    priority: ${ rulepriority }
+    example: "Os acessórios ortodônticos colados ainda promovem e favorecem a retenção de placa bacteriana e indultos , aumentando tanto o risco de cárie quanto o de gengivite."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (nsubj) /^nmod/{,2} /^conj/{,2}
+      effect: Entity = conj obj /^conj/{,2}
+
+
+  - name: com_obl-${addlabel}
+    priority: ${ rulepriority }
+    example: "Com a infusão de solução de Ringer com lactato, o hematócrito diminuiu para 28,8% +/- 3,72%. "
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] #(?= [word=/(com|por)/])
+      cause: Entity = obl (?= case [word = /(?i)(com|dada)/]) (/^nmod_/{,2}|/conj/{,3})
+      effect: Entity = (nsubj:pass|${ agents }) /conj/{,3}
+
+  - name: acl_subj-${addlabel}
+    priority: ${ rulepriority }
+    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?<! [tag=ADP])
+      cause: Entity = <acl (<obl| /^nmod/)
+      effect: Entity = ((${ objects }) /conj/{,3})|((obl) (?= case [word=/(?i)(por)/]))
+
+
+  - name: amod_advcl-${addlabel}
+    priority: ${ rulepriority }
+    example: "A hemodiluição normovolêmica aguda é um método de transfusão autóloga simples e seguro, capaz de reduzir a necessidade de sangue homólogo nas cirurgias de artrodese de coluna pela via posterior."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity =  <advcl <amod /nsubj/+
+      effect: Entity =  obj /conj/{,3}
+
+
+
+
+#  - name: advcl_ccomp-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "O efeito da TMV é mecânico , auxiliando a movimentar `` para frente '' todo o conteúdo e alongando as musculaturas abdominais ."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      cause: Entity = <advcl nsubj
+#      effect: Entity = ccomp (conj obj)
+
+#  - name: george_obl_obj-${addlabel}
+#    priority: ${ rulepriority }
+#    example: ""
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+#      cause: Entity = <obj [lemma=/ter/] ${agents}
+#      effect: Entity = <obj [lemma=/ter/] obl
+#

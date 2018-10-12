@@ -20,3 +20,12 @@ rules:
       [chunk='B-VP' & !mention=Avoid]? [chunk='I-VP' & !mention=Avoid]+
       |
       [chunk='B-VP' & !mention=Avoid]
+
+#  # need to find a better way to link these
+#  - name: simple-np-pp-np
+#    label: Concept
+#    priority: 1
+#    type: token
+#    pattern: |
+#      # avoids event triggers, coordinations, refs, etc.
+#      [chunk='B-NP' & !mention=Avoid] [chunk='I-NP' & !mention=Avoid]* ([chunk='B-PP' & !mention=Avoid] [chunk='B-NP' & !mention=Avoid] [chunk='I-NP' & !mention=Avoid]*)*
