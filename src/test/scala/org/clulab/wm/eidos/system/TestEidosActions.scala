@@ -12,6 +12,7 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.MentionUtils
 
 class TestEidosActions extends Test {
 
@@ -246,7 +247,7 @@ class TestEidosActions extends Test {
       val mention = new TextBoundMention(Seq("label"), Interval(2, 3), 5, null, false, "Found by me", Set.empty)
       mention.attachments.size should be(0)
 
-      val newMention = eidosActions.copyWithAttachments(mention, attachments)
+      val newMention = MentionUtils.withAttachments(mention, attachments)
       newMention.attachments.size should be(attachments.size)
     }
 
