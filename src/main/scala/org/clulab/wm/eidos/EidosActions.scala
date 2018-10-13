@@ -504,7 +504,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
         val bestEntity = tieBreaker(bestEntities)
 
-        MentionUtils.withAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
+        MentionUtils.withoutWithAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
       }
       else
         tieBreaker(entities)
