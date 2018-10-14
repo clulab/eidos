@@ -428,7 +428,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
     def addAttachments(mention: Mention, attachments: Seq[Attachment], foundByName: String): Mention = {
-      val out = MentionUtils.withAttachments(mention, attachments)
+      val out = MentionUtils.withMoreAttachments(mention, attachments)
 
       out match {
         case tb: TextBoundMention => tb.copy(foundBy=foundByName)
@@ -504,7 +504,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
         val bestEntity = tieBreaker(bestEntities)
 
-        MentionUtils.withoutWithAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
+        MentionUtils.withOnlyAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
       }
       else
         tieBreaker(entities)
