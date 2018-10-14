@@ -247,7 +247,7 @@ class TestEidosActions extends Test {
       val mention = new TextBoundMention(Seq("label"), Interval(2, 3), 5, null, false, "Found by me", Set.empty)
       mention.attachments.size should be(0)
 
-      val newMention = MentionUtils.withAttachments(mention, attachments)
+      val newMention = MentionUtils.withMoreAttachments(mention, attachments)
       newMention.attachments.size should be(attachments.size)
     }
 
