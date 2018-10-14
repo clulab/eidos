@@ -86,7 +86,7 @@ class HypothesisHandler(hintsFile: String) {
   def withApplicableHedging(m: Mention, hedgedLemmas: Seq[String]): Mention = {
     val attachments = hedgedLemmas.map(Hedging(_, None))
 
-    MentionUtils.withAttachments(m, attachments)
+    MentionUtils.withMoreAttachments(m, attachments)
   }
 }
 

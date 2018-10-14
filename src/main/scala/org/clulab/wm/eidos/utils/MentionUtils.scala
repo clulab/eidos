@@ -7,25 +7,17 @@ object MentionUtils {
   def newCrossSentenceMention(m: CrossSentenceMention, attachments: Set[Attachment]) =
       new CrossSentenceMention(m.labels, m.anchor, m.neighbor, m.arguments, m.document, m.keep, m.foundBy, attachments)
 
-  def withoutWithAttachments(mention: Mention, seqOfAttachments: Seq[Attachment]): Mention = {
-    val allAttachments = seqOfAttachments.toSet
+  protected def withOnlyAttachments(mention: Mention, setOfAttachments: Set[Attachment]): Mention =
+      mention match {
+        case m: TextBoundMention => m.copy(attachments = setOfAttachments)
+        case m: RelationMention => m.copy(attachments = setOfAttachments)
+        case m: EventMention => m.copy(attachments = setOfAttachments)
+        case m: CrossSentenceMention => newCrossSentenceMention(m, setOfAttachments)
+      }
 
-    mention match {
-      case m: TextBoundMention => m.copy(attachments = allAttachments)
-      case m: RelationMention => m.copy(attachments = allAttachments)
-      case m: EventMention => m.copy(attachments = allAttachments)
-      case m: CrossSentenceMention => newCrossSentenceMention(m, allAttachments)
-    }
-  }
+  def withOnlyAttachments(mention: Mention, seqOfAttachments: Seq[Attachment]): Mention =
+      withOnlyAttachments(mention, seqOfAttachments.toSet)
 
-  def withAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
-    val allAttachments = mention.attachments ++ attachments
-
-    mention match {
-      case m: TextBoundMention => m.copy(attachments = allAttachments)
-      case m: RelationMention => m.copy(attachments = allAttachments)
-      case m: EventMention => m.copy(attachments = allAttachments)
-      case m: CrossSentenceMention => newCrossSentenceMention(m, allAttachments)
-    }
-  }
+  def withMoreAttachments(mention: Mention, attachments: Seq[Attachment]): Mention =
+      withOnlyAttachments(mention, mention.attachments ++ attachments)
 }
