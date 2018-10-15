@@ -24,7 +24,7 @@ import org.clulab.timenorm.TemporalCharbasedParser
 
 import scala.annotation.tailrec
 
-case class AnnotatedDocument(var document: Document, var odinMentions: Seq[Mention], var eidosMentions: Seq[EidosMention])
+case class AnnotatedDocument(val document: Document, val odinMentions: Seq[Mention], val eidosMentions: Seq[EidosMention])
 
 /**
   * A system for text processing and information extraction
@@ -49,7 +49,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   var debug = true // Allow external control with var
 
   println("Loading W2V...")
-  var word2vec = eidosConf[Boolean]("useW2V") // Turn this on and off here
+  val word2vec = eidosConf[Boolean]("useW2V") // Turn this on and off here
   // This isn't intended to be (re)loadable.  This only happens once.
   val wordToVec = EidosWordToVec(
     word2vec,

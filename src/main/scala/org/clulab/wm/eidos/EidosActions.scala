@@ -570,13 +570,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
 
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
-    var newTokenInterval = orig.tokenInterval
-    if (mkNewInterval) {
+    val newTokenInterval = if (mkNewInterval) {
       // All involved token intervals, both for the original event and the expanded arguments
       val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
       // Find the largest span from these intervals
-      newTokenInterval = getNewTokenInterval(allIntervals)
+      getNewTokenInterval(allIntervals)
     }
+    else orig.tokenInterval
 
     val paths = for {
       (argName, argPathsMap) <- orig.paths
