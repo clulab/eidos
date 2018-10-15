@@ -5,7 +5,7 @@ import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, MentionUtils}
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -17,7 +17,6 @@ import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
-
 import org.clulab.wm.eidos.document.TimeInterval
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
@@ -429,10 +428,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
     def addAttachments(mention: Mention, attachments: Seq[Attachment], foundByName: String): Mention = {
-      var out = mention
-      for {
-        a <- attachments
-      } out = out.withAttachment(a)
+      val out = MentionUtils.withMoreAttachments(mention, attachments)
 
       out match {
         case tb: TextBoundMention => tb.copy(foundBy=foundByName)
@@ -508,7 +504,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
         val bestEntity = tieBreaker(bestEntities)
 
-        copyWithAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
+        MentionUtils.withOnlyAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
       }
       else
         tieBreaker(entities)
@@ -516,14 +512,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
     res
-  }
-
-  // Iteratively creates a mention which contains all of the passed in Attachments and no others
-  def copyWithAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
-    // This is very inefficient, but the interface only allows for adding and subtracting one at a time.
-    val attachmentless = mention.attachments.foldLeft(mention)((mention, attachment) => mention.withoutAttachment(attachment))
-
-    attachments.foldLeft(attachmentless)((mention, attachment) => mention.withAttachment(attachment))
   }
 
   // Filter out substring attachments, then keep most complete.
