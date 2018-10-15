@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.PrintWriter
+import java.io.{File, PrintWriter}
 
 import ai.lum.common.StringUtils._
 import com.typesafe.config.{Config, ConfigFactory}
@@ -151,6 +151,7 @@ case class SerializedExporter (filename: String) extends Exporter {
 // Helper Class to facilitate serializing the mentions
 class SerializedMentions(val mentions: Seq[Mention]) extends Serializable {}
 object SerializedMentions {
+  def load(file: File): Seq[Mention] = Serializer.load[SerializedMentions](file).mentions 
   def load(filename: String): Seq[Mention] = Serializer.load[SerializedMentions](filename).mentions
 }
 
