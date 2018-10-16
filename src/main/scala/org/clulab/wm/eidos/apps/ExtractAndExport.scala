@@ -149,6 +149,7 @@ case class SerializedExporter (filename: String) extends Exporter {
 }
 
 // Helper Class to facilitate serializing the mentions
+@SerialVersionUID(1L)
 class SerializedMentions(val mentions: Seq[Mention]) extends Serializable {}
 object SerializedMentions {
   def load(file: File): Seq[Mention] = Serializer.load[SerializedMentions](file).mentions 
