@@ -132,18 +132,25 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology), wordToVec)).seq
           else Seq.empty
 
-      val timenorm: Option[TemporalCharbasedParser] =
-          if (!useTimeNorm) None
-          else {
-            val timeNormResource: URL = getClass.getResource(timeNormModelPath)
+      val timenorm: Option[TemporalCharbasedParser] = {
+
+        def getFileName(): String = {
+          val timeNormResource: URL = getClass.getResource(timeNormModelPath)
+
+          if (timeNormResource.getProtocol() == "file")
             // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
-            //val file = "./cache/english/timenorm_model.hdf5"
-            // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
-            //     public native void openFile(@StdString BytePointer var1, ...
-            // and needs native representation of the file.
-            Some(new TemporalCharbasedParser(file))
+            Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+          else {
+            val tmpFileName = cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp"
+
+            FileUtils.copyResourceToFile(timeNormModelPath, tmpFileName)
+            tmpFileName
           }
+        }
+
+        if (!useTimeNorm) None
+        else Some(new TemporalCharbasedParser(getFileName()))
+      }
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
