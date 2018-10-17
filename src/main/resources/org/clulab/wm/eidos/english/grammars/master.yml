@@ -13,8 +13,8 @@ rules:
 #    vars:
 #      rulepriority: "1"
 
-  #Quantifiers
-  - import: org/clulab/wm/eidos/english/grammars/quantifiers.yml
+  #Quantifiers and Properties
+  - import: org/clulab/wm/eidos/english/grammars/lexiconner.yml
     vars:
       rulepriority: "1"
 

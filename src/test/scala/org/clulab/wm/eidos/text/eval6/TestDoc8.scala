@@ -30,22 +30,22 @@ class TestDoc8 extends Test {
     val selfSufficiency = NodeSpec("self-sufficiency", Inc("increasing"))
     
     behavior of "TestDoc8 Paragraph 1"
-
-    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
-      tester.test(famine) should be (successful) 
-    }
-    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
-      tester.test(foodSecurity) should be (successful) 
-    }
-    failingTest should "have correct singleton node 3" taggedAs(Becky) in {
-      tester.test(foodProduction) should be (successful) 
-    }
-    passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
-      tester.test(communities) should be (successful) 
-    }
-    passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
-      tester.test(selfSufficiency) should be (successful) 
-    }
+  // We're not expanding non-arg nodes
+//    failingTest should "have correct singleton node 1" taggedAs(Becky) in {
+//      tester.test(famine) should be (successful)
+//    }
+//    failingTest should "have correct singleton node 2" taggedAs(Becky) in {
+//      tester.test(foodSecurity) should be (successful)
+//    }
+//    failingTest should "have correct singleton node 3" taggedAs(Becky) in {
+//      tester.test(foodProduction) should be (successful)
+//    }
+//    passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
+//      tester.test(communities) should be (successful)
+//    }
+//    passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
+//      tester.test(selfSufficiency) should be (successful)
+//    }
   }
   { // Objective 1
     val text = """
@@ -55,16 +55,16 @@ class TestDoc8 extends Test {
       """
     val tester = new Tester(text)
   
-    val emergencySupport = NodeSpec("emergency support")
-    val foodSecurity = NodeSpec("food security of vulnerable urban and rural populations", Inc("improve"))
+    val emergencySupport = NodeSpec("emergency support to protect and rebuild livelihoods during the main planting and dry seasons", Inc("Provide"))
+    val foodSecurity = NodeSpec("food security of vulnerable urban and rural populations", Inc("improve"), Quant("vulnerable"))
     val foodGap = NodeSpec("food gap", Dec("reduce"))
     
     behavior of "TestDoc8 Objective 1"
 
-    failingTest should "have correct edge 1" taggedAs(Ajay) in {
+    passingTest should "have correct edge 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(emergencySupport, Causal, foodSecurity)) should be (successful) 
     }
-    failingTest should "have correct edge 2" taggedAs(Ajay) in {
+    passingTest should "have correct edge 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(emergencySupport, Causal, foodGap)) should be (successful) 
     }
   }

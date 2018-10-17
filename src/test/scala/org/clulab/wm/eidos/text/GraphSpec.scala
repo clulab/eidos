@@ -97,11 +97,16 @@ object TriggeredAttachmentSpec {
   }
 
   def matchAttachments(mention: Mention, attachmentSpecs: Set[TriggeredAttachmentSpec]) = {
-    if (mention.attachments.filter(_.isInstanceOf[TriggeredAttachment]).size != attachmentSpecs.size)
+    // For now, let's not write tests for Property attachments as it's likey to be fluid for a bit
+    // FIXME: revisit
+    def filterCriteria(a: Attachment): Boolean = a.isInstanceOf[TriggeredAttachment] && ! a.isInstanceOf[Property]
+
+
+    if (mention.attachments.count(filterCriteria) != attachmentSpecs.size)
       false
     else {
       val attachments: Set[TriggeredAttachment] = mention.attachments
-          .filter(_.isInstanceOf[TriggeredAttachment])
+          .filter(filterCriteria)
           .map(_.asInstanceOf[TriggeredAttachment])
 
       recMatchAttachments(attachments, attachmentSpecs.toSeq)

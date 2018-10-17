@@ -83,7 +83,7 @@ rules:
     label: Correlation
     action: ${ action }
     pattern: |
-      trigger = [word=given & tag=VBN]
+      trigger = [word=/(?i)given/ & tag=VBN]
       cause: Entity = <case
       effect: Entity = <case <nmod_given /${agents}/?
 

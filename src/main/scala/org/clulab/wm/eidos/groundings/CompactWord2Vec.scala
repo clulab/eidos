@@ -247,7 +247,7 @@ object CompactWord2Vec {
   }
 
   protected def norm(array: ArrayType, rowIndex: Int, rowWidth: Int) {
-    var offset = rowIndex * rowWidth
+    val offset = rowIndex * rowWidth
     var len = 0.0f
 
     for (i <- 0 until rowWidth)

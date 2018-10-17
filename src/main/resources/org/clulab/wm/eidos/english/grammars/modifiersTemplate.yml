@@ -131,6 +131,16 @@ rules:
       theme: Entity = nmod_for
       quantifier: Quantifier? = ${quant_modifiers}
 
+  - name: ${ label}_X_remains_y
+    priority:  ${ rulepriority }
+    example: "heavier than normal"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      theme: Entity = <xcomp [word=/(?i)^remain/] >nsubj
+      quantifier: Quantifier? = ${quant_modifiers}
+
 
 # ------------------- Copular Constructions --------------------------
 
@@ -177,6 +187,16 @@ rules:
       theme: Entity = /${ preps }$/? /${ noun_modifiers }/{1,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
+  - name: ${ label }_ported_syntax_2_noun_rev
+    priority: ${ rulepriority }
+    example: "technological progress"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/ & entity=O]
+      theme: Entity = </${ noun_modifiers }/{1,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
   - name: ${ label }_ported_syntax_3_noun
     priority: ${ rulepriority }
     example: "exhaustion of coping capacities"
@@ -186,7 +206,6 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
-
 
   - name: ${ label }_surface_VBN
     priority: ${ rulepriority }

@@ -12,6 +12,7 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.MentionUtils
 
 class TestEidosActions extends Test {
 
@@ -118,9 +119,10 @@ class TestEidosActions extends Test {
       (m.arguments(EidosActions.ANAPHOR).head.text == anaphor)
   }
 
-  def hasHedging(m: Mention, term: String): Boolean= {
-    val hedged = m.attachments.filter(_.isInstanceOf[Hedging])
-    hedged.exists(h => h.asInstanceOf[Hedging].trigger == term)
+
+  def hasProperty(m: Mention, term: String): Boolean = {
+    val props = m.attachments.filter(_.isInstanceOf[Property])
+    props.exists(p => p.asInstanceOf[Property].trigger == term)
   }
 
 
@@ -245,7 +247,7 @@ class TestEidosActions extends Test {
       val mention = new TextBoundMention(Seq("label"), Interval(2, 3), 5, null, false, "Found by me", Set.empty)
       mention.attachments.size should be(0)
 
-      val newMention = eidosActions.copyWithAttachments(mention, attachments)
+      val newMention = MentionUtils.withMoreAttachments(mention, attachments)
       newMention.attachments.size should be(attachments.size)
     }
 
@@ -305,10 +307,10 @@ class TestEidosActions extends Test {
       mentions.exists(m => correctCoreference(m, "flooding", "This"))
     }
 
-    it should "identify hedging" in {
-      val text = "Rainfall is likely to cause flooding."
+    it should "identify properties" in {
+      val text = "Rainfall increases the price of puppies."
       val mentions = extractMentions(text)
-      mentions.exists(m => hasHedging(m, "likely")) should be (true)
+      mentions.exists(m => hasProperty(m, "price")) should be (true)
     }
 
   }
