@@ -41,7 +41,8 @@ libraryDependencies ++= {
 // If it isn't here, sbt test can seemingly only be run once before it will fail with
 // java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
 // Caused by: java.lang.UnsatisfiedLinkError: Native Library jnihdf5.dll already loaded in another classloader
-fork := true
+// However, this also doubles the testing time, so it is disabled here.  Enable it if the exception appears.
+// fork := true
 
 //
 // publishing settings
