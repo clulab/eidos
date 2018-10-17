@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.test
 
+import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
+
 import scala.collection.Seq
 import org.scalatest._
 import org.clulab.odin.{Attachment, Mention}
@@ -18,7 +20,7 @@ object TestUtils {
   // This will be a GraphTest in contrast to a RuleTest
   class Test extends FlatSpec with Matchers {
 
-    class TesterTag extends Tag("org.clulab.wm.TestUtils")
+    class TesterTag extends Tag("TesterTag")
     
     object Nobody   extends TesterTag
     object Somebody extends TesterTag
@@ -34,7 +36,18 @@ object TestUtils {
     object Ben      extends TesterTag
     object Heather  extends TesterTag
     object Vikas    extends TesterTag
-    
+
+    class CategoryTag extends Tag("CategoryTag")
+
+    object Contraption extends CategoryTag // For testing of infrastructure/scaffolding
+    object Extraction  extends CategoryTag // For testing of rules
+
+    class LanguageTag extends Tag("LanguageTag")
+
+    object English    extends LanguageTag
+    object Portuguese extends LanguageTag
+    object Spanish    extends LanguageTag
+
     val passingTest = it
     val failingTest = ignore
     val brokenSyntaxTest = ignore
@@ -88,8 +101,10 @@ object TestUtils {
 
     def useTimeNorm = ieSystem.timenorm.isDefined
   }
-  
-  lazy val ieSystem = new EidosSystem()
+
+  val config = ConfigFactory.load("eidos")
+      .withValue("EidosSystem.language", ConfigValueFactory.fromAnyRef("portuguese", "Manually select for Portuguese."))
+  lazy val ieSystem = new EidosSystem(config)
 
   def extractMentions(text: String): Seq[Mention] = ieSystem.extractFromText(text, cagRelevantOnly = false).odinMentions
 }
