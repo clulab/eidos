@@ -142,11 +142,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
             // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
             (Paths.get(timeNormResource.toURI()).toFile(), false)
           else {
-            //val tmpFileName = cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/')
-            // Sometimes results in java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path after second call through this...
-            // Caused by: java.lang.UnsatisfiedLinkError: Native Library C:\Users\kwa\.javacpp\cache\hdf5-1.10.2-1.4.2-windows-x86_64.jar\org\bytedeco\javacpp\windows-x86_64\jnihdf5.dll already loaded in another classloader
-            val tmpFile = File.createTempFile(StringUtils.afterLast(timeNormModelPath, '/') + '-', "." + StringUtils.afterLast(timeNormModelPath, '.'))
-            //println(tmpFile.getAbsolutePath)
+            // If a single file is to be (re)used, then some careful synchronization needs to take place.
+            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
+            // Instead, make a new temporary file each time and delete it afterwards.
+            val tmpFile = File.createTempFile(
+              StringUtils.afterLast(timeNormModelPath, '/') + '-', // Help identify the file later.
+              "." + StringUtils.afterLast(timeNormModelPath, '.') // Keep extension for good measure.
+            )
 
             FileUtils.copyResourceToFile(timeNormModelPath, tmpFile)
             (tmpFile, true)
@@ -156,6 +158,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         if (!useTimeNorm) None
         else {
           val (timeNormFile, temporary) = getTimeNormFileAndTemporary()
+          // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
           val timeNorm = new TemporalCharbasedParser(timeNormFile.getAbsolutePath)
 
           if (temporary)

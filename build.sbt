@@ -40,6 +40,12 @@ libraryDependencies ++= {
   }
 }.value
 
+// This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
+// If it isn't here, sbt test can only be run once before it will fail with
+// java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
+// Caused by: java.lang.UnsatisfiedLinkError: Native Library jnihdf5.dll already loaded in another classloader
+fork := true
+
 //
 // publishing settings
 //
