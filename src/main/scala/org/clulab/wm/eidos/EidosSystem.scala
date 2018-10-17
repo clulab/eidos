@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos
 
+import java.io.File
 import java.net.URL
 import java.nio.file.Paths
 
@@ -132,18 +133,39 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology), wordToVec)).seq
           else Seq.empty
 
-      val timenorm: Option[TemporalCharbasedParser] =
-          if (!useTimeNorm) None
-          else {
-            val timeNormResource: URL = getClass.getResource(timeNormModelPath)
+      val timenorm: Option[TemporalCharbasedParser] = {
+
+        def getTimeNormFileAndTemporary(): (File, Boolean) = {
+          val timeNormResource: URL = EidosSystem.getClass.getResource(timeNormModelPath)
+
+          if (timeNormResource.getProtocol() == "file")
             // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
-            //val file = "./cache/english/timenorm_model.hdf5"
-            // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
-            //     public native void openFile(@StdString BytePointer var1, ...
-            // and needs native representation of the file.
-            Some(new TemporalCharbasedParser(file))
+            (Paths.get(timeNormResource.toURI()).toFile(), false)
+          else {
+            // If a single file is to be (re)used, then some careful synchronization needs to take place.
+            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
+            // Instead, make a new temporary file each time and delete it afterwards.
+            val tmpFile = File.createTempFile(
+              StringUtils.afterLast(timeNormModelPath, '/') + '-', // Help identify the file later.
+              "." + StringUtils.afterLast(timeNormModelPath, '.') // Keep extension for good measure.
+            )
+
+            FileUtils.copyResourceToFile(timeNormModelPath, tmpFile)
+            (tmpFile, true)
           }
+        }
+
+        if (!useTimeNorm) None
+        else {
+          val (timeNormFile, temporary) = getTimeNormFileAndTemporary()
+          // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
+          val timeNorm = new TemporalCharbasedParser(timeNormFile.getAbsolutePath)
+
+          if (temporary)
+            timeNormFile.delete()
+          Some(timeNorm)
+        }
+      }
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
