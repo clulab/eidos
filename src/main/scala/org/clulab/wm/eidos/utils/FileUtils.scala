@@ -88,9 +88,9 @@ object FileUtils {
     pw.println(stringify(mentionsJSONLD, pretty = true))
   }
 
-  def copyResourceToFile(src: String, dest: String): Unit = {
-    val os: OutputStream = new FileOutputStream(new File(dest))
-    val is: InputStream = FileUtils.getClass().getResourceAsStream(src)
+  def copyResourceToFile(src: String, dest: File): Unit = {
+    val os: OutputStream = new FileOutputStream(dest)
+    val is: InputStream = FileUtils.getClass.getResourceAsStream(src)
 
     var buf = new Array[Byte](8192)
     var continue = true

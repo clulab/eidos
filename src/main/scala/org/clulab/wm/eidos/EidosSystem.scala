@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos
 
+import java.io.File
 import java.net.URL
 import java.nio.file.Paths
 
@@ -134,22 +135,33 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
       val timenorm: Option[TemporalCharbasedParser] = {
 
-        def getFileName(): String = {
-          val timeNormResource: URL = getClass.getResource(timeNormModelPath)
+        def getTimeNormFileAndTemporary(): (File, Boolean) = {
+          val timeNormResource: URL = EidosSystem.getClass.getResource(timeNormModelPath)
 
           if (timeNormResource.getProtocol() == "file")
             // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+            (Paths.get(timeNormResource.toURI()).toFile(), false)
           else {
-            val tmpFileName = cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp"
+            //val tmpFileName = cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/')
+            // Sometimes results in java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path after second call through this...
+            // Caused by: java.lang.UnsatisfiedLinkError: Native Library C:\Users\kwa\.javacpp\cache\hdf5-1.10.2-1.4.2-windows-x86_64.jar\org\bytedeco\javacpp\windows-x86_64\jnihdf5.dll already loaded in another classloader
+            val tmpFile = File.createTempFile(StringUtils.afterLast(timeNormModelPath, '/') + '-', "." + StringUtils.afterLast(timeNormModelPath, '.'))
+            //println(tmpFile.getAbsolutePath)
 
-            FileUtils.copyResourceToFile(timeNormModelPath, tmpFileName)
-            tmpFileName
+            FileUtils.copyResourceToFile(timeNormModelPath, tmpFile)
+            (tmpFile, true)
           }
         }
 
         if (!useTimeNorm) None
-        else Some(new TemporalCharbasedParser(getFileName()))
+        else {
+          val (timeNormFile, temporary) = getTimeNormFileAndTemporary()
+          val timeNorm = new TemporalCharbasedParser(timeNormFile.getAbsolutePath)
+
+          if (temporary)
+            timeNormFile.delete()
+          Some(timeNorm)
+        }
       }
 
       new LoadableAttributes(
