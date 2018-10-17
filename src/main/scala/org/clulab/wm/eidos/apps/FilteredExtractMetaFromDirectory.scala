@@ -18,6 +18,20 @@ object FilteredExtractMetaFromDirectory extends App {
   val outputDir = args(1)
   val metaDir = args(2)
 
+  def before(string: String, index: Int, all: Boolean): String = {
+    if (index < 0)
+      if (all) string
+      else ""
+    else string.substring(0, index)
+  }
+
+  def beforeLast(string: String, char: Char, all: Boolean = true): String =
+    before(string, string.lastIndexOf(char), all)
+
+  def beforeFirst(string: String, char: Char, all: Boolean = true): String =
+    before(string, string.indexOf(char), all)
+
+
   def afterLast(string: String, char: Char, all: Boolean = true): String = {
     val index = string.lastIndexOf(char)
 
@@ -25,15 +39,6 @@ object FilteredExtractMetaFromDirectory extends App {
       if (all) string
       else ""
     else string.substring(index + 1)
-  }
-
-  def beforeFirst(string: String, char: Char, all: Boolean = true): String = {
-    val index = string.indexOf(char)
-
-    if (index < 0)
-      if (all) string
-      else ""
-    else string.substring(0, index)
   }
 
   def getMetaValue(json: JValue, name: String): Option[String] = {
@@ -63,12 +68,25 @@ object FilteredExtractMetaFromDirectory extends App {
   }
 
   def reformat(documentCreationTime: Option[String]): Option[String] =
-      documentCreationTime.map(dct => dct.substring(0, 4) + "-" + dct.substring(4, 6) + "-" + dct.substring(6, 8))
+    documentCreationTime.map(dct => dct.substring(0, 4) + "-" + dct.substring(4, 6) + "-" + dct.substring(6, 8))
 
-  def getMetaData(metaDir: String, textFile: File): Option[JValue] = {
+
+  def convertTextToMeta17k(metaDir: String, textFile: File): File = {
     val textFileName = textFile.getName()
     val metaFileName = metaDir + "/" + beforeFirst(afterLast(textFileName, '_'), '.') + ".json"
-    val file = new File(metaFileName)
+
+    new File(metaFileName)
+  }
+
+  def convertTextToMeta52(metaDir: String, textFile: File): File = {
+    val textFileName = textFile.getName()
+    val metaFileName = metaDir + "/" + beforeLast(textFileName, '.') + ".json"
+
+    new File(metaFileName)
+  }
+
+  def getMetaData(metaDir: String, textFile: File): Option[JValue] = {
+    val file = convertTextToMeta17k(metaDir, textFile)
     val json = if (file.exists()) {
       val text = FileUtils.getTextFromFile(file)
       val json = parse(text)
@@ -93,40 +111,40 @@ object FilteredExtractMetaFromDirectory extends App {
     val documentCreationTime = json.flatMap { json =>
       val goodDate: Option[String] = getMetaValue(json, "creation date")
       val betterDate: Option[String] =
-          if (goodDate.isDefined) goodDate
-          else getMetaValue(json, "publicationDate")
+        if (goodDate.isDefined) goodDate
+        else getMetaValue(json, "publicationDate")
       val bestDate: Option[String] =
-          if (betterDate.isDefined) {
-            val date = betterDate.get
+        if (betterDate.isDefined) {
+          val date = betterDate.get
 
-            if (date.size >= 10 && date.take(2) == "D:") {
-              val dateOnly: Option[String] = Some(date.drop(2).take(8))
+          if (date.size >= 10 && date.take(2) == "D:") {
+            val dateOnly: Option[String] = Some(date.drop(2).take(8))
 
-              reformat(sanitize(dateOnly))
-            } // + "T" + date.drop(10))
-            else Some(date)
-  //          else if (date.size == 4 && date.forall(c => '0' <= c && c <= '9')) Some(date + "0101")
-  //          else None
-          }
-          else
-            betterDate
+            reformat(sanitize(dateOnly))
+          } // + "T" + date.drop(10))
+          else Some(date)
+          //          else if (date.size == 4 && date.forall(c => '0' <= c && c <= '9')) Some(date + "0101")
+          //          else None
+        }
+        else
+          betterDate
       bestDate
     }
     documentCreationTime.map(_ + ".")
   }
 
   val intervals = Seq(
-        (0,     0),
-        (1,   999),
-     (1000,  1999),
-     (2000,  2999),
-     (3000,  3999),
-     (4000,  4999),
-     (5000,  5999),
-     (6000,  6999),
-     (7000,  7999),
-     (8000,  8999),
-     (9000,  9999),
+    (0,     0),
+    (1,   999),
+    (1000,  1999),
+    (2000,  2999),
+    (3000,  3999),
+    (4000,  4999),
+    (5000,  5999),
+    (6000,  6999),
+    (7000,  7999),
+    (8000,  8999),
+    (9000,  9999),
     (10000, 10999),
     (11000, 11999),
     (12000, 12999),
@@ -159,7 +177,8 @@ object FilteredExtractMetaFromDirectory extends App {
     (85000, 89999),
 
     (90000, 94999),
-    (95000, 99999)
+    (95000, 99999),
+    (100000, 200000)
   )
 
   val files = findFiles(inputDir, "txt")
@@ -175,7 +194,7 @@ object FilteredExtractMetaFromDirectory extends App {
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
     // For each file in the input directory:
-    files.filter(filter).foreach { file =>
+    files.filter(filter).par.foreach { file =>
       var pw: PrintWriter = null
 
       try {
