@@ -20,12 +20,19 @@ object ExtractFromDirectory extends App {
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
-    val annotatedDocuments = Seq(reader.extractFromText(text))
-    // 4. Convert to JSON
-    val corpus = new JLDCorpus(annotatedDocuments, reader)
-    val mentionsJSONLD = corpus.serialize()
-    // 5. Write to output file
-    pw.println(stringify(mentionsJSONLD, pretty = true))
+    try {
+      val annotatedDocuments = Seq(reader.extractFromText(text))
+      // 4. Convert to JSON
+      val corpus = new JLDCorpus(annotatedDocuments, reader)
+      val mentionsJSONLD = corpus.serialize()
+      // 5. Write to output file
+      pw.println(stringify(mentionsJSONLD, pretty = true))
+    }
+    catch {
+      case e: Exception =>
+        println("Could not process " + file.getName())
+        println(e.printStackTrace())
+    }
     pw.close()
   }
 }
