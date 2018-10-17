@@ -15,7 +15,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 @SerialVersionUID(1000L)
-class OntologyNode(var nodeName: String, var parent: OntologyBranchNode) extends Serializable {
+class OntologyNode(val nodeName: String, val parent: OntologyBranchNode) extends Serializable {
 
   // There can already be a / in any of the stages of the route that must be escaped.
   // First, double up any existing backslashes, then escape the forward slashes with backslashes.
