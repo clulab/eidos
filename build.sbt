@@ -30,18 +30,15 @@ libraryDependencies ++= {
   )
 }
 
-val minorVersionRegex = "\\d+\\.(\\d+).*".r
 libraryDependencies ++= {
-  scalaVersion { sv =>
-    sv match {
-      case minorVersionRegex(minor) if minor.toInt == 11 => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.15_2.11.11" exclude("org.slf4j", "slf4j-log4j12"))
-      case _ => Seq("com.github.clulab" % "timenorm" % "timenorm-0.9.6.15" exclude("org.slf4j", "slf4j-log4j12"))
-    }
-  }
-}.value
+  val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
+  val timenorm = "timenorm-0.9.6.15" + (if (minor == 11) "_2.11.11" else "")
+
+  Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
+}
 
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
-// If it isn't here, sbt test can only be run once before it will fail with
+// If it isn't here, sbt test can seemingly only be run once before it will fail with
 // java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
 // Caused by: java.lang.UnsatisfiedLinkError: Native Library jnihdf5.dll already loaded in another classloader
 fork := true
