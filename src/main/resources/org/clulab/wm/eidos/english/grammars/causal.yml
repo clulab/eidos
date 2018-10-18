@@ -149,6 +149,33 @@ rules:
       cause: Entity = /${agents}/
 
 
+  - name: becauseOfSyntax1-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "Because of the increase in conflict, many families do not have food. "
+    pattern: |
+      trigger = [lemma="because"]
+      cause: Entity = <case /${preps}|${noun_modifiers}/{,2}
+      effect: Entity =
+        (<case <nmod_because_of (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
+          |
+        (<case <nmod_because_of)
+
+  - name: becauseSyntax2-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "Many families do not have food because the conflict has worsened."
+              #There is increased migration because the conflict has worsened.
+    pattern: |
+      trigger = [lemma="because"]
+      cause: Entity = <mark /${agents}|${preps}|${noun_modifiers}/{,2}
+      effect: Entity =
+        (<mark <advcl_because (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
+          |
+        (<mark <advcl_because)
+
 # ------------------- Explicitly Causal REACH --------------------------
 
   #We may need a better verb than "mediated" and "activation" here

@@ -92,8 +92,11 @@ class NegationHandler(val language: String) {
 
     val negations = new ArrayBuffer[Mention]
 
+    // Get the token interval of the event, but exclude the intervals of the arguments
+    val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
     for {
       tok <- event.tokenInterval
+      if !argumentIntervals.exists(_.contains(tok))
       out <- outgoing.lift(tok)
       (ix, label) <- out
       if label == "neg"
@@ -118,9 +121,12 @@ class NegationHandler(val language: String) {
                                    previouslyFound: Set[Int]
                                  ): Seq[Mention] = {
 
+    // Get the token interval of the event, but exclude the intervals of the arguments
+    val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
     // Check for single-token negative verbs
     for {
-      (ix, lemma) <- (leftContext ++ rightContext)
+      (ix, lemma) <- leftContext ++ rightContext
+      if !argumentIntervals.exists(_.contains(ix))
       if (Seq("fail", "not") contains lemma) && !(previouslyFound contains ix)
     } yield new TextBoundMention(
       Seq("Negation_trigger"),
@@ -146,6 +152,9 @@ class NegationHandler(val language: String) {
       )
     }
 
+    // Get the token interval of the event, but exclude the intervals of the arguments
+    val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
+
     val verbs = Seq(("play", "no"), ("play", "little"), ("is", "not"), ("be", "insufficient"))
     // Introduce bigrams for two-token verbs in both sides of the trigger
     for {
@@ -154,6 +163,8 @@ class NegationHandler(val language: String) {
       bigrams = (side zip side.slice(1, side.length)) map (x => flattenTuples(x._1, x._2))
 
       (interval, bigram) <- bigrams
+
+      if !argumentIntervals.exists(_.contains(interval._1)) && !argumentIntervals.exists(_.contains(interval._2))
 
       if (verbs contains bigram) && (previouslyFound intersect (interval._1 to interval._2 + 1).toSet).isEmpty
 
