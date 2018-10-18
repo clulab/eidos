@@ -144,7 +144,7 @@ rules:
     action: ${ action }
     example: "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
     pattern: |
-      trigger = [word=/(?i)^(continue|critical|necessary|needed|required)/] (?=[word=to])
+      trigger = [word=/(?i)^(critical|necessary|needed|required)/] (?=[word=to])
       effect: Entity = xcomp [tag=/^V/] /${preps}/{,2}
       cause: Entity = /${agents}/
 
