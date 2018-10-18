@@ -91,7 +91,7 @@ than in the corresponding period two years earlier.
 
   // Test canonicalFormSimple and canonicalFormArgs
   it should "properly make canonical form" in {
-    val text3 = "The seasonal rainfall in July was decreased by the government policy."
+    val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = TestUtils.extractMentions(text3)
     val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, new Canonicalizer(this), this)
 
@@ -104,6 +104,11 @@ than in the corresponding period two years earlier.
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
     decrease.head.canonicalName should be ("rainfall decrease government")
+
+    // Since we filter out the text from attachments, "price" should be removed (Property attachment)
+    val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")
+    oil should have size(1)
+    oil.head.canonicalName should be ("oil")
 
   }
 
