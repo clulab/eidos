@@ -1,13 +1,15 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
+import CAG._
+
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
-import org.clulab.wm.eidos.text.cag.CAG._
 
-class TestCagP1 extends Test {
+
+class TestCagP1 extends EnglishTest {
   
   { // S1
-    val tester = new Tester(p1s1)
+    val tester = new GraphTester(p1s1)
   
     val foodInsecurityLevels = NodeSpec("Food insecurity levels", Quant("extremely alarming")) //fixme: add extra mods
     val conflict = NodeSpec("conflict")
@@ -36,7 +38,7 @@ class TestCagP1 extends Test {
   }
 
   { // S2
-    val tester = new Tester(p1s2)
+    val tester = new GraphTester(p1s2)
   
     val households = NodeSpec("households", Inc("doubled"))
     val foodConsumption = NodeSpec("food consumption", Dec("poor"), Quant("poor"))
@@ -52,7 +54,7 @@ class TestCagP1 extends Test {
   }
 
   { // S3
-    val tester = new Tester(p1s3)
+    val tester = new GraphTester(p1s3)
   
     val rainfall = NodeSpec("Rainfall", Dec("deficits"))
     val shock = NodeSpec("shock", Quant("major"))
@@ -77,7 +79,7 @@ class TestCagP1 extends Test {
   }
 
   { // S4
-    val tester = new Tester(p1s4)
+    val tester = new GraphTester(p1s4)
   
     val rainfall = NodeSpec("rainfall", Dec("depressed"))
 

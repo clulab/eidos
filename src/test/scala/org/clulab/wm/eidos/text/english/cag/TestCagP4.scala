@@ -1,19 +1,14 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import CAG._
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.Causal
-import org.scalactic.source.Position.apply
 
-class TestCagP4 extends Test {
+class TestCagP4 extends EnglishTest {
   
   { // S1
-    val tester = new Tester(p4s1)
+    val tester = new GraphTester(p4s1)
   
     val cost = NodeSpec("rising cost of living", Inc("rising"))
     val impact = NodeSpec("impact of the conflict")
@@ -32,13 +27,13 @@ class TestCagP4 extends Test {
   }
   
   { // S2
-    val tester = new Tester(p4s2)
+    val tester = new GraphTester(p4s2)
   
     behavior of "p4s2"
   }
   
   { // S3
-    val tester = new Tester(p4s3)
+    val tester = new GraphTester(p4s3)
     // water trucking has decreased due to the cost of fuel
     val cost     = NodeSpec("cost of fuel")
     val trucking = NodeSpec("water trucking", Dec("decreased"))
@@ -51,7 +46,7 @@ class TestCagP4 extends Test {
   }
   
   { // S4
-    val tester = new Tester(p4s4)
+    val tester = new GraphTester(p4s4)
 
     val insecurity = NodeSpec("insecurity")
     val expertise  = NodeSpec("lack of technical expertise and supplies", Dec("lack"))

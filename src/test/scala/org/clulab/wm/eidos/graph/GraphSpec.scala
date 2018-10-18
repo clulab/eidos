@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.text
+package org.clulab.wm.eidos.graph
 
 import scala.collection.Seq
 import org.clulab.odin.Attachment

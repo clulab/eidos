@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.test.TestUtils._
 
-class TestEntityFinder extends Test {
+class TestEntityFinder extends ExtractionTest {
 
   "rainfall entity" should "have leading preposition trimmed" in {
     val text = "The decrease in rainfall was a problem."

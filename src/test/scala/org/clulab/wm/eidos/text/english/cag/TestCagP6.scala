@@ -1,20 +1,14 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import CAG._
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Quant
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.Causal
-import org.scalactic.source.Position.apply
 
-class TestCagP6 extends Test {
+class TestCagP6 extends EnglishTest {
   
   { // S1
-    val tester = new Tester(p6s1)
+    val tester = new GraphTester(p6s1)
 
     val insecurity    = NodeSpec("Persistent insecurity", Quant("Persistent"))
     val conflict      = NodeSpec("armed conflict")
@@ -47,7 +41,7 @@ class TestCagP6 extends Test {
   }
   
   { // S2
-    val tester = new Tester(p6s2)
+    val tester = new GraphTester(p6s2)
 
    val insecurity   = NodeSpec("levels of food insecurity", Inc("high"), Quant("high", "unprecedented"))
     // until we modify the system to (a) not suck up adjectives in the NPs and (b) store adjs as mods on NPs, the test
@@ -94,7 +88,7 @@ class TestCagP6 extends Test {
   }
 
   { // S3
-    val tester = new Tester(p6s3)
+    val tester = new GraphTester(p6s3)
 
     val consumption  = NodeSpec("consumption of household production")
     val malnutrition = NodeSpec("levels of acute malnutrition", Inc("improvements", "marginal"))

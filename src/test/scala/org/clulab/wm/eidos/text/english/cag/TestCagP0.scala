@@ -1,18 +1,15 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import CAG._
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{Causal, Correlation, SameAs}
-import org.clulab.wm.eidos.text.{AntiEdgeSpec, AntiNodeSpec}
-import org.clulab.wm.eidos.text.{EdgeSpec, NodeSpec}
-import org.clulab.wm.eidos.text.{Dec, Inc, Quant}
 
-class TestCagP0 extends Test {
+class TestCagP0 extends EnglishTest {
 
   {
     val s1 = "The decrease in rainfall caused significantly increased poverty."
-    val tester = new Tester(s1)
+    val tester = new GraphTester(s1)
     
     behavior of "a sentence with a 1:1 edge"
     
@@ -27,7 +24,7 @@ class TestCagP0 extends Test {
   
   {
     val s2 = "The decrease in rainfall caused significantly increased poverty and decreased humidity."
-    val tester = new Tester(s2)
+    val tester = new GraphTester(s2)
     
     behavior of "a sentence with a 1:2 edge"
     
@@ -46,7 +43,7 @@ class TestCagP0 extends Test {
   
   {
     val s1 = "The decrease in rainfall caused significantly increased poverty."
-    val tester = new Tester(s1)
+    val tester = new GraphTester(s1)
     
     behavior of "a sentence with anti nodes and edges"
     
@@ -91,7 +88,7 @@ class TestCagP0 extends Test {
 
   {
     val s3 = "Worsening food security trends linked to continued conflict have been compounded by market failure, internal displacement and decreasing humanitarian access."
-    val tester = new Tester(s3)
+    val tester = new GraphTester(s3)
 
     behavior of "a correlation edge"
 
@@ -129,7 +126,7 @@ class TestCagP0 extends Test {
   {
     val text = "X caused record high above-average rainfall"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val x = NodeSpec("X")
     val rainfall1 = NodeSpec("record high above-average rainfall", Quant("above-average", "record", "high"), Inc("high"), Inc("above-average"), Inc("above-average"))

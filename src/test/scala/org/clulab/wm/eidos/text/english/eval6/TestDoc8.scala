@@ -1,18 +1,12 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Causal
-import org.clulab.wm.eidos.text.Correlation
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Quant
+import org.clulab.wm.eidos.graph._
 
 // Document: i8533en.pdf
 // Unit test designer: Adarsh
 
-class TestDoc8 extends Test {
+class TestDoc8 extends EnglishTest {
   
   { // Paragraph 1
     val text = """
@@ -21,7 +15,7 @@ class TestDoc8 extends Test {
       among the most vulnerable communities, protect their livelihoods and build
       their resilience, while increasing self-sufficiency.
       """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
   
     val famine = NodeSpec("risk of famine", Quant("elevated"))
     val foodSecurity = NodeSpec("food security", Dec("worsen"))
@@ -53,7 +47,7 @@ class TestDoc8 extends Test {
       main planting and dry seasons to improve the food security of vulnerable
       urban and rural populations and reduce the food gap.
       """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
   
     val emergencySupport = NodeSpec("emergency support to protect and rebuild livelihoods during the main planting and dry seasons", Inc("Provide"))
     val foodSecurity = NodeSpec("food security of vulnerable urban and rural populations", Inc("improve"), Quant("vulnerable"))
@@ -73,7 +67,7 @@ class TestDoc8 extends Test {
       Strengthen the collection, analysis and coordination of food security and
       agriculture information.
       """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
   
     val agricultureInformation = NodeSpec("agriculture information")
     
@@ -92,7 +86,7 @@ class TestDoc8 extends Test {
       humanitarian access. To save lives in the coming year, the most vulnerable
       households need support to produce nutritious food for consumption and sale.
       """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
   
     val foodSecurityTrends = NodeSpec("Worsening food security trends", Dec("Worsening"), Inc("compounded"))
     val conflict = NodeSpec("continued conflict")
@@ -131,7 +125,7 @@ class TestDoc8 extends Test {
       the lean season is expected to start three months earlier than normal.
       Malnutrition levels remain well above emergency thresholds in some areas.
       """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
   
     val humanitarianResponse = NodeSpec("Humanitarian response")
     val famineContainment = NodeSpec("famine", Dec("containing"))
@@ -200,7 +194,7 @@ class TestDoc8 extends Test {
       Supporting local food production will remain critical to preventing
       further deterioration of the food security situation in 2018.
       """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
   
     val persistentInsecurity = NodeSpec("Persistent insecurity", Quant("Persistent"))
     val massiveDisplacement  = NodeSpec("massive displacement", Quant("massive"))

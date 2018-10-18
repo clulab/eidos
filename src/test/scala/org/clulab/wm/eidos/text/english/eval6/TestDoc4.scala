@@ -1,14 +1,9 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{Causal, Correlation, IsA}
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Quant
+import org.clulab.wm.eidos.graph._
 
-class TestDoc4 extends Test {
+class TestDoc4 extends EnglishTest {
   
   { // Paragraph 1
     val text = """
@@ -22,7 +17,7 @@ assistance operations and the two counties are currently classified
 as IPC Phase 4: "Emergency".
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Sentence 1
     val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"))
@@ -65,7 +60,7 @@ Ayod County in Greater Jonglei State and in Leer, Koch and Mayendit
 counties in Unity State.
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Sentence 1
     val caseload = NodeSpec("food insecure caseload", Inc("increased"))
@@ -143,7 +138,7 @@ in neighbouring countries (Uganda, the Sudan, the Democratic
 Republic of the Congo, Ethiopia and Kenya).
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val flee = NodeSpec("flee their homes") // forced to is Transparent Link?
     val insecurity = NodeSpec("insecurity")
@@ -174,7 +169,7 @@ seasonal rains have been average to above average, thus
 benefiting vegetation conditions.
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Sentence 1
     val harvesting = NodeSpec("harvesting", Dec("concluded"))
@@ -227,7 +222,7 @@ of the population of the former Central Equatoria State has
 reportedly left their living areas.
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Sentence 1
     val prospects = NodeSpec("prospects for 2017 aggregate cereal production", Quant("unfavourable", "generally"))
@@ -278,7 +273,7 @@ parts of former Northern Bahr el Ghazal, Eastern Equatoria and
 Central Equatoria states.
       """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val infestations = NodeSpec("Fall Armyworm infestations")
     val regions = NodeSpec("regions of the country", Quant("all"))
@@ -313,7 +308,7 @@ twice the high levels in August last year and up to 12 times higher
 than in the corresponding period two years earlier.
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Sentence 1
     val prices = NodeSpec("prices of maize and sorghum", Inc("doubled", "more than"))

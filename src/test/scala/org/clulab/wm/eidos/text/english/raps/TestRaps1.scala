@@ -1,14 +1,14 @@
-package org.clulab.wm.eidos.text.raps
+package org.clulab.wm.eidos.text.english.raps
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
+import org.clulab.wm.eidos.graph._
 
 
-class TestRaps1 extends Test {
+class TestRaps1 extends EnglishTest {
 
   { //3 Increase
     val sent20 = "Hence, government liberalizes imports of food grains, invests in food chain logistics, and boost research and development for new crop cultivars to boost agricultural production for ensuring food security."
-    val tester = new Tester(sent20)
+    val tester = new GraphTester(sent20)
 
     val research = NodeSpec("research", Inc("boost"))
     val dev = NodeSpec("development", Inc("boost"))
@@ -37,7 +37,7 @@ class TestRaps1 extends Test {
       "government subsidy on fertilizers, improved economic performance expected to cause a shift from agriculture to service industry, " +
       "government plans for massive expansion of irrigation (irrigate 1 million ha.), newly devolved county governments etc. are some of the developments " +
       "expected to change agriculture development in the country."
-    val tester = new Tester(sent21)
+    val tester = new GraphTester(sent21)
 
     val population = NodeSpec("combination of increasing population", Inc("increasing"))
     val econ = NodeSpec("economic performance", Inc("improved"))
@@ -58,7 +58,7 @@ class TestRaps1 extends Test {
 
   {
     val sent22 = "Along with the support programs such as agricultural insurance and input subsidies, the government efforts and investments will be increased for extending irrigation services, agricultural mechanization, and developing disaster risk-management practices."
-    val tester = new Tester(sent22)
+    val tester = new GraphTester(sent22)
 
     val gov = NodeSpec("government efforts", Inc("increased"))
     val investments = NodeSpec("investments", Inc("increased"))
@@ -77,7 +77,7 @@ class TestRaps1 extends Test {
 
   {
     val sent23 = "The transformation however starts under extremely difficult conditions, characterized by large account deficit and liquidity challenges and limited direct foreign investment due to lack of clarity on investment security and high interest rates."
-    val tester = new Tester(sent23)
+    val tester = new GraphTester(sent23)
 
     val account = NodeSpec("large account deficit", Dec("deficit", "large"), Quant("large"))
     val invest = NodeSpec("limited direct foreign investment", Dec("limited"))
@@ -109,7 +109,7 @@ class TestRaps1 extends Test {
 
   { //TODO: does "adversely" affect mean a decrease?
     val sent24 = "Global trends suggest that rice wheat production in the region will be adversely affected by climate change."
-    val tester = new Tester(sent24)
+    val tester = new GraphTester(sent24)
 
     val wheat = NodeSpec("rice wheat production in the region")
     val climate = NodeSpec("climate")
@@ -124,7 +124,7 @@ class TestRaps1 extends Test {
 
   {
     val sent25 = "With a high cost of production and degraded natural resources, profitability in agriculture may be further reduced, making agriculture unprofitable."
-    val tester = new Tester(sent25)
+    val tester = new GraphTester(sent25)
 
     val cost = NodeSpec("cost of production", Quant("high"), Inc("high"))
     val resources = NodeSpec("natural resources", Dec("degraded"))
@@ -147,7 +147,7 @@ class TestRaps1 extends Test {
 
   {
     val sent26 = "Labor migration to urban areas, non agricultural activities and impact of HIV/AIDS also leads to labor shortages."
-    val tester = new Tester(sent26)
+    val tester = new GraphTester(sent26)
 
     val migration = NodeSpec("Labor migration to urban areas")
     val activities = NodeSpec("non agricultural activities")
@@ -171,7 +171,7 @@ class TestRaps1 extends Test {
 
   {
     val sent27 = "Agricultural production and profitability are declining, land is degrading and being underutilized."
-    val tester = new Tester(sent27)
+    val tester = new GraphTester(sent27)
 
     val prod = NodeSpec("Agricultural production", Dec("declining"))
     val profits = NodeSpec("profitability", Dec("declining"))
@@ -195,7 +195,7 @@ class TestRaps1 extends Test {
 
   {
     val sent28 = "Soil quality will decline by a small-to-medium extent, due to pollution, and intensive cultivation will be caused by a shrinking land base for agriculture."
-    val tester = new Tester(sent28)
+    val tester = new GraphTester(sent28)
 
     val soil = NodeSpec("Soil quality", Dec("decline", "small-to-medium"))
     val pollution = NodeSpec("pollution")
@@ -216,7 +216,7 @@ class TestRaps1 extends Test {
 
   {
     val sent29 = "Labor migration and HIV/AIDS result in labor shortage."
-    val tester = new Tester(sent29)
+    val tester = new GraphTester(sent29)
 
     val migration = NodeSpec("Labor migration")
     val hiv = NodeSpec("HIV/AIDS")
@@ -236,7 +236,7 @@ class TestRaps1 extends Test {
 
   {
     val sent30 = "Share of agriculture in overall economy will decrease with increase in inequality."
-    val tester = new Tester(sent30)
+    val tester = new GraphTester(sent30)
 
     val share = NodeSpec("Share of agriculture in overall economy", Dec("decrease"))
     val inequality = NodeSpec("inequality", Inc("increase"))
@@ -251,7 +251,7 @@ class TestRaps1 extends Test {
 
   {
     val sent31 = "The adoption process will be instigated due to the anticipated losses in agricultural productivity in the face of climatic uncertainties."
-    val tester = new Tester(sent31)
+    val tester = new GraphTester(sent31)
 
     val adoption = NodeSpec("adoption process")
     val losses = NodeSpec("anticipated losses")

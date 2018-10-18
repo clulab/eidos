@@ -1,9 +1,8 @@
 package org.clulab.wm.eidos.text
 
-import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.test.TestUtils._
 
-class TestUnicode extends Test {
+class TestUnicode extends ExtractionTest {
 
   // Some unicode characters are parsed unfavorably for Eidos and rules have been written to
   // deal them.  This tests that the rules are really working and should be expanded as more

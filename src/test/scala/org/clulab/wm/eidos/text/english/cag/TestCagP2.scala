@@ -1,20 +1,14 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import CAG._
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Quant
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.Causal
-import org.scalactic.source.Position.apply
 
-class TestCagP2 extends Test {
+class TestCagP2 extends EnglishTest {
   
   { // S1
-    val tester = new Tester(p2s1)
+    val tester = new GraphTester(p2s1)
 
     val economicCrisis = NodeSpec("South Sudan's economic crisis")
     val sudanesePound = NodeSpec("rapidly depreciating value of the South Sudanese Pound (SSP)", Dec("depreciating", "rapidly"))
@@ -40,7 +34,7 @@ class TestCagP2 extends Test {
 
   { // S2
     // Todo: Many causal links are not true (since hunger is a dobj of cause) because of a bad parse.
-    val tester = new Tester(p2s2)
+    val tester = new GraphTester(p2s2)
   
     val conflict = NodeSpec("Conflict")
     val insecurity = NodeSpec("insecurity")
@@ -73,7 +67,7 @@ class TestCagP2 extends Test {
   }
 
   { // S3
-    val tester = new Tester(p2s3)
+    val tester = new GraphTester(p2s3)
 
     val conflict = NodeSpec("Conflict")
     val economic = NodeSpec("economic decline", Dec("decline"))
@@ -97,7 +91,7 @@ class TestCagP2 extends Test {
   }
 
   { // S4
-    val tester = new Tester(p2s4)
+    val tester = new GraphTester(p2s4)
 
     val violence = NodeSpec("Violence")
     val livestock = NodeSpec("livestock to be looted") //todo: add more modifications when we have that functionality
@@ -119,7 +113,7 @@ class TestCagP2 extends Test {
   }
 
   { // S5
-    val tester = new Tester(p2s5)
+    val tester = new GraphTester(p2s5)
   
     val impactsLivestock = NodeSpec("impacts on livestock and crops")
     val impactsCrops = NodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?

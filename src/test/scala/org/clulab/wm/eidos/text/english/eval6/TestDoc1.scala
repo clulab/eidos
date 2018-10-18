@@ -1,9 +1,9 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
 
-class TestDoc1 extends Test {
+class TestDoc1 extends EnglishTest {
   // 130035 excerpt BG.pdf (BECKY)
   { // Paragraph 1
     val text = """
@@ -13,7 +13,7 @@ class TestDoc1 extends Test {
       |Since 2013 some borders have been reopened, but trade has been slow to recover.
       """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val trade1 = NodeSpec("Trade with Sudan", Dec("decreased", "significantly"))
     val trade2 = NodeSpec("Trade", Unmarked("mainly informal")) // todo: expand Unmarked() to handle quantifiers?
@@ -47,7 +47,7 @@ class TestDoc1 extends Test {
        |any marketable surplus.
        """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val futureWorkCrop = NodeSpec("crop cultivation", Unmarked("done on small farms"))
     val crop = NodeSpec("most crop cultivation", Quant("most"))
@@ -68,7 +68,7 @@ class TestDoc1 extends Test {
      |to support substantial crop agriculture (WFP 2011).
      """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val rainfall = NodeSpec("Rainfall in the Hills and Mountains region of the northern half of Central Equatoria",
       Quant("sufficient"))
@@ -93,7 +93,7 @@ class TestDoc1 extends Test {
      |services--all factors that could lead to further soil nutrient depletion (Kowr 2013).
      """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // TODO: for now we are tabling this conversation, but we will need to decide on representations at some point
     // we will perhaps handle them with canonicalForm
@@ -165,7 +165,7 @@ class TestDoc1 extends Test {
      |is difficult and expensive for subsistence farmers to transport surpluses to markets.
      """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val institutional = NodeSpec("Institutional", Dec("weakness"))
     val development = NodeSpec("development of the agriculture sector", Dec("hindered"))
@@ -223,7 +223,7 @@ class TestDoc1 extends Test {
      |for businesses to develop along the agriculture value chain.
      """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val business = NodeSpec("business practices", Dec("poor"), Quant("poor")) // or Unmarked("sufficient to support ...)
     val information = NodeSpec("information about market prices", Dec("lack"))

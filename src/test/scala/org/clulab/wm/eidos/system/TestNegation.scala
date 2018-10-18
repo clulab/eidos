@@ -5,7 +5,7 @@ import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.test.TestUtils._
 
 
-class TestNegation extends Test {
+class TestNegation extends ExtractionTest {
 
   def hasNegation(m: Mention): Boolean = m.attachments.exists(_.isInstanceOf[Negation])
 
