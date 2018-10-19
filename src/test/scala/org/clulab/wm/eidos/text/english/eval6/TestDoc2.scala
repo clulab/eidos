@@ -1,9 +1,9 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
 
-class TestDoc2 extends Test {
+class TestDoc2 extends EnglishTest {
 
   { // Paragraph 1
     val text = """
@@ -12,7 +12,7 @@ class TestDoc2 extends Test {
                  |hunger catastrophe continues to threaten parts of the country, three UN agencies warned
                  |today.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val food = NodeSpec("food", Dec("shortages", "severe"), Quant("severe"))
     val hunger = NodeSpec("hunger", Dec("catastrophe"))
@@ -37,7 +37,7 @@ class TestDoc2 extends Test {
                  |have depleted their food stocks and new harvests are not expected until August, the level of food
                  |insecurity this year is unprecedented.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val situation = NodeSpec("deteriorating situation", Dec("deteriorating"))
     val leanSeason = NodeSpec("unusually long and harsh annual lean season", Quant("harsh"))
@@ -67,7 +67,7 @@ class TestDoc2 extends Test {
                  |This is the highest level of hunger since the conflict in South
                  |Sudan began two-and-a-half years ago.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val hunger = NodeSpec("level of hunger", Quant("highest"))
 
@@ -84,7 +84,7 @@ class TestDoc2 extends Test {
                  |impassable roads and dysfunctional markets are preventing many families, even those in towns and
                  |cities, from accessing food," said FAO Country Representative Serge Tissot.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val prices = NodeSpec("prices", Inc("rising"))
     val roads = NodeSpec("impassable roads", Quant("impassable"))
@@ -116,7 +116,7 @@ class TestDoc2 extends Test {
     val text = """
                  |Food insecurity and conflict are also forcing many families to leave South Sudan for neighbouring countries.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val foodInsecurity = NodeSpec("Food insecurity")
     val conflict = NodeSpec("conflict")
@@ -140,7 +140,7 @@ class TestDoc2 extends Test {
                  |"The levels of malnutrition among children continue to be truly alarming," said Mahimbo Mdoe,
                  |UNICEF's Representative in South Sudan.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // removed 'truly' from this test and quantifiers.tsv bc it's not gradable
     // Starting with Processors 7.4.0 this is no longer "The levels of malnutrition".
@@ -159,7 +159,7 @@ class TestDoc2 extends Test {
                  |We have started ramping up food and nutrition support, but much more is needed to keep things
                  |from deteriorating even further during the lean season," said WFP Country Director Joyce Luma.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val food = NodeSpec("food", Inc("ramping up"), Inc("support"))
     val nutrition = NodeSpec("nutrition", Inc("ramping up"), Inc("support"))
@@ -181,7 +181,7 @@ class TestDoc2 extends Test {
                  |"We are now seeing sharp spikes of need in new areas, such as Eastern Equatoria or Western
                  |Bahr el-Ghazal, where malnutrition rates in some places are reaching dangerous levels.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val need = NodeSpec("need in new areas", Inc("spikes", "sharp"))
     val malnutrition = NodeSpec("malnutrition rates in some places", Quant("dangerous")) // TODO: must decide what to do with "levels"
@@ -203,7 +203,7 @@ class TestDoc2 extends Test {
                  |The dramatic rise in malnutrition rates, means that in the first four months of the year UNICEF
                  |has already treated 45 per cent of its planned 2016 caseload of 166,000 children.
                """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val malnutrition = NodeSpec("malnutrition rates", Inc("rise", "dramatic"))
 

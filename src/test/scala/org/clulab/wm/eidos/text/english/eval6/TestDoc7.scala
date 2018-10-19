@@ -1,16 +1,9 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Causal
-import org.clulab.wm.eidos.text.Correlation
-import org.clulab.wm.eidos.text.IsA
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Quant
+import org.clulab.wm.eidos.graph._
 
-class TestDoc7 extends Test {
+class TestDoc7 extends EnglishTest {
   
   // Filename: FFP Fact Sheet_South Sudan_2018.01.17 BG.pdf
   // Unit test designer: Adarsh
@@ -25,7 +18,7 @@ class TestDoc7 extends Test {
       2017 the most food-insecure year in South Sudan's history.
       """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val conflict = NodeSpec("nearly four years of civil conflict")
     val food = NodeSpec("food", Quant("scarce", "most"))
@@ -56,7 +49,7 @@ class TestDoc7 extends Test {
       population--facing Crisis (IPC 3) or worse levels of acute food insecurity.*
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val foodAvailability = NodeSpec("food availability",
                                     Inc("improvements", "slight"))
@@ -87,7 +80,7 @@ class TestDoc7 extends Test {
       death are evident
       """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val conflict = NodeSpec("conflict", Quant("ongoing"))
     val foodInsecurity = NodeSpec("levels of acute food insecurity")
@@ -119,7 +112,7 @@ class TestDoc7 extends Test {
       impede humanitarian access to vulnerable populations.
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val refugees = NodeSpec("2.4 million refugees", Quant("approximately"))
     val insecurity = NodeSpec("Widespread insecurity", Inc("Widespread"))
@@ -160,7 +153,7 @@ class TestDoc7 extends Test {
       month, on average.
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val humanitarianResponse = NodeSpec("humanitarian response",
                                         Quant("sustained", "unimpeded"))
@@ -184,7 +177,7 @@ class TestDoc7 extends Test {
 	  for farming households.
       """
   
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val foodAssistance = NodeSpec("emergency food assistance")
     val water = NodeSpec("access to safe drinking water", Inc("expand"))

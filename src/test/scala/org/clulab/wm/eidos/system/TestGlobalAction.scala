@@ -1,14 +1,14 @@
 package org.clulab.wm.eidos.system
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
 
-class TestGlobalAction extends Test {
+class TestGlobalAction extends EnglishTest {
   
   {
     val text = "Summer storms caused a reduction in rainfall deficits."
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
   
     val rainfall = NodeSpec("rainfall deficits", Dec("reduction"), Dec("deficits"))
 

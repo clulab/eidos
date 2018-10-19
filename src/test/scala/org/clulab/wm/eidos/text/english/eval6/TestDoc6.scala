@@ -1,9 +1,9 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
+import org.clulab.wm.eidos.graph._
 
-class TestDoc6 extends Test {
+class TestDoc6 extends EnglishTest {
   // FEWSNET South Sudan Outlook January 2018 BG.pdf
   { // Paragraph 1
     val text = """
@@ -18,7 +18,7 @@ class TestDoc6 extends Test {
      |unhindered delivery of humanitarian assistance.
       """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val stocks = NodeSpec("stocks", Dec("depleted"))
     val leanSeason = NodeSpec("lean season", Unmarked("started earlier"))
@@ -82,7 +82,7 @@ class TestDoc6 extends Test {
     val movement = NodeSpec("movement towards natural food sources", Dec("limiting"))
 
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     behavior of "TestDoc6 Paragraph 2"
 
@@ -128,7 +128,7 @@ class TestDoc6 extends Test {
     val armedGroups = NodeSpec("various armed groups", Inc("resurgence"))
     val cattleRaiding = NodeSpec("cattle raiding", Inc("uptick"))
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     behavior of "TestDoc6 Paragraph 3"
 
@@ -176,7 +176,7 @@ class TestDoc6 extends Test {
     val food = NodeSpec("food", Dec("lack", "extreme"))
     val needs = NodeSpec("basic needs", Dec("lack", "extreme"))
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     behavior of "TestDoc6 Paragraph 5"
     // We're no longer expanding singleton nodes

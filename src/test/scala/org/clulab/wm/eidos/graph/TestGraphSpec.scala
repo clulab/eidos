@@ -1,20 +1,6 @@
-package org.clulab.wm.eidos
+package org.clulab.wm.eidos.graph
 
 import org.clulab.wm.eidos.test.TestUtils._
-
-import org.clulab.wm.eidos.text.Affect
-import org.clulab.wm.eidos.text.NoEvent
-
-import org.clulab.wm.eidos.text.AntiEdgeSpec
-import org.clulab.wm.eidos.text.AntiNodeSpec
-
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.EdgeSpec
-
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.Quant
-import org.clulab.wm.eidos.text.Unmarked
 
 class TestGraphSpec extends Test {
   val rainfallNode = NodeSpec("in rainfall", Dec("decrease"))

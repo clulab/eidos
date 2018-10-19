@@ -1,9 +1,9 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
 
-class TestDoc3 extends Test {
+class TestDoc3 extends EnglishTest {
   // EA_Seasonal_Monitor_2017_08_11 (AJAY)
   { // Paragraph 1 (Highlighted)
     val text = """
@@ -13,7 +13,7 @@ class TestDoc3 extends Test {
         |the risk of flooding in many of the flood-prone areas.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val rainfall = NodeSpec("Rainfall", Quant("average"), Inc("above average"))
     val cropActivity = NodeSpec("cropping activities")
@@ -46,7 +46,7 @@ class TestDoc3 extends Test {
         |northern Uganda. The eastern Horn remained seasonally sunny and dry.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // To get "well above" as a single quantifier perhaps add it to Quantifier.tsv ?
     val rainfall = NodeSpec("rainfall", Inc("above", "well"), Quant("heavy", "persistently"), Quant("average", "well above"))
@@ -89,7 +89,7 @@ class TestDoc3 extends Test {
         |of the eastern Horn, western and central Tanzania, southern Uganda, and eastern
         |Equatoria in South Sudan.
         """
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // To get "above average" as a single quantifier perhaps add it to Quantifier.tsv ?
     val vegetation = NodeSpec("Vegetation conditions", Inc("above average"), Quant("average"))
@@ -125,7 +125,7 @@ class TestDoc3 extends Test {
         |confirmed significant infestations of Fall Armyworm.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val rainfall1 = NodeSpec("rainfall", Quant("average to above average"))
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Inc("favorable"), Quant("favorable"))
@@ -170,7 +170,7 @@ class TestDoc3 extends Test {
         |flood-prone areas, as is typical in August.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // To get "q1 to q2" as a quantifier, add rule to entityQuantification.yml
     val rainfall = NodeSpec("rainfall", Quant("Moderate to heavy"))
@@ -201,7 +201,7 @@ class TestDoc3 extends Test {
         |crop yields and poorer than usual crop production prospects.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val rainfall = NodeSpec("Rainfall", Dec("deficits"))
@@ -239,7 +239,7 @@ class TestDoc3 extends Test {
         |above-average rainfall is forecast over northern Ethiopia, which could help reduce recent rainfall deficits.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val rainfall = NodeSpec("seasonal rainfall", Inc("heavy"), Quant("moderate to heavy"))
@@ -270,7 +270,7 @@ class TestDoc3 extends Test {
         |normally starts in October.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val water = NodeSpec("water resources", Dec("decline"))
@@ -298,7 +298,7 @@ class TestDoc3 extends Test {
         |likely contribute to the potential for flooding and help erase rainfall deficits in some northern areas.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
 
@@ -340,7 +340,7 @@ class TestDoc3 extends Test {
         |Somalia have benefited from localized coastal rains for the past month.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val sunny = NodeSpec("sunny")
@@ -381,7 +381,7 @@ class TestDoc3 extends Test {
         |to be particularly poor.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val growSeason = NodeSpec("shortened length of the main growing season", Dec("shortened"))
@@ -435,7 +435,7 @@ class TestDoc3 extends Test {
         |rainfall during the next 1-2 weeks may delay harvesting and drying activities.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val rainfall = NodeSpec("rainfall", Quant("average to above average"))
@@ -495,7 +495,7 @@ class TestDoc3 extends Test {
         |and may help ease the current dry conditions in parts of western Darfur.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val rainfall = NodeSpec("seasonal rainfall", Inc("above average"), Quant("average"))
@@ -535,7 +535,7 @@ class TestDoc3 extends Test {
         |limited due to insecurity and lack of availability and/or access to farm inputs due to ongoing conflict.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val rainfall = NodeSpec("rainfall season", Inc("above"), Quant("above average"))
@@ -596,7 +596,7 @@ class TestDoc3 extends Test {
         |Similarly for eastern and central Uganda, where crop harvesting is also currently on-going.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val rainfall = NodeSpec("seasonal rains", Inc("intensification"))
@@ -637,7 +637,7 @@ class TestDoc3 extends Test {
         |The rest of eastern Horn is forecast to remain generally sunny and dry, as is seasonally normal.
         """
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     // Nodes here
     val rainfall = NodeSpec("rains", Quant("light to moderate"))

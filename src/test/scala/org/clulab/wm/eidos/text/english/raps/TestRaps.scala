@@ -1,15 +1,14 @@
-package org.clulab.wm.eidos.text.raps
+package org.clulab.wm.eidos.text.english.raps
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
+import org.clulab.wm.eidos.graph._
 
-
-class TestRaps extends Test {
+class TestRaps extends EnglishTest {
 
 
   { //One Increase attachments
     val sent1 = "Better and well-functioning agricultural credit and market services for both established and emerging farmers."
-    val tester = new Tester(sent1)
+    val tester = new GraphTester(sent1)
 
     val credit = NodeSpec("well-functioning agricultural credit", Inc("Better") )
 
@@ -26,7 +25,7 @@ class TestRaps extends Test {
     val sent2 = "The support for agricultural research, education, and extension programs will also be increased for developing and disseminating climate change adaptation agricultural technologies to the farmers."
     // Note: parse of sentence makes it "impossible" to extract increase for education and extension programs
     // Maybe a reason to switch to cluprocessor
-    val tester = new Tester(sent2)
+    val tester = new GraphTester(sent2)
 
     //ALL of these fail to be increase events
     val research = NodeSpec("agricultural research", Inc("increased"))
@@ -51,7 +50,7 @@ class TestRaps extends Test {
 
   { //3 Decrease, 2 Increase Attachments; 2 Causal Edges, 1 Origin Edge
     val sent3 = "Limited financial capacities and low education levels further restrict farmers' ability for higher benefits from increased agricultural production."
-    val tester = new Tester(sent3)
+    val tester = new GraphTester(sent3)
 
     val financial = NodeSpec("Limited financial capacities", Dec("Limited"))
     val ability = NodeSpec("farmers' ability for higher benefits from increased agricultural production", Dec("restrict"), Inc("higher"), Inc("increased"))
@@ -81,7 +80,7 @@ class TestRaps extends Test {
     val sent4 = "The government promotes improved cultivar and climate-smart technologies but the policy to cut down the use of inorganic fertilizer " +
       "and phase out the fertilizer subsidy results in deteriorating biophysical conditions, low use of inorganic fertilizer, less water, reduced farm sizes which lead to low benefit from the improved cultivar."
 
-    val tester = new Tester(sent4)
+    val tester = new GraphTester(sent4)
     //increase
     val cultivar1 = NodeSpec("improved cultivar", Inc("improved"), Inc("promotes"))
     val tech = NodeSpec("climate-smart technologies", Inc("improved"), Inc("promotes"))
@@ -158,7 +157,7 @@ class TestRaps extends Test {
 
   {//1 Increase
     val sent5 = "With increases in poverty levels people become more vulnerable to climate change and other risks."
-    val tester = new Tester(sent5)
+    val tester = new GraphTester(sent5)
 
     val poverty = NodeSpec("poverty levels", Inc("increases"))
 
@@ -172,7 +171,7 @@ class TestRaps extends Test {
 
   {//1 Increase
     val sent6 = "There will be a small increase in crop diversity due to the need to combat the climate and market risks as both of these might become more volatile in the future."
-    val tester = new Tester(sent6)
+    val tester = new GraphTester(sent6)
 
     val cropDiversity = NodeSpec("crop diversity", Inc("increase", "small"))
 
@@ -186,7 +185,7 @@ class TestRaps extends Test {
 
   {//1 Increase, 2 Decrease Attachments
     val sent7 = "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income."
-    val tester = new Tester(sent7)
+    val tester = new GraphTester(sent7)
 
     val poverty = NodeSpec("poverty", Dec("decline", "Significant"))
     val familySize = NodeSpec("family size", Dec("decrease"))
@@ -211,7 +210,7 @@ class TestRaps extends Test {
 
   {//1 Increase Attachment
     val sent8 = "Poverty levels continue to increase, people become more vulnerable to food insecurity and other risks."
-    val tester = new Tester(sent8)
+    val tester = new GraphTester(sent8)
 
     val poverty = NodeSpec("Poverty levels", Inc("increase"))
 
@@ -225,7 +224,7 @@ class TestRaps extends Test {
 
   {//1 Increase, 1 (maybe?) Causal
     val sent9 = "Government puts more emphasis on improving the agricultural water irrigation/management system to cope with drought conditions."
-    val tester = new Tester(sent9)
+    val tester = new GraphTester(sent9)
 
     val gov = NodeSpec("Government")
     val waterSystem = NodeSpec("agricultural water irrigation/management system", Inc("improving"))
@@ -242,7 +241,7 @@ class TestRaps extends Test {
   {//1 Inc, 1 Dec, 2 Causal
     // modified sentence to remove "drought-/" and add "a" after "with"
     val sent10 = "The government promotes high-yielding and flood-tolerant rice varieties with a policy to encourage the application of organic fertilizers, decreasing the cost on inorganic fertilizers."
-    val tester = new Tester(sent10)
+    val tester = new GraphTester(sent10)
 
     val gov = NodeSpec("government")
     val rice = NodeSpec("high-yielding and flood-tolerant rice varieties", Inc("promotes"))
@@ -265,7 +264,7 @@ class TestRaps extends Test {
 
   {//5-ish increase
   val sent11 = "Use of improved cultivars and mechanization will be increased and use of critical interventions may lead to increases in productivity and efficient use of resources."
-    val tester = new Tester(sent11)
+    val tester = new GraphTester(sent11)
 
     val use = NodeSpec("Use", Inc("increased"))
     val cultivars = NodeSpec("cultivars", Inc("improved"))
@@ -302,7 +301,7 @@ class TestRaps extends Test {
 
   { //2 Increase, 1 Causal
     val sent12 = "Therefore, the government is committed to supporting the agriculture sector through increased public investment to fulfill the needs of an increasing population."
-    val tester = new Tester(sent12)
+    val tester = new GraphTester(sent12)
 
     val gov = NodeSpec("government")
     val sector = NodeSpec("agriculture sector", Inc("supporting"))
@@ -329,7 +328,7 @@ class TestRaps extends Test {
     //No Inc or Dec attachments are captured here
     val sent13 = "Water quality and water availability for agriculture will decrease due to pollution of water bodies, and competition for water from other sources," +
       " but water-use efficiency in agriculture will increase due to technological progress."
-    val tester = new Tester(sent13)
+    val tester = new GraphTester(sent13)
 
     val waterQuality = NodeSpec("Water quality", Dec("decrease"))
     val waterAvail = NodeSpec("water availability for agriculture", Dec("decrease"))
@@ -365,7 +364,7 @@ class TestRaps extends Test {
 
   { //2 Increase Attachments
     val sent14 = "Farm size and wage rates will increase."
-    val tester = new Tester(sent14)
+    val tester = new GraphTester(sent14)
 
     val farmSize = NodeSpec("Farm size", Inc("increase"))
     val wageRates = NodeSpec("wage rates", Inc("increase"))
@@ -383,7 +382,7 @@ class TestRaps extends Test {
 
   {//2 Increase attachments; same issue as sent14 -- conjunction not captured
     val sent15 = "Mechanization and energy-use intensity in agriculture will increase."
-    val tester = new Tester(sent15)
+    val tester = new GraphTester(sent15)
 
     val mechanization = NodeSpec("Mechanization", Inc("increase"))
     val energy = NodeSpec("energy-use intensity in agriculture", Inc("increase"))
@@ -402,7 +401,7 @@ class TestRaps extends Test {
 
   {//2 Increase attachments: same issue as sent14 and sent15
     val sent16 = "Fertilizer-use intensity and fertilizer productivity will increase."
-    val tester = new Tester(sent16)
+    val tester = new GraphTester(sent16)
 
     val fertUse = NodeSpec("Fertilizer-use intensity", Inc("increase"))
     val fertProductivity = NodeSpec("fertilizer productivity", Inc("increase"))
@@ -421,7 +420,7 @@ class TestRaps extends Test {
 
   {//1 Increase, 1 Causal
     val sent17 = "There will not be significant changes in food imports, while yield of important crops will increase due to technological progress in agriculture."
-    val tester = new Tester(sent17)
+    val tester = new GraphTester(sent17)
 
     val cropYield = NodeSpec("yield of important crops", Inc("increase"), Quant("important"))
     val tech = NodeSpec("technological progress in agriculture")
@@ -441,7 +440,7 @@ class TestRaps extends Test {
   { //
     val sent18 = "However, opportunities for massive increases in agricultural production and productivity exist but " +
       "are not being exploited."
-    val tester = new Tester(sent18)
+    val tester = new GraphTester(sent18)
 
     val production = NodeSpec("agricultural production", Inc("increases", "massive"))
     val productivity = NodeSpec("productivity", Inc("increases", "massive"))
@@ -462,7 +461,7 @@ class TestRaps extends Test {
     val sent19 = "The governmental policy objective is to achieve food security, ensure adequate raw materials for the manufacturing sector, " +
       "and increased export earnings through increased productivity, efficient input use, and better market access," +
       " infrastructure, and service development."
-    val tester = new Tester(sent19)
+    val tester = new GraphTester(sent19)
 
     val productivity = NodeSpec("productivity", Inc("increased"))
     val use = NodeSpec("efficient input use", Inc("increased"))

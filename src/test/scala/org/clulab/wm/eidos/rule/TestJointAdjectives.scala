@@ -1,15 +1,14 @@
 package org.clulab.wm.eidos.rule
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{AntiNodeSpec, NodeSpec, AntiEdgeSpec, EdgeSpec}
-import org.clulab.wm.eidos.text.Causal
 
-class TestJointAdjectives extends Test {
+class TestJointAdjectives extends EnglishTest {
 
   {
     val text = "Yellow and blue states cause contention."
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val antiYellow = AntiNodeSpec("Yellow")
     val antiYellowStates = AntiNodeSpec("Yello states")
@@ -48,7 +47,7 @@ class TestJointAdjectives extends Test {
   {
     val text = "Red states and blue states cause confusion."
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val redStates = NodeSpec("Red states")
     val blueStates = NodeSpec("blue states")
@@ -81,7 +80,7 @@ class TestJointAdjectives extends Test {
 
     val text = "Red and blue states cause problems." // Red is NNP
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val red = NodeSpec("Red")
     val antiRedStates = AntiNodeSpec("Red states")

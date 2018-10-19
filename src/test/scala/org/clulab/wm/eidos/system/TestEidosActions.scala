@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.MentionUtils
 
-class TestEidosActions extends Test {
+class TestEidosActions extends ExtractionTest {
 
   def addAllMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Mention]): Unit = {
     def mentionsInPaths(paths: Map[String, Map[Mention, SynPath]]): Seq[Mention] =
@@ -298,7 +298,7 @@ class TestEidosActions extends Test {
       val text = "Accordingly , the Cooperative Union has agreed to process locally produced maize and haricot bean as a blended food that meets the standards set by the Bureau of Education ."
 
       noException should be thrownBy
-        TestUtils.extractMentions(text)
+        extractMentions(text)
     }
 
     it should "identify simple coreference relations in adjacent sentences" in {

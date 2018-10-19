@@ -1,11 +1,11 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.cag.CAG._
+import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.Timer
 
-class TestCags extends Test {
+class TestCags extends ExtractionTest {
 
   behavior of "long texts"
 
@@ -13,13 +13,13 @@ class TestCags extends Test {
     val stringBuilder = new StringBuilder(fullText + (" " + fullText) * 4) // + fullText // Because starting at 2
 
     // Pump the system once to get lazy loading
-    TestUtils.ieSystem.annotate(stringBuilder.toString(), keepText = true)
+    ieSystem.annotate(stringBuilder.toString(), keepText = true)
 
     for (i <- 5 to 5 by 5) {
       val text = stringBuilder.toString()
 
       Timer.time(s"Run ${i} is starting with this text of length ${text.size}.") {
-        TestUtils.extractMentions(text)
+        extractMentions(text)
       }
       stringBuilder.append((" " + fullText) * 5)
     }

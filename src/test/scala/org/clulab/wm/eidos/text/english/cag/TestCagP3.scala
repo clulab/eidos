@@ -1,28 +1,19 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import CAG._
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Quant
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.Inc
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Dec
-import org.clulab.wm.eidos.text.Correlation
-import org.clulab.wm.eidos.text.Causal
-import org.clulab.wm.eidos.text.Affect
-import org.clulab.wm.eidos.text.TimEx
-import org.scalactic.source.Position.apply
 
-class TestCagP3 extends Test {
+class TestCagP3 extends EnglishTest {
   
   { // S1
-    val tester = new Tester(p3s1)
+    val tester = new GraphTester(p3s1)
 
     val foodInsecurity = NodeSpec("Food insecurity", Inc("deepening"), Quant("severe")) // todo: add ability to have 'more'?
-    val conflict     = NodeSpec("conflict")
-    val displacement = NodeSpec("displacement")
-    val people       = NodeSpec("people", Quant("vulnerable"))
+    val conflict       = NodeSpec("conflict")
+    val displacement   = NodeSpec("displacement")
+    val people         = NodeSpec("people", Quant("vulnerable"))
     
     behavior of "p3s1"
 
@@ -38,7 +29,7 @@ class TestCagP3 extends Test {
   }
   
   { // S2
-    val tester = new Tester(p3s2)
+    val tester = new GraphTester(p3s2)
    // tester.mentions.foreach(m => println("\t" + m.text))
 
     val impacts = NodeSpec("impacts of flooding")
@@ -66,13 +57,13 @@ class TestCagP3 extends Test {
   }
   
   { // S3
-    val tester = new Tester(p3s3)
+    val tester = new GraphTester(p3s3)
   
     behavior of "p3s3"
   }
   
   { // S4
-    val tester = new Tester(p3s4)
+    val tester = new GraphTester(p3s4)
 
     val harvest = NodeSpec("harvest")
     val prices  = NodeSpec("food prices", Inc("high"))
@@ -85,7 +76,7 @@ class TestCagP3 extends Test {
   }
   
   { // S5
-    val tester = new Tester(p3s5)
+    val tester = new GraphTester(p3s5)
 
     val economic    = NodeSpec("economic decline", Dec("decline"))
     val accessFood  = NodeSpec("access to staple food", Dec("reduction"))

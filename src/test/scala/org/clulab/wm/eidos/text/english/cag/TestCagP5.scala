@@ -1,24 +1,20 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import CAG._
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.Unmarked
-import org.clulab.wm.eidos.text.NodeSpec
-import org.clulab.wm.eidos.text.EdgeSpec
-import org.clulab.wm.eidos.text.Causal
-import org.scalactic.source.Position.apply
 
-class TestCagP5 extends Test {
+class TestCagP5 extends EnglishTest {
   
   { // S1
-    val tester = new Tester(p5s1)
+    val tester = new GraphTester(p5s1)
   
     behavior of "p5s1"
   }
   
   { // S2
-    val tester = new Tester(p5s2)
+    val tester = new GraphTester(p5s2)
 
     val attacks = NodeSpec("repeated attacks")
     val many    = NodeSpec("Many", Unmarked("displaced"))

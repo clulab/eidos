@@ -7,18 +7,17 @@ import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils
-import org.clulab.wm.eidos.test.TestUtils.Test
-import org.clulab.wm.eidos.text.cag.CAG._
+import org.clulab.wm.eidos.test.TestUtils.{ExtractionTest, Test}
+import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.Seq
 
-class TestJLDSerializer extends Test {
+class TestJLDSerializer extends ExtractionTest {
   
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
-    val ieSystem = TestUtils.ieSystem
     val annotatedDocument = ieSystem.extractFromText(text, keepText = true)
 
     annotatedDocument.document.id = Some(title)
@@ -27,7 +26,7 @@ class TestJLDSerializer extends Test {
   
   def serialize(corpus: Corpus) = {
     val json = {
-      val jldCorpus = new JLDEidosCorpus(corpus, TestUtils.ieSystem)
+      val jldCorpus = new JLDEidosCorpus(corpus, ieSystem)
       val jValue = jldCorpus.serialize()
       stringify(jValue, true)
     }
@@ -131,7 +130,7 @@ class TestJLDSerializer extends Test {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(TestUtils.ieSystem.loadableAttributes.stopwordManager), TestUtils.ieSystem)
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.loadableAttributes.stopwordManager), ieSystem)
       val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
 
       nextAnnotatedDocument

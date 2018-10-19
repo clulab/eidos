@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import CAG._
 

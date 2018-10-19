@@ -5,7 +5,7 @@ import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.test.TestUtils._
 
 
-class TestHedging extends Test {
+class TestHedging extends ExtractionTest {
 
   def hasHedging(m: Mention, term: String): Boolean= {
     val hedged = m.attachments.filter(_.isInstanceOf[Hedging])

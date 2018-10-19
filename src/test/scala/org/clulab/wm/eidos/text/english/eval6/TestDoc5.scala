@@ -1,9 +1,9 @@
-package org.clulab.wm.eidos.text.eval6
+package org.clulab.wm.eidos.text.english.eval6
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text._
+import org.clulab.wm.eidos.graph._
 
-class TestDoc5 extends Test {
+class TestDoc5 extends EnglishTest {
   
   { // Paragraph 1
     val text = """
@@ -39,7 +39,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 1"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(insecurity)
@@ -103,7 +103,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 2"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(production)
@@ -164,7 +164,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 3"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices3)
@@ -225,7 +225,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 4"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(response)
@@ -266,7 +266,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 5"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     /* NOTES: 
      * - Food security node not picking up the decrease trigger 'worse' and
@@ -315,7 +315,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 6"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     /* NOTES:
      * - Perhaps we should add IPC Phase classifications as quantifiers for food
@@ -360,7 +360,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 7"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
       tester.test(prices)
@@ -397,7 +397,7 @@ class TestDoc5 extends Test {
 
     behavior of "TestDoc5 Paragraph 8"
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     brokenSyntaxTest should "have correct edges 1" taggedAs(Mihai) in {
       tester.test(EdgeSpec(action, Causal, lives)) should be (successful)
