@@ -134,14 +134,6 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
 
-  def getAttachmentWords(a: Attachment): Seq[String] = {
-    a match {
-      case triggered: TriggeredAttachment => Seq(triggered.trigger) ++ triggered.quantifiers.getOrElse(Seq())
-      case context: ContextAttachment => context.text.split(" ")
-      case _ => throw new RuntimeException(s"Unsupported class of attachment: ${a.getClass}")
-    }
-  }
-
   /* Methods for canonicalForms of Mentions */
   protected def canonicalFormSimple(m: Mention): String = {
     val words = m.words
@@ -149,7 +141,7 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
     val tags = m.tags.get
     val ners = m.entities.get
 
-    val attachmentWords = m.attachments.flatMap(a => getAttachmentWords(a)).toSet
+    val attachmentWords = m.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a)).toSet
 
     val contentLemmas = for {
       i <- lemmas.indices
