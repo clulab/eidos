@@ -21,10 +21,12 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       .replace('\r', ' ')
       .replace('\t', ' ')
       .replaceAll("  +", " ")
-    val specialChars = getSpecialChars(cleanText)
 
-    if (!specialChars.isEmpty())
-      throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
+    if (ieSystem.language == "english") {
+      val specialChars = getSpecialChars(cleanText)
+      if (!specialChars.isEmpty())
+        throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
+    }
     cleanText
   }
 
