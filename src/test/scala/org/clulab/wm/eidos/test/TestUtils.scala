@@ -44,18 +44,19 @@ object TestUtils {
 
   val successful = Seq()
 
-  // Need to synchronize this
-  protected val eidosSystems: mutable.Map[Config, EidosSystem] = new mutable.HashMap()
+  protected var mostRecentEidosSystem: Option[EidosSystem] = None
 
   // This is the standard way to extract mentions for testing
   def extractMentions(ieSystem: EidosSystem, text: String): Seq[Mention] = ieSystem.extractFromText(text, cagRelevantOnly = false).odinMentions
 
-  def newEidosSystem(config: Config): EidosSystem = {
-    if (!eidosSystems.contains(config))
-      eidosSystems(config) = new EidosSystem(config)
-    if (eidosSystems.size >= 3)
-      throw new Exception("Made third eidossystem for testing")
-    eidosSystems(config)
+  def newEidosSystem(config: Config): EidosSystem = this.synchronized {
+    val eidosSystem =
+        if (mostRecentEidosSystem.isEmpty) new EidosSystem(config)
+        else if (mostRecentEidosSystem.get.config == config) mostRecentEidosSystem.get
+        else new EidosSystem(config)
+
+    mostRecentEidosSystem = Some(eidosSystem)
+    eidosSystem
   }
 
   class Test extends FlatSpec with Matchers {
