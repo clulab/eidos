@@ -44,7 +44,7 @@ class TestParallel extends ExtractionTest {
 //    def innerToText = toText(new EidosSystem())
 
     val expected = innerToText
-    val threads = 8
+    val threads = 2 // 8 // Cut this down for Travis
 
     behavior of "parallel EidosSystem calling of annotate"
 

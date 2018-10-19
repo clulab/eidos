@@ -322,7 +322,7 @@ object JLDTrigger {
   val plural = "triggers"
 }
 
-abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var subtypeString: String, mention: EidosMention)
+abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, mention: EidosMention)
     extends JLDObject(serializer, JLDExtraction.typename, mention) {
 
   def getMentions: Seq[EidosMention] =  Seq.empty

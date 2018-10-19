@@ -32,4 +32,10 @@ class TestNegation extends ExtractionTest {
     val mentions1 = extractMentions(text1)
     mentions1.filter(em => em.isInstanceOf[EventMention]).exists(hasNegation) should be (true)
   }
+
+  it should "not match negation contained in the event arguments" in {
+    val text1 = "Many families do not have food because of the increase in conflict."
+    val mentions1 = extractMentions(text1)
+    mentions1.filter(em => em.isInstanceOf[EventMention]).exists(hasNegation) should be (false)
+  }
 }
