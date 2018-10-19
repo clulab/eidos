@@ -817,19 +817,19 @@ object EidosActions extends Actions {
 //    "^nmod_including$".r,
     "acl:relcl".r,
     "advcl_to".r,
-    "^nmod_without$".r,
-    "^nmod_except".r,
-    "^nmod_since".r,
-    "^nmod_as".r,
-    "^nmod_due_to".r,
-    "^nmod_given".r,
-//    "^nmod_among".r
+    "^advcl_because".r,
     "^case".r,
     "^conj".r,
     "^cc$".r,
+    "^nmod_as".r,
+    "^nmod_because".r,
+    "^nmod_due_to".r,
+    "^nmod_except".r,
+    "^nmod_given".r,
+    "^nmod_since".r,
+    "^nmod_without$".r,
     "^punct".r,
     "^ref$".r
-
   )
 
   val INVALID_INCOMING = Set[scala.util.matching.Regex](
