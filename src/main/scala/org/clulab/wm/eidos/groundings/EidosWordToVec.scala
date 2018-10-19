@@ -27,7 +27,7 @@ class FakeWordToVec extends EidosWordToVec {
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
 
-class RealWordToVec(var w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
+class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 

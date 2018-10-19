@@ -28,7 +28,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem = new EidosSystem()
-  var proc = ieSystem.proc
+  val proc = ieSystem.proc
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 

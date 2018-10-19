@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.utils
 
-import java.io.{File, FileNotFoundException, FilenameFilter, PrintWriter}
+import java.io._
+import java.net.URL
 import java.util.Collection
 
 import org.clulab.serialization.json.stringify
@@ -85,5 +86,25 @@ object FileUtils {
     val mentionsJSONLD = corpus.serialize()
     // 5. Write to output file
     pw.println(stringify(mentionsJSONLD, pretty = true))
+  }
+
+  def copyResourceToFile(src: String, dest: File): Unit = {
+    val os: OutputStream = new FileOutputStream(dest)
+    val is: InputStream = FileUtils.getClass.getResourceAsStream(src)
+
+    var buf = new Array[Byte](8192)
+    var continue = true
+
+    while (continue) {
+      val len = is.read(buf)
+
+      continue =
+        if (len > 0) {
+          os.write(buf, 0, len); true
+        }
+        else false
+    }
+    is.close()
+    os.close()
   }
 }

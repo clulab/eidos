@@ -34,7 +34,7 @@ rules:
       quantifier:Quantifier? = ${quant_modifiers}
 
   # Note: Captures passive voice; thus verb must be VBD|VBN
-  - name: ${ label }_ported_syntax_2_verb
+  - name: ${ label }_ported_syntax_2a_verb
     priority: ${ rulepriority }
     example: "wheat production in the region will be diminished .. wheat production in the region are higher."
     label: ${ label }
@@ -42,6 +42,17 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VERB/]
       theme: Entity = (?! /${objects}|${complements}/) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+# Note: Captures passive voice; thus verb must be VBD|VBN
+  - name: ${ label }_ported_syntax_2b_verb
+    priority: ${ rulepriority }
+    example: "wheat production in the region will be diminished .. wheat production in the region are higher."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VERB/] (?= [word=/(?i)(para|por)/])
+      theme: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
@@ -185,6 +196,17 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
+      quantifier:Quantifier? = ${ quant_modifiers }
+
+
+  - name: ${ label }_ported_syntax_4_noun
+    priority: ${ rulepriority }
+    example: "Cães submetidos à redução do hematócrito tiveram aumento no débito cardíaco."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+      theme: Entity = <obj [lemma=/ter/] obl
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
