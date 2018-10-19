@@ -1,22 +1,26 @@
 acceleration
 acre
 acres
-activity-per-mass_radioactivity
-activity-per-volume_radioactivity
-aerodynamic_conductance
+activity per mass radioactivity
+activity per volume radioactivity
+activity-per-mass radioactivity
+activity-per-volume radioactivity
+aerodynamic conductance
 age
 albedo
 altitude
-amount-per-volume_capacity
+amount per volume capacity
+amount-per-volume capacity
 angle
-angular_frequency
-angular_momentum
-angular_speed
+angular frequency
+angular momentum
+angular speed
 area
-area_fraction
+area fraction
 areas
-attenuation_coefficient
-cell-equivalents_concentration
+attenuation coefficient
+cell equivalents concentration
+cell-equivalents concentration
 celsius
 color
 colors
@@ -24,10 +28,13 @@ compressibility
 cost
 costs
 count
-count-per-hour_rate
-count-per-mass_radioactivity
-count-per-volume_radioactivity
-count_concentration
+count concentration
+count per hour rate
+count per mass radioactivity
+count per volume radioactivity
+count-per-hour rate
+count-per-mass radioactivity
+count-per-volume radioactivity
 curvature
 degree
 degrees
@@ -35,48 +42,51 @@ densities
 density
 depreciation
 depth
-depth-vs-discharge_coefficient
-depth-vs-discharge_exponent
-depth-vs-half-width_exponent
+depth vs discharge coefficient
+depth vs discharge exponent
+depth vs half width exponent
+depth-vs-discharge coefficient
+depth-vs-discharge exponent
+depth-vs-half-width exponent
 devaluation
 diameter
 diffusivity
-dimensionless_number
-displacement
+dimensionless number
 distance
 distances
 duration
-dynamic_viscosity
+dynamic viscosity
 elevation
-emissivity_factor
+emissivity factor
 energy
-energy-per-area_density
-energy-per-mass_density
-energy-per-volume_density
-energy_flux
+energy flux
+energy per area density
+energy per mass density
+energy per volume density
+energy-per-area density
+energy-per-mass density
+energy-per-volume density
 enthalpy
-expansion_coefficient
+expansion coefficient
 fahrenheit
 feet
-flattening_ratio
+flattening ratio
 foot
-force
 fraction
 fractions
 frequency
-friction_coefficient
-friction_factor
+friction coefficient
+friction factor
 gallon
 gallons
 gram
 grams
-head
-heat_capacity
-heat_transfer_coefficient
+heat capacity
+heat transfer coefficient
 hectare
 hectares
 height
-hydraulic_conductivity
+hydraulic conductivity
 impulse
 inch
 inches
@@ -85,56 +95,66 @@ kilogram
 kilograms
 kilometer
 kilometers
-kinematic_viscosity
+kinematic viscosity
 latitude
 latlong
 length
-linear_speed
-linear_velocity
+linear speed
+linear velocity
 liter
 liters
 longitude
 mass
-mass-per-area_rate
-mass-per-mass_radioactivity
-mass-per-time_capacity
-mass-per-volume_capacity
-mass-per-volume_density
-mass-per-volume_rate
-mass-per-width_rate
-mass-specific_heat
-mass-specific_heat_capacity
-mass_concentration
-mass_flux
-mass_fraction
-mass_rate
-mass_ratio
-mass_transfer_coefficient
+mass concentration
+mass flux
+mass fraction
+mass per area rate
+mass per mass radioactivity
+mass per time capacity
+mass per volume capacity
+mass per volume density
+mass per volume rate
+mass per width rate
+mass rate
+mass ratio
+mass specific heat
+mass specific heat capacity
+mass transfer coefficient
+mass-per-area rate
+mass-per-mass radioactivity
+mass-per-time capacity
+mass-per-volume capacity
+mass-per-volume density
+mass-per-volume rate
+mass-per-width rate
+mass-specific heat
+mass-specific heat capacity
 masses
-mechanical_hardness
+mechanical hardness
 meter
 meters
 mile
 miles
-mixing_ratio
+mixing ratio
 modulus
-mole-specific_heat
-mole_rate
-momentum_transfer_coefficient
-number_capacity
+mole rate
+mole specific heat
+mole-specific heat
+momentum transfer coefficient
+number capacity
 ounce
 ounces
-per-time_radioactivity
-per-wavelength_emittance
+per time radioactivity
+per wavelength emittance
+per-time radioactivity
+per-wavelength emittance
 percentage
 percentages
 perimeter
-period
 pound
 pounds
 power
-pressure
-pressure_lapse_rate
+pressure lapse rate
 price
 prices
 proportion
@@ -144,50 +164,54 @@ rate
 rates
 ratio
 ratios
-root_quantity
-rotation_rate
-s_coordinate
-safety_rating
-shape_factor
+root quantity
+rotation rate
+s coordinate
+safety rating
+shape factor
 sinuosity
 slip
 slope
-slope-vs-discharge_coefficient
-slope-vs-discharge_exponent
+slope vs discharge coefficient
+slope vs discharge exponent
+slope-vs-discharge coefficient
+slope-vs-discharge exponent
 sorptivity
-specific_energy
-speed-vs-discharge_coefficient
-speed-vs-discharge_exponent
-stomatal_resistance
-strain
-strain_rate
-strength
+specific energy
+speed vs discharge coefficient
+speed vs discharge exponent
+speed-vs-discharge coefficient
+speed-vs-discharge exponent
+stomatal resistance
+strain rate
 stress
-subsidence_rate
+subsidence rate
 temperature
-temperature_lapse_rate
+temperature lapse rate
 temperatures
-thermal_expansion_coefficient
+thermal expansion coefficient
 thickness
 time
-time_step
+time step
 ton
 tonne
 tonnes
 tons
 valuation
 volume
-volume-specific_heat_capacity
-volume_flux
-volume_fraction
-volume_rate
+volume flux
+volume fraction
+volume rate
+volume specific heat capacity
+volume-specific heat capacity
 volumes
 vorticity
 wavelength
 weight
 width
-width-vs-discharge_coefficient
-width-vs-discharge_exponent
+width vs discharge coefficient
+width vs discharge exponent
+width-vs-discharge coefficient
+width-vs-discharge exponent
 yard
 yards
-year
