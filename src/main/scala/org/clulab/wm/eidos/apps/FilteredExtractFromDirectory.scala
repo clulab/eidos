@@ -9,9 +9,6 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 object FilteredExtractFromDirectory extends App {
-  val inputDir = args(0)
-  val outputDir = args(1)
-
   val intervals = Seq(
     (0,     0),
     (1,   999),
@@ -59,6 +56,8 @@ object FilteredExtractFromDirectory extends App {
     (95000, 99999),
     (100000, 200000)
   )
+  val inputDir = args(0)
+  val outputDir = args(1)
 
   val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()

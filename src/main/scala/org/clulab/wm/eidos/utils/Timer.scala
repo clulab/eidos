@@ -2,6 +2,34 @@ package org.clulab.wm.eidos.utils
 
 import org.slf4j.LoggerFactory
 
+class Timer(val description: String) {
+  var elapsedTime: Option[Long] = None
+  var startTime: Option[Long] = None
+
+  def time[R](block: => R): R = {
+    val t0 = System.currentTimeMillis()
+    val result: R = block    // call-by-name
+    val t1 = System.currentTimeMillis()
+
+    elapsedTime = Some(t1 - t0)
+    result
+  }
+
+  def start(): Unit = {
+    val t0 = System.currentTimeMillis()
+
+    startTime = Some(t0)
+  }
+
+  def stop(): Unit = {
+    if (startTime.isDefined) {
+      val t1 = System.currentTimeMillis()
+
+      elapsedTime = Some(t1 - startTime.get)
+    }
+  }
+}
+
 object Timer {
   lazy val logger = LoggerFactory.getLogger(this.getClass())
 
