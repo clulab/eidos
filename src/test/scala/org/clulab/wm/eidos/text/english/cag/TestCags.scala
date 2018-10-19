@@ -10,16 +10,18 @@ class TestCags extends ExtractionTest {
   behavior of "long texts"
 
   it should "finish quickly" taggedAs(Keith) in {
-    var text = fullText + (" " + fullText) * 4 // + fullText // Because starting at 2
+    val stringBuilder = new StringBuilder(fullText + (" " + fullText) * 4) // + fullText // Because starting at 2
 
     // Pump the system once to get lazy loading
-    ieSystem.annotate(text, keepText = true)
+    ieSystem.annotate(stringBuilder.toString(), keepText = true)
 
     for (i <- 5 to 5 by 5) {
+      val text = stringBuilder.toString()
+
       Timer.time(s"Run ${i} is starting with this text of length ${text.size}.") {
         extractMentions(text)
       }
-      text += (" " + fullText) * 5
+      stringBuilder.append((" " + fullText) * 5)
     }
   }
 }
