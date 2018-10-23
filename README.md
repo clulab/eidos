@@ -4,15 +4,16 @@
 
 Eidos is an open-domain machine reading system designed by the [Computational
 Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University
-of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  Eidos
+of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  It
 uses a cascade of [Odin](https://github.com/clulab/processors) grammars to
-extract causal events from free text.
+extract events from free text.
 
-Currently we extract entities such as "food insecurity" (and
-`increases`/`decreases`/`quantifications` of those entities) and directed causal
-events that occur between entities such as "food insecurity causes increased
-migration".  In the near future we plan to expand this to also extract
-correlation, `same-as`, and `is-a` relations. 
+Eidos identifies entities like "food insecurity" and a growing list of arguments
+on those entities, such as `increases`/`decreases`/`quantifications`.  It
+subsequently detects events that occur between entities (directed causal events,
+for example) as in "food insecurity causes increased migration".  The list of
+arguments and events is updated frequently.  The [JSON LD](https://github.com/clulab/eidos/wiki/JSON-LD)
+page documents current output.
 
 **Contents**
 
