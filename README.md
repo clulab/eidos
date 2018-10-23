@@ -25,7 +25,8 @@ correlation, `same-as`, and `is-a` relations.
       - [Export to JSON](#to-serialize-to-json)
     - [Command Line Usage](#command-line-usage)
       - [Interactive shell](#running-an-interactive-shell)
-      - [Webapp](#running-the-webapp)
+    - [Webapp](#running-the-webapp)
+      - [Interacting with the web service](#interacting-with-the-web-service) 
   - [How to use Eidos output](#how-to-use-eidos-output)
     - [Visualizing Eidos output](#visualizing-eidos-output)
     - [Using Eidos output for modeling](#using-eidos-output-for-modeling)
@@ -186,7 +187,7 @@ for testing the output of Eidos. To run it, do
 ./shell
 ```
 
-#### Running the webapp
+### Running the webapp
 
 To run the webapp version of EidosShell locally, do:
 
@@ -195,6 +196,31 @@ sbt webapp/run
 ```
 
 and then navigate to `localhost:9000` in a web browser.
+
+#### Interacting with the web service
+Once you have the webapp running, you can submit arbitrary text to it via a `GET` request using the `parseText` endpoint.
+
+There are two required parameters:
+
+* `text`: the text you wish to submit
+* `cagRelevantOnly`: binary (`true` or `false`)
+
+For example, we can use the Python `requests` library to interact with the web service with the following:
+
+```
+import requests
+
+text = """A significant increase in precipitation resulted in food insecurity and
+a decrease in humanitarian interventions. Actually, food insecurity itself can
+lead to conflict, and in turn, conflict can drive food insecurity.
+Generally, humanitarian interventions reduce conflict."""
+
+webservice = 'http://localhost:9000'
+res = requests.get('%s/parseText' %webservice, params={'text': text, 'cagRelevantOnly': 'false'})
+
+json_dict = res.json()
+print(json_dict['syntax'])
+```
 
 
 ## How to use Eidos output
