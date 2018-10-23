@@ -9,7 +9,7 @@ uses a cascade of [Odin](https://github.com/clulab/processors) grammars to
 extract events from free text.
 
 Eidos identifies entities like "food insecurity" and a growing list of arguments
-on those entities, such as `increases`/`decreases`/`quantifications`.  It
+on those entities, such as `increases` / `decreases` / `quantifications`.  It
 subsequently detects events that occur between entities (directed causal events,
 for example) as in "food insecurity causes increased migration".  The list of
 arguments and events is updated frequently.  The [JSON LD](https://github.com/clulab/eidos/wiki/JSON-LD)
@@ -17,27 +17,53 @@ page documents current output.
 
 **Contents**
 
-- [Usage](#usage)
-  - [How to compile the source code](#how-to-compile-the-source-code)
-  - [How to run Eidos](#how-to-use-it)
-    - [Using the Scala API](#using-the-scala-api)
-      - [Prettified display](#to-produce-a-pretty-display-of-the-extracted-mentions)
-      - [Export to JSON-LD](#to-export-extractions-as-json-ld)
-      - [Export to JSON](#to-serialize-to-json)
-    - [Command Line Usage](#command-line-usage)
-      - [Interactive shell](#running-an-interactive-shell)
-      - [Webapp](#running-the-webapp)
-  - [How to use Eidos output](#how-to-use-eidos-output)
-    - [Visualizing Eidos output](#visualizing-eidos-output)
-    - [Using Eidos output for modeling](#using-eidos-output-for-modeling)
-- [License](#license)
-- [Related Resources](#related-resources)
+- Running Eidos
+  - Using the Sample Apps
+    - [Webapp](#webapp)
+    - [Interactive Shell](#interactive-shell)
+    - [ExtractAndExport](#extractandexport)
+  - Using the Scala API
+    - [Prettified Display](#prettified-display)
+    - [Export to JSON-LD](#export-to-json-ld)
+- Connecting Eidos
+  - [Indra](#indra)
+  - [Delphi](#delphi)
+- Working with Eidos
+  - [Compiling](#compiling)
+  - [Configuring](#configuring)
+  - [Optimizing](#optimizing)
+  - [Translating](#translating)
+  - [Integrating](#integrating)
 - [Notes](#notes)
+- [License](#license)
+
+# Running Eidos
+
+Eidos in this repository is formatted as a standard [sbt](https://www.scala-sbt.org/) project,
+that's the Scala Build Tool, so you will need to download and install `sbt` to "run" the
+included programs as described here.  `sbt` in turn requires Java, so that will need to have
+been installed as well, but that's the extent of it.  Other software packages that Eidos depends
+on will be downloaded automatically by `sbt`.  The contents of this repository can be downloaded
+with `git` or via the "Clone or download" button on the project's GitHub page.  Assuming you
+have done this and any necessary unzipping, you should have a directory called `eidos` containing
+the file `build.sbt` among others.  `cd` to this directory.
+
+## Using the Sample Apps
 
 
-# Usage
 
-## How to compile the source code
+
+### Webapp
+### Interactive Shell
+### ExtractAndExport
+## Using the Scala API
+### Prettified Display
+### Export to JSON-LD
+# Connecting Eidos
+## Indra
+## Delphi
+# Working with Eidos
+## Compiling
 
 This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual
 commands, e.g., `sbt compile` to compile or `sbt assembly` to create a jar file.
@@ -46,6 +72,15 @@ described below.  To access Eidos from Java, add the assembled jar file(s) under
 `target/` to your $CLASSPATH.  A file like `eidos-assembly-0.1.6-SNAPSHOT.jar`
 may suffice, depending on the build.  If necessary, see `build.sbt` for a list
 of runtime dependencies. 
+
+## Configuring
+## Optimizing
+## Translating
+## Integrating
+# Notes
+# License
+
+## How to compile the source code
 
 ## How to use it
 
