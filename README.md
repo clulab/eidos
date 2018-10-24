@@ -209,7 +209,7 @@ but it allows specification of directories on the command line and only outputs
 JSON-LD format.  The command is
 
 ```bash
-sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
+> sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
 ```
 
 or its two-line counterpart.  Again, files in the input directory should end with `.txt` and
@@ -220,53 +220,26 @@ this and most Java-like programs.
 
 ## Using the Scala API
 
-
+One is of course not limited to using the existing apps: one can write new programs which
+make use of Eidos's Scala interface.  New programs can be contained in the same `sbt` project
+or a different one, in Java projects, in Python projects, or elsewhere.  See the
+section on <a href="#integration">integration</a> for tips on how this is accomplished.
+This description assumes that a program is added to the collection of existing apps in
+their `apps` directory or somewhere nearby.  There are two major output formats provided
+through the Scala API.
 
 ### Prettified Display
-### Export to JSON-LD
-# Connecting Eidos
-## Indra
-## Delphi
-# Working with Eidos
-## Compiling
 
-This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual
-commands, e.g., `sbt compile` to compile or `sbt assembly` to create a jar file.
-`sbt runMain` can be used to run some of the example applications directly, as
-described below.  To access Eidos from Java, add the assembled jar file(s) under
-`target/` to your $CLASSPATH.  A file like `eidos-assembly-0.1.6-SNAPSHOT.jar`
-may suffice, depending on the build.  If necessary, see `build.sbt` for a list
-of runtime dependencies. 
-
-## Configuring
-## Optimizing
-## Translating
-## Integrating
-# Notes
-# License
-
-## How to compile the source code
-
-## How to use it
-
-The Eidos system is designed to be used in several ways:
-
-### Using the scala API
-
-The scala API can produce three distinct output formats:
-- a pretty display
-- a JSON-LD export of the causal graph extracted from the text
-- a JSON serialization (in case you want to later load all of the mentions,
-  including mentions that are not part of the causal graph)
-
-(see [`src/main/scala/org/clulab/wm/eidos/apps/examples/ExtractFromText.scala`](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/apps/examples/ExtractFromText.scala))
-
-#### To produce a pretty display of the extracted mentions
+To produce a pretty display of the extracted mentions, use `EidosSystem` to extract
+an `annotatedDocument` from the text and then display its mentions.
 
 ```scala
+package your.package.name
+
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
 
+object YourClassName extends App {
   val text = "Water trucking has decreased due to the cost of fuel."
 
   // Initialize the reader
@@ -277,9 +250,16 @@ import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
 
   // Display in a pretty way
   annotatedDocument.odinMentions.foreach(displayMention)
+}
 ```
 
-This produces the following output (mentions may appear in different order):
+When called with
+```bash
+sbt:eidos> runMain your.package.name.YourClassName
+```
+
+it should produce output similar to this:
+
 ```
 List(NounPhrase, Entity) => Water trucking
 	------------------------------
@@ -310,17 +290,23 @@ List(Causal, DirectedRelation, EntityLinker, Event) => Water trucking has decrea
 	------------------------------
 ```
 
-#### To export extractions as JSON-LD
+This description is based on the [ExtractFromText](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/apps/examples/ExtractFromText.scala) app.
 
-(For information about the JSON-LD export format, please look [here](https://github.com/clulab/eidos/wiki/JSON-LD).)
 
+### Export to JSON-LD
+
+To export extractions, and in fact causal graphs, as JSON-LD, take the `annotatedDocument`, create a `JLDCorpus`,
+serialize it, and then print a pretty string version.
 
 ```scala
+package your.package.name
+
 import scala.collection.Seq
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 
+object YourClassName extends App {
   val text = "Water trucking has decreased due to the cost of fuel."
 
   // Initialize the reader
@@ -333,35 +319,42 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
   val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
   val mentionsJSONLD = corpus.serialize()
   println(stringify(mentionsJSONLD, pretty = true))
+}
 ```
 
-This produces the JSON-LD output shown [here](https://github.com/clulab/eidos/wiki/API-output-examples#json-ld-output).
+The output that results when such code is called with
 
-#### To serialize to JSON
-
-```scala
-import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
-
-  val text = "Water trucking has decreased due to the cost of fuel."
-
-  // Initialize the reader
-  val reader = new EidosSystem()
-
-  // Extract the mentions
-  val annotatedDocument = reader.extractFromText(text)
-
-  // Or... optionally serialize to regular JSON
-  // (e.g., if you want to later reload the mentions for post-processing)
-  val mentionsJSON = WMJSONSerializer.jsonAST(annotatedDocument.odinMentions)
-  println(stringify(mentionsJSON, pretty = true))
-
+```bash
+sbt:eidos> runMain your.package.name.YourClassName
 ```
 
-This produces the JSON serialization [here](https://github.com/clulab/eidos/wiki/API-output-examples#json-output) (mentions may appear in different order):
+can be [quite long](https://github.com/clulab/eidos/wiki/API-output-examples#json-ld-output).
+The [JSON-LD export format](https://github.com/clulab/eidos/wiki/JSON-LD) for Eidos is defined
+on a wiki page.
 
 
+# Connecting Eidos
+## Indra
+## Delphi
+# Working with Eidos
+## Compiling
+
+This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual
+commands, e.g., `sbt compile` to compile or `sbt assembly` to create a jar file.
+`sbt runMain` can be used to run some of the example applications directly, as
+described below.  To access Eidos from Java, add the assembled jar file(s) under
+`target/` to your $CLASSPATH.  A file like `eidos-assembly-0.1.6-SNAPSHOT.jar`
+may suffice, depending on the build.  If necessary, see `build.sbt` for a list
+of runtime dependencies. 
+
+## Configuring
+## Optimizing
+## Translating
+## Integrating
+# Notes
+# License
+
+## How to compile the source code
 
 
 
