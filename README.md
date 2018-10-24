@@ -22,6 +22,7 @@ page documents current output.
     - [Webapp](#webapp)
     - [Interactive Shell](#interactive-shell)
     - [ExtractAndExport](#extractandexport)
+    - [Other Apps](#other-apps)
   - Using the Scala API
     - [Prettified Display](#prettified-display)
     - [Export to JSON-LD](#export-to-json-ld)
@@ -78,7 +79,7 @@ see something like this:
 
 
 You can now submit texts for Eidos to process.  Please note that the very first submission will
-require extra time as lazily loaded parts of the system are fetched, but subsequent texts
+require extra time as lazily loaded parts of the system are initialized, but subsequent texts
 will be processed much more quickly.
 
 To eventually escape from `sbt`, you can stop the web server with Control-D and then quit the
@@ -87,12 +88,134 @@ program with `exit`.
 
 ### Interactive Shell
 
+EidosShell is an interactive text-based program for testing the output of Eidos.  It's output is
+less complete than the webapp, but it stands alone, no web browser is required, and consumes
+fewer resources.  A script is provided to run it with
+
+```bash
+./shell
+```
+or
+```DOS.bat
+.\shell
+```
+depending on operating system, or it can be run in the usual `sbt` way with
+```bash
+> sbt "runMain org.clulab.wm.eidos.apps.EidosShell"
+```
+or
+```bash
+> sbt
+eidos:sbt> runMain org.clulab.wm.eidos.apps.EidosShell
+```
+
+You should eventually be prompted for an input text or command:
+
+```
+(Eidos)>>> Food insecurity causes increased migration.
+```
+
+The first text processed will again take extra time as the lazily loaded parts are initialized,
+but the eventual pertinent output should look substantially similar to
+
+```
+sentence #0
+Food insecurity causes increased migration .
+Tokens: (0,Food,NNP), (1,insecurity,NN), (2,causes,VBZ), (3,increased,VBN), (4,migration,NN), (5,.,.)
+roots: 2
+outgoing:
+        0:
+        1: (0,compound)
+        2: (1,nsubj) (4,dobj) (5,punct)
+        3:
+        4: (3,amod)
+        5:
+incoming:
+        0: (1,compound)
+        1: (2,nsubj)
+        2:
+        3: (4,amod)
+        4: (2,dobj)
+        5: (2,punct)
 
 
+timeExpressions:
+
+entities:
+List(Concept, Entity) => Food insecurity
+         ------------------------------
+         Rule => simple-np
+         Type => TextBoundMention
+         ------------------------------
+         Concept, Entity => Food insecurity
+         ------------------------------
+
+
+List(Concept, Entity) => increased migration
+         ------------------------------
+         Rule => simple-np++Increase_ported_syntax_6_verb
+         Type => TextBoundMention
+         ------------------------------
+         Concept, Entity => increased migration
+          * Attachments: Increase(increased,None)
+         ------------------------------
+
+
+
+events:
+List(Causal, DirectedRelation, EntityLinker, Event) => Food insecurity causes increased migration
+         ------------------------------
+         Rule => ported_syntax_1_verb-Causal
+         Type => EventMention
+         ------------------------------
+         trigger => causes
+         cause (Concept, Entity) => Food insecurity
+         effect (Concept, Entity) => increased migration
+          * Attachments: Increase(increased,None)
+
+         ------------------------------
+
+
+==================================================
+```
+
+To exit the program, enter `:exit` as the menu indicates.  Another `exit` will close `sbt`.
 
 ### ExtractAndExport
 
+If the texts to be processed can be placed into one or more files, especially if the files
+are located in the current directory and end with ".txt", then the `ExtractAndExport` app is
+particularly handy.  The actual location of the files and extension, along with several
+other parameters, are actually specified in a configuration file, `reference.conf`, which
+can be edited.  (Other apps from the section below allow command line specification of
+more of the values.)  However, if default values are satisfactory, one command will process
+the *.txt files into *.txt.jsonld, *.txt.mitre.tsv, and *.txt.serialized with output in
+corresponding formats.
 
+```bash
+> sbt "runMain org.clulab.wm.eidos.apps.ExtractAndExport"
+```
+or of course
+```bash
+> sbt
+std:eidos> runMain org.clulab.wm.eidos.apps.ExtractAndExport
+```
+
+### Other Apps
+
+Other apps are located in directory `src/main/scala/org/clulab/wm/eidos/apps`.
+`ExtractFromDirectory`, for instance, is similar to the previously described app,
+but it allows specification of directories on the command line and only outputs
+JSON-LD format.  The command is
+
+```bash
+sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
+```
+
+or its two-line counterpart.  Again, files in the input directory should end with `txt` and
+the extracted mentions from each file will be saved in corresponding JSON-LD files.
+**Note** that you cannot use tildes (`~`) in the invocation in lieu of the home directory for
+this and most Java-like programs.
 
 
 ## Using the Scala API
@@ -236,40 +359,7 @@ import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 This produces the JSON serialization [here](https://github.com/clulab/eidos/wiki/API-output-examples#json-output) (mentions may appear in different order):
 
 
-### Command line usage
 
-#### Extracting causal events from documents in a directory
-
-```bash
-sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
-```
-
-Files in the input directory should end with `txt` and the extracted mentions
-from each file will be saved in corresponding JSON-LD files.
-
-**Note**: You cannot use tildes (`~`) in the invocation in lieu of the home
-directory.
-
-
-
-#### Running an interactive shell
-
-The EidosShell is an interactive shell
-for testing the output of Eidos. To run it, do
-
-```bash
-./shell
-```
-
-#### Running the webapp
-
-To run the webapp version of EidosShell locally, do:
-
-```bash
-sbt webapp/run
-```
-
-and then navigate to `localhost:9000` in a web browser.
 
 
 ## How to use Eidos output
