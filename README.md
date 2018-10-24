@@ -50,12 +50,51 @@ the file `build.sbt` among others.  `cd` to this directory.
 
 ## Using the Sample Apps
 
-
-
+The software includes several sample applications that demonstrate its abilities.  Some are more
+colorful and interactive and others are tailored for machine readable output.  They are fairly
+large programs and the software is configured in `.jvmopts` to supply Java with lots of memory.
+If you see complaints about inadequate heap space, please check the <a href="#notes">notes</a>
+section for possible remedies.
 
 ### Webapp
+
+The webapp provides the most colorful, graphical, and perhaps easiest to understand output.
+It can be started up directly from the command line in one fell swoop
+
+```bash
+> sbt webapp/run
+```
+or from within `sbt` with
+```bash
+> sbt
+sbt:eidos> webapp/run
+```
+`sbt` may take several minutes to bring up the application, especially the first time, as various
+dependencies are downloaded and Eidos itself is compiled.  Numerous logging messages should keep
+you posted on the progress.
+
+After starting the webapp, use a web browser to navigate to `localhost:9000`.  There you should
+see something like this:
+
+
+You can now submit texts for Eidos to process.  Please note that the very first submission will
+require extra time as lazily loaded parts of the system are fetched, but subsequent texts
+will be processed much more quickly.
+
+To eventually escape from `sbt`, you can stop the web server with Control-D and then quit the
+program with `exit`.
+
+
 ### Interactive Shell
+
+
+
+
 ### ExtractAndExport
+
+
+
+
 ## Using the Scala API
 ### Prettified Display
 ### Export to JSON-LD
