@@ -115,7 +115,7 @@ object ExtractMetaFromDirectory extends App {
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
     timePrintWriter.println("File\tSize\tTime")
-    val timer = new Timer("One file")
+    val timer = new Timer("Startup")
 
     timer.start()
     // Prime it first.  This counts on overall time, but should not be attributed
@@ -127,12 +127,13 @@ object ExtractMetaFromDirectory extends App {
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
     // When timing, do not do in parallel
-    files.foreach { file =>
+    files.par.foreach { file =>
       var jsonldPrintWriter: PrintWriter = null
 
       try {
         // 1. Open corresponding output file
         println(s"Extracting from ${file.getName}")
+        val timer = new Timer("Single file in parallel")
         val size = timer.time {
           // 2. Get the input file contents
           val text = FileUtils.getTextFromFile(file)
@@ -151,7 +152,9 @@ object ExtractMetaFromDirectory extends App {
           jsonldPrintWriter.println(stringify(mentionsJSONLD, pretty = true))
           text.size
         }
-        timePrintWriter.println(file.getName() + "\t" + size + "\t" + timer.elapsedTime.get)
+        this.synchronized {
+          timePrintWriter.println(file.getName() + "\t" + size + "\t" + timer.elapsedTime.get)
+        }
       }
       catch {
         case exception: Exception =>
