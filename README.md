@@ -8,12 +8,12 @@ of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  It
 uses a cascade of [Odin](https://github.com/clulab/processors) grammars to
 extract events from free text.
 
-Eidos identifies entities like "food insecurity" and a growing list of arguments
+Eidos identifies entities like "food insecurity" along with a growing list of arguments
 on those entities, such as `increases` / `decreases` / `quantifications`.  It
 subsequently detects events that occur between entities (directed causal events,
 for example) as in "food insecurity causes increased migration".  The list of
-arguments and events is updated frequently.  The [JSON LD](https://github.com/clulab/eidos/wiki/JSON-LD)
-page documents current output.
+arguments and events is updated frequently and is documented on the [JSON LD](https://github.com/clulab/eidos/wiki/JSON-LD)
+page.
 
 **Contents**
 
@@ -184,11 +184,11 @@ To exit the program, enter `:exit` as the menu indicates.  Another `exit` will c
 ### ExtractAndExport
 
 If the texts to be processed can be placed into one or more files, especially if the files
-are located in the current directory and end with ".txt", then the `ExtractAndExport` app is
-particularly handy.  The actual location of the files and extension, along with several
-other parameters, are actually specified in a configuration file, `reference.conf`, which
+are located in the current directory and end with `.txt`, then the `ExtractAndExport` app is
+particularly handy.  The expected location of the files, the extension, and several
+other parameters are actually specified in a configuration file, `reference.conf`, which
 can be edited.  (Other apps from the section below allow command line specification of
-more of the values.)  However, if default values are satisfactory, one command will process
+more of the parameters.)  However, if default values are satisfactory, one command will process
 the *.txt files into *.txt.jsonld, *.txt.mitre.tsv, and *.txt.serialized with output in
 corresponding formats.
 
@@ -212,13 +212,16 @@ JSON-LD format.  The command is
 sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
 ```
 
-or its two-line counterpart.  Again, files in the input directory should end with `txt` and
+or its two-line counterpart.  Again, files in the input directory should end with `.txt` and
 the extracted mentions from each file will be saved in corresponding JSON-LD files.
 **Note** that you cannot use tildes (`~`) in the invocation in lieu of the home directory for
 this and most Java-like programs.
 
 
 ## Using the Scala API
+
+
+
 ### Prettified Display
 ### Export to JSON-LD
 # Connecting Eidos
