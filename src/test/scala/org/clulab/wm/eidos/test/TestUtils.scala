@@ -27,6 +27,7 @@ object TestUtils {
   object Ben      extends TesterTag
   object Heather  extends TesterTag
   object Vikas    extends TesterTag
+  object George    extends TesterTag
 
 
   class CategoryTag  extends Tag("CategoryTag")
