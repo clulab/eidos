@@ -21,6 +21,7 @@ import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
+import org.clulab.wm.eidos.context.Geo_disambiguate_parser
 
 import scala.annotation.tailrec
 
@@ -69,7 +70,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val stopwordManager: StopwordManager,
     val hedgingHandler: HypothesisHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
-    val timenorm: Option[TemporalCharbasedParser]
+    val timenorm: Option[TemporalCharbasedParser],
+    // val geonorm: Option[Geo_disambiguate_parser]
+    val geonorm: Option[Geo_disambiguate_parser]
+
   )
 
   object LoadableAttributes {
@@ -99,7 +103,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def               maxHops: Int = eidosConf[Int]("maxHops")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
     def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
+    def  geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
+
     def       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    def       useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     def          useCache: Boolean = eidosConf[Boolean]("useCache")
 
     val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
@@ -129,18 +136,36 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology), wordToVec)).seq
           else Seq.empty
 
+
       val timenorm: Option[TemporalCharbasedParser] =
-          if (!useTimeNorm) None
-          else {
-            val timeNormResource: URL = getClass.getResource(timeNormModelPath)
-            // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
-            //val file = "./cache/english/timenorm_model.hdf5"
-            // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
-            //     public native void openFile(@StdString BytePointer var1, ...
-            // and needs native representation of the file.
-            Some(new TemporalCharbasedParser(file))
-          }
+        if (!useTimeNorm) None
+        else {
+          val timeNormResource: URL = getClass.getResource(timeNormModelPath)
+          // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+          // val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
+          val file = "/Users/vikasy/SEM_5_courses/eidos/src/main/resources/timenorm_model.hdf5"
+          // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
+          //     public native void openFile(@StdString BytePointer var1, ...
+          // and needs native representation of the file.
+          Some(new TemporalCharbasedParser(file))
+        }
+
+
+      val geonorm: Option[Geo_disambiguate_parser] =
+        if (!useGeoNorm) None
+        else {
+        val geoNormResource: URL = getClass.getResource(geoNormModelPath)
+        // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+        // val file = Paths.get(geoNormResource.toURI()).toFile().getAbsolutePath()
+        val file = "/Users/vikasy/SEM_5/RA/Xu_Ma_Hovy/model_OCT17.hdf5"
+        //val file = "./cache/english/timenorm_model.hdf5"
+        // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
+        //     public native void openFile(@StdString BytePointer var1, ...
+        // and needs native representation of the file.
+        Some(new Geo_disambiguate_parser(file))
+      }
+
+
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -153,7 +178,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         stopwordManager,
         hypothesisHandler,
         ontologyGrounders,
-        timenorm
+        timenorm,
+        geonorm
       )
     }
   }
@@ -167,6 +193,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
   def timenorm = loadableAttributes.timenorm
+  def geonorm = loadableAttributes.geonorm
 
   def reload() = loadableAttributes = LoadableAttributes()
 
@@ -177,6 +204,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     doc.sentences.foreach(addLexiconNER)
     doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
     doc.parseTime(loadableAttributes.timenorm)
+    doc.parseGeoNorm_flag(loadableAttributes.geonorm)
+
     doc.id = filename
     doc
   }

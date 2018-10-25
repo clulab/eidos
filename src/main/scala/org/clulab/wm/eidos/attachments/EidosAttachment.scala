@@ -2,21 +2,14 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.document.{DCT, TimeInterval}
-import org.clulab.wm.eidos.serialization.json.{
-  JLDAttachment => JLDEidosAttachment,
-  JLDScoredAttachment => JLDEidosScoredAttachment,
-  JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
-  JLDSerializer => JLDEidosSerializer,
-  JLDContextAttachment => JLDEidosContextAttachment
-}
+import org.clulab.wm.eidos.document.{DCT, GeoPhraseID, TimeInterval}
+import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
 import org.json4s._
 import org.json4s.JsonDSL._
 
 import scala.beans.BeanProperty
 import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.{mix, mixLast}
-import org.clulab.wm.eidos.document.TimeInterval
 
 @SerialVersionUID(1L)
 abstract class EidosAttachment extends Attachment with Serializable {
@@ -379,6 +372,30 @@ object Time {
 
   def apply(interval: TimeInterval) = new Time(interval)
 }
+
+
+class Location(location_phraseID: GeoPhraseID) extends ContextAttachment {
+
+  val text = location_phraseID.phraseID
+  val value = location_phraseID
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDContextAttachment(serializer, Location.kind)
+
+  override def toJson(): JValue = toJson(Location.label)
+}
+
+object Location {
+  val label = "Location"
+  val kind = "LocationExp"
+
+  def apply(interval: GeoPhraseID) = new Location(interval)
+}
+
+
+
+
+
 
 class DCTime(dct: DCT) extends ContextAttachment {
 

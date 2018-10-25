@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.GeoPhraseID
 
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
@@ -246,8 +247,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, doc.asInstanceOf[EidosDocument].times)
+    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
@@ -261,7 +262,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Array[List[TimeInterval]]): String = {
+  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Array[List[TimeInterval]], location: Array[List[GeoPhraseID]]): String = {
 
     var objectToReturn = ""
 
@@ -337,7 +338,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]], location: Array[List[GeoPhraseID]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
 
     // collect event mentions for display
@@ -372,6 +373,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       "text" -> sentenceText,
       "entities" -> mkJsonFromEntities(entities ++ topLevelTBM, tbMentionToId),
       "timexs" -> mkJsonFromTimeExpressions(time),
+      "geoexps" -> mkJsonFromLocationExpressions(location),
+
       "triggers" -> mkJsonFromEntities(triggers, tbMentionToId),
       "events" -> mkJsonFromEventMentions(events, tbMentionToId),
       "relations" -> mkJsonFromRelationMentions(relations, tbMentionToId)
@@ -451,6 +454,19 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
           case null => "Undef"
           case end => end.toString},
           d._3)))
+      )}
+    Json.toJson(timexs)
+  }
+
+  def mkJsonFromLocationExpressions(location: Array[List[GeoPhraseID]]): Json.JsValueWrapper = {
+    var x = 0
+    val timexs = for (t <- location; i <- t) yield {
+      x += 1
+      Json.arr(
+        s"X$x",
+        "GeoidPhrases",
+        Json.arr(Json.arr(i.StartOffset_locs,i.EndOffset_locs)),
+        Json.toJson(i.PhraseGeoID)
       )}
     Json.toJson(timexs)
   }

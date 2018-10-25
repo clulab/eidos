@@ -263,6 +263,23 @@ object TimEx {
   def apply(text: String) =  new TimEx(text)
 }
 
+object GeoLoc {
+  val abbrev = "GEO"
+
+  def apply(text: String) =  new GeoLoc(text)
+}
+
+class GeoLoc(text: String) extends ContextAttachmentSpec(text) {
+  override def toString = toString(GeoLoc.abbrev)
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[GeoLoc]
+
+  override protected def matchClass(attachment: ContextAttachment): Boolean = attachment match {
+    case _: Location => true
+    case _ => false
+  }
+}
+
 class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
   override def toString = toString("")
 
@@ -284,9 +301,14 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
   var tested = false
   var complaints = Seq[String]()
   
-  protected def matchAttachments(useTimeNorm: Boolean)(mention: Mention): Boolean =
+  protected def matchAttachments(useTimeNorm: Boolean, useGeoNorm: Boolean)(mention: Mention): Boolean =
       TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TriggeredAttachmentSpec]).map(_.asInstanceOf[TriggeredAttachmentSpec])) &&
-      (!useTimeNorm || ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[ContextAttachmentSpec]).map(_.asInstanceOf[ContextAttachmentSpec])))
+        ((useTimeNorm, useGeoNorm) match {
+          case (true, true) =>  ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[ContextAttachmentSpec]).map(_.asInstanceOf[ContextAttachmentSpec]))
+          case (true, false) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TimEx]).map(_.asInstanceOf[ContextAttachmentSpec]))
+          case (false, true) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[GeoLoc]).map(_.asInstanceOf[ContextAttachmentSpec]))
+          case _ => true
+        })
 
   protected def matchText(mention: TextBoundMention): Boolean = {
     val text = mention.text
@@ -295,21 +317,21 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
     success
   }
     
-  protected def testSpec(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[Mention] = {
+  protected def testSpec(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[Mention] = {
     val matches1 = mentions
         .filter(_.isInstanceOf[TextBoundMention])
         .map(_.asInstanceOf[TextBoundMention])
         .filter(matchText)
-        .filter(matchAttachments(useTimeNorm))
+        .filter(matchAttachments(useTimeNorm, useGeoNorm))
 
     val matches = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
     
     matches
   }
   
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
+  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val matches = testSpec(mentions, useTimeNorm)
+      val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
       if (matches.size < 1)
         complaints = Seq("Could not find NodeSpec " + this)
       else if (matches.size > 1)
@@ -359,9 +381,9 @@ object NodeSpec {
 }
 
 class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
-  override def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
+  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val matches = testSpec(mentions, useTimeNorm)
+      val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
       if (matches.size != 0)
         complaints = Seq("Could find AntiNodeSpec " + this)
       tested = true
@@ -431,10 +453,10 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
     matches
   }
   
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
+  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val causeComplaints = cause.test(mentions, useTimeNorm)
-      val effectComplaints = effect.test(mentions, useTimeNorm)
+      val causeComplaints = cause.test(mentions, useTimeNorm, useGeoNorm)
+      val effectComplaints = effect.test(mentions, useTimeNorm, useGeoNorm)
 
       val causeSuccess = causeComplaints.isEmpty
       val effectSuccess = effectComplaints.isEmpty
@@ -479,10 +501,10 @@ object EdgeSpec {
 class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends EdgeSpec(cause, event, effect) {
   override def toString(): String = toString("->)", "(->")
 
-  override def test(mentions: Seq[Mention], useTimeNorm: Boolean): Seq[String] = {
+  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
     if (!tested) {
-      val causeComplaints = cause.test(mentions, useTimeNorm)
-      val effectComplaints = effect.test(mentions, useTimeNorm)
+      val causeComplaints = cause.test(mentions, useTimeNorm, useGeoNorm)
+      val effectComplaints = effect.test(mentions, useTimeNorm, useGeoNorm)
 
       val causeSuccess = causeComplaints.isEmpty
       val effectSuccess = effectComplaints.isEmpty

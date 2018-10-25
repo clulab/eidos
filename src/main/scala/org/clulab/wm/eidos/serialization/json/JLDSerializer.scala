@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
-import org.clulab.wm.eidos.document.{DCT, EidosDocument, TimeInterval}
+import org.clulab.wm.eidos.document.{DCT, EidosDocument, GeoPhraseID, TimeInterval}
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -339,6 +339,8 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var 
         .map(attachment => newJLDAttachment(attachment))
     //val jldCAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[ContextAttachment]).map(attachment => newJLDAttachment(attachment))
     val jldTAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[Time]).map(attachment => newJLDAttachment(attachment))
+    val jldLAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[Location]).map(attachment => newJLDAttachment(attachment)) // for location
+
     val jldDAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[DCTime]).map(attachment => newJLDAttachment(attachment))
 
     // This might be used to test some groundings when they aren't configured to be produced.
@@ -356,7 +358,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var 
         ("canonicalName" -> mention.canonicalName) ~
         ("groundings" -> jldGroundings) ~
         (JLDProvenance.singular -> provenance()) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldTAttachments ++ jldDAttachments))
+        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldTAttachments ++ jldLAttachments ++ jldDAttachments))
   }
 }
 
@@ -611,6 +613,30 @@ object JLDTimex {
 }
 
 
+
+class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
+// The document, sentence, index above will be used to recognized words.
+  extends JLDObject(serializer, JLDGeoID.typename, geoid) {
+
+  override def toJObject(): JObject = {
+
+      serializer.mkType(this) ~
+      serializer.mkId(this) ~
+      ("startOffset" -> geoid.StartOffset_locs) ~
+      ("endOffset" -> geoid.EndOffset_locs) ~
+      ("text" -> geoid.phraseID) ~
+      ("geoID" -> geoid.PhraseGeoID)
+      // (JLDTimeInterval.plural -> toJObjects(jldIntervals))
+
+  }
+}
+
+object JLDGeoID {
+  val singular = "geoid"
+  val plural = "geoids"
+  val typename = "GeoidPhrases"
+}
+
 class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDDCT.typename, dct) {
@@ -645,6 +671,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val dependencies = sentence.graphs.get(key)
     val sent_id = document.sentences.indexOf(sentence)
     val timexes = document.asInstanceOf[EidosDocument].times(sent_id).map(new JLDTimex(serializer, _))
+    val geoExps = document.asInstanceOf[EidosDocument].geolocs(sent_id).map(new JLDGeoID(serializer, _))
+    // val timexes = document.asInstanceOf[EidosDocument].times(sent_id).map(new JLDTimex(serializer, _))
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue)
 
@@ -653,7 +681,9 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
         ("text" -> sentence.getSentenceText) ~
         (JLDWord.plural -> toJObjects(jldWords)) ~
         (JLDDependency.plural -> jldGraphMapPair) ~
-        (JLDTimex.plural -> toJObjects(timexes))
+        (JLDTimex.plural -> toJObjects(timexes)) ~
+        (JLDGeoID.plural -> toJObjects(geoExps))
+
   }
 }
 

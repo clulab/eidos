@@ -81,12 +81,13 @@ object TestUtils {
           else
             result ++ Seq("Mentions:\n" + toString(mentions))
       
-      def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions, useTimeNorm))
+      def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions, useTimeNorm, useGeoNorm))
       
-      def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions, useTimeNorm))
+      def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions, useTimeNorm, useGeoNorm))
     }
 
     def useTimeNorm = ieSystem.timenorm.isDefined
+    def useGeoNorm = ieSystem.geonorm.isDefined
   }
   
   lazy val ieSystem = new EidosSystem()
