@@ -4,6 +4,7 @@ import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestPortugueseDoc1 extends PortugueseTest {
+  /*
   // Text extracted from document S1415-43662014001200005 on Scielo
   { // Paragraph 1
     val text = """Resultados recentes de pesquisas apontam que condições adequadas de umidade
@@ -60,4 +61,5 @@ class TestPortugueseDoc1 extends PortugueseTest {
       tester.test(EdgeSpec(irrigacao, Causal, nutriente)) should be (successful)
     }
   }
+  */
 }

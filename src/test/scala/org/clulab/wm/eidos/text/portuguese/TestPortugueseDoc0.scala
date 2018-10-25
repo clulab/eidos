@@ -4,6 +4,7 @@ import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestPortugueseDoc0 extends PortugueseTest {
+  /*
   // Text extracted from document S1413-70542010000100031 on Scielo
   { // Paragraph 1
     val text = """A suplementação protéico-energética com 0,6% de MS em relação ao peso do animal,
@@ -51,5 +52,5 @@ class TestPortugueseDoc0 extends PortugueseTest {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(pastejo, Causal, desempenho)) should be (successful)
     }
-  }
+  }*/
 }

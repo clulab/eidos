@@ -4,6 +4,7 @@ import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestPortugueseDoc2 extends PortugueseTest {
+  /*
   // Text extracted from document S1516-35982007000300002 on Scielo
   { // Paragraph 1
     val text = """O sêmen ativado por NaHCO3 60 e 119 mM apresentou as maiores taxas de motilidade espermática."""
@@ -44,4 +45,5 @@ class TestPortugueseDoc2 extends PortugueseTest {
       tester.test(EdgeSpec(ativacao, Causal, motilidade)) should be (successful)
     }
   }
+  */
 }
