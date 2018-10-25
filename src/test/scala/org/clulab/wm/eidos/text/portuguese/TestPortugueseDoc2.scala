@@ -4,7 +4,6 @@ import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestPortugueseDoc2 extends PortugueseTest {
-  /*
   // Text extracted from document S1516-35982007000300002 on Scielo
   { // Paragraph 1
     val text = """O sêmen ativado por NaHCO3 60 e 119 mM apresentou as maiores taxas de motilidade espermática."""
@@ -14,7 +13,7 @@ class TestPortugueseDoc2 extends PortugueseTest {
 
     behavior of "TestPortugueseDoc2 Paragraph 1"
 
-    passingTest should "have correct edges 1" taggedAs(George) in {
+    waitingForProcessors should "have correct edges 1" taggedAs(George) in {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(composto, Causal, semen)) should be (successful)
     }
@@ -27,7 +26,7 @@ class TestPortugueseDoc2 extends PortugueseTest {
 
     behavior of "TestPortugueseDoc2 Paragraph 2"
 
-    passingTest should "have correct edges 1" taggedAs(George) in {
+    waitingForProcessors should "have correct edges 1" taggedAs(George) in {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(ativacao, Causal, motilidade)) should be (successful)
     }
@@ -40,10 +39,9 @@ class TestPortugueseDoc2 extends PortugueseTest {
 
     behavior of "TestPortugueseDoc2 Paragraph 3"
 
-    passingTest should "have correct edges 1" taggedAs(George) in {
+    waitingForProcessors should "have correct edges 1" taggedAs(George) in {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(ativacao, Causal, motilidade)) should be (successful)
     }
   }
-  */
 }

@@ -4,7 +4,6 @@ import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestPortugueseDoc0 extends PortugueseTest {
-  /*
   // Text extracted from document S1413-70542010000100031 on Scielo
   { // Paragraph 1
     val text = """A suplementação protéico-energética com 0,6% de MS em relação ao peso do animal,
@@ -16,7 +15,7 @@ class TestPortugueseDoc0 extends PortugueseTest {
 
     behavior of "TestPortugueseDoc0 Paragraph 1"
 
-    passingTest should "have correct edges 1" taggedAs(George) in {
+    waitingForProcessors should "have correct edges 1" taggedAs(George) in {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(suplementacao, Causal, bovinos)) should be (successful)
     }
@@ -29,7 +28,7 @@ class TestPortugueseDoc0 extends PortugueseTest {
 
     behavior of "TestPortugueseDoc0 Paragraph 2"
 
-    passingTest should "have correct edges 1" taggedAs(George) in {
+    waitingForProcessors should "have correct edges 1" taggedAs(George) in {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(suplementacao, Causal, producao)) should be (successful)
     }
@@ -43,14 +42,14 @@ class TestPortugueseDoc0 extends PortugueseTest {
 
     behavior of "TestPortugueseDoc0 Paragraph 3"
 
-    passingTest should "have correct edges 1" taggedAs(George) in {
+    waitingForProcessors should "have correct edges 1" taggedAs(George) in {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(pastejo, Causal, massa)) should be (successful)
     }
 
-    passingTest should "have correct edges 2" taggedAs(George) in {
+    waitingForProcessors should "have correct edges 2" taggedAs(George) in {
       val tester = new GraphTester(text)
       tester.test(EdgeSpec(pastejo, Causal, desempenho)) should be (successful)
     }
-  }*/
+  }
 }

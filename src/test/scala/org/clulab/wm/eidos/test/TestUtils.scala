@@ -70,6 +70,7 @@ object TestUtils {
                                 // filtering, basically because inference or coref would be needed
     val tempBrokenEntitiesTest = ignore
     val affectEventTest = ignore
+    val waitingForProcessors = ignore  // type of futureWorkTest -- added for tests which are now failing because they where designed using a SNAPSHOT version of processors
   }
 
   class ContraptionTest extends Test
