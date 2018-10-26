@@ -257,7 +257,7 @@ object YourClassName extends App {
 
 When called with
 ```bash
-sbt:eidos> runMain your.package.name.YourClassName
+sbt:eidos> runMain org.yourself.eidosClient.YourClassName
 ```
 
 it should produce output similar to this:
@@ -327,7 +327,7 @@ object YourClassName extends App {
 The output that results when such code is called with
 
 ```bash
-sbt:eidos> runMain your.package.name.YourClassName
+sbt:eidos> runMain org.yourself.eidosClient.YourClassName
 ```
 
 can be [quite long](https://github.com/clulab/eidos/wiki/API-output-examples#json-ld-output).
