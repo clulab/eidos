@@ -377,6 +377,14 @@ can be used to assemble a fat jar file with the command `sbt assembly`.
 Each of these commands results in files being written to the directory `target`.
 `sbt runMain` can run files that are (temporarily) stored in that location.
 
+The project can be readily imported into IntelliJ IDEA with the Scala plugin
+and compiled, run, and debugged from there.  In addition, the Eclipse plugin
+is configured for use.  The project can be converted for use with Eclipse
+with the command
+```bash
+> sbt eclipse
+```
+
 ## Configuring
 
 There are two main configuration files for Eidos: `reference.conf` and `eidos.conf`
@@ -390,8 +398,8 @@ adjustments.  These values in particular are often changed:
 The model used for time processing functions is included in the Eidos repository, so there
 is no other installation required.  The majority of the functionality is contained in a
 separate project, [timenorm](https://github.com/clulab/timenorm), which is separate from
-Eidos and declared in `built.sbt` as a library dependency.  Change the value from "false"
-to "true" to use the time functions.
+Eidos and declared in `built.sbt` as a library dependency.  Change the value from of
+`useTimeNorm` from `false` to `true` to use the time functions.
 
 Grounding does require additional installation.  There are two significantly large files of
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
@@ -405,14 +413,16 @@ more accurate.  Either should be downloaded, if necessary unzipped and untarred,
 file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
 Next check the configuration value for `wordToVecPath`.  It is already set up for `vectors.txt`,
 but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
-value for `useW2V` to "true".
+value for `useW2V` from `false` to `true`.
 
 ## Optimizing
 
 Processing the vector files and ontologies used in grounding can consume multiple minutes of time,
 so if you want to run Eidos more than once with the vectors, then it's useful to cache a
-processed version of them along with the otherwise preinstalled ontologies.  If the files are located
-as described above and the configuration file `eidos.conf` is adjusted appropriately, then the command
+processed version of them along with the otherwise preinstalled ontologies.  This requires a large
+amounnt of memory, possibly 8 or 10GB, so please read the [notes](notes) below.  If the files are located
+as described above and the configuration file `eidos.conf` is adjusted appropriately and there is
+enough memory, then the command
 ```
 sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
 ```
@@ -423,23 +433,50 @@ after caching so that assembly of the jar file is hastened as well.
 
 ## Translating
 
-
+Eidos is being translated into Portuguese!  The functionality is in the alpha stages.  To try it
+out, switch `language` in `eidos.conf` from `english` to `portuguese`.
 
 ## Integrating
 
-deploy local
+If you want to use Eidos in its default configuration, it is available to project management
+software like Maven and `sbt` in prepackaged form.  Instructions like the ones below
+can be used to declare the dependency.
+```scala
+libraryDependencies ++=
+  Seq(
+    "org.clulab"    %% "eidos"          % "0.2.2"
+  )
+```
 
-To access Eidos from Java, add the assembled jar file(s) under
-`target/` to your $CLASSPATH.  A file like `eidos-assembly-0.1.6-SNAPSHOT.jar`
-may suffice, depending on the build.  If necessary, see `build.sbt` for a list
-of runtime dependencies. 
+These instructions have otherwise assumed use of `sbt` which does significant management
+of Java's $CLASSPATH setting, directing Java both to the compiled class files and the jar files
+of library dependencies.  The easiest way to help Java use Eidos without direct aid of
+`sbt` is to "assemble" a single jar file for eidos:
+```bash
+> sbt assembly
+```
+This command should result in a large jar file being placed in a subdirectory of `target`
+based on the version of Scala configured and the current Eidos version number.  The file
+might be `target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jar`.  To access Eidos from Java,
+add the assembled jar file to your $CLASSPATH, project, or command line.
+```bash
+> java -Xmx6g -classpath target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jarorg.yourself.eidosClient.YourClassName
+```
 
-
-
-
-
-
-
+Another option is to "publish" the project locally, either in an Ivy repository as `sbt` prefers
+with `publishLocal`, or a local Maven repository with `publishM2`.  This will result in a smaller jar
+file for Eidos classes and a record of the library dependencies.
+```bash
+> sbt publishLocal
+```
+Eidos can then be used in other projects managed by `sbt` (or Maven) with the same instructions
+used for non-local storage.
+```
+libraryDependencies ++=
+  Seq(
+    "org.clulab"    %% "eidos"          % "0.2.2-SNAPSHOT"
+  )
+```
 
 # Notes
 
