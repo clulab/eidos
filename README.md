@@ -42,7 +42,8 @@ page.
 
 Eidos in this repository is formatted as a standard [sbt](https://www.scala-sbt.org/) project,
 that's the Scala Build Tool, so you will need to download and install `sbt` to "run" the
-included programs as described here.  `sbt` in turn requires Java, so that will need to have
+included programs as described here.  (See the section on [integrating](integrating) for other
+ways to use Eidos.)  `sbt` in turn requires Java, so that will need to have
 been installed as well, but that's the extent of it.  Other software packages that Eidos depends
 on will be downloaded automatically by `sbt`.  The contents of this repository can be downloaded
 with `git` or via the "Clone or download" button on the project's GitHub page.  Assuming you
@@ -53,9 +54,9 @@ the file `build.sbt` among others.  `cd` to this directory.
 
 The software includes several sample applications that demonstrate its abilities.  Some are more
 colorful and interactive and others are tailored for machine readable output.  They are fairly
-large programs and the software is configured in `.jvmopts` to supply Java with lots of memory.
-If you see complaints about inadequate heap space, please check the <a href="#notes">notes</a>
-section for possible remedies.
+large programs and the software is configured in file `.jvmopts` to supply Java with lots of memory.
+If you see complaints about inadequate heap space, please check the [notes](notes) section for
+possible remedies.
 
 ### Webapp
 
