@@ -343,7 +343,7 @@ Follow their links for details.
 ## INDRA
 
 Eidos reading output (JSON-LD) can be visualized using [INDRA](https://github.com/sorgerlab/indra)
-and Jupyter notebooks. Here is an example.
+and Jupyter notebooks. Here is an example:
 
 ![alt text](/doc/delphi_example.png?raw=True")
 
@@ -387,13 +387,43 @@ adjustments.  These values in particular are often changed:
 - useTimeNorm - activates time processing functions
 - useW2V - turns on grounding, which uses Word2Vec
 
+The model used for time processing functions is included in the Eidos repository, so there
+is no other installation required.  The majority of the functionality is contained in a
+separate project, [timenorm](https://github.com/clulab/timenorm), which is separate from
+Eidos and declared in `built.sbt` as a library dependency.  Change the value from "false"
+to "true" to use the time functions.
 
+Grounding does require additional installation.  There are two significantly large files of
+vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
+[Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
 
+- [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
+- [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
 
+Only one of the files can be used at a time.  The former is smaller and quicker and the latter
+more accurate.  Either should be downloaded, if necessary unzipped and untarred, and then the *.txt
+file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
+Next check the configuration value for `wordToVecPath`.  It is already set up for `vectors.txt`,
+but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
+value for `useW2V` to "true".
 
 ## Optimizing
 
+Processing the vector files and ontologies used in grounding can consume multiple minutes of time,
+so if you want to run Eidos more than once with the vectors, then it's useful to cache a
+processed version of them along with the otherwise preinstalled ontologies.  If the files are located
+as described above and the configuration file `eidos.conf` is adjusted appropriately, then the command
+```
+sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
+```
+should write serialized versions of the known ontologies and configured vector file to the directory
+`./cache/`.  To use the cached copies, set `useCache = true` in `eidos.conf`.  The program should
+work significantly faster afterwards.  The text version of the vector file(s) can be (re)moved
+after caching so that assembly of the jar file is hastened as well.
+
 ## Translating
+
+
 
 ## Integrating
 
@@ -408,41 +438,6 @@ of runtime dependencies.
 
 
 
-
-# Related resources
-
-If you are working on this project, you may be interested in [additional
-materials](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A)
-stored in the cloud. Access may be limited by permission settings.  Other
-documents are included in the /doc directory of the repository.
-
-Of particular interest for those involved with grounding are two very large files
-of vectors that are used for the Word2Vec algorithm.  They are
-
-- [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
-- [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
-
-To use these files, download one or both and place them in the project's
-`src/main/resources/org/clulab/wm/eidos/w2v` directory.  The first file can be used as is, but
-the second file needs to be extracted before use with a command like
-`tar xvzf glove.840B.300d.txt.tgz`.)  Indicate to Eidos
-that they should be used by setting `useW2V = true` in
-`src/main/resources/eidos.conf`.  Only one can be used at a time, so make sure the
-appropriate one of these lines is uncommented, without the `//`.
-
-- `wordToVecPath = "/org/clulab/wm/eidos/w2v/vectors.txt"`
-- `wordToVecPath = "/org/clulab/wm/eidos/w2v/glove.840B.300d.vectors.txt"`
-
-Processing the files can consume multiple minutes of time, so if you want to run
-Eidos more than a couple of times with the vectors, then it's useful to cache a
-processed version of them along with the ontologies they work with.  This can be
-accomplished with the command
-```
-sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
-```
-This will by default write serialized versions of the known ontologies and configured
-vector file to `./cache/`.  To use the cached copies, set `useCachedOntologies = true`
-in `src/main/resources/eidos.conf`.
 
 
 
