@@ -234,7 +234,7 @@ To produce a pretty display of the extracted mentions, use `EidosSystem` to extr
 an `annotatedDocument` from the text and then display its mentions.
 
 ```scala
-package your.package.name
+package org.yourself.eidosClient
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
@@ -299,7 +299,7 @@ To export extractions, and in fact causal graphs, as JSON-LD, take the `annotate
 serialize it, and then print a pretty string version.
 
 ```scala
-package your.package.name
+package org.yourself.eidosClient
 
 import scala.collection.Seq
 import org.clulab.serialization.json.stringify
@@ -446,11 +446,6 @@ arrange for more memory.  No other changes should be necessary.  Alternatively,
 an environment variable specific to `sbt` can be used:
 
 `SBT_OPTS=-Xmx6g`
-
-If need be, a command line argument will work as well.
-```bash
-> sbt -J-Xmx8G
-```
 
 IDEs and other development tools are generally unaware of `.jvmopts`, but can be
 configured via an environment variable instead.
