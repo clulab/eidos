@@ -135,6 +135,8 @@ lazy val webapp = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
+    case "META-INF/services/org.nd4j.linalg.factory.Nd4jBackend" => MergeStrategy.first
+    case "META-INF/services/org.nd4j.linalg.compression.NDArrayCompressor" => MergeStrategy.first
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
     case x => MergeStrategy.first
 }
