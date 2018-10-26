@@ -20,10 +20,58 @@ class NegationHandler(val language: String) {
     // Note that the approach can be different for different languages!
     language match {
       case "english" => mentions.map(detectNegationEnglish)
-      case "portuguese" => ???
+      case "portuguese" => mentions.map(detectNegationPortuguese)
       case _ => throw new RuntimeException(s"Unsupported language: $language")
     }
   }
+
+  def detectNegationPortuguese(m: Mention): Mention = {
+    m match {
+      case event: EventMention =>
+        // Dependency Negations
+        val depNegations = gatherNegDepNegations(event)
+        //
+        handleNegations(m.asInstanceOf[EventMention], depNegations.toSet)
+      case _ => m
+    }
+  }
+
+  def gatherNegDepNegationsPortuguese(event: EventMention):Seq[Mention] = {
+    val dependencies = event.sentenceObj.dependencies
+
+    /////////////////////////////////////////////////
+    // Check the outgoing edges from the trigger looking
+    // for a advmod label that lands in words like (não e sem)
+    // ex1: chuva não provoca alagamento.
+    // ex2: O período de latência diminui os riscos da prematuridade sem aumentar a morbidade.
+    // TODO: maybe incluse 'nem'
+    val outgoing = dependencies match {
+      case Some(deps) => deps.outgoingEdges
+      case None => Array.empty
+    }
+
+    val negations = new ArrayBuffer[Mention]
+    val words = event.sentenceObj.words
+    for {
+      tok <- event.tokenInterval
+      out <- outgoing.lift(tok)
+      (ix, label) <- out
+      if (label == "advmod" && words(ix) == "não") | (label == "mark" && words(ix) == "sem")
+    } {
+      negations.append(
+        new TextBoundMention(
+          Seq("Negation_trigger"),
+          Interval(ix),
+          sentence = event.sentence,
+          document = event.document,
+          keep = event.keep,
+          foundBy = event.foundBy
+        )
+      )
+    }
+    negations
+  }
+
 
   def detectNegationEnglish(m: Mention): Mention = {
     m match {
