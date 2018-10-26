@@ -27,7 +27,7 @@ page.
     - [Prettified Display](#prettified-display)
     - [Export to JSON-LD](#export-to-json-ld)
 - Connecting Eidos
-  - [Indra](#indra)
+  - [INDRA](#indra)
   - [Delphi](#delphi)
 - Working with Eidos
   - [Compiling](#compiling)
@@ -211,7 +211,7 @@ but it allows specification of directories on the command line and only outputs
 JSON-LD format.  The command is
 
 ```bash
-> sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory /path/to/input/directory /path/to/output/directory"
+> sbt "runMain org.clulab.wm.eidos.apps.ExtractFromDirectory path/to/input/directory path/to/output/directory"
 ```
 
 or its two-line counterpart.  Again, files in the input directory should end with `.txt` and
@@ -336,41 +336,18 @@ on a wiki page.
 
 
 # Connecting Eidos
-## Indra
-## Delphi
-# Working with Eidos
-## Compiling
 
-This is a standard [sbt](https://www.scala-sbt.org/) project, so use the usual
-commands, e.g., `sbt compile` to compile or `sbt assembly` to create a jar file.
-`sbt runMain` can be used to run some of the example applications directly, as
-described below.  To access Eidos from Java, add the assembled jar file(s) under
-`target/` to your $CLASSPATH.  A file like `eidos-assembly-0.1.6-SNAPSHOT.jar`
-may suffice, depending on the build.  If necessary, see `build.sbt` for a list
-of runtime dependencies. 
+Output of Eidos can already be connected to other tools for visualization and modelling.
+Follow their links for details.
 
-## Configuring
-## Optimizing
-## Translating
-## Integrating
-# Notes
-# License
+## INDRA
 
-## How to compile the source code
-
-
-
-## How to use Eidos output
-
-### Visualizing Eidos output
-
-Eidos reading output can be visualized using
-[INDRA](https://github.com/sorgerlab/indra) and Jupyter notebooks. See below for
-an example.
+Eidos reading output (JSON-LD) can be visualized using [INDRA](https://github.com/sorgerlab/indra)
+and Jupyter notebooks. Here is an example.
 
 ![alt text](/doc/delphi_example.png?raw=True")
 
-### Using Eidos output for modeling
+## Delphi
 
 Events extracted using Eidos can be converted to
 [INDRA](https://github.com/sorgerlab/indra) Influence statements, which are
@@ -390,11 +367,45 @@ that assembles causal fragments extracted by Eidos into a causal analysis graph.
 This causal analysis graph is then converted to a dynamic Bayes network and used
 to make probabilistic predictions. 
 
+# Working with Eidos
 
-# License
+## Compiling
 
-While we will soon be licensed as Apache, currently one dependency has a GPL
-licence.  This will be removed very soon and the license will be updated.
+This is a standard [sbt](https://www.scala-sbt.org/) project, so the usual
+command, `sbt compile`, can be used for compilation.  A plugin is included which
+can be used to assemble a fat jar file with the command `sbt assembly`.
+Each of these commands results in files being written to the directory `target`.
+`sbt runMain` can run files that are (temporarily) stored in that location.
+
+## Configuring
+
+There are two main configuration files for Eidos: `reference.conf` and `eidos.conf`
+in the directory `src/main/resources`.  The former is meant to contain default values
+that aren't very likely to change.  The latter is where users are advised to make
+adjustments.  These values in particular are often changed:
+
+- useTimeNorm - activates time processing functions
+- useW2V - turns on grounding, which uses Word2Vec
+
+
+
+
+
+## Optimizing
+
+## Translating
+
+## Integrating
+
+deploy local
+
+To access Eidos from Java, add the assembled jar file(s) under
+`target/` to your $CLASSPATH.  A file like `eidos-assembly-0.1.6-SNAPSHOT.jar`
+may suffice, depending on the build.  If necessary, see `build.sbt` for a list
+of runtime dependencies. 
+
+
+
 
 
 
@@ -460,3 +471,8 @@ Other situations may require a more general setting.
 
 The procedure for defining these variables is dependent on operating system and
 shell.
+
+# License
+
+While we will soon be licensed as Apache, currently one dependency has a GPL
+licence.  This will be removed very soon and the license will be updated.
