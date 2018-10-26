@@ -77,7 +77,7 @@ you posted on the progress.
 After starting the webapp, use a web browser to navigate to `localhost:9000`.  There you should
 see something like this:
 
-![Webapp window](/doc/webapp_empty.png?raw=True")
+![Webapp window without text](/doc/webapp_empty.png?raw=True")
 
 You can now submit texts for Eidos to process.  Please note that the very first submission will
 require extra time as lazily loaded parts of the system are initialized, but subsequent texts
@@ -86,6 +86,7 @@ will be processed much more quickly.
 To eventually escape from `sbt`, you can stop the web server with Control-D and then quit the
 program with `exit`.
 
+![Webapp window with text](/doc/webapp_full.png?raw=True")
 
 ### Interactive Shell
 
