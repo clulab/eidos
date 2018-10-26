@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/clulab/eidos.svg?branch=master)](https://travis-ci.org/clulab/eidos)
 
+
 # Eidos
 
 Eidos is an open-domain machine reading system designed by the [Computational
@@ -15,7 +16,8 @@ for example) as in "food insecurity causes increased migration".  The list of
 arguments and events is updated frequently and is documented on the [JSON-LD](https://github.com/clulab/eidos/wiki/JSON-LD)
 page.
 
-**Contents**
+
+## Contents
 
 - Running Eidos
   - Using the Sample Apps
@@ -38,11 +40,12 @@ page.
 - [Notes](#notes)
 - [License](#license)
 
+
 # Running Eidos
 
 Eidos in this repository is formatted as a standard [sbt](https://www.scala-sbt.org/) project,
 that's the Scala Build Tool, so you will need to download and install `sbt` to "run" the
-included programs as described here.  (See the section on [integrating](integrating) for other
+included programs as described here.  (See the section on [integrating](#integrating) for other
 ways to use Eidos.)  `sbt` in turn requires Java, so that will need to have
 been installed as well, but that's the extent of it.  Other software packages that Eidos depends
 on will be downloaded automatically by `sbt`.  The contents of this repository can be downloaded
@@ -50,19 +53,20 @@ with `git` or via the "Clone or download" button on the project's GitHub page.  
 have done this and any necessary unzipping, you should have a directory called `eidos` containing
 the file `build.sbt` among others.  `cd` to this directory.
 
+
 ## Using the Sample Apps
 
 The software includes several sample applications that demonstrate its abilities.  Some are more
 colorful and interactive and others are tailored for machine readable output.  They are fairly
 large programs and the software is configured in file `.jvmopts` to supply Java with lots of memory.
-If you see complaints about inadequate heap space, please check the [notes](notes) section for
+If you see complaints about inadequate heap space, please check the [notes](#notes) section for
 possible remedies.
+
 
 ### Webapp
 
 The webapp provides the most colorful, graphical, and perhaps easiest to understand output.
 It can be started up directly from the command line in one fell swoop
-
 ```bash
 > sbt webapp/run
 ```
@@ -71,6 +75,7 @@ or from within `sbt` with
 > sbt
 sbt:eidos> webapp/run
 ```
+
 `sbt` may take several minutes to bring up the application, especially the first time, as various
 dependencies are downloaded and Eidos itself is compiled.  Numerous logging messages should keep
 you posted on the progress.
@@ -84,17 +89,17 @@ You can now submit texts for Eidos to process.  Please note that the very first 
 require extra time as lazily loaded parts of the system are initialized, but subsequent texts
 will be processed much more quickly.
 
+![Webapp window with text](/doc/webapp_full.png?raw=True")
+
 To eventually escape from `sbt`, you can stop the web server with Control-D and then quit the
 program with `exit`.
 
-![Webapp window with text](/doc/webapp_full.png?raw=True")
 
 ### Interactive Shell
 
 EidosShell is an interactive text-based program for testing the output of Eidos.  It's output is
-less complete than the webapp, but it stands alone, no web browser is required, and consumes
+less complete than the webapp, but it stands alone, no web browser is required, and it consumes
 fewer resources.  A script is provided to run it with
-
 ```bash
 ./shell
 ```
@@ -113,14 +118,12 @@ eidos:sbt> runMain org.clulab.wm.eidos.apps.EidosShell
 ```
 
 You should eventually be prompted for an input text or command:
-
 ```
 (Eidos)>>> Food insecurity causes increased migration.
 ```
 
 The first text processed will again take extra time as the lazily loaded parts are initialized,
 but the eventual pertinent output should look substantially similar to
-
 ```
 sentence #0
 Food insecurity causes increased migration .
@@ -184,6 +187,7 @@ List(Causal, DirectedRelation, EntityLinker, Event) => Food insecurity causes in
 
 To exit the program, enter `:exit` as the menu indicates.  Another `exit` will close `sbt`.
 
+
 ### ExtractAndExport
 
 If the texts to be processed can be placed into one or more files, especially if the files
@@ -194,7 +198,6 @@ can be edited.  (Other apps from the section below allow command line specificat
 more of the parameters.)  However, if default values are satisfactory, one command will process
 the *.txt files into *.txt.jsonld, *.txt.mitre.tsv, and *.txt.serialized with output in
 corresponding formats.
-
 ```bash
 > sbt "runMain org.clulab.wm.eidos.apps.ExtractAndExport"
 ```
@@ -203,6 +206,7 @@ or of course
 > sbt
 std:eidos> runMain org.clulab.wm.eidos.apps.ExtractAndExport
 ```
+
 
 ### Other Apps
 
@@ -224,18 +228,18 @@ this and most Java-like programs.
 ## Using the Scala API
 
 One is of course not limited to using the existing apps: one can write new programs which
-make use of Eidos's Scala interface.  New programs can be contained in the same `sbt` project
+make use of Eidos's Scala/Java interface.  New programs can be contained in the same `sbt` project
 or a different one, in Java projects, in Python projects, or elsewhere.  See the
-section on <a href="#integration">integration</a> for tips on how this is accomplished.
+section on [integration](#integration) for tips on how this is accomplished.
 This description assumes that a program is added to the collection of existing apps in
 their `apps` directory or somewhere nearby.  There are two major output formats provided
 through the Scala API.
+
 
 ### Prettified Display
 
 To produce a pretty display of the extracted mentions, use `EidosSystem` to extract
 an `annotatedDocument` from the text and then display its mentions.
-
 ```scala
 package org.yourself.eidosClient
 
@@ -260,7 +264,6 @@ When called with
 ```bash
 sbt:eidos> runMain org.yourself.eidosClient.YourClassName
 ```
-
 it should produce output similar to this:
 
 ```
@@ -300,7 +303,6 @@ This description is based on the [ExtractFromText](https://github.com/clulab/eid
 
 To export extractions, and in fact causal graphs, as JSON-LD, take the `annotatedDocument`, create a `JLDCorpus`,
 serialize it, and then print a pretty string version.
-
 ```scala
 package org.yourself.eidosClient
 
@@ -341,12 +343,13 @@ on a wiki page.
 Output of Eidos can already be connected to other tools for visualization and modelling.
 Follow their links for details.
 
+
 ## INDRA
 
 Eidos reading output (JSON-LD) can be visualized using [INDRA](https://github.com/sorgerlab/indra)
 and Jupyter notebooks. Here is an example:
-
 ![alt text](/doc/delphi_example.png?raw=True")
+
 
 ## Delphi
 
@@ -368,7 +371,9 @@ that assembles causal fragments extracted by Eidos into a causal analysis graph.
 This causal analysis graph is then converted to a dynamic Bayes network and used
 to make probabilistic predictions. 
 
+
 # Working with Eidos
+
 
 ## Compiling
 
@@ -386,6 +391,7 @@ Eclipse with the command
 > sbt eclipse
 ```
 
+
 ## Configuring
 
 There are two main configuration files for Eidos: `reference.conf` and `eidos.conf`
@@ -396,13 +402,13 @@ adjustments.  These values in particular are often changed:
 - useTimeNorm - activates time processing functions
 - useW2V - turns on grounding, which uses Word2Vec
 
-The model used for time processing functions is included in the Eidos repository, so there
+The model file used for time processing functions is included in the Eidos repository, so there
 is no other installation required for that.  The majority of the functionality is contained
 in the project [timenorm](https://github.com/clulab/timenorm), which is separate from
 Eidos and declared in `built.sbt` as a library dependency.  Change the value of
 `useTimeNorm` from `false` to `true` to use the time functions.
 
-Grounding does require additional installation.  There are two significantly large files of
+Grounding **does** require additional installation.  There are two significantly large files of
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
 [Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
 
@@ -410,38 +416,41 @@ vectors used for the Word2Vec algorithm which are not stored on GitHub but on
 - [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
 
 Only one of the files can be configured at a time.  The former is smaller and quicker and the latter
-more accurate.  Either should be downloaded, if necessary unzipped and untarred, and then the *.txt
+more accurate.  Either should be downloaded and if necessary unzipped and untarred, and then the *.txt
 file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
 Next check the configuration value for `wordToVecPath`.  It is already set up for `vectors.txt`,
 but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
 value for `useW2V` from `false` to `true`.
 
+
 ## Optimizing
 
 Processing the vector files and ontologies used in grounding can consume multiple minutes of time,
 so if you want to run Eidos more than once with the vectors, then it's useful to cache a
-processed version of them along with the otherwise preinstalled ontologies.  This requires a large
-amounnt of memory, possibly 8 or 10GB, so please read the [notes](notes) below.  If the files are located
+preprocessed version of them along with the otherwise preinstalled ontologies.  This requires a large
+amounnt of memory, possibly 8 or 10GB, so please read the [notes](#notes) below.  If the files are located
 as described above and the configuration file `eidos.conf` is adjusted appropriately and there is
 enough memory, then the command
-```
-sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
+```bash
+> sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
 ```
 should write serialized versions of the known ontologies and configured vector file to the directory
 `./cache/`.  To use the cached copies, set `useCache = true` in `eidos.conf`.  The program should
 work significantly faster afterwards.  The text version of the vector file(s) can be (re)moved
 after caching so that assembly of the jar file is hastened as well.
 
+
 ## Translating
 
 Eidos is being translated into Portuguese!  The functionality is in the alpha stages.  To try it
 out, switch `language` in `eidos.conf` from `english` to `portuguese`.
 
+
 ## Integrating
 
 If you want to use Eidos in its default configuration, it is available to project management
-software like Maven and `sbt` in prepackaged form.  Instructions like the ones below
-can be used to declare the dependency.
+software like Maven and `sbt` in prepackaged form, independencly of the GitHub repository.
+Code like that below can be used to declare the dependency.
 ```scala
 libraryDependencies ++=
   Seq(
@@ -450,9 +459,9 @@ libraryDependencies ++=
 ```
 
 These instructions have otherwise assumed use of `sbt` which does significant management
-of Java's $CLASSPATH setting, directing Java both to the compiled class files and the jar files
+of Java's $CLASSPATH settings, directing Java both to the compiled class files and the jar files
 of library dependencies.  The easiest way to help Java use Eidos without direct aid of
-`sbt` is to "assemble" a single jar file for eidos:
+`sbt` is to "assemble" a single jar file for Eidos:
 ```bash
 > sbt assembly
 ```
@@ -479,12 +488,14 @@ libraryDependencies ++=
   )
 ```
 
+
 # Notes
 
-The default size of the memory allocation pool for the JVM is usually 1/4 of your physical memory,
-but Eidos may require more RAM than that.  It is currently being developed and tested with
-a 6GB limit or more if timenorm or grounding is configured.  Performance can suffer
-significantly if the Java garbage collector is activated frequently.
+The default size of the memory allocation pool for the JVM is usually 1/4 of the
+computer's physical memory, but Eidos may require more RAM than that.  It is currently
+being developed and tested with a 6GB limit or more if timenorm or grounding is
+configured.  Performance can suffer significantly if the Java garbage collector is
+activated frequently.
 
 For those using `sbt`, the file `.jvmopts` is included with the source code to
 arrange for more memory.  No other changes should be necessary.  Alternatively,
@@ -503,6 +514,7 @@ Other situations may require a more general setting.
 
 The procedure for defining these variables is dependent on operating system and
 shell.
+
 
 # License
 
