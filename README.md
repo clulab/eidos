@@ -77,6 +77,7 @@ you posted on the progress.
 After starting the webapp, use a web browser to navigate to `localhost:9000`.  There you should
 see something like this:
 
+![Webapp window](/doc/webapp_empty.png?raw=True")
 
 You can now submit texts for Eidos to process.  Please note that the very first submission will
 require extra time as lazily loaded parts of the system are initialized, but subsequent texts
