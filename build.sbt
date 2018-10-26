@@ -62,7 +62,6 @@ libraryDependencies ++= {
   Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
 }
 
-
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test can seemingly only be run once before it will fail with
 // java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
