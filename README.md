@@ -379,8 +379,8 @@ Each of these commands results in files being written to the directory `target`.
 
 The project can be readily imported into IntelliJ IDEA with the Scala plugin
 and compiled, run, and debugged from there.  In addition, the Eclipse plugin
-is configured for use.  The project can be converted for use with Eclipse
-with the command
+is configured for use.  The project can be converted for use with a Scala-fortified
+Eclipse with the command
 ```bash
 > sbt eclipse
 ```
@@ -396,9 +396,9 @@ adjustments.  These values in particular are often changed:
 - useW2V - turns on grounding, which uses Word2Vec
 
 The model used for time processing functions is included in the Eidos repository, so there
-is no other installation required.  The majority of the functionality is contained in a
-separate project, [timenorm](https://github.com/clulab/timenorm), which is separate from
-Eidos and declared in `built.sbt` as a library dependency.  Change the value from of
+is no other installation required for that.  The majority of the functionality is contained
+in the project [timenorm](https://github.com/clulab/timenorm), which is separate from
+Eidos and declared in `built.sbt` as a library dependency.  Change the value of
 `useTimeNorm` from `false` to `true` to use the time functions.
 
 Grounding does require additional installation.  There are two significantly large files of
@@ -408,7 +408,7 @@ vectors used for the Word2Vec algorithm which are not stored on GitHub but on
 - [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
 - [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
 
-Only one of the files can be used at a time.  The former is smaller and quicker and the latter
+Only one of the files can be configured at a time.  The former is smaller and quicker and the latter
 more accurate.  Either should be downloaded, if necessary unzipped and untarred, and then the *.txt
 file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
 Next check the configuration value for `wordToVecPath`.  It is already set up for `vectors.txt`,
@@ -460,7 +460,7 @@ based on the version of Scala configured and the current Eidos version number.  
 might be `target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jar`.  To access Eidos from Java,
 add the assembled jar file to your $CLASSPATH, project, or command line.
 ```bash
-> java -Xmx6g -classpath target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jarorg.yourself.eidosClient.YourClassName
+> java -Xmx6g -classpath target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jar org.yourself.eidosClient.YourClassName
 ```
 
 Another option is to "publish" the project locally, either in an Ivy repository as `sbt` prefers
@@ -471,7 +471,7 @@ file for Eidos classes and a record of the library dependencies.
 ```
 Eidos can then be used in other projects managed by `sbt` (or Maven) with the same instructions
 used for non-local storage.
-```
+```scala
 libraryDependencies ++=
   Seq(
     "org.clulab"    %% "eidos"          % "0.2.2-SNAPSHOT"
@@ -480,11 +480,10 @@ libraryDependencies ++=
 
 # Notes
 
-The default size of the memory allocation pool for the JVM is 1/4 of your physical memory,
+The default size of the memory allocation pool for the JVM is usually 1/4 of your physical memory,
 but Eidos may require more RAM than that.  It is currently being developed and tested with
-a 6GB limit or 8GB if timenorm or grounding is configured.  Performance can suffer
-significantly if the Java garbage collector is activated frequently, and lack of memory
-is the usualy cause.
+a 6GB limit or more if timenorm or grounding is configured.  Performance can suffer
+significantly if the Java garbage collector is activated frequently.
 
 For those using `sbt`, the file `.jvmopts` is included with the source code to
 arrange for more memory.  No other changes should be necessary.  Alternatively,
