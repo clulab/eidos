@@ -12,7 +12,7 @@ Eidos identifies entities like "food insecurity" along with a growing list of ar
 on those entities, such as `increases` / `decreases` / `quantifications`.  It
 subsequently detects events that occur between entities (directed causal events,
 for example) as in "food insecurity causes increased migration".  The list of
-arguments and events is updated frequently and is documented on the [JSON LD](https://github.com/clulab/eidos/wiki/JSON-LD)
+arguments and events is updated frequently and is documented on the [JSON-LD](https://github.com/clulab/eidos/wiki/JSON-LD)
 page.
 
 **Contents**
@@ -234,7 +234,7 @@ To produce a pretty display of the extracted mentions, use `EidosSystem` to extr
 an `annotatedDocument` from the text and then display its mentions.
 
 ```scala
-package your.package.name
+package org.yourself.eidosClient
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMention
@@ -299,7 +299,7 @@ To export extractions, and in fact causal graphs, as JSON-LD, take the `annotate
 serialize it, and then print a pretty string version.
 
 ```scala
-package your.package.name
+package org.yourself.eidosClient
 
 import scala.collection.Seq
 import org.clulab.serialization.json.stringify
@@ -435,9 +435,11 @@ in `src/main/resources/eidos.conf`.
 
 # Notes
 
-The default size of the memory allocation pool for the JVM is 1/4 of your
-physical memory, but Eidos may require
-more RAM than that.  It is currently being developed and tested with a 6GB limit.
+The default size of the memory allocation pool for the JVM is 1/4 of your physical memory,
+but Eidos may require more RAM than that.  It is currently being developed and tested with
+a 6GB limit or 8GB if timenorm or grounding is configured.  Performance can suffer
+significantly if the Java garbage collector is activated frequently, and lack of memory
+is the usualy cause.
 
 For those using `sbt`, the file `.jvmopts` is included with the source code to
 arrange for more memory.  No other changes should be necessary.  Alternatively,
