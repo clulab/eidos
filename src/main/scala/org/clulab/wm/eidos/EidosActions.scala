@@ -5,7 +5,7 @@ import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, MentionUtils}
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -17,7 +17,6 @@ import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
-
 import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.document.GeoPhraseID
 
@@ -56,13 +55,11 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
     // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
     val modifiedMentions = assemble2 ++ nonCausal
 
-    // Basic coreference, hedging, and negation
+    // Basic coreference
     val afterResolving = basicDeterminerCoref(modifiedMentions, state)
-//    val afterHedging = HypothesisHandler.detectHypotheses(afterResolving, state)
-    val afterNegation = NegationHandler.detectNegations(afterResolving)
 
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
-    afterNegation
+    afterResolving
   }
 
   def basicDeterminerCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
@@ -450,10 +447,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
     def addAttachments(mention: Mention, attachments: Seq[Attachment], foundByName: String): Mention = {
-      var out = mention
-      for {
-        a <- attachments
-      } out = out.withAttachment(a)
+      val out = MentionUtils.withMoreAttachments(mention, attachments)
 
       out match {
         case tb: TextBoundMention => tb.copy(foundBy=foundByName)
@@ -529,7 +523,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
         val bestEntity = tieBreaker(bestEntities)
 
-        copyWithAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
+        MentionUtils.withOnlyAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
       }
       else
         tieBreaker(entities)
@@ -537,14 +531,6 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
 
     val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
     res
-  }
-
-  // Iteratively creates a mention which contains all of the passed in Attachments and no others
-  def copyWithAttachments(mention: Mention, attachments: Seq[Attachment]): Mention = {
-    // This is very inefficient, but the interface only allows for adding and subtracting one at a time.
-    val attachmentless = mention.attachments.foldLeft(mention)((mention, attachment) => mention.withoutAttachment(attachment))
-
-    attachments.foldLeft(attachmentless)((mention, attachment) => mention.withAttachment(attachment))
   }
 
   // Filter out substring attachments, then keep most complete.
@@ -603,13 +589,13 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
 
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
-    var newTokenInterval = orig.tokenInterval
-    if (mkNewInterval) {
+    val newTokenInterval = if (mkNewInterval) {
       // All involved token intervals, both for the original event and the expanded arguments
       val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
       // Find the largest span from these intervals
-      newTokenInterval = getNewTokenInterval(allIntervals)
+      getNewTokenInterval(allIntervals)
     }
+    else orig.tokenInterval
 
     val paths = for {
       (argName, argPathsMap) <- orig.paths
@@ -850,19 +836,19 @@ object EidosActions extends Actions {
 //    "^nmod_including$".r,
     "acl:relcl".r,
     "advcl_to".r,
-    "^nmod_without$".r,
-    "^nmod_except".r,
-    "^nmod_since".r,
-    "^nmod_as".r,
-    "^nmod_due_to".r,
-    "^nmod_given".r,
-//    "^nmod_among".r
+    "^advcl_because".r,
     "^case".r,
     "^conj".r,
     "^cc$".r,
+    "^nmod_as".r,
+    "^nmod_because".r,
+    "^nmod_due_to".r,
+    "^nmod_except".r,
+    "^nmod_given".r,
+    "^nmod_since".r,
+    "^nmod_without$".r,
     "^punct".r,
     "^ref$".r
-
   )
 
   val INVALID_INCOMING = Set[scala.util.matching.Regex](

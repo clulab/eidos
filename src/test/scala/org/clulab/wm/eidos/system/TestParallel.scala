@@ -6,7 +6,7 @@ import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.util.Random
 
-class TestParallel extends Test {
+class TestParallel extends ExtractionTest {
 
   // This text has been found to be problematic
   protected val texts = Array(
@@ -44,7 +44,7 @@ class TestParallel extends Test {
 //    def innerToText = toText(new EidosSystem())
 
     val expected = innerToText
-    val threads = 8
+    val threads = 2 // 8 // Cut this down for Travis
 
     behavior of "parallel EidosSystem calling of annotate"
 

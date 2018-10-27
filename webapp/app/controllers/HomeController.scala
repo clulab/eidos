@@ -29,7 +29,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem = new EidosSystem()
-  var proc = ieSystem.proc
+  val proc = ieSystem.proc
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -299,6 +299,13 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
     }
 
+    // GeoLocations
+    objectToReturn += "<h2>Found GeoLocations:</h2>"
+    for (l <-location) {
+      objectToReturn += s"${DisplayUtils.webAppGeoLocations(l)}"
+    }
+
+
     // Concepts
     val entities = mentions.filter(_.odinMention matches "Entity")
     if (entities.nonEmpty){
@@ -464,7 +471,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       x += 1
       Json.arr(
         s"X$x",
-        "GeoidPhrases",
+        "x",
         Json.arr(Json.arr(i.StartOffset_locs,i.EndOffset_locs)),
         Json.toJson(i.PhraseGeoID)
       )}

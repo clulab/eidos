@@ -5,46 +5,42 @@
 #   - the system will split on newlines and commas
 #   - any line beginning with # will be ignored as a comment
 #
-background
-common
-fact
-first
-hour
-introduction
-invitation
-invitee
-other
-paper
-percent
-procedure
-question
-revision
-test
-wide
-word
+contexto
+comum
+fato
+primeiro
+hora
+introdução
+convite
+convidado
+outro
+artigo
+porcento
+procedimento
+questão
+revisão
+teste
+amplo
+palavra
 xref_bibr
 xref_fig
 xref_table
 xref_supplementary
 # Geography
 central
-south
-north
-east
-west
-southern
-northern
-eastern
-western
-southeastern
-northeastern
-southwestern
-southeastern
-southeast
-southwest
-northeast
-northwest
-region
+sul
+norte
+leste
+oeste
+sulista
+nórdico
+oriental
+ocidental
+sudeste
+sudoeste
+noroeste
+nordeste
+região
 area
 # Measurements
 mm
@@ -57,7 +53,7 @@ kg
 ml
 l
 # Discourse
-further
-however
-additional
+além
+porém
+adicional
 

@@ -68,11 +68,20 @@ object EidosAttachment {
       .arguments
       .get("quantifier")
       .map(qs => qs.map(_.text))
+
+  def getAttachmentWords(a: Attachment): Seq[String] = {
+    a match {
+      case triggered: TriggeredAttachment => Seq(triggered.trigger) ++ triggered.quantifiers.getOrElse(Seq())
+      case context: ContextAttachment => context.text.split(" ")
+      case _ => throw new RuntimeException(s"Unsupported class of attachment: ${a.getClass}")
+    }
+  }
 }
 
 case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[String]] = None,
     triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None)
 
+@SerialVersionUID(1L)
 abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
     triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]]) extends EidosAttachment {
 
@@ -199,6 +208,7 @@ object TriggeredAttachment {
   }
 }
 
+@SerialVersionUID(1L)
 class Quantification(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
@@ -224,6 +234,7 @@ object Quantification {
   }
 }
 
+@SerialVersionUID(1L)
 class Property(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
                      quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
@@ -249,6 +260,7 @@ object Property {
   }
 }
 
+@SerialVersionUID(1L)
 class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
@@ -274,6 +286,7 @@ object Increase {
   }
 }
 
+@SerialVersionUID(1L)
 class Decrease(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
@@ -299,6 +312,7 @@ object Decrease {
   }
 }
 
+@SerialVersionUID(1L)
 class Hedging(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
               quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
@@ -318,6 +332,7 @@ object Hedging {
 
 }
 
+@SerialVersionUID(1L)
 class Negation(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
                quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
@@ -337,7 +352,7 @@ object Negation {
 
 }
 
-
+@SerialVersionUID(1L)
 abstract class ContextAttachment() extends EidosAttachment {
 
   val text: String
@@ -355,6 +370,7 @@ abstract class ContextAttachment() extends EidosAttachment {
   }
 }
 
+@SerialVersionUID(1L)
 class Time(interval: TimeInterval) extends ContextAttachment {
 
   val text = interval.text
@@ -373,7 +389,8 @@ object Time {
   def apply(interval: TimeInterval) = new Time(interval)
 }
 
-
+// <<<<<<< HEAD
+@SerialVersionUID(1L)
 class Location(location_phraseID: GeoPhraseID) extends ContextAttachment {
 
   val text = location_phraseID.phraseID
@@ -397,6 +414,10 @@ object Location {
 
 
 
+//=======
+//>>>>>>> 0e9c30a84a6747e9da9cd88f98e6c1da59c0852d
+
+@SerialVersionUID(1L)
 class DCTime(dct: DCT) extends ContextAttachment {
 
   val text = dct.text
@@ -415,7 +436,7 @@ object DCTime {
   def apply(dct: DCT) = new DCTime(dct)
 }
 
-
+@SerialVersionUID(1L)
 case class Score(score: Double) extends EidosAttachment {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =

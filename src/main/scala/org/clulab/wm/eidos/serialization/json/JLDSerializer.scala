@@ -322,7 +322,7 @@ object JLDTrigger {
   val plural = "triggers"
 }
 
-abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, var subtypeString: String, mention: EidosMention)
+abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, mention: EidosMention)
     extends JLDObject(serializer, JLDExtraction.typename, mention) {
 
   def getMentions: Seq[EidosMention] =  Seq.empty
@@ -567,17 +567,18 @@ object JLDWord {
   val typename = "Word"
 }
 
-
 class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val end: LocalDateTime, val duration: Long)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimeInterval.typename) {
   
   override def toJObject(): JObject = {
+    val startDateTime = Option(start).map(_.toString)
+    val endDateTime = Option(end).map(_.toString)
 
     serializer.mkType(this) ~
         serializer.mkId(this) ~
-        ("start" -> Option(start).getOrElse("Undef").toString) ~
-        ("end" -> Option(end).getOrElse("Undef").toString) ~
+        ("start" -> startDateTime) ~
+        ("end" -> endDateTime) ~
         ("duration" -> duration)
   }
 }
@@ -612,6 +613,7 @@ object JLDTimex {
   val typename = "TimeExpression"
 }
 
+// <<<<<<< HEAD
 
 
 class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
@@ -637,6 +639,9 @@ object JLDGeoID {
   val typename = "GeoidPhrases"
 }
 
+//=======
+//>>>>>>> 0e9c30a84a6747e9da9cd88f98e6c1da59c0852d
+
 class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDDCT.typename, dct) {
@@ -644,8 +649,8 @@ class JLDDCT(serializer:JLDSerializer, val dct: DCT)
   override def toJObject(): JObject = {
 
     val text = Option(dct.text)
-    val start = Option(dct.interval.start).map(_.toString)
-    val end = Option(dct.interval.end).map(_.toString)
+    val start = if (dct.interval.isDefined) Some(dct.interval.start.toString) else None
+    val end = if (dct.interval.isDefined) Some(dct.interval.end.toString) else None
 
     serializer.mkType(this) ~
       serializer.mkId(this) ~
@@ -659,8 +664,6 @@ object JLDDCT {
   val singular = "dct"
   val typename = "DCT"
 }
-
-
 
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
     extends JLDObject(serializer, "Sentence", sentence) {

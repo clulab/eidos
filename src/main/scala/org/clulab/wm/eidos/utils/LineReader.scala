@@ -32,7 +32,7 @@ class CliReader(prompt: String, parentProperty: String, child: String) extends L
   override def readLine = reader.readLine
 }
 
-class IdeReader(protected var prompt: String) extends LineReader {
+class IdeReader(protected val prompt: String) extends LineReader {
   import java.util.Scanner
 
   protected val reader = new Scanner(System.in)

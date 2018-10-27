@@ -20,6 +20,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   protected var anchor: Option[DCT] = None
 
   protected def parseFakeTime(): Unit = times.indices.foreach(times(_) = List[TimeInterval]())
+  protected def parseFakeGeoLoc(): Unit = geolocs.indices.foreach(geolocs(_) = List[GeoPhraseID]())
 
   protected def parseRealTime(timenorm: TemporalCharbasedParser): Unit = {
     times.indices.foreach { index =>
@@ -83,12 +84,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
         val token_labels = geo_disambiguate.generate_NER_labels(geo_disambiguate.create_word_input(this.sentences(index).getSentenceText)._1)
         val offset = this.sentences(index).startOffsets(0)
 
-        println("our output matrix looks like: ", token_labels.toString)
-        // println("our output phrases looks like: ", phrases_geoID_all.toString)
-
-        // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
-        // Account for this by adding the starting offset of the first word of sentence.
-        // Update  norms with B-I time expressions
+        // println("our output matrix looks like: ", token_labels.toString)
 
         val norms = for (((start, end), (norm, norm_index)) <- this.sentences(index).startOffsets zip this.sentences(index).endOffsets zip this.sentences(index).norms.get.zipWithIndex)
 
@@ -102,7 +98,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
               }
           }
 
-        println(norms.foreach(println))
+        // println(norms.foreach(println))
         this.sentences(index).norms = Some(norms.map(_._1).toArray)  // Updating the norms here
 
         val phrases_geoID_all =  geo_disambiguate.get_complete_location_phrase( token_labels, geo_disambiguate.create_word_input(this.sentences(index).getSentenceText)._2,
@@ -125,7 +121,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
   def parseGeoNorm_flag(geo_disambiguate: Option[Geo_disambiguate_parser]): Unit =
     if (geo_disambiguate.isDefined) parseGeoNorm(geo_disambiguate.get)
-    // else parseFakeTime()
+    else parseFakeGeoLoc()
 
 }
 

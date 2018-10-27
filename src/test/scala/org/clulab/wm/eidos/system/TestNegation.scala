@@ -5,7 +5,7 @@ import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.test.TestUtils._
 
 
-class TestNegation extends Test {
+class TestNegation extends ExtractionTest {
 
   def hasNegation(m: Mention): Boolean = m.attachments.exists(_.isInstanceOf[Negation])
 
@@ -31,5 +31,11 @@ class TestNegation extends Test {
     val text1 = "Rainfall does not not not cause flooding."
     val mentions1 = extractMentions(text1)
     mentions1.filter(em => em.isInstanceOf[EventMention]).exists(hasNegation) should be (true)
+  }
+
+  it should "not match negation contained in the event arguments" in {
+    val text1 = "Many families do not have food because of the increase in conflict."
+    val mentions1 = extractMentions(text1)
+    mentions1.filter(em => em.isInstanceOf[EventMention]).exists(hasNegation) should be (false)
   }
 }

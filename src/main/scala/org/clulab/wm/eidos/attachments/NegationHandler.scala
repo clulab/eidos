@@ -12,15 +12,20 @@ import org.clulab.struct.Interval
   *
   * Adapted for use in Eidos
   */
-object NegationHandler {
+class NegationHandler(val language: String) {
 
   def detectNegations(mentions: Seq[Mention]): Seq[Mention] = {
     // do something very smart to handle negated events
     // and then return the mentions
-    mentions.map(detectNegation(_))
+    // Note that the approach can be different for different languages!
+    language match {
+      case "english" => mentions.map(detectNegationEnglish)
+      case "portuguese" => ???
+      case _ => throw new RuntimeException(s"Unsupported language: $language")
+    }
   }
 
-  def detectNegation(m: Mention): Mention = {
+  def detectNegationEnglish(m: Mention): Mention = {
     m match {
       case event: EventMention =>
         // Dependency Negations
@@ -87,8 +92,11 @@ object NegationHandler {
 
     val negations = new ArrayBuffer[Mention]
 
+    // Get the token interval of the event, but exclude the intervals of the arguments
+    val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
     for {
       tok <- event.tokenInterval
+      if !argumentIntervals.exists(_.contains(tok))
       out <- outgoing.lift(tok)
       (ix, label) <- out
       if label == "neg"
@@ -113,9 +121,12 @@ object NegationHandler {
                                    previouslyFound: Set[Int]
                                  ): Seq[Mention] = {
 
+    // Get the token interval of the event, but exclude the intervals of the arguments
+    val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
     // Check for single-token negative verbs
     for {
-      (ix, lemma) <- (leftContext ++ rightContext)
+      (ix, lemma) <- leftContext ++ rightContext
+      if !argumentIntervals.exists(_.contains(ix))
       if (Seq("fail", "not") contains lemma) && !(previouslyFound contains ix)
     } yield new TextBoundMention(
       Seq("Negation_trigger"),
@@ -141,6 +152,9 @@ object NegationHandler {
       )
     }
 
+    // Get the token interval of the event, but exclude the intervals of the arguments
+    val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
+
     val verbs = Seq(("play", "no"), ("play", "little"), ("is", "not"), ("be", "insufficient"))
     // Introduce bigrams for two-token verbs in both sides of the trigger
     for {
@@ -149,6 +163,8 @@ object NegationHandler {
       bigrams = (side zip side.slice(1, side.length)) map (x => flattenTuples(x._1, x._2))
 
       (interval, bigram) <- bigrams
+
+      if !argumentIntervals.exists(_.contains(interval._1)) && !argumentIntervals.exists(_.contains(interval._2))
 
       if (verbs contains bigram) && (previouslyFound intersect (interval._1 to interval._2 + 1).toSet).isEmpty
 
@@ -161,4 +177,10 @@ object NegationHandler {
       foundBy = event.foundBy
     )
   }
+}
+
+object NegationHandler{
+
+  def apply(language: String): NegationHandler = new NegationHandler(language)
+
 }

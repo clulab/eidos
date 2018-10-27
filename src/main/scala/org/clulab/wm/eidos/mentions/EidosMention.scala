@@ -5,7 +5,7 @@ import java.util.IdentityHashMap
 import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.attachments.{ContextAttachment, EidosAttachment, TriggeredAttachment}
 import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.mutable.HashMap
@@ -136,12 +136,17 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
 
   /* Methods for canonicalForms of Mentions */
   protected def canonicalFormSimple(m: Mention): String = {
+    val words = m.words
     val lemmas = m.lemmas.get
     val tags = m.tags.get
     val ners = m.entities.get
+
+    val attachmentWords = m.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a)).toSet
+
     val contentLemmas = for {
       i <- lemmas.indices
       if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
+      if !attachmentWords.contains(words(i))
     } yield lemmas(i)
 
     if (contentLemmas.isEmpty)

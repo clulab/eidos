@@ -279,7 +279,10 @@ physical memory, but Eidos may require
 more RAM than that.  It is currently being developed and tested with a 6GB limit.
 
 For those using `sbt`, the file `.jvmopts` is included with the source code to
-arrange for more memory.  No other changes should be necessary.
+arrange for more memory.  No other changes should be necessary.  Alternatively,
+an environment variable specific to `sbt` can be used:
+
+`SBT_OPTS=-Xmx6g`
 
 IDEs and other development tools are generally unaware of `.jvmopts`, but can be
 configured via an environment variable instead.

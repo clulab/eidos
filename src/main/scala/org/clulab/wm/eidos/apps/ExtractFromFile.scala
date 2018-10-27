@@ -82,13 +82,12 @@ object ExtractFromFile extends App {
     }
   }
 
-  def formal(e:Mention):Option[String] = {
-    var t = ""
-    if(e matches "Decrease") t = "DECREASE"
-    else if(e matches "Increase") t = "INCREASE"
-    else return None
+  def formal(e: Mention): Option[String] = {
+    val t =
+        if (e matches "Decrease") Some("DECREASE")
+        else if (e matches "Increase") Some("INCREASE")
+        else None
 
-    Some(s"$t of ${e.arguments.get("theme").get.head.label}")
+    t.map(t => s"$t of ${e.arguments.get("theme").get.head.label}")
   }
-
 }

@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import java.util.HashMap
 
@@ -8,10 +8,10 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.{HashCodeBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.cag.CAG._
+import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManaging}
 
-class TestEidosMention extends Test with StopwordManaging with MultiOntologyGrounder {
+class TestEidosMention extends ExtractionTest with StopwordManaging with MultiOntologyGrounder {
   
   def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
   def containsStopword(stopword: String) = stopword == "policy"
@@ -91,8 +91,8 @@ than in the corresponding period two years earlier.
 
   // Test canonicalFormSimple and canonicalFormArgs
   it should "properly make canonical form" in {
-    val text3 = "The seasonal rainfall in July was decreased by the government policy."
-    val odinMentions3 = TestUtils.extractMentions(text3)
+    val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
+    val odinMentions3 = extractMentions(text3)
     val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, new Canonicalizer(this), this)
 
 //    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
@@ -104,6 +104,11 @@ than in the corresponding period two years earlier.
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
     decrease.head.canonicalName should be ("rainfall decrease government")
+
+    // Since we filter out the text from attachments, "price" should be removed (Property attachment)
+    val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")
+    oil should have size(1)
+    oil.head.canonicalName should be ("oil")
 
   }
 

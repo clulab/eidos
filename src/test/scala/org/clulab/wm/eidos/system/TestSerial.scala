@@ -2,11 +2,11 @@ package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.test.TestUtils.{ieSystem, _}
+import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.util.Random
 
-class TestSerial extends Test {
+class TestSerial extends ExtractionTest {
 
   // This text has been found to be problematic
   protected val texts = Array(

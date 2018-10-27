@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
@@ -25,7 +26,7 @@ trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
-class EidosOntologyGrounder(var name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
@@ -45,15 +46,33 @@ class EidosOntologyGrounder(var name: String, domainOntology: DomainOntology, wo
   }
 }
 
+class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends EidosOntologyGrounder(name, domainOntology, wordToVec) {
+
+  override def groundOntology(mention: EidosMention): OntologyGrounding = {
+    if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
+      val propertyAttachments = mention.odinMention.attachments.filter(a => a.isInstanceOf[Property])
+      val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray
+
+      OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
+    }
+    else
+      OntologyGrounding()
+  }
+}
+
 object EidosOntologyGrounder {
   // Namespace strings for the different in-house ontologies we typically use
   val   UN_NAMESPACE = "un"
   val  WDI_NAMESPACE = "wdi"
   val  FAO_NAMESPACE = "fao"
   val MESH_NAMESPACE = "mesh"
+  val PROPS_NAMESPACE = "props"
 
   protected val logger = LoggerFactory.getLogger(this.getClass())
 
-  def apply(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) =
-      new EidosOntologyGrounder(name, domainOntology, wordToVec)
+  def apply(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec): EidosOntologyGrounder =
+    name match {
+      case PROPS_NAMESPACE => new PropertiesOntologyGrounder(name, domainOntology, wordToVec)
+      case _ => new EidosOntologyGrounder(name, domainOntology, wordToVec)
+    }
 }

@@ -6,7 +6,7 @@ import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.wm.eidos.utils.PassThruNamer
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, OntologyNode}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder, OntologyNode}
 import org.clulab.wm.eidos.utils.FileUtils.printWriterFromFile
 
 object OntologyMapper extends App {
@@ -160,23 +160,26 @@ object OntologyMapper extends App {
     println(s"number of eidos ontologies - ${reader.loadableAttributes.ontologyGrounders.length}")
     val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
 
+    // WorldBank indicators
+    val wdiOntology = reader.loadableAttributes.ontologyGrounders.find(_.name == EidosOntologyGrounder.WDI_NAMESPACE)
+    val eidosWDIConceptEmbeddings = if (wdiOntology.isDefined) wdiOntology.get.conceptEmbeddings else Seq()
+    // Food and Agriculture Organization of the UN indicators
+    val faoOntology = reader.loadableAttributes.ontologyGrounders.find(_.name == EidosOntologyGrounder.FAO_NAMESPACE)
+    val eidosFAOConceptEmbeddings = if (faoOntology.isDefined) faoOntology.get.conceptEmbeddings else Seq()
 
-    val eidosWDIConceptEmbeddings = reader.loadableAttributes.ontologyGrounders(1).conceptEmbeddings
-    val eidosFAOConceptEmbeddings = reader.loadableAttributes.ontologyGrounders(2).conceptEmbeddings
-    println(s"I think this will say WDI: ${reader.loadableAttributes.ontologyGrounders(1).name}")
-    println(s"I think this will say FAO: ${reader.loadableAttributes.ontologyGrounders(2).name}")
-
+    // Find the most similar indicators
     val un2fao = mostSimilarIndicators(eidosConceptEmbeddings, eidosFAOConceptEmbeddings, topN, reader).toMap
     un2fao.foreach(mapping => println(s"un: ${mapping._1} --> most similar FAO: ${mapping._2.mkString(",")}"))
     val un2wdi = mostSimilarIndicators(eidosConceptEmbeddings, eidosWDIConceptEmbeddings, topN, reader).toMap
     un2wdi.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar WDI: ${mapping._2.mkString(",")}"))
 
+    // Write the mapping file
     val pw = printWriterFromFile(outputFile)
     val pwInterventionSpecific = printWriterFromFile(outputFile + ".no_ind_for_interventions")
 
     for (unConcept <- un2wdi.keys) {
       val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
-      val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "WB"))
+      val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "FAO"))
       val sorted = (wdiMappings ++ faoMappings).sortBy(- _._2)
       for ((indicator, score, label) <- sorted) {
         pw.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
