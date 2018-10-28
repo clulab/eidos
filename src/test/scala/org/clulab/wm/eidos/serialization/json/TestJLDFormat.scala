@@ -40,6 +40,8 @@ class TestJLDFormat extends ExtractionTest {
     // Read the string into an Object (The type of this object will be a List, Map, String, Boolean,
     // Number or null depending on the root object in the file).
     val jsonObject = JsonUtils.fromString(json)
+    jsonObject should not be null
+
     // Create a context JSON map containing prefixes and definitions
     val context = new JHashMap()
     // Customise context...

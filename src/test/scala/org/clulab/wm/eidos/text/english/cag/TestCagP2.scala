@@ -98,10 +98,6 @@ class TestCagP2 extends EnglishTest {
     val displacement = NodeSpec("displacement")
     val delayedPlanting = NodeSpec("late planting") //todo: adjust when more mods available
 
-
-    val node1 = NodeSpec(null)
-    val node2 = NodeSpec(null)
-
     behavior of "p2s4"
 
     passingTest should "have correct edges 1" taggedAs(Somebody) in {

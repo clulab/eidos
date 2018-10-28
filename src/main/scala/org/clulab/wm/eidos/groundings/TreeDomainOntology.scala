@@ -24,9 +24,7 @@ class OntologyNode(val nodeName: String, val parent: OntologyBranchNode) extends
           .replace(DomainOntology.ESCAPE, DomainOntology.ESCAPED_ESCAPE)
           .replace(DomainOntology.SEPARATOR, DomainOntology.ESCAPED_SEPARATOR)
 
-  def fullName: String =
-      if (parent != null) parent.fullName + DomainOntology.SEPARATOR + escaped
-      else escaped
+  def fullName: String = parent.fullName + escaped + DomainOntology.SEPARATOR
 
   override def toString(): String = fullName
 }
@@ -35,15 +33,23 @@ class OntologyNode(val nodeName: String, val parent: OntologyBranchNode) extends
 class OntologyBranchNode(nodeName: String, parent: OntologyBranchNode) extends OntologyNode(nodeName, parent) {
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
-  def parents: Seq[OntologyBranchNode] =
-      if (parent == null) Seq.empty
-      else parent +: parent.parents
+  def parents: Seq[OntologyBranchNode] = parent +: parent.parents
+}
+
+@SerialVersionUID(1000L)
+class OntologyRootNode extends OntologyBranchNode("", null) {
+
+  override def fullName: String = ""
+
+  override def parents: Seq[OntologyBranchNode] = Seq.empty
 }
 
 @SerialVersionUID(1000L)
 class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
 
   def name: String = fullName
+
+  override def fullName: String = parent.fullName + escaped
 
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = (/*names ++*/ examples.getOrElse(Seq.empty) ++ descriptions.getOrElse(Seq.empty)).toArray
@@ -85,7 +91,7 @@ object TreeDomainOntology {
       val text = getTextFromResource(ontologyPath)
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
-      val ontologyNodes = parseOntology(null, yamlNodes)
+      val ontologyNodes = parseOntology(new OntologyRootNode, yamlNodes)
 
       new TreeDomainOntology(ontologyNodes.toArray)
     }

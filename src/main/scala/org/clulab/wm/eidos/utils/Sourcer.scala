@@ -14,9 +14,9 @@ object Sourcer {
   
   def sourceFromResource(path: String): BufferedSource = {
     val url = Sourcer.getClass.getResource(path)
-
     if (url == null)
       throw newFileNotFoundException(path)
+
     logger.info("Sourcing resource " + url.getPath())
     Source.fromURL(url, utf8)
   }
