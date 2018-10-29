@@ -129,15 +129,15 @@ rules:
       cause: Entity = obl (?= case [word = /(?i)(com|por)$/]) /conj/{,3}
       effect: Entity = (${ agents }) /conj/{,3}
 
-  - name: trigger+_+por-${addlabel}
-    priority: ${ rulepriority }
-    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas com pragas."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (obl) (?= case [word=/(?i)(por)/]) /conj/{,3}
-      effect: Entity = (<acl|${ agents }) /conj|<conj/{,3}
+#  - name: trigger+_+por-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas com pragas."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      cause: Entity = (obl) (?= case [word=/(?i)(por)/]) /conj/{,3}
+#      effect: Entity = (obl (?= case [word=/^(com|para)$/])) /conj/{,3}
 
 #  - name: como_obl-${addlabel}
 #    priority: ${ rulepriority }
@@ -174,27 +174,27 @@ rules:
 
 ############# bellow 60% rules
 
-  - name: acl_subj-${addlabel}
-    priority: ${ rulepriority }
-    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?<! [tag=ADP])
-      cause: Entity = <acl [tag=/NOUN/]
-      effect: Entity = ((${ objects }) /conj/{,3})#|((obl) (?= case [word=/(?i)(por)/]))
-      ## had to remove obls cus I could not make sure 'por' occured imediately after trigger
-
-  - name: advcl-${addlabel}
-    priority: ${ rulepriority }
-    example: "Os aumentos nos teores de cátions básicos se devem à reciclagem com manutenção do ciclo biológico."
-    # example: "Sistemas de pastejo manejados e adubados adequadamente permitem altas produções de massa seca, permitindo otimizar o desempenho animal."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/]
-      cause: Entity =  <advcl /nsubj/
-      effect: Entity =  xcomp? obj /conj/{,3}
+#  - name: acl_subj-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?<! [tag=ADP])
+#      cause: Entity = <acl [tag=/NOUN/]
+#      effect: Entity = ((${ objects }) /conj/{,3})#|((obl) (?= case [word=/(?i)(por)/]))
+#      ## had to remove obls cus I could not make sure 'por' occured imediately after trigger
+#
+#  - name: advcl-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "Os aumentos nos teores de cátions básicos se devem à reciclagem com manutenção do ciclo biológico."
+#    # example: "Sistemas de pastejo manejados e adubados adequadamente permitem altas produções de massa seca, permitindo otimizar o desempenho animal."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/]
+#      cause: Entity =  <advcl /nsubj/
+#      effect: Entity =  xcomp? obj /conj/{,3}
 #
 #  - name: uma_das_formas_de-${addlabel}
 #    priority: ${ rulepriority }
