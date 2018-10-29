@@ -97,7 +97,7 @@ program with `exit`.
 
 ### Interactive Shell
 
-EidosShell is an interactive text-based program for testing the output of Eidos.  It's output is
+EidosShell is an interactive text-based program for testing the output of Eidos.  Its output is
 less complete than the webapp, but it stands alone, no web browser is required, and it consumes
 fewer resources.  A script is provided to run it with
 ```bash
@@ -431,7 +431,7 @@ After `useTimeNorm` and `useW2V` are set to `true`, your output should look more
 Processing the vector files and ontologies used in grounding can consume multiple minutes of time,
 so if you want to run Eidos more than once with the vectors, then it's useful to cache a
 preprocessed version of them along with the otherwise preinstalled ontologies.  This requires a large
-amounnt of memory, possibly 8 or 10GB, so please read the [notes](#notes) below.  If the files are located
+amount of memory, possibly 8 or 10GB, so please read the [notes](#notes) below.  If the files are located
 as described above and the configuration file `eidos.conf` is adjusted appropriately and there is
 enough memory, then the command
 ```bash
@@ -454,7 +454,7 @@ out, switch `language` in `eidos.conf` from `english` to `portuguese`.  Here is 
 ## Integrating
 
 If you want to use Eidos in its default configuration, it is available to project management
-software like Maven and `sbt` in prepackaged form, independencly of the GitHub repository.
+software like Maven and `sbt` in prepackaged form, independently of the GitHub repository.
 Code like that below can be used to declare the dependency.
 ```scala
 libraryDependencies ++=
@@ -524,4 +524,4 @@ shell.
 # License
 
 While we will soon be licensed as Apache, currently one dependency has a GPL
-licence.  This will be removed very soon and the license will be updated.
+license.  This will be removed very soon and the license will be updated.
