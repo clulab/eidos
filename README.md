@@ -348,7 +348,7 @@ Follow their links for details.
 
 Eidos reading output (JSON-LD) can be visualized using [INDRA](https://github.com/sorgerlab/indra)
 and Jupyter notebooks. Here is an example:
-![alt text](/doc/delphi_example.png?raw=True")
+![Link to Delphi](/doc/delphi_example.png?raw=True")
 
 
 ## Delphi
@@ -443,7 +443,9 @@ after caching so that assembly of the jar file is hastened as well.
 ## Translating
 
 Eidos is being translated into Portuguese!  The functionality is in the alpha stages.  To try it
-out, switch `language` in `eidos.conf` from `english` to `portuguese`.
+out, switch `language` in `eidos.conf` from `english` to `portuguese`.  Here is a sneak preview:
+
+![Eidos in Portuguese!](/doc/portuguese.png?raw=True")
 
 
 ## Integrating
