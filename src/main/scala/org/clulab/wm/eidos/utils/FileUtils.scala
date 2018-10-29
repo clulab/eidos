@@ -1,18 +1,15 @@
 package org.clulab.wm.eidos.utils
 
 import java.io._
-import java.net.URL
 import java.util.Collection
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.Sinker.logger
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.io.Source
-import scala.util.control.Breaks._
 
 object FileUtils {
 
@@ -93,16 +90,19 @@ object FileUtils {
     val is: InputStream = FileUtils.getClass.getResourceAsStream(src)
     val buf = new Array[Byte](8192)
 
-    breakable {
-      while (true) {
-        val len = is.read(buf)
+    def transfer: Boolean = {
+      val len = is.read(buf)
+      val continue =
+          if (len > 0) {
+            os.write(buf, 0, len); true
+          }
+          else false
 
-        if (len > 0)
-          os.write(buf, 0, len)
-        else
-          break
-      }
+      continue
     }
+
+    while (transfer) { }
+
     is.close()
     os.close()
   }
