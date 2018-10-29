@@ -422,6 +422,9 @@ Next check the configuration value for `wordToVecPath`.  It is already set up fo
 but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
 value for `useW2V` from `false` to `true`.
 
+After `useTimeNorm` and `useW2V` are set to `true`, your output should look more like this:
+
+![Eidos with Grounding](/doc/grounding.png?raw=True")
 
 ## Optimizing
 
