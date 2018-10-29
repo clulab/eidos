@@ -3,6 +3,8 @@ package org.clulab.wm.eidos.util
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Timer
 
+import scala.annotation.tailrec
+
 class TestLoop extends Test {
   
   behavior of "Loop"
@@ -12,15 +14,16 @@ class TestLoop extends Test {
     left.indices.foreach(i => left(i) = 400 - i)
     val right = new Array[Float](300)
     right.indices.foreach(i => right(i) = -200 + i)
-    val limit = 1000000
+    val limit = 10000000
 
-    val res1 = Timer.time("Using fold") {
-      0.until(limit).foreach { i =>
-        left.indices.foldRight(0.0f)((i, sum) => sum + left(i) * right(i))
-      }
-    }
+    //    val res1 = Timer.time("Using fold") {
+    //      0.until(limit).foreach { i =>
+    //        left.indices.foldRight(0.0f)((i, sum) => sum + left(i) * right(i))
+    //      }
+    //    }
 
-    val res2 = Timer.time("Using fold") {
+    // 261 ms
+    val res2a = Timer.time("Using while a") {
       0.until(limit).foreach { j =>
         var sum = 0.0f
         var i = 0
@@ -31,5 +34,55 @@ class TestLoop extends Test {
         sum
       }
     }
-  }  
+
+    // 70 ms
+    val res2b = Timer.time("Using while b") {
+      0.until(limit).foreach { j =>
+        var sum = 0.0f
+        var i = left.length - 1
+
+        while (i >= 0) {
+          sum += left(i) * right(i)
+          i -= 1
+        }
+        sum
+      }
+    }
+
+    // 4122 ms
+    val res3 = Timer.time("Using for") {
+      0.until(limit).foreach { j =>
+        var sum = 0.0f
+
+        for (i <- 0 until left.length)
+          sum += left(i) * right(i)
+        sum
+      }
+    }
+
+    // 4050 ms
+    val res4 = Timer.time("Using recursion 1") {
+
+      @tailrec
+      def recSum(i: Int, sum: Float): Float =
+        if (i < left.length) recSum(i + 1, sum + left(i) * right(i))
+        else sum
+
+      0.until(limit).foreach { j =>
+        recSum(0, 0.0f)
+      }
+    }
+
+//    val res5 = Timer.time("Using recursion 5") {
+//
+//      @tailrec
+//      def recSum(i: Int): Float =
+//        if (i >= left.length) 0.0f
+//        else left(i) * right(i) + recSum(i + 1)
+//
+//      0.until(limit).foreach { j =>
+//        recSum(0)
+//      }
+//    }
+  }
 }

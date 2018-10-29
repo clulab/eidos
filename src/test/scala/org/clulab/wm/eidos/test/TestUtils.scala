@@ -75,7 +75,7 @@ object TestUtils {
 
   class ContraptionTest extends Test
 
-  class ExtractionTest(var ieSystem: EidosSystem) extends ContraptionTest {
+  class ExtractionTest(val ieSystem: EidosSystem) extends ContraptionTest {
     def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config))
 
     class GraphTester(text: String) extends graph.GraphTester(ieSystem, text)

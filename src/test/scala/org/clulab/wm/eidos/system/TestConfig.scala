@@ -9,7 +9,7 @@ class TestConfig extends Test with Configured {
   
   override def getConf: Config = config
   
-  var config = ConfigFactory.load("eidosTest")
+  val config = ConfigFactory.load("eidosTest")
 
   behavior of "eidosTest.conf"
   

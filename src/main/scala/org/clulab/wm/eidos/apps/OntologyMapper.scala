@@ -47,9 +47,9 @@ object OntologyMapper extends App {
   }
 
   def replaceSofiaAbbrev(str: String): String = {
-    if (str == "manag") return "management"
-    else if (str == "cogn") return "cognitive"
-    str
+    if (str == "manag") "management"
+    else if (str == "cogn") "cognitive"
+    else str
   }
 
   // Filter out non-content words or not

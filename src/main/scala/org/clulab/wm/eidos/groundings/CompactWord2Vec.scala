@@ -59,11 +59,10 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     */
   def similarity(w1: String, w2: String): Float = {
     val v1o = map.get(w1)
-    if (v1o.isEmpty) return -1
     val v2o = map.get(w2)
-    if (v2o.isEmpty) return -1
 
-    dotProduct(v1o.get, v2o.get)
+    if (v1o.isEmpty || v2o.isEmpty) -1
+    else dotProduct(v1o.get, v2o.get)
   }
 
   /** Adds the content of src to dest, in place */
@@ -195,6 +194,7 @@ object CompactWord2Vec {
   def updatedLoad[A](filename: String, classProvider: Any = this): A = {
     val classLoader = classProvider.getClass().getClassLoader()
     val fileInputStream = new FileInputStream(filename)
+    // Scala Cookbook suggests this design.
     var objectInputStream: Option[ObjectInputStream] = None
 
     try {

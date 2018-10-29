@@ -13,9 +13,8 @@ object Sourcer {
   val utf8 = StandardCharsets.UTF_8.toString
   
   def sourceFromResource(path: String): BufferedSource = {
-    val url = Sourcer.getClass.getResource(path)
-    if (url == null)
-      throw newFileNotFoundException(path)
+    val url = Option(Sourcer.getClass.getResource(path))
+        .getOrElse(throw newFileNotFoundException(path))
 
     logger.info("Sourcing resource " + url.getPath())
     Source.fromURL(url, utf8)

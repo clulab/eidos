@@ -15,10 +15,9 @@ class TestResources extends Test {
 
     it should "not have any Unicode characters in " + path in {
       val stream = Source.fromFile(file, "utf8")
-      var lineNo = 0
-      var count = 0
-
-      stream.getLines().foreach { line =>
+      val count = stream.getLines().zipWithIndex.foldRight(0) { (lineAndLineNo, sum) =>
+        val line = lineAndLineNo._1
+        val lineNo = lineAndLineNo._2
         val badCharAndIndex = line.zipWithIndex.filter { case (c: Char, index: Int) =>
           (c < 32 || 127 < c) && c != '\r' && c != '\n' && c != '\t'
         }
@@ -26,9 +25,8 @@ class TestResources extends Test {
           "'" + c + "' found at index " + index + "."
         }
 
-        lineNo += 1
-        complaints.foreach(complaint => println("Line " + lineNo + ": " + complaint))
-        count += complaints.size
+        complaints.foreach(complaint => println("Line " + (lineNo + 1) + ": " + complaint))
+        sum + complaints.size
       }
 
       count should be (0)

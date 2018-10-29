@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.io.Source
+import scala.util.control.Breaks._
 
 object FileUtils {
 
@@ -24,10 +25,9 @@ object FileUtils {
     val filter = new FilenameFilter {
       def accept(dir: File, name: String): Boolean = name.endsWith(extension)
     }
-    
-    val result = dir.listFiles(filter)
-    if (result == null)
-      throw Sourcer.newFileNotFoundException(collectionDir)
+    val result = Option(dir.listFiles(filter))
+        .getOrElse(throw Sourcer.newFileNotFoundException(collectionDir))
+
     result
   }
 
@@ -91,18 +91,17 @@ object FileUtils {
   def copyResourceToFile(src: String, dest: File): Unit = {
     val os: OutputStream = new FileOutputStream(dest)
     val is: InputStream = FileUtils.getClass.getResourceAsStream(src)
+    val buf = new Array[Byte](8192)
 
-    var buf = new Array[Byte](8192)
-    var continue = true
+    breakable {
+      while (true) {
+        val len = is.read(buf)
 
-    while (continue) {
-      val len = is.read(buf)
-
-      continue =
-        if (len > 0) {
-          os.write(buf, 0, len); true
-        }
-        else false
+        if (len > 0)
+          os.write(buf, 0, len)
+        else
+          break
+      }
     }
     is.close()
     os.close()
