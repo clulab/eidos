@@ -24,24 +24,26 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
   protected def parseRealTime(timenorm: TemporalCharbasedParser): Unit = {
     times.indices.foreach { index =>
+      val sentence = sentences(index)
+
       times(index) =
-        if (this.sentences(index).entities.get.contains("DATE")) {
+        if (sentence.entities.get.contains("DATE")) {
           val sentence_text = text match {
-            case Some(t) => t.slice(this.sentences(index).startOffsets(0), this.sentences(index).endOffsets.last)
-            case _ => this.sentences(index).getSentenceText
+            case Some(text) => text.slice(sentence.startOffsets(0), sentence.endOffsets.last)
+            case _ => sentence.getSentenceText
           }
-          val intervals = if (this.anchor.isDefined)
-            timenorm.intervals(timenorm.parse(sentence_text), Some(this.anchor.get.interval))
+          val intervals = if (anchor.isDefined)
+            timenorm.intervals(timenorm.parse(sentence_text), Some(anchor.get.interval))
           else
             timenorm.intervals(timenorm.parse(sentence_text))
           // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
           // Account for this by adding the starting offset of the first word of sentence.
-          val offset = this.sentences(index).startOffsets(0)
+          val offset = sentence.startOffsets(0)
 
           // Update  norms with B-I time expressions
           val norms = for (
-            ((start, end), norm) <- this.sentences(index).startOffsets zip this.sentences(index).endOffsets zip this.sentences(index).norms.get;
-            val inTimex = intervals.map(interval => (start - (interval._1._1 + offset), (interval._1._2 + offset) - end)).filter(x => x._1 >= 0 && x._2 >= 0)
+            ((start, end), norm) <- sentence.startOffsets zip sentence.endOffsets zip sentence.norms.get;
+            inTimex = intervals.map(interval => (start - (interval._1._1 + offset), (interval._1._2 + offset) - end)).filter(x => x._1 >= 0 && x._2 >= 0)
           ) yield {
             inTimex.isEmpty match {
               case false if inTimex(0)._1 == 0 => "B-Time"
@@ -49,7 +51,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
               case _ => norm
             }
           }
-          this.sentences(index).norms = Some(norms.toArray)
+          sentence.norms = Some(norms.toArray)
 
           intervals.map { interval =>
             new TimeInterval((interval._1._1 + offset, interval._1._2 + offset), interval._2, sentence_text.slice(interval._1._1, interval._1._2))
@@ -62,10 +64,10 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
   def parseDCT(timenorm: Option[TemporalCharbasedParser], documentCreationTime:Option[String]): Unit = {
     if (timenorm.isDefined && documentCreationTime.isDefined)
-      this.anchor = Some(new DCT(timenorm.get.dct(timenorm.get.parse(documentCreationTime.get)), documentCreationTime.get))
+      anchor = Some(new DCT(timenorm.get.dct(timenorm.get.parse(documentCreationTime.get)), documentCreationTime.get))
   }
 
-  def getDCT(): Option[DCT] = this.anchor
+  def getDCT(): Option[DCT] = anchor
 
   def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
      if (timenorm.isDefined) parseRealTime(timenorm.get)
@@ -73,58 +75,43 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
   def parseGeoNorm(geo_disambiguate : Geo_disambiguate_parser): Unit = {
     geolocs.indices.foreach { index =>
+      val sentence = sentences(index)
+
       geolocs(index) = {
         val sentence_text = text match {
-          case Some(t) => t.slice(this.sentences(index).startOffsets(0), this.sentences(index).endOffsets.last)
-          case _ => this.sentences(index).getSentenceText
+          case Some(text) => text.slice(sentence.startOffsets(0), sentence.endOffsets.last)
+          case _ => sentence.getSentenceText
         }
 
-        // val phrases_geoIDs = geo_disambiguate.parse(sentence_text) // location_phrases_GeonameID
-        //val token_labels = geo_disambiguate.generate_NER_labels(geo_disambiguate.create_word_input(sentence_text)._1)
-        val token_labels = geo_disambiguate.generate_NER_labels(geo_disambiguate.create_word_input(this.sentences(index).getSentenceText)._1)
-        val offset = this.sentences(index).startOffsets(0)
+        val token_labels = geo_disambiguate.generate_NER_labels(geo_disambiguate.create_word_input(sentence.getSentenceText)._1)
+        val offset = sentence.startOffsets(0)
 
-        // println("our output matrix looks like: ", token_labels.toString)
+        val norms = sentence.norms.get.indices.map { normIndex =>
+          val norm = sentence.norms.get(normIndex)
+          val start = sentence.startOffsets(normIndex)
+          val end = sentence.endOffsets(normIndex)
+          val tokenLabel = token_labels(normIndex)
 
-        val norms = for (((start, end), (norm, norm_index)) <- this.sentences(index).startOffsets zip this.sentences(index).endOffsets zip this.sentences(index).norms.get.zipWithIndex)
+          (if (tokenLabel == "O") norm else "LOC", start, end) // token_labels(norm_index)
+        }.toArray
 
-            yield{
+        sentence.norms = Some(norms.map(_._1))  // Updating the norms here
 
-              if (norm_index >= token_labels.size)
-                println("Stop!")
-              if (token_labels(norm_index) == "O") {
-                (norm,start, end)
-              }
-              else {
-                ("LOC", start, end) // token_labels(norm_index)
-              }
-          }
-
-        // println(norms.foreach(println))
-        this.sentences(index).norms = Some(norms.map(_._1).toArray)  // Updating the norms here
-
-        val phrases_geoID_all =  geo_disambiguate.get_complete_location_phrase( token_labels, geo_disambiguate.create_word_input(this.sentences(index).getSentenceText)._2,
-                                 norms.map(_._2), norms.map(_._3))
-
-
+        val phrases_geoID_all = geo_disambiguate.get_complete_location_phrase(
+          token_labels,
+          geo_disambiguate.create_word_input(sentence.getSentenceText)._2,
+          norms.map(_._2),
+          norms.map(_._3)
+        )
 
         phrases_geoID_all.toList.map(g => new GeoPhraseID(g._1, g._2, g._3, g._4))
-        // phrases_geoID_all._2.toList.map(new GeoPhraseID(_))
-
       }
-      List()
     }
-
   }
-
-//  def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
-//    if (timenorm.isDefined) parseRealTime(timenorm.get)
-//    else parseFakeTime()
 
   def parseGeoNorm_flag(geo_disambiguate: Option[Geo_disambiguate_parser]): Unit =
     if (geo_disambiguate.isDefined) parseGeoNorm(geo_disambiguate.get)
     else parseFakeGeoLoc()
-
 }
 
 object EidosDocument {

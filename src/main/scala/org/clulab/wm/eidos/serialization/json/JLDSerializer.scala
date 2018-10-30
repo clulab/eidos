@@ -613,9 +613,6 @@ object JLDTimex {
   val typename = "TimeExpression"
 }
 
-// <<<<<<< HEAD
-
-
 class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDGeoID.typename, geoid) {
@@ -637,9 +634,6 @@ object JLDGeoID {
   val plural = "geoids"
   val typename = "GeoidPhrases"
 }
-
-//=======
-//>>>>>>> 0e9c30a84a6747e9da9cd88f98e6c1da59c0852d
 
 class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.

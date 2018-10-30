@@ -14,8 +14,7 @@ object Geo_disambiguate_parser {
   val TIME_DISTRIBUTED_1 = "time_distributed_1"
 }
 
-class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String = "/org/clulab/wm/eidos/english/context/word2idx_file.txt",
-    loc2geonameIDPath: String = "/org/clulab/wm/eidos/english/context/geo_dict_with_population_SOUTH_SUDAN.txt") {
+class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
 
   protected val network: ComputationGraph = KerasModelImport.importKerasModelAndWeights(modelPath, false)
 
