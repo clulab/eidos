@@ -627,9 +627,8 @@ class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
       ("startOffset" -> geoid.StartOffset_locs) ~
       ("endOffset" -> geoid.EndOffset_locs) ~
       ("text" -> geoid.phraseID) ~
-      ("geoID" -> geoid.PhraseGeoID)
+      ("geoID" -> geoid.PhraseGeoID.map(_.toString))
       // (JLDTimeInterval.plural -> toJObjects(jldIntervals))
-
   }
 }
 

@@ -90,6 +90,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
             yield{
 
+              if (norm_index >= token_labels.size)
+                println("Stop!")
               if (token_labels(norm_index) == "O") {
                 (norm,start, end)
               }
@@ -102,7 +104,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
         this.sentences(index).norms = Some(norms.map(_._1).toArray)  // Updating the norms here
 
         val phrases_geoID_all =  geo_disambiguate.get_complete_location_phrase( token_labels, geo_disambiguate.create_word_input(this.sentences(index).getSentenceText)._2,
-                                 geo_disambiguate.loc2geonameID,norms.map(_._2), norms.map(_._3))
+                                 norms.map(_._2), norms.map(_._3))
 
 
 
@@ -141,4 +143,4 @@ object EidosDocument {
 class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, LocalDateTime, Long)], val text: String)
 class DCT(val interval: Interval, val text: String)
 
-class GeoPhraseID(val phraseID: String, val  PhraseGeoID: String, val StartOffset_locs: Int, val EndOffset_locs: Int)
+class GeoPhraseID(val phraseID: String, val PhraseGeoID: Option[Int], val StartOffset_locs: Int, val EndOffset_locs: Int)
