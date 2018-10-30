@@ -391,7 +391,6 @@ object Time {
   def apply(interval: TimeInterval) = new Time(interval)
 }
 
-// <<<<<<< HEAD
 @SerialVersionUID(1L)
 class Location(location_phraseID: GeoPhraseID) extends ContextAttachment {
 
@@ -410,14 +409,6 @@ object Location {
 
   def apply(interval: GeoPhraseID) = new Location(interval)
 }
-
-
-
-
-
-
-//=======
-//>>>>>>> 0e9c30a84a6747e9da9cd88f98e6c1da59c0852d
 
 @SerialVersionUID(1L)
 class DCTime(dct: DCT) extends ContextAttachment {

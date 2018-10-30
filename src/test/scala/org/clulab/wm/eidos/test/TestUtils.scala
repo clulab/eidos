@@ -75,54 +75,6 @@ object TestUtils {
 
   class ContraptionTest extends Test
 
- /*
-<<<<<<< HEAD
-    val successful = Seq()
-    
-    class Tester(text: String) {
-      //val mentions = extractMentions(clean(text))
-      val mentions = EidosMention.findReachableMentions(extractMentions(clean(text)))
-      
-      def getSpecialChars(s: String) = s.filter(c => c < 32 || 127 < c)
-      
-      def clean(messyText: String): String = {
-        val cleanText = messyText
-            .replace('|', ' ') // before trim so space will be trimmed if necessary
-            .trim()
-            .replace('\n', ' ')
-            .replace('\r', ' ')
-            .replace('\t', ' ')
-            .replaceAll("  +", " ")
-        val specialChars = getSpecialChars(cleanText)
-        
-        if (!specialChars.isEmpty())
-          throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
-        cleanText
-      }
-      
-      protected def toString(mentions: Seq[Mention]): String = {
-        val stringBuilder = new StringBuilder()
-        
-        mentions.indices.foreach(index => stringBuilder.append(s"${index}: ${mentions(index).text}\n"))
-        stringBuilder.toString()
-      }
-    
-      protected def annotateTest(result: Seq[String]): Seq[String] =
-          if (result == successful)
-            result
-          else
-            result ++ Seq("Mentions:\n" + toString(mentions))
-      
-      def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions, useTimeNorm, useGeoNorm))
-      
-      def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions, useTimeNorm, useGeoNorm))
-    }
-
-    def useTimeNorm = ieSystem.timenorm.isDefined
-    def useGeoNorm = ieSystem.geonorm.isDefined
-=======
-*/
-
   class ExtractionTest(var ieSystem: EidosSystem) extends ContraptionTest {
     def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config))
 
@@ -134,7 +86,6 @@ object TestUtils {
     def useGeoNorm = ieSystem.geonorm.isDefined
 
     def extractMentions(text: String): Seq[Mention] = TestUtils.extractMentions(ieSystem, text)
-// >>>>>>> 0e9c30a84a6747e9da9cd88f98e6c1da59c0852d
   }
 
   class EnglishTest(ieSystem: EidosSystem) extends ExtractionTest(ieSystem) {
