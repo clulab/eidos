@@ -115,11 +115,13 @@ json_dict = res.json()
 
 Using `CURL` we can do the same with:
 
+```
 curl \
   --header "Content-type: application/json" \
   --request POST \
   --data '{"text": "Drought increases regional insecurity."}' \
   http://localhost:9000/process_text
+```
 
 ### Interactive Shell
 
