@@ -34,14 +34,14 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
     dict
   }
 
-  def create_word_input(words: Array[String]): Array[Float] = {
+  def createFeatures(words: Array[String]): Array[Float] = {
     val unknown = word2int(Geo_disambiguate_parser.UNKNOWN_TOKEN)
     val features = words.map(word2int.getOrElse(_, unknown).toFloat)
 
     features
   }
 
-  def generate_NER_labels(word_features: Array[Float]): Array[String] = {
+  def generateLabels(word_features: Array[Float]): Array[String] = {
     val word_input = Nd4j.create(word_features.toArray)
     network.setInput(0, word_input)
 
@@ -52,14 +52,18 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
       case _ => results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1).toFloatMatrix()
     }
 
+    // TODO: Why does this happen?
+    if (label_predictions.size != word_features.size)
+      println("Not working")
+    else
+      println("Working fine")
     label_predictions.map { word1_label =>
       Geo_disambiguate_parser.INT2LABEL(word1_label.zipWithIndex.maxBy(_._1)._2)
     }
   }
 
-  def get_complete_location_phrase(word_labels: Array[String], words_text: Array[String],
+  def makeLocationPhrases(word_labels: Array[String], words_text: Array[String],
       Start_offset: Array[Int], End_offset: Array[Int]): List[GeoPhraseID] = {
-
     var locations = new ListBuffer[GeoPhraseID]
     var location_phrase = ""
     var start_phrase_char_offset = 0
@@ -68,7 +72,9 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
       val prettyLocationPhrase = location_phrase.replace('_', ' ')
       val geoNameId = loc2geonameID.get(location_phrase.toLowerCase)
 
-      locations += GeoPhraseID(prettyLocationPhrase, geoNameId, start_phrase_char_offset, End_offset(index))
+      // TODO: Figure this out
+      // The word at index has ended already, therefore use index - 1.
+      locations += GeoPhraseID(prettyLocationPhrase, geoNameId, start_phrase_char_offset, End_offset(index - 1))
     }
 
     for ((label, index) <- word_labels.zipWithIndex) {
