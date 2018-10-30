@@ -30,7 +30,7 @@ class NegationHandler(val language: String) {
       case event: EventMention =>
         // Dependency Negations
         val depNegations = gatherNegDepNegationsPortuguese(event)
-        handleNegations(m.asInstanceOf[EventMention], (depNegations).toSet)// ++ singleVerbNegations ++ bigramNegations).toSet)
+        handleNegations(m.asInstanceOf[EventMention], depNegations.toSet)
       case _ => m
     }
   }
