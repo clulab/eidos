@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.graph
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
 
@@ -10,6 +11,8 @@ import scala.collection.Seq
 class GraphTester(ieSystem: EidosSystem, text: String) {
   //val mentions = extractMentions(clean(text))
   val mentions = EidosMention.findReachableMentions(TestUtils.extractMentions(ieSystem, clean(text)))
+
+  val testResults = new TestResults()
 
   def getSpecialChars(s: String) = s.filter(c => c < 32 || 127 < c)
 
@@ -43,9 +46,19 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
     else
       result ++ Seq("Mentions:\n" + toString(mentions))
 
-  def test(nodeSpec: NodeSpec): Seq[String] = annotateTest(nodeSpec.test(mentions, useTimeNorm))
+  def test(nodeSpec: NodeSpec): Seq[String] = {
+    val testResult = nodeSpec.test(mentions, useTimeNorm, testResults)
+    // Also store nodeSpec map
 
-  def test(edgeSpec: EdgeSpec): Seq[String] = annotateTest(edgeSpec.test(mentions, useTimeNorm))
+    annotateTest(testResult.complaints)
+  }
+
+  def test(edgeSpec: EdgeSpec): Seq[String] = {
+    val testResult = edgeSpec.test(mentions, useTimeNorm, testResults)
+    // Also store nodeSpec map
+
+    annotateTest(testResult.complaints)
+  }
 
   def useTimeNorm = ieSystem.timenorm.isDefined
 }

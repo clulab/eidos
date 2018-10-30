@@ -47,7 +47,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     }
   }
 
-  var debug = true // Allow external control with var
+  val debug = true // Allow external control with var if needed
 
   println("Loading W2V...")
   val word2vec = eidosConf[Boolean]("useW2V") // Turn this on and off here
