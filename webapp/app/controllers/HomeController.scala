@@ -1,20 +1,24 @@
 package controllers
 
 import javax.inject._
+
+import com.typesafe.config.ConfigRenderOptions
+
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
+
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.wm.eidos.document.GeoPhraseID
 
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
-import com.typesafe.config.ConfigRenderOptions
+
 import play.api.mvc._
 import play.api.libs.json._
 

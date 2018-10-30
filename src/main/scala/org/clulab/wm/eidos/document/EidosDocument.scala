@@ -8,8 +8,7 @@ import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.timenorm.formal.Interval
 import org.clulab.wm.eidos.context.Geo_disambiguate_parser
-
-import scala.collection.mutable.ListBuffer
+import org.clulab.wm.eidos.context.GeoPhraseID
 
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
   // TODO: @transient here means these values aren't serialized, which sort of defeats the purpose of serialization.
@@ -73,38 +72,20 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
      if (timenorm.isDefined) parseRealTime(timenorm.get)
      else parseFakeTime()
 
-  def parseGeoNorm(geo_disambiguate : Geo_disambiguate_parser): Unit = {
+  def parseGeoNorm(geo_disambiguate: Geo_disambiguate_parser): Unit = {
     geolocs.indices.foreach { index =>
       val sentence = sentences(index)
 
       geolocs(index) = {
-        val sentence_text = text match {
-          case Some(text) => text.slice(sentence.startOffsets(0), sentence.endOffsets.last)
-          case _ => sentence.getSentenceText
+        val words = sentence.raw
+        val features = geo_disambiguate.create_word_input(words)
+        val token_labels = geo_disambiguate.generate_NER_labels(features)
+        val norms = sentence.norms.get.zip(token_labels).map { case (norm, tokenLabel) =>
+          if (tokenLabel == "O") norm else "LOC" // token_labels(norm_index)
         }
 
-        val token_labels = geo_disambiguate.generate_NER_labels(geo_disambiguate.create_word_input(sentence.getSentenceText)._1)
-        val offset = sentence.startOffsets(0)
-
-        val norms = sentence.norms.get.indices.map { normIndex =>
-          val norm = sentence.norms.get(normIndex)
-          val start = sentence.startOffsets(normIndex)
-          val end = sentence.endOffsets(normIndex)
-          val tokenLabel = token_labels(normIndex)
-
-          (if (tokenLabel == "O") norm else "LOC", start, end) // token_labels(norm_index)
-        }.toArray
-
-        sentence.norms = Some(norms.map(_._1))  // Updating the norms here
-
-        val phrases_geoID_all = geo_disambiguate.get_complete_location_phrase(
-          token_labels,
-          geo_disambiguate.create_word_input(sentence.getSentenceText)._2,
-          norms.map(_._2),
-          norms.map(_._3)
-        )
-
-        phrases_geoID_all.toList.map(g => new GeoPhraseID(g._1, g._2, g._3, g._4))
+        sentence.norms = Some(norms) // Updating the norms here
+        geo_disambiguate.get_complete_location_phrase(token_labels, words, sentence.startOffsets, sentence.endOffsets)
       }
     }
   }
@@ -129,5 +110,3 @@ object EidosDocument {
 
 class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, LocalDateTime, Long)], val text: String)
 class DCT(val interval: Interval, val text: String)
-
-class GeoPhraseID(val phraseID: String, val PhraseGeoID: Option[Int], val StartOffset_locs: Int, val EndOffset_locs: Int)

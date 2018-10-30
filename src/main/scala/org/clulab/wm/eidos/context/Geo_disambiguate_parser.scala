@@ -34,13 +34,11 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
     dict
   }
 
-  // TODO: Just get the words straight from Eidos.  Do not split them again.
-  def create_word_input(sourceText: String): (Array[Float], Array[String]) = {
+  def create_word_input(words: Array[String]): Array[Float] = {
     val unknown = word2int(Geo_disambiguate_parser.UNKNOWN_TOKEN)
-    val words = sourceText.split(' ')
     val features = words.map(word2int.getOrElse(_, unknown).toFloat)
 
-    (features, words)
+    features
   }
 
   def generate_NER_labels(word_features: Array[Float]): Array[String] = {
@@ -60,9 +58,9 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
   }
 
   def get_complete_location_phrase(word_labels: Array[String], words_text: Array[String],
-      Start_offset: Array[Int], End_offset: Array[Int]): ListBuffer[(String, Option[Int], Int, Int)] = {
+      Start_offset: Array[Int], End_offset: Array[Int]): List[GeoPhraseID] = {
 
-    var locations = new ListBuffer[(String, Option[Int], Int, Int)]
+    var locations = new ListBuffer[GeoPhraseID]
     var location_phrase = ""
     var start_phrase_char_offset = 0
 
@@ -70,7 +68,7 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
       val prettyLocationPhrase = location_phrase.replace('_', ' ')
       val geoNameId = loc2geonameID.get(location_phrase.toLowerCase)
 
-      locations += ((prettyLocationPhrase, geoNameId, start_phrase_char_offset, End_offset(index)))
+      locations += GeoPhraseID(prettyLocationPhrase, geoNameId, start_phrase_char_offset, End_offset(index))
     }
 
     for ((label, index) <- word_labels.zipWithIndex) {
@@ -94,6 +92,6 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
         location_phrase = ""
       }
     }
-    locations
+    locations.toList
   }
 }

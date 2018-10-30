@@ -13,12 +13,12 @@ import org.yaml.snakeyaml.constructor.Constructor
 import scala.annotation.tailrec
 import utils.DisplayUtils.{displayMention, shortDisplay}
 import EidosActions.{INVALID_INCOMING, INVALID_OUTGOING, VALID_INCOMING, VALID_OUTGOING}
+import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
-import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.wm.eidos.document.GeoPhraseID
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`

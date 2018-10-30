@@ -2,8 +2,10 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.document.{DCT, GeoPhraseID, TimeInterval}
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.document.{DCT, TimeInterval}
 import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
+
 import org.json4s._
 import org.json4s.JsonDSL._
 

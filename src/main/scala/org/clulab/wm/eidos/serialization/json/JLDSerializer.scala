@@ -14,7 +14,8 @@ import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
-import org.clulab.wm.eidos.document.{DCT, EidosDocument, GeoPhraseID, TimeInterval}
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.document.{DCT, EidosDocument, TimeInterval}
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
