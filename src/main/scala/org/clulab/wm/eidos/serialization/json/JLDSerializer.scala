@@ -631,9 +631,9 @@ class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
 }
 
 object JLDGeoID {
-  val singular = "geoid"
-  val plural = "geoids"
-  val typename = "GeoidPhrases"
+  val singular = "geoloc"
+  val plural = "geolocs"
+  val typename = "GeoLocation"
 }
 
 class JLDDCT(serializer:JLDSerializer, val dct: DCT)
