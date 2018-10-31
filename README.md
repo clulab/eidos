@@ -96,13 +96,13 @@ To eventually escape from `sbt`, you can stop the web server with Control-D and 
 program with `exit`.
 
 ### Web Service
-When the web app is run, it exposes a web service at port `9000` via the `/process_text` endpoint. It accepts a `POST` request and requires JSON with the following parameter:
+When the webapp is run, it exposes a web service at port `9000` via the `/process_text` endpoint. It accepts a `POST` request and requires JSON with the following parameter:
 
 * `text`: the text you wish to submit for parsing by Eidos.
 
 For example, we can use the Python `requests` library to interact with the web service with the following:
 
-```
+```python
 import requests
 
 text = """Drought increases regional insecurity."""
@@ -115,8 +115,8 @@ json_dict = res.json()
 
 Using `CURL` we can do the same with:
 
-```
-curl \
+```bash
+> curl \
   --header "Content-type: application/json" \
   --request POST \
   --data '{"text": "Drought increases regional insecurity."}' \
@@ -129,11 +129,11 @@ EidosShell is an interactive text-based program for testing the output of Eidos.
 less complete than the webapp, but it stands alone, no web browser is required, and it consumes
 fewer resources.  A script is provided to run it with
 ```bash
-./shell
+> ./shell
 ```
 or
 ```DOS.bat
-.\shell
+> .\shell
 ```
 depending on operating system, or it can be run in the usual `sbt` way with
 ```bash
