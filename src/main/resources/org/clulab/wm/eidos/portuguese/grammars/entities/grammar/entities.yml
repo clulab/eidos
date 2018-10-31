@@ -21,11 +21,28 @@ rules:
       |
       [chunk='B-VP' & !mention=Avoid]
 
-#  # need to find a better way to link these
-#  - name: simple-np-pp-np
+#  - name: simple-pp
 #    label: Concept
 #    priority: 1
 #    type: token
 #    pattern: |
-#      # avoids event triggers, coordinations, refs, etc.
-#      [chunk='B-NP' & !mention=Avoid] [chunk='I-NP' & !mention=Avoid]* ([chunk='B-PP' & !mention=Avoid] [chunk='B-NP' & !mention=Avoid] [chunk='I-NP' & !mention=Avoid]*)*
+#      [chunk='B-PP' & !mention=Avoid]? [chunk='I-PP' & !mention=Avoid]+
+#      |
+#      [chunk='B-PP' & !mention=Avoid]
+#
+#  - name: simple-np-pp-np
+#    label: Concept
+#    priority: 2
+#    type: token
+#    pattern: |
+#      [mention=simple-np & !mention=Avoid] [chunk=simple-np & !mention=Avoid] [mention=simple-np & !mention=Avoid]
+
+
+  # need to find a better way to link these
+  - name: simple-np-pp-np
+    label: Concept
+    priority: 1
+    type: token
+    pattern: |
+      # avoids event triggers, coordinations, refs, etc.
+      [chunk='B-NP' & !mention=Avoid] [chunk='I-NP' & !mention=Avoid]* ([chunk='B-PP' & !mention=Avoid] [chunk='B-NP' & !mention=Avoid] [chunk='I-NP' & !mention=Avoid]*)+

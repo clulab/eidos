@@ -50,6 +50,7 @@ efeito
 esforço
 estimativa
 evidência
+evento
 agravamento
 exposição
 expressão
@@ -57,6 +58,7 @@ medida
 extensão
 fator
 familia
+fenômeno
 achado
 forma
 formação
