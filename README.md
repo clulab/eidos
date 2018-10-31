@@ -22,6 +22,7 @@ page.
 - Running Eidos
   - Using the Sample Apps
     - [Webapp](#webapp)
+    - [Web Service](#web-service)
     - [Interactive Shell](#interactive-shell)
     - [ExtractAndExport](#extractandexport)
     - [Other Apps](#other-apps)
@@ -94,6 +95,33 @@ will be processed much more quickly.
 To eventually escape from `sbt`, you can stop the web server with Control-D and then quit the
 program with `exit`.
 
+### Web Service
+When the web app is run, it exposes a web service at port `9000` via the `/process_text` endpoint. It accepts a `POST` request and requires JSON with the following parameter:
+
+* `text`: the text you wish to submit for parsing by Eidos.
+
+For example, we can use the Python `requests` library to interact with the web service with the following:
+
+```
+import requests
+
+text = """Drought increases regional insecurity."""
+
+webservice = 'http://localhost:9000'
+res = requests.post('%s/process_text' %webservice, headers={'Content-type': 'application/json'}, json={'text': text})
+
+json_dict = res.json()
+```
+
+Using `CURL` we can do the same with:
+
+```
+curl \
+  --header "Content-type: application/json" \
+  --request POST \
+  --data '{"text": "Drought increases regional insecurity."}' \
+  http://localhost:9000/process_text
+```
 
 ### Interactive Shell
 
