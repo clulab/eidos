@@ -25,5 +25,6 @@ object PlayUtils {
     case j4s.JBool(value) => pjson.JsBoolean(value)
     case j4s.JArray(fields) => pjson.JsArray(fields.map(toPlayJson(_)))
     case j4s.JObject(fields) => pjson.JsObject(fields.map { case (k, v) => k -> toPlayJson(v)}.toMap)
+    case j4s.JSet(fields) => pjson.JsArray(fields.toList.map(toPlayJson(_)))
   }
 }
