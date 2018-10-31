@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
@@ -95,6 +95,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
     def     faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
     def    meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
+    def   propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
     def            cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
@@ -114,10 +115,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case   UN_NAMESPACE =>   UNOntology(  unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case  WDI_NAMESPACE =>  WDIOntology( wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case  FAO_NAMESPACE =>  FAOOntology( faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case MESH_NAMESPACE => MeshOntology(meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case    UN_NAMESPACE =>          UNOntology(  unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case   WDI_NAMESPACE =>         WDIOntology( wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case   FAO_NAMESPACE =>         FAOOntology( faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  MESH_NAMESPACE =>        MeshOntology(meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case PROPS_NAMESPACE => PropertiesOntology(propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
     }

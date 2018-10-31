@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.groundings
 
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.text.{AntiNodeSpec, NodeSpec}
 
-class TestOntologyGrounder extends Test {
+class TestOntologyGrounder extends EnglishTest {
 
   {
     val text =
@@ -17,7 +17,7 @@ class TestOntologyGrounder extends Test {
         |A pair causes a two.
       """.stripMargin
 
-    val tester = new Tester(text)
+    val tester = new GraphTester(text)
 
     val newZealand = AntiNodeSpec("New Zealand") // LOCATION (in two words)
     val australia = AntiNodeSpec("Australia") // LOCATION (in one word)

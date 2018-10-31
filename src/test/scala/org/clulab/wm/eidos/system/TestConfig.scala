@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.text.cag
+package org.clulab.wm.eidos.text.english.cag
 
 import org.clulab.wm.eidos.test.TestUtils._
 
@@ -9,9 +9,9 @@ class TestConfig extends Test with Configured {
   
   override def getConf: Config = config
   
-  val config = ConfigFactory.load("testeidos")
+  var config = ConfigFactory.load("eidosTest")
 
-  behavior of "testeidos.conf"
+  behavior of "eidosTest.conf"
   
   it should "configure" in {
     val testTrue = getArgBoolean("EidosSystem.testTrue", Option(false))

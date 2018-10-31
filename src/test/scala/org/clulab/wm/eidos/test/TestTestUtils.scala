@@ -1,9 +1,8 @@
 package org.clulab.wm.eidos.test
 
 import TestUtils._
-import org.scalactic.source.Position.apply
 
-class TestTest extends Test {
+class TestTest extends ExtractionTest {
   
   behavior of "Test"
   
@@ -34,7 +33,7 @@ class TestTest extends Test {
   }
   
   it should "clean strings properly" in {
-    val tester = new Tester("")
+    val tester = new GraphTester("")
     
     tester.clean("  line one\n\nline two \n line three\n\n ") should be ("line one line two line three")
 

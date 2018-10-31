@@ -1,12 +1,11 @@
 import ReleaseTransformations._
+import Tests._
 
 name := "eidos"
 organization := "org.clulab"
 
 scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", "2.12.4")
-
-//EclipseKeys.withSource := true
 
 resolvers += "jitpack" at "https://jitpack.io"
 
@@ -30,6 +29,32 @@ libraryDependencies ++= {
   )
 }
 
+Test / fork := true // Also forces sequential operation
+Test / parallelExecution := false // Keeps groups in their order   false then true worked 4:14 and portuguese last
+//Test / testForkedParallel := true // Allow parallel within group?
+
+{
+  def groupByLanguage(tests: Seq[TestDefinition]) = {
+    //def newRunPolicy = SubProcess(ForkOptions())
+    def newRunPolicy = InProcess
+
+    val englishTests = tests.filter(_.name.contains(".text.english."))
+    val portugueseTests = tests.filter(_.name.contains(".text.portuguese."))
+    val languageNames = englishTests.map(_.name) ++ portugueseTests.map(_.name)
+    val otherTests = tests.filter(test => !languageNames.contains(test.name))
+    val allNames = otherTests.map(_.name) ++ languageNames
+//    val otherAndEnglishGroup = new Group("otherAndEnglish", otherTests ++ englishTests, newWubProcess)
+    val englishGroup = new Group("english", englishTests, newRunPolicy)
+    val portugueseGroup = new Group("portuguese", portugueseTests, newRunPolicy)
+    val otherGroup = new Group("other", otherTests, newRunPolicy)
+
+    Seq(otherGroup, englishGroup, portugueseGroup)
+  }
+
+  testGrouping in Test := groupByLanguage((definedTests in Test).value)
+}
+
+
 libraryDependencies ++= {
   val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
   val timenorm = "timenorm-0.9.6.15" + (if (minor == 11) "_2.11.11" else "")
@@ -42,6 +67,7 @@ libraryDependencies ++= {
 // java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
 // Caused by: java.lang.UnsatisfiedLinkError: Native Library jnihdf5.dll already loaded in another classloader
 // However, this also doubles the testing time, so it is disabled here.  Enable it if the exception appears.
+// The value of fork is also set above to preserve order, so this remains only for documentation purposes.
 // fork := true
 
 //
@@ -109,6 +135,8 @@ lazy val webapp = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
+    case "META-INF/services/org.nd4j.linalg.factory.Nd4jBackend" => MergeStrategy.first
+    case "META-INF/services/org.nd4j.linalg.compression.NDArrayCompressor" => MergeStrategy.first
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
     case x => MergeStrategy.first
 }

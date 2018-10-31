@@ -39,7 +39,7 @@ class TestResources extends Test {
   type Operation = (File) => Unit
 
   val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
-  val unwantedSuffixes = Seq("vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml", "/portuguese/grammars/triggers-temp-translation.yml")
+  val unwantedSuffixes = Seq("vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml")
 
   def fileMatches(file: File): Boolean = {
     val canonicalPath = file.getCanonicalPath().replace('\\', '/')

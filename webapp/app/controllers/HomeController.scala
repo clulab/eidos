@@ -12,10 +12,14 @@ import org.clulab.wm.eidos.document.TimeInterval
 
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
 import com.typesafe.config.ConfigRenderOptions
 import play.api.mvc._
 import play.api.libs.json._
+
+import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
+import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.serialization.json.stringify
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
@@ -92,6 +96,31 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     (doc, mentions.sortBy(m => mentionOrder(m.odinMention)), groundedEntities)
   }
 
+// Webservice functions
+  def process_text = Action(parse.json) { request =>
+    (request.body \ "text").asOpt[String].map { text =>
+      val (mentionsJSONLD) = processPlaytext(ieSystem, text)
+      val (parsed_output) = PlayUtils.toPlayJson(mentionsJSONLD)
+      Ok(parsed_output)
+    }.getOrElse {
+      BadRequest("Missing parameter [text]")
+    }
+  }
+
+  // Method where eidos processing for webservice happens
+  def processPlaytext(
+    ieSystem: EidosSystem,
+    text: String): (org.json4s.JsonAST.JValue) = {
+
+    // preprocessing
+    println(s"Processing sentence : ${text}" )
+    val annotatedDocument = ieSystem.extractFromText(text)
+
+    // Export to JSON-LD
+    val corpus = new JLDCorpus(Seq(annotatedDocument), ieSystem)
+    val mentionsJSONLD = corpus.serialize()
+    (mentionsJSONLD)
+  }
 
   case class GroundedEntity(sentence: String,
                             quantifier: Quantifier,

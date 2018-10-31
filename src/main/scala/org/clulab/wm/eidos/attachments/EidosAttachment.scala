@@ -75,6 +75,14 @@ object EidosAttachment {
       .arguments
       .get("quantifier")
       .map(qs => qs.map(_.text))
+
+  def getAttachmentWords(a: Attachment): Seq[String] = {
+    a match {
+      case triggered: TriggeredAttachment => Seq(triggered.trigger) ++ triggered.quantifiers.getOrElse(Seq())
+      case context: ContextAttachment => context.text.split(" ")
+      case _ => throw new RuntimeException(s"Unsupported class of attachment: ${a.getClass}")
+    }
+  }
 }
 
 case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[String]] = None,

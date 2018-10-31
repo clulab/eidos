@@ -1,33 +1,27 @@
-agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
-##### maybe remove acl from here? <acl removed
+agents: "nsubj|nsubj:pass|csubj|csubj:pass"
 
 adverbial_clause: "advcl"
-#advmod
 
 conjunctions: "appos|conj|conj_|cc"
 
 complements: "xcomp|ccomp"
 
-noun_modifiers: "amod|compound|name" #removed dep
+noun_modifiers: "amod|compound|flat:name"
 
-negTriggers: "not"
+negTriggers: "não"
 
-objects: "dobj|obj"
+objects: "obj"
 
-#preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_than|acl_of"
 preps: "nmod_de|nmod_em|nmod_sobre|nmod_para"
-
-#nmod_como
-#nmod_a
 
 prep_dobjs: "nmod"
 
 quant_modifiers: "amod|advmod"
 
-passive_agents: "nmod_por|nmod_agent|agent"
+passive_agents: "nmod_por|nmod_agente|agente"
 
-passive_mark_verbs: "marked|defined|indicated|characterized"
+passive_mark_verbs: "marcado|definido|indicado|caracterizado"
 
-transparent_nouns: "level|amount|quantit" # do we need these in general?
+transparent_nouns: "nivel|quantidade" # do we need these in general?
 
 # Todo: nmod_from "X will follow from Y"
