@@ -8,4 +8,20 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [norm="B-Time"] [norm="I-Time"]*
-      theme: Entity = </^nmod/ >nmod_in?
+      theme: Entity = </^nmod/  >nmod_in?
+
+  - name: timeattachment2
+    priority: ${ rulepriority }
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [norm="B-Time"] [norm="I-Time"]*
+      theme: Entity = </^nmod/ >/^nsubj/
+
+  - name: timeattachment3
+    priority: ${ rulepriority }
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [norm="B-Time"] [norm="I-Time"]*
+      theme: Entity = </^case/ </^nmod/
