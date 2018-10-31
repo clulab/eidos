@@ -1,13 +1,11 @@
 package org.clulab.wm.eidos.utils
 
 import java.io._
-import java.net.URL
 import java.util.Collection
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.Sinker.logger
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 

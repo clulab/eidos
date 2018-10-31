@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
-import org.json4s
+import org.clulab.wm.eidos.utils.StringUtils
 import org.json4s.{JField, JObject, JString, JValue}
 import org.json4s.jackson.JsonMethods.parse
 
@@ -17,29 +17,6 @@ object FilteredExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val metaDir = args(2)
-
-  def before(string: String, index: Int, all: Boolean): String = {
-    if (index < 0)
-      if (all) string
-      else ""
-    else string.substring(0, index)
-  }
-
-  def beforeLast(string: String, char: Char, all: Boolean = true): String =
-    before(string, string.lastIndexOf(char), all)
-
-  def beforeFirst(string: String, char: Char, all: Boolean = true): String =
-    before(string, string.indexOf(char), all)
-
-
-  def afterLast(string: String, char: Char, all: Boolean = true): String = {
-    val index = string.lastIndexOf(char)
-
-    if (index < 0)
-      if (all) string
-      else ""
-    else string.substring(index + 1)
-  }
 
   def getMetaValue(json: JValue, name: String): Option[String] = {
     val values: List[String] = for {
@@ -73,14 +50,14 @@ object FilteredExtractMetaFromDirectory extends App {
 
   def convertTextToMeta17k(metaDir: String, textFile: File): File = {
     val textFileName = textFile.getName()
-    val metaFileName = metaDir + "/" + beforeFirst(afterLast(textFileName, '_'), '.') + ".json"
+    val metaFileName = metaDir + "/" + StringUtils.beforeFirst(StringUtils.afterLast(textFileName, '_'), '.') + ".json"
 
     new File(metaFileName)
   }
 
   def convertTextToMeta52(metaDir: String, textFile: File): File = {
     val textFileName = textFile.getName()
-    val metaFileName = metaDir + "/" + beforeLast(textFileName, '.') + ".json"
+    val metaFileName = metaDir + "/" + StringUtils.beforeLast(textFileName, '.') + ".json"
 
     new File(metaFileName)
   }
