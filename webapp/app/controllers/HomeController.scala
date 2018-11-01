@@ -14,16 +14,10 @@ import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
-
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-// <<<<<<< kwalcock-geoNorm1
-import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
 
-// =======
-// import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
-// import com.typesafe.config.ConfigRenderOptions
-// >>>>>>> geoNorm
 import play.api.mvc._
 import play.api.libs.json._
 
