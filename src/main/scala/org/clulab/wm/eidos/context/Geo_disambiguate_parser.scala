@@ -34,75 +34,73 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
     dict
   }
 
-  def createFeatures(words: Array[String]): Array[Float] = {
+  def makeFeatures(words: Array[String]): Array[Float] = {
     val unknown = word2int(Geo_disambiguate_parser.UNKNOWN_TOKEN)
     val features = words.map(word2int.getOrElse(_, unknown).toFloat)
 
     features
   }
 
-  def generateLabels(word_features: Array[Float]): Array[String] = {
-    val word_input = Nd4j.create(word_features.toArray)
-    network.setInput(0, word_input)
+  def makeLabels(features: Array[Float]): Array[String] = {
 
-    val results = network.feedForward()
-    val output = results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1)
-    val label_predictions: Array[Array[Float]] =
-        if (output.shape()(0) == 1) Array(output.toFloatVector())
-        else output.toFloatMatrix()
-
-    // TODO: Why does this happen?
-    if (label_predictions.size != word_features.size)
-      println("Not working")
-    else
-      println("Working fine")
-
-    def argmax[T](values: Array[T]): Int = {
-      // This goes through the values twice, but at least doesn't create extra objects.
+    def argmax(values: Array[Float]): Int = {
+      // This goes through the values twice, but at least it doesn't create extra objects.
       val max = values.max
 
       values.indexWhere(_ == max)
     }
 
-    label_predictions.map(prediction => Geo_disambiguate_parser.INT2LABEL(argmax(prediction)))
+    val input = Nd4j.create(features)
+    val results = this.synchronized {
+      network.setInput(0, input)
+      network.feedForward()
+    }
+    val output = results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1)
+    val predictions: Array[Array[Float]] =
+        if (output.shape()(0) == 1) Array(output.toFloatVector)
+        else output.toFloatMatrix
+
+    predictions.map(prediction => Geo_disambiguate_parser.INT2LABEL(argmax(prediction)))
   }
 
-  def makeLocationPhrases(word_labels: Array[String], words_text: Array[String],
-      Start_offset: Array[Int], End_offset: Array[Int]): List[GeoPhraseID] = {
+  def makeGeoLocations(labels: Array[String], words: Array[String],
+      startOffsets: Array[Int], endOffsets: Array[Int]): List[GeoPhraseID] = {
     var locations = new ListBuffer[GeoPhraseID]
-    var location_phrase = ""
-    var start_phrase_char_offset = 0
+    var locationPhrase = ""
+    var startIndex = 0
 
     def addLocation(index: Int) = {
-      val prettyLocationPhrase = location_phrase.replace('_', ' ')
-      val geoNameId = loc2geonameID.get(location_phrase.toLowerCase)
+      val prettyLocationPhrase = locationPhrase.replace('_', ' ')
+      val geoNameId = loc2geonameID.get(locationPhrase.toLowerCase)
+      // The word at index has ended previously, so use index - 1.
+      val endIndex = index - 1
 
-      // TODO: Figure this out
-      // The word at index has ended already, therefore use index - 1.
-      locations += GeoPhraseID(prettyLocationPhrase, geoNameId, start_phrase_char_offset, End_offset(index - 1))
+      locations += GeoPhraseID(prettyLocationPhrase, geoNameId, startOffsets(startIndex), endOffsets(endIndex))
     }
 
-    for ((label, index) <- word_labels.zipWithIndex) {
+    for ((label, index) <- labels.zipWithIndex) {
       if (label == "B-LOC") {
-        if (location_phrase.nonEmpty)
+        if (locationPhrase.nonEmpty)
           addLocation(index)
-        location_phrase = words_text(index)  // initializing the location phrase with current word
-        start_phrase_char_offset = Start_offset(index)
+        locationPhrase = words(index) // initializing the location phrase with current word
+        startIndex = index
       }
       else if (label == "I-LOC") {
-        if (location_phrase.nonEmpty)
-          location_phrase += ("_" + words_text(index))
+        if (locationPhrase.nonEmpty)
+          locationPhrase += ("_" + words(index))
         else {
-          start_phrase_char_offset = Start_offset(index)  // this case means that we are getting I-LOC but there was no B-LOC before this step.
-          location_phrase = words_text(index)
+          locationPhrase = words(index)
+          startIndex = index // This case means that we are getting I-LOC but there was no B-LOC before this step.
         }
       }
       else if (label == "O") {
-        if (location_phrase.nonEmpty)
+        if (locationPhrase.nonEmpty)
           addLocation(index)
-        location_phrase = ""
+        locationPhrase = ""
       }
     }
+    if (locationPhrase.nonEmpty)
+      addLocation(labels.size)
     locations.toList
   }
 }
