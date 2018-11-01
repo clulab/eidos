@@ -494,7 +494,7 @@ class EidosActions(val taxonomy: Taxonomy) extends Actions with LazyLogging {
   def attachDCT(m: Mention, state: State): Mention = {
     val dct = m.document.asInstanceOf[EidosDocument].getDCT()
     if (dct.isDefined && m.attachments.filter(_.isInstanceOf[Time]).isEmpty)
-      m.withAttachment(new DCTime(dct.get))
+      m.withAttachment(DCTime(dct.get))
     else
       m
   }
