@@ -39,7 +39,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
           // Account for this by adding the starting offset of the first word of sentence.
           val offset = sentence.startOffsets(0)
 
-          // Update  norms with B-I time expressions
+          // Update norms with B-I time expressions
           val norms = for (
             ((start, end), norm) <- sentence.startOffsets zip sentence.endOffsets zip sentence.norms.get;
             inTimex = intervals.map(interval => (start - (interval._1._1 + offset), (interval._1._2 + offset) - end)).filter(x => x._1 >= 0 && x._2 >= 0)
@@ -78,14 +78,14 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
       geolocs(index) = {
         val words = sentence.raw
-        val features = geo_disambiguate.createFeatures(words)
-        val token_labels = geo_disambiguate.generateLabels(features)
-        val norms = sentence.norms.get.zip(token_labels).map { case (norm, tokenLabel) =>
-          if (tokenLabel == "O") norm else "LOC" // token_labels(norm_index)
+        val features = geo_disambiguate.makeFeatures(words)
+        val labels = geo_disambiguate.makeLabels(features)
+        val norms = sentence.norms.get.zip(labels).map { case (norm, label) =>
+          if (label == "O") norm else "LOC"
         }
 
         sentence.norms = Some(norms) // Updating the norms here
-        geo_disambiguate.makeLocationPhrases(token_labels, words, sentence.startOffsets, sentence.endOffsets)
+        geo_disambiguate.makeGeoLocations(labels, words, sentence.startOffsets, sentence.endOffsets)
       }
     }
   }
