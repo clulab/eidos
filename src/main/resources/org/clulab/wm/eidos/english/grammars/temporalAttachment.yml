@@ -8,7 +8,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [norm="B-Time"] [norm="I-Time"]*
-      theme: Entity = </^nmod/  >nmod_in?
+      theme: Entity = </^nmod/ >nmod_in?
 
   - name: timeattachment2
     priority: ${ rulepriority }
