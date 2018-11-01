@@ -47,19 +47,24 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
 
     val results = network.feedForward()
     val output = results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1)
-    val label_predictions: Array[Array[Float]] = output.shape()(0) match {
-      case 1 => Array(output.toFloatVector())
-      case _ => output.toFloatMatrix()
-    }
+    val label_predictions: Array[Array[Float]] =
+        if (output.shape()(0) == 1) Array(output.toFloatVector())
+        else output.toFloatMatrix()
 
     // TODO: Why does this happen?
     if (label_predictions.size != word_features.size)
       println("Not working")
     else
       println("Working fine")
-    label_predictions.map { word1_label =>
-      Geo_disambiguate_parser.INT2LABEL(word1_label.zipWithIndex.maxBy(_._1)._2)
+
+    def argmax[T](values: Array[T]): Int = {
+      // This goes through the values twice, but at least doesn't create extra objects.
+      val max = values.max
+
+      values.indexWhere(_ == max)
     }
+
+    label_predictions.map(prediction => Geo_disambiguate_parser.INT2LABEL(argmax(prediction)))
   }
 
   def makeLocationPhrases(word_labels: Array[String], words_text: Array[String],
