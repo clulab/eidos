@@ -135,6 +135,7 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
 
     someTriggerMentions ++ someQuantifierMentions
   }
+
   def toJson(label: String): JValue = {
     val quants =
       if (quantifiers.isDefined) quantifiers.get.map(quantifier => JString(quantifier))
@@ -375,36 +376,25 @@ abstract class ContextAttachment(val text: String, val value: Object) extends Ei
     case _ => false
   }
 
-  override def hashCode: Int = {
+  def hashCode(initial: Int, rest: Int): Int = {
+    mixLast(initial, rest)
+  }
+
+  override def hashCode: Int = { // Add rest of hash here?
     val h0 = getClass().getName().##
 
-    mixLast(h0, text.##)
+    mix(h0, text.##)
   }
 }
 
 object ContextAttachment {
 
-  // For output, arrange first by class to match gold output.
-  def lessThan(left: ContextAttachment, right: ContextAttachment): Boolean = {
-    if (left.getClass().getName() != right.getClass().getName())
-      left.getClass().getName().compareTo(right.getClass().getName()) < 0
-    else
-      compare(left, right) < 0
-  }
-
-  def compare(left: ContextAttachment, right: ContextAttachment): Int = {
-    // For Time and Location, the text has really determined the value.
-    // Therefore don't look into the value, not even for equality or comparison above.
-    left.text.compareTo(right.text)
-  }
-
-  implicit def ordering[T <: ContextAttachment]: Ordering[T] = new Ordering[T] {
-    def compare(left: T, right: T): Int = ContextAttachment.compare(left, right)
-  }
+  def compare(left: ContextAttachment, right: ContextAttachment): Int =
+      left.getClass().getName().compareTo(right.getClass().getName())
 }
 
 @SerialVersionUID(1L)
-class Time(interval: TimeInterval) extends ContextAttachment(interval.text, interval) {
+class Time(val interval: TimeInterval) extends ContextAttachment(interval.text, interval) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, Time.kind)
@@ -412,6 +402,23 @@ class Time(interval: TimeInterval) extends ContextAttachment(interval.text, inte
   override def toJson(): JValue = toJson(Time.label)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Time]
+
+  override def equals(other: Any): Boolean = {
+    super.equals(other) && {
+      val that = other.asInstanceOf[Time]
+
+      this.interval.span == that.interval.span // &&
+          // interval.text is already taken care of in super.
+          // Assume that same span results in same intervals.
+          // this.interval.intervals == that.interval.intervals
+    }
+  }
+
+  override def hashCode: Int = {
+    val h0 = super.hashCode
+
+    mixLast(h0, interval.span.##)
+  }
 }
 
 object Time {
@@ -419,10 +426,31 @@ object Time {
   val kind = "TIMEX"
 
   def apply(interval: TimeInterval) = new Time(interval)
+
+  def lessThan(left: Time, right: Time): Boolean =
+    compare(left, right) < 0
+
+  def compare(left: Time, right: Time): Int = {
+    val superDiff = ContextAttachment.compare(left, right)
+
+    if (superDiff != 0)
+      superDiff
+    else {
+      val startDiff = left.interval.span._1 - right.interval.span._1
+
+      if (startDiff != 0)
+        startDiff
+      else {
+        val endDiff = left.interval.span._2 - right.interval.span._2
+
+        endDiff
+      }
+    }
+  }
 }
 
 @SerialVersionUID(1L)
-class Location(location_phraseID: GeoPhraseID) extends ContextAttachment(location_phraseID.phraseID, location_phraseID) {
+class Location(val location_phraseID: GeoPhraseID) extends ContextAttachment(location_phraseID.phraseID, location_phraseID) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, Location.kind)
@@ -430,6 +458,20 @@ class Location(location_phraseID: GeoPhraseID) extends ContextAttachment(locatio
   override def toJson(): JValue = toJson(Location.label)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Location]
+
+  override def equals(other: Any): Boolean = {
+    super.equals(other) && {
+      val that = other.asInstanceOf[Location]
+
+      this.location_phraseID == that.location_phraseID // Case classes support this.
+    }
+  }
+
+  override def hashCode: Int = {
+    val h0 = super.hashCode
+
+    mix(h0, location_phraseID.##)
+  }
 }
 
 object Location {
@@ -437,16 +479,38 @@ object Location {
   val kind = "LocationExp"
 
   def apply(interval: GeoPhraseID) = new Location(interval)
+
+  def lessThan(left: Location, right: Location): Boolean =
+    compare(left, right) < 0
+
+  def compare(left: Location, right: Location): Int = {
+    val superDiff = ContextAttachment.compare(left, right)
+
+    if (superDiff != 0)
+      superDiff
+    else {
+      val startDiff = left.location_phraseID.StartOffset_locs - right.location_phraseID.StartOffset_locs
+
+      if (startDiff != 0)
+        startDiff
+      else {
+        val endDiff = left.location_phraseID.EndOffset_locs - right.location_phraseID.EndOffset_locs
+
+        endDiff
+      }
+    }
+  }
 }
 
 @SerialVersionUID(1L)
-class DCTime(dct: DCT) extends ContextAttachment(dct.text, dct) {
+class DCTime(val dct: DCT) extends ContextAttachment(dct.text, dct) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, DCTime.kind)
 
   override def toJson(): JValue = toJson(DCTime.label)
 
+  // Just compare the texts which should determine the Intervals.
   override def canEqual(other: Any): Boolean = other.isInstanceOf[DCTime]
 }
 
@@ -455,6 +519,18 @@ object DCTime {
   val kind = "TIMEX"
 
   def apply(dct: DCT) = new DCTime(dct)
+
+  def lessThan(left: DCTime, right: DCTime): Boolean =
+    compare(left, right) < 0
+
+  def compare(left: DCTime, right: DCTime): Int = {
+    val superDiff = ContextAttachment.compare(left, right)
+
+    if (superDiff != 0)
+      superDiff
+    else
+      left.text.compareTo(right.text)
+  }
 }
 
 @SerialVersionUID(1L)

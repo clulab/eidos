@@ -338,11 +338,21 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         .map(_.asInstanceOf[TriggeredAttachment])
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    //val jldCAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[ContextAttachment]).map(attachment => newJLDAttachment(attachment))
-    val jldTAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[Time]).map(attachment => newJLDAttachment(attachment))
-    val jldLAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[Location]).map(attachment => newJLDAttachment(attachment)) // for location
-
-    val jldDAttachments = mention.odinMention.attachments.toList.filter(_.isInstanceOf[DCTime]).map(attachment => newJLDAttachment(attachment))
+    val jldTAttachments = mention.odinMention.attachments.toList
+        .filter(_.isInstanceOf[Time])
+        .map(_.asInstanceOf[Time])
+        .sortWith(Time.lessThan)
+        .map(attachment => newJLDAttachment(attachment))
+    val jldLAttachments = mention.odinMention.attachments.toList
+        .filter(_.isInstanceOf[Location])
+        .map(_.asInstanceOf[Location])
+        .sortWith(Location.lessThan)
+        .map(attachment => newJLDAttachment(attachment))
+    val jldDAttachments = mention.odinMention.attachments.toList
+        .filter(_.isInstanceOf[DCTime])
+        .map(_.asInstanceOf[DCTime])
+        .sortWith(DCTime.lessThan)
+        .map(attachment => newJLDAttachment(attachment))
 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
