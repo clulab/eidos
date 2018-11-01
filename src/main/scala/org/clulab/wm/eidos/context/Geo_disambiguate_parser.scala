@@ -48,8 +48,8 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
     val results = network.feedForward()
     val output = results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1)
     val label_predictions: Array[Array[Float]] = output.shape()(0) match {
-      case 1 => Array(results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1).toFloatVector())
-      case _ => results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1).toFloatMatrix()
+      case 1 => Array(output.toFloatVector())
+      case _ => output.toFloatMatrix()
     }
 
     // TODO: Why does this happen?
