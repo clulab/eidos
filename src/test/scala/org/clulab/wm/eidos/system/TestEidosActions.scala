@@ -8,6 +8,7 @@ import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
+import org.clulab.wm.eidos.actions.ExpansionHandler
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils
@@ -145,7 +146,8 @@ class TestEidosActions extends ExtractionTest {
 //  }
 
   {
-    class TestEidosActions extends EidosActions(null) {
+    // fixme: do we want a default here for "english" ???
+    class TestEidosActions extends EidosActions(null, ExpansionHandler("english")) {
       // Relax some protected functions for testing
 
       override def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] =

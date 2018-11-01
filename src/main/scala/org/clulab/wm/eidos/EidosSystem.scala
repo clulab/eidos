@@ -22,6 +22,7 @@ import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
+import org.clulab.wm.eidos.actions.ExpansionHandler
 
 import scala.annotation.tailrec
 
@@ -71,6 +72,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val stopwordManager: StopwordManager,
     val hedgingHandler: HypothesisHandler,
     val negationHandler: NegationHandler,
+    val expansionHandler: ExpansionHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val timenorm: Option[TemporalCharbasedParser]
   )
@@ -110,6 +112,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val canonicalizer = new Canonicalizer(stopwordManager)
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
+    val expansionHandler = ExpansionHandler(language)
 
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
@@ -128,7 +131,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
-      val actions = EidosActions(taxonomyPath)
+      val actions = EidosActions(taxonomyPath, expansionHandler)
 
       // Domain Ontologies:
       val ontologyGrounders =
@@ -180,6 +183,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         stopwordManager,
         hypothesisHandler,
         negationHandler,
+        expansionHandler,
         ontologyGrounders,
         timenorm
       )
