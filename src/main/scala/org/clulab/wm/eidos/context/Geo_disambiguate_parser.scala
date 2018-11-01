@@ -1,197 +1,106 @@
 package org.clulab.wm.eidos.context
 
-import java.io.InputStream
-import java.lang.NumberFormatException
-import java.time.LocalDateTime
-
-import com.codecommit.antixml.Elem
-import org.clulab.anafora.Data
-import org.clulab.timenorm.{TemporalCharbasedParser, TimeSpan}
+import org.clulab.wm.eidos.utils.Sourcer
 import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
 import org.nd4j.linalg.factory.Nd4j
-import org.slf4j.{Logger, LoggerFactory}
-import play.api.libs.json.Json
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.io.Source
-import scala.util.Try
 
+object Geo_disambiguate_parser {
+  val INT2LABEL = Map(0 -> "I-LOC", 1 -> "B-LOC", 2 -> "O")
+  val UNKNOWN_TOKEN = "UNKNOWN_TOKEN"
+  val TIME_DISTRIBUTED_1 = "time_distributed_1"
+}
 
-class Geo_disambiguate_parser (modelPath: String) {
+class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
 
-  private val network: ComputationGraph = KerasModelImport.importKerasModelAndWeights(modelPath, false)
-  lazy private val word2int = readDict(this.getClass.getResourceAsStream("/org/clulab/wm/eidos/english/context/word2idx_file.txt"))
-  lazy private val int2label = Map(2->"O", 0->"I-LOC", 1->"B-LOC")
-   val loc2geonameID = readDict(this.getClass.getResourceAsStream("/org/clulab/wm/eidos/english/context/geo_dict_with_population_SOUTH_SUDAN.txt")) // provide path of geoname dict file having geonameID with max population
+  protected val network: ComputationGraph = KerasModelImport.importKerasModelAndWeights(modelPath, false)
 
-  private def printModel(){
-    println(this.network.summary())
-  }
+  lazy protected val word2int: mutable.Map[String, Int] = readDict(word2IdxPath)
+  lazy protected val loc2geonameID: mutable.Map[String, Int] = readDict(loc2geonameIDPath) // provide path of geoname dict file having geonameID with max population
 
+  protected def readDict(dictPath: String): mutable.Map[String, Int] = {
+    val source = Sourcer.sourceFromResource(dictPath)
+    val dict = mutable.Map.empty[String, Int]
 
-  private def readDict(dictFile: InputStream): collection.mutable.Map[String, Float] = {
-    var word2Idx =  collection.mutable.Map("PADDING_TOKEN" -> 0.toFloat, "UNKNOWN_TOKEN" -> 1.toFloat)
-    for (line <- scala.io.Source.fromInputStream(dictFile).getLines) {
-      val words = line.split(" ")
-        try {
-          word2Idx += (words(0).toString -> words(1).toFloat)
-        }
-        catch {
-          // case e: Exception => e.classOf[NumberFormatException]
-          case e: Exception => None
-          // println("we are getting this error")
-        }
+    source.getLines.foreach { line =>
+      val words = line.split(' ')
 
+      dict += (words(0).toString -> words(1).toInt)
     }
-    return word2Idx
-
+    source.close()
+    dict
   }
 
-  /*
-  private def readGeoname_ID(dictFile: InputStream): collection.mutable.Map[String, Float] = {
-    var word2Idx =  collection.mutable.Map("PADDING_TOKEN" -> 0.toFloat, "UNKNOWN_TOKEN" -> 1.toFloat)
-    for (line <- scala.io.Source.fromInputStream(InputStream).getLines) {
-      val words = line.split(" ")
-      word2Idx += (words(0).toString -> words(1).toFloat)
+  def makeFeatures(words: Array[String]): Array[Float] = {
+    val unknown = word2int(Geo_disambiguate_parser.UNKNOWN_TOKEN)
+    val features = words.map(word2int.getOrElse(_, unknown).toFloat)
+
+    features
+  }
+
+  def makeLabels(features: Array[Float]): Array[String] = {
+
+    def argmax(values: Array[Float]): Int = {
+      // This goes through the values twice, but at least it doesn't create extra objects.
+      val max = values.max
+
+      values.indexWhere(_ == max)
     }
-    return word2Idx
 
-  }
-  */
-
-
-  private def readDict_label(dictFile: InputStream): collection.mutable.Map[Double, String] = {
-    var Idx2label =  collection.mutable.Map(100.toDouble -> "dummy") // initializing the word2idx
-    for (line <- scala.io.Source.fromInputStream(dictFile).getLines) {
-      val words = line.split(" ")
-      Idx2label += ( words(1).toDouble -> words(0).toString)
+    val input = Nd4j.create(features)
+    val results = this.synchronized {
+      network.setInput(0, input)
+      network.feedForward()
     }
-    return Idx2label
+    val output = results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1)
+    val predictions: Array[Array[Float]] =
+        if (output.shape()(0) == 1) Array(output.toFloatVector)
+        else output.toFloatMatrix
 
+    predictions.map(prediction => Geo_disambiguate_parser.INT2LABEL(argmax(prediction)))
   }
 
+  def makeGeoLocations(labels: Array[String], words: Array[String],
+      startOffsets: Array[Int], endOffsets: Array[Int]): List[GeoPhraseID] = {
+    var locations = new ListBuffer[GeoPhraseID]
+    var locationPhrase = ""
+    var startIndex = 0
 
-  def parse(sourceText: String) {
+    def addLocation(index: Int) = {
+      val prettyLocationPhrase = locationPhrase.replace('_', ' ')
+      val geoNameId = loc2geonameID.get(locationPhrase.toLowerCase)
+      // The word at index has ended previously, so use index - 1.
+      val endIndex = index - 1
 
-    val words = create_word_input(sourceText)
-    val word_labels = generate_NER_labels(words._1)
-//    val phrases = get_complete_location_phrase(word_labels, words._2, loc2geonameID)  // I have commented because now I am also passing char start and end offset as parameters in EidosDocument.scala
-//
-//    // println("word labels are ", word_labels)
-//    println("and phrases look like ", phrases)
-//    phrases
-  }
+      locations += GeoPhraseID(prettyLocationPhrase, geoNameId, startOffsets(startIndex), endOffsets(endIndex))
+    }
 
-    def create_word_input(sourceText: String): (ListBuffer[Float], ListBuffer[String]) ={
-
-    // println("the input sentence is ", sourceText)
-    var word_feature = new ListBuffer[Float]
-    var words_strings = new ListBuffer[String]
-
-    for (word <- sourceText.split(" ")){
-      words_strings += word.toString //we don't need to convert to string, but still keeping it here unless I test this code completely with Eidos.
-      if (word2int.keySet.exists(_ == word.toString)){
-        word_feature += word2int(word.toString)
-
+    for ((label, index) <- labels.zipWithIndex) {
+      if (label == "B-LOC") {
+        if (locationPhrase.nonEmpty)
+          addLocation(index)
+        locationPhrase = words(index) // initializing the location phrase with current word
+        startIndex = index
       }
-      else {
-        word_feature += word2int("UNKNOWN_TOKEN")
-      }
-
-    }
-
-    (word_feature, words_strings)
-
-  }
-
-
-
-  def generate_NER_labels(word_features: ListBuffer[Float]): ListBuffer[String] = {
-
-    val word_input = Nd4j.create(word_features.toArray)
-    this.network.setInput(0, word_input)
-    val results = this.network.feedForward()
-
-    val output = results.get("time_distributed_1")
-    val label_predictions = output.shape()(0) match {
-      case 1 => Array(results.get("time_distributed_1").toFloatVector())
-      case _ => results.get("time_distributed_1").toFloatMatrix()
-    }
-
-    var predicted_labels = new ListBuffer[String]
-    for (word1_label <- label_predictions) {
-
-      predicted_labels += int2label(word1_label.zipWithIndex.maxBy(_._1)._2)
-    }
-
-     return predicted_labels
-  }
-
-
-
-//    def get_complete_location_phrase(word_labels: ListBuffer[String], words_text:ListBuffer[String], loc2geonameID:collection.mutable.Map[String, Float]): (ListBuffer[String], ListBuffer[String]) ={
-def get_complete_location_phrase(word_labels: ListBuffer[String], words_text:ListBuffer[String],
-                                 loc2geonameID:collection.mutable.Map[String, Float], Start_offset:Array[Int], End_offset: Array[Int]): ListBuffer[(String, String, Int, Int)] ={
-    val label_w_index = word_labels zipWithIndex
-    var prev_label = "dummy"
-    var location_phrase = ""
-    var start_phrase_char_offset = 0
-
-    //var location_sent_phrases = new ListBuffer[String]
-    //var location_GeoIDs = new ListBuffer[String]
-    var locations = new ListBuffer[(String, String, Int, Int)]
-
-    for (labels <- label_w_index){
-
-      if (labels._1=="B-LOC"){
-         if (location_phrase.length>1){
-           //location_sent_phrases += location_phrase
-
-           if (loc2geonameID.keySet.exists(_ == location_phrase.toLowerCase)){
-             //location_GeoIDs += loc2geonameID(location_phrase).toString
-             locations += ((location_phrase.replace('_', ' '), loc2geonameID(location_phrase.toLowerCase).toInt.toString, start_phrase_char_offset, End_offset(labels._2)))
-           }
-           else {
-             //location_GeoIDs += "geoID_not_found"
-             locations += ((location_phrase.replace('_', ' '), "geoID_not_found", start_phrase_char_offset, End_offset(labels._2)))
-           }
-
-         }
-        location_phrase = (words_text(labels._2))  // initializing the location phrase with current word
-        start_phrase_char_offset = Start_offset(labels._2)
-        }
-
-      else if (labels._1=="I-LOC") {
-        if (location_phrase.length > 1) {
-          location_phrase += ("_" + words_text(labels._2))
-        }
+      else if (label == "I-LOC") {
+        if (locationPhrase.nonEmpty)
+          locationPhrase += ("_" + words(index))
         else {
-          start_phrase_char_offset = Start_offset(labels._2)  // this case means that we are getting I-LOC but there was no B-LOC before this step.
-          location_phrase = (words_text(labels._2))
+          locationPhrase = words(index)
+          startIndex = index // This case means that we are getting I-LOC but there was no B-LOC before this step.
         }
       }
-
-      else if (labels._1 == "O") {
-        if (location_phrase.length>1){
-          //location_sent_phrases += location_phrase
-          if (loc2geonameID.keySet.exists(_ == location_phrase.toLowerCase)){  // find the try except equivalent in scala
-            //location_GeoIDs += loc2geonameID(location_phrase).toString
-            locations += ((location_phrase.replace('_', ' '), loc2geonameID(location_phrase.toLowerCase).toInt.toString, start_phrase_char_offset, End_offset(labels._2)))
-          }
-          else {
-            //location_GeoIDs += "geoID_not_found"
-            locations += ((location_phrase.replace('_', ' '), "geoID_not_found", start_phrase_char_offset, End_offset(labels._2)))
-          }
-        }
-        location_phrase = ""
+      else if (label == "O") {
+        if (locationPhrase.nonEmpty)
+          addLocation(index)
+        locationPhrase = ""
       }
-
-
-      prev_label = labels._1.toString  // we don't need prev label based on current logic of combining words from B- and I- tag.
     }
-      //(location_sent_phrases, location_GeoIDs)
-      locations
+    if (locationPhrase.nonEmpty)
+      addLocation(labels.size)
+    locations.toList
   }
-
 }

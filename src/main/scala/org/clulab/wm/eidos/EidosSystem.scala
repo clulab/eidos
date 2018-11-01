@@ -93,7 +93,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def       stopwordsPath: String = eidosConf[String]("stopWordsPath")
     def     transparentPath: String = eidosConf[String]("transparentPath")
     // Hedging
-    def       hedgingPath: String = eidosConf[String]("hedgingPath")
+    def         hedgingPath: String = eidosConf[String]("hedgingPath")
     // Ontology handling
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
@@ -107,10 +107,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def               maxHops: Int = eidosConf[Int]("maxHops")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
     def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
-    def  geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
+    def   geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
+    def    geoWord2IdxPath: String = eidosConf[String]("geoWord2IdxPath")
+    def      geoLoc2IdPath: String = eidosConf[String]("geoLoc2IdPath")
 
     def       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    def       useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
+    def        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     def          useCache: Boolean = eidosConf[Boolean]("useCache")
 
     val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
@@ -142,39 +144,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology), wordToVec)).seq
           else Seq.empty
 
-/*
-<<<<<<< HEAD
-
-      val timenorm: Option[TemporalCharbasedParser] =
-        if (!useTimeNorm) None
-        else {
-          val timeNormResource: URL = getClass.getResource(timeNormModelPath)
-          // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-          // val file = Paths.get(timeNormResource.toURI()).toFile().getAbsolutePath()
-          val file = "/Users/vikasy/SEM_5_courses/eidos/src/main/resources/timenorm_model.hdf5"
-          // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
-          //     public native void openFile(@StdString BytePointer var1, ...
-          // and needs native representation of the file.
-          Some(new TemporalCharbasedParser(file))
-        }
-
-
-      val geonorm: Option[Geo_disambiguate_parser] =
-        if (!useGeoNorm) None
-        else {
-        val geoNormResource: URL = getClass.getResource(geoNormModelPath)
-        // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-        // val file = Paths.get(geoNormResource.toURI()).toFile().getAbsolutePath()
-        val file = "/Users/vikasy/SEM_5/RA/Xu_Ma_Hovy/model_OCT17.hdf5"
-        //val file = "./cache/english/timenorm_model.hdf5"
-        // timenormResource.getFile() won't work for Windows, probably because Hdf5Archive is
-        //     public native void openFile(@StdString BytePointer var1, ...
-        // and needs native representation of the file.
-        Some(new Geo_disambiguate_parser(file))
-      }
-
- =======
-*/
       val timenorm: Option[TemporalCharbasedParser] = {
 
         def getTimeNormFileAndTemporary(): (File, Boolean) = {
@@ -209,7 +178,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         }
       }
 
-
       val geonorm: Option[Geo_disambiguate_parser]  = {
 
         def getGeoNormFileAndTemporary(): (File, Boolean) = {
@@ -236,18 +204,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         else {
           val (geoNormFile, temporary) = getGeoNormFileAndTemporary()
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-          val geoNorm = new Geo_disambiguate_parser(geoNormFile.getAbsolutePath)
+          val geoNorm = new Geo_disambiguate_parser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
 
           if (temporary)
             geoNormFile.delete()
           Some(geoNorm)
         }
-
       }
-
-
-
-// >>>>>>> 0e9c30a84a6747e9da9cd88f98e6c1da59c0852d
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),

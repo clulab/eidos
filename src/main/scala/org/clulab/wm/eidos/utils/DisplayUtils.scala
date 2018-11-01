@@ -6,9 +6,8 @@ import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
-import org.clulab.wm.eidos.document.{EidosDocument, GeoPhraseID, TimeInterval}
-import org.clulab.anafora.Data
-import java.time.LocalDateTime
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.document.{EidosDocument, TimeInterval}
 
 object DisplayUtils {
   protected val nl = "\n"

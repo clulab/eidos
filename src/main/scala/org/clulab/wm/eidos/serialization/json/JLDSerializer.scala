@@ -14,7 +14,8 @@ import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
-import org.clulab.wm.eidos.document.{DCT, EidosDocument, GeoPhraseID, TimeInterval}
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.document.{DCT, EidosDocument, TimeInterval}
 import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -613,9 +614,6 @@ object JLDTimex {
   val typename = "TimeExpression"
 }
 
-// <<<<<<< HEAD
-
-
 class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDGeoID.typename, geoid) {
@@ -627,20 +625,16 @@ class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
       ("startOffset" -> geoid.StartOffset_locs) ~
       ("endOffset" -> geoid.EndOffset_locs) ~
       ("text" -> geoid.phraseID) ~
-      ("geoID" -> geoid.PhraseGeoID)
+      ("geoID" -> geoid.PhraseGeoID.map(_.toString))
       // (JLDTimeInterval.plural -> toJObjects(jldIntervals))
-
   }
 }
 
 object JLDGeoID {
-  val singular = "geoid"
-  val plural = "geoids"
-  val typename = "GeoidPhrases"
+  val singular = "geoloc"
+  val plural = "geolocs"
+  val typename = "GeoLocation"
 }
-
-//=======
-//>>>>>>> 0e9c30a84a6747e9da9cd88f98e6c1da59c0852d
 
 class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.
