@@ -15,7 +15,7 @@ rules:
 
   - name: timeattachment2
     priority: ${ rulepriority }
-    example: "Rainfall season has started this month."
+    example: "Rainfall season has started this month."
     label: ${ label }
     action: ${ action }
     pattern: |
