@@ -5,7 +5,7 @@ import java.io.{File, PrintWriter}
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils}
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 object FilteredExtractFromDirectory extends App {
@@ -86,7 +86,7 @@ object FilteredExtractFromDirectory extends App {
         val corpus = new JLDCorpus(annotatedDocuments, reader)
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
-        val path = s"$filterOutputDir/${file.getName}.jsonld"
+        val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)
         pw = FileUtils.printWriterFromFile(path)
         pw.println(stringify(mentionsJSONLD, pretty = true))
       }
