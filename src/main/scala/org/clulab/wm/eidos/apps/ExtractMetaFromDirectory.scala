@@ -1,12 +1,15 @@
 package org.clulab.wm.eidos.apps
 
 import java.io.PrintWriter
+import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils, Timer}
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
+
+import scala.collection.parallel.ForkJoinTaskSupport
 
 object ExtractMetaFromDirectory extends App {
   val inputDir = args(0)
@@ -32,8 +35,13 @@ object ExtractMetaFromDirectory extends App {
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
-    // When timing, do not do in parallel
-    files.par.foreach { file =>
+    val forkJoinPool = new ForkJoinPool(8)
+    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
+
+    val parFiles = files.par
+    parFiles.tasksupport = forkJoinTaskSupport
+
+    parFiles.foreach { file =>
       var jsonldPrintWriter: PrintWriter = null
 
       try {
