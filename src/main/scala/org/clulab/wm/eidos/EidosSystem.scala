@@ -22,6 +22,7 @@ import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
+import org.clulab.wm.eidos.context.Geo_disambiguate_parser
 
 import scala.annotation.tailrec
 
@@ -72,7 +73,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val hedgingHandler: HypothesisHandler,
     val negationHandler: NegationHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
-    val timenorm: Option[TemporalCharbasedParser]
+    val timenorm: Option[TemporalCharbasedParser],
+    // val geonorm: Option[Geo_disambiguate_parser]
+    val geonorm: Option[Geo_disambiguate_parser]
+
   )
 
   object LoadableAttributes {
@@ -89,7 +93,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def       stopwordsPath: String = eidosConf[String]("stopWordsPath")
     def     transparentPath: String = eidosConf[String]("transparentPath")
     // Hedging
-    def       hedgingPath: String = eidosConf[String]("hedgingPath")
+    def         hedgingPath: String = eidosConf[String]("hedgingPath")
     // Ontology handling
     def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
     def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
@@ -103,7 +107,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def               maxHops: Int = eidosConf[Int]("maxHops")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
     def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
+    def   geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
+    def    geoWord2IdxPath: String = eidosConf[String]("geoWord2IdxPath")
+    def      geoLoc2IdPath: String = eidosConf[String]("geoLoc2IdPath")
+
     def       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    def        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     def          useCache: Boolean = eidosConf[Boolean]("useCache")
 
     val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
@@ -169,6 +178,40 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         }
       }
 
+      val geonorm: Option[Geo_disambiguate_parser]  = {
+
+        def getGeoNormFileAndTemporary(): (File, Boolean) = {
+          val geoNormResource: URL = EidosSystem.getClass.getResource(geoNormModelPath)
+
+          if (geoNormResource.getProtocol() == "file")
+          // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+            (Paths.get(geoNormResource.toURI()).toFile(), false)
+          else {
+            // If a single file is to be (re)used, then some careful synchronization needs to take place.
+            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
+            // Instead, make a new temporary file each time and delete it afterwards.
+            val tmpFile = File.createTempFile(
+              StringUtils.afterLast(geoNormModelPath, '/') + '-', // Help identify the file later.
+              "." + StringUtils.afterLast(geoNormModelPath, '.') // Keep extension for good measure.
+            )
+
+            FileUtils.copyResourceToFile(geoNormModelPath, tmpFile)
+            (tmpFile, true)
+          }
+        }
+
+        if (!useGeoNorm) None
+        else {
+          val (geoNormFile, temporary) = getGeoNormFileAndTemporary()
+          // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
+          val geoNorm = new Geo_disambiguate_parser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
+
+          if (temporary)
+            geoNormFile.delete()
+          Some(geoNorm)
+        }
+      }
+
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
         DomainParams(domainParamKBPath),
@@ -181,7 +224,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         hypothesisHandler,
         negationHandler,
         ontologyGrounders,
-        timenorm
+        timenorm,
+        geonorm
       )
     }
   }
@@ -195,6 +239,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def engine = loadableAttributes.engine
   def ner = loadableAttributes.ner
   def timenorm = loadableAttributes.timenorm
+  def geonorm = loadableAttributes.geonorm
 
   def reload() = loadableAttributes = LoadableAttributes()
 
@@ -205,6 +250,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     doc.sentences.foreach(addLexiconNER)
     doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
     doc.parseTime(loadableAttributes.timenorm)
+    doc.parseGeoNorm_flag(loadableAttributes.geonorm)
+
     doc.id = filename
     doc
   }

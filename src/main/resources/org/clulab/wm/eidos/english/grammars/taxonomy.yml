@@ -10,6 +10,7 @@
     - Increase
     - Decrease
     - Time
+    - Location
   - EntityLinker:
     - DirectedRelation:
       - Causal
