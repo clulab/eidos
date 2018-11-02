@@ -4,8 +4,21 @@ rules:
 
   - name: timeattachment1
     priority: ${ rulepriority }
+    example: "reaching record levels in July."
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [norm="B-Time"] [norm="I-Time"]*
       theme: Entity = </^nmod/ >nmod_in?
+
+
+
+  - name: timeattachment2
+    priority: ${ rulepriority }
+    example: "Rainfall season has started this month."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [norm="B-Time"] [norm="I-Time"]*
+      theme: Entity = </^nmod/ >/^nsubj/
+
