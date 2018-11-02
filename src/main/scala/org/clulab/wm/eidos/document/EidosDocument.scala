@@ -11,9 +11,8 @@ import org.clulab.wm.eidos.context.Geo_disambiguate_parser
 import org.clulab.wm.eidos.context.GeoPhraseID
 
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
-  // TODO: @transient here means these values aren't serialized, which sort of defeats the purpose of serialization.
   // Currently no test checks to see if the values are preserved across serialization, but that doesn't make it right.
-  @transient val times = new Array[List[TimeInterval]](sentences.length)
+  val times = new Array[List[TimeInterval]](sentences.length)
   @transient val geolocs = new Array[List[GeoPhraseID]](sentences.length)
 
   protected var anchor: Option[DCT] = None
@@ -108,5 +107,7 @@ object EidosDocument {
   }
 }
 
-class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, LocalDateTime, Long)], val text: String)
-class DCT(val interval: Interval, val text: String)
+@SerialVersionUID(1L)
+class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, LocalDateTime, Long)], val text: String) extends Serializable
+@SerialVersionUID(1L)
+class DCT(val interval: Interval, val text: String) extends Serializable
