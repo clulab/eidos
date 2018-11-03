@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.apps
 
 import java.io.{File, PrintWriter}
+import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
@@ -8,12 +9,15 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils}
 
+import scala.collection.parallel.ForkJoinTaskSupport
+
 object FilteredExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val metaDir = args(2)
+  var threads = args(3).toInt
 
-  val converter = MetaUtils.convertTextToMeta _
+  val converter = MetaUtils.convertTextToMeta17k _
 
   val intervals = Seq(
     (0,     0),
@@ -63,7 +67,6 @@ object FilteredExtractMetaFromDirectory extends App {
     (100000, 200000)
   )
 
-  val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
   intervals.foreach { interval =>
@@ -75,8 +78,15 @@ object FilteredExtractMetaFromDirectory extends App {
 
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
-    // For each file in the input directory:
-    files.filter(filter).par.foreach { file =>
+    val files = findFiles(inputDir, "txt").filter(filter)
+    val parFiles = files.par
+
+    val forkJoinPool = new ForkJoinPool(threads)
+    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
+
+    parFiles.tasksupport = forkJoinTaskSupport
+
+    parFiles.foreach { file =>
       var pw: PrintWriter = null
 
       try {
