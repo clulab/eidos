@@ -36,7 +36,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     val (expandable, textBounds) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
     val expanded = expansionHandler.expandArguments(expandable, state)
     val mostComplete = keepMostCompleteEvents(expanded, state.updated(expanded))
-    val result = expanded ++ textBounds
+    val result = mostComplete ++ textBounds
 
     // Merge attachments
     val merged = mergeAttachments(result, state.updated(result))
