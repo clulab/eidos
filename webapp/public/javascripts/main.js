@@ -9,6 +9,8 @@ var quantifiedConceptColor = '#85C1E9';
 var causalEventColor = '#BB8FCE';
 var correlationEventColor = '#F7DC6F';
 var timeExpressionColor = '#FFA500'
+var geoLocationColor = '#FFA500'
+
 
 head.js(
     // External libraries
@@ -90,6 +92,15 @@ var collData = {
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
+        {
+            "type"   : "GeoidPhrases",
+            "labels" : ["GeoidPhrases", "GEOLOC"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": geoLocationColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+         },
      // --------------------------- Param -------------------------------------
      {
       "type": "FarmSize",

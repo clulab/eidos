@@ -12,11 +12,12 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 import utils.DisplayUtils.{displayMention, shortDisplay}
 import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
-import org.clulab.wm.eidos.document.TimeInterval
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
@@ -419,6 +420,24 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     }
   }
 
+
+  def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+      trigger = m.asInstanceOf[EventMention].trigger
+      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
+      // time: Option[TimeInterval] = m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset).headOption
+      location: Option[GeoPhraseID] = m.document.asInstanceOf[EidosDocument].geolocs(m.sentence).filter(_.StartOffset_locs == trigger.startOffset).headOption
+
+    } yield location match {
+      case None => theme
+      case Some(l) => theme.withAttachment(new Location(l))
+    }
+  }
+
+
+
+
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
     ms
@@ -428,8 +447,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
 
 
   def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
-
-
 
 
 

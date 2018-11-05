@@ -1,0 +1,11 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+rules:
+
+  - name: geolocation1
+    priority: ${ rulepriority }
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [norm="LOC"] [norm="LOC"]*
+      theme: Entity = </^nmod/ >nmod_in?
