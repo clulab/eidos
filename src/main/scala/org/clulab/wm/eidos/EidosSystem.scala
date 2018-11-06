@@ -22,7 +22,8 @@ import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
-import org.clulab.wm.eidos.context.Geo_disambiguate_parser
+import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.context.GeoDisambiguateParser
 
 import scala.annotation.tailrec
 
@@ -72,10 +73,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val stopwordManager: StopwordManager,
     val hedgingHandler: HypothesisHandler,
     val negationHandler: NegationHandler,
+    val expansionHandler: ExpansionHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val timenorm: Option[TemporalCharbasedParser],
     // val geonorm: Option[Geo_disambiguate_parser]
-    val geonorm: Option[Geo_disambiguate_parser]
+    val geonorm: Option[GeoDisambiguateParser]
 
   )
 
@@ -119,6 +121,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val canonicalizer = new Canonicalizer(stopwordManager)
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
+    val expansionHandler = ExpansionHandler(language)
 
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
@@ -137,7 +140,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
-      val actions = EidosActions(taxonomyPath)
+      val actions = EidosActions(taxonomyPath, expansionHandler)
 
       // Domain Ontologies:
       val ontologyGrounders =
@@ -178,7 +181,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         }
       }
 
-      val geonorm: Option[Geo_disambiguate_parser]  = {
+      val geonorm: Option[GeoDisambiguateParser]  = {
 
         def getGeoNormFileAndTemporary(): (File, Boolean) = {
           val geoNormResource: URL = EidosSystem.getClass.getResource(geoNormModelPath)
@@ -204,7 +207,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         else {
           val (geoNormFile, temporary) = getGeoNormFileAndTemporary()
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-          val geoNorm = new Geo_disambiguate_parser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
+          val geoNorm = new GeoDisambiguateParser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
 
           if (temporary)
             geoNormFile.delete()
@@ -223,6 +226,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         stopwordManager,
         hypothesisHandler,
         negationHandler,
+        expansionHandler,
         ontologyGrounders,
         timenorm,
         geonorm

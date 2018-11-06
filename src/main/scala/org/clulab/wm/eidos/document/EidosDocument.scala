@@ -7,7 +7,7 @@ import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.timenorm.formal.Interval
-import org.clulab.wm.eidos.context.Geo_disambiguate_parser
+import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.context.GeoPhraseID
 
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
@@ -71,7 +71,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
      if (timenorm.isDefined) parseRealTime(timenorm.get)
      else parseFakeTime()
 
-  def parseGeoNorm(geo_disambiguate: Geo_disambiguate_parser): Unit = {
+  def parseGeoNorm(geo_disambiguate: GeoDisambiguateParser): Unit = {
     geolocs.indices.foreach { index =>
       val sentence = sentences(index)
 
@@ -89,7 +89,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
     }
   }
 
-  def parseGeoNorm_flag(geo_disambiguate: Option[Geo_disambiguate_parser]): Unit =
+  def parseGeoNorm_flag(geo_disambiguate: Option[GeoDisambiguateParser]): Unit =
     if (geo_disambiguate.isDefined) parseGeoNorm(geo_disambiguate.get)
     else parseFakeGeoLoc()
 }

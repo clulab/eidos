@@ -8,13 +8,13 @@ import org.nd4j.linalg.factory.Nd4j
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-object Geo_disambiguate_parser {
+object GeoDisambiguateParser {
   val INT2LABEL = Map(0 -> "I-LOC", 1 -> "B-LOC", 2 -> "O")
   val UNKNOWN_TOKEN = "UNKNOWN_TOKEN"
   val TIME_DISTRIBUTED_1 = "time_distributed_1"
 }
 
-class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
+class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
 
   protected val network: ComputationGraph = KerasModelImport.importKerasModelAndWeights(modelPath, false)
 
@@ -35,7 +35,7 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
   }
 
   def makeFeatures(words: Array[String]): Array[Float] = {
-    val unknown = word2int(Geo_disambiguate_parser.UNKNOWN_TOKEN)
+    val unknown = word2int(GeoDisambiguateParser.UNKNOWN_TOKEN)
     val features = words.map(word2int.getOrElse(_, unknown).toFloat)
 
     features
@@ -55,12 +55,12 @@ class Geo_disambiguate_parser(modelPath: String, word2IdxPath: String, loc2geona
       network.setInput(0, input)
       network.feedForward()
     }
-    val output = results.get(Geo_disambiguate_parser.TIME_DISTRIBUTED_1)
+    val output = results.get(GeoDisambiguateParser.TIME_DISTRIBUTED_1)
     val predictions: Array[Array[Float]] =
         if (output.shape()(0) == 1) Array(output.toFloatVector)
         else output.toFloatMatrix
 
-    predictions.map(prediction => Geo_disambiguate_parser.INT2LABEL(argmax(prediction)))
+    predictions.map(prediction => GeoDisambiguateParser.INT2LABEL(argmax(prediction)))
   }
 
   def makeGeoLocations(labels: Array[String], words: Array[String],
