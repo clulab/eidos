@@ -4,6 +4,11 @@
       - early recovery:
         - OntologyNode:
           examples:
+          - agricultural training
+          name: agricultural training #ppt-nov1-#13
+          polarity: 1.0
+        - OntologyNode:
+          examples:
           - provision of provision of credit and training for income generation
           name: provision of provision of credit and training for income generation
           polarity: 1.0
@@ -147,6 +152,7 @@
         - OntologyNode:
           examples:
           - provision of provision of seeds, fertilizers and tools
+          - providing seeds for drought-resistant crop #ppt-nov1-#11
           name: provision of provision of seeds, fertilizers and tools
           polarity: 1.0
         - OntologyNode:
@@ -519,6 +525,7 @@
           - international conflict mediation
           - private diplomacy
           - conflict mediation and political dialogue
+          - peace treaty #ppt-nov1-#13
           name: conflict mediation and political dialogue
           polarity: 1.0
         - OntologyNode:
@@ -648,6 +655,11 @@
         - snow
         name: precipitation
         polarity: 1.0
+      - OntologyNode:
+        examples:
+        - temperature
+        name: temperature #ppt-nov1-#10
+        polarity: 1.0
     - human:
       - political:
         - OntologyNode:
@@ -670,6 +682,10 @@
           - food production
           - staple crop production
           - crop yield
+          - crop production #ppt-nov1-#13
+          - livestock production #ppt-nov1-#13
+          - cereal production #ppt-nov1-#13
+          - milk production #ppt-nov1-#13
           name: food_production
           polarity: 1.0
         - OntologyNode:
@@ -801,7 +817,6 @@
       - state
       - geopolitical entity
       - nation-state
-      - rural #ppt-#3 (ok to add in 2 places ?)
       name: GPE
       polarity: 1.0
     - natural:
@@ -936,6 +951,12 @@
       - crop_technology:
         - OntologyNode:
           examples:
+          - store crops
+          - granary
+          name: crop_storage
+          polarity: 1.0
+        - OntologyNode:
+          examples:
           - nitrogen fertilizer
           - inorganic fertilizers
           - potting composts
@@ -989,7 +1010,6 @@
           - food system
           - Peoples food system
           - food distribution #ppt-#3
-          - distribution #ppt-#3
           name: management
           polarity: 1.0
         - OntologyNode:
@@ -1055,6 +1075,7 @@
         examples:
         - infestation
         - armyworm
+        - fall armyworm #ppt-nov1-#13
         - insect
         - swarm
         - locust
@@ -1204,6 +1225,21 @@
         - economic:
           - OntologyNode:
             examples:
+            - export
+            name: export #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - import
+            name: import #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - currency
+            name: currency #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
             - market
             - domestic markets
             - capital market
@@ -1219,12 +1255,14 @@
             - subsidy
             - finance
             - GDP
+            - gross domestic product #ppt-nov1-#16
             - economy
             name: economy
             polarity: 1.0
           - OntologyNode:
             examples:
             - inflation
+            - inflation rate #ppt-nov1-#16
             name: inflation
             polarity: 1.0
           - OntologyNode:
@@ -1394,6 +1432,7 @@
           - stunting
           - wasting
           - food riots #ppt-#3
+          - food inflation #ppt-nov1-#16
           name: food_insecurity
           polarity: 1.0
   - temporal:
