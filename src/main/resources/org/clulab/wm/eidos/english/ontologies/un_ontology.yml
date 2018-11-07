@@ -168,6 +168,8 @@
         - OntologyNode:
           examples:
           - provision of food for assets
+          - food assistance #ppt-#4
+          - nutrition assistance #ppt-#4
           keywords: food aid, community, public work
           name: provision of food for assets
           polarity: 1.0
@@ -726,6 +728,12 @@
         polarity: 1.0
       - OntologyNode:
         examples:
+        - economic crisis
+        - financial crisis
+        name: economic_crisis #ppt-#4
+        polarity: 1.0
+      - OntologyNode:
+        examples:
         - disarmament
         name: disarmament
         polarity: 1.0
@@ -1132,6 +1140,7 @@
             examples:
             - road
             - highways
+            - road network #ppt-#4
             name: road
             polarity: 1.0
           - OntologyNode:
@@ -1236,7 +1245,17 @@
           - OntologyNode:
             examples:
             - currency
+            - dollar
+            - pound
+            - cash
+            - hard currency
             name: currency #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - budget
+            - budget deficit
+            name: budget #ppt-#4
             polarity: 1.0
           - OntologyNode:
             examples:
