@@ -22,8 +22,9 @@ import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
-import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.actions.{EnglishExpansionHandler, ExpansionHandler}
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
+import org.clulab.wm.eidos.portuguese.PortugueseExpansionHandler
 
 import scala.annotation.tailrec
 
@@ -121,7 +122,18 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val canonicalizer = new Canonicalizer(stopwordManager)
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
-    val expansionHandler = ExpansionHandler(language)
+    val expansionHandler: ExpansionHandler = mkExpansionHandler(config)
+
+    //private def mkExpansionHandler[T <: ExpansionHandler](config: Config): T = {
+    private def mkExpansionHandler(config: Config): ExpansionHandler = {
+      language match {
+        case "english" => new EnglishExpansionHandler()
+        case "portuguese" => new PortugueseExpansionHandler()
+        case _ =>
+          // FIXME: warn that this is undefined
+          new EnglishExpansionHandler()
+      }
+    }
 
     protected def mkDomainOntology(name: String): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
