@@ -326,11 +326,6 @@ class ExpansionHandler(val language: String) extends LazyLogging {
       m
   }
 
-  def addOverlappingAttachmentsTextBounds(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-    } yield addOverlappingAttachmentsTextBounds(m, state)
-  }
   def addOverlappingAttachmentsTextBounds(m: Mention, state: State): Mention = {
     m match {
       case tb: TextBoundMention =>
