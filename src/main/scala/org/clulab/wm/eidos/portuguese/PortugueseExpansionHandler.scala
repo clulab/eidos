@@ -73,31 +73,34 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
   )
 
   /** Avoid expanding list-like stuff **/
-  def commaCheck(sentence: Sentence, startIndex: Int, currentIndex: Int, dependency: String): Boolean = {
+  def commaCheck(sentence: Sentence, sourceIndex: Int, destIndex: Int, dependency: String): Boolean = {
     // check to see if any intervening tokens are ",
-    println(s"start: $startIndex")
-    println(s"current: $currentIndex")
-    println(s"dep: $dependency\n")
+    logger.debug(s"source:\t$sourceIndex")
+    logger.debug(s"destination:\t$destIndex")
+    logger.debug(s"dependency:\t$dependency")
     val TO_CHECK = Set("amod", "xcomp")
     if (TO_CHECK.contains(dependency)) {
+      // the traversal order may not correspond to the linear order of the tokens
+      val trueStart = Seq(sourceIndex, destIndex).min
+      val trueEnd = Seq(sourceIndex, destIndex).max
       // we should NOT have a preceding comma if the current dep is amod
-      ! sentence.words.slice(startIndex, currentIndex).contains(",")
+      ! sentence.words.slice(trueStart, trueEnd).contains(",")
     } else true
   }
 
   /** Ensure dependency may be safely traversed */
   override def isValidOutgoingDependency(
     dep: String,
-    startIndex: Int,
-    currentIndex: Int,
+    sourceIndex: Int,
+    destIndex: Int,
     sentence: Sentence
   ): Boolean = {
-    val token: String = sentence.words(currentIndex)
+    val token: String = sentence.words(destIndex)
 
     (
       VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
         ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
-        commaCheck(sentence, startIndex, currentIndex, dependency = dep)
+        commaCheck(sentence, sourceIndex, destIndex, dependency = dep)
       ) || (
       // Allow exception to close parens, etc.
       dep == "punct" && Seq(")", "]", "}", "-RRB-").contains(token)
