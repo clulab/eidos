@@ -90,7 +90,7 @@ object OntologyMapper extends App {
     val parents1 = getParents(path1).reverse
     val parents2 = getParents(path2).reverse
     val k = math.min(parents1.length, parents2.length)
-    var avg = 0.0f
+    var avg = 0.0f // optimization
     for (i <- 0 until k) {
       val score = mweStringSimilarity(parents1(i), parents2(i), reader)
       avg += score / (i + 1)
@@ -104,7 +104,7 @@ object OntologyMapper extends App {
     val conceptParents = getParents(conceptPath).reverse
     val indicator = getParents(indicatorPath).reverse.head
 
-    var avg: Double = 0.0
+    var avg: Double = 0.0 // optimization
     for (i <- 1 until conceptParents.length) {
       val score = mweStringSimilarity(conceptParents(i), indicator, reader)
       avg += score / i
@@ -120,8 +120,8 @@ object OntologyMapper extends App {
 
   def dotProduct(v1:Array[Float], v2:Array[Float]):Float = {
     assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
-    var sum = 0.0f
-    var i = 0
+    var sum = 0.0f // optimization
+    var i = 0 // optimization
     while(i < v1.length) {
       sum += v1(i) * v2(i)
       i += 1

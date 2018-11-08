@@ -34,7 +34,7 @@ object DomainOntology {
     val classLoader = classProvider.getClass().getClassLoader()
     val fileInputStream = new FileInputStream(filename)
     // Scala Cookbook suggests this design.
-    var objectInputStream: Option[ObjectInputStream] = None
+    var objectInputStream: Option[ObjectInputStream] = None // exception
 
     try {
       objectInputStream = Some(new ClassLoaderObjectInputStream(classLoader, fileInputStream))

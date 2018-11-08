@@ -25,8 +25,8 @@ class TestLoop extends Test {
     // 261 ms
     val res2a = Timer.time("Using while a") {
       0.until(limit).foreach { j =>
-        var sum = 0.0f
-        var i = 0
+        var sum = 0.0f // test
+        var i = 0 // test
         while (i < left.length) {
           sum += left(i) * right(i)
           i += 1
@@ -38,8 +38,8 @@ class TestLoop extends Test {
     // 70 ms
     val res2b = Timer.time("Using while b") {
       0.until(limit).foreach { j =>
-        var sum = 0.0f
-        var i = left.length - 1
+        var sum = 0.0f // test
+        var i = left.length - 1 // test
 
         while (i >= 0) {
           sum += left(i) * right(i)
@@ -52,7 +52,7 @@ class TestLoop extends Test {
     // 4122 ms
     val res3 = Timer.time("Using for") {
       0.until(limit).foreach { j =>
-        var sum = 0.0f
+        var sum = 0.0f // test
 
         for (i <- 0 until left.length)
           sum += left(i) * right(i)

@@ -80,14 +80,12 @@ object CompactDomainOntology {
     def splitText(text: String): Array[String] = {
       val arrayBuffer = new ArrayBuffer[String]()
       val stringBuilder = new StringBuilder
-      var count = 0
 
       for (i <- 0 until text.length) {
         val c = text(i)
 
         if (c == '\n') {
           arrayBuffer += stringBuilder.result()
-          count += 1
           stringBuilder.clear()
         }
         else

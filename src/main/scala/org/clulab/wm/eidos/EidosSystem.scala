@@ -127,10 +127,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case    UN_NAMESPACE =>          UNOntology(  unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case   WDI_NAMESPACE =>         WDIOntology( wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case   FAO_NAMESPACE =>         FAOOntology( faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case  MESH_NAMESPACE =>        MeshOntology(meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case    UN_NAMESPACE =>         UNOntology(   unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case   WDI_NAMESPACE =>        WDIOntology(  wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case   FAO_NAMESPACE =>        FAOOntology(  faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case  MESH_NAMESPACE =>       MeshOntology( meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
         case PROPS_NAMESPACE => PropertiesOntology(propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
