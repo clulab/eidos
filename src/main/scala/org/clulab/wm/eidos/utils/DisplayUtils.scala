@@ -1,13 +1,13 @@
 package org.clulab.wm.eidos.utils
 
 import java.io.PrintWriter
+
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
+
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.anafora.Data
-import java.time.LocalDateTime
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.document.{EidosDocument, TimeInterval}
 
 object DisplayUtils {
   protected val nl = "\n"
@@ -20,6 +20,7 @@ object DisplayUtils {
 
     val sb = new StringBuffer()
     val time = doc.asInstanceOf[EidosDocument].times
+    val location = doc.asInstanceOf[EidosDocument].geolocs
     val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
     for ((s, i) <- doc.sentences.zipWithIndex) {
       sb.append(s"sentence #$i $nl")
@@ -29,6 +30,7 @@ object DisplayUtils {
       sb.append(nl)
 
       sb.append("timeExpressions:" + nl + (displayTimeExpressions(time(i))) + nl)
+      sb.append("locationExpressions:" + nl + (displayLocationExpressions(location(i))) + nl)
 
       val sortedMentions = mentionsBySentence(i).sortBy(_.label)
       val (events, entities) = sortedMentions.partition(_ matches "Event")
@@ -54,6 +56,24 @@ object DisplayUtils {
         sb.append(s"$tab end: ${i._2} $nl")
         sb.append(s"$tab duration: ${i._3} $nl")
       }
+      sb.append(nl)
+    }
+    sb.toString
+  }
+
+  def displayLocationExpressions(geolocations: List[GeoPhraseID]): String = {
+    val sb = new StringBuffer()
+    for (location <- geolocations) {
+      sb.append(s"$tab span: ${location.StartOffset_locs},${location.EndOffset_locs} $nl")
+      sb.append(s"$tab geoNameID: ${location.PhraseGeoID}$nl")
+
+      /*
+      for (i <- location.geolocations) {
+        sb.append(s"$tab start: ${i._1} $nl")
+        sb.append(s"$tab end: ${i._2} $nl")
+        sb.append(s"$tab duration: ${i._3} $nl")
+      }
+      */
       sb.append(nl)
     }
     sb.toString
@@ -150,5 +170,10 @@ object DisplayUtils {
       xml.Utility.escape(displayTimeExpressions(intervals))
           .replaceAll(nl, "<br>")
           .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")
+
+  def webAppGeoLocations(locations: List[GeoPhraseID]): String =
+    xml.Utility.escape(displayLocationExpressions(locations))
+      .replaceAll(nl, "<br>")
+      .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")
   
 }

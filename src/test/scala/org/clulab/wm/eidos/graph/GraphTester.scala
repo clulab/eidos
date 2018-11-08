@@ -10,11 +10,11 @@ import scala.collection.Seq
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
   //val mentions = extractMentions(clean(text))
-  val mentions = EidosMention.findReachableMentions(TestUtils.extractMentions(ieSystem, clean(text)))
+  val mentions: Seq[Mention] = EidosMention.findReachableMentions(TestUtils.extractMentions(ieSystem, clean(text)))
 
   val testResults = new TestResults()
 
-  def getSpecialChars(s: String) = s.filter(c => c < 32 || 127 < c)
+  def getSpecialChars(s: String): String = s.filter(c => c < 32 || 127 < c)
 
   def clean(messyText: String): String = {
     val cleanText = messyText
@@ -27,7 +27,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
     if (ieSystem.language == "english") {
       val specialChars = getSpecialChars(cleanText)
-      if (!specialChars.isEmpty())
+      if (!specialChars.isEmpty)
         throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
     }
     cleanText
@@ -36,7 +36,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   protected def toString(mentions: Seq[Mention]): String = {
     val stringBuilder = new StringBuilder()
 
-    mentions.indices.foreach(index => stringBuilder.append(s"${index}: ${mentions(index).text}\n"))
+    mentions.indices.foreach(index => stringBuilder.append(s"$index: ${mentions(index).text}\n"))
     stringBuilder.toString()
   }
 
@@ -47,18 +47,17 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       result ++ Seq("Mentions:\n" + toString(mentions))
 
   def test(nodeSpec: NodeSpec): Seq[String] = {
-    val testResult = nodeSpec.test(mentions, useTimeNorm, testResults)
-    // Also store nodeSpec map
+    val testResult = nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(testResult.complaints)
   }
 
   def test(edgeSpec: EdgeSpec): Seq[String] = {
-    val testResult = edgeSpec.test(mentions, useTimeNorm, testResults)
-    // Also store nodeSpec map
+    val testResult = edgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(testResult.complaints)
   }
 
-  def useTimeNorm = ieSystem.timenorm.isDefined
+  def useTimeNorm: Boolean = ieSystem.timenorm.isDefined
+  def useGeoNorm: Boolean = ieSystem.geonorm.isDefined
 }

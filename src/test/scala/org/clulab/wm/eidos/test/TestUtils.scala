@@ -27,7 +27,7 @@ object TestUtils {
   object Ben      extends TesterTag
   object Heather  extends TesterTag
   object Vikas    extends TesterTag
-  object George    extends TesterTag
+  object George   extends TesterTag
 
 
   class CategoryTag  extends Tag("CategoryTag")
@@ -83,6 +83,7 @@ object TestUtils {
     class RuleTester(text: String) extends rule.RuleTester(ieSystem, text)
 
     def useTimeNorm = ieSystem.timenorm.isDefined
+    def useGeoNorm = ieSystem.geonorm.isDefined
 
     def extractMentions(text: String): Seq[Mention] = TestUtils.extractMentions(ieSystem, text)
   }
