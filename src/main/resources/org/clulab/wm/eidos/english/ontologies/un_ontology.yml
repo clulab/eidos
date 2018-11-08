@@ -170,6 +170,7 @@
           - provision of food for assets
           - food assistance #ppt-#4
           - nutrition assistance #ppt-#4
+          - nutritional service #ppt-#8
           keywords: food aid, community, public work
           name: provision of food for assets
           polarity: 1.0
@@ -625,6 +626,7 @@
       examples:
       - crisis
       - emergency
+      - catastrophe #ppt-#10
       name: crisis
       polarity: 1.0
     - natural_disaster:
@@ -646,9 +648,18 @@
         - cyclone
         - tornado
         - storm
+        - storm winds #ppt-#5
+        - rainstorms #ppt-#5
         name: storm
         polarity: 1.0
     - weather:
+      - OntologyNode:
+        examples:
+        - climate
+        - tropical
+        - equatorial
+        name: climate #ppt-#5
+        polarity: 1.0
       - OntologyNode:
         examples:
         - precipitation
@@ -723,6 +734,7 @@
         - civil unrest
         - genocide
         - clash
+        - armed clash #ppt-#8
         - raid
         name: conflict
         polarity: 1.0
@@ -781,6 +793,7 @@
         - decease
         - loss of life #ppt-#3
         - life loss #ppt-#3
+        - fatalitiy #ppt-#8
         name: death
         polarity: 1.0
   - entities:
@@ -897,6 +910,7 @@
             - forestry sector
             - plant resource food
             - wildlife
+            - rainforest #ppt-#5
             name: biotic_resources
             polarity: 1.0
         - abiotic_resources:
@@ -908,6 +922,12 @@
             - mt
             - wetland
             - sand
+            - flood plains #ppt-#6
+            - cropland #ppt-#6
+            - greenbelt #ppt-#6
+            - agricultural land #ppt-#7
+            - arable land #ppt-#7
+            - cultivated area #ppt-#7
             name: land
             polarity: 1.0
           - OntologyNode:
@@ -1211,6 +1231,7 @@
         - opportunity
         - employment
         - agribusiness
+        - pastoralist livelihood #ppt-#8
         name: livelihood
         polarity: 1.0
       - OntologyNode:
@@ -1365,6 +1386,7 @@
           - contract party
           - department
           - government
+          - transitional government #ppt-#8
           name: government_entity
           polarity: 1.0
         - government_actions:
@@ -1430,6 +1452,7 @@
           - food price
           - crop price
           - food cost
+          - staple food price #ppt-#9
           name: food_price #ppt-#3
           polarity: 1.0
         - OntologyNode:
