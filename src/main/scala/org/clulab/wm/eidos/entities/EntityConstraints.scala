@@ -67,7 +67,8 @@ object EntityConstraints extends LazyLogging {
   // Decide if the sentence element is a conjunction using just the POS tag
   def isCoord(i: Int, mention: Mention): Boolean = {
     def tag(n: Int) = mention.sentenceObj.tags.get(n)
-
+    // FIXME: why check for adjectives (JJ)?
+    // FIXME: additionally check for ADJ for compat with UD
     if (i > 0 && tag(i - 1).startsWith("JJ"))
       false
     else

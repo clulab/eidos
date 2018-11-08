@@ -97,6 +97,7 @@ object EntityHelper {
   def validEdgeTag(tag: String): Boolean = ! INVALID_EDGE_TAGS.exists(pattern => pattern.findFirstIn(tag).nonEmpty)
 
   // Set of tags that we don't want to begin or end an entity
+  // FIXME: adapt to include UD tags
   val INVALID_EDGE_TAGS = Set[scala.util.matching.Regex](
     "^PRP".r,
     "^IN".r,

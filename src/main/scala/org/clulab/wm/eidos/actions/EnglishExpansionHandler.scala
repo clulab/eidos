@@ -107,7 +107,7 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
    */
 
   // Do the expansion, but if the expansion causes you to suck up something we wanted to avoid, split at the
-  // avoided thing and keep the half containing the origina (pre-expansion) entity.
+  // avoided thing and keep the half containing the original (pre-expansion) entity.
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
     val expanded = expand(orig, maxHops = MAX_HOPS_EXPANDING, stateToAvoid)
     //println(s"orig: ${orig.text}\texpanded: ${expanded.text}")
@@ -161,16 +161,15 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
   /** Used by expand to selectively traverse the provided syntactic dependency graph **/
   @tailrec
   private def traverseOutgoingLocal(
-                                     tokens: Set[Int],
-                                     newTokens: Set[Int],
-                                     outgoingRelations: Array[Array[(Int, String)]],
-                                     incomingRelations: Array[Array[(Int, String)]],
-                                     remainingHops: Int,
-                                     sent: Int,
-                                     state: State,
-                                     sentence: Sentence
-
-                                   ): Interval = {
+    tokens: Set[Int],
+    newTokens: Set[Int],
+    outgoingRelations: Array[Array[(Int, String)]],
+    incomingRelations: Array[Array[(Int, String)]],
+    remainingHops: Int,
+    sent: Int,
+    state: State,
+    sentence: Sentence
+  ): Interval = {
     if (remainingHops == 0) {
       val allTokens = tokens ++ newTokens
       Interval(allTokens.min, allTokens.max + 1)

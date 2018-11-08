@@ -82,7 +82,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     }
     // If there's a non-named entity noun in the entity, it's valid
     containsValidNounVerb(entity) ||
-    // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
+    // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because
     // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
     (entity.tags.get.last.startsWith("JJ") || entity.tags.get.last.startsWith("ADJ")) && nextTagNN(entity) ||
     // Otherwise, is it a determiner that may need to be resolved downstream?
