@@ -679,6 +679,8 @@
           examples:
           - political instability
           - power struggle
+          - regime breakdown #doc-#pg1
+          - political violence #doc-pg1
           name: political_instability #ppt-#3
           polarity: 1.0
         - OntologyNode:
@@ -1053,10 +1055,17 @@
         - maize
         - rice
         - sorghum
+        - white sorghum #doc-#pg2
+        - red sorghum #doc-#pg2
+        - brown sorghum #doc-#pg2
+        - oats #doc-#pg2
+        - white maize #doc-#pg2
+        - millet #doc-#pg2
         - barley
         - flax
         - grain
         - beans
+        - sesame #doc-#pg4
         - sugar
         - flour
         - tea
@@ -1318,6 +1327,8 @@
             - gas
             - oil
             - crude
+            - petrol #doc-#pg3
+            - diesel #doc-#pg3
             name: fuel
             polarity: 1.0
           - OntologyNode:
