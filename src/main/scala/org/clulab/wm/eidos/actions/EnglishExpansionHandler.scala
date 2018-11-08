@@ -174,12 +174,12 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
       val allTokens = tokens ++ newTokens
       Interval(allTokens.min, allTokens.max + 1)
     } else {
-      val startIdx = (tokens ++ newTokens).min // earliest in current set
+      val sourceIdx = (tokens ++ newTokens).min // earliest in current set
       val newNewTokens = for{
         tok <- newTokens
         if outgoingRelations.nonEmpty && tok < outgoingRelations.length
         (nextTok, dep) <- outgoingRelations(tok)
-        if isValidOutgoingDependency(dep = dep, sourceIndex = startIdx, destIndex = nextTok, sentence = sentence)
+        if isValidOutgoingDependency(dep = dep, sourceIndex = sourceIdx, destIndex = nextTok, sentence = sentence)
         if state.mentionsFor(sent, nextTok).isEmpty
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
@@ -235,7 +235,14 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
     case Some(dependencies) => dependencies.incomingEdges
   }
 
-  /** Ensure dependency may be safely traversed */
+  /**
+    * Ensure dependency may be safely traversed
+    * @param dep A syntactic dependency (the relation's label)
+    * @param sourceIndex The token index from which the traversal begins
+    * @param destIndex The token index to which the traversal leads
+    * @param sentence An org.clulab.processors.Sentence
+    * @return Boolean indicating whether or not the traversal is legal
+    */
   def isValidOutgoingDependency(
     dep: String,
     sourceIndex: Int,

@@ -72,8 +72,15 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     "^nmod_of".r
   )
 
-  /** Avoid expanding list-like stuff **/
-  def commaCheck(sentence: Sentence, sourceIndex: Int, destIndex: Int, dependency: String): Boolean = {
+  /**
+    * Avoid expansions that introduce intervening commas when traversing certain of syntactic dependencies.
+    * @param sentence An org.clulab.processors.Sentence
+    * @param sourceIndex The token index from which the traversal begins
+    * @param destIndex The token index to which the traversal leads
+    * @param dependency A syntactic dependency (the relation's label)
+    * @return Boolean indicating whether or not the expansion introduces an intervening comma
+    */
+  def noInterveningComma(sentence: Sentence, sourceIndex: Int, destIndex: Int, dependency: String): Boolean = {
     // check to see if any intervening tokens are ",
     logger.debug(s"source:\t$sourceIndex")
     logger.debug(s"destination:\t$destIndex")
@@ -88,7 +95,14 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     } else true
   }
 
-  /** Ensure dependency may be safely traversed */
+  /**
+    * Ensure dependency may be safely traversed
+    * @param dep A syntactic dependency (the relation's label)
+    * @param sourceIndex The token index from which the traversal begins
+    * @param destIndex The token index to which the traversal leads
+    * @param sentence An org.clulab.processors.Sentence
+    * @return Boolean indicating whether or not the traversal is legal
+    */
   override def isValidOutgoingDependency(
     dep: String,
     sourceIndex: Int,
@@ -100,7 +114,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     (
       VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
         ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
-        commaCheck(sentence, sourceIndex, destIndex, dependency = dep)
+        noInterveningComma(sentence, sourceIndex, destIndex, dependency = dep)
       ) || (
       // Allow exception to close parens, etc.
       dep == "punct" && Seq(")", "]", "}", "-RRB-").contains(token)
