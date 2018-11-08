@@ -179,7 +179,8 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
         tok <- newTokens
         if outgoingRelations.nonEmpty && tok < outgoingRelations.length
         (nextTok, dep) <- outgoingRelations(tok)
-        if isValidOutgoingDependency(dep, sentence.words(nextTok), remainingHops)
+        startIdx = (tokens ++ newTokens).min // earliest in current set
+        if isValidOutgoingDependency(dep = dep, startIndex = startIdx, currentIndex = nextTok, sentence = sentence)
         if state.mentionsFor(sent, nextTok).isEmpty
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
@@ -236,7 +237,14 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
   }
 
   /** Ensure dependency may be safely traversed */
-  def isValidOutgoingDependency(dep: String, token: String, remainingHops: Int): Boolean = {
+  def isValidOutgoingDependency(
+    dep: String,
+    startIndex: Int,
+    currentIndex: Int,
+    sentence: Sentence
+  ): Boolean = {
+    val token: String = sentence.words(currentIndex)
+
     (
       VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
         ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
