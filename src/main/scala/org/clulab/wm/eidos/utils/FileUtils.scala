@@ -11,28 +11,48 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.io.Source
+import scala.util.control.NonFatal
 
 object FileUtils {
 
-//  type Closing = { def close(): Unit }
-//
-//  implicit class AutoClose(arg: Closing) {
-//    def autoClose[A <: Closing, B](f: A => B): B = {
-//      try {
-//        f(arg)
-//      }
-//      finally {
-//        Option(arg).map(_.close())
-//      }
-//    }
-//  }
+  // https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
+  // This is so that exceptions caused during close are caught, but don't
+  // prevent the registration of any previous exception.
+  def autoClose[A <: { def close(): Unit }, B](resource: => A)(f: A => B): B = {
+    var exception: Option[Throwable] = None
 
-  def autoClose[A <: { def close(): Unit }, B](resource: A)(f: A => B): B = {
+    def closeResource(): Unit = {
+      Option(resource).map { resource =>
+        exception.map { exception =>
+          try {
+            resource.close()
+          }
+          catch {
+            case NonFatal(suppressed) =>
+              exception.addSuppressed(suppressed)
+            case fatal: Throwable if NonFatal(exception) =>
+              fatal.addSuppressed(exception)
+              throw fatal
+            case fatal: InterruptedException =>
+              fatal.addSuppressed(exception)
+              throw fatal
+            case fatal: Throwable =>
+              exception.addSuppressed(fatal)
+          }
+        }.getOrElse(resource.close())
+      }
+    }
+
     try {
       f(resource)
     }
+    catch {
+      case NonFatal(nonFatalException) =>
+        exception = Some(nonFatalException)
+        throw nonFatalException
+    }
     finally {
-      Option(resource).map(_.close())
+      closeResource()
     }
   }
 
@@ -127,10 +147,8 @@ object FileUtils {
   def load[A](filename: String, classProvider: Any = this): A = {
     val classLoader = classProvider.getClass().getClassLoader()
 
-    autoClose(new FileInputStream(filename)) { fileInputStream =>
-      autoClose(new ClassLoaderObjectInputStream(classLoader, fileInputStream)) { objectInputStream =>
-        objectInputStream.readObject().asInstanceOf[A]
-      }
+    autoClose(new ClassLoaderObjectInputStream(classLoader, new FileInputStream(filename))) { objectInputStream =>
+      objectInputStream.readObject().asInstanceOf[A]
     }
   }
 }
