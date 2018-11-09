@@ -5,22 +5,27 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, 
 import org.clulab.odin.{EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.utils.FileUtils
+
 import org.apache.commons.io.input.ClassLoaderObjectInputStream
 
 class TestSerialization extends Test {
   val reader = new EidosSystem()
 
   def serialize(original: Any, index: Int): Unit = {
-    val streamOut = new ByteArrayOutputStream()
-    val encoder = new ObjectOutputStream(streamOut)
-    encoder.writeObject(original)
-    encoder.close()
+    val copy = FileUtils.autoClose(new ByteArrayOutputStream()) { streamOut =>
+      FileUtils.autoClose(new ObjectOutputStream(streamOut)) { encoder =>
+        encoder.writeObject(original)
+      }
 
-    val bytes = streamOut.toByteArray
-    val streamIn = new ByteArrayInputStream(bytes)
-    val decoder = new ClassLoaderObjectInputStream(getClass.getClassLoader, streamIn)
-    val copy = decoder.readObject()
-    decoder.close()
+      val bytes = streamOut.toByteArray
+
+      FileUtils.autoClose(new ByteArrayInputStream(bytes)) { streamIn =>
+        FileUtils.autoClose(new ClassLoaderObjectInputStream(getClass.getClassLoader, streamIn)) { decoder =>
+          decoder.readObject()
+        }
+      }
+    }
 
     if (original.isInstanceOf[Mention])
       require(original == copy)

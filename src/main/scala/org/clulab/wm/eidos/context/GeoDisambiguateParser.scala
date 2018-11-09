@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.context
 
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
@@ -22,15 +23,16 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
   lazy protected val loc2geonameID: mutable.Map[String, Int] = readDict(loc2geonameIDPath) // provide path of geoname dict file having geonameID with max population
 
   protected def readDict(dictPath: String): mutable.Map[String, Int] = {
-    val source = Sourcer.sourceFromResource(dictPath)
+    // TODO make nonmutable by using plain .map
     val dict = mutable.Map.empty[String, Int]
 
-    source.getLines.foreach { line =>
-      val words = line.split(' ')
+    FileUtils.autoClose(Sourcer.sourceFromResource(dictPath)) { source =>
+      source.getLines.foreach { line =>
+        val words = line.split(' ')
 
-      dict += (words(0).toString -> words(1).toInt)
+        dict += (words(0).toString -> words(1).toInt)
+      }
     }
-    source.close()
     dict
   }
 

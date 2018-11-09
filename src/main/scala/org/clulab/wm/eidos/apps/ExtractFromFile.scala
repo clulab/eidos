@@ -7,49 +7,45 @@ import scala.collection.mutable.ListBuffer
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.FileUtils
 
 object ExtractFromFile extends App {
-
   val inputDir = args(0)
   val outputFile = args(1)
-  val files = findFiles(inputDir, "txt")
+  val files = FileUtils.findFiles(inputDir, "txt")
   println(s"There are ${files.length} files...")
-  val pw = FileUtils.printWriterFromFile(s"$outputFile")
 
-  val ieSystem = new EidosSystem()
+  FileUtils.autoClose(FileUtils.printWriterFromFile(s"$outputFile")) { pw =>
+    val ieSystem = new EidosSystem()
 
-  for (filename <- files) {
-    val text = FileUtils.getTextFromFile(filename)
-    println(s"There are ${text.split('\n').length} lines in the file...")
-    val annotatedDoc = ieSystem.extractFromText(text)
-    val doc = annotatedDoc.document
-    pw.println(s"Filename: ${filename.getName}")
+    for (filename <- files) {
+      val text = FileUtils.getTextFromFile(filename)
+      println(s"There are ${text.split('\n').length} lines in the file...")
+      val annotatedDoc = ieSystem.extractFromText(text)
+      val doc = annotatedDoc.document
+      pw.println(s"Filename: ${filename.getName}")
 
-    // keep the EidosMentions that are relevant to the CAG
-    val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
-    val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention, cagEdgeMentions, cagEdgeArguments))
+      // keep the EidosMentions that are relevant to the CAG
+      val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
+      val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
+      val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.isCAGRelevant(em.odinMention, cagEdgeMentions, cagEdgeArguments))
 
-    val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
-    for ((sentence, sentenceMentions) <- mentionsBySentence){
-      pw.println(s"\nSENTENCE ${sentence}: ${doc.sentences(sentence).getSentenceText}")
-      println (s"Number of Eidos mentions found: ${sentenceMentions.length}")
-      sentenceMentions.foreach(
-        m => {
-          pw.println(s"CanonicalName: ${m.canonicalName}")
-          pw.println(s"OntologyGrounding: \n\t${m.grounding.values.mkString("\n\t")}")
-          printMention(m.odinMention, pw)
+      val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
+      for ((sentence, sentenceMentions) <- mentionsBySentence) {
+        pw.println(s"\nSENTENCE ${sentence}: ${doc.sentences(sentence).getSentenceText}")
+        println(s"Number of Eidos mentions found: ${sentenceMentions.length}")
+        sentenceMentions.foreach(
+          m => {
+            pw.println(s"CanonicalName: ${m.canonicalName}")
+            pw.println(s"OntologyGrounding: \n\t${m.grounding.values.mkString("\n\t")}")
+            printMention(m.odinMention, pw)
 
-        }
-      )
-      pw.println(s"${"=" * 100}")
+          }
+        )
+        pw.println(s"${"=" * 100}")
+      }
     }
-
   }
-  pw.close()
-
 
   def prettyPrint(mentions:Seq[Mention], pw: PrintWriter): Unit = {
     val events = mentions.filter(_ matches "Event")

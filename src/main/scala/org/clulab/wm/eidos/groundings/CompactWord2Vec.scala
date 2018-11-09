@@ -1,10 +1,13 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.io.{FileInputStream, FileOutputStream, ObjectOutputStream}
 
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.utils.ClassLoaderObjectInputStream
+
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
+
 import org.slf4j.LoggerFactory
 
 //import scala.collection.immutable.HashMap
@@ -32,12 +35,13 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 
   def save(filename: String): Unit = {
     val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
-    val objectOutputStream = new ObjectOutputStream(new FileOutputStream(filename))
-    // Writing is performed in two steps so that the parts can be processed separately
-    // when read back in.
-    objectOutputStream.writeObject(words)
-    objectOutputStream.writeObject(array)
-    objectOutputStream.close()
+
+    FileUtils.autoClose(new ObjectOutputStream(new FileOutputStream(filename))) { objectOutputStream =>
+      // Writing is performed in two steps so that the parts can be
+      // processed separately when read back in.
+      objectOutputStream.writeObject(words)
+      objectOutputStream.writeObject(array)
+    }
   }
 
   def dotProduct(row1: Int, row2: Int): Float = {
@@ -183,30 +187,22 @@ object CompactWord2Vec {
   }
 
   protected def loadTxt(filename: String, resource: Boolean): BuildType = {
-    val source =
-        if (resource) Sourcer.sourceFromResource(filename)
-        else Sourcer.sourceFromFile(filename)
-    val lines = source.getLines()
-    val build = buildMatrix(lines)
-    source.close()
-    build
+    FileUtils.autoClose(
+      if (resource) Sourcer.sourceFromResource(filename)
+      else Sourcer.sourceFromFile(filename)
+    ) { source =>
+      val lines = source.getLines()
+      buildMatrix(lines)
+    }
   }
 
   def updatedLoad[A](filename: String, classProvider: Any = this): A = {
-    val classLoader = classProvider.getClass().getClassLoader()
-    val fileInputStream = new FileInputStream(filename)
-    var objectInputStream: ObjectInputStream = null
+    FileUtils.autoClose(new FileInputStream(filename)) { fileInputStream =>
+      val classLoader = classProvider.getClass().getClassLoader()
 
-    try {
-      objectInputStream = new ClassLoaderObjectInputStream(classLoader, fileInputStream)
-
-      objectInputStream.readObject().asInstanceOf[A]
-    }
-    finally {
-      if (objectInputStream != null)
-        objectInputStream.close()
-      else
-        fileInputStream.close()
+      FileUtils.autoClose(new ClassLoaderObjectInputStream(classLoader, fileInputStream)) { objectInputStream =>
+        objectInputStream.readObject().asInstanceOf[A]
+      }
     }
   }
 
@@ -218,32 +214,34 @@ object CompactWord2Vec {
 //    (map, array)
 
     // This is "unrolled" for performance purposes.
-    val objectInputStream = new ClassLoaderObjectInputStream(this.getClass().getClassLoader(), new FileInputStream(filename))
-    val map: MapType = new MutableMapType()
+    val classLoader = this.getClass().getClassLoader()
 
-    {
-      // This is so that text can be abandoned at the end of the block, before the array is read.
-      val text = objectInputStream.readObject().asInstanceOf[String]
-      val stringBuilder = new StringBuilder
-      var count = 0
+    FileUtils.autoClose(new ClassLoaderObjectInputStream(classLoader, new FileInputStream(filename))) { objectInputStream =>
+      val map: MapType = new MutableMapType()
 
-      for (i <- 0 until text.size) {
-        val c = text(i)
+      {
+        // This is so that text can be abandoned at the end of the block, before the array is read.
+        val text = objectInputStream.readObject().asInstanceOf[String]
+        val stringBuilder = new StringBuilder
+        var count = 0
 
-        if (c == '\n') {
-          map += ((stringBuilder.result(), count))
-          count += 1
-          stringBuilder.clear()
+        for (i <- 0 until text.size) {
+          val c = text(i)
+
+          if (c == '\n') {
+            map += ((stringBuilder.result(), count))
+            count += 1
+            stringBuilder.clear()
+          }
+          else
+            stringBuilder.append(c)
         }
-        else
-          stringBuilder.append(c)
+        map += ((stringBuilder.result(), count))
       }
-      map += ((stringBuilder.result(), count))
-    }
 
-    val array = objectInputStream.readObject().asInstanceOf[ArrayType]
-    objectInputStream.close
-    (map, array)
+      val array = objectInputStream.readObject().asInstanceOf[ArrayType]
+      (map, array)
+    }
   }
 
   protected def norm(array: ArrayType, rowIndex: Int, rowWidth: Int) {

@@ -1,13 +1,11 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.PrintWriter
-
 import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.word2vec.Word2Vec
-import org.clulab.wm.eidos.utils.PassThruNamer
+import org.clulab.wm.eidos.utils.{PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder, OntologyNode}
-import org.clulab.wm.eidos.utils.FileUtils.printWriterFromFile
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder}
+import org.clulab.wm.eidos.utils.FileUtils
 
 object OntologyMapper extends App {
 
@@ -25,19 +23,18 @@ object OntologyMapper extends App {
 
 
   def loadOtherOntology(file: String): Seq[ConceptEmbedding] = {
-    val source = scala.io.Source.fromFile(file)
-    val lines = source.getLines().toSeq
-    val ces = for {
-      line <- lines
-      fields  = line.split("\t")
-      path = fields(0).split(",")
-      //pathSanitized = path.map(Word2Vec.sanitizeWord(_))
-      examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
-      embedding = reader.wordToVec.makeCompositeVector(examples)
-    } yield new ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
+    val ces = FileUtils.autoClose(Sourcer.sourceFromFile(file)) { source =>
+      val lines = source.getLines().toSeq
 
-    //source.close()
-
+      for {
+        line <- lines
+        fields = line.split("\t")
+        path = fields(0).split(",")
+        //pathSanitized = path.map(Word2Vec.sanitizeWord(_))
+        examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
+        embedding = reader.wordToVec.makeCompositeVector(examples)
+      } yield new ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
+    }
     ces
   }
 
@@ -174,34 +171,33 @@ object OntologyMapper extends App {
     un2wdi.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar WDI: ${mapping._2.mkString(",")}"))
 
     // Write the mapping file
-    val pw = printWriterFromFile(outputFile)
-    val pwInterventionSpecific = printWriterFromFile(outputFile + ".no_ind_for_interventions")
-
-    for (unConcept <- un2wdi.keys) {
-      val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
-      val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "FAO"))
-      val sorted = (wdiMappings ++ faoMappings).sortBy(- _._2)
-      for ((indicator, score, label) <- sorted) {
-        pw.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
-        if (!unConcept.startsWith("UN/interventions")) {
-          pwInterventionSpecific.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
+    FileUtils.autoClose(FileUtils.printWriterFromFile(outputFile)) { pw =>
+      FileUtils.autoClose(FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions")) { pwInterventionSpecific =>
+        for (unConcept <- un2wdi.keys) {
+          val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
+          val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "FAO"))
+          val sorted = (wdiMappings ++ faoMappings).sortBy(-_._2)
+          for ((indicator, score, label) <- sorted) {
+            pw.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
+            if (!unConcept.startsWith("UN/interventions")) {
+              pwInterventionSpecific.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
+            }
+          }
         }
+
+        // Back when we were doing an exhaustive mapping...
+        //  for {
+        //    (unConcept, indicatorMappings) <- un2fao
+        //    (faoIndicator, score) <- indicatorMappings
+        //  } pw.println(s"unConcept\t$unConcept\tFAO\t$faoIndicator\t$score")
+        //
+        //  for {
+        //    (unConcept, indicatorMappings) <- un2wdi
+        //    (wdiIndicator, score) <- indicatorMappings
+        //  } pw.println(s"unConcept\t$unConcept\tWB\t$wdiIndicator\t$score")
+        //
       }
     }
-
-    // Back when we were doing an exhaustive mapping...
-    //  for {
-    //    (unConcept, indicatorMappings) <- un2fao
-    //    (faoIndicator, score) <- indicatorMappings
-    //  } pw.println(s"unConcept\t$unConcept\tFAO\t$faoIndicator\t$score")
-    //
-    //  for {
-    //    (unConcept, indicatorMappings) <- un2wdi
-    //    (wdiIndicator, score) <- indicatorMappings
-    //  } pw.println(s"unConcept\t$unConcept\tWB\t$wdiIndicator\t$score")
-    //
-    pw.close()
-    pwInterventionSpecific.close()
   }
 
   def mapOntologies(): Unit = {
@@ -224,23 +220,22 @@ object OntologyMapper extends App {
     //  val sofia2BBN = mostSimilarIndicators(sofiaConceptEmbeddings, bbnConceptEmbeddings, topN)
     ////  sofia2BBN.foreach(mapping => println(s"sofia: ${mapping._1} --> most similar BBN: ${mapping._2.mkString(",")}"))
     //
-    //  val pw = new PrintWriter(s"/Users/bsharp/ech/ontologyMappings_2018-07-30.tsv")
-    //  for {
-    //    (eidosConcept, sofiaMappings) <- eidos2Sofia
-    //    (sofiaConcept, score) <- sofiaMappings
-    //  } pw.println(s"eidos\t$eidosConcept\tsofia\t$sofiaConcept\t$score")
+    //  FileUtils.closing(new PrintWriter(s"/Users/bsharp/ech/ontologyMappings_2018-07-30.tsv")) { pw =>
+    //    for {
+    //      (eidosConcept, sofiaMappings) <- eidos2Sofia
+    //      (sofiaConcept, score) <- sofiaMappings
+    //    } pw.println(s"eidos\t$eidosConcept\tsofia\t$sofiaConcept\t$score")
     //
-    //  for {
-    //    (eidosConcept, bbnMappings) <- eidos2BBN
-    //    (bbnConcept, score) <- bbnMappings
-    //  } pw.println(s"eidos\t$eidosConcept\tBBN\t$bbnConcept\t$score")
+    //    for {
+    //      (eidosConcept, bbnMappings) <- eidos2BBN
+    //      (bbnConcept, score) <- bbnMappings
+    //    } pw.println(s"eidos\t$eidosConcept\tBBN\t$bbnConcept\t$score")
     //
-    //  for {
-    //    (sofiaConcept, bbnMappings) <- sofia2BBN
-    //    (bbnConcept, score) <- bbnMappings
-    //  } pw.println(s"sofia\t$sofiaConcept\tBBN\t$bbnConcept\t$score")
-    //
-    //  pw.close()
+    //    for {
+    //      (sofiaConcept, bbnMappings) <- sofia2BBN
+    //      (bbnConcept, score) <- bbnMappings
+    //    } pw.println(s"sofia\t$sofiaConcept\tBBN\t$bbnConcept\t$score")
+    // }
     ???
   }
 

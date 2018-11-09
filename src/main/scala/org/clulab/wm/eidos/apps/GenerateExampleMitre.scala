@@ -38,7 +38,7 @@ object GenerateExampleMitre extends App {
   val mentionsJSONLD = corpus.serialize()
 
   // Write
-  val pw = FileUtils.printWriterFromFile("example_mar6.jsonld")
-  pw.println(stringify(mentionsJSONLD, pretty = true))
-  pw.close()
+  FileUtils.autoClose(FileUtils.printWriterFromFile("example_mar6.jsonld")) { pw =>
+    pw.println(stringify(mentionsJSONLD, pretty = true))
+  }
 }
