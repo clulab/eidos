@@ -51,6 +51,7 @@ esforço
 estimativa
 evidência
 evento
+existência
 agravamento
 exposição
 expressão
@@ -63,6 +64,9 @@ achado
 forma
 formação
 frequencia
+frequência
+freqüencia
+ferramenta
 gene
 objetivo
 grupo

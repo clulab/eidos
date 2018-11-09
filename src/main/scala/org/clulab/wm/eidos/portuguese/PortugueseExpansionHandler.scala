@@ -1,7 +1,12 @@
 package org.clulab.wm.eidos.portuguese
 
+import org.clulab.odin.{EventMention, Mention, RelationMention, State}
 import org.clulab.wm.eidos.actions.{EnglishExpansionHandler, ExpansionHandler}
 import org.clulab.processors.Sentence
+import org.clulab.struct.Interval
+import org.clulab.wm.eidos.entities.EntityHelper
+
+import scala.annotation.tailrec
 
 // NOTE: Currently, we're using the same basic strategy for expansion as is used in the EnglishExpansionHandler
 class PortugueseExpansionHandler extends EnglishExpansionHandler {
@@ -38,6 +43,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     "^nmod_sem$".r,
     "^appos".r,
     "^acl$".r,
+    "cop".r
   )
 
   // FIXME: which are needed for PT?
@@ -85,7 +91,11 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     logger.debug(s"source:\t$sourceIndex")
     logger.debug(s"destination:\t$destIndex")
     logger.debug(s"dependency:\t$dependency")
-    val TO_CHECK = Set("amod", "xcomp")
+//    println(s"source: $sourceIndex")
+//    println(s"destination: $destIndex")
+//    println(s"dep: $dependency\n")
+    // TODO: decide whether or not to keep nsubj
+    val TO_CHECK = Set("amod", "xcomp", "nsubj")
     if (TO_CHECK.contains(dependency)) {
       // the traversal order may not correspond to the linear order of the tokens
       val trueStart = Seq(sourceIndex, destIndex).min
@@ -93,6 +103,47 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
       // we should NOT have a preceding comma if the current dep is amod
       ! sentence.words.slice(trueStart, trueEnd).contains(",")
     } else true
+  }
+
+  // New action designed to expand the args of relevant events only...
+  override def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
+    // themselves so that they can be added to the state (which happens when the Seq[Mentions] is returned at the
+    // end of the action
+    val expansionResult = for {
+      mention <- mentions
+      trigger = mention match {
+        case rm: RelationMention => None
+        case em: EventMention => Some(em.trigger)
+        case _ => throw new RuntimeException("Trying to get the trigger from a mention with no trigger")
+      }
+      // Avoid **ALL** Avoid* mentions!
+      stateToAvoid: State = {
+        val res1 = state.allMentions.filter(_.matches("Avoid.*".r))
+        val triggers: Seq[Mention] = if (trigger.nonEmpty) Seq(trigger.get) else Nil
+        State(res1 ++ triggers)
+      }
+
+      // Get the argument map with the *expanded* Arguments
+      expanded = for {
+        (argType, argMentions) <- mention.arguments
+        // Expand
+        expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = MAX_HOPS_EXPANDING, stateToAvoid))
+        // Handle the attachments for the newly expanded mention (make sure all previous and newly subsumed make it in!)
+        attached = expandedMentions.map(addSubsumedAttachments(_, state))
+        dctattached = attached.map(attachDCT(_, state))
+        propAttached = addOverlappingAttachmentsTextBounds(dctattached, state)
+        // Trim the edges as needed
+        trimmed = propAttached.map(EntityHelper.trimEntityEdges)
+      } yield (argType, trimmed)
+
+    } yield Seq(copyWithNewArgs(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
+
+    // Get all the new mentions for the state -- both the events with new args and the
+    val res = expansionResult.flatten
+
+    // Useful for debug
+    res
   }
 
   /**
