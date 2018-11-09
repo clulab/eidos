@@ -42,14 +42,14 @@ object FileUtils {
       case (Some(exception), None) => throw exception
       case (None, Some(exception)) => throw exception
       case (Some(exception), Some(closeException)) => (exception, closeException) match {
-        case (exception, NonFatal(closeException)) =>
+        case (exception, NonFatal(nonfatal)) =>
           // Put the potentially fatal one first.
-          exception.addSuppressed(closeException)
+          exception.addSuppressed(nonfatal)
           throw exception
-        case (NonFatal(exception), closeException) =>
+        case (NonFatal(nonfatal), exception) =>
           // Put the potentially fatal one first.
-          closeException.addSuppressed(exception)
-          throw closeException
+          exception.addSuppressed(nonfatal)
+          throw exception
         case (exception, closeException) =>
           // On tie, put exception before closeException.
           exception.addSuppressed(closeException)
