@@ -18,41 +18,43 @@ object FileUtils {
   // https://medium.com/@dkomanov/scala-try-with-resources-735baad0fd7d
   // This is so that exceptions caused during close are caught, but don't
   // prevent the registration of any previous exception.
-  def autoClose[A <: { def close(): Unit }, B](resource: => A)(f: A => B): B = {
-    var exception: Option[Throwable] = None
+  def autoClose[Closeable <: { def close(): Unit }, Result](resource: => Closeable)(function: Closeable => Result): Result = {
 
-    def closeResource(): Unit = {
-      Option(resource).map { resource =>
-        exception.map { exception =>
-          try {
-            resource.close()
-          }
-          catch {
-            case NonFatal(suppressed) =>
-              exception.addSuppressed(suppressed)
-            case fatal: Throwable if NonFatal(exception) =>
-              fatal.addSuppressed(exception)
-              throw fatal
-            case fatal: InterruptedException =>
-              fatal.addSuppressed(exception)
-              throw fatal
-            case fatal: Throwable =>
-              exception.addSuppressed(fatal)
-          }
-        }.getOrElse(resource.close())
-      }
-    }
-
-    try {
-      f(resource)
+    val (result: Option[Result], exception: Option[Throwable]) = try {
+      (Some(function(resource)), None)
     }
     catch {
-      case NonFatal(nonFatalException) =>
-        exception = Some(nonFatalException)
-        throw nonFatalException
+      case exception: Throwable => (None, Some(exception))
     }
-    finally {
-      closeResource()
+
+    val closeException: Option[Throwable] = Option(resource).map { resource =>
+      try {
+        resource.close()
+        None
+      }
+      catch {
+        case exception: Throwable => Some(exception)
+      }
+    }.getOrElse(None)
+
+    (exception, closeException) match {
+      case (None, None) => result.get
+      case (Some(exception), None) => throw exception
+      case (None, Some(exception)) => throw exception
+      case (Some(exception), Some(closeException)) => (exception, closeException) match {
+        case (exception, NonFatal(closeException)) =>
+          // Put the potentially fatal one first.
+          exception.addSuppressed(closeException)
+          throw exception
+        case (NonFatal(exception), closeException) =>
+          // Put the potentially fatal one first.
+          closeException.addSuppressed(exception)
+          throw closeException
+        case (exception, closeException) =>
+          // On tie, put exception before closeException.
+          exception.addSuppressed(closeException)
+          throw exception
+      }
     }
   }
 
