@@ -42,7 +42,6 @@ object ExtractAndExport extends App with Configured {
   val inputExtension = getArgString("apps.inputFileExtension", None)
   val exportAs = getArgStrings("apps.exportAs", None)
   val topN = getArgInt("apps.groundTopN", Some(5))
-
   val files = FileUtils.findFiles(inputDir, inputExtension)
   val reader = new EidosSystem()
 
@@ -50,14 +49,13 @@ object ExtractAndExport extends App with Configured {
   files.par.foreach { file =>
     // 1. Open corresponding output file and make all desired exporters
     println(s"Extracting from ${file.getName}")
-    val exporters = exportAs.map(getExporter(_, s"$outputDir/${file.getName}", topN))
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
     val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
     // 4. Export to all desired formats
-    exporters.foreach { exporter =>
-      FileUtils.autoClose(exporter) { exporter =>
+    exportAs.foreach { format =>
+      FileUtils.autoClose(getExporter(format, s"$outputDir/${file.getName}", topN)) { exporter =>
         exporter.export(annotatedDocuments)
       }
     }
@@ -77,7 +75,7 @@ case class JSONLDExporter(pw: PrintWriter, reader: EidosSystem) extends Exporter
     pw.println(stringify(mentionsJSONLD, pretty = true))
   }
 
-  override def close(): Unit = pw.close()
+  override def close(): Unit = Option(pw).map(_.close())
 }
 
 case class MitreExporter(pw: PrintWriter, reader: EidosSystem, filename: String, topN: Int) extends Exporter {
@@ -87,7 +85,7 @@ case class MitreExporter(pw: PrintWriter, reader: EidosSystem, filename: String,
     annotatedDocuments.foreach(printTableRows(_, pw, filename, reader))
   }
 
-  override def close(): Unit = pw.close()
+  override def close(): Unit = Option(pw).map(_.close())
 
   def header(): String = {
     "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
