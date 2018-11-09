@@ -12,26 +12,17 @@ import scala.annotation.tailrec
 class PortugueseExpansionHandler extends EnglishExpansionHandler {
 
   // FIXME: Is this appropriate for PT?
-  override val MAX_HOPS_EXPANDING = 5
+  override val MAX_HOPS_EXPANDING = 4
   override val AVOID_LABEL = "Avoid-Strict"
 
   // FIXME: which are needed for PT?
   // avoid expanding along these dependencies
   override val INVALID_OUTGOING = Set[scala.util.matching.Regex](
     //    "^nmod_including$".r,
-    //"acl:relcl".r,
-    "advcl_to".r,
-    "^advcl_because".r,
+    "acl:relcl".r,
     "^case".r,
     "^conj".r,
     "^cc$".r,
-    "^nmod_as".r,
-    "^nmod_because".r,
-    "^nmod_due_to".r,
-    "^nmod_except".r,
-    "^nmod_given".r,
-    "^nmod_since".r,
-    "^nmod_without$".r,
     "^punct".r,
     "^ref$".r,
     // portuguese
@@ -41,8 +32,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     "^nmod_desde".r,
     "^nmod_dentre".r,
     "^nmod_sem$".r,
-    "^appos".r,
-    "^acl$".r,
+    "^nmod_por$".r,
     "cop".r
   )
 
@@ -75,7 +65,27 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
   override val VALID_INCOMING = Set[scala.util.matching.Regex](
     "^amod$".r,
     "^compound$".r,
-    "^nmod_of".r
+    "mark".r
+    //"^nsubj:pass".r,
+  )
+
+
+  val INVALID_OUTGOING_COMMA =  Set[String](
+    "amod",
+    "xcomp",
+    "nsubj",
+    "acl",
+    "advcl",
+    "advmod",
+    "appos",
+    "conj",
+    "det",
+    "obl"
+
+  )
+
+  val INVALID_INCOMING_COMMA =  Set[String](
+  "acl",
   )
 
   /**
@@ -86,17 +96,16 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     * @param dependency A syntactic dependency (the relation's label)
     * @return Boolean indicating whether or not the expansion introduces an intervening comma
     */
-  def noInterveningComma(sentence: Sentence, sourceIndex: Int, destIndex: Int, dependency: String): Boolean = {
+  def noInterveningComma(sentence: Sentence, sourceIndex: Int, destIndex: Int, dependency: String, depToCheck: Set[String]): Boolean = {
     // check to see if any intervening tokens are ",
     logger.debug(s"source:\t$sourceIndex")
     logger.debug(s"destination:\t$destIndex")
     logger.debug(s"dependency:\t$dependency")
-//    println(s"source: $sourceIndex")
-//    println(s"destination: $destIndex")
-//    println(s"dep: $dependency\n")
+    println(s"source: $sourceIndex")
+    println(s"destination: $destIndex")
+    println(s"dep: $dependency\n")
     // TODO: decide whether or not to keep nsubj
-    val TO_CHECK = Set("amod", "xcomp", "nsubj")
-    if (TO_CHECK.contains(dependency)) {
+    if (depToCheck.contains(dependency)) {
       // the traversal order may not correspond to the linear order of the tokens
       val trueStart = Seq(sourceIndex, destIndex).min
       val trueEnd = Seq(sourceIndex, destIndex).max
@@ -161,16 +170,33 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     sentence: Sentence
   ): Boolean = {
     val token: String = sentence.words(destIndex)
-
     (
       VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
         ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
-        noInterveningComma(sentence, sourceIndex, destIndex, dependency = dep)
+        noInterveningComma(sentence, sourceIndex, destIndex, dependency = dep, INVALID_OUTGOING_COMMA)
       ) || (
       // Allow exception to close parens, etc.
       dep == "punct" && Seq(")", "]", "}", "-RRB-").contains(token)
       )
   }
+
+  /**
+    * Ensure incoming dependency may be safely traversed
+    * @param dep A syntactic dependency (the relation's label)
+    * @param sourceIndex The token index from which the traversal begins
+    * @param destIndex The token index to which the traversal leads
+    * @param sentence An org.clulab.processors.Sentence
+    * @return Boolean indicating whether or not the traversal is legal
+    */
+  override def isValidIncomingDependency(
+    dep: String,
+    sourceIndex: Int,
+    destIndex: Int,
+    sentence: Sentence
+  ): Boolean = {
+    VALID_INCOMING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) && noInterveningComma(sentence, sourceIndex, destIndex, dependency = dep, INVALID_INCOMING_COMMA)
+  }
+
 }
 
 object PortugueseExpansionHandler {

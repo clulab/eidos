@@ -110,7 +110,7 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
   // avoided thing and keep the half containing the original (pre-expansion) entity.
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
     val expanded = expand(orig, maxHops = MAX_HOPS_EXPANDING, stateToAvoid)
-    //println(s"orig: ${orig.text}\texpanded: ${expanded.text}")
+    println(s"orig: ${orig.text}\texpanded: ${expanded.text}")
 
     // split expanded at trigger (only thing in state to avoid)
     val triggerOption = stateToAvoid.mentionsFor(orig.sentence).headOption
@@ -153,7 +153,8 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
     val incomingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval1)
     // Expand on outgoing deps
     val interval2 = traverseOutgoingLocal(incomingExpanded, maxHops, stateFromAvoid, entity.sentenceObj)
-    val outgoingExpanded = incomingExpanded.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
+    val outgoingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
+
 
     outgoingExpanded
   }
@@ -195,24 +196,24 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
   /** Used by expand to selectively traverse the provided syntactic dependency graph **/
   @tailrec
   private def traverseIncomingLocal(
-                                     tokens: Set[Int],
-                                     newTokens: Set[Int],
-                                     incomingRelations: Array[Array[(Int, String)]],
-                                     remainingHops: Int,
-                                     sent: Int,
-                                     state: State,
-                                     sentence: Sentence
-
-                                   ): Interval = {
+    tokens: Set[Int],
+    newTokens: Set[Int],
+    incomingRelations: Array[Array[(Int, String)]],
+    remainingHops: Int,
+    sent: Int,
+    state: State,
+    sentence: Sentence
+  ): Interval = {
     if (remainingHops == 0) {
       val allTokens = tokens ++ newTokens
       Interval(allTokens.min, allTokens.max + 1)
     } else {
+      val sourceIdx = (tokens ++ newTokens).min // earliest in current set
       val newNewTokens = for{
         tok <- newTokens
         if incomingRelations.nonEmpty && tok < incomingRelations.length
         (nextTok, dep) <- incomingRelations(tok)
-        if isValidIncomingDependency(dep)
+        if isValidIncomingDependency(dep = dep, sourceIndex = sourceIdx, destIndex = nextTok, sentence = sentence)
         if state.mentionsFor(sent, nextTok).isEmpty
       } yield nextTok
       traverseIncomingLocal(tokens ++ newTokens, newNewTokens, incomingRelations, remainingHops - 1, sent, state, sentence)
@@ -260,8 +261,20 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
       )
   }
 
-  /** Ensure incoming dependency may be safely traversed */
-  def isValidIncomingDependency(dep: String): Boolean = {
+  /**
+    * Ensure incoming dependency may be safely traversed
+    * @param dep A syntactic dependency (the relation's label)
+    * @param sourceIndex The token index from which the traversal begins
+    * @param destIndex The token index to which the traversal leads
+    * @param sentence An org.clulab.processors.Sentence
+    * @return Boolean indicating whether or not the traversal is legal
+    */
+  def isValidIncomingDependency(
+    dep: String,
+    sourceIndex: Int,
+    destIndex: Int,
+    sentence: Sentence
+  ): Boolean = {
     VALID_INCOMING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
   }
 
