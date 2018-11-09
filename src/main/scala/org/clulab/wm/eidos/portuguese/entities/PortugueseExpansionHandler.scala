@@ -1,12 +1,9 @@
-package org.clulab.wm.eidos.portuguese
+package org.clulab.wm.eidos.portuguese.entities
 
 import org.clulab.odin.{EventMention, Mention, RelationMention, State}
-import org.clulab.wm.eidos.actions.{EnglishExpansionHandler, ExpansionHandler}
 import org.clulab.processors.Sentence
-import org.clulab.struct.Interval
+import org.clulab.wm.eidos.actions.EnglishExpansionHandler
 import org.clulab.wm.eidos.entities.EntityHelper
-
-import scala.annotation.tailrec
 
 // NOTE: Currently, we're using the same basic strategy for expansion as is used in the EnglishExpansionHandler
 class PortugueseExpansionHandler extends EnglishExpansionHandler {
@@ -33,6 +30,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     "^nmod_dentre".r,
     "^nmod_sem$".r,
     "^nmod_por$".r,
+    "^nmod_com$".r,
     "cop".r
   )
 
@@ -73,6 +71,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
   val INVALID_OUTGOING_COMMA =  Set[String](
     "amod",
     "xcomp",
+    "ccomp",
     "nsubj",
     "acl",
     "advcl",
@@ -85,7 +84,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
   )
 
   val INVALID_INCOMING_COMMA =  Set[String](
-  "acl",
+  "acl"
   )
 
   /**

@@ -8,4 +8,6 @@ trait EntityFinder {
 
   def extract(doc: Document): Seq[Mention]
 
+  def extractAndFilter(doc: Document): Seq[Mention]
+
 }

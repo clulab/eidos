@@ -12,7 +12,7 @@ import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.attachments.NegationHandler._
-import org.clulab.wm.eidos.entities.EidosEntityFinder
+import org.clulab.wm.eidos.entities.{EidosEntityFinder, EntityFinder}
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
@@ -24,7 +24,7 @@ import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.wm.eidos.actions.{EnglishExpansionHandler, ExpansionHandler}
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
-import org.clulab.wm.eidos.portuguese.PortugueseExpansionHandler
+import org.clulab.wm.eidos.portuguese.entities.{PortugueseEntityFinder, PortugueseExpansionHandler}
 
 import scala.annotation.tailrec
 
@@ -65,7 +65,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   class LoadableAttributes(
     // These are the values which can be reloaded.  Query them for current assignments.
-    val entityFinder: EidosEntityFinder,
+    val entityFinder: EntityFinder,
     val domainParams: DomainParams,
     val adjectiveGrounder: AdjectiveGrounder,
     val actions: EidosActions,
@@ -127,11 +127,23 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     //private def mkExpansionHandler[T <: ExpansionHandler](config: Config): T = {
     private def mkExpansionHandler(config: Config): ExpansionHandler = {
       language match {
-        case "english" => new EnglishExpansionHandler()
+        case "english"    => new EnglishExpansionHandler()
         case "portuguese" => new PortugueseExpansionHandler()
         case _ =>
           // FIXME: warn that this is undefined
           new EnglishExpansionHandler()
+      }
+    }
+
+    private def mkEntityFinder(config: Config): EntityFinder = {
+      language match {
+        case "english"    =>
+          EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
+        case "portuguese" =>
+          PortugueseEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
+        case _ =>
+          // FIXME: warn that this is undefined
+          EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
       }
     }
 
@@ -228,7 +240,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       }
 
       new LoadableAttributes(
-        EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
+        mkEntityFinder(config),
         DomainParams(domainParamKBPath),
         EidosAdjectiveGrounder(quantifierKBPath),
         actions,

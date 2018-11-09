@@ -531,9 +531,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     }
   }
 
-
-
-
 }
 
 object EidosActions extends Actions {
