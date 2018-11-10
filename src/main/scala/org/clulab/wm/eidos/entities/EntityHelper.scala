@@ -103,7 +103,11 @@ object EntityHelper {
     "^IN".r,
     "^TO".r,
     "^DT".r,
-    ",".r
+    ",".r,
+    // PORTUGUESE
+    "PRON".r,
+    //"ADP".r,
+    "DET".r
     //"[!\"#$%&'*+,-\\./:;<=>?@\\^_`{|}~]".r
   )
 

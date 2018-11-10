@@ -10,96 +10,76 @@ import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 import org.clulab.wm.eidos.utils.MentionUtils
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
 
-  val MAX_HOPS_EXPANDING = 5
-  val AVOID_LABEL = "Avoid-Strict"
-
-  // avoid expanding along these dependencies
-  val INVALID_OUTGOING = Set[scala.util.matching.Regex](
-    //    "^nmod_including$".r,
-    "acl:relcl".r,
-    "advcl_to".r,
-    "^advcl_because".r,
-    "^case".r,
-    "^conj".r,
-    "^cc$".r,
-    "^nmod_as".r,
-    "^nmod_because".r,
-    "^nmod_due_to".r,
-    "^nmod_except".r,
-    "^nmod_given".r,
-    "^nmod_since".r,
-    "^nmod_without$".r,
-    "^punct".r,
-    "^ref$".r
-  )
-
-  val INVALID_INCOMING = Set[scala.util.matching.Regex](
-    //"^nmod_with$".r,
-    //    "^nmod_without$".r,
-    //    "^nmod_except$".r
-    //    "^nmod_despite$".r
-  )
-
-  // regexes describing valid outgoing dependencies
-  val VALID_OUTGOING = Set[scala.util.matching.Regex](
-    //    "^amod$".r, "^advmod$".r,
-    //    "^dobj$".r,
-    //    "^compound".r, // replaces nn
-    //    "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
-    //    // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X.
-    //    "^acl_to".r, // replaces vmod
-    //    "xcomp".r, // replaces vmod
-    //    // Changed from processors......
-    //    "^nmod".r, // replaces prep_
-    //    //    "case".r
-    //    "^ccomp".r
-    ".+".r
-  )
-
-  val VALID_INCOMING = Set[scala.util.matching.Regex](
-    "^amod$".r,
-    "^compound$".r,
-    "^nmod_of".r
-  )
-
-  // New action designed to expand the args of relevant events only...
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
     // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
     // themselves so that they can be added to the state (which happens when the Seq[Mentions] is returned at the
     // end of the action
-    val expansionResult = for {
-      mention <- mentions
-      trigger = mention match {
-        case rm: RelationMention => None
-        case em: EventMention => Some(em.trigger)
-        case _ => throw new RuntimeException("Trying to get the trigger from a mention with no trigger")
-      }
-      stateToAvoid = if (trigger.nonEmpty) State(Seq(trigger.get)) else new State()
-
-      // Get the argument map with the *expanded* Arguments
-      expanded = for {
-        (argType, argMentions) <- mention.arguments
-        // Expand
-        expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = MAX_HOPS_EXPANDING, stateToAvoid))
-        // Handle the attachments for the newly expanded mention (make sure all previous and newly subsumed make it in!)
-        attached = expandedMentions.map(addSubsumedAttachments(_, state))
-        dctattached = attached.map(attachDCT(_, state))
-        propAttached = addOverlappingAttachmentsTextBounds(dctattached, state)
-        // Trim the edges as needed
-        trimmed = propAttached.map(EntityHelper.trimEntityEdges)
-      } yield (argType, trimmed)
-
-    } yield Seq(copyWithNewArgs(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
-
-    // Get all the new mentions for the state -- both the events with new args and the
-    val res = expansionResult.flatten
+    val res = mentions.flatMap(expandArgs(_, state))
 
     // Useful for debug
     res
   }
+
+  def expandArgs(m: Mention, state: State): Seq[Mention] = {
+    // Helper method to figure out which mentions are the closest to the trigger
+    def distToTrigger(trigger: Option[TextBoundMention], m: Mention): Int = {
+      if (trigger.isDefined) {
+        // get the trigger
+        val t = trigger.get
+        if (m.start < t.start) {
+          // mention to the left of the trigger
+          math.abs(t.start - m.end)
+        } else if (m.start > t.end) {
+          // mention to the right of the trigger
+          math.abs(m.start - t.end)
+        } else {
+          logger.debug(s"Unexpected overlap of trigger and argument: \n\t" +
+            s"sent: [${m.sentenceObj.getSentenceText}]\n\tRULE: " +
+            s"${t.foundBy}\n\ttrigger: ${t.text}\torig: [${m.text}]\n")
+          m.start
+        }
+      } else {
+        m.start
+      }
+    }
+    // Get the trigger of the mention, if there is one
+    val trigger = m match {
+      case rm: RelationMention => None
+      case em: EventMention => Some(em.trigger)
+      case _ => throw new RuntimeException("Trying to get the trigger from a mention with no trigger")
+    }
+    var stateToAvoid = if (trigger.nonEmpty) State(Seq(trigger.get)) else new State()
+
+    // Make the new arguments
+    val newArgs = scala.collection.mutable.HashMap[String, Seq[Mention]]()
+    for ((argType, argMentions) <- m.arguments) {
+      // Sort, because we want to expand the closest first so they don't get subsumed
+      val sortedClosestFirst = argMentions.sortBy(distToTrigger(trigger, _))
+      val expandedArgs = new ArrayBuffer[Mention]
+      // Expand each one, updating the state as we go
+      for (argToExpand <- sortedClosestFirst) {
+        val expanded = expandIfNotAvoid(argToExpand, maxHops = EnglishExpansionHandler.MAX_HOPS_EXPANDING, stateToAvoid)
+        expandedArgs.append(expanded)
+        // Add the mention to the ones to avoid so we don't suck it up
+        stateToAvoid = stateToAvoid.updated(Seq(expanded))
+      }
+      // Handle attachments
+      val attached = expandedArgs
+        .map(addSubsumedAttachments(_, state))
+        .map(attachDCT(_, state))
+        .map(addOverlappingAttachmentsTextBounds(_, state))
+        .map(EntityHelper.trimEntityEdges)
+      // Store
+      newArgs.put(argType, attached)
+    }
+    // Return the event with the expanded args as well as the arg mentions themselves
+    Seq(copyWithNewArgs(m, newArgs.toMap)) ++ newArgs.values.toSeq.flatten
+  }
+
 
 
   /*
@@ -109,8 +89,8 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
   // Do the expansion, but if the expansion causes you to suck up something we wanted to avoid, split at the
   // avoided thing and keep the half containing the original (pre-expansion) entity.
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
-    val expanded = expand(orig, maxHops = MAX_HOPS_EXPANDING, stateToAvoid)
-    println(s"orig: ${orig.text}\texpanded: ${expanded.text}")
+    val expanded = expand(orig, maxHops = EnglishExpansionHandler.MAX_HOPS_EXPANDING, stateToAvoid)
+    //println(s"orig: ${orig.text}\texpanded: ${expanded.text}")
 
     // split expanded at trigger (only thing in state to avoid)
     val triggerOption = stateToAvoid.mentionsFor(orig.sentence).headOption
@@ -153,8 +133,7 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
     val incomingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval1)
     // Expand on outgoing deps
     val interval2 = traverseOutgoingLocal(incomingExpanded, maxHops, stateFromAvoid, entity.sentenceObj)
-    val outgoingExpanded = entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
-
+    val outgoingExpanded = incomingExpanded.asInstanceOf[TextBoundMention].copy(tokenInterval = interval2)
 
     outgoingExpanded
   }
@@ -236,14 +215,8 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
     case Some(dependencies) => dependencies.incomingEdges
   }
 
-  /**
-    * Ensure dependency may be safely traversed
-    * @param dep A syntactic dependency (the relation's label)
-    * @param sourceIndex The token index from which the traversal begins
-    * @param destIndex The token index to which the traversal leads
-    * @param sentence An org.clulab.processors.Sentence
-    * @return Boolean indicating whether or not the traversal is legal
-    */
+  /** Ensure dependency may be safely traversed */
+
   def isValidOutgoingDependency(
     dep: String,
     sourceIndex: Int,
@@ -253,14 +226,13 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
     val token: String = sentence.words(destIndex)
 
     (
-      VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
-        ! INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
+      EnglishExpansionHandler.VALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty) &&
+        ! EnglishExpansionHandler.INVALID_OUTGOING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
       ) || (
       // Allow exception to close parens, etc.
       dep == "punct" && Seq(")", "]", "}", "-RRB-").contains(token)
       )
   }
-
   /**
     * Ensure incoming dependency may be safely traversed
     * @param dep A syntactic dependency (the relation's label)
@@ -275,14 +247,14 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
     destIndex: Int,
     sentence: Sentence
   ): Boolean = {
-    VALID_INCOMING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
+    EnglishExpansionHandler.VALID_INCOMING.exists(pattern => pattern.findFirstIn(dep).nonEmpty)
   }
 
   def notInvalidConjunction(dep: String, hopsRemaining: Int): Boolean = {
     // If it's not a coordination/conjunction, don't worry
     if (EntityConstraints.COORD_DEPS.exists(pattern => pattern.findFirstIn(dep).isEmpty)) {
       return true
-    } else if (hopsRemaining < MAX_HOPS_EXPANDING) {
+    } else if (hopsRemaining < EnglishExpansionHandler.MAX_HOPS_EXPANDING) {
       // if it has a coordination/conjunction, check to make sure not at the top level (i.e. we've traversed
       // something already
       return true
@@ -294,7 +266,7 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
   /** Ensure current token does not have any incoming dependencies that are invalid **/
   def hasValidIncomingDependencies(tokenIdx: Int, incomingDependencies: Array[Array[(Int, String)]]): Boolean = {
     if (incomingDependencies.nonEmpty && tokenIdx < incomingDependencies.length) {
-      incomingDependencies(tokenIdx).forall(pair => ! INVALID_INCOMING.exists(pattern => pattern.findFirstIn(pair._2).nonEmpty))
+      incomingDependencies(tokenIdx).forall(pair => ! EnglishExpansionHandler.INVALID_INCOMING.exists(pattern => pattern.findFirstIn(pair._2).nonEmpty))
     } else true
   }
 
@@ -370,16 +342,15 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
       m
   }
 
-  def addOverlappingAttachmentsTextBounds(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-    } yield m match {
+  def addOverlappingAttachmentsTextBounds(m: Mention, state: State): Mention = {
+    m match {
       case tb: TextBoundMention =>
         val attachments = getOverlappingAttachments(tb, state)
         if (attachments.nonEmpty) tb.copy(attachments = tb.attachments ++ attachments) else tb
       case _ => m
     }
   }
+
 
   def getOverlappingAttachments(m: Mention, state: State): Set[Attachment] = {
     val interval = m.tokenInterval
@@ -389,9 +360,61 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
   }
 
 
-
 }
 
 object EnglishExpansionHandler {
+
+  val MAX_HOPS_EXPANDING = 5
+  val AVOID_LABEL = "Avoid-Strict"
+
+  // avoid expanding along these dependencies
+  val INVALID_OUTGOING = Set[scala.util.matching.Regex](
+    //    "^nmod_including$".r,
+    "acl:relcl".r,
+    "advcl_to".r,
+    "^advcl_because".r,
+    "^case".r,
+    "^conj".r,
+    "^cc$".r,
+    "^nmod_as".r,
+    "^nmod_because".r,
+    "^nmod_due_to".r,
+    "^nmod_except".r,
+    "^nmod_given".r,
+    "^nmod_since".r,
+    "^nmod_without$".r,
+    "^punct".r,
+    "^ref$".r
+  )
+
+  val INVALID_INCOMING = Set[scala.util.matching.Regex](
+    //"^nmod_with$".r,
+    //    "^nmod_without$".r,
+    //    "^nmod_except$".r
+    //    "^nmod_despite$".r
+  )
+
+  // regexes describing valid outgoing dependencies
+  val VALID_OUTGOING = Set[scala.util.matching.Regex](
+    //    "^amod$".r, "^advmod$".r,
+    //    "^dobj$".r,
+    //    "^compound".r, // replaces nn
+    //    "^name".r, // this is equivalent to compound when NPs are tagged as named entities, otherwise unpopulated
+    //    // ex.  "isotonic fluids may reduce the risk" -> "isotonic fluids may reduce the risk associated with X.
+    //    "^acl_to".r, // replaces vmod
+    //    "xcomp".r, // replaces vmod
+    //    // Changed from processors......
+    //    "^nmod".r, // replaces prep_
+    //    //    "case".r
+    //    "^ccomp".r
+    ".+".r
+  )
+
+  val VALID_INCOMING = Set[scala.util.matching.Regex](
+    "^amod$".r,
+    "^compound$".r,
+    "^nmod_of".r
+  )
+
   def apply() = new EnglishExpansionHandler()
 }

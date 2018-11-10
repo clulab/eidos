@@ -6,4 +6,5 @@ import org.clulab.odin._
 trait ExpansionHandler {
 
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention]
+
 }
