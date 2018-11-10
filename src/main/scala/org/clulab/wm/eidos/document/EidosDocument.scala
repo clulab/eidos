@@ -78,13 +78,13 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
       geolocs(index) = {
         val words = sentence.raw
         val features = geo_disambiguate.makeFeatures(words)
-        val labels = geo_disambiguate.makeLabels(features)
-        val norms = sentence.norms.get.zip(labels).map { case (norm, label) =>
-          if (label == "O") norm else "LOC"
+        val labelIndexes = geo_disambiguate.makeLabels(features)
+        val norms = sentence.norms.get.zip(labelIndexes).map { case (norm, labelIndex) =>
+          if (labelIndex == GeoDisambiguateParser.O_LOC) norm else "LOC"
         }
 
         sentence.norms = Some(norms) // Updating the norms here
-        geo_disambiguate.makeGeoLocations(labels, words, sentence.startOffsets, sentence.endOffsets)
+        geo_disambiguate.makeGeoLocations(labelIndexes, words, sentence.startOffsets, sentence.endOffsets)
       }
     }
   }

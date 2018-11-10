@@ -9,7 +9,9 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object GeoDisambiguateParser {
-  val INT2LABEL = Map(0 -> "I-LOC", 1 -> "B-LOC", 2 -> "O")
+  val I_LOC = 0
+  val B_LOC = 1
+  val O_LOC = 2
   val UNKNOWN_TOKEN = "UNKNOWN_TOKEN"
   val TIME_DISTRIBUTED_1 = "time_distributed_1"
 }
@@ -41,7 +43,7 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
     features
   }
 
-  def makeLabels(features: Array[Float]): Array[String] = {
+  def makeLabels(features: Array[Float]): Array[Int] = {
 
     def argmax(values: Array[Float]): Int = {
       // This goes through the values twice, but at least it doesn't create extra objects.
@@ -60,47 +62,38 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
         if (output.shape()(0) == 1) Array(output.toFloatVector)
         else output.toFloatMatrix
 
-    predictions.map(prediction => GeoDisambiguateParser.INT2LABEL(argmax(prediction)))
+    predictions.map(prediction => argmax(prediction))
   }
 
-  def makeGeoLocations(labels: Array[String], words: Array[String],
+  def makeGeoLocations(labelIndexes: Array[Int], words: Array[String],
       startOffsets: Array[Int], endOffsets: Array[Int]): List[GeoPhraseID] = {
-    var locations = new ListBuffer[GeoPhraseID]
-    var locationPhrase = ""
-    var startIndex = 0
 
-    def addLocation(index: Int) = {
-      val prettyLocationPhrase = locationPhrase.replace('_', ' ')
-      val geoNameId = loc2geonameID.get(locationPhrase.toLowerCase)
-      // The word at index has ended previously, so use index - 1.
-      val endIndex = index - 1
+    def newGeoPhraseID(startIndex: Int, endIndex: Int): GeoPhraseID = {
+      val sliceWords = words.slice(startIndex, endIndex)
+      val prettyLocationPhrase = words.mkString(" ")
+      val locationPhrase = prettyLocationPhrase.replace(' ', '_').toLowerCase
+      val geoNameId = loc2geonameID.get(locationPhrase)
 
-      locations += GeoPhraseID(prettyLocationPhrase, geoNameId, startOffsets(startIndex), endOffsets(endIndex))
+      GeoPhraseID(prettyLocationPhrase, geoNameId, startOffsets(startIndex), endOffsets(endIndex))
     }
 
-    for ((label, index) <- labels.zipWithIndex) {
-      if (label == "B-LOC") {
-        if (locationPhrase.nonEmpty)
-          addLocation(index)
-        locationPhrase = words(index) // initializing the location phrase with current word
-        startIndex = index
-      }
-      else if (label == "I-LOC") {
-        if (locationPhrase.nonEmpty)
-          locationPhrase += ("_" + words(index))
-        else {
-          locationPhrase = words(index)
-          startIndex = index // This case means that we are getting I-LOC but there was no B-LOC before this step.
-        }
-      }
-      else if (label == "O") {
-        if (locationPhrase.nonEmpty)
-          addLocation(index)
-        locationPhrase = ""
-      }
+    val startIndexes = labelIndexes.indices.filter { index =>
+      val labelIndex = labelIndexes(index)
+
+      labelIndex == GeoDisambiguateParser.B_LOC || ( // beginning of a location
+        labelIndex == GeoDisambiguateParser.I_LOC && ( // inside of a location if
+            index == 0 || // labels start immediately on I_LOC
+            labelIndexes(index - 1) == GeoDisambiguateParser.O_LOC // or without B_LOC or I_LOC preceeding
+        )
+      )
     }
-    if (locationPhrase.nonEmpty)
-      addLocation(labels.size)
-    locations.toList
+    val result = startIndexes.map { startIndex =>
+      val endIndex = labelIndexes.indexOf(GeoDisambiguateParser.O_LOC, startIndex + 1)
+
+      // If not found, endIndex == -1, then use one off the end
+      newGeoPhraseID(startIndex, if (endIndex == -1) labelIndexes.size else endIndex)
+    }
+
+    result.toList
   }
 }
