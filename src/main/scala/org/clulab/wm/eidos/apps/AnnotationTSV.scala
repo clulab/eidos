@@ -8,6 +8,7 @@ import org.clulab.struct.Counter
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
+import org.clulab.wm.eidos.utils.Closer
 import org.clulab.wm.eidos.utils.FileUtils
 import ai.lum.common.StringUtils._
 
@@ -120,8 +121,8 @@ object AnnotationTSV extends App with Configured {
 
   val timestamp = Calendar.getInstance.getTime
 
-  FileUtils.autoClose(FileUtils.printWriterFromFile(s"$outputDir/rule_annotation.tsv")) { sheet1 =>
-    FileUtils.autoClose(FileUtils.printWriterFromFile(s"$outputDir/rule_summary.tsv")) { sheet2 =>
+  Closer.autoClose(FileUtils.printWriterFromFile(s"$outputDir/rule_annotation.tsv")) { sheet1 =>
+    Closer.autoClose(FileUtils.printWriterFromFile(s"$outputDir/rule_summary.tsv")) { sheet2 =>
 
       // Sheet 1 -- Extraction Data
       sheet1.println(header(timestamp))

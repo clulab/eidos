@@ -1,10 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileInputStream, ObjectInputStream}
-
-import org.clulab.utils.ClassLoaderObjectInputStream
 import org.clulab.wm.eidos.utils.Namer
-import org.slf4j.LoggerFactory
 
 trait DomainOntology {
 

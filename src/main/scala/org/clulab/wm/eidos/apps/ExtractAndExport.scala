@@ -13,6 +13,7 @@ import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.utils.Closer
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
 
@@ -55,7 +56,7 @@ object ExtractAndExport extends App with Configured {
     val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
     // 4. Export to all desired formats
     exportAs.foreach { format =>
-      FileUtils.autoClose(getExporter(format, s"$outputDir/${file.getName}", topN)) { exporter =>
+      Closer.autoClose(getExporter(format, s"$outputDir/${file.getName}", topN)) { exporter =>
         exporter.export(annotatedDocuments)
       }
     }

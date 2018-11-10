@@ -81,7 +81,7 @@ object TreeDomainOntology {
     val logger = LoggerFactory.getLogger(this.getClass())
 
     logger.info(s"Loading serialized Ontology from $path")
-    val domainOntology = FileUtils.load[TreeDomainOntology](path)
+    val domainOntology = FileUtils.load[TreeDomainOntology](path, this)
     logger.info("Serialized Ontology successfully loaded.")
     domainOntology
   }

@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.context
 
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Closer
 import org.clulab.wm.eidos.utils.Sourcer
 import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
@@ -26,7 +26,7 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
     // TODO make nonmutable by using plain .map
     val dict = mutable.Map.empty[String, Int]
 
-    FileUtils.autoClose(Sourcer.sourceFromResource(dictPath)) { source =>
+    Closer.autoClose(Sourcer.sourceFromResource(dictPath)) { source =>
       source.getLines.foreach { line =>
         val words = line.split(' ')
 

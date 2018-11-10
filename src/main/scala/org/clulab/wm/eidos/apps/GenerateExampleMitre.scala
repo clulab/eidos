@@ -5,6 +5,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.DisplayUtils.{displayMention, displayMentions}
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.mentions.EidosTextBoundMention
+import org.clulab.wm.eidos.utils.Closer
 import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.collection.Seq
@@ -38,7 +39,7 @@ object GenerateExampleMitre extends App {
   val mentionsJSONLD = corpus.serialize()
 
   // Write
-  FileUtils.autoClose(FileUtils.printWriterFromFile("example_mar6.jsonld")) { pw =>
+  Closer.autoClose(FileUtils.printWriterFromFile("example_mar6.jsonld")) { pw =>
     pw.println(stringify(mentionsJSONLD, pretty = true))
   }
 }

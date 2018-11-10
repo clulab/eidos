@@ -1,10 +1,10 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileInputStream, FileOutputStream, ObjectOutputStream}
+import java.io.{FileOutputStream, ObjectOutputStream}
 
 import org.clulab.embeddings.word2vec.Word2Vec
-import org.clulab.utils.ClassLoaderObjectInputStream
 
+import org.clulab.wm.eidos.utils.Closer
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
@@ -36,7 +36,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
   def save(filename: String): Unit = {
     val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
 
-    FileUtils.autoClose(new ObjectOutputStream(new FileOutputStream(filename))) { objectOutputStream =>
+    Closer.autoClose(new ObjectOutputStream(new FileOutputStream(filename))) { objectOutputStream =>
       // Writing is performed in two steps so that the parts can be
       // processed separately when read back in.
       objectOutputStream.writeObject(words)
@@ -187,22 +187,12 @@ object CompactWord2Vec {
   }
 
   protected def loadTxt(filename: String, resource: Boolean): BuildType = {
-    FileUtils.autoClose(
+    Closer.autoClose(
       if (resource) Sourcer.sourceFromResource(filename)
       else Sourcer.sourceFromFile(filename)
     ) { source =>
       val lines = source.getLines()
       buildMatrix(lines)
-    }
-  }
-
-  def updatedLoad[A](filename: String, classProvider: Any = this): A = {
-    FileUtils.autoClose(new FileInputStream(filename)) { fileInputStream =>
-      val classLoader = classProvider.getClass().getClassLoader()
-
-      FileUtils.autoClose(new ClassLoaderObjectInputStream(classLoader, fileInputStream)) { objectInputStream =>
-        objectInputStream.readObject().asInstanceOf[A]
-      }
     }
   }
 
@@ -214,9 +204,7 @@ object CompactWord2Vec {
 //    (map, array)
 
     // This is "unrolled" for performance purposes.
-    val classLoader = this.getClass().getClassLoader()
-
-    FileUtils.autoClose(new ClassLoaderObjectInputStream(classLoader, new FileInputStream(filename))) { objectInputStream =>
+    Closer.autoClose(FileUtils.newClassLoaderObjectInputStream(filename, this)) { objectInputStream =>
       val map: MapType = new MutableMapType()
 
       {
