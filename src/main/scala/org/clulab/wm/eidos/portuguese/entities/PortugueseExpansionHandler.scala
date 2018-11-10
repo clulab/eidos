@@ -5,7 +5,7 @@ import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.actions.EnglishExpansionHandler
 import org.clulab.wm.eidos.entities.EntityHelper
 
-// NOTE: Currently, we're using the same basic strategy for expansion as is used in the EnglishExpansionHandler
+// FIXME: Currently, we're using the same basic strategy for expansion as is used in the EnglishExpansionHandler, as it contains much of the logic for copying Attachments.
 class PortugueseExpansionHandler extends EnglishExpansionHandler {
 
   /**
@@ -40,43 +40,40 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
   // New action designed to expand the args of relevant events only...
   // FIXME: instead consider overriding EnglishExpansionHandler.expandArgs for our purposes
   override def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
-    // themselves so that they can be added to the state (which happens when the Seq[Mentions] is returned at the
-    // end of the action
-    val expansionResult = for {
-      mention <- mentions
-      trigger = mention match {
+    // Yields not only the mention with newly expanded arguments, but also the expanded argument mentions
+    // themselves so that they can be added to the state (which happens when the Seq[Mention] is returned at the
+    // end of the action)
+    val expansionResult = mentions.map{ mention =>
+      val trigger = mention match {
         case rm: RelationMention => None
         case em: EventMention => Some(em.trigger)
         case _ => throw new RuntimeException("Trying to get the trigger from a mention with no trigger")
       }
-      // Avoid **ALL** Avoid* mentions!
-      stateToAvoid: State = {
-        val res1 = state.allMentions.filter(_.matches("Avoid.*".r))
+      // Avoid **ALL** /Avoid.*/ mentions!
+      val stateToAvoid: State = {
+        val avoidMentions = state.allMentions.filter(_.matches("Avoid.*".r))
         val triggers: Seq[Mention] = if (trigger.nonEmpty) Seq(trigger.get) else Nil
-        State(res1 ++ triggers)
+        State(avoidMentions ++ triggers)
       }
 
-      // Get the argument map with the *expanded* Arguments
-      expanded = for {
-        (argType, argMentions) <- mention.arguments
+      // Get the argument map with the *expanded* args
+      val expanded: Map[String, Seq[Mention]] = mention.arguments.map{ case (argType: String, argMentions: Seq[Mention]) =>
         // Expand
-        expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = PortugueseExpansionHandler.MAX_HOPS_EXPANDING, stateToAvoid))
+        val expandedMentions = argMentions.map(expandIfNotAvoid(_, maxHops = PortugueseExpansionHandler.MAX_HOPS_EXPANDING, stateToAvoid))
         // Handle the attachments for the newly expanded mention (make sure all previous and newly subsumed make it in!)
-        attached         = expandedMentions.map(addSubsumedAttachments(_, state))
-        dctattached      = attached.map(attachDCT(_, state))
-        propAttached     = addOverlappingAttachmentsTextBounds(dctattached, state)
+        val attached         = expandedMentions.map(addSubsumedAttachments(_, state))
+        val dctattached      = attached.map(attachDCT(_, state))
+        val propAttached     = addOverlappingAttachmentsTextBounds(dctattached, state)
         // Trim the edges as needed
-        trimmed          = propAttached.map(edge => EntityHelper.trimEntityEdges(edge, PortugueseEntityFinder.INVALID_EDGE_TAGS))
-      } yield (argType, trimmed)
+        val trimmed          = propAttached.map(edge => EntityHelper.trimEntityEdges(edge, PortugueseEntityFinder.INVALID_EDGE_TAGS))
+        (argType, trimmed)
+      }
 
-    } yield Seq(copyWithNewArgs(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten
+      Seq(copyWithNewArgs(mention, expanded)) ++ expanded.values.flatten
+    }
 
     // Get all the new mentions for the state -- both the events with new args and the
-    val res = expansionResult.flatten
-
-    // Useful for debug
-    res
+    expansionResult.flatten
   }
 
   // FIXME: can be removed if EnglishExpansionHandler.expandArgs is correctly overridden for our purposes

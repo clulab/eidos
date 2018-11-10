@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosActions
-import org.clulab.wm.eidos.entities.{EntityFinder, EntityHelper, RuleBasedEntityFinder}
+import org.clulab.wm.eidos.entities.{EntityHelper, RuleBasedEntityFinder}
 import org.clulab.wm.eidos.portuguese.actions.PortugueseActions
 import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
 
