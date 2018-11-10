@@ -129,9 +129,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       language match {
         case "english"    => new EnglishExpansionHandler()
         case "portuguese" => new PortugueseExpansionHandler()
-        case _ =>
-          // FIXME: warn that this is undefined
-          new EnglishExpansionHandler()
+        case _            => throw new Exception(s"No known expansion handler for language '$language'.")
       }
     }
 
@@ -141,9 +139,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
         case "portuguese" =>
           PortugueseEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
-        case _ =>
-          // FIXME: warn that this is undefined
-          EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
+        case _            =>
+          throw new Exception(s"No known entity finder for language '$language'.")
       }
     }
 
@@ -322,7 +319,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
     val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
-    new AnnotatedDocument(doc, afterNegation, eidosMentions)
+    AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
