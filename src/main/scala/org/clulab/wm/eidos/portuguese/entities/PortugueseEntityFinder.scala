@@ -13,8 +13,7 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
   extends RuleBasedEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEngine, maxHops: Int) {
 
   /**
-    * Task-specific implementation of extract to find entities in documents.  Additions include (TODO) handling of
-    * domain Params, and (TODO) converting to Mentions with Modifications
+    * Task-specific implementation of extract to find entities in documents.
     * @param doc: Document
     * @return Seq[Mention] of entities
     */
@@ -26,15 +25,11 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
     // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
     val validBaseEntities = baseEntities.filter(isValidBaseEntity)
-    // expand the entities
-    //    val expandedEntities: Seq[Mention] = validBaseEntities.map(entity => expand(entity, maxHops, stateFromAvoid))
-    //    // split entities on likely coordinations
-    //    val splitEntities = (validBaseEntities ++ expandedEntities).flatMap(splitCoordinatedEntities)
     val splitEntities = validBaseEntities.flatMap(EntityHelper.splitCoordinatedEntities)
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
-    val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges)
+    val trimmedEntities = distinctEntities.map(edge => EntityHelper.trimEntityEdges(edge, PortugueseEntityFinder.INVALID_EDGE_TAGS))
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty) {
       trimmedEntities
@@ -44,8 +39,6 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     }
     res
   }
-
-
 
   /**
     * Determines whether or not an entity is a valid base entity. We want to disallow JJ-only entities except
@@ -80,10 +73,26 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
       EidosActions.startsWithCorefDeterminer(entity)
     // Otherwise, it's not valid
   }
+
 }
 
 object PortugueseEntityFinder extends LazyLogging {
   val DEFAULT_MAX_LENGTH = RuleBasedEntityFinder.DEFAULT_MAX_LENGTH // maximum length (in tokens) for an entity
+
+  // Set of tags that we don't want to begin or end an entity
+  // FIXME: adapt to include UD tags
+  val INVALID_EDGE_TAGS = Set[scala.util.matching.Regex](
+    "^PRP".r,
+    "^IN".r,
+    "^TO".r,
+    "^DT".r,
+    ",".r,
+    // PORTUGUESE
+    "PRON".r,
+    //"ADP".r,
+    "DET".r
+    //"[!\"#$%&'*+,-\\./:;<=>?@\\^_`{|}~]".r
+  )
 
   def apply(entityRulesPath: String, avoidRulesPath: String, maxHops: Int, maxLength: Int = DEFAULT_MAX_LENGTH): PortugueseEntityFinder = {
     val entityRules   = FileUtils.getTextFromResource(entityRulesPath)

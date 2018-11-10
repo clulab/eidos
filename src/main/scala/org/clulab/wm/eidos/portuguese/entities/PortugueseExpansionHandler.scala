@@ -67,7 +67,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
         dctattached      = attached.map(attachDCT(_, state))
         propAttached     = addOverlappingAttachmentsTextBounds(dctattached, state)
         // Trim the edges as needed
-        trimmed          = propAttached.map(EntityHelper.trimEntityEdges)
+        trimmed          = propAttached.map(edge => EntityHelper.trimEntityEdges(edge, PortugueseEntityFinder.INVALID_EDGE_TAGS))
       } yield (argType, trimmed)
 
     } yield Seq(copyWithNewArgs(mention, expanded.toMap)) ++ expanded.toSeq.unzip._2.flatten

@@ -47,23 +47,24 @@ object EntityHelper {
 
   /**
     * Trims found entities of leading or trailing unwanted tokens.  Currently, we define "unwanted" as being POS tagged
-    * with one of the tags in INVALID_EDGE_TAGS.
+    * with one of the tags in invalidEdgeTags (see INVALID_EDGE_TAGS for examples).
     * @param entity
-    * @return TextBoundMention with valid interval
+    * @param invalidEdgeTags
+    * @return TextBoundMention with valid Interval
     */
-  def trimEntityEdges(entity: Mention): Mention = {
+  def trimEntityEdges(entity: Mention, invalidEdgeTags: Set[scala.util.matching.Regex]): Mention = {
     //     println(s"trying to trim entity: ${entity.text}")
     // Check starting tag, get the location of first valid tag
 
     val tags = entity.document.sentences(entity.sentence).tags.get
     val startToken = entity.tokenInterval.start
     val startTag = tags(startToken)
-    val firstValidStart = if (validEdgeTag(startTag)) startToken else firstValid(tags, startToken)
+    val firstValidStart = if (validEdgeTag(startTag, invalidEdgeTags)) startToken else firstValid(tags, startToken, invalidEdgeTags)
 
     // Check ending tag, get the location of last valid tag
     val endToken = entity.tokenInterval.end - 1  // subtracting 1 bc interval is exclusive
     val endTag = tags(endToken)
-    val lastValidEnd = if (validEdgeTag(endTag)) endToken else lastValid(tags, endToken)
+    val lastValidEnd = if (validEdgeTag(endTag, invalidEdgeTags)) endToken else lastValid(tags, endToken, invalidEdgeTags)
 
 
     if (firstValidStart == startToken && lastValidEnd == endToken) {
@@ -81,20 +82,31 @@ object EntityHelper {
   }
 
   // Find the first valid token in the mention's token interval
-  def firstValid(tags: Seq[String], mentionStart: Int): Int = {
+  def firstValid(
+    tags: Seq[String],
+    mentionStart: Int,
+    invalidEdgeTags: Set[scala.util.matching.Regex]
+  ): Int = {
     // As indexWhere returns -1 in the event it doesn't find any, here we add the max to default to the first token
-    math.max(tags.indexWhere(tag => validEdgeTag(tag), from = mentionStart), 0)
+    math.max(tags.indexWhere(tag => validEdgeTag(tag, invalidEdgeTags), from = mentionStart), 0)
   }
 
   // Find the last valid token in the mention's token interval
   // mentionEnd is inclusive
-  def lastValid(tags: Seq[String], mentionEnd: Int): Int = {
+  def lastValid(
+    tags: Seq[String],
+    mentionEnd: Int,
+    invalidEdgeTags: Set[scala.util.matching.Regex]
+  ): Int = {
     // As indexWhere returns -1 in the event it doesn't find any, here we add the max to default to the first token
     // Note: end is inclusive
-    math.max(tags.lastIndexWhere(tag => validEdgeTag(tag), end = mentionEnd), 0)
+    math.max(tags.lastIndexWhere(tag => validEdgeTag(tag, invalidEdgeTags), end = mentionEnd), 0)
   }
 
-  def validEdgeTag(tag: String): Boolean = ! INVALID_EDGE_TAGS.exists(pattern => pattern.findFirstIn(tag).nonEmpty)
+  def validEdgeTag(
+    tag: String,
+    invalidEdgeTags: Set[scala.util.matching.Regex]
+  ): Boolean = ! invalidEdgeTags.exists(pattern => pattern.findFirstIn(tag).nonEmpty)
 
   // Set of tags that we don't want to begin or end an entity
   // FIXME: adapt to include UD tags
