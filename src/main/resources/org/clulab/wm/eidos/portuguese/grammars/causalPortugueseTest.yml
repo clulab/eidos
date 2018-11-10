@@ -96,7 +96,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (</conj/{,3} [tag=/^V/]) (${agents}) /^nmod/{,2} /conj/{,3}
+      cause: Entity = (</conj/{,3} [tag=/^V/]) (${agents}) /(${preps})/{,2} /conj/{,3}
       effect: Entity = (${objects}) /conj/{,3}
 
   - name: 2a-verb+adj_conj-${addlabel}
@@ -106,7 +106,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (<conj [tag=/^ADJ/]) (${agents}) /^nmod/{,2} /conj/{,3}
+      cause: Entity = (<conj [tag=/^ADJ/]) (${agents}) /(${preps})/{,2} /conj/{,3}
       effect: Entity = (${objects}) /conj/{,3}
 
   - name: alem_de_ported_syntax_1_verb-${addlabel}

@@ -115,6 +115,7 @@ mecanismo
 medida
 medição
 melhora
+mesmo
 mg
 modelo
 modo

@@ -72,6 +72,7 @@ objetivo
 grupo
 crescimento
 guia
+gente
 diretriz
 hora
 humano
@@ -110,6 +111,7 @@ paciente
 pessoa
 porcento
 persistência
+presente
 fenótipo
 política
 grupo
@@ -147,9 +149,11 @@ técnica
 tempo
 tratamento
 vez
+verificar
 entendimento
 uso
 visão
+realizado
 modo
 maneira
 forma
