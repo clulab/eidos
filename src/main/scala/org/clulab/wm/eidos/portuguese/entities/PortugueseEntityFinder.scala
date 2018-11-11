@@ -1,8 +1,9 @@
 package org.clulab.wm.eidos.portuguese.entities
 
 import com.typesafe.scalalogging.LazyLogging
-import org.clulab.odin.{ExtractorEngine, Mention, State}
+import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.entities.{EntityHelper, RuleBasedEntityFinder}
 import org.clulab.wm.eidos.portuguese.actions.PortugueseActions
@@ -22,23 +23,65 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     val avoid = avoidEngine.extractFrom(doc)
     val stateFromAvoid = State(avoid)
     // extract the base entities
-    val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
+    // NOTE: we have an action that prevents matching entities that overlap with an Avoid mention
+    val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid)
     // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
     val validBaseEntities = baseEntities.filter(isValidBaseEntity)
     val splitEntities = validBaseEntities.flatMap(EntityHelper.splitCoordinatedEntities)
+    // merge overlapping entities
+    val mergedEntities = mergeOverlapping(splitEntities)
     // remove entity duplicates introduced by splitting expanded
-    val distinctEntities = splitEntities.distinct
+    val distinctEntities = mergedEntities.distinct
     // trim unwanted POS from entity edges
     val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
-    // if there are no avoid mentions, no need to filter
-    val res = if (avoid.isEmpty) {
-      trimmedEntities
-    } else {
-      val avoidLabel = avoid.head.labels.last
-      trimmedEntities.filter{ m => stateFromAvoid.mentionsFor(m.sentence, m.tokenInterval, avoidLabel).isEmpty }
-    }
-    res
+    trimmedEntities
   }
+
+
+  /** Filtering procedure designed to merge overlapping entities */
+  def mergeOverlapping(mentions: Seq[Mention]): Seq[Mention] = {
+    // separate out the entities
+    val (entities, other) = mentions.partition(_.matches("Entity"))
+    // merge overlapping entities
+    val merged: Seq[Mention] = {
+      // 1. determine which entities are in each sentence
+      entities.groupBy(_.sentence).map { case (sentenceIdx: Int, ents: Seq[Mention]) =>
+        // 2. for each set of entities within a sentence...
+        ents.map { entity: Mention =>
+          // 2a. find overlapping entities
+          val overlapping = ents.filter {
+            _.tokenInterval.overlaps(entity.tokenInterval)
+          }
+          // 2b. merge overlapping entities
+          val merged: Mention = {
+            val newStart = overlapping.map(_.start).min
+            val newEnd = overlapping.map(_.end).max
+            // do we need to merge (i.e., do we have more than one entity in our overlapping set?
+            if (entity.start == newStart && entity.end == newEnd) {
+              entity
+            } else {
+              val newFoundBy = s"${entity.foundBy}-mergeOverlapping"
+              val newInterval = Interval(newStart, newEnd)
+              val mergedAttachments = overlapping.flatMap(_.attachments).toSet
+              new TextBoundMention(
+                // FIXME: this assumes the labels match...if not, how should this be labeled?
+                labels = entity.labels,
+                tokenInterval = newInterval,
+                sentence = sentenceIdx,
+                document = entity.document,
+                keep = entity.keep,
+                foundBy = newFoundBy,
+                attachments = mergedAttachments
+              )
+            }
+          }
+          merged
+        }
+      }
+    }.flatten.toSeq
+    merged ++ other
+  }
+
 
   /**
     * Determines whether or not an entity is a valid base entity. We want to disallow JJ-only entities except
