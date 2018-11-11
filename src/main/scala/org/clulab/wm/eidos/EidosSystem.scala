@@ -28,7 +28,7 @@ import org.clulab.wm.eidos.portuguese.entities.{PortugueseEntityFinder, Portugue
 
 import scala.annotation.tailrec
 
-case class AnnotatedDocument(val document: Document, val odinMentions: Seq[Mention], val eidosMentions: Seq[EidosMention])
+case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eidosMentions: Seq[EidosMention])
 
 /**
   * A system for text processing and information extraction
@@ -124,7 +124,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val negationHandler = NegationHandler(language)
     val expansionHandler: ExpansionHandler = mkExpansionHandler(config)
 
-    //private def mkExpansionHandler[T <: ExpansionHandler](config: Config): T = {
     private def mkExpansionHandler(config: Config): ExpansionHandler = {
       language match {
         case "english"    => new EnglishExpansionHandler()
@@ -442,7 +441,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 object EidosSystem {
   type Corpus = Seq[AnnotatedDocument]
 
-  val logger = LoggerFactory.getLogger(this.getClass())
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   val PREFIX: String = "EidosSystem"
 
