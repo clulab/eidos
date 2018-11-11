@@ -44,8 +44,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   private def mkProcessor(config: Config): Processor = {
     language match {
-      case "english" => new FastNLPProcessor
-      case "spanish" => new SpanishCluProcessor
+      case "english"    => new FastNLPProcessor
+      case "spanish"    => new SpanishCluProcessor
       case "portuguese" => new PortugueseCluProcessor
     }
   }
@@ -269,7 +269,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
-    val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
+    val oldDoc = proc.annotate(text, keepText = true)
     val doc = EidosDocument(oldDoc, keepText)
     doc.sentences.foreach(addLexiconNER)
     doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
@@ -412,7 +412,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       Grounding
   */
 
-  def containsStopword(stopword: String) =
+  def containsStopword(stopword: String): Boolean =
     loadableAttributes.stopwordManager.containsStopword(stopword)
 
   def groundOntology(mention: EidosMention): Groundings =
