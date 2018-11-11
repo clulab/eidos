@@ -38,12 +38,9 @@ object ExampleGenerator extends App {
   val mentionsJSON = WMJSONSerializer.jsonAST(mentions)
   println(pretty(render(mentionsJSON)))
 
-
-//  val pw = FileUtils.newPrintWriterFromFile("/Users/bsharp/wmExampleJson_dec7.txt")
-//  pw.println(pretty(render(mentionsJSON)))
-//  pw.close()
-
-
+//  FileUtils.closing (FileUtils.newPrintWriterFromFile("/Users/bsharp/wmExampleJson_dec7.txt")) { pw =>
+//    pw.println(pretty(render(mentionsJSON)))
+//  }
 
   // How to reconstitute the mentions:
   val newMentions = WMJSONSerializer.toMentions(mentionsJSON)

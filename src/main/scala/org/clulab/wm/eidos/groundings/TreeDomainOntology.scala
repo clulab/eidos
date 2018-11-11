@@ -7,7 +7,8 @@ import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
-import org.clulab.wm.eidos.utils.{Canonicalizer, Namer}
+import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, Namer}
+import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -100,7 +101,14 @@ object TreeDomainOntology {
   val DESCRIPTION = "descriptions"
   val POLARITY = "polarity"
 
-  def load(path: String): TreeDomainOntology = DomainOntology.updatedLoad[TreeDomainOntology](path)
+  def load(path: String): TreeDomainOntology = {
+    val logger = LoggerFactory.getLogger(this.getClass())
+
+    logger.info(s"Loading serialized Ontology from $path")
+    val domainOntology = FileUtils.load[TreeDomainOntology](path, this)
+    logger.info("Serialized Ontology successfully loaded.")
+    domainOntology
+  }
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
   class TreeDomainOntologyBuilder(ontologyPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean) {

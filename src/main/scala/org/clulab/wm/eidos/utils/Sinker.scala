@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 
 import org.slf4j.LoggerFactory
 
-class Sink(file: File, csn: String) extends OutputStreamWriter(new FileOutputStream(file), csn)
+class Sink(file: File, charsetName: String) extends OutputStreamWriter(new FileOutputStream(file), charsetName)
 
 object Sinker {
   val logger = LoggerFactory.getLogger(this.getClass())

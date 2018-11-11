@@ -1,9 +1,10 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileInputStream, FileOutputStream, ObjectOutputStream}
+import java.io.{FileOutputStream, ObjectOutputStream}
 import java.util.IdentityHashMap
 
-import org.clulab.utils.ClassLoaderObjectInputStream
+import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Namer
 
 import scala.collection.JavaConverters._
@@ -56,15 +57,14 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
   }
 
   def save(filename: String): Unit = {
-    val objectOutputStream = new ObjectOutputStream(new FileOutputStream(filename))
-
-    objectOutputStream.writeObject(leafStrings.mkString("\n"))
-    objectOutputStream.writeObject(leafStringIndexes)
-    objectOutputStream.writeObject(leafStartIndexes)
-    objectOutputStream.writeObject(nodeStrings.mkString("\n"))
-    objectOutputStream.writeObject(leafIndexes)
-    objectOutputStream.writeObject(branchIndexes)
-    objectOutputStream.close()
+    Closer.autoClose(new ObjectOutputStream(new FileOutputStream(filename))) { objectOutputStream =>
+      objectOutputStream.writeObject(leafStrings.mkString("\n"))
+      objectOutputStream.writeObject(leafStringIndexes)
+      objectOutputStream.writeObject(leafStartIndexes)
+      objectOutputStream.writeObject(nodeStrings.mkString("\n"))
+      objectOutputStream.writeObject(leafIndexes)
+      objectOutputStream.writeObject(branchIndexes)
+    }
   }
 }
 
@@ -73,37 +73,36 @@ object CompactDomainOntology {
   val parentOffset = 0
   val nameOffset = 1
 
-  def load(filename: String): CompactDomainOntology = {
-    val objectInputStream = new ClassLoaderObjectInputStream(this.getClass.getClassLoader, new FileInputStream(filename))
+  // This is so that text can be abandoned at the end of the block, before the array is read.
+  protected def splitText(text: String): Array[String] = {
+    val arrayBuffer = new ArrayBuffer[String]()
+    val stringBuilder = new StringBuilder
+    
+    for (i <- 0 until text.length) {
+      val c = text(i)
 
-    // This is so that text can be abandoned at the end of the block, before the array is read.
-    def splitText(text: String): Array[String] = {
-      val arrayBuffer = new ArrayBuffer[String]()
-      val stringBuilder = new StringBuilder
-
-      for (i <- 0 until text.length) {
-        val c = text(i)
-
-        if (c == '\n') {
-          arrayBuffer += stringBuilder.result()
-          stringBuilder.clear()
-        }
-        else
-          stringBuilder.append(c)
+      if (c == '\n') {
+        arrayBuffer += stringBuilder.result()
+        stringBuilder.clear()
       }
-      arrayBuffer += stringBuilder.result()
-      arrayBuffer.toArray
+      else
+        stringBuilder.append(c)
     }
+    arrayBuffer += stringBuilder.result()
+    arrayBuffer.toArray
+  }
 
-    val leafStrings = splitText(objectInputStream.readObject().asInstanceOf[String])
-    val leafStringIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
-    val leafStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
-    val nodeStrings = splitText(objectInputStream.readObject().asInstanceOf[String])
-    val leafIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
-    val branchIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
+  def load(filename: String): CompactDomainOntology = {
+    Closer.autoClose(FileUtils.newClassLoaderObjectInputStream(filename, this)) { objectInputStream =>
+      val leafStrings = splitText(objectInputStream.readObject().asInstanceOf[String])
+      val leafStringIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
+      val leafStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
+      val nodeStrings = splitText(objectInputStream.readObject().asInstanceOf[String])
+      val leafIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
+      val branchIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
 
-    objectInputStream.close()
-    new CompactDomainOntology(leafStrings, leafStringIndexes, leafStartIndexes, nodeStrings, leafIndexes, branchIndexes)
+      new CompactDomainOntology(leafStrings, leafStringIndexes, leafStartIndexes, nodeStrings, leafIndexes, branchIndexes)
+    }
   }
 
   class CompactDomainOntologyBuilder(treeDomainOntology: TreeDomainOntology) {
