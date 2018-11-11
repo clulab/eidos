@@ -215,7 +215,7 @@ object CompactWord2Vec {
           val c = text(i)
 
           if (c == '\n') {
-            map += ((stringBuilder.result(), count))
+            map += ((stringBuilder.result(), map.size))
             stringBuilder.clear()
           }
           else
