@@ -6,7 +6,6 @@ import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
 import org.nd4j.linalg.factory.Nd4j
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 object GeoDisambiguateParser {
   val I_LOC = 0
@@ -17,9 +16,7 @@ object GeoDisambiguateParser {
 }
 
 class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
-
   protected val network: ComputationGraph = KerasModelImport.importKerasModelAndWeights(modelPath, false)
-
   lazy protected val word2int: mutable.Map[String, Int] = readDict(word2IdxPath)
   lazy protected val loc2geonameID: mutable.Map[String, Int] = readDict(loc2geonameIDPath) // provide path of geoname dict file having geonameID with max population
 
@@ -66,34 +63,35 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
   }
 
   def makeGeoLocations(labelIndexes: Array[Int], words: Array[String],
-      startOffsets: Array[Int], endOffsets: Array[Int]): List[GeoPhraseID] = {
+      startOffsets: Array[Int], endOffsets: Array[Int]): Seq[GeoPhraseID] = {
 
     def newGeoPhraseID(startIndex: Int, endIndex: Int): GeoPhraseID = {
-      val sliceWords = words.slice(startIndex, endIndex)
-      val prettyLocationPhrase = words.mkString(" ")
+      val prettyLocationPhrase = words.slice(startIndex, endIndex).mkString(" ")
       val locationPhrase = prettyLocationPhrase.replace(' ', '_').toLowerCase
       val geoNameId = loc2geonameID.get(locationPhrase)
 
-      GeoPhraseID(prettyLocationPhrase, geoNameId, startOffsets(startIndex), endOffsets(endIndex))
+      // The word at endIndex has ended previously, so use index - 1.
+      GeoPhraseID(prettyLocationPhrase, geoNameId, startOffsets(startIndex), endOffsets(endIndex - 1))
     }
 
-    val startIndexes = labelIndexes.indices.filter { index =>
-      val labelIndex = labelIndexes(index)
-
-      labelIndex == GeoDisambiguateParser.B_LOC || ( // beginning of a location
-        labelIndex == GeoDisambiguateParser.I_LOC && ( // inside of a location if
-            index == 0 || // labels start immediately on I_LOC
-            labelIndexes(index - 1) == GeoDisambiguateParser.O_LOC // or without B_LOC or I_LOC preceeding
-        )
-      )
+    val result = for {
+      startIndex <- labelIndexes.indices
+      labelIndex = labelIndexes(startIndex)
+      isStart = labelIndex == GeoDisambiguateParser.B_LOC || ( // beginning of a location
+          labelIndex == GeoDisambiguateParser.I_LOC && ( // inside of a location if
+              startIndex == 0 || // labels start immediately on I_LOC
+                  labelIndexes(startIndex - 1) == GeoDisambiguateParser.O_LOC // or without B_LOC or I_LOC preceeding
+              )
+          )
+      if isStart
     }
-    val result = startIndexes.map { startIndex =>
-      val endIndex = labelIndexes.indexOf(GeoDisambiguateParser.O_LOC, startIndex + 1)
+    yield {
+      // Either B_LOC or O_LOC, so !I_LOC, will start a new location and thus end the old one
+      val endIndex = labelIndexes.indexWhere(_ != GeoDisambiguateParser.I_LOC, startIndex + 1)
 
       // If not found, endIndex == -1, then use one off the end
       newGeoPhraseID(startIndex, if (endIndex == -1) labelIndexes.size else endIndex)
     }
-
-    result.toList
+    result
   }
 }

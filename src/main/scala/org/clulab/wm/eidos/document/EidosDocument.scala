@@ -13,12 +13,12 @@ import org.clulab.wm.eidos.context.GeoPhraseID
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
   // Currently no test checks to see if the values are preserved across serialization, but that doesn't make it right.
   val times = new Array[List[TimeInterval]](sentences.length)
-  @transient val geolocs = new Array[List[GeoPhraseID]](sentences.length)
+  @transient val geolocs = new Array[Seq[GeoPhraseID]](sentences.length)
 
   protected var anchor: Option[DCT] = None
 
-  protected def parseFakeTime(): Unit = times.indices.foreach(times(_) = List[TimeInterval]())
-  protected def parseFakeGeoLoc(): Unit = geolocs.indices.foreach(geolocs(_) = List[GeoPhraseID]())
+  protected def parseFakeTime(): Unit = times.indices.foreach(times(_) = List.empty[TimeInterval])
+  protected def parseFakeGeoLoc(): Unit = geolocs.indices.foreach(geolocs(_) = Seq.empty[GeoPhraseID])
 
   protected def parseRealTime(timenorm: TemporalCharbasedParser): Unit = {
     times.indices.foreach { index =>

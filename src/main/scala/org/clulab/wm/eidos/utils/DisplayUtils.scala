@@ -61,7 +61,7 @@ object DisplayUtils {
     sb.toString
   }
 
-  def displayLocationExpressions(geolocations: List[GeoPhraseID]): String = {
+  def displayLocationExpressions(geolocations: Seq[GeoPhraseID]): String = {
     val sb = new StringBuffer()
     for (location <- geolocations) {
       sb.append(s"$tab span: ${location.StartOffset_locs},${location.EndOffset_locs} $nl")
@@ -171,7 +171,7 @@ object DisplayUtils {
           .replaceAll(nl, "<br>")
           .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")
 
-  def webAppGeoLocations(locations: List[GeoPhraseID]): String =
+  def webAppGeoLocations(locations: Seq[GeoPhraseID]): String =
     xml.Utility.escape(displayLocationExpressions(locations))
       .replaceAll(nl, "<br>")
       .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")

@@ -294,7 +294,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Array[List[TimeInterval]], location: Array[List[GeoPhraseID]]): String = {
+  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Array[List[TimeInterval]], location: Array[Seq[GeoPhraseID]]): String = {
 
     var objectToReturn = ""
 
@@ -377,7 +377,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]], location: Array[List[GeoPhraseID]]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]], location: Array[Seq[GeoPhraseID]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
 
     // collect event mentions for display
@@ -497,7 +497,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Json.toJson(timexs)
   }
 
-  def mkJsonFromLocationExpressions(location: Array[List[GeoPhraseID]]): Json.JsValueWrapper = {
+  def mkJsonFromLocationExpressions(location: Array[Seq[GeoPhraseID]]): Json.JsValueWrapper = {
     var x = 0
     val timexs = for (t <- location; i <- t) yield {
       x += 1
