@@ -39,7 +39,9 @@ class TestJLDFormat extends ExtractionTest {
     // See https://github.com/jsonld-java/jsonld-java
     // Read the string into an Object (The type of this object will be a List, Map, String, Boolean,
     // Number or null depending on the root object in the file).
-    val jsonObject = JsonUtils.fromString(json)
+    val jsonObject = Option(JsonUtils.fromString(json))
+        .getOrElse(throw new Exception("jsonObject is empty"))
+
     // Create a context JSON map containing prefixes and definitions
     val context = new JHashMap()
     // Customise context...

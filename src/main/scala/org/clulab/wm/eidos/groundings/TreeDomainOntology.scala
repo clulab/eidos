@@ -16,40 +16,64 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 @SerialVersionUID(1000L)
-class OntologyNode(val nodeName: String, val parent: OntologyBranchNode) extends Serializable {
+abstract class OntologyNode extends Serializable {
+  // Much of the extra code here is to avoid the root node having a parent of null.
 
   // There can already be a / in any of the stages of the route that must be escaped.
   // First, double up any existing backslashes, then escape the forward slashes with backslashes.
-  def escaped: String =
+  def escaped(nodeName: String): String =
       nodeName
           .replace(DomainOntology.ESCAPE, DomainOntology.ESCAPED_ESCAPE)
           .replace(DomainOntology.SEPARATOR, DomainOntology.ESCAPED_SEPARATOR)
 
-  def fullName: String =
-      if (parent != null) parent.fullName + DomainOntology.SEPARATOR + escaped
-      else escaped
+  def parents(parent: OntologyParentNode): Seq[OntologyParentNode] = parent +: parent.parents
+
+  def fullName: String
+  def parents: Seq[OntologyParentNode]
+  def escaped: String
 
   override def toString(): String = fullName
 }
 
 @SerialVersionUID(1000L)
-class OntologyBranchNode(nodeName: String, parent: OntologyBranchNode) extends OntologyNode(nodeName, parent) {
+abstract class OntologyParentNode extends OntologyNode
+
+@SerialVersionUID(1000L)
+class OntologyRootNode extends OntologyParentNode {
+
+  override def fullName: String = ""
+
+  override def parents: Seq[OntologyParentNode] = Seq.empty
+
+  override def escaped: String = ""
+}
+
+class OntologyBranchNode(val nodeName: String, val parent: OntologyParentNode) extends OntologyParentNode {
+
+  override def fullName: String = parent.fullName + escaped+ DomainOntology.SEPARATOR
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
-  def parents: Seq[OntologyBranchNode] =
-      if (parent == null) Seq.empty
-      else parent +: parent.parents
+  override def parents: Seq[OntologyParentNode] = parents(parent)
+
+  override def escaped: String = escaped(nodeName)
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(nodeName: String, parent: OntologyBranchNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode(nodeName, parent) with Namer {
+class OntologyLeafNode(val nodeName: String, val parent: OntologyParentNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode with Namer {
 
   def name: String = fullName
+
+  override def fullName: String = parent.fullName + escaped
 
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = (/*names ++*/ examples.getOrElse(Seq.empty) ++ descriptions.getOrElse(Seq.empty)).toArray
 
-  override def toString(): String = super.fullName + " = " + values.toList
+  override def toString(): String = fullName + " = " + values.toList
+
+  // These come out in order parent, grandparent, great grandparent, etc. by design
+  override def parents: Seq[OntologyParentNode] = parents(parent)
+
+  override def escaped: String = escaped(nodeName)
 }
 
 @SerialVersionUID(1000L)
@@ -63,7 +87,7 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends Dom
 
   def getNode(n: Integer): OntologyLeafNode = ontologyNodes(n)
 
-  def getParents(n: Integer): Seq[OntologyBranchNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
+  def getParents(n: Integer): Seq[OntologyParentNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
 
   def save(filename: String): Unit = {
     Serializer.save(this, filename)
@@ -93,7 +117,7 @@ object TreeDomainOntology {
       val text = getTextFromResource(ontologyPath)
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
-      val ontologyNodes = parseOntology(null, yamlNodes)
+      val ontologyNodes = parseOntology(new OntologyRootNode, yamlNodes)
 
       new TreeDomainOntology(ontologyNodes.toArray)
     }
@@ -151,7 +175,7 @@ object TreeDomainOntology {
       name.replace('_', ' ')
     }
 
-    protected def parseOntology(parent: OntologyBranchNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
+    protected def parseOntology(parent: OntologyParentNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
       /* We're going without the names for now. */
       val name = yamlNodes(TreeDomainOntology.NAME).asInstanceOf[String]
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
@@ -167,7 +191,7 @@ object TreeDomainOntology {
       res
     }
 
-    protected def parseOntology(parent: OntologyBranchNode, yamlNodes: Seq[Any]): Seq[OntologyLeafNode] = {
+    protected def parseOntology(parent: OntologyParentNode, yamlNodes: Seq[Any]): Seq[OntologyLeafNode] = {
       yamlNodes flatMap { yamlNode =>
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")

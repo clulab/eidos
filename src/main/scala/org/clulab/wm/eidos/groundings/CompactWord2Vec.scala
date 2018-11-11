@@ -47,7 +47,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
   def dotProduct(row1: Int, row2: Int): Float = {
     val offset1 = row1 * dimension
     val offset2 = row2 * dimension
-    var sum = 0.0f
+    var sum = 0.0f // optimization
 
     for (i <- 0 until dimension)
       sum += array(offset1 + i) * array(offset2 + i)
@@ -63,11 +63,10 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     */
   def similarity(w1: String, w2: String): Float = {
     val v1o = map.get(w1)
-    if (v1o.isEmpty) return -1
     val v2o = map.get(w2)
-    if (v2o.isEmpty) return -1
 
-    dotProduct(v1o.get, v2o.get)
+    if (v1o.isEmpty || v2o.isEmpty) -1
+    else dotProduct(v1o.get, v2o.get)
   }
 
   /** Adds the content of src to dest, in place */
@@ -90,8 +89,8 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 
   /** Normalizes this vector to length 1, in place */
   def norm(weights: Array[Float]): Array[Float] = {
-    var i = 0
-    var len = 0.0f
+    var i = 0 // optimization
+    var len = 0.0f // optimization
 
     while (i < weights.length) {
       len += weights(i) * weights(i)
@@ -141,8 +140,8 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     // Top words
     val pairs = new ArrayBuffer[(Float, String, String)]
 
-    var avg = 0.0f
-    var count = 0
+    var avg = 0.0f // optimization
+    var count = 0 // optimization
     for (s1 <- t1) {
       val v1 = map.get(s1)
       if (v1.isDefined) {
@@ -211,30 +210,28 @@ object CompactWord2Vec {
         // This is so that text can be abandoned at the end of the block, before the array is read.
         val text = objectInputStream.readObject().asInstanceOf[String]
         val stringBuilder = new StringBuilder
-        var count = 0
 
         for (i <- 0 until text.size) {
           val c = text(i)
 
           if (c == '\n') {
             map += ((stringBuilder.result(), count))
-            count += 1
             stringBuilder.clear()
           }
           else
             stringBuilder.append(c)
         }
-        map += ((stringBuilder.result(), count))
+        map += ((stringBuilder.result(), map.size))
       }
-
       val array = objectInputStream.readObject().asInstanceOf[ArrayType]
+      
       (map, array)
     }
   }
 
   protected def norm(array: ArrayType, rowIndex: Int, rowWidth: Int) {
     val offset = rowIndex * rowWidth
-    var len = 0.0f
+    var len = 0.0f // optimization
 
     for (i <- 0 until rowWidth)
       len += array(offset + i) * array(offset + i)
@@ -256,7 +253,6 @@ object CompactWord2Vec {
         else (0, 0)
     val map = new MutableMapType()
     val array = new ArrayType(wordCount * dimension)
-    var duplicates = 0
 
     for ((line, lineIndex) <- linesZipWithIndex) {
       val bits = line.split(' ')
@@ -267,8 +263,7 @@ object CompactWord2Vec {
             logger.info(s"'${word}' is duplicated in the vector file.")
             // Use space because we will not be looking for words like that.
             // The array will not be filled in for this map.size value.
-            map.put(" " + duplicates, map.size)
-            duplicates += 1
+            map.put(" " + map.size, map.size)
             map(word)
           }
           else map.size

@@ -24,9 +24,8 @@ object FileUtils {
       def accept(dir: File, name: String): Boolean = name.endsWith(extension)
     }
 
-    val result = dir.listFiles(filter)
-    if (result == null)
-      throw Sourcer.newFileNotFoundException(collectionDir)
+    val result = Option(dir.listFiles(filter))
+        .getOrElse(throw Sourcer.newFileNotFoundException(collectionDir))
     result
   }
 

@@ -4,6 +4,11 @@
       - early recovery:
         - OntologyNode:
           examples:
+          - agricultural training
+          name: agricultural training #ppt-nov1-#13
+          polarity: 1.0
+        - OntologyNode:
+          examples:
           - provision of provision of credit and training for income generation
           name: provision of provision of credit and training for income generation
           polarity: 1.0
@@ -147,6 +152,7 @@
         - OntologyNode:
           examples:
           - provision of provision of seeds, fertilizers and tools
+          - providing seeds for drought-resistant crop #ppt-nov1-#11
           name: provision of provision of seeds, fertilizers and tools
           polarity: 1.0
         - OntologyNode:
@@ -162,6 +168,9 @@
         - OntologyNode:
           examples:
           - provision of food for assets
+          - food assistance #ppt-#4
+          - nutrition assistance #ppt-#4
+          - nutritional service #ppt-#8
           keywords: food aid, community, public work
           name: provision of food for assets
           polarity: 1.0
@@ -519,6 +528,7 @@
           - international conflict mediation
           - private diplomacy
           - conflict mediation and political dialogue
+          - peace treaty #ppt-nov1-#13
           name: conflict mediation and political dialogue
           polarity: 1.0
         - OntologyNode:
@@ -616,6 +626,7 @@
       examples:
       - crisis
       - emergency
+      - catastrophe #ppt-#10
       name: crisis
       polarity: 1.0
     - natural_disaster:
@@ -637,9 +648,18 @@
         - cyclone
         - tornado
         - storm
+        - storm winds #ppt-#5
+        - rainstorms #ppt-#5
         name: storm
         polarity: 1.0
     - weather:
+      - OntologyNode:
+        examples:
+        - climate
+        - tropical
+        - equatorial
+        name: climate #ppt-#5
+        polarity: 1.0
       - OntologyNode:
         examples:
         - precipitation
@@ -648,7 +668,28 @@
         - snow
         name: precipitation
         polarity: 1.0
+      - OntologyNode:
+        examples:
+        - temperature
+        name: temperature #ppt-nov1-#10
+        polarity: 1.0
     - human:
+      - political:
+        - OntologyNode:
+          examples:
+          - political instability
+          - power struggle
+          - regime breakdown #doc-#pg1
+          - political violence #doc-pg1
+          name: political_instability #ppt-#3
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - independence
+          - self-rule
+          - political independence
+          name: independence #ppt-#3
+          polarity: 1.0
       - agriculture:
         - OntologyNode:
           examples:
@@ -656,6 +697,10 @@
           - food production
           - staple crop production
           - crop yield
+          - crop production #ppt-nov1-#13
+          - livestock production #ppt-nov1-#13
+          - cereal production #ppt-nov1-#13
+          - milk production #ppt-nov1-#13
           name: food_production
           polarity: 1.0
         - OntologyNode:
@@ -691,8 +736,15 @@
         - civil unrest
         - genocide
         - clash
+        - armed clash #ppt-#8
         - raid
         name: conflict
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - economic crisis
+        - financial crisis
+        name: economic_crisis #ppt-#4
         polarity: 1.0
       - OntologyNode:
         examples:
@@ -741,6 +793,9 @@
         - mortality
         - morbidity
         - decease
+        - loss of life #ppt-#3
+        - life loss #ppt-#3
+        - fatalitiy #ppt-#8
         name: death
         polarity: 1.0
   - entities:
@@ -857,6 +912,7 @@
             - forestry sector
             - plant resource food
             - wildlife
+            - rainforest #ppt-#5
             name: biotic_resources
             polarity: 1.0
         - abiotic_resources:
@@ -868,6 +924,12 @@
             - mt
             - wetland
             - sand
+            - flood plains #ppt-#6
+            - cropland #ppt-#6
+            - greenbelt #ppt-#6
+            - agricultural land #ppt-#7
+            - arable land #ppt-#7
+            - cultivated area #ppt-#7
             name: land
             polarity: 1.0
           - OntologyNode:
@@ -917,6 +979,12 @@
         name: watershed
         polarity: 1.0
       - crop_technology:
+        - OntologyNode:
+          examples:
+          - store crops
+          - granary
+          name: crop_storage
+          polarity: 1.0
         - OntologyNode:
           examples:
           - nitrogen fertilizer
@@ -971,6 +1039,7 @@
           - investment agriculture
           - food system
           - Peoples food system
+          - food distribution #ppt-#3
           name: management
           polarity: 1.0
         - OntologyNode:
@@ -986,10 +1055,17 @@
         - maize
         - rice
         - sorghum
+        - white sorghum #doc-#pg2
+        - red sorghum #doc-#pg2
+        - brown sorghum #doc-#pg2
+        - oats #doc-#pg2
+        - white maize #doc-#pg2
+        - millet #doc-#pg2
         - barley
         - flax
         - grain
         - beans
+        - sesame #doc-#pg4
         - sugar
         - flour
         - tea
@@ -1026,8 +1102,17 @@
         polarity: 1.0
       - OntologyNode:
         examples:
+        - livestock
+        - cattle
+        - poultry
+        - domestic animals
+        name: livestock #ppt-#3
+        polarity: 1.0
+      - OntologyNode:
+        examples:
         - infestation
         - armyworm
+        - fall armyworm #ppt-nov1-#13
         - insect
         - swarm
         - locust
@@ -1084,6 +1169,7 @@
             examples:
             - road
             - highways
+            - road network #ppt-#4
             name: road
             polarity: 1.0
           - OntologyNode:
@@ -1154,6 +1240,7 @@
         - opportunity
         - employment
         - agribusiness
+        - pastoralist livelihood #ppt-#8
         name: livelihood
         polarity: 1.0
       - OntologyNode:
@@ -1177,6 +1264,31 @@
         - economic:
           - OntologyNode:
             examples:
+            - export
+            name: export #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - import
+            name: import #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - currency
+            - dollar
+            - pound
+            - cash
+            - hard currency
+            name: currency #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - budget
+            - budget deficit
+            name: budget #ppt-#4
+            polarity: 1.0
+          - OntologyNode:
+            examples:
             - market
             - domestic markets
             - capital market
@@ -1192,12 +1304,14 @@
             - subsidy
             - finance
             - GDP
+            - gross domestic product #ppt-nov1-#16
             - economy
             name: economy
             polarity: 1.0
           - OntologyNode:
             examples:
             - inflation
+            - inflation rate #ppt-nov1-#16
             name: inflation
             polarity: 1.0
           - OntologyNode:
@@ -1213,6 +1327,8 @@
             - gas
             - oil
             - crude
+            - petrol #doc-#pg3
+            - diesel #doc-#pg3
             name: fuel
             polarity: 1.0
           - OntologyNode:
@@ -1227,6 +1343,13 @@
             - revenue
             - investment
             name: revenue
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - assets
+            - property
+            - land assets
+            name: assets #ppt-#3
             polarity: 1.0
           - OntologyNode:
             examples:
@@ -1274,6 +1397,7 @@
           - contract party
           - department
           - government
+          - transitional government #ppt-#8
           name: government_entity
           polarity: 1.0
         - government_actions:
@@ -1330,9 +1454,18 @@
         - family
         - ethnic group
         - population
+        - rural #ppt-#3
         name: population
         polarity: 1.0
       - food:
+        - OntologyNode:
+          examples:
+          - food price
+          - crop price
+          - food cost
+          - staple food price #ppt-#9
+          name: food_price #ppt-#3
+          polarity: 1.0
         - OntologyNode:
           examples:
           - food security
@@ -1351,6 +1484,8 @@
           - undernourishment
           - stunting
           - wasting
+          - food riots #ppt-#3
+          - food inflation #ppt-nov1-#16
           name: food_insecurity
           polarity: 1.0
   - temporal:

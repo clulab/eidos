@@ -30,24 +30,23 @@ object EidosShell extends App {
   println("\nWelcome to the Eidos Shell!")
   printCommands()
 
-  var running = true
+  def processMenu: Boolean = {
+    val continue = Option(reader.readLine).map { line =>
+      if (line == ":exit") false
+      else {
+        line match {
+          case ":help" => printCommands()
+          case ":reload" => ieSystem.reload()
+          case text => extractFrom(text)
+        }
+        true
+      }
+    }.getOrElse(false)
 
-  while (running) {
-    val line = reader.readLine
-    line match {
-      case ":help" =>
-        printCommands()
-
-      case ":reload" =>
-        ieSystem.reload()
-
-      case ":exit" | null =>
-        running = false
-
-      case text =>
-        extractFrom(text)
-    }
+    continue
   }
+
+  while (processMenu) { }
 
   // summarize available commands
   def printCommands(): Unit = {

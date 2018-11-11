@@ -105,7 +105,9 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
   def mkType(jldObject: JLDObject): (String, String) = mkType(jldObject.typename)
 
   def mkContext(): JObject = {
-    def mkContext(name: String): JField = new JField(name, JLDSerializer.base + "#" + name)
+    // The wiki turns <a id="Document"> into <a id="user-content-document">
+    // but w3id.org is not set up to lowercase the document, so it is done here in code.
+    def mkContext(name: String): JField = new JField(name, JLDSerializer.base + name.toLowerCase())
 
     val types = typenames.toList.sorted.map(mkContext)
 
@@ -113,11 +115,8 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
   }
 
   def mkRef(identity: Any): JObject = {
-    val typename = typenamesByIdentity.get(identity)
-    if (typename == null)
-      //return mkId("UnknownType", 0)
-      throw new Exception("Cannot make reference to unknown identity: " + identity)
-
+    val typename = Option(typenamesByIdentity.get(identity))
+        .getOrElse(throw new Exception("Cannot make reference to unknown identity: " + identity))
     val id = idsByTypenameByIdentity(typename).get(identity)
 
     mkId(typename, id)
@@ -137,7 +136,7 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
 }
 
 object JLDSerializer {
-  val base = "https://github.com/clulab/eidos/wiki/JSON-LD"
+  val base = "https://w3id.org/wm/cag/"
 }
 
 class JLDArgument(serializer: JLDSerializer, typeString: String, mention: EidosMention)

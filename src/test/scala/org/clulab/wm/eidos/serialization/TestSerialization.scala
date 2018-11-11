@@ -35,7 +35,7 @@ class TestSerialization extends Test {
 
     mentionsOut.foreach {
         case eventMention: EventMention =>
-          var index = 0
+          var index = 0 // test
 
           serialize(eventMention.labels, index)
           index += 1
@@ -64,7 +64,7 @@ class TestSerialization extends Test {
           serialize(eventMention, index)
           index += 1
         case textBoundMention: TextBoundMention =>
-          var index = 0
+          var index = 0 // test
 
           textBoundMention.attachments.foreach { attachment =>
             serialize(attachment, index); index += 1
