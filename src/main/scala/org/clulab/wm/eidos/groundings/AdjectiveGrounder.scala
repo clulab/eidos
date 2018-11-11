@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.utils.Closer
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.odin.Mention
 
 case class AdjectiveGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
   protected def isGrounded = intercept != None && mu != None && sigma != None
@@ -22,18 +22,20 @@ trait AdjectiveGrounder {
 }
 
 class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounder {
-  
+
   protected def load(): Map[Quantifier, Map[String, Double]] =
+      Closer.autoClose(Sourcer.sourceFromResource(quantifierKBFile)) { source =>
       // adjective -> Map(name:value)
-      FileUtils.getCommentedLinesFromSource(Sourcer.sourceFromResource(quantifierKBFile))
-          .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
-            val fields = line.split("\t")
-            val adj = fields(0)
-            val mu_coeff = fields(1).toDouble
-            val sigma_coeff = fields(2).toDouble
-            val intercept = fields(3).toDouble
-            adj -> Map(EidosAdjectiveGrounder.MU_COEFF -> mu_coeff, EidosAdjectiveGrounder.SIGMA_COEFF -> sigma_coeff, EidosAdjectiveGrounder.INTERCEPT -> intercept)
-          }.toMap
+        FileUtils.getCommentedLinesFromSource(source)
+            .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
+              val fields = line.split("\t")
+              val adj = fields(0)
+              val mu_coeff = fields(1).toDouble
+              val sigma_coeff = fields(2).toDouble
+              val intercept = fields(3).toDouble
+              adj -> Map(EidosAdjectiveGrounder.MU_COEFF -> mu_coeff, EidosAdjectiveGrounder.SIGMA_COEFF -> sigma_coeff, EidosAdjectiveGrounder.INTERCEPT -> intercept)
+            }.toMap
+      }
   
   protected val grounder: Map[Quantifier, Map[String, Double]] = load()
   

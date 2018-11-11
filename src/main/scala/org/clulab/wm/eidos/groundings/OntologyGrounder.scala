@@ -51,7 +51,9 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
   override def groundOntology(mention: EidosMention): OntologyGrounding = {
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
       val propertyAttachments = mention.odinMention.attachments.filter(a => a.isInstanceOf[Property])
-      val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray
+      // These need to be sorted after retrieval from a set.  Otherwise the order differs and
+      // eventual multiplication of floats in different orders produces different results.
+      val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray.sorted
 
       OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
     }
@@ -62,10 +64,10 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
 
 object EidosOntologyGrounder {
   // Namespace strings for the different in-house ontologies we typically use
-  val   UN_NAMESPACE = "un"
-  val  WDI_NAMESPACE = "wdi"
-  val  FAO_NAMESPACE = "fao"
-  val MESH_NAMESPACE = "mesh"
+  val    UN_NAMESPACE = "un"
+  val   WDI_NAMESPACE = "wdi"
+  val   FAO_NAMESPACE = "fao"
+  val  MESH_NAMESPACE = "mesh"
   val PROPS_NAMESPACE = "props"
 
   protected val logger = LoggerFactory.getLogger(this.getClass())

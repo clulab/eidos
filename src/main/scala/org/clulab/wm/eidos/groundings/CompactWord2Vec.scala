@@ -1,10 +1,13 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.io.{FileOutputStream, ObjectOutputStream}
 
 import org.clulab.embeddings.word2vec.Word2Vec
-import org.clulab.utils.ClassLoaderObjectInputStream
+
+import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
+
 import org.slf4j.LoggerFactory
 
 //import scala.collection.immutable.HashMap
@@ -32,18 +35,19 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 
   def save(filename: String): Unit = {
     val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
-    val objectOutputStream = new ObjectOutputStream(new FileOutputStream(filename))
-    // Writing is performed in two steps so that the parts can be processed separately
-    // when read back in.
-    objectOutputStream.writeObject(words)
-    objectOutputStream.writeObject(array)
-    objectOutputStream.close()
+
+    Closer.autoClose(new ObjectOutputStream(new FileOutputStream(filename))) { objectOutputStream =>
+      // Writing is performed in two steps so that the parts can be
+      // processed separately when read back in.
+      objectOutputStream.writeObject(words)
+      objectOutputStream.writeObject(array)
+    }
   }
 
   def dotProduct(row1: Int, row2: Int): Float = {
     val offset1 = row1 * dimension
     val offset2 = row2 * dimension
-    var sum = 0.0f
+    var sum = 0.0f // optimization
 
     for (i <- 0 until dimension)
       sum += array(offset1 + i) * array(offset2 + i)
@@ -59,11 +63,10 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     */
   def similarity(w1: String, w2: String): Float = {
     val v1o = map.get(w1)
-    if (v1o.isEmpty) return -1
     val v2o = map.get(w2)
-    if (v2o.isEmpty) return -1
 
-    dotProduct(v1o.get, v2o.get)
+    if (v1o.isEmpty || v2o.isEmpty) -1
+    else dotProduct(v1o.get, v2o.get)
   }
 
   /** Adds the content of src to dest, in place */
@@ -86,8 +89,8 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
 
   /** Normalizes this vector to length 1, in place */
   def norm(weights: Array[Float]): Array[Float] = {
-    var i = 0
-    var len = 0.0f
+    var i = 0 // optimization
+    var len = 0.0f // optimization
 
     while (i < weights.length) {
       len += weights(i) * weights(i)
@@ -137,8 +140,8 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     // Top words
     val pairs = new ArrayBuffer[(Float, String, String)]
 
-    var avg = 0.0f
-    var count = 0
+    var avg = 0.0f // optimization
+    var count = 0 // optimization
     for (s1 <- t1) {
       val v1 = map.get(s1)
       if (v1.isDefined) {
@@ -183,30 +186,12 @@ object CompactWord2Vec {
   }
 
   protected def loadTxt(filename: String, resource: Boolean): BuildType = {
-    val source =
-        if (resource) Sourcer.sourceFromResource(filename)
-        else Sourcer.sourceFromFile(filename)
-    val lines = source.getLines()
-    val build = buildMatrix(lines)
-    source.close()
-    build
-  }
-
-  def updatedLoad[A](filename: String, classProvider: Any = this): A = {
-    val classLoader = classProvider.getClass().getClassLoader()
-    val fileInputStream = new FileInputStream(filename)
-    var objectInputStream: ObjectInputStream = null
-
-    try {
-      objectInputStream = new ClassLoaderObjectInputStream(classLoader, fileInputStream)
-
-      objectInputStream.readObject().asInstanceOf[A]
-    }
-    finally {
-      if (objectInputStream != null)
-        objectInputStream.close()
-      else
-        fileInputStream.close()
+    Closer.autoClose(
+      if (resource) Sourcer.sourceFromResource(filename)
+      else Sourcer.sourceFromFile(filename)
+    ) { source =>
+      val lines = source.getLines()
+      buildMatrix(lines)
     }
   }
 
@@ -218,37 +203,35 @@ object CompactWord2Vec {
 //    (map, array)
 
     // This is "unrolled" for performance purposes.
-    val objectInputStream = new ClassLoaderObjectInputStream(this.getClass().getClassLoader(), new FileInputStream(filename))
-    val map: MapType = new MutableMapType()
+    Closer.autoClose(FileUtils.newClassLoaderObjectInputStream(filename, this)) { objectInputStream =>
+      val map: MapType = new MutableMapType()
 
-    {
-      // This is so that text can be abandoned at the end of the block, before the array is read.
-      val text = objectInputStream.readObject().asInstanceOf[String]
-      val stringBuilder = new StringBuilder
-      var count = 0
+      {
+        // This is so that text can be abandoned at the end of the block, before the array is read.
+        val text = objectInputStream.readObject().asInstanceOf[String]
+        val stringBuilder = new StringBuilder
 
-      for (i <- 0 until text.size) {
-        val c = text(i)
+        for (i <- 0 until text.size) {
+          val c = text(i)
 
-        if (c == '\n') {
-          map += ((stringBuilder.result(), count))
-          count += 1
-          stringBuilder.clear()
+          if (c == '\n') {
+            map += ((stringBuilder.result(), map.size))
+            stringBuilder.clear()
+          }
+          else
+            stringBuilder.append(c)
         }
-        else
-          stringBuilder.append(c)
+        map += ((stringBuilder.result(), map.size))
       }
-      map += ((stringBuilder.result(), count))
+      val array = objectInputStream.readObject().asInstanceOf[ArrayType]
+      
+      (map, array)
     }
-
-    val array = objectInputStream.readObject().asInstanceOf[ArrayType]
-    objectInputStream.close
-    (map, array)
   }
 
   protected def norm(array: ArrayType, rowIndex: Int, rowWidth: Int) {
     val offset = rowIndex * rowWidth
-    var len = 0.0f
+    var len = 0.0f // optimization
 
     for (i <- 0 until rowWidth)
       len += array(offset + i) * array(offset + i)
@@ -270,7 +253,6 @@ object CompactWord2Vec {
         else (0, 0)
     val map = new MutableMapType()
     val array = new ArrayType(wordCount * dimension)
-    var duplicates = 0
 
     for ((line, lineIndex) <- linesZipWithIndex) {
       val bits = line.split(' ')
@@ -281,8 +263,7 @@ object CompactWord2Vec {
             logger.info(s"'${word}' is duplicated in the vector file.")
             // Use space because we will not be looking for words like that.
             // The array will not be filled in for this map.size value.
-            map.put(" " + duplicates, map.size)
-            duplicates += 1
+            map.put(" " + map.size, map.size)
             map(word)
           }
           else map.size
