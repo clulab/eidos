@@ -84,19 +84,20 @@ object FileUtils {
   def copyResourceToFile(src: String, dest: File): Unit = {
     Closer.autoClose(FileUtils.getClass.getResourceAsStream(src)) { is: InputStream =>
       Closer.autoClose(new FileOutputStream(dest)) { os: FileOutputStream =>
-        var buf = new Array[Byte](8192)
-        var continue = true
+        val buf = new Array[Byte](8192)
 
-        while (continue) {
+        def transfer: Boolean = {
           val len = is.read(buf)
+          val continue =
+            if (len > 0) {
+              os.write(buf, 0, len); true
+            }
+            else false
 
-          continue =
-              if (len > 0) {
-                os.write(buf, 0, len);
-                true
-              }
-              else false
+          continue
         }
+
+        while (transfer) { }
       }
     }
   }

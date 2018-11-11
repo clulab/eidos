@@ -55,8 +55,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
             new TimeInterval((interval._1._1 + offset, interval._1._2 + offset), interval._2, sentence_text.slice(interval._1._1, interval._1._2))
           }
         }
-      else
-          List()
+        else
+          List.empty[TimeInterval]
     }
   }
 
