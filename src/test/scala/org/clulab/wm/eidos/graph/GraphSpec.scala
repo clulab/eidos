@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.graph
 
-import scala.collection.Seq
+import java.util.{IdentityHashMap => JIdentityHashMap}
+
 import org.clulab.odin.Attachment
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
@@ -10,6 +11,14 @@ import org.clulab.wm.eidos.attachments._
 
 import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.{mix, mixLast}
+
+class TestResult(val mention: Option[Mention], val complaints: Seq[String])
+
+object TestResult {
+  type TestResults = JIdentityHashMap[GraphSpec, TestResult]
+}
+
+import TestResult.TestResults
 
 case class Unmodified(quantifier: Quantifier) extends Attachment
 
@@ -45,7 +54,7 @@ abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[
         .append(abbrev)
         .append("(")
         .append(trigger)
-    if (quantifiers != None)
+    if (quantifiers.isDefined)
       stringBuilder
           .append(", ")
           .append(quantifiers.get.map("Quant: " + _).mkString(", "))
@@ -56,7 +65,7 @@ abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[
   def canEqual(other: Any): Boolean
 
   override def hashCode: Int = {
-    val h0 = getClass().getName().##
+    val h0 = getClass.getName.##
     val h1 = mix(h0, trigger.##)
 
     mixLast(h1, sortedQuantifiers.##)
@@ -75,16 +84,16 @@ abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[
 
 object TriggeredAttachmentSpec {
 
-  protected def matchAttachment(attachment: TriggeredAttachment, attachmentSpec: TriggeredAttachmentSpec) = {
+  protected def matchAttachment(attachment: TriggeredAttachment, attachmentSpec: TriggeredAttachmentSpec): Boolean = {
     val result = attachment.trigger == attachmentSpec.trigger &&
-      attachment.sortedQuantifiers.sameElements(attachmentSpec.sortedQuantifiers) &&
+      attachment.sortedQuantifiers == attachmentSpec.sortedQuantifiers &&
       attachmentSpec.matchClass(attachment)
     result
   }
 
   @tailrec
   protected def recMatchAttachments(attachments: Set[TriggeredAttachment], attachmentSpecs: Seq[TriggeredAttachmentSpec]): Boolean = {
-    if (attachments.size == 0 && attachmentSpecs.size == 0)
+    if (attachments.isEmpty && attachmentSpecs.isEmpty)
       true
     else {
       val attachmentSpec = attachmentSpecs.head
@@ -96,7 +105,7 @@ object TriggeredAttachmentSpec {
     }
   }
 
-  def matchAttachments(mention: Mention, attachmentSpecs: Set[TriggeredAttachmentSpec]) = {
+  def matchAttachments(mention: Mention, attachmentSpecs: Set[TriggeredAttachmentSpec]): Boolean = {
     // For now, let's not write tests for Property attachments as it's likey to be fluid for a bit
     // FIXME: revisit
     def filterCriteria(a: Attachment): Boolean = a.isInstanceOf[TriggeredAttachment] && ! a.isInstanceOf[Property]
@@ -131,7 +140,7 @@ abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
   def canEqual(other: Any): Boolean
 
   override def hashCode: Int = {
-    val h0 = getClass().getName().##
+    val h0 = getClass.getName.##
     val h1 = mix(h0, text.##)
 
     h1
@@ -149,7 +158,7 @@ abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
 
 object ContextAttachmentSpec {
 
-  protected def matchAttachment(attachment: ContextAttachment, attachmentSpec: ContextAttachmentSpec) = {
+  protected def matchAttachment(attachment: ContextAttachment, attachmentSpec: ContextAttachmentSpec): Boolean = {
     val result = attachment.text == attachmentSpec.text &&
       attachmentSpec.matchClass(attachment)
     result
@@ -157,7 +166,7 @@ object ContextAttachmentSpec {
 
   @tailrec
   protected def recMatchAttachments(attachments: Set[ContextAttachment], attachmentSpecs: Seq[ContextAttachmentSpec]): Boolean = {
-    if (attachments.size == 0 && attachmentSpecs.size == 0)
+    if (attachments.isEmpty && attachmentSpecs.isEmpty)
       true
     else {
       val attachmentSpec = attachmentSpecs.head
@@ -169,8 +178,8 @@ object ContextAttachmentSpec {
     }
   }
 
-  def matchAttachments(mention: Mention, attachmentSpecs: Set[ContextAttachmentSpec]) = {
-    if (mention.attachments.filter(_.isInstanceOf[ContextAttachment]).size != attachmentSpecs.size)
+  def matchAttachments(mention: Mention, attachmentSpecs: Set[ContextAttachmentSpec]): Boolean = {
+    if (mention.attachments.count(_.isInstanceOf[ContextAttachment]) != attachmentSpecs.size)
       false
     else {
       val attachments: Set[ContextAttachment] = mention.attachments
@@ -183,7 +192,7 @@ object ContextAttachmentSpec {
 }
 
 class Quant(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
-  override def toString = toString(Quant.abbrev)
+  override def toString: String = toString(Quant.abbrev)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Quant]
 
@@ -203,7 +212,7 @@ object Quant {
 }
 
 class Dec(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
-  override def toString = toString(Dec.abbrev)
+  override def toString: String = toString(Dec.abbrev)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Dec]
 
@@ -215,7 +224,7 @@ class Dec(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAt
 
 object Dec {
   val abbrev = "DEC"
-  val targetClass = Decrease.getClass()
+  val targetClass: Class[_] = Decrease.getClass
 
   def apply(trigger: String) =
       new Dec(trigger, None)
@@ -225,7 +234,7 @@ object Dec {
 }
 
 class Inc(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
-  override def toString = toString(Inc.abbrev)
+  override def toString: String = toString(Inc.abbrev)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Inc]
 
@@ -237,17 +246,17 @@ class Inc(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAt
 
 object Inc {
   val abbrev = "INC"
-  val targetClass = Increase.getClass()
+  val targetClass: Class[_] = Increase.getClass
 
-  def apply(trigger: String) =
+  def apply(trigger: String): Inc =
     new Inc(trigger, None)
   
-  def apply(trigger: String, quantifiers: String*) =
+  def apply(trigger: String, quantifiers: String*): Inc =
       new Inc(trigger, Option(quantifiers.toSeq))
 }
 
 class TimEx(text: String) extends ContextAttachmentSpec(text) {
-  override def toString = toString(TimEx.abbrev)
+  override def toString: String = toString(TimEx.abbrev)
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[TimEx]
 
@@ -281,7 +290,7 @@ class GeoLoc(text: String) extends ContextAttachmentSpec(text) {
 }
 
 class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
-  override def toString = toString("")
+  override def toString: String = toString("")
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Unmarked]
 
@@ -297,10 +306,7 @@ object Unmarked {
 }
 
 class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
-  var mention: Option[Mention] = None
-  var tested = false
-  var complaints = Seq[String]()
-  
+
   protected def matchAttachments(useTimeNorm: Boolean, useGeoNorm: Boolean)(mention: Mention): Boolean =
       TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TriggeredAttachmentSpec]).map(_.asInstanceOf[TriggeredAttachmentSpec])) &&
         ((useTimeNorm, useGeoNorm) match {
@@ -329,26 +335,26 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
     matches
   }
   
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
-    if (!tested) {
+  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+    if (!testResults.containsKey(this)) {
       val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
-      if (matches.size < 1)
-        complaints = Seq("Could not find NodeSpec " + this)
-      else if (matches.size > 1)
+      val testResult =
+          if (matches.size < 1)
+            new TestResult(None, Seq("Could not find NodeSpec " + this))
+          else if (matches.size > 1)
+            new TestResult(None, Seq("Found too many (" + matches.size + ") instances of NodeSpec " + this))
+          else
+            new TestResult(Some(matches.head), Seq.empty)
 
-        complaints = Seq("Found too many (" + matches.size + ") instances of NodeSpec " + this)
-
-      else
-        mention = Some(matches.head)
-      tested = true
+      testResults.put(this, testResult)
     }
-    complaints
+    testResults.get(this)
   }
   
   protected def toString(left: String, right: String): String = {
     val stringBuilder = new StringBuilder(left)
         .append(nodeText)
-        .append(if (!attachmentSpecs.isEmpty) "|" else "")
+        .append(if (attachmentSpecs.nonEmpty) "|" else "")
         
     attachmentSpecs.foreach(attachmentSpec => stringBuilder.append(attachmentSpec.toString))
     stringBuilder
@@ -356,7 +362,7 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
         .toString()
   }
   
-  override def toString(): String = toString("[", "]")
+  override def toString: String = toString("[", "]")
 }
 
 object NodeSpec {
@@ -381,17 +387,22 @@ object NodeSpec {
 }
 
 class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
-  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
-    if (!tested) {
+
+  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+    if (!testResults.containsKey(this)) {
       val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
-      if (matches.size != 0)
-        complaints = Seq("Could find AntiNodeSpec " + this)
-      tested = true
+      val testResult =
+          if (matches.nonEmpty)
+            new TestResult(None, Seq("Could find AntiNodeSpec " + this))
+          else
+            new TestResult(None, Seq.empty)
+
+      testResults.put(this, testResult)
     }
-    complaints
+    testResults.get(this)
   }
 
-  override def toString(): String = toString("]", "[")
+  override def toString: String = toString("]", "[")
 }
 
 object AntiNodeSpec {
@@ -401,84 +412,76 @@ object AntiNodeSpec {
       new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
+
 class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) extends GraphSpec {
-  var mention: Option[Mention] = None
-  var tested = false
-  var complaints = Seq[String]()
 
-  protected def getArgument(mention: EventMention, nodeSpec: NodeSpec, argument: String): Option[Mention] = {
-    val tmpMention = nodeSpec.mention.get
-
-    if (mention.arguments.contains(argument))
-      mention.arguments(argument).find(_ == tmpMention)
+  protected def getArgument(eventMention: EventMention, causeOrEffectMention: Option[Mention], argument: String): Option[Mention] = {
+    if (eventMention.arguments.contains(argument) && causeOrEffectMention.isDefined)
+      eventMention.arguments(argument).find(_ == causeOrEffectMention.get)
     else 
       None
   }
-    
-  protected def getCause(mention: EventMention): Option[Mention] =
-      getArgument(mention, cause, "cause")
-
-  protected def getEffect(mention: EventMention, effect: NodeSpec): Option[Mention] =
-      getArgument(mention, effect, "effect")
   
-  protected def matchCause(mention: EventMention): Boolean =
-      getArgument(mention, cause, "cause") != None
+  protected def matchCause(causeMention: Option[Mention])(eventMention: EventMention): Boolean =
+      getArgument(eventMention, causeMention, "cause").isDefined
 
-  protected def matchEffect(mention: EventMention) =
-      getArgument(mention, effect, "effect") != None
+  protected def matchEffect(effectMention: Option[Mention])(eventMention: EventMention): Boolean =
+      getArgument(eventMention, effectMention, "effect").isDefined
 
-  protected def crossMatchCause(mention: EventMention): Boolean =
-    getArgument(mention, cause, "effect") != None
+  protected def crossMatchCause(causeMention: Option[Mention])(eventMention: EventMention): Boolean =
+    getArgument(eventMention, causeMention, "effect").isDefined
 
-  protected def crossMatchEffect(mention: EventMention) =
-    getArgument(mention, effect, "cause") != None
+  protected def crossMatchEffect(effectMention: Option[Mention])(eventMention: EventMention): Boolean =
+    getArgument(eventMention, effectMention, "cause").isDefined
 
-  protected def testSpec(mentions: Seq[Mention]): Seq[Mention] = {
+  protected def testSpec(mentions: Seq[Mention], causeMention: Option[Mention], effectMention: Option[Mention]): Seq[Mention] = {
     val matches1 = mentions
     val matches2 = matches1.filter(_.isInstanceOf[EventMention])
     val matches3 = matches2.map(_.asInstanceOf[EventMention])
     val matches4 = matches3.filter(_.matches(event.label))
-    val matches5a = matches4.filter(matchCause)
-    val matches6a = matches5a.filter(matchEffect)
+
+    val matches5a = matches4.filter(matchCause(causeMention))
+    val matches6a = matches5a.filter(matchEffect(effectMention))
     val matches =
       if (event.directed)
         matches6a
       else {
-        val matches5b = matches4.filter(crossMatchCause)
-        val matches6b = matches5b.filter(crossMatchEffect)
+        val matches5b = matches4.filter(crossMatchCause(causeMention))
+        val matches6b = matches5b.filter(crossMatchEffect(effectMention))
 
         matches6a ++ matches6b
       }
 
     matches
   }
-  
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
-    if (!tested) {
-      val causeComplaints = cause.test(mentions, useTimeNorm, useGeoNorm)
-      val effectComplaints = effect.test(mentions, useTimeNorm, useGeoNorm)
+
+  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+    if (!testResults.containsKey(this)) {
+      val causeTestResult = cause.test(mentions, useTimeNorm, useGeoNorm, testResults)
+      val effectTestResult = effect.test(mentions, useTimeNorm, useGeoNorm, testResults)
+
+      val causeComplaints = causeTestResult.complaints
+      val effectComplaints = effectTestResult.complaints
 
       val causeSuccess = causeComplaints.isEmpty
       val effectSuccess = effectComplaints.isEmpty
-
-      val edgeComplaints =
+      val edgeTestResult =
           if (causeSuccess && effectSuccess) {
-            val matches = testSpec(mentions)
+            val matches = testSpec(mentions, causeTestResult.mention, effectTestResult.mention)
 
-            tested = true
             if (matches.size < 1)
-              Seq("Could not find EdgeSpec " + this)
+              new TestResult(None, Seq("Could not find EdgeSpec " + this))
             else if (matches.size > 1)
-              Seq("Found too many (" + matches.size + ") instances of EdgeSpec " + this)
-            else {
-              mention = Some(matches.head)
-              Seq.empty
-            }
+              new TestResult(None, Seq("Found too many (" + matches.size + ") instances of EdgeSpec " + this))
+            else
+              new TestResult(Some(matches.head), Seq.empty)
           }
-          else Seq.empty
-      complaints = causeComplaints ++ effectComplaints ++ edgeComplaints
+          else new TestResult(None, Seq.empty)
+      val testResult = new TestResult(edgeTestResult.mention, edgeTestResult.complaints ++ causeComplaints ++ effectComplaints)
+
+      testResults.put(this, testResult)
     }
-    complaints
+    testResults.get(this)
   }
 
   def toString(left: String, right: String): String = {
@@ -490,7 +493,7 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
         .toString()
   }
     
-  override def toString(): String = toString("->(", ")->")
+  override def toString: String = toString("->(", ")->")
 }
 
 object EdgeSpec {
@@ -499,30 +502,34 @@ object EdgeSpec {
 }
 
 class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends EdgeSpec(cause, event, effect) {
-  override def toString(): String = toString("->)", "(->")
+  override def toString: String = toString("->)", "(->")
 
-  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[String] = {
-    if (!tested) {
-      val causeComplaints = cause.test(mentions, useTimeNorm, useGeoNorm)
-      val effectComplaints = effect.test(mentions, useTimeNorm, useGeoNorm)
+  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+    if (!testResults.containsKey(this)) {
+      val causeTestResult = cause.test(mentions, useTimeNorm, useGeoNorm, testResults)
+      val effectTestResult = effect.test(mentions, useTimeNorm, useGeoNorm, testResults)
+
+      val causeComplaints = causeTestResult.complaints
+      val effectComplaints = effectTestResult.complaints
 
       val causeSuccess = causeComplaints.isEmpty
       val effectSuccess = effectComplaints.isEmpty
 
-      val edgeComplaints =
-        if (causeSuccess && effectSuccess) {
-          val matches = testSpec(mentions)
+      val edgeTestResult =
+          if (causeSuccess && effectSuccess) {
+            val matches = testSpec(mentions, causeTestResult.mention, effectTestResult.mention)
 
-          tested = true
-          if (matches.size != 0)
-            Seq("Could find AntiEdgeSpec " + this)
-          else
-            Seq.empty
-        }
-        else Seq.empty
-      complaints = causeComplaints ++ effectComplaints ++ edgeComplaints
+            if (matches.nonEmpty)
+              new TestResult(None, Seq("Could find AntiEdgeSpec " + this))
+            else
+              new TestResult(None, Seq.empty)
+          }
+          else new TestResult(None, Seq.empty)
+      val testResult = new TestResult(edgeTestResult.mention, edgeTestResult.complaints ++ causeComplaints ++ effectComplaints)
+
+      testResults.put(this, testResult)
     }
-    complaints
+    testResults.get(this)
   }
 }
 

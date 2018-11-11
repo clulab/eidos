@@ -113,11 +113,8 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
   }
 
   def mkRef(identity: Any): JObject = {
-    val typename = typenamesByIdentity.get(identity)
-    if (typename == null)
-      //return mkId("UnknownType", 0)
-      throw new Exception("Cannot make reference to unknown identity: " + identity)
-
+    val typename = Option(typenamesByIdentity.get(identity))
+        .getOrElse(throw new Exception("Cannot make reference to unknown identity: " + identity))
     val id = idsByTypenameByIdentity(typename).get(identity)
 
     mkId(typename, id)

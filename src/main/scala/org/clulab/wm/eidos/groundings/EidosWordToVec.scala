@@ -47,8 +47,8 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
     // This would be way prettier, but it is ~20 times slower
     // v1.indices.foldRight(0.0f)((i, sum) => sum + v1(i) * v2(i))
-    var sum = 0.0f
-    var i = 0
+    var sum = 0.0f // optimization
+    var i = 0 // optimization
     while (i < v1.length) {
       sum += v1(i) * v2(i)
       i += 1

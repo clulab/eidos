@@ -33,16 +33,17 @@ object DomainOntology {
 
     val classLoader = classProvider.getClass().getClassLoader()
     val fileInputStream = new FileInputStream(filename)
-    var objectInputStream: ObjectInputStream = null
+    // Scala Cookbook suggests this design.
+    var objectInputStream: Option[ObjectInputStream] = None // exception
 
     try {
-      objectInputStream = new ClassLoaderObjectInputStream(classLoader, fileInputStream)
+      objectInputStream = Some(new ClassLoaderObjectInputStream(classLoader, fileInputStream))
 
-      objectInputStream.readObject().asInstanceOf[A]
+      objectInputStream.get.readObject().asInstanceOf[A]
     }
     finally {
-      if (objectInputStream != null)
-        objectInputStream.close()
+      if (objectInputStream.isDefined)
+        objectInputStream.get.close()
       else
         fileInputStream.close()
       logger.info("Serialized Ontology successfully loaded.")

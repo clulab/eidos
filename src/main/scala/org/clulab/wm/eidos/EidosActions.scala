@@ -64,58 +64,60 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
 
   def basicDeterminerCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
     val (eventMentions, otherMentions) = mentions.partition(_.isInstanceOf[EventMention])
-    if (eventMentions.isEmpty) return mentions
 
-    val orderedBySentence = eventMentions.groupBy(_.sentence)
-    val numSentences = eventMentions.head.document.sentences.length
-    if (orderedBySentence.isEmpty) {
-      return mentions
-    } else {
-      val resolvedMentions = new ArrayBuffer[Mention]
-      for (i <- 1 until numSentences) {
+    if (eventMentions.isEmpty) mentions
+    else {
+      val orderedBySentence = eventMentions.groupBy(_.sentence)
+      val numSentences = eventMentions.head.document.sentences.length
 
-        for (mention <- orderedBySentence.getOrElse(i, Seq.empty[Mention])) {
+      if (orderedBySentence.isEmpty) mentions
+      else {
+        val resolvedMentions = new ArrayBuffer[Mention]
 
-          // If there is an event with "this/that" as cause...
-          if (EidosActions.existsDeterminerCause(mention)) {
+        for (i <- 1 until numSentences) {
+          for (mention <- orderedBySentence.getOrElse(i, Seq.empty[Mention])) {
 
-            // Get Causal mentions from the previous sentence (if any)
-            val prevSentenceCausal = getPreviousSentenceCausal(orderedBySentence, i)
-            if (prevSentenceCausal.nonEmpty) {
+            // If there is an event with "this/that" as cause...
+            if (EidosActions.existsDeterminerCause(mention)) {
 
-              // If there was also a causal event in the previous sentence
-              val lastOccurring = prevSentenceCausal.sortBy(-_.tokenInterval.end).head
-              // antecedant
-              val prevEffects = lastOccurring.arguments("effect")
-              // reference
-              val currCauses = mention.asInstanceOf[EventMention].arguments("cause")
-              if (prevEffects.nonEmpty && currCauses.nonEmpty) {
-                // todo: cover if there is more than one effect?
-                val antecedent = prevEffects.head
-                val anaphor = currCauses.head
-                // Make a new CrossSentence mention using the previous effect as the anchor
-                // Note: Overly simplistic, this is a first pass
-                // todo: expand approach
-                val corefMention = new CrossSentenceMention(
-                  labels = taxonomy.hypernymsFor(EidosSystem.COREF_LABEL),
-                  anchor = antecedent,
-                  neighbor = anaphor,
-                  arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(antecedent)), (EidosActions.ANAPHOR, Seq(anaphor))),
-                  document = mention.document,
-                  keep = true,
-                  foundBy = s"BasicCorefAction_ant:${lastOccurring.foundBy}_ana:${mention.foundBy}",
-                  attachments = Set.empty[Attachment]
-                )
-                resolvedMentions.append(corefMention)
+              // Get Causal mentions from the previous sentence (if any)
+              val prevSentenceCausal = getPreviousSentenceCausal(orderedBySentence, i)
+              if (prevSentenceCausal.nonEmpty) {
 
-              } else throw new RuntimeException(s"Previous or current Causal mention doesn't have effects " +
-                s"\tsent1: ${lastOccurring.sentenceObj.getSentenceText}\n" +
-                s"\tsent2 ${mention.sentenceObj.getSentenceText}")
+                // If there was also a causal event in the previous sentence
+                val lastOccurring = prevSentenceCausal.sortBy(-_.tokenInterval.end).head
+                // antecedant
+                val prevEffects = lastOccurring.arguments("effect")
+                // reference
+                val currCauses = mention.asInstanceOf[EventMention].arguments("cause")
+                if (prevEffects.nonEmpty && currCauses.nonEmpty) {
+                  // todo: cover if there is more than one effect?
+                  val antecedent = prevEffects.head
+                  val anaphor = currCauses.head
+                  // Make a new CrossSentence mention using the previous effect as the anchor
+                  // Note: Overly simplistic, this is a first pass
+                  // todo: expand approach
+                  val corefMention = new CrossSentenceMention(
+                    labels = taxonomy.hypernymsFor(EidosSystem.COREF_LABEL),
+                    anchor = antecedent,
+                    neighbor = anaphor,
+                    arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(antecedent)), (EidosActions.ANAPHOR, Seq(anaphor))),
+                    document = mention.document,
+                    keep = true,
+                    foundBy = s"BasicCorefAction_ant:${lastOccurring.foundBy}_ana:${mention.foundBy}",
+                    attachments = Set.empty[Attachment]
+                  )
+                  resolvedMentions.append(corefMention)
+
+                } else throw new RuntimeException(s"Previous or current Causal mention doesn't have effects " +
+                  s"\tsent1: ${lastOccurring.sentenceObj.getSentenceText}\n" +
+                  s"\tsent2 ${mention.sentenceObj.getSentenceText}")
+              }
             }
           }
         }
+        mentions ++ resolvedMentions
       }
-      mentions ++ resolvedMentions
     }
   }
 

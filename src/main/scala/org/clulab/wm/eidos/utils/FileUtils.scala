@@ -1,13 +1,11 @@
 package org.clulab.wm.eidos.utils
 
 import java.io._
-import java.net.URL
 import java.util.Collection
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.Sinker.logger
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -24,10 +22,9 @@ object FileUtils {
     val filter = new FilenameFilter {
       def accept(dir: File, name: String): Boolean = name.endsWith(extension)
     }
-    
-    val result = dir.listFiles(filter)
-    if (result == null)
-      throw Sourcer.newFileNotFoundException(collectionDir)
+    val result = Option(dir.listFiles(filter))
+        .getOrElse(throw Sourcer.newFileNotFoundException(collectionDir))
+
     result
   }
 
@@ -91,19 +88,21 @@ object FileUtils {
   def copyResourceToFile(src: String, dest: File): Unit = {
     val os: OutputStream = new FileOutputStream(dest)
     val is: InputStream = FileUtils.getClass.getResourceAsStream(src)
+    val buf = new Array[Byte](8192)
 
-    var buf = new Array[Byte](8192)
-    var continue = true
-
-    while (continue) {
+    def transfer: Boolean = {
       val len = is.read(buf)
+      val continue =
+          if (len > 0) {
+            os.write(buf, 0, len); true
+          }
+          else false
 
-      continue =
-        if (len > 0) {
-          os.write(buf, 0, len); true
-        }
-        else false
+      continue
     }
+
+    while (transfer) { }
+
     is.close()
     os.close()
   }
