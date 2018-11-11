@@ -72,7 +72,7 @@ class EnglishExpansionHandler extends ExpansionHandler with LazyLogging {
         .map(addSubsumedAttachments(_, state))
         .map(attachDCT(_, state))
         .map(addOverlappingAttachmentsTextBounds(_, state))
-        .map(edge => EntityHelper.trimEntityEdges(edge, EntityHelper.INVALID_EDGE_TAGS))
+        .map(EntityHelper.trimEntityEdges(_, EntityHelper.INVALID_EDGE_TAGS))
       // Store
       newArgs.put(argType, attached)
     }

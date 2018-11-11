@@ -29,7 +29,7 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
-    val trimmedEntities = distinctEntities.map(edge => EntityHelper.trimEntityEdges(edge, PortugueseEntityFinder.INVALID_EDGE_TAGS))
+    val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty) {
       trimmedEntities

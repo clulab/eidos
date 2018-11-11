@@ -23,7 +23,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     dependency: String,
     depToCheck: Set[String]
   ): Boolean = {
-    // check to see if any intervening tokens are ",
+    // check to see if any intervening tokens are ","
     logger.debug(s"source:\t$sourceIndex")
     logger.debug(s"destination:\t$destIndex")
     logger.debug(s"dependency:\t$dependency")
@@ -37,7 +37,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
     } else true
   }
 
-  // New action designed to expand the args of relevant events only...
+  // Expands the args of "relevant" events only...
   // FIXME: instead consider overriding EnglishExpansionHandler.expandArgs for our purposes
   override def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
     // Yields not only the mention with newly expanded arguments, but also the expanded argument mentions
@@ -65,7 +65,7 @@ class PortugueseExpansionHandler extends EnglishExpansionHandler {
         val dctattached      = attached.map(attachDCT(_, state))
         val propAttached     = addOverlappingAttachmentsTextBounds(dctattached, state)
         // Trim the edges as needed
-        val trimmed          = propAttached.map(edge => EntityHelper.trimEntityEdges(edge, PortugueseEntityFinder.INVALID_EDGE_TAGS))
+        val trimmed          = propAttached.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
         (argType, trimmed)
       }
 

@@ -35,7 +35,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
-    val trimmedEntities = distinctEntities.map(edge => EntityHelper.trimEntityEdges(edge, EntityHelper.INVALID_EDGE_TAGS))
+    val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges(_, EntityHelper.INVALID_EDGE_TAGS))
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty) {
       trimmedEntities
