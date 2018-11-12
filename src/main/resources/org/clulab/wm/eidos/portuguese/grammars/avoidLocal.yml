@@ -10,7 +10,7 @@ rules:
     type: token
     pattern: |
       # sometimes the tag is incorrect, that is why there are multiple versions for 'esse'
-      [lemma=/^(essa|esse|este|aquele|tal)$/]
+      [lemma=/^(essa|esse|este|esta|aquele|tal)$/]
 
 #  - name: "coordinations"
 #    label: Avoid
