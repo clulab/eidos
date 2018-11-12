@@ -10,6 +10,7 @@ acesso
 achado
 adição
 administração
+anterior
 adulto
 agente
 agir
@@ -17,6 +18,7 @@ agravamento
 ajuste
 algoritmo
 alteração
+atual
 amostra
 ano
 aplicação
@@ -43,6 +45,7 @@ conhecimento
 conquista
 conseguinte
 consequencia
+contexto
 constraste
 consumo
 contribuir
@@ -57,7 +60,7 @@ dado
 declara
 demais
 desafio
-desafio
+desenvolvimento
 descrever
 diagnosticar
 diagnóstico
@@ -225,6 +228,7 @@ utilização
 vaca
 valor
 variável
+variabilidade
 verificar
 vez
 visão
