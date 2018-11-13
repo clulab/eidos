@@ -508,8 +508,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         Json.arr(
           s"X$x",
           "x",
-          Json.arr(Json.arr(i.StartOffset_locs, i.EndOffset_locs)),
-          Json.toJson(i.PhraseGeoID)
+          Json.arr(Json.arr(i.startOffset, i.endOffset)),
+          Json.toJson(i.geonameID)
         )
       }
       Json.toJson(timexs)

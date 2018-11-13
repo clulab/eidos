@@ -430,7 +430,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
       geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.StartOffset_locs == trigger.startOffset) else None
+      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
     } yield location match {
       case None => theme
       case Some(l) => theme.withAttachment(new Location(l))

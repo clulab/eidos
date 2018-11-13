@@ -450,7 +450,7 @@ object Time {
 }
 
 @SerialVersionUID(1L)
-class Location(val location_phraseID: GeoPhraseID) extends ContextAttachment(location_phraseID.phraseID, location_phraseID) {
+class Location(val geoPhraseID: GeoPhraseID) extends ContextAttachment(geoPhraseID.text, geoPhraseID) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, Location.kind)
@@ -463,14 +463,14 @@ class Location(val location_phraseID: GeoPhraseID) extends ContextAttachment(loc
     super.equals(other) && {
       val that = other.asInstanceOf[Location]
 
-      this.location_phraseID == that.location_phraseID // Case classes support this.
+      this.geoPhraseID == that.geoPhraseID // Case classes support this.
     }
   }
 
   override def hashCode: Int = {
     val h0 = super.hashCode
 
-    mix(h0, location_phraseID.##)
+    mix(h0, geoPhraseID.##)
   }
 }
 
@@ -489,12 +489,12 @@ object Location {
     if (superDiff != 0)
       superDiff
     else {
-      val startDiff = left.location_phraseID.StartOffset_locs - right.location_phraseID.StartOffset_locs
+      val startDiff = left.geoPhraseID.startOffset - right.geoPhraseID.startOffset
 
       if (startDiff != 0)
         startDiff
       else {
-        val endDiff = left.location_phraseID.EndOffset_locs - right.location_phraseID.EndOffset_locs
+        val endDiff = left.geoPhraseID.endOffset - right.geoPhraseID.endOffset
 
         endDiff
       }

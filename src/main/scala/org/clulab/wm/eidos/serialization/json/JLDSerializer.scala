@@ -340,17 +340,17 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         .map(_.asInstanceOf[TriggeredAttachment])
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldTAttachments = mention.odinMention.attachments.toList
+    val jldTimeAttachments = mention.odinMention.attachments.toList
         .filter(_.isInstanceOf[Time])
         .map(_.asInstanceOf[Time])
         .sortWith(Time.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldLAttachments = mention.odinMention.attachments.toList
+    val jldLocationAttachments = mention.odinMention.attachments.toList
         .filter(_.isInstanceOf[Location])
         .map(_.asInstanceOf[Location])
         .sortWith(Location.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldDAttachments = mention.odinMention.attachments.toList
+    val jldDctAttachments = mention.odinMention.attachments.toList
         .filter(_.isInstanceOf[DCTime])
         .map(_.asInstanceOf[DCTime])
         .sortWith(DCTime.lessThan)
@@ -371,7 +371,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         ("canonicalName" -> mention.canonicalName) ~
         ("groundings" -> jldGroundings) ~
         (JLDProvenance.singular -> provenance()) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldTAttachments ++ jldLAttachments ++ jldDAttachments))
+        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments))
   }
 }
 
@@ -634,10 +634,10 @@ class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
 
       serializer.mkType(this) ~
       serializer.mkId(this) ~
-      ("startOffset" -> geoid.StartOffset_locs) ~
-      ("endOffset" -> geoid.EndOffset_locs) ~
-      ("text" -> geoid.phraseID) ~
-      ("geoID" -> geoid.PhraseGeoID.map(_.toString))
+      ("startOffset" -> geoid.startOffset) ~
+      ("endOffset" -> geoid.endOffset) ~
+      ("text" -> geoid.text) ~
+      ("geoID" -> geoid.geonameID.map(_.toString))
       // (JLDTimeInterval.plural -> toJObjects(jldIntervals))
   }
 }
