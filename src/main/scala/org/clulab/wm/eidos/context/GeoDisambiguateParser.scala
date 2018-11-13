@@ -6,8 +6,6 @@ import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
 import org.nd4j.linalg.factory.Nd4j
 
-import scala.collection.mutable
-
 object GeoDisambiguateParser {
   val I_LOC = 0
   val B_LOC = 1
@@ -18,21 +16,18 @@ object GeoDisambiguateParser {
 
 class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
   protected val network: ComputationGraph = KerasModelImport.importKerasModelAndWeights(modelPath, false)
-  lazy protected val word2int: mutable.Map[String, Int] = readDict(word2IdxPath)
-  lazy protected val loc2geonameID: mutable.Map[String, Int] = readDict(loc2geonameIDPath) // provide path of geoname dict file having geonameID with max population
+  lazy protected val word2int: Map[String, Int] = readDict(word2IdxPath)
+  // provide path of geoname dict file having geonameID with max population
+  lazy protected val loc2geonameID: Map[String, Int] = readDict(loc2geonameIDPath)
 
-  protected def readDict(dictPath: String): mutable.Map[String, Int] = {
-    // TODO make nonmutable by using plain .map
-    val dict = mutable.Map.empty[String, Int]
-
+  protected def readDict(dictPath: String): Map[String, Int] = {
     Closer.autoClose(Sourcer.sourceFromResource(dictPath)) { source =>
-      source.getLines.foreach { line =>
+      source.getLines.map { line =>
         val words = line.split(' ')
 
-        dict += (words(0).toString -> words(1).toInt)
-      }
+        (words(0).toString -> words(1).toInt)
+      }.toMap
     }
-    dict
   }
 
   def makeFeatures(words: Array[String]): Array[Float] = {
@@ -68,6 +63,9 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
       startOffsets: Array[Int], endOffsets: Array[Int]): Seq[GeoPhraseID] = {
 
     def newGeoPhraseID(startIndex: Int, endIndex: Int): GeoPhraseID = {
+      // The previous version changed a location phrase into which '_' had been
+      // inserted into a prettyLocationPhrase by changing '_' to ' '.  However,
+      // that is incorrect if the location phrase contained its own '_' characters.
       val prettyLocationPhrase = words.slice(startIndex, endIndex).mkString(" ")
       val locationPhrase = prettyLocationPhrase.replace(' ', '_').toLowerCase
       val geoNameId = loc2geonameID.get(locationPhrase)

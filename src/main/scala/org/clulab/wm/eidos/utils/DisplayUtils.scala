@@ -29,8 +29,10 @@ object DisplayUtils {
       if (printDeps) sb.append(syntacticDependenciesToString(s) + nl)
       sb.append(nl)
 
-      sb.append("timeExpressions:" + nl + (displayTimeExpressions(time(i))) + nl)
-      sb.append("locationExpressions:" + nl + (displayLocationExpressions(location(i))) + nl)
+      if (time.isDefined)
+        sb.append("timeExpressions:" + nl + (displayTimeExpressions(time.get(i))) + nl)
+      if (location.isDefined)
+        sb.append("locationExpressions:" + nl + (displayLocationExpressions(location.get(i))) + nl)
 
       val sortedMentions = mentionsBySentence(i).sortBy(_.label)
       val (events, entities) = sortedMentions.partition(_ matches "Event")
@@ -47,7 +49,7 @@ object DisplayUtils {
     sb.toString
   }
 
-  def displayTimeExpressions(intervals: List[TimeInterval]): String = {
+  def displayTimeExpressions(intervals: Seq[TimeInterval]): String = {
     val sb = new StringBuffer()
     for (interval <- intervals) {
       sb.append(s"$tab span: ${interval.span._1},${interval.span._2} $nl")
@@ -166,7 +168,7 @@ object DisplayUtils {
 
   def htmlTab: String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 
-  def webAppTimeExpressions(intervals: List[TimeInterval]): String =
+  def webAppTimeExpressions(intervals: Seq[TimeInterval]): String =
       xml.Utility.escape(displayTimeExpressions(intervals))
           .replaceAll(nl, "<br>")
           .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")
