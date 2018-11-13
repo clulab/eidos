@@ -6,19 +6,6 @@ vars: org/clulab/wm/eidos/portuguese/grammars/triggers.yml
   #other_triggers: "accept|direct|necess|overexpress|potenti|re-express|rescu|"
 
 rules:
-  #Entities are found with EntityFinder! Not extracted here!
-
-  #Avoid
-  - import: org/clulab/wm/eidos/portuguese/grammars/avoidLocal.yml
-    vars:
-      rulepriority: "1"
-
-#  #Quantifiers
-#  - import: org/clulab/wm/eidos/portuguese/grammars/lexiconner.yml
-#    vars:
-#      rulepriority: "1"
-
-
   #Events
   # TODO: 'with X, Y...' sentences:
   # example: "With the high cost of production, food imports will further reduce farmers' chances to make a living from agriculture."
