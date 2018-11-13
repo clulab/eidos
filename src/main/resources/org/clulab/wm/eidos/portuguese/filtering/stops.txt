@@ -45,7 +45,7 @@ sudoeste
 sul
 sulista
 teste
-todavia
+
 xref_bibr
 xref_fig
 xref_supplementary
@@ -64,6 +64,7 @@ mm
 além
 adicional
 porém
+todavia
 #
 dia
 mês

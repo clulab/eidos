@@ -59,6 +59,7 @@ curva
 dado
 declara
 demais
+demanda
 desafio
 desenvolvimento
 descrever
@@ -79,6 +80,7 @@ esforço
 estado
 estimativa
 estratégia
+estudo
 evento
 evidência
 excesso
@@ -110,6 +112,7 @@ gente
 grupo
 grupo
 guia
+grande
 hipótese
 homem
 hora
@@ -167,6 +170,7 @@ papel
 parte
 passo
 pastoris
+pequeno
 persistência
 pesquisa
 pessoa
@@ -180,6 +184,7 @@ pressuposto
 prevanlência
 primeiro
 prioridade
+processo
 produção
 programa
 progressão
@@ -194,11 +199,13 @@ rato
 rato
 realização
 realizado
+recente
 reconhecimento
 recusar
 referência
 reflexão
 relação
+resposta
 risco
 ruim
 se
