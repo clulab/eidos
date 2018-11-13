@@ -1,156 +1,134 @@
 vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
-  
+
 rules:
 
-# ------------------- Explicitly Causal New --------------------------
-
-
-  # todo: not very general
-  - name: dueTo2-${addlabel}
-    priority: ${rulepriority}
-    type: token
-    label: ${label}
-    action: ${ action }
-    pattern: |
-      @effect:Event [lemma="due"] [lemma="to"] @cause:Entity
-
-  - name: dueToSyntax1-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "food imports will decrease due to rainfall today"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = nmod_to (${ conjunctions })?
-      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
-
-  #-----------------------------------------------------------------------------------------
-  # These rules are based on a parse which has 'due' with an incoming 'case' relation:
-  #-----------------------------------------------------------------------------------------
-  # Used when the effect text has an agent which is the true effect (i.e., in example this is "food imports")
-  # future name? dueTo-caseSyntax-agent_effect-${addlabel}
-  - name: dueToSyntax2-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "food imports will decrease due to rainfall"
-    # food imports will decrease due to the exhaustion of coping capacities
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /${preps}/{,2}
-      effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to)
-
-  # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
-  - name: dueTo-caseSyntax-dobj_effect-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "pastoralists have depleted or lost their livestock assets due to the conflict"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /${preps}/{,2}
-      effect: Entity = <case <nmod_due_to? /${objects}/
-
-  - name: dueToSyntax4-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "food imports will decrease due to rainfall"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /^(${conjunctions})/? /${preps}/{,2} /${conjunctions}/{,2}
-      #cause: Entity = <case conj_and /${preps}/{,2} /${conjunctions}/{,2}
-      effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
-
-    #-----------------------------------------------------------------------------------------
-    # These rules are based on a parse which has 'due' with an outgoing 'nmod_to' relation:
-    #-----------------------------------------------------------------------------------------
-
-  - name: dueToSyntax3-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "food imports will decrease due to the exhaustion of coping capacities"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
-      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
-
-  - name: dueToSyntax5-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "improvements in food availability due to seasonal harvests"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = nmod_to (${ conjunctions })?
-      effect: Entity = <advmod|<amod (</${preps}/{,2} | >/${preps}/{,2})
-
-#  - name: dueToSyntax6-${addlabel}
-#    priority: ${rulepriority}
-#    label: ${label}
-#    action: ${ action }
-#    example: "improvements in food availability due to seasonal harvests"
-#    pattern: |
-#      trigger = [lemma="due" & tag=/JJ/]
-#      cause: Entity = nmod_to (${ conjunctions })?
-#      effect: Entity = <advmod|<amod >nmod_in
-
-  # todo: Remove??
-  - name: madeSyntax3-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "X made JJ by Y"
-    pattern: |
-      trigger = [lemma="make" & tag=/^V/]
-      cause: Entity = nmod_by
-      effect: Entity = ${agents}
-
-  - name: leadToSyntax1-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "Conflict and economic decline have led to violence and displacement."
-    pattern: |
-      trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to /${preps}/{,4}
-      cause: Entity = <ccomp? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
-
-  - name: contribToSyntax1-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
-    pattern: |
-      trigger = [lemma="contribute" & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to nmod_in [tag=/^N/] (${ conjunctions })? #/${noun_modifiers}/{,2} #
-      cause: Entity = nsubj nmod_in /${noun_modifiers}/{,2}
-
-
-# ------------------- Explicitly Causal REACH --------------------------
-
-  #We may need a better verb than "mediated" and "activation" here
-  - name: causeEffect_ported_token_1b_verb-${addlabel}
+############# over 60% rules
+  - name: trigger+por-${addlabel}
     priority: ${ rulepriority }
-    type: token
+    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas com pragas."
     label: ${ label }
     action: ${ action }
-    #Original example: "Interacting proteins that facilitate FGFR3 mediated STAT1 activation could exist in cells."
     pattern: |
-      @cause: Entity (?<trigger> [word=/(?i)^(mediat)/ & !tag=/^JJ/]) @effect: Entity /(?i)^(activation)/
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/por/]|[tag=ADV]))
+      cause: Entity = (obl) (?= case [word=/(?i)(por)/]) /conj/{,3}
+      effect: Entity = (<acl|${ agents }) /conj|<conj/{,3}
 
-  - name: ported_copula_1-${addlabel}
+  - name: causa_de-${addlabel}
     priority: ${ rulepriority }
-    #Original example: "A is an activator of B"
+    example: "A perda de tecidos muscular e gorduroso em crianças desnutridas pode ser causa de hipotermia ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(caus)/ & tag=/^NOUN/]
+      cause: Entity = (${ agents }) /conj/{,3}
+      effect: Entity = nmod_de /conj/{,3}
+
+  - name: leva_a-${addlabel}
+    priority: ${ rulepriority }
+    example: "A inflamabilidade leva à formação de uma camada termicamente isolante"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(lev)/ & tag=/^V/] (?= ([word=/^(a)$/] [word=/^(o|a)$/] ) )
+      cause: Entity = (${ agents }) /conj/{,3}
+      effect: Entity = obl (?= case [word=/^(a)$/]) /conj/{,3}
+      #trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/^(a|para)$/] [word=/^(o|a)$/] ) )
+      #cause: Entity = (nsubj|nsubj:pass) /conj/{,3}
+      #effect: Entity = obl (?= case [word=/^(a|para)$/]) /conj/{,3}
+      # find the diff
+
+  - name: trigger+devido_a-${addlabel}
+    priority: ${ rulepriority }
+    example: "A inflamabilidade é melhorada devido à formação de uma camada termicamente isolante"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (advmod  [word=/devido|graças/]) (obl)  /conj/{,3}
+      effect: Entity = (nsubj:pass|${ objects }) /conj/{,3}
+
+  - name: trigger+decorrente_de-${addlabel}
+    priority: ${ rulepriority }
+    example: "Queremos reduzir a quantidade de lesões celulares decorrentes de exercícios físicos exaustivos e melhorar a defesa imunológica ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/]
+      cause: Entity =  obl [lemma=/decorrente|resultante|consequência|meio/] nmod_de
+      effect: Entity =  ${objects} /conj/{,3}
+
+  - name: ported_syntax_1_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "O exercício pode estimular a perda urinária ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
+      effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }|conj/{,3} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+
+  - name: contribui_com-${addlabel}
+    priority: ${ rulepriority }
     example: ""
     label: ${ label }
     action: ${ action }
     pattern: |
-      # the motivation for `!tag=TO` is avoiding situations like "is vulnerable to production"
-      # in the sentence "We present evidence that the global food system is vulnerable to
-      # production shocks caused by extreme weather , and that this risk is growing ."
-      # this would match because `produc` is a `nonavoid_causal_triggers`
-      trigger = [lemma=/be/ & tag=/^V/] [!tag=TO]{,2} [lemma=/${ trigger }/ & tag=/^N|^JJ/]
-      cause: Entity = nsubj
-      effect: Entity = /${ preps }$/
+      trigger = [word=/(?i)^(contrib|colab)/ & tag=/^V/] (?= ([word=/^(com|para)$/] ) )
+      cause: Entity = (${ agents }|(obl (?= case [word=/(?i)(por)/]) )) /conj/{,3}
+      effect: Entity = obl (?= case [word=/^(com|para)$/]) /conj/{,3}
+
+  - name: invertido_causa_de-${addlabel}
+    priority: ${ rulepriority }
+    example: "Existe um consenso de que a causa da enchente é a chuva."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(causa)/ & tag=/^NOUN/]
+      cause: Entity = (((<${agents}) [!tag=/^V/]) /conj/{,3})|(<obj nsubj)
+      effect: Entity = nmod_de /conj/{,3}
+
+############# over 60% but need tweeks
+
+  - name: 2a-verbs-conj-${addlabel}
+    priority: ${ rulepriority }
+    example: "Fungos medicinais podem normalizar a função intestinal , aumentar o apetite e reduzir os efeitos adversos do tratamento convencional do câncer ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (</conj/{,3} [tag=/^V/]) (${agents}) /(${preps})/{,2} /conj/{,3}
+      effect: Entity = (${objects}) /conj/{,3}
+
+  - name: 2a-verb+adj_conj-${addlabel}
+    priority: ${ rulepriority }
+    example: "Fungos medicinais podem normalizar a função intestinal , aumentar o apetite e reduzir os efeitos adversos do tratamento convencional do câncer ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = (<conj [tag=/^ADJ/]) (${agents}) /(${preps})/{,2} /conj/{,3}
+      effect: Entity = (${objects}) /conj/{,3}
+
+  - name: alem_de_ported_syntax_1_verb-${addlabel}
+    priority: ${ rulepriority }
+    #example: "Além de diminuírem a absorção de gorduras , aumentarem o peristaltismo intestinal e produzirem ácidos graxos de cadeia curta , atuantes no combate ao colesterol , as fibras promovem a regulação no tempo de trânsito intestinal e apresentam um alto poder de saciedade ."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      cause: Entity = </conj/{,2} <advcl <advmod (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
+      effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }|conj/{,3} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+
+  - name: aumenta-diminui_com-${addlabel}
+    priority: ${ rulepriority }
+    example: "Com a infusão de solução de Ringer com lactato, o hematócrito diminuiu para 28,8% +/- 3,72%. "
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(melhor|pior|aument|diminu)/ & tag=/^V/]
+      cause: Entity = obl (?= case [word = /(?i)(com|por)$/]) /conj/{,3}
+      effect: Entity = (${ agents }) /conj/{,3}
+
+#
+#
+#
