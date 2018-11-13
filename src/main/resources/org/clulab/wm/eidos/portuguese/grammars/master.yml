@@ -52,25 +52,10 @@ rules:
       label: Decrease
       trigger: ${ decrease_triggers }|${ noncausal_decrease_triggers }
 
-#  - import: org/clulab/wm/eidos/portuguese/grammars/explicitModifiers.yml
-#    vars:
-#      rulepriority: "3"
-#      action: applyAttachment #Should add Increase/Decrease to state of entity
-
-
-  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
-  #Acts upon entities
 
   # ------------ Causal ------------
-#  - import: org/clulab/wm/eidos/portuguese/grammars/causal.yml
-#    vars:
-#      rulepriority: "6"
-#      addlabel: "Causal"
-#      label: Causal
-#      action: pass
-#      trigger: ${cause_triggers}|${nonavoid_causal_triggers} #|${increase_triggers}|${decrease_triggers}
 
-  - import: org/clulab/wm/eidos/portuguese/grammars/causalPortugueseTest.yml
+  - import: org/clulab/wm/eidos/portuguese/grammars/causal.yml
     vars:
       rulepriority: "6"
       addlabel: "Causal"
@@ -78,39 +63,3 @@ rules:
       action: pass
       trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
 
-#  - import: org/clulab/wm/eidos/portuguese/grammars/linkersTemplate.yml
-#    vars:
-#      rulepriority: "6"
-#      addlabel: "Causal"
-#      label: Causal
-#      action: pass
-#      trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
-
-#  - import: org/clulab/wm/eidos/portuguese/grammars/reverse_direction_causal.yml
-#    vars:
-#      rulepriority: "6"
-#      addlabel: "Causal"
-#      label: Causal
-#      action: pass
-#      trigger: ${reverse_direction_cause_triggers}
-
-
-
-  # ------------ ExplicitLinker ------------
-#  - import: org/clulab/wm/eidos/portuguese/grammars/explicitLinkers.yml
-#    vars:
-#      rulepriority: "6"
-#      trigger: ${increase_triggers}|${decrease_triggers}
-#      correlation_trigger: ${correlation_triggers}
-#      action: pass
-#      #action: ? #
-#
-#  # ------------ Correlation ------------
-#  - import: org/clulab/wm/eidos/portuguese/grammars/linkersTemplate.yml
-#    vars:
-#      rulepriority: "6"
-#      addlabel: "Correlation"
-#      label: Correlation
-#      action: pass
-#      trigger: ${correlation_triggers}
-#

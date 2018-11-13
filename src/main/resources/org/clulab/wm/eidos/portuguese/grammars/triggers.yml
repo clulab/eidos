@@ -6,7 +6,7 @@ decrease_triggers: "abol|anul|apag|atenu|bloque|cancel|combat|cess|debilit|degen
 
 noncausal_decrease_triggers: "ausencia|baix|declínio|déficit|derrub|desadequ|desativ|descontinu|deslig|escassez|escass|falha|falta|inadequ|inativ|interromp|menor|perda|pobre|recessão|redução"
 
-cause_triggers: "ajud|ativ(a|ou|am|aram|ado|ada)$|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|facilit|forç|induz|interconvert|lev|modul|permit|possibilit|provoc|sinaliz|proporcion|propici|ocasion|acarretou"
+cause_triggers: "ajud|ativ(a|ou|am|aram|ado|ada)$|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|facilit|forç|induz|interconvert|lev|modul|possibilit|provoc|sinaliz|proporcion|propici|ocasion|acarretou"
 
 nonavoid_causal_triggers: "produz"
 

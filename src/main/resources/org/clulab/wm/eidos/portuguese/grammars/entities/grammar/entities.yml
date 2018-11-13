@@ -59,8 +59,6 @@ rules:
       # avoids event triggers, coordinations, refs, etc.
       [chunk='B-NP'] [chunk='I-NP']* ([chunk='B-PP'] [chunk='B-VP'] [chunk='I-VP']*)+
 
-
-
 #rules:
 #  - name: simple-np
 #    label: Concept

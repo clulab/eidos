@@ -1,149 +1,81 @@
-# ------------------- Copular Constructions --------------------------
 
-#  - name: ported_copula_1-${addlabel}
+#  - name: trigger+_+por-${addlabel}
 #    priority: ${ rulepriority }
-#    #Original example: "A is an activator of B"
-#    example: ""
+#    example: "Menor incidência de goiabas com podridões, causadas principalmente por problemas com pragas."
 #    label: ${ label }
+#    action: ${ action }
 #    pattern: |
-#      trigger = [lemma=/be/ & tag=/^V/] []? []? [lemma=/${ trigger }/ & tag=/^N/]
-#      effect: Entity = nsubj
-#      cause: Entity = /${ preps }$/
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      cause: Entity = (obl) (?= case [word=/(?i)(por)/]) /conj/{,3}
+#      effect: Entity = (obl (?= case [word=/^(com|para)$/])) /conj/{,3}
 
-
-
-  #  - name: ported_syntax_1_verb_trigger-nmod-${addlabel}
-  #    priority: ${ rulepriority }
-  #    #example: "The water quality caused an increase in poverty and a decrease in poverty."
-  #    example: "improved economic performance expected to cause a shift from agriculture to service industry."
-  #    label: ${ label }
-  #    pattern: |
-  #      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] # original rule had RB as possible tag
-  #      # Previous -- removed the complements because they were over matching
-  #      cause: Entity = </${adverbial_clause}/? (${ agents }) /${ conjunctions }|${ noun_modifiers}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-  #      effect: Entity = prepc_by? (${objects} | ${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-
-
-
-
-# BS: removed bc seems that passive voice is consistently captured with nsubjpass, and was mis-labeling some causal events (i.e. their polarity)
-# ex of issue: The water quality caused poverty by an increase in productivity.
-#  # Note: Captures passive voice; thus verb must be VBD|VBN
-#  - name: ported_syntax_2_verb-${addlabel}
+#  - name: como_obl-${addlabel}
 #    priority: ${ rulepriority }
-#    #example: "Increase in poverty was caused by the water quality."
-#    example: "intensive cultivation will be caused by a shrinking land base for agriculture"
+#    example: "O ciclo de parasitismo promove manifestações clínicas, como rinites , sinusites e lesões pulmonares."
 #    label: ${ label }
+#    action: ${ action }
 #    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB/]
-#      effect: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
-#      cause: Entity = (agent|nmod_by) /${ noun_modifiers }|${ conjunctions }|${ preps }/{,2}
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      effect: Entity = obl (?= case [word = /(?i)(como)$/]) /conj/{,3}
+#      cause: Entity = (${ agents }) /conj/{,3}
 
-
-#  #Is this trying to catch parser errors??? what???
-#  - name: causeEffect_ported_syntax_3_verb-${addlabel}
+#  - name: atraves_de-${addlabel}
 #    priority: ${ rulepriority }
-#    example: ""
+#    example: "Queremos reduzir a quantidade de lesões celulares através de exercícios físicos exaustivos e melhorar a defesa imunológica ."
 #    label: ${ label }
+#    action: ${ action }
 #    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & !outgoing=nsubjpass & tag=/^V|RB/]
-#      effect: Entity = ( (/${ prep_objs }|conj_|${ noun_modifiers }/{,2}) | (< /${ prep_objs }|conj_|${ noun_modifiers }/{1,2}) )
-#      cause: Entity = <nn{,2} | (prep_by) /${ noun_modifiers }|${ conjunctions }/{,2}
+#      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/]
+#      cause: Entity =  advmod (?= [word=através]) obl /conj/{,3}
+#      effect: Entity =  obj /conj/{,3}
 
-
-
-   #NB: In original pos_reg rules, this had a comment: "# remove?"
-   #So it may not be a good rule to have. It doesn't look like something we will use...
-   # Becky: removed b/c of misfiring with our increase/decrease triggers
-   # example of misfire: "Water trucking has decreased due to the increased cost of fuel."
- #  - name: ported_syntax_7_verb-${addlabel}
- #    priority: ${ rulepriority }
- #    #original example: "ASPP1 aids in the translocation of Kras to the membrane."
- #    example: ""
- #    label: ${ label }
- #    pattern: |
- #      trigger = [word=/(?i)^(${ trigger })/] # "aids" is incorrectly tagged as a noun
- #      effect: Entity = (nmod_in$ | nmod_to) /${ noun_modifiers }/{,2}
- #      cause: Entity = (nsubj | <rcmod) /${ conjunctions }|${ noun_modifiers }|nmod_in/{,2}
-
-
-
-  #ORIGINAL COMMENT: Captures common Hearst patterns: hypernym such as hyponym
-  - name: ported_syntax_noun_Hearst-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "HDAC activators including trichostatin A"
-    example: ""
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      effect: Entity = /${ conjunctions }|${ noun_modifiers }/{,2}
-      cause: Entity = /nmod_such_as|nmod_including|nmod_like/ (${ noun_modifiers })?
-
-# BS: removed because it's firing on "Water quality and water availability for agriculture will decrease due to pollution
-# of water bodies," with "and" as the trigger
-
-#  - name: causeEffect_ported_token_1_verb-${addlabel}
+#  - name: trigger+com_obl-${addlabel}
 #    priority: ${ rulepriority }
-#    type: token
+#    example: "Com a infusão de solução de Ringer com lactato, o hematócrito diminuiu para 28,8% +/- 3,72%. "
 #    label: ${ label }
-#    #Original example: "monoubiquitinated K-Ras is less sensitive than the unmodified protein to GAP-mediated GTP hydrolysis"
-#    example: "HIV/AIDS result in labor shortage"
-#    #example: "phase out the fertilizer subsidy results in deteriorating biophysical conditions"
-#    #example: "water resulting in an increase of productivty"
+#    action: ${ action }
 #    pattern: |
-#        @cause: Entity (?<trigger> [word= /(?i)^(${ trigger })/ & !tag=/^(JJ|DT)/] ) @effect: Entity
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= [word=/(com|para)/])
+#      effect: Entity = obl (?= case [word = /(?i)(com|para)$/]) /conj/{,3}
+#      cause: Entity = (${ agents }) /conj/{,3}
+#      # removed nsubj:pass
 
 
- # a rule written to catch an example from MITRE
-  # currently unclear how common this pattern may be...
-  #For Eidos texts/agro domain, "stimulated" may not be the best word?
-  - name: ported_token_experimental_results_1-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "Cells were additionally stimulated with 10 ng/ml leptin and cell extracts analyzed for ErbB3 tyrosine phosphorylation."
-    type: token
-    label: ${ label }
-    pattern: |
-      # passive verb ("stimulated" in the example)
-      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=VBN])
-      # "leptin" in our example
-      with /./{,2}  @cause: Entity
-      # analyzed, examined, etc.
-      # hopefully this isn't too noisy...
-      and /./{,3} [tag=/^V/] for
-      # the phosphorylation in our example
-      @effect: Entity
 
-    #  - name: ported_syntax_3_noun-${addlabel}
-    #    priority: ${ rulepriority }
-    #    example: ""
-    #    label: ${ label }
-    #    #Original rule had a "downstream" part in the trigger #[lemma=/^(${ auxtriggers })/ & tag=/^N/]? (?! downstream)
-    #    pattern: |
-    #      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/ & !outgoing=nmod_by]
-    #      effect: Entity = /${ preps }$/ /${ conjunctions }|${ noun_modifiers }/{,2}
-    #      cause: Entity = /cc|${ noun_modifiers }/{1,2} | conj_or nmod_by compound?
+############# bellow 60% rules
 
-
-    # Doesn't apply to new framework I think -- looks for pos/neg regulation (i.e. labor shortage)
-    #  - name: causeEffect_ported_syntax_5_noun-${addlabel}
-    #    priority: ${ rulepriority }
-    #    example: ""
-    #    label: ${ label }
-    #    pattern: |
-    #      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-    #      effect: Entity = < ${noun_modifiers} > /nmod_/ /${ conjunctions }|${ noun_modifiers }/{,2}
-    #      cause: Entity = < ${noun_modifiers} /${ conjunctions }|${ noun_modifiers }/{,2}
-
-    # removed because it was matching inappropriately:
-    # exs:
-    #   social support networks
-    #   climate change impacts
-    #   etc.
-    - name: ported_token_1_noun-${addlabel}
-      priority: ${ rulepriority }
-      #Original example: "mTOR activator Rapamycin"
-      example: ""
-      type: token
-      label: ${ label }
-      pattern: |
-        @effect: Entity (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) @cause: Entity
+#  - name: acl_subj-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "O uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo ."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?<! [tag=ADP])
+#      cause: Entity = <acl [tag=/NOUN/]
+#      effect: Entity = ((${ objects }) /conj/{,3})#|((obl) (?= case [word=/(?i)(por)/]))
+#      ## had to remove obls cus I could not make sure 'por' occured imediately after trigger
+#
+#  - name: advcl-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "Os aumentos nos teores de cátions básicos se devem à reciclagem com manutenção do ciclo biológico."
+#    # example: "Sistemas de pastejo manejados e adubados adequadamente permitem altas produções de massa seca, permitindo otimizar o desempenho animal."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/]
+#      cause: Entity =  <advcl /nsubj/
+#      effect: Entity =  xcomp? obj /conj/{,3}
+#
+#  - name: uma_das_formas_de-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "Assim, o uso da irrigação e da fertirrigação é uma das formas de maximizar a disponibilidade de fósforo no solo para que seja aproveitado de forma eficiente pelo cafeeiro."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/]
+#      cause: Entity =  <acl </^nmod/{,3}  nsubj
+#      effect: Entity =  xcomp? obj /conj/{,3}
+#
+#
+#
+#
