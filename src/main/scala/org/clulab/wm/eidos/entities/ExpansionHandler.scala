@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.actions
+package org.clulab.wm.eidos.entities
 
 import org.clulab.odin._
 
@@ -7,4 +7,5 @@ trait ExpansionHandler {
 
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention]
 
+  def expand(entity: Mention, maxHops: Int, stateFromAvoid: State): Mention
 }

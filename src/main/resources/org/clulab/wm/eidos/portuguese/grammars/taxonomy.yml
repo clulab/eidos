@@ -20,3 +20,4 @@
       - SameAs
 - Avoid:
   - Avoid-Strict
+  - AvoidCoref

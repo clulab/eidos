@@ -8,8 +8,8 @@ import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-import org.clulab.wm.eidos.actions.EnglishExpansionHandler
 import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.entities.EnglishExpansionHandler
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._

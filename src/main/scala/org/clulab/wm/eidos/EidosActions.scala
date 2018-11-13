@@ -9,13 +9,12 @@ import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, MentionUtils}
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
-
 import utils.DisplayUtils.{displayMention, shortDisplay}
-import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.actions.EidosBaseActions
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
+import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper, ExpansionHandler}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
@@ -24,7 +23,7 @@ import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
 //TODO: need to add polarity flipping
 
-class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandler) extends Actions with LazyLogging {
+class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandler) extends EidosBaseActions with LazyLogging {
 
 
   /*

@@ -5,7 +5,7 @@ vars: org/clulab/wm/eidos/portuguese/grammars/triggers.yml
 rules:
 
   - name: "avoid-coref-demonstratives"
-    label: Avoid
+    label: AvoidCoref
     priority: 1
     type: token
     pattern: |

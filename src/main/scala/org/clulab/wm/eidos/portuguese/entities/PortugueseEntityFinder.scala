@@ -28,15 +28,45 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
     val validBaseEntities = baseEntities.filter(isValidBaseEntity)
     val splitEntities = validBaseEntities.flatMap(EntityHelper.splitCoordinatedEntities)
+    // expand entities
+    val expanded = PortugueseEntityFinder.expansionHandler.expand(splitEntities, maxHops = PortugueseExpansionHandler.MAX_HOPS, stateFromAvoid)
     // merge overlapping entities
-    val mergedEntities = mergeOverlapping(splitEntities)
+    val mergedEntities = mergeOverlapping(expanded)
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = mergedEntities.distinct
+    // filter entities (ex. check if case of coref)
+    val filteredEntities = filterEntities(distinctEntities, state = stateFromAvoid)
     // trim unwanted POS from entity edges
     val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
     trimmedEntities
   }
 
+  /** Set of filters that valid entities must satisfy */
+  def filterEntities(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    mentions.filter(! possibleCoref(_, state))
+  }
+
+  // While the entity won't expand into a coref Avoid mention, the presence of such a mention may mean the entity captured
+  // is only a fragment, which is in fact a coref mention.
+  // This filter applies some dumb heuristics to drop entities that are suspected of being unresolved cases of coreference
+  def possibleCoref(mention: Mention, state: State): Boolean = {
+    val unresolved = state.mentionsFor(mention.sentence).filter(_.matches(PortugueseEntityFinder.AVOID_COREF_LABEL))
+    if (unresolved.isEmpty) {
+      false
+    } else {
+      mention.sentenceObj.dependencies match {
+        // is there a outgoing path from the entity to at least one unresolved coref mention?
+        case Some(deps) =>
+          ! mention.tokenInterval.exists{ start =>
+            val endIndices: Set[Int] = unresolved.flatMap{_.tokenInterval}.toSet
+            endIndices.exists{ end => deps.shortestPath(start = start, end = end, ignoreDirection = false).nonEmpty }
+          }
+        // No dependencies?  Check for any occurrence of a coref mention
+        case None      =>
+          unresolved.nonEmpty
+      }
+    }
+  }
 
   /** Filtering procedure designed to merge overlapping entities */
   def mergeOverlapping(mentions: Seq[Mention]): Seq[Mention] = {
@@ -120,11 +150,15 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
 }
 
 object PortugueseEntityFinder extends LazyLogging {
-  val DEFAULT_MAX_LENGTH = RuleBasedEntityFinder.DEFAULT_MAX_LENGTH // maximum length (in tokens) for an entity
 
-  // Set of tags that we don't want to begin or end an entity
+  val AVOID_COREF_LABEL       = "AvoidCoref"
+  val DEFAULT_MAX_LENGTH: Int = RuleBasedEntityFinder.DEFAULT_MAX_LENGTH // maximum length (in tokens) for an entity
+
+  val expansionHandler        = new PortugueseExpansionHandler
+
+    // Set of tags that we don't want to begin or end an entity
   // FIXME: adapt to include UD tags
-  val INVALID_EDGE_TAGS = Set[scala.util.matching.Regex](
+  val INVALID_EDGE_TAGS: Set[scala.util.matching.Regex] = Set(
     "^PRP".r,
     "^IN".r,
     "^TO".r,

@@ -12,7 +12,7 @@ import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.attachments.NegationHandler._
-import org.clulab.wm.eidos.entities.{EidosEntityFinder, EntityFinder}
+import org.clulab.wm.eidos.entities.{EidosEntityFinder, EnglishExpansionHandler, EntityFinder, ExpansionHandler}
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
@@ -22,8 +22,9 @@ import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
-import org.clulab.wm.eidos.actions.{EnglishExpansionHandler, ExpansionHandler}
+import org.clulab.wm.eidos.actions.EidosBaseActions
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
+import org.clulab.wm.eidos.portuguese.actions.PortugueseActions
 import org.clulab.wm.eidos.portuguese.entities.{PortugueseEntityFinder, PortugueseExpansionHandler}
 
 import scala.annotation.tailrec
@@ -68,7 +69,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val entityFinder: EntityFinder,
     val domainParams: DomainParams,
     val adjectiveGrounder: AdjectiveGrounder,
-    val actions: EidosActions,
+    val actions: EidosBaseActions,
     val engine: ExtractorEngine,
     val ner: LexiconNER,
     val stopwordManager: StopwordManager,
@@ -79,7 +80,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val timenorm: Option[TemporalCharbasedParser],
     // val geonorm: Option[Geo_disambiguate_parser]
     val geonorm: Option[GeoDisambiguateParser]
-
   )
 
   object LoadableAttributes {
@@ -118,12 +118,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     def          useCache: Boolean = eidosConf[Boolean]("useCache")
 
-    val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
-    val canonicalizer = new Canonicalizer(stopwordManager)
-    val hypothesisHandler = HypothesisHandler(hedgingPath)
-    val negationHandler = NegationHandler(language)
+    val stopwordManager                    = StopwordManager(stopwordsPath, transparentPath)
+    val canonicalizer                      = new Canonicalizer(stopwordManager)
+    val hypothesisHandler                  = HypothesisHandler(hedgingPath)
+    val negationHandler                    = NegationHandler(language)
     val expansionHandler: ExpansionHandler = mkExpansionHandler(config)
+    val actions: EidosBaseActions          = mkActions(config)
 
+    /** Select appropriate expansion handler based on language */
     private def mkExpansionHandler(config: Config): ExpansionHandler = {
       language match {
         case "english"    => new EnglishExpansionHandler()
@@ -132,6 +134,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       }
     }
 
+    /** Select appropriate entity finder based on language */
     private def mkEntityFinder(config: Config): EntityFinder = {
       language match {
         case "english"    =>
@@ -140,6 +143,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           PortugueseEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
         case _            =>
           throw new Exception(s"No known entity finder for language '$language'.")
+      }
+    }
+
+    /** Select appropriate Actions based on language */
+    private def mkActions(config: Config): EidosBaseActions = {
+      language match {
+        case "english"    => EidosActions(taxonomyPath, expansionHandler)
+        case "portuguese" => new PortugueseActions()
+        case _            => throw new Exception(s"No known entity finder for language '$language'.")
       }
     }
 
@@ -160,7 +172,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
-      val actions = EidosActions(taxonomyPath, expansionHandler)
 
       // Domain Ontologies:
       val ontologyGrounders =
@@ -353,7 +364,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // 1) These will be "Causal" and "Correlation" which fall under "Event"
     val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
     // 2) and these will be "Entity", without overlap from above.
-    val entityMentions = mentions.filter(m => m.matches("Entity") && m.attachments.nonEmpty)
+    val entityMentions = mentions.filter(m => m.matches(EidosSystem.BASE_ENTITY) && m.attachments.nonEmpty)
     // 3) These last ones may overlap with the above or include mentions not in the original list.
     val argumentMentions: Seq[Mention] = cagEdgeMentions.flatMap(_.arguments.values.flatten)
     // Put them all together.
@@ -383,7 +394,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   def isCAGRelevant(mention: Mention, cagEdgeMentions: Seq[Mention], cagEdgeArguments: Seq[Mention]): Boolean =
     // We're no longer keeping all modified entities
-    //(mention.matches("Entity") && mention.attachments.nonEmpty) ||
+    //(mention.matches(EidosSystem.BASE_ENTITY) && mention.attachments.nonEmpty) ||
       cagEdgeMentions.contains(mention) ||
       cagEdgeArguments.contains(mention)
 
@@ -462,6 +473,8 @@ object EidosSystem {
   val NER_OUTSIDE = "O"
   // Provenance info for sameAs scoring
   val SAME_AS_METHOD = "simple-w2v"
+
+  val BASE_ENTITY = "Entity"
 
   // CAG filtering
   val CAG_EDGES = Set(CAUSAL_LABEL, CORR_LABEL, COREF_LABEL)
