@@ -11,6 +11,8 @@ import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.context.GeoPhraseID
 
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
+  // At some point these will turn into Array[Option[Seq[...]]].  Each sentences will have its own
+  // Option[Seq[...]] as they do other things like tags, entities, and lemmas.
   var times: Option[Array[Seq[TimeInterval]]] = None
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
@@ -21,8 +23,10 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
         val sentenceText = text
             .map(text => text.slice(sentence.startOffsets(0), sentence.endOffsets.last))
             .getOrElse(sentence.getSentenceText)
+        // This might be turned into a class with variable names for documentation.
+        // The offset might be used in the constructor to adjust it once and for all.
         val intervals: Seq[((Int, Int), List[(LocalDateTime, LocalDateTime, Long)])] = dct
-            .map(anchor => timenorm.intervals(timenorm.parse(sentenceText), Some(anchor.interval)))
+            .map(dct => timenorm.intervals(timenorm.parse(sentenceText), Some(dct.interval)))
             .getOrElse(timenorm.intervals(timenorm.parse(sentenceText)))
         // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
         // Account for this by adding the offset in time values or subtracting it from word values.
