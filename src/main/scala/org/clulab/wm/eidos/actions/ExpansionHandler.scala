@@ -319,7 +319,7 @@ class ExpansionHandler(val language: String) extends LazyLogging {
   // Add the document creation time (dct) attachment if there is no temporal attachment
   // i.e., a backoff
   def attachDCT(m: Mention, state: State): Mention = {
-    val dct = m.document.asInstanceOf[EidosDocument].getDCT()
+    val dct = m.document.asInstanceOf[EidosDocument].dct
     if (dct.isDefined && m.attachments.filter(_.isInstanceOf[Time]).isEmpty)
       m.withAttachment(DCTime(dct.get))
     else

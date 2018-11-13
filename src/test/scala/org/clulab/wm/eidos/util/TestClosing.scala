@@ -6,7 +6,7 @@ import org.clulab.wm.eidos.utils.Closer
 class TestClosing extends Test {
 
   class Closing(exception: Option[Throwable] = None) {
-    var closed: Boolean = false
+    var closed: Boolean = false // test
 
     def close(): Unit = {
       closed = true

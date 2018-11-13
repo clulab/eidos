@@ -41,6 +41,9 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def toJObjects(jldObjects: Seq[JLDObject]): Option[Seq[JValue]] =
       noneIfEmpty(jldObjects.map(_.toJObject).toList)
 
+  def toJObjects(jldObjects: Option[Seq[JLDObject]]): Option[Seq[JValue]] =
+      if (jldObjects.isDefined) toJObjects(jldObjects.get) else None
+
   def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
     case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention)
     //case mention: EidosRelationMention =>
@@ -337,17 +340,17 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         .map(_.asInstanceOf[TriggeredAttachment])
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldTAttachments = mention.odinMention.attachments.toList
+    val jldTimeAttachments = mention.odinMention.attachments.toList
         .filter(_.isInstanceOf[Time])
         .map(_.asInstanceOf[Time])
         .sortWith(Time.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldLAttachments = mention.odinMention.attachments.toList
+    val jldLocationAttachments = mention.odinMention.attachments.toList
         .filter(_.isInstanceOf[Location])
         .map(_.asInstanceOf[Location])
         .sortWith(Location.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldDAttachments = mention.odinMention.attachments.toList
+    val jldDctAttachments = mention.odinMention.attachments.toList
         .filter(_.isInstanceOf[DCTime])
         .map(_.asInstanceOf[DCTime])
         .sortWith(DCTime.lessThan)
@@ -368,7 +371,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         ("canonicalName" -> mention.canonicalName) ~
         ("groundings" -> jldGroundings) ~
         (JLDProvenance.singular -> provenance()) ~
-        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldTAttachments ++ jldLAttachments ++ jldDAttachments))
+        (JLDAttachment.plural -> toJObjects(jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments))
   }
 }
 
@@ -631,10 +634,10 @@ class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
 
       serializer.mkType(this) ~
       serializer.mkId(this) ~
-      ("startOffset" -> geoid.StartOffset_locs) ~
-      ("endOffset" -> geoid.EndOffset_locs) ~
-      ("text" -> geoid.phraseID) ~
-      ("geoID" -> geoid.PhraseGeoID.map(_.toString))
+      ("startOffset" -> geoid.startOffset) ~
+      ("endOffset" -> geoid.endOffset) ~
+      ("text" -> geoid.text) ~
+      ("geoID" -> geoid.geonameID.map(_.toString))
       // (JLDTimeInterval.plural -> toJObjects(jldIntervals))
   }
 }
@@ -676,8 +679,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
     val sent_id = document.sentences.indexOf(sentence)
-    val timexes = document.asInstanceOf[EidosDocument].times(sent_id).map(new JLDTimex(serializer, _))
-    val geoExps = document.asInstanceOf[EidosDocument].geolocs(sent_id).map(new JLDGeoID(serializer, _))
+    val timexes = document.asInstanceOf[EidosDocument].times.map { times => times(sent_id).map(new JLDTimex(serializer, _)) }
+    val geoExps = document.asInstanceOf[EidosDocument].geolocs.map { geolocs => geolocs(sent_id).map(new JLDGeoID(serializer, _)) }
     // val timexes = document.asInstanceOf[EidosDocument].times(sent_id).map(new JLDTimex(serializer, _))
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue)
@@ -704,7 +707,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
   override def toJObject: JObject = {
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _))
     val jldText = annotatedDocument.document.text.map(text => text)
-    val dct = annotatedDocument.document.asInstanceOf[EidosDocument].getDCT()
+    val dct = annotatedDocument.document.asInstanceOf[EidosDocument].dct
     val jldDCT = dct.map(new JLDDCT(serializer, _).toJObject)
 
     serializer.mkType(this) ~

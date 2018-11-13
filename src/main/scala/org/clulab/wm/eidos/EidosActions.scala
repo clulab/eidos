@@ -415,7 +415,8 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       m <- ms
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      time: Option[TimeInterval] = m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset).headOption
+      times = m.document.asInstanceOf[EidosDocument].times
+      time: Option[TimeInterval] = if (times.isDefined) times.get(m.sentence).find(_.span._1 == trigger.startOffset) else None
     } yield time match {
       case None => theme
       case Some(t) => theme.withAttachment(new Time(t))
@@ -428,9 +429,8 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       m <- ms
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      // time: Option[TimeInterval] = m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset).headOption
-      location: Option[GeoPhraseID] = m.document.asInstanceOf[EidosDocument].geolocs(m.sentence).filter(_.StartOffset_locs == trigger.startOffset).headOption
-
+      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
+      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
     } yield location match {
       case None => theme
       case Some(l) => theme.withAttachment(new Location(l))

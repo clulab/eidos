@@ -254,7 +254,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     doc.sentences.foreach(addLexiconNER)
     doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
     doc.parseTime(loadableAttributes.timenorm)
-    doc.parseGeoNorm_flag(loadableAttributes.geonorm)
+    doc.parseGeoNorm(loadableAttributes.geonorm)
 
     doc.id = filename
     doc
