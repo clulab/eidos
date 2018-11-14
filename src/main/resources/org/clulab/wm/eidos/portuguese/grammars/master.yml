@@ -47,6 +47,6 @@ rules:
       rulepriority: "6"
       addlabel: "Causal"
       label: Causal
-      action: pass
+      action: default
       trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
 

@@ -3,6 +3,19 @@ taxonomy: org/clulab/wm/eidos/portuguese/grammars/taxonomy.yml
 vars: org/clulab/wm/eidos/portuguese/grammars/triggers.yml
 
 rules:
+  - name: "avoid-triggers"
+    label: PossibleTrigger
+    priority: 1
+    type: token
+    pattern: |
+      [lemma=/${increase_triggers}|${noncausal_increase_triggers}|${decrease_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${nonavoid_causal_triggers}|${reverse_direction_cause_triggers}|${affect_triggers}|${nonavoid_affect_triggers}|${correlation_triggers}/]
+
+  - name: "avoid-conjunctions"
+    label: Avoid
+    priority: 1
+    type: token
+    pattern: |
+      [tag=CCONJ]
 
   - name: "avoid-coref-demonstratives"
     label: AvoidCoref
@@ -11,18 +24,6 @@ rules:
     pattern: |
       # sometimes the tag is incorrect, that is why there are multiple versions for 'esse'
       [lemma=/^(amba|essa|esse|este|esta|aquele|tal)$/]
-
-  # # OURS HERE:
-  # - name: "triggers"
-  #   label: Avoid-Strict
-  #   priority: 1
-  #   type: token
-  #   pattern: |
-  #     # avoid coordinations
-  #     # we want any coordinated entities we might encounter to be split
-  #     [word = /(?i)^(${increase_triggers}|${decrease_triggers}|${noncausal_increase_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${correlation_triggers}|${reverse_direction_cause_triggers})/] # triggers used downstream
-  #     # This is if we want to no avoid the increase/decrease triggers at all...
-  #     #[word = /(?i)^(${cause_triggers}|${correlation_triggers})/] # triggers used downstream
 
   - name: "avoid-parentheticals"
     label: Avoid
@@ -35,10 +36,9 @@ rules:
       [lemma="-rrb-"]
 
   - name: "references-et-al"
-    label: Avoid
+    label: Citation
     priority: 3
     type: token
     pattern: |
-      # avoid xrefs
-      [tag=/PROPN|NOUN/] "et" "al." [word=/([\d]{4})/]*
+      [tag=/^(PROPN|NOUN)$/] "et" [lemma=/^al\.?$/] [lemma=/^(\.?,)$/]? [word=/^([\d]{4})/]?
 

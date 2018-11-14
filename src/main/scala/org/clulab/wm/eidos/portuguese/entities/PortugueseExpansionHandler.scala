@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.portuguese.entities
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.processors.Sentence
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.entities.TraversalBasedExpansion
 
 
@@ -111,19 +112,35 @@ class PortugueseExpansionHandler extends TraversalBasedExpansion with LazyLoggin
     } else true
   }
 
-  // FIXME: implement this
   /** Expands only entities */
-  def expand(mentions: Seq[Mention], maxHops: Int, state: State): Seq[Mention] = {
-    // Avoid **ALL** /Avoid.*/ mentions!
-    val stateToAvoid: State = {
-      val avoidMentions = state.allMentions.filter(_.matches("Avoid.*".r))
-      State(avoidMentions)
-    }
-
-    // FIXME: is there a label/constant for this?
-    val (entities, other) = mentions.partition(_.matches("Entity"))
-    entities.map(expandIfNotAvoid(_, maxHops = maxHops, stateToAvoid))
+  def expand(mentions: Seq[Mention], maxHops: Int, stateFromAvoid: State): Seq[Mention] = {
+    println("Expand!")
+    mentions.map(expandMention(_, maxHops, stateFromAvoid))
   }
+  def expandMention(mention: Mention, maxHops: Int, stateFromAvoid: State): Mention = mention match {
+    case tb: TextBoundMention =>
+      val sentence = tb.sentenceObj
+      val incomingExpanded = {
+        val newInterval = traverseIncomingLocal(tb, maxHops, stateFromAvoid, sentence)
+        tb.copy(tokenInterval = newInterval)
+      }
+      val outgoingExpanded = {
+        val newInterval = traverseOutgoingLocal(incomingExpanded, maxHops, stateFromAvoid, sentence)
+        incomingExpanded.copy(tokenInterval = newInterval)
+      }
+      outgoingExpanded
+
+    // we can only expand TextBoundMentions
+    case _ =>
+      logger.warn("Can't expand non-TextBoundMention")
+      mention
+  }
+
+  // Avoid expansions that swallow Avoid mentions
+  override def isValidInterval(interval: Interval, sentIdx: Int, state: State): Boolean = {
+    state.mentionsFor(sent = sentIdx, toks = interval, label = "Avoid").isEmpty
+  }
+
 
   override def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
 

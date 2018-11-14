@@ -3,18 +3,16 @@ package org.clulab.wm.eidos
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
-import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, MentionUtils}
+import org.clulab.wm.eidos.utils.{FileUtils, MentionUtils}
 import org.clulab.struct.Interval
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
-import utils.DisplayUtils.{displayMention, shortDisplay}
-import org.clulab.wm.eidos.actions.EidosBaseActions
+import org.clulab.wm.eidos.actions.{AttachmentHandler, EidosBaseActions}
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper, ExpansionHandler}
+import org.clulab.wm.eidos.entities.ExpansionHandler
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
@@ -153,199 +151,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     assembled.flatten
   }
 
-
-  /*
-      Filtering Methods
-   */
-
-  /**
-    * @author Gus Hahn-Powell
-    *         Copies the label of the lowest overlapping entity in the taxonomy
-    */
-  def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
-
-    // --- To distinguish between :
-    // 1. Attachments: Quantification(high,Some(Vector(record))), Increase(high,None)
-    // 2. Attachments: Quantification(high,None), Increase(high,None)
-    // --- and select 2.
-
-    val mention_attachmentSz: Seq[(Mention, Int)] = mentions.map(m => (m, mentionAttachmentWeight(m)))
-
-    val maxModAttachSz = mention_attachmentSz.map(_._2).max
-    val filteredMentions = mention_attachmentSz.filter(m => m._2 == maxModAttachSz).map(_._1)
-    filteredMentions
-  }
-
-  // The size of a mention is the sum of:
-  //    i) how many attachments are present
-  //    ii) sum of args in each of the attachments
-  //    iii) if (EventMention) ==>then include size of arguments
-  def mentionAttachmentWeight(mention: Mention): Int = {
-
-    // number of Arguments, number of attachments, the set of all attachments
-    val (numArgs, modSize, attachmentsSet) = mention match {
-      case tb: TextBoundMention => {
-        val tbModSize = tb.attachments.size * 10
-        val tbAttachmentSet = tb.attachments
-        (0, tbModSize, tbAttachmentSet)
-      }
-      case rm: RelationMention => {
-        val rmSize = rm.arguments.values.flatten.size * 100
-        val rmModSize = rm.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
-        val rmAttachmentSet = rm.arguments.values.flatten.flatMap(m => m.attachments).toSet
-        (rmSize, rmModSize, rmAttachmentSet)
-      }
-      case em: EventMention => {
-        val emSize = em.arguments.values.flatten.size * 100
-        val emModSize = em.arguments.values.flatten.map(arg => arg.attachments.size).sum * 10
-        val emAttachmentSet = em.arguments.values.flatten.flatMap(m => m.attachments).toSet
-        (emSize, emModSize, emAttachmentSet)
-      }
-      case _ => (0, 0, mention.attachments)
-    }
-
-    val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-    val triggerSize = mention.attachments.toSeq.filter(_.isInstanceOf[TriggeredAttachment]).map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
-    val attachArgumentsSz = argumentSize + triggerSize
-
-    val res = attachArgumentsSz + modSize + numArgs + mention.tokenInterval.length
-
-    res
-  }
-
-
-  def filterSubstringEntities(entities: Seq[TextBoundMention]): Seq[Mention] = {
-
-    val entityGroups = entities.groupBy(event => (event.sentence, event.label))
-
-    val filteredForTextSubsumption = for {
-      (_, entitiesInGroup) <- entityGroups
-
-      entitiesKept = MutableSet[TextBoundMention]() // Cache intermediate events.
-
-      filtered = entitiesInGroup
-        // most args/longest/attachiest first
-        .sortBy(ent => - (mentionAttachmentWeight(ent)))// + ent.tokenInterval.length))
-        // Check to see if it's subsumed by something already there
-        .filter { entity =>
-          if (!entitiesKept.exists(ent => subsumesInterval(Set(ent.tokenInterval), Set(entity.tokenInterval)))) {
-            entitiesKept.add(entity) // Add this event because it isn't subsumed by what's already there.
-            true // Keep the attachment.
-          }
-          else{
-            false
-          }
-        }
-    } yield filtered
-
-    filteredForTextSubsumption.flatten.toSeq
-  }
-
-  // True if A subsumes B
-  def subsumesString(a: Set[String], b: Set[String]): Boolean = b.forall(elem => contained(elem, a))
-  def contained(s: String, a: Set[String]): Boolean = a.exists(elem => elem.contains(s))
-  // Interval based
-  def subsumesInterval(a: Set[Interval], b: Set[Interval]): Boolean = b.forall(elem => contained(elem, a))
-  def contained(s: Interval, a: Set[Interval]): Boolean = a.exists(elem => elem.contains(s))
-
-
-  def filterSubstringArgumentEvents(events: Seq[EventMention]): Seq[Mention] = {
-
-    def argumentTexts(em: EventMention): Set[String] = em.arguments.values.toSet.flatten.map(m => m.text)
-
-    // Return true if the event subsumes all the args
-    def eventArgsSubsume(argsToCheck: Set[String], event: EventMention): Boolean = {
-      val eventArgStrings = argumentTexts(event)
-      subsumesString(eventArgStrings, argsToCheck)
-    }
-
-
-    val triggerGroups = events.groupBy(event => (event.sentence, event.label, event.trigger.tokenInterval))
-
-    val filteredForArgumentSubsumption = for {
-      (_, eventsInGroup) <- triggerGroups
-
-      eventsKept = MutableSet[EventMention]() // Cache intermediate events.
-
-      filtered = eventsInGroup
-        // most args/longest/attachiest first
-        .sortBy(event => - (mentionAttachmentWeight(event) + argTokenInterval(event).length))
-        // Check to see if it's subsumed by something already there
-        .filter { event =>
-          val argTexts = argumentTexts(event)
-
-          if (!eventsKept.exists(ev => eventArgsSubsume(argTexts, ev))) {
-            eventsKept.add(event) // Add this event because it isn't subsumed by what's already there.
-            true // Keep the attachment.
-          }
-          else{
-            false
-          }
-        }
-    } yield filtered
-
-    filteredForArgumentSubsumption.toSeq.flatten
-  }
-
-  // We need to remove underspecified EventMentions of near-duplicate groupings
-  // (ex. same phospho, but one is missing a site)
-  def argTokenInterval(m: EventMention): Interval = {
-    val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
-    val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
-    Interval(start = min, end = max)
-  }
-
-  def importanceFromLengthAndAttachments(m: EventMention): Int = {
-    val allArgMentions = m.arguments.values.toSeq.flatten.map(mention => mention.attachments.size)
-    argTokenInterval(m).length
-  }
-
-
-  // Remove incomplete Mentions
-  def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
-    val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
-    // Filter out duplicate (or subsumed) events.  Strict containment used -- i.e. simply overlapping args is not
-    // enough to be filtered out here.
-    val events = filterSubstringArgumentEvents(baseEvents.map(_.asInstanceOf[EventMention]))
-
-    // Entities
-    val (baseTextBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
-    val textBounds = filterSubstringEntities(baseTextBounds.map(_.asInstanceOf[TextBoundMention]))
-
-
-    // remove incomplete entities (i.e. under specified when more fully specified exists)
-    val tbMentionGroupings =
-      textBounds.map(_.asInstanceOf[TextBoundMention]).groupBy(m => (m.tokenInterval, m.label, m.sentence))
-
-    val completeTBMentions =
-      for ((k, tbms) <- tbMentionGroupings) yield {
-
-        val filteredTBMs = customAttachmentFilter(tbms)
-        // In case there are several, use the one one smallest according to the rule.
-        tieBreaker(filteredTBMs)
-      }
-
-    // Events
-    val eventMentionGroupings =
-      events.map(_.asInstanceOf[EventMention]).groupBy(m => (m.label, argTokenInterval(m), m.sentence))
-
-    // remove incomplete event mentions
-    val completeEventMentions =
-      for ((_, ems) <- eventMentionGroupings) yield {
-        // max number of arguments
-        val maxSize: Int = ems.map(_.arguments.values.flatten.size).max
-        // max number of argument modifications
-        // todo not all attachments are equal
-        val filteredEMs = customAttachmentFilter(ems)
-        tieBreaker(filteredEMs)
-      }
-
-    val res = completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
-
-    // Useful for debug
-    res
-  }
-
   /*
       Method for assembling Event Chain Events from flat text, i.e., ("(A --> B)" --> C) ==> (A --> B), (B --> C)
   */
@@ -377,7 +182,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     for {
       m <- ms
       trigger = m.asInstanceOf[EventMention].trigger
-      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
+      theme = AttachmentHandler.tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
       time: Option[TimeInterval] = m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset).headOption
     } yield time match {
       case None => theme
@@ -390,7 +195,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     for {
       m <- ms
       trigger = m.asInstanceOf[EventMention].trigger
-      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
+      theme = AttachmentHandler.tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
       // time: Option[TimeInterval] = m.document.asInstanceOf[EidosDocument].times(m.sentence).filter(_.span._1 == trigger.startOffset).headOption
       location: Option[GeoPhraseID] = m.document.asInstanceOf[EidosDocument].geolocs(m.sentence).filter(_.StartOffset_locs == trigger.startOffset).headOption
 
@@ -434,12 +239,12 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
         // Since head was used above and there could have been a tie, == should be used below
         // The tie can be broken afterwards.
         val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
-        val bestEntity = tieBreaker(bestEntities)
+        val bestEntity = AttachmentHandler.tieBreaker(bestEntities)
 
         MentionUtils.withOnlyAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
       }
       else
-        tieBreaker(entities)
+        AttachmentHandler.tieBreaker(entities)
     }
 
     val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
@@ -523,4 +328,5 @@ object EidosActions extends Actions {
     val corefDeterminers = COREF_DETERMINERS
     corefDeterminers.exists(det => m.text.toLowerCase.startsWith(det))
   }
+
 }

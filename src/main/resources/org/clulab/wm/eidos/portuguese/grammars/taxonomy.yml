@@ -19,5 +19,6 @@
       - Correlation
       - SameAs
 - Avoid:
-  - Avoid-Strict
   - AvoidCoref
+  - PossibleTrigger
+  - Citation

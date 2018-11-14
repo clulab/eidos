@@ -31,6 +31,8 @@ trait TraversalBasedExpansion extends ExpansionHandler with LazyLogging {
     outgoingExpanded
   }
 
+  def isValidInterval(interval: Interval, sentIdx: Int, stateToAvoid: State): Boolean = true
+
   // Do the expansion, but if the expansion causes you to suck up something we wanted to avoid, split at the
   // avoided thing and keep the half containing the original (pre-expansion) entity.
   def expandIfNotAvoid(orig: Mention, maxHops: Int, stateToAvoid: State): Mention = {
@@ -95,6 +97,8 @@ trait TraversalBasedExpansion extends ExpansionHandler with LazyLogging {
         (nextTok, dep) <- outgoingRelations(tok)
         if isValidOutgoingDependency(dep = dep, sourceIndex = sourceIdx, destIndex = nextTok, sentence = sentence)
         if state.mentionsFor(sent, nextTok).isEmpty
+        // allows one to check for overlap with Avoid mentions
+        if isValidInterval(interval = Interval(Seq(sourceIdx, nextTok).min, Seq(sourceIdx, nextTok).max + 1), sentIdx = sent, state)
         if hasValidIncomingDependencies(nextTok, incomingRelations)
       } yield nextTok
       traverseOutgoingLocal(tokens ++ newTokens, newNewTokens, outgoingRelations, incomingRelations, remainingHops - 1, sent, state, sentence)
@@ -129,6 +133,8 @@ trait TraversalBasedExpansion extends ExpansionHandler with LazyLogging {
         (nextTok, dep) <- incomingRelations(tok)
         if isValidIncomingDependency(dep = dep, sourceIndex = sourceIdx, destIndex = nextTok, sentence = sentence)
         if state.mentionsFor(sent, nextTok).isEmpty
+        // allows one to check for overlap with Avoid mentions
+        if isValidInterval(interval = Interval(Seq(sourceIdx, nextTok).min, Seq(sourceIdx, nextTok).max + 1), sentIdx = sent, state)
       } yield nextTok
       traverseIncomingLocal(tokens ++ newTokens, newNewTokens, incomingRelations, remainingHops - 1, sent, state, sentence)
     }

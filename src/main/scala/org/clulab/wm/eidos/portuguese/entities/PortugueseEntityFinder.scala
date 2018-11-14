@@ -7,7 +7,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.entities.{EntityHelper, RuleBasedEntityFinder}
 import org.clulab.wm.eidos.portuguese.actions.PortugueseActions
-import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
+import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, StopwordManager}
 
 
 class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEngine, maxHops: Int)
@@ -21,6 +21,8 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
   override def extract(doc: Document): Seq[Mention] = {
     // avoid refs, etc.
     val avoid = avoidEngine.extractFrom(doc)
+    println(s"${avoid.length} AVOID:")
+    avoid.foreach(DisplayUtils.displayMention)
     val stateFromAvoid = State(avoid)
     // extract the base entities
     // NOTE: we have an action that prevents matching entities that overlap with an Avoid mention
@@ -32,13 +34,14 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     val expanded = PortugueseEntityFinder.expansionHandler.expand(splitEntities, maxHops = PortugueseExpansionHandler.MAX_HOPS, stateFromAvoid)
     // merge overlapping entities
     val mergedEntities = mergeOverlapping(expanded)
+    //val mergedEntities = expanded
     // remove entity duplicates introduced by splitting expanded
-    val distinctEntities = mergedEntities.distinct
+    val distinctEntities: Seq[Mention] = mergedEntities.groupBy(m => (m.sentenceObj, m.tokenInterval, m.label)).values.toSeq.map(_.head)
     // filter entities (ex. check if case of coref)
     val filteredEntities = filterEntities(distinctEntities, state = stateFromAvoid)
     // trim unwanted POS from entity edges
-    val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
-    trimmedEntities
+    val trimmedEntities = filteredEntities.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
+    trimmedEntities ++ avoid // display Avoid mentions in results
   }
 
   /** Set of filters that valid entities must satisfy */
@@ -75,7 +78,7 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     // merge overlapping entities
     val merged: Seq[Mention] = {
       // 1. determine which entities are in each sentence
-      entities.groupBy(_.sentence).map { case (sentenceIdx: Int, ents: Seq[Mention]) =>
+      entities.groupBy(_.sentence).flatMap { case (sentenceIdx: Int, ents: Seq[Mention]) =>
         // 2. for each set of entities within a sentence...
         ents.map { entity: Mention =>
           // 2a. find overlapping entities
@@ -90,7 +93,8 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
             if (entity.start == newStart && entity.end == newEnd) {
               entity
             } else {
-              val newFoundBy = s"${entity.foundBy}-mergeOverlapping"
+              val ruleNames   = overlapping.sortBy(_.start).map(_.foundBy).mkString("+")
+              val newFoundBy  = s"$ruleNames-mergeOverlapping"
               val newInterval = Interval(newStart, newEnd)
               val mergedAttachments = overlapping.flatMap(_.attachments).toSet
               new TextBoundMention(
@@ -108,7 +112,7 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
           merged
         }
       }
-    }.flatten.toSeq
+    }.toSeq
     merged ++ other
   }
 
@@ -176,8 +180,8 @@ object PortugueseEntityFinder extends LazyLogging {
     val entityActions = new PortugueseActions
     val entityEngine  = ExtractorEngine(entityRules, actions = entityActions)
 
-    val avoidRules = FileUtils.getTextFromResource(avoidRulesPath)
-    val avoidEngine = ExtractorEngine(avoidRules)
+    val avoidRules    = FileUtils.getTextFromResource(avoidRulesPath)
+    val avoidEngine   = ExtractorEngine(avoidRules)
 
     new PortugueseEntityFinder(entityEngine = entityEngine, avoidEngine = avoidEngine, maxHops = maxHops)
   }

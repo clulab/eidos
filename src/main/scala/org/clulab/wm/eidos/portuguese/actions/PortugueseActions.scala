@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.portuguese.actions
 
 import org.clulab.odin.{Mention, State}
-import org.clulab.wm.eidos.actions.EidosBaseActions
+import org.clulab.wm.eidos.actions.{AttachmentHandler, EidosBaseActions}
 
 /** Actions for Portuguese **/
 class PortugueseActions extends EidosBaseActions {
@@ -19,8 +19,6 @@ class PortugueseActions extends EidosBaseActions {
   /** identity action */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
 
-
-  // FIXME: Any fancy filtering needed?
-  override def keepMostCompleteEvents(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
+  override def keepMostCompleteEvents(mentions: Seq[Mention], state: State): Seq[Mention] = AttachmentHandler.keepMostCompleteEvents(mentions, state)
 
 }
