@@ -8,9 +8,10 @@ import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.utils.QuicklyEqualable
 
 import scala.annotation.tailrec
-import scala.util.hashing.MurmurHash3.{mix, mixLast}
+import scala.util.hashing.MurmurHash3.mix
 
 class TestResult(val mention: Option[Mention], val complaints: Seq[String])
 
@@ -39,7 +40,13 @@ object SameAs extends EventSpec("SameAs", false)
 // Not in taxonomy
 object Affect extends EventSpec("Affect", true)
 
-class AttachmentSpec() extends GraphSpec
+abstract class AttachmentSpec extends GraphSpec with QuicklyEqualable {
+
+  protected val matchingClass: Class[_]
+
+  protected def matchClass(attachment: Attachment): Boolean =
+      attachment.getClass() == matchingClass
+}
 
 abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[Seq[String]]) extends AttachmentSpec {
   val sortedQuantifiers: Seq[String] =
@@ -62,24 +69,14 @@ abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[
         .toString()
   }
 
-  def canEqual(other: Any): Boolean
+  override def calculateHashCode: Int = mix(trigger.##, sortedQuantifiers.##)
 
-  override def hashCode: Int = {
-    val h0 = getClass.getName.##
-    val h1 = mix(h0, trigger.##)
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[TriggeredAttachmentSpec]
 
-    mixLast(h1, sortedQuantifiers.##)
-  }
-
-  override def equals(other: scala.Any): Boolean = other match {
-    case that: TriggeredAttachmentSpec =>
-      that.canEqual(this) &&
-        this.trigger == that.trigger &&
+    this.trigger == that.trigger &&
         this.sortedQuantifiers == that.sortedQuantifiers
-    case _ => false
   }
-
-  protected def matchClass(attachment: TriggeredAttachment): Boolean
 }
 
 object TriggeredAttachmentSpec {
@@ -137,23 +134,14 @@ abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
       .toString()
   }
 
-  def canEqual(other: Any): Boolean
 
-  override def hashCode: Int = {
-    val h0 = getClass.getName.##
-    val h1 = mix(h0, text.##)
+  override def calculateHashCode: Int = text.##
 
-    h1
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[ContextAttachmentSpec]
+
+    this.text == that.text
   }
-
-  override def equals(other: scala.Any): Boolean = other match {
-    case that: ContextAttachmentSpec =>
-      that.canEqual(this) &&
-        this.text == that.text
-    case _ => false
-  }
-
-  protected def matchClass(attachment: ContextAttachment): Boolean
 }
 
 object ContextAttachmentSpec {
@@ -192,18 +180,15 @@ object ContextAttachmentSpec {
 }
 
 class Quant(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+
+  override protected val matchingClass: Class[_] = Quant.targetClass
+
   override def toString: String = toString(Quant.abbrev)
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Quant]
-
-  override protected def matchClass(attachment: TriggeredAttachment): Boolean = attachment match {
-    case _: Quantification => true
-    case _ => false
-  }
 }
 
 object Quant {
   val abbrev = "QUANT"
+  val targetClass: Class[_] = classOf[Quantification]
 
   def apply(trigger: String) =
       new Quant(trigger, None)
@@ -212,19 +197,15 @@ object Quant {
 }
 
 class Dec(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+
+  override protected val matchingClass: Class[_] = Dec.targetClass
+
   override def toString: String = toString(Dec.abbrev)
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Dec]
-
-  override protected def matchClass(attachment: TriggeredAttachment): Boolean = attachment match {
-    case _: Decrease => true
-    case _ => false
-  }
 }
 
 object Dec {
   val abbrev = "DEC"
-  val targetClass: Class[_] = Decrease.getClass
+  val targetClass: Class[_] = classOf[Decrease]
 
   def apply(trigger: String) =
       new Dec(trigger, None)
@@ -234,19 +215,15 @@ object Dec {
 }
 
 class Inc(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+
+  override protected val matchingClass: Class[_] = Inc.targetClass
+
   override def toString: String = toString(Inc.abbrev)
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Inc]
-
-  override protected def matchClass(attachment: TriggeredAttachment): Boolean = attachment match {
-    case _: Increase => true
-    case _ => false
-  }
 }
 
 object Inc {
   val abbrev = "INC"
-  val targetClass: Class[_] = Increase.getClass
+  val targetClass: Class[_] = classOf[Increase]
 
   def apply(trigger: String): Inc =
     new Inc(trigger, None)
@@ -256,48 +233,44 @@ object Inc {
 }
 
 class TimEx(text: String) extends ContextAttachmentSpec(text) {
+
+  override protected val matchingClass: Class[_] = TimEx.targetClass
+
   override def toString: String = toString(TimEx.abbrev)
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[TimEx]
-
-  override protected def matchClass(attachment: ContextAttachment): Boolean = attachment match {
-    case _: Time => true
-    case _ => false
-  }
 }
 
 object TimEx {
   val abbrev = "TIME"
+  val targetClass: Class[_] = classOf[Time]
 
   def apply(text: String) =  new TimEx(text)
 }
 
+class GeoLoc(text: String) extends ContextAttachmentSpec(text) {
+
+  override protected val matchingClass: Class[_] = GeoLoc.targetClass
+
+  override def toString = toString(GeoLoc.abbrev)
+}
+
 object GeoLoc {
   val abbrev = "GEO"
+  val targetClass: Class[_] = classOf[Location]
 
   def apply(text: String) =  new GeoLoc(text)
 }
 
-class GeoLoc(text: String) extends ContextAttachmentSpec(text) {
-  override def toString = toString(GeoLoc.abbrev)
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[GeoLoc]
-
-  override protected def matchClass(attachment: ContextAttachment): Boolean = attachment match {
-    case _: Location => true
-    case _ => false
-  }
-}
-
 class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
-  override def toString: String = toString("")
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Unmarked]
+  override protected val matchingClass: Class[_] = Unmarked.targetClass
 
-  override protected def matchClass(attachment: TriggeredAttachment): Boolean = false
+  override def toString: String = toString(Unmarked.abbrev)
 }
 
 object Unmarked {
+  val abbrev = ""
+  val targetClass: Class[_] = classOf[Unmarked]
+
   def apply(trigger: String) =
       new Unmarked(trigger, None)
 

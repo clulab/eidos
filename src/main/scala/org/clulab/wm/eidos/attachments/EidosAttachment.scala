@@ -5,16 +5,16 @@ import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.{DCT, TimeInterval}
 import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
-
+import org.clulab.wm.eidos.utils.QuicklyEqualable
 import org.json4s._
 import org.json4s.JsonDSL._
 
 import scala.beans.BeanProperty
 import scala.annotation.tailrec
-import scala.util.hashing.MurmurHash3.{mix, mixLast}
+import scala.util.hashing.MurmurHash3.mix
 
 @SerialVersionUID(1L)
-abstract class EidosAttachment extends Attachment with Serializable {
+abstract class EidosAttachment extends Attachment with Serializable with QuicklyEqualable {
   implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
 
   // Support for EidosActions
@@ -105,21 +105,19 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
       if (quantifiers.isEmpty) Seq.empty
       else quantifiers.get.sorted
 
-  def canEqual(other: Any): Boolean
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[TriggeredAttachment]
 
-  override def equals(other: Any): Boolean = other match {
-    case that: TriggeredAttachment =>
-      that.canEqual(this) &&
-        this.trigger == that.trigger &&
+    this.trigger == that.trigger &&
         this.sortedQuantifiers == that.sortedQuantifiers
-    case _ => false
   }
 
-  override def hashCode: Int = {
-    val h0 = getClass().getName().##
-    val h1 = mix(h0, trigger.##)
+  override protected def calculateHashCode: Int = {
+    // Since the class is checked in canEqual, it is not needed here.
+    //val h0 = getClass().getName().##
+    //val h1 = mix(h0, trigger.##)
 
-    mixLast(h1, sortedQuantifiers.##)
+    mix(trigger.hashCode, sortedQuantifiers.hashCode)
   }
 
   def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosTriggeredAttachment =
@@ -215,8 +213,6 @@ object TriggeredAttachment {
 class Quantification(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Quantification]
-
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Quantification.kind)
 
@@ -240,8 +236,6 @@ object Quantification {
 @SerialVersionUID(1L)
 class Property(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
                      quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Property]
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDTriggeredAttachment(serializer, Property.kind)
@@ -267,8 +261,6 @@ object Property {
 class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Increase]
-
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Increase.kind)
 
@@ -292,8 +284,6 @@ object Increase {
 @SerialVersionUID(1L)
 class Decrease(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Decrease]
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Decrease.kind)
@@ -319,8 +309,6 @@ object Decrease {
 class Hedging(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
               quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Hedging]
-
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Hedging.kind)
 
   override def toJson(): JValue = toJson(trigger)
@@ -337,8 +325,6 @@ object Hedging {
 @SerialVersionUID(1L)
 class Negation(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
                quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
-
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Negation]
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Negation.kind)
 
@@ -367,24 +353,13 @@ abstract class ContextAttachment(val text: String, val value: Object) extends Ei
     (EidosAttachment.TYPE -> label)
   }
 
-  def canEqual(other: Any): Boolean
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[ContextAttachment]
 
-  override def equals(other: Any): Boolean = other match {
-    case that: ContextAttachment =>
-      that.canEqual(this) &&
-        this.text == that.text
-    case _ => false
+    this.text == that.text
   }
 
-  def hashCode(initial: Int, rest: Int): Int = {
-    mixLast(initial, rest)
-  }
-
-  override def hashCode: Int = { // Add rest of hash here?
-    val h0 = getClass().getName().##
-
-    mix(h0, text.##)
-  }
+  override protected def calculateHashCode: Int = text.hashCode
 }
 
 object ContextAttachment {
@@ -401,10 +376,8 @@ class Time(val interval: TimeInterval) extends ContextAttachment(interval.text, 
 
   override def toJson(): JValue = toJson(Time.label)
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Time]
-
-  override def equals(other: Any): Boolean = {
-    super.equals(other) && {
+  override def biEquals(other: Any): Boolean = {
+    super.biEquals(other) && {
       val that = other.asInstanceOf[Time]
 
       this.interval.span == that.interval.span // &&
@@ -414,11 +387,8 @@ class Time(val interval: TimeInterval) extends ContextAttachment(interval.text, 
     }
   }
 
-  override def hashCode: Int = {
-    val h0 = super.hashCode
-
-    mixLast(h0, interval.span.##)
-  }
+  override protected def calculateHashCode: Int =
+      mix(super.calculateHashCode, interval.span.hashCode)
 }
 
 object Time {
@@ -457,21 +427,16 @@ class Location(val location_phraseID: GeoPhraseID) extends ContextAttachment(loc
 
   override def toJson(): JValue = toJson(Location.label)
 
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[Location]
-
-  override def equals(other: Any): Boolean = {
-    super.equals(other) && {
+  override def biEquals(other: Any): Boolean = {
+    super.biEquals(other) && {
       val that = other.asInstanceOf[Location]
 
       this.location_phraseID == that.location_phraseID // Case classes support this.
     }
   }
 
-  override def hashCode: Int = {
-    val h0 = super.hashCode
-
-    mix(h0, location_phraseID.##)
-  }
+  override protected def calculateHashCode: Int =
+      mix(super.calculateHashCode, location_phraseID.hashCode)
 }
 
 object Location {
@@ -509,9 +474,6 @@ class DCTime(val dct: DCT) extends ContextAttachment(dct.text, dct) {
     newJLDContextAttachment(serializer, DCTime.kind)
 
   override def toJson(): JValue = toJson(DCTime.label)
-
-  // Just compare the texts which should determine the Intervals.
-  override def canEqual(other: Any): Boolean = other.isInstanceOf[DCTime]
 }
 
 object DCTime {
@@ -534,7 +496,7 @@ object DCTime {
 }
 
 @SerialVersionUID(1L)
-case class Score(score: Double) extends EidosAttachment {
+class Score(val score: Double) extends EidosAttachment {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     new JLDEidosScoredAttachment(serializer, Score.kind, this)
@@ -545,4 +507,6 @@ case class Score(score: Double) extends EidosAttachment {
 object Score {
   val label = "Same-As"
   val kind = "SCORE"
+
+  def apply(score: Double) = new Score(score)
 }

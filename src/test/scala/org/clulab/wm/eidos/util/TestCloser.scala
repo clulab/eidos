@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.util
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Closer
 
-class TestClosing extends Test {
+class TestCloser extends Test {
 
   class Closing(exception: Option[Throwable] = None) {
     var closed: Boolean = false
