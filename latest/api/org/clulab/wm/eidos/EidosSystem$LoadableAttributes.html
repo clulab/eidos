@@ -134,9 +134,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="org.clulab.wm">wm</a></dd></dl></div>
     </li><li name="org.clulab.wm.eidos.EidosSystem" visbl="pub" class="indented5 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="EidosSystemextendsConfiguredwithStopwordManagingwithMultiOntologyGrounderwithAdjectiveGrounder"></a><a id="EidosSystem:EidosSystem"></a>
+      <a id="EidosSystemextendsStopwordManagingwithMultiOntologyGrounderwithAdjectiveGrounder"></a><a id="EidosSystem:EidosSystem"></a>
       <span class="permalink">
-      <a href="../../../../org/clulab/wm/eidos/index.html#EidosSystemextendsConfiguredwithStopwordManagingwithMultiOntologyGrounderwithAdjectiveGrounder" title="Permalink">
+      <a href="../../../../org/clulab/wm/eidos/index.html#EidosSystemextendsStopwordManagingwithMultiOntologyGrounderwithAdjectiveGrounder" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -145,7 +145,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="A system for text processing and information extraction" href="EidosSystem.html"><span class="name">EidosSystem</span></a><span class="result"> extends <span class="extype" name="org.clulab.utils.Configured">Configured</span> with <a href="utils/StopwordManaging.html" class="extype" name="org.clulab.wm.eidos.utils.StopwordManaging">StopwordManaging</a> with <a href="groundings/MultiOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.MultiOntologyGrounder">MultiOntologyGrounder</a> with <a href="groundings/AdjectiveGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.AdjectiveGrounder">AdjectiveGrounder</a></span>
+        <a title="A system for text processing and information extraction" href="EidosSystem.html"><span class="name">EidosSystem</span></a><span class="result"> extends <a href="utils/StopwordManaging.html" class="extype" name="org.clulab.wm.eidos.utils.StopwordManaging">StopwordManaging</a> with <a href="groundings/MultiOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.MultiOntologyGrounder">MultiOntologyGrounder</a> with <a href="groundings/AdjectiveGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.AdjectiveGrounder">AdjectiveGrounder</a></span>
       </span>
       
       <p class="shortcomment cmt">A system for text processing and information extraction
@@ -236,9 +236,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.clulab.wm.eidos.EidosSystem.LoadableAttributes#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(entityFinder:org.clulab.wm.eidos.entities.EidosEntityFinder,domainParams:org.clulab.wm.eidos.utils.DomainParams,adjectiveGrounder:org.clulab.wm.eidos.groundings.AdjectiveGrounder,actions:org.clulab.wm.eidos.EidosActions,engine:org.clulab.odin.ExtractorEngine,ner:org.clulab.sequences.LexiconNER,stopwordManager:org.clulab.wm.eidos.utils.StopwordManager,ontologyGrounders:Seq[org.clulab.wm.eidos.groundings.EidosOntologyGrounder]):EidosSystem.this.LoadableAttributes"></a><a id="&lt;init&gt;:LoadableAttributes"></a>
+      <a id="&lt;init&gt;(entityFinder:org.clulab.wm.eidos.entities.EidosEntityFinder,domainParams:org.clulab.wm.eidos.utils.DomainParams,adjectiveGrounder:org.clulab.wm.eidos.groundings.AdjectiveGrounder,actions:org.clulab.wm.eidos.EidosActions,engine:org.clulab.odin.ExtractorEngine,ner:org.clulab.sequences.LexiconNER,stopwordManager:org.clulab.wm.eidos.utils.StopwordManager,hedgingHandler:org.clulab.wm.eidos.attachments.HypothesisHandler,negationHandler:org.clulab.wm.eidos.attachments.NegationHandler,expansionHandler:org.clulab.wm.eidos.actions.ExpansionHandler,ontologyGrounders:Seq[org.clulab.wm.eidos.groundings.EidosOntologyGrounder],timenorm:Option[org.clulab.timenorm.TemporalCharbasedParser],geonorm:Option[org.clulab.wm.eidos.context.GeoDisambiguateParser]):EidosSystem.this.LoadableAttributes"></a><a id="&lt;init&gt;:LoadableAttributes"></a>
       <span class="permalink">
-      <a href="../../../../org/clulab/wm/eidos/EidosSystem$LoadableAttributes.html#&lt;init&gt;(entityFinder:org.clulab.wm.eidos.entities.EidosEntityFinder,domainParams:org.clulab.wm.eidos.utils.DomainParams,adjectiveGrounder:org.clulab.wm.eidos.groundings.AdjectiveGrounder,actions:org.clulab.wm.eidos.EidosActions,engine:org.clulab.odin.ExtractorEngine,ner:org.clulab.sequences.LexiconNER,stopwordManager:org.clulab.wm.eidos.utils.StopwordManager,ontologyGrounders:Seq[org.clulab.wm.eidos.groundings.EidosOntologyGrounder]):EidosSystem.this.LoadableAttributes" title="Permalink">
+      <a href="../../../../org/clulab/wm/eidos/EidosSystem$LoadableAttributes.html#&lt;init&gt;(entityFinder:org.clulab.wm.eidos.entities.EidosEntityFinder,domainParams:org.clulab.wm.eidos.utils.DomainParams,adjectiveGrounder:org.clulab.wm.eidos.groundings.AdjectiveGrounder,actions:org.clulab.wm.eidos.EidosActions,engine:org.clulab.odin.ExtractorEngine,ner:org.clulab.sequences.LexiconNER,stopwordManager:org.clulab.wm.eidos.utils.StopwordManager,hedgingHandler:org.clulab.wm.eidos.attachments.HypothesisHandler,negationHandler:org.clulab.wm.eidos.attachments.NegationHandler,expansionHandler:org.clulab.wm.eidos.actions.ExpansionHandler,ontologyGrounders:Seq[org.clulab.wm.eidos.groundings.EidosOntologyGrounder],timenorm:Option[org.clulab.timenorm.TemporalCharbasedParser],geonorm:Option[org.clulab.wm.eidos.context.GeoDisambiguateParser]):EidosSystem.this.LoadableAttributes" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -247,7 +247,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">LoadableAttributes</span><span class="params">(<span name="entityFinder">entityFinder: <a href="entities/EidosEntityFinder.html" class="extype" name="org.clulab.wm.eidos.entities.EidosEntityFinder">EidosEntityFinder</a></span>, <span name="domainParams">domainParams: <a href="utils/DomainParams.html" class="extype" name="org.clulab.wm.eidos.utils.DomainParams">DomainParams</a></span>, <span name="adjectiveGrounder">adjectiveGrounder: <a href="groundings/AdjectiveGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.AdjectiveGrounder">AdjectiveGrounder</a></span>, <span name="actions">actions: <a href="EidosActions.html" class="extype" name="org.clulab.wm.eidos.EidosActions">EidosActions</a></span>, <span name="engine">engine: <span class="extype" name="org.clulab.odin.ExtractorEngine">ExtractorEngine</span></span>, <span name="ner">ner: <span class="extype" name="org.clulab.sequences.LexiconNER">LexiconNER</span></span>, <span name="stopwordManager">stopwordManager: <a href="utils/StopwordManager.html" class="extype" name="org.clulab.wm.eidos.utils.StopwordManager">StopwordManager</a></span>, <span name="ontologyGrounders">ontologyGrounders: <span class="extype" name="scala.Seq">Seq</span>[<a href="groundings/EidosOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.EidosOntologyGrounder">EidosOntologyGrounder</a>]</span>)</span>
+        <span class="name">LoadableAttributes</span><span class="params">(<span name="entityFinder">entityFinder: <a href="entities/EidosEntityFinder.html" class="extype" name="org.clulab.wm.eidos.entities.EidosEntityFinder">EidosEntityFinder</a></span>, <span name="domainParams">domainParams: <a href="utils/DomainParams.html" class="extype" name="org.clulab.wm.eidos.utils.DomainParams">DomainParams</a></span>, <span name="adjectiveGrounder">adjectiveGrounder: <a href="groundings/AdjectiveGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.AdjectiveGrounder">AdjectiveGrounder</a></span>, <span name="actions">actions: <a href="EidosActions.html" class="extype" name="org.clulab.wm.eidos.EidosActions">EidosActions</a></span>, <span name="engine">engine: <span class="extype" name="org.clulab.odin.ExtractorEngine">ExtractorEngine</span></span>, <span name="ner">ner: <span class="extype" name="org.clulab.sequences.LexiconNER">LexiconNER</span></span>, <span name="stopwordManager">stopwordManager: <a href="utils/StopwordManager.html" class="extype" name="org.clulab.wm.eidos.utils.StopwordManager">StopwordManager</a></span>, <span name="hedgingHandler">hedgingHandler: <a href="attachments/HypothesisHandler.html" class="extype" name="org.clulab.wm.eidos.attachments.HypothesisHandler">HypothesisHandler</a></span>, <span name="negationHandler">negationHandler: <a href="attachments/NegationHandler.html" class="extype" name="org.clulab.wm.eidos.attachments.NegationHandler">NegationHandler</a></span>, <span name="expansionHandler">expansionHandler: <a href="actions/ExpansionHandler.html" class="extype" name="org.clulab.wm.eidos.actions.ExpansionHandler">ExpansionHandler</a></span>, <span name="ontologyGrounders">ontologyGrounders: <span class="extype" name="scala.Seq">Seq</span>[<a href="groundings/EidosOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.EidosOntologyGrounder">EidosOntologyGrounder</a>]</span>, <span name="timenorm">timenorm: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.clulab.timenorm.TemporalCharbasedParser">TemporalCharbasedParser</span>]</span>, <span name="geonorm">geonorm: <span class="extype" name="scala.Option">Option</span>[<a href="context/GeoDisambiguateParser.html" class="extype" name="org.clulab.wm.eidos.context.GeoDisambiguateParser">GeoDisambiguateParser</a>]</span>)</span>
       </span>
       
       
@@ -461,6 +461,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.clulab.wm.eidos.EidosSystem.LoadableAttributes#expansionHandler" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="expansionHandler:org.clulab.wm.eidos.actions.ExpansionHandler"></a><a id="expansionHandler:ExpansionHandler"></a>
+      <span class="permalink">
+      <a href="../../../../org/clulab/wm/eidos/EidosSystem$LoadableAttributes.html#expansionHandler:org.clulab.wm.eidos.actions.ExpansionHandler" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">expansionHandler</span><span class="result">: <a href="actions/ExpansionHandler.html" class="extype" name="org.clulab.wm.eidos.actions.ExpansionHandler">ExpansionHandler</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -483,6 +499,22 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="org.clulab.wm.eidos.EidosSystem.LoadableAttributes#geonorm" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="geonorm:Option[org.clulab.wm.eidos.context.GeoDisambiguateParser]"></a><a id="geonorm:Option[GeoDisambiguateParser]"></a>
+      <span class="permalink">
+      <a href="../../../../org/clulab/wm/eidos/EidosSystem$LoadableAttributes.html#geonorm:Option[org.clulab.wm.eidos.context.GeoDisambiguateParser]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">geonorm</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="context/GeoDisambiguateParser.html" class="extype" name="org.clulab.wm.eidos.context.GeoDisambiguateParser">GeoDisambiguateParser</a>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -521,6 +553,22 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="org.clulab.wm.eidos.EidosSystem.LoadableAttributes#hedgingHandler" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hedgingHandler:org.clulab.wm.eidos.attachments.HypothesisHandler"></a><a id="hedgingHandler:HypothesisHandler"></a>
+      <span class="permalink">
+      <a href="../../../../org/clulab/wm/eidos/EidosSystem$LoadableAttributes.html#hedgingHandler:org.clulab.wm.eidos.attachments.HypothesisHandler" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hedgingHandler</span><span class="result">: <a href="attachments/HypothesisHandler.html" class="extype" name="org.clulab.wm.eidos.attachments.HypothesisHandler">HypothesisHandler</a></span>
+      </span>
+      
+      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -553,6 +601,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.clulab.wm.eidos.EidosSystem.LoadableAttributes#negationHandler" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="negationHandler:org.clulab.wm.eidos.attachments.NegationHandler"></a><a id="negationHandler:NegationHandler"></a>
+      <span class="permalink">
+      <a href="../../../../org/clulab/wm/eidos/EidosSystem$LoadableAttributes.html#negationHandler:org.clulab.wm.eidos.attachments.NegationHandler" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">negationHandler</span><span class="result">: <a href="attachments/NegationHandler.html" class="extype" name="org.clulab.wm.eidos.attachments.NegationHandler">NegationHandler</a></span>
+      </span>
+      
+      
     </li><li name="org.clulab.wm.eidos.EidosSystem.LoadableAttributes#ner" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ner:org.clulab.sequences.LexiconNER"></a><a id="ner:LexiconNER"></a>
       <span class="permalink">
@@ -655,6 +719,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.clulab.wm.eidos.EidosSystem.LoadableAttributes#timenorm" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="timenorm:Option[org.clulab.timenorm.TemporalCharbasedParser]"></a><a id="timenorm:Option[TemporalCharbasedParser]"></a>
+      <span class="permalink">
+      <a href="../../../../org/clulab/wm/eidos/EidosSystem$LoadableAttributes.html#timenorm:Option[org.clulab.timenorm.TemporalCharbasedParser]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">timenorm</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.clulab.timenorm.TemporalCharbasedParser">TemporalCharbasedParser</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">

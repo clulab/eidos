@@ -155,6 +155,10 @@
                         <a href="Bagger.html" title="">Bagger</a>
                       </li><li class="current-entities indented5">
                         <span class="separator"></span>
+                        <a class="class" href="EidosCrossSentenceMention.html" title=""></a>
+                        <a href="EidosCrossSentenceMention.html" title="">EidosCrossSentenceMention</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
                         <a class="class" href="EidosEventMention.html" title=""></a>
                         <a href="EidosEventMention.html" title="">EidosEventMention</a>
                       </li><li class="current-entities indented5">
@@ -268,9 +272,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="org.clulab.wm.eidos.mentions.EidosRelationMention#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(odinRelationMention:org.clulab.odin.RelationMention,stopwordManaging:org.clulab.wm.eidos.utils.StopwordManaging,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):org.clulab.wm.eidos.mentions.EidosRelationMention"></a><a id="&lt;init&gt;:EidosRelationMention"></a>
+      <a id="&lt;init&gt;(odinRelationMention:org.clulab.odin.RelationMention,canonicalizer:org.clulab.wm.eidos.utils.Canonicalizer,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):org.clulab.wm.eidos.mentions.EidosRelationMention"></a><a id="&lt;init&gt;:EidosRelationMention"></a>
       <span class="permalink">
-      <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#&lt;init&gt;(odinRelationMention:org.clulab.odin.RelationMention,stopwordManaging:org.clulab.wm.eidos.utils.StopwordManaging,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):org.clulab.wm.eidos.mentions.EidosRelationMention" title="Permalink">
+      <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#&lt;init&gt;(odinRelationMention:org.clulab.odin.RelationMention,canonicalizer:org.clulab.wm.eidos.utils.Canonicalizer,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):org.clulab.wm.eidos.mentions.EidosRelationMention" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -279,14 +283,33 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">EidosRelationMention</span><span class="params">(<span name="odinRelationMention">odinRelationMention: <span class="extype" name="org.clulab.odin.RelationMention">RelationMention</span></span>, <span name="stopwordManaging">stopwordManaging: <a href="../utils/StopwordManaging.html" class="extype" name="org.clulab.wm.eidos.utils.StopwordManaging">StopwordManaging</a></span>, <span name="ontologyGrounder">ontologyGrounder: <a href="../groundings/MultiOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.MultiOntologyGrounder">MultiOntologyGrounder</a></span>, <span name="mentionMapper">mentionMapper: <a href="MentionMapper.html" class="extype" name="org.clulab.wm.eidos.mentions.MentionMapper">MentionMapper</a></span>)</span>
+        <span class="name">EidosRelationMention</span><span class="params">(<span name="odinRelationMention">odinRelationMention: <span class="extype" name="org.clulab.odin.RelationMention">RelationMention</span></span>, <span name="canonicalizer">canonicalizer: <a href="../utils/Canonicalizer.html" class="extype" name="org.clulab.wm.eidos.utils.Canonicalizer">Canonicalizer</a></span>, <span name="ontologyGrounder">ontologyGrounder: <a href="../groundings/MultiOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.MultiOntologyGrounder">MultiOntologyGrounder</a></span>, <span name="mentionMapper">mentionMapper: <a href="MentionMapper.html" class="extype" name="org.clulab.wm.eidos.mentions.MentionMapper">MentionMapper</a></span>)</span>
       </span>
       
       
     </li></ol>
             </div>
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.clulab.wm.eidos.mentions.EidosMention.StringAndStart" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StringAndStart=(String,Int)"></a><a id="StringAndStart:StringAndStart"></a>
+      <span class="permalink">
+      <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#StringAndStart=(String,Int)" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">StringAndStart</span><span class="result alias"> = (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Int">Int</span>)</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
+    </li></ol>
+            </div>
 
         
 
@@ -373,7 +396,23 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
-    </li><li name="org.clulab.wm.eidos.mentions.EidosRelationMention#canonicalName" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.clulab.wm.eidos.mentions.EidosMention#canonicalMentions" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="canonicalMentions:Seq[org.clulab.odin.Mention]"></a><a id="canonicalMentions:Seq[Mention]"></a>
+      <span class="permalink">
+      <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#canonicalMentions:Seq[org.clulab.odin.Mention]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canonicalMentions</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.clulab.odin.Mention">Mention</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
+    </li><li name="org.clulab.wm.eidos.mentions.EidosMention#canonicalName" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="canonicalName:String"></a>
       <span class="permalink">
       <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#canonicalName:String" title="Permalink">
@@ -382,13 +421,13 @@
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
         <span class="name">canonicalName</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.clulab.wm.eidos.mentions.EidosRelationMention">EidosRelationMention</a> → <a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
@@ -518,7 +557,7 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="org.clulab.wm.eidos.mentions.EidosRelationMention#grounding" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="org.clulab.wm.eidos.mentions.EidosMention#grounding" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="grounding:Map[String,org.clulab.wm.eidos.groundings.OntologyGrounding]"></a><a id="grounding:Map[String,OntologyGrounding]"></a>
       <span class="permalink">
       <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#grounding:Map[String,org.clulab.wm.eidos.groundings.OntologyGrounding]" title="Permalink">
@@ -527,13 +566,13 @@
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
         <span class="name">grounding</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../groundings/OntologyGrounding.html" class="extype" name="org.clulab.wm.eidos.groundings.OntologyGrounding">OntologyGrounding</a>]</span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.clulab.wm.eidos.mentions.EidosRelationMention">EidosRelationMention</a> → <a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
@@ -704,9 +743,9 @@
       
       
     </li><li name="org.clulab.wm.eidos.mentions.EidosMention#remapOdinArguments" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="remapOdinArguments(odinArguments:Map[String,Seq[org.clulab.odin.Mention]],stopwordManaging:org.clulab.wm.eidos.utils.StopwordManaging,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):Map[String,Seq[org.clulab.wm.eidos.mentions.EidosMention]]"></a><a id="remapOdinArguments(Map[String,Seq[Mention]],StopwordManaging,MultiOntologyGrounder,MentionMapper):Map[String,Seq[EidosMention]]"></a>
+      <a id="remapOdinArguments(odinArguments:Map[String,Seq[org.clulab.odin.Mention]],canonicalizer:org.clulab.wm.eidos.utils.Canonicalizer,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):Map[String,Seq[org.clulab.wm.eidos.mentions.EidosMention]]"></a><a id="remapOdinArguments(Map[String,Seq[Mention]],Canonicalizer,MultiOntologyGrounder,MentionMapper):Map[String,Seq[EidosMention]]"></a>
       <span class="permalink">
-      <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#remapOdinArguments(odinArguments:Map[String,Seq[org.clulab.odin.Mention]],stopwordManaging:org.clulab.wm.eidos.utils.StopwordManaging,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):Map[String,Seq[org.clulab.wm.eidos.mentions.EidosMention]]" title="Permalink">
+      <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#remapOdinArguments(odinArguments:Map[String,Seq[org.clulab.odin.Mention]],canonicalizer:org.clulab.wm.eidos.utils.Canonicalizer,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):Map[String,Seq[org.clulab.wm.eidos.mentions.EidosMention]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -715,7 +754,23 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">remapOdinArguments</span><span class="params">(<span name="odinArguments">odinArguments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.clulab.odin.Mention">Mention</span>]]</span>, <span name="stopwordManaging">stopwordManaging: <a href="../utils/StopwordManaging.html" class="extype" name="org.clulab.wm.eidos.utils.StopwordManaging">StopwordManaging</a></span>, <span name="ontologyGrounder">ontologyGrounder: <a href="../groundings/MultiOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.MultiOntologyGrounder">MultiOntologyGrounder</a></span>, <span name="mentionMapper">mentionMapper: <a href="MentionMapper.html" class="extype" name="org.clulab.wm.eidos.mentions.MentionMapper">MentionMapper</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a>]]</span>
+        <span class="name">remapOdinArguments</span><span class="params">(<span name="odinArguments">odinArguments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="org.clulab.odin.Mention">Mention</span>]]</span>, <span name="canonicalizer">canonicalizer: <a href="../utils/Canonicalizer.html" class="extype" name="org.clulab.wm.eidos.utils.Canonicalizer">Canonicalizer</a></span>, <span name="ontologyGrounder">ontologyGrounder: <a href="../groundings/MultiOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.MultiOntologyGrounder">MultiOntologyGrounder</a></span>, <span name="mentionMapper">mentionMapper: <a href="MentionMapper.html" class="extype" name="org.clulab.wm.eidos.mentions.MentionMapper">MentionMapper</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a>]]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>
+    </li><li name="org.clulab.wm.eidos.mentions.EidosMention#remapOdinMention" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="remapOdinMention(odinMention:org.clulab.odin.Mention,canonicalizer:org.clulab.wm.eidos.utils.Canonicalizer,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):org.clulab.wm.eidos.mentions.EidosMention"></a><a id="remapOdinMention(Mention,Canonicalizer,MultiOntologyGrounder,MentionMapper):EidosMention"></a>
+      <span class="permalink">
+      <a href="../../../../../org/clulab/wm/eidos/mentions/EidosRelationMention.html#remapOdinMention(odinMention:org.clulab.odin.Mention,canonicalizer:org.clulab.wm.eidos.utils.Canonicalizer,ontologyGrounder:org.clulab.wm.eidos.groundings.MultiOntologyGrounder,mentionMapper:org.clulab.wm.eidos.mentions.MentionMapper):org.clulab.wm.eidos.mentions.EidosMention" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">remapOdinMention</span><span class="params">(<span name="odinMention">odinMention: <span class="extype" name="org.clulab.odin.Mention">Mention</span></span>, <span name="canonicalizer">canonicalizer: <a href="../utils/Canonicalizer.html" class="extype" name="org.clulab.wm.eidos.utils.Canonicalizer">Canonicalizer</a></span>, <span name="ontologyGrounder">ontologyGrounder: <a href="../groundings/MultiOntologyGrounder.html" class="extype" name="org.clulab.wm.eidos.groundings.MultiOntologyGrounder">MultiOntologyGrounder</a></span>, <span name="mentionMapper">mentionMapper: <a href="MentionMapper.html" class="extype" name="org.clulab.wm.eidos.mentions.MentionMapper">MentionMapper</a></span>)</span><span class="result">: <a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></dd></dl></div>

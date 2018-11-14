@@ -151,8 +151,16 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="org.clulab.wm.eidos">eidos</a></dd></dl></div>
     </li><li class="current-entities indented5">
                         <span class="separator"></span>
+                        <a class="class" href="Canonicalizer.html" title=""></a>
+                        <a href="Canonicalizer.html" title="">Canonicalizer</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
                         <a class="class" href="CliReader.html" title=""></a>
                         <a href="CliReader.html" title="">CliReader</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
+                        <a class="object" href="Closer$.html" title=""></a>
+                        <a href="Closer$.html" title="">Closer</a>
                       </li><li class="current-entities indented5">
                         <span class="separator"></span>
                         <a class="object" href="DisplayUtils$.html" title=""></a>
@@ -179,6 +187,22 @@
                         <a href="LineReader.html" title="Line reader to use in different environments.">LineReader</a>
                       </li><li class="current-entities indented5">
                         <span class="separator"></span>
+                        <a class="object" href="MentionUtils$.html" title=""></a>
+                        <a href="MentionUtils$.html" title="">MentionUtils</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
+                        <a class="trait" href="Namer.html" title=""></a>
+                        <a href="Namer.html" title="">Namer</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
+                        <a class="class" href="PassThruNamer.html" title=""></a>
+                        <a href="PassThruNamer.html" title="">PassThruNamer</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
+                        <a class="object" href="PlayUtils$.html" title=""></a>
+                        <a href="PlayUtils$.html" title="">PlayUtils</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
                         <a class="class" href="Sink.html" title=""></a>
                         <a href="Sink.html" title="">Sink</a>
                       </li><li class="current-entities indented5">
@@ -197,6 +221,10 @@
                         <span class="separator"></span>
                         <a class="trait" href="StopwordManaging.html" title=""></a>
                         <a href="StopwordManaging.html" title="">StopwordManaging</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
+                        <a class="object" href="StringUtils$.html" title=""></a>
+                        <a href="StringUtils$.html" title="">StringUtils</a>
                       </li><li class="current-entities indented5">
                         <span class="separator"></span>
                         <a class="object" href="Timer$.html" title=""></a>
@@ -464,9 +492,9 @@
               
         </dd></dl></div>
     </li><li name="org.clulab.wm.eidos.utils.GroundingUtils#getGroundingsString" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="getGroundingsString(mention:org.clulab.wm.eidos.mentions.EidosMention,namespace:String,topK:Int):String"></a><a id="getGroundingsString(EidosMention,String,Int):String"></a>
+      <a id="getGroundingsString(mention:org.clulab.wm.eidos.mentions.EidosMention,namespace:String,topK:Int,delim:String):String"></a><a id="getGroundingsString(EidosMention,String,Int,String):String"></a>
       <span class="permalink">
-      <a href="../../../../../org/clulab/wm/eidos/utils/GroundingUtils$.html#getGroundingsString(mention:org.clulab.wm.eidos.mentions.EidosMention,namespace:String,topK:Int):String" title="Permalink">
+      <a href="../../../../../org/clulab/wm/eidos/utils/GroundingUtils$.html#getGroundingsString(mention:org.clulab.wm.eidos.mentions.EidosMention,namespace:String,topK:Int,delim:String):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -475,7 +503,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getGroundingsString</span><span class="params">(<span name="mention">mention: <a href="../mentions/EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></span>, <span name="namespace">namespace: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="topK">topK: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">5</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">getGroundingsString</span><span class="params">(<span name="mention">mention: <a href="../mentions/EidosMention.html" class="extype" name="org.clulab.wm.eidos.mentions.EidosMention">EidosMention</a></span>, <span name="namespace">namespace: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="topK">topK: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">5</span></span>, <span name="delim">delim: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;, &quot;</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       
@@ -568,22 +596,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="org.clulab.wm.eidos.utils.GroundingUtils#stripMetaDataType" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="stripMetaDataType(s:String):String"></a><a id="stripMetaDataType(String):String"></a>
-      <span class="permalink">
-      <a href="../../../../../org/clulab/wm/eidos/utils/GroundingUtils$.html#stripMetaDataType(s:String):String" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">stripMetaDataType</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
