@@ -117,7 +117,7 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
     //val h0 = getClass().getName().##
     //val h1 = mix(h0, trigger.##)
 
-    mix(trigger.hashCode, sortedQuantifiers.hashCode)
+    mix(trigger.##, sortedQuantifiers.##)
   }
 
   def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosTriggeredAttachment =
@@ -359,7 +359,7 @@ abstract class ContextAttachment(val text: String, val value: Object) extends Ei
     this.text == that.text
   }
 
-  override protected def calculateHashCode: Int = text.hashCode
+  override protected def calculateHashCode: Int = text.##
 }
 
 object ContextAttachment {
@@ -388,7 +388,7 @@ class Time(val interval: TimeInterval) extends ContextAttachment(interval.text, 
   }
 
   override protected def calculateHashCode: Int =
-      mix(super.calculateHashCode, interval.span.hashCode)
+      mix(super.calculateHashCode, interval.span.##)
 }
 
 object Time {
@@ -436,7 +436,7 @@ class Location(val geoPhraseID: GeoPhraseID) extends ContextAttachment(geoPhrase
   }
 
   override protected def calculateHashCode: Int =
-      mix(super.calculateHashCode, geoPhraseID.hashCode)
+      mix(super.calculateHashCode, geoPhraseID.##)
 }
 
 object Location {

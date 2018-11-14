@@ -134,7 +134,6 @@ abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
       .toString()
   }
 
-
   override def calculateHashCode: Int = text.##
 
   override def biEquals(other: Any): Boolean = {
