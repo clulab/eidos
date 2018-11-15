@@ -22,13 +22,10 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     // avoid refs, etc.
     // removed corefs from it
     // TODO: avoid rinning avoidEngine twice
-    val avoid = avoidEngine.extractFrom(doc).filter(!_.matches("Coref"))
+    val avoid = avoidEngine.extractFrom(doc)
     println(s"${avoid.length} AVOID:")
     avoid.foreach(DisplayUtils.displayMention)
     val stateFromAvoid = State(avoid)
-    // state for corefs
-    val avoidCorefs = avoidEngine.extractFrom(doc).filter(_.matches("Coref"))
-    val stateAvoidCorefs = State(avoidCorefs)
     // extract the base entities
     // NOTE: we have an action that prevents matching entities that overlap with an Avoid mention
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid)
@@ -43,39 +40,46 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities: Seq[Mention] = mergedEntities.groupBy(m => (m.sentenceObj, m.tokenInterval, m.label)).values.toSeq.map(_.head)
     // filter entities (ex. check if case of coref)
-    val filteredEntities = filterEntities(distinctEntities, state = stateAvoidCorefs)
+    val filteredEntities = filterEntities(distinctEntities, state = stateFromAvoid)
     // trim unwanted POS from entity edges
     val trimmedEntities = filteredEntities.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
 
-    println(s"AVOID  -- \n\t${avoid.map(m => m.text + "__" + m.foundBy).mkString("\n\t")}")
-    println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
-    println(s"Split-base-entities  -- \n\t${splitEntities.map(m => m.text).mkString("\n\t")}")
-    println(s"Expanded-entities  -- \n\t${expanded.map(m => m.text).mkString("\n\t")}")
-    println(s"Merged-Entities -- \n\t${mergedEntities.map(m => m.text).mkString("\n\t")}")
-    println(s"Distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
-    println(s"Filtered-Entities -- \n\t${filteredEntities.map(m => m.text).mkString("\n\t")}")
-    println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
-    //println(s"Entities finally returned -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"AVOID  -- \n\t${avoid.map(m => m.text + "__" + m.foundBy).mkString("\n\t")}")
+//    println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Split-base-entities  -- \n\t${splitEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Expanded-entities  -- \n\t${expanded.map(m => m.text).mkString("\n\t")}")
+//    println(s"Merged-Entities -- \n\t${mergedEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Filtered-Entities -- \n\t${filteredEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
+//    println(s"Entities finally returned -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
     trimmedEntities ++ avoid // display Avoid mentions in results
   }
 
-  /** Set of filters that valid entities must satisfy */
+
+  /**
+    * Set of filters that valid entities must satisfy
+    * @param mentions: Seq[Mention]
+    * @param state: State
+    * @return Seq[Mention] of entities
+    */
   def filterEntities(mentions: Seq[Mention], state: State): Seq[Mention] = {
     mentions.filter(! containsCoref(_, state))
   }
 
-  // While the entity won't expand into a coref Avoid mention, the presence of such a mention may mean the entity captured
-  // is only a fragment, which is in fact a coref mention.
-  // This filter applies some dumb heuristics to drop entities that are suspected of being unresolved cases of coreference
+  /**
+    * Returns true if state contains any mention with the label Coref
+    * @param mention: Seq[Mention]
+    * @param state: State
+    * @return Boolean
+    */
   def containsCoref(mention: Mention, state: State): Boolean = {
-    println(mention.words)
-    //state.mentionsFor(mention.sentence, mention.tokenInterval).map(x => println(x.words))
-    state.mentionsFor(mention.sentence, mention.tokenInterval).filter(_.matches(PortugueseEntityFinder.AVOID_COREF_LABEL)).map(x => println(x.words))
-    val mentionsWithCorefs = state.mentionsFor(mention.sentence, mention.tokenInterval).filter(_.matches(PortugueseEntityFinder.AVOID_COREF_LABEL))
-
-    return mentionsWithCorefs.nonEmpty
-
-
+    // find mentions in the state for mention received as parameter
+    val mentionsWithCorefs = state.mentionsFor(mention.sentence, mention.tokenInterval)
+    // filter off mentions that are not Corefs
+                                  .filter(_.matches(PortugueseEntityFinder.AVOID_COREF_LABEL))
+    // return true if any Coref was found
+    mentionsWithCorefs.nonEmpty
   }
 
   // While the entity won't expand into a coref Avoid mention, the presence of such a mention may mean the entity captured
