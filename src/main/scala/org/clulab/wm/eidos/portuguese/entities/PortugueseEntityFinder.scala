@@ -44,15 +44,15 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     // trim unwanted POS from entity edges
     val trimmedEntities = filteredEntities.map(EntityHelper.trimEntityEdges(_, PortugueseEntityFinder.INVALID_EDGE_TAGS))
 
-//    println(s"AVOID  -- \n\t${avoid.map(m => m.text + "__" + m.foundBy).mkString("\n\t")}")
-//    println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"Split-base-entities  -- \n\t${splitEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"Expanded-entities  -- \n\t${expanded.map(m => m.text).mkString("\n\t")}")
-//    println(s"Merged-Entities -- \n\t${mergedEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"Distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"Filtered-Entities -- \n\t${filteredEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
-//    println(s"Entities finally returned -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
+    println(s"AVOID  -- \n\t${avoid.map(m => m.text + "__" + m.foundBy).mkString("\n\t")}")
+    println(s"Base-entities  -- \n\t${baseEntities.map(m => m.text).mkString("\n\t")}")
+    println(s"Split-base-entities  -- \n\t${splitEntities.map(m => m.text).mkString("\n\t")}")
+    println(s"Expanded-entities  -- \n\t${expanded.map(m => m.text).mkString("\n\t")}")
+    println(s"Merged-Entities -- \n\t${mergedEntities.map(m => m.text).mkString("\n\t")}")
+    println(s"Distinct-Entities -- \n\t${distinctEntities.map(m => m.text).mkString("\n\t")}")
+    println(s"Filtered-Entities -- \n\t${filteredEntities.map(m => m.text).mkString("\n\t")}")
+    println(s"trimmed-Entities -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
+    println(s"Entities finally returned -- \n\t${trimmedEntities.map(m => m.text).mkString("\n\t")}")
     trimmedEntities ++ avoid // display Avoid mentions in results
   }
 
@@ -203,7 +203,7 @@ object PortugueseEntityFinder extends LazyLogging {
     ",".r,
     // PORTUGUESE
     "PRON".r,
-    //"ADP".r,
+    "ADP".r,
     "DET".r
     //"[!\"#$%&'*+,-\\./:;<=>?@\\^_`{|}~]".r
   )

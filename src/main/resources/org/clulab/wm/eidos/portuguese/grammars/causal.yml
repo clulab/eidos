@@ -126,7 +126,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(melhor|pior|aument|diminu)/ & tag=/^V/]
-      cause: Entity = obl (?= case [word = /(?i)(com|por)$/]) /conj/{,3}
+      cause: Entity = obl (?= case [word = /(?i)(com|por)$/]) (${ preps }|conj|acl){,3}
       effect: Entity = (${ agents }) /conj/{,3}
 
 #
