@@ -109,7 +109,7 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
     // separate out the entities
     val (entities, other) = mentions.partition(_.matches("Entity"))
     // merge overlapping entities
-    val merged: Seq[Mention] = {
+    val mergedEntities: Seq[Mention] = {
       // 1. determine which entities are in each sentence
       entities.groupBy(_.sentence).flatMap { case (sentenceIdx: Int, ents: Seq[Mention]) =>
         // 2. for each set of entities within a sentence...
@@ -119,7 +119,7 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
             _.tokenInterval.overlaps(entity.tokenInterval)
           }
           // 2b. merge overlapping entities
-          val merged: Mention = {
+          val mergedEntity: Mention = {
             val newStart = overlapping.map(_.start).min
             val newEnd = overlapping.map(_.end).max
             // do we need to merge (i.e., do we have more than one entity in our overlapping set?
@@ -142,11 +142,11 @@ class PortugueseEntityFinder(entityEngine: ExtractorEngine, avoidEngine: Extract
               )
             }
           }
-          merged
+          mergedEntity
         }
       }
     }.toSeq
-    merged ++ other
+    mergedEntities ++ other
   }
 
 
