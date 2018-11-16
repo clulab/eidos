@@ -10,7 +10,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/por/]|[tag=ADV]))
-      cause: Entity = (obl) (?= case [word=/(?i)(por)/]) /conj/{,3}
+      cause: Entity = (obl) (?= case [word=/(?i)(por)/]) (${ preps })? /conj/{,3}
       effect: Entity = (<acl|${ agents }) /conj|<conj/{,3}
 
   - name: causa_de-${addlabel}
@@ -30,12 +30,9 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(lev)/ & tag=/^V/] (?= ([word=/^(a)$/] [word=/^(o|a)$/] ) )
-      cause: Entity = (${ agents }) /conj/{,3}
-      effect: Entity = obl (?= case [word=/^(a)$/]) /conj/{,3}
-      #trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/^(a|para)$/] [word=/^(o|a)$/] ) )
-      #cause: Entity = (nsubj|nsubj:pass) /conj/{,3}
-      #effect: Entity = obl (?= case [word=/^(a|para)$/]) /conj/{,3}
-      # find the diff
+      cause: Entity = (${ agents })/conj|(${ preps })/{,3}
+      effect: Entity = obl (?= case [word=/^(a)$/]) /conj|(${ preps })/{,3}
+
 
   - name: trigger+devido_a-${addlabel}
     priority: ${ rulepriority }
@@ -44,7 +41,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (advmod  [word=/devido|graças/]) (obl)  /conj/{,3}
+      cause: Entity = (advmod  [word=/devido|graças/]) (obl) (${ preps })?  /conj/{,3}
       effect: Entity = (nsubj:pass|${ objects }) /conj/{,3}
 
   - name: trigger+decorrente_de-${addlabel}
@@ -74,8 +71,8 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(contrib|colab)/ & tag=/^V/] (?= ([word=/^(com|para)$/] ) )
-      cause: Entity = (${ agents }|(obl (?= case [word=/(?i)(por)/]) )) /conj/{,3}
-      effect: Entity = obl (?= case [word=/^(com|para)$/]) /conj/{,3}
+      cause: Entity = (${ agents }|(obl (?= case [word=/(?i)(por)/]) )) (${preps})? /conj/{,3}
+      effect: Entity = obl (?= case [word=/^(com|para)$/]) (${preps})? /conj/{,3}
 
   - name: invertido_causa_de-${addlabel}
     priority: ${ rulepriority }
@@ -126,7 +123,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(melhor|pior|aument|diminu)/ & tag=/^V/]
-      cause: Entity = obl (?= case [word = /(?i)(com|por)$/]) (${ preps }|conj|acl){,3}
+      cause: Entity = obl (?= case [word = /(?i)(com|por)$/]) (${preps}|acl)? /conj/{,3}
       effect: Entity = (${ agents }) /conj/{,3}
 
 #
