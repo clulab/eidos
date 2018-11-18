@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
@@ -24,7 +24,7 @@ trait AdjectiveGrounder {
 class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounder {
 
   protected def load(): Map[Quantifier, Map[String, Double]] =
-      Closer.autoClose(Sourcer.sourceFromResource(quantifierKBFile)) { source =>
+      (Sourcer.sourceFromResource(quantifierKBFile)).autoClose { source =>
       // adjective -> Map(name:value)
         FileUtils.getCommentedLinesFromSource(source)
             .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"

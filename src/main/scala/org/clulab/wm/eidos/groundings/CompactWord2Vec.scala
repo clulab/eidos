@@ -4,7 +4,7 @@ import java.io.{FileOutputStream, ObjectOutputStream}
 
 import org.clulab.embeddings.word2vec.Word2Vec
 
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
@@ -36,7 +36,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
   def save(filename: String): Unit = {
     val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
 
-    Closer.autoClose(new ObjectOutputStream(new FileOutputStream(filename))) { objectOutputStream =>
+    (new ObjectOutputStream(new FileOutputStream(filename))).autoClose { objectOutputStream =>
       // Writing is performed in two steps so that the parts can be
       // processed separately when read back in.
       objectOutputStream.writeObject(words)
@@ -186,10 +186,10 @@ object CompactWord2Vec {
   }
 
   protected def loadTxt(filename: String, resource: Boolean): BuildType = {
-    Closer.autoClose(
+    (
       if (resource) Sourcer.sourceFromResource(filename)
       else Sourcer.sourceFromFile(filename)
-    ) { source =>
+    ).autoClose { source =>
       val lines = source.getLines()
       buildMatrix(lines)
     }
@@ -203,7 +203,7 @@ object CompactWord2Vec {
 //    (map, array)
 
     // This is "unrolled" for performance purposes.
-    Closer.autoClose(FileUtils.newClassLoaderObjectInputStream(filename, this)) { objectInputStream =>
+    (FileUtils.newClassLoaderObjectInputStream(filename, this)).autoClose { objectInputStream =>
       val map: MapType = new MutableMapType()
 
       {

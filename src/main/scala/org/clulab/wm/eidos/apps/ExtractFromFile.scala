@@ -7,7 +7,7 @@ import scala.collection.mutable.ListBuffer
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
 object ExtractFromFile extends App {
@@ -16,7 +16,7 @@ object ExtractFromFile extends App {
   val files = FileUtils.findFiles(inputDir, "txt")
   println(s"There are ${files.length} files...")
 
-  Closer.autoClose(FileUtils.printWriterFromFile(s"$outputFile")) { pw =>
+  (FileUtils.printWriterFromFile(s"$outputFile")).autoClose { pw =>
     val ieSystem = new EidosSystem()
 
     for (filename <- files) {

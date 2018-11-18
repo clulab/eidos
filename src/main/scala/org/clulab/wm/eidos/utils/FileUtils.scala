@@ -7,6 +7,8 @@ import org.clulab.serialization.json.stringify
 import org.clulab.utils.ClassLoaderObjectInputStream
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -38,13 +40,13 @@ object FileUtils {
 
   // Add FromFile as necessary.  See getText below.
   def getCommentedTextsFromResource(path: String): Seq[String] =
-      Closer.autoClose(Sourcer.sourceFromResource(path)) { source =>
+      (Sourcer.sourceFromResource(path)).autoClose { source =>
         getCommentedLinesFromSource(source).map(_.trim)
       }
 
   // Add FromResource as necessary.  See getText below,
   def getCommentedTextFromFile(file: File, sep: String = " "): String =
-      Closer.autoClose(Sourcer.sourceFromFile(file)) { source =>
+      (Sourcer.sourceFromFile(file)).autoClose { source =>
         // These haven't been trimmed in case esp. trailing spaces are important.
         getCommentedLinesFromSource(source).mkString(sep)
       }
@@ -52,17 +54,17 @@ object FileUtils {
   protected def getTextFromSource(source: Source): String = source.mkString
 
   def getTextFromResource(path: String): String =
-      Closer.autoClose(Sourcer.sourceFromResource(path)) { source =>
+      (Sourcer.sourceFromResource(path)).autoClose { source =>
         getTextFromSource(source)
       }
 
   def getTextFromFile(file: File): String =
-      Closer.autoClose(Sourcer.sourceFromFile(file)) { source =>
+      (Sourcer.sourceFromFile(file)).autoClose { source =>
         getTextFromSource(source)
       }
 
   def getTextFromFile(path: String): String =
-      Closer.autoClose(Sourcer.sourceFromFile(path)) { source =>
+      (Sourcer.sourceFromFile(path)).autoClose { source =>
         getTextFromSource(source)
       }
 
@@ -82,8 +84,8 @@ object FileUtils {
   }
 
   def copyResourceToFile(src: String, dest: File): Unit = {
-    Closer.autoClose(FileUtils.getClass.getResourceAsStream(src)) { is: InputStream =>
-      Closer.autoClose(new FileOutputStream(dest)) { os: FileOutputStream =>
+    (FileUtils.getClass.getResourceAsStream(src)).autoClose { is: InputStream =>
+      (new FileOutputStream(dest)).autoClose { os: FileOutputStream =>
         val buf = new Array[Byte](8192)
 
         def transfer: Boolean = {
@@ -109,14 +111,14 @@ object FileUtils {
   }
 
   def load[A](filename: String, classProvider: Any): A =
-      Closer.autoClose(newClassLoaderObjectInputStream(filename, classProvider)) { objectInputStream =>
+      (newClassLoaderObjectInputStream(filename, classProvider)).autoClose { objectInputStream =>
         objectInputStream.readObject().asInstanceOf[A]
       }
 
   def load[A](bytes: Array[Byte], classProvider: Any): A = {
     val classLoader = classProvider.getClass().getClassLoader()
 
-    Closer.autoClose(new ClassLoaderObjectInputStream(classLoader, new ByteArrayInputStream(bytes))) { objectInputStream =>
+    (new ClassLoaderObjectInputStream(classLoader, new ByteArrayInputStream(bytes))).autoClose { objectInputStream =>
       objectInputStream.readObject().asInstanceOf[A]
     }
   }
