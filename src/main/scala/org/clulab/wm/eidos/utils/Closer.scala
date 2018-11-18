@@ -54,7 +54,7 @@ object Closer {
   }
 
   // Allow for alternative syntax closeable.autoClose { closeable => ... }
-  implicit class AutoCloser[Resource <: Closer.Closeable](protected val resource: Resource) {
+  implicit class AutoCloser[Resource <: Closer.Closeable](resource: Resource) {
 
     def autoClose[Result](function: Resource => Result): Result = Closer.autoClose(resource)(function)
   }
