@@ -120,6 +120,7 @@ humano
 idéia
 idêntico
 identificar
+identificação
 igual
 imersão
 impacto
@@ -169,6 +170,7 @@ padronização
 país
 papel
 parte
+particularidade
 passo
 pastoris
 pequeno
@@ -187,6 +189,8 @@ prevanlência
 primeiro
 prioridade
 processo
+problema
+probabilidade
 produção
 programa
 progressão
