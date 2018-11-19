@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.groundings
 import java.io.{FileOutputStream, ObjectOutputStream}
 import java.util.IdentityHashMap
 
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Namer
 
@@ -57,7 +57,7 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
   }
 
   def save(filename: String): Unit = {
-    Closer.autoClose(new ObjectOutputStream(new FileOutputStream(filename))) { objectOutputStream =>
+    (new ObjectOutputStream(new FileOutputStream(filename))).autoClose { objectOutputStream =>
       objectOutputStream.writeObject(leafStrings.mkString("\n"))
       objectOutputStream.writeObject(leafStringIndexes)
       objectOutputStream.writeObject(leafStartIndexes)
@@ -93,7 +93,7 @@ object CompactDomainOntology {
   }
 
   def load(filename: String): CompactDomainOntology = {
-    Closer.autoClose(FileUtils.newClassLoaderObjectInputStream(filename, this)) { objectInputStream =>
+    (FileUtils.newClassLoaderObjectInputStream(filename, this)).autoClose { objectInputStream =>
       val leafStrings = splitText(objectInputStream.readObject().asInstanceOf[String])
       val leafStringIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
       val leafStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]

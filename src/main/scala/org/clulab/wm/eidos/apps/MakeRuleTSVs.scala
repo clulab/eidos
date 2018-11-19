@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.apps
 import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.collection.Seq
@@ -52,7 +52,7 @@ object MakeRuleTSVs extends App {
   // ok print them
   for ((rule, mentionsForRule) <- byRulesSet) {
     if (rule.contains(EidosSystem.CAUSAL_LABEL)) {
-      Closer.autoClose(FileUtils.printWriterFromFile(s"${outputDir}/${rule}.tsv")) { pw =>
+      (FileUtils.printWriterFromFile(s"${outputDir}/${rule}.tsv")).autoClose { pw =>
         pw.println(header)
         //      println(s"MENTIONS for RULE: ${rule}")
         for (m <- mentionsForRule) {

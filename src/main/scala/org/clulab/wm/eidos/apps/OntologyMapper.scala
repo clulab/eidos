@@ -5,7 +5,7 @@ import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.wm.eidos.utils.{PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder}
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
 object OntologyMapper extends App {
@@ -24,7 +24,7 @@ object OntologyMapper extends App {
 
 
   def loadOtherOntology(file: String): Seq[ConceptEmbedding] = {
-    val ces = Closer.autoClose(Sourcer.sourceFromFile(file)) { source =>
+    val ces = (Sourcer.sourceFromFile(file)).autoClose { source =>
       val lines = source.getLines().toSeq
 
       for {
@@ -172,8 +172,8 @@ object OntologyMapper extends App {
     un2wdi.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar WDI: ${mapping._2.mkString(",")}"))
 
     // Write the mapping file
-    Closer.autoClose(FileUtils.printWriterFromFile(outputFile)) { pw =>
-      Closer.autoClose(FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions")) { pwInterventionSpecific =>
+    (FileUtils.printWriterFromFile(outputFile)).autoClose { pw =>
+      (FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions")).autoClose { pwInterventionSpecific =>
         for (unConcept <- un2wdi.keys) {
           val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
           val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "FAO"))
