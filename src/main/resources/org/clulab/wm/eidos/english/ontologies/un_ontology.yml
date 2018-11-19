@@ -109,6 +109,11 @@
           polarity: 1.0
         - OntologyNode:
           examples:
+          - food distribution  #ppt-#3
+          name: food distribution
+          polarity: 1.0
+        - OntologyNode:
+          examples:
           - provision of free food distribution
           name: provision of free food distribution
           polarity: 1.0
@@ -1039,7 +1044,6 @@
           - investment agriculture
           - food system
           - Peoples food system
-          - food distribution #ppt-#3
           name: management
           polarity: 1.0
         - OntologyNode:
@@ -1311,7 +1315,7 @@
           - OntologyNode:
             examples:
             - inflation
-            - inflation rate #ppt-nov1-#16
+            #- inflation rate #ppt-nov1-#16
             name: inflation
             polarity: 1.0
           - OntologyNode:
