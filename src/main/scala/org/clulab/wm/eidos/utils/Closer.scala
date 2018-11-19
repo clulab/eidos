@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.utils
 
+import scala.language.reflectiveCalls
 import scala.util.control.NonFatal
 
 object Closer {
@@ -22,7 +23,7 @@ object Closer {
       case exception: Throwable => (None, Some(exception))
     }
 
-    val closeException: Option[Throwable] = Option(resource).map { resource =>
+    val closeException: Option[Throwable] = Option(resource).flatMap { resource =>
       try {
         resource.close()
         None
@@ -30,7 +31,7 @@ object Closer {
       catch {
         case exception: Throwable => Some(exception)
       }
-    }.flatten
+    }
 
     (exception, closeException) match {
       case (None, None) => result.get
