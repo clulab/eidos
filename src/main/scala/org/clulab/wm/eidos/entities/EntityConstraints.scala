@@ -11,8 +11,9 @@ import scala.util.matching.Regex
   * Utilities for validating entities
   */
 object EntityConstraints extends LazyLogging {
-
-  val VALID_FINAL_TAG = """^(DT|N|PROPN|V|JJ|ADJ|ADV|\-R[SR]B).*"""
+  // FIXME: added PUNCT here because entities ended in ')' (closing brackets) for portuguese were being tossed out
+  // for portuguese, checking valid final tag has to have a way to allow closing brackets
+  val VALID_FINAL_TAG = """^(DT|N|PROPN|V|JJ|ADJ|PUNCT|ADV|\-R[SR]B).*"""
 
   val COORD_DEPS: Set[Regex] = Set("^conj_".r, "^cc".r)
 
