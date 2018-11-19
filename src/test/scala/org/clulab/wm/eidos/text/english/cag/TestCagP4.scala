@@ -12,7 +12,7 @@ class TestCagP4 extends EnglishTest {
   
     val cost = NodeSpec("rising cost of living", Inc("rising"))
     val impact = NodeSpec("impact of the conflict")
-    val ability = NodeSpec("people 's ability to access safe water", Dec("undermined"))
+    val ability = NodeSpec("people's ability to access safe water", Dec("undermined"))
     
     behavior of "p4s1"
 

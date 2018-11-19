@@ -262,7 +262,7 @@ class TestDoc5 extends EnglishTest {
     val outcomes    = NodeSpec("some food security outcomes", Inc("surpassed"))
     val conflict    = NodeSpec("increased conflict", Inc("increased"))
     val livelihoods = NodeSpec("livelihoods", Dec("disrupts"))
-    val assistance  = NodeSpec("humanitarian assistance , Famine ( IPC Phase 5 )", Dec("restricts"))
+    val assistance  = NodeSpec("humanitarian assistance, Famine (IPC Phase 5)", Dec("restricts"))
 
     behavior of "TestDoc5 Paragraph 5"
 
