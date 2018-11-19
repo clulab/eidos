@@ -127,6 +127,7 @@ importância
 incidência
 indicação
 indicador
+indicar
 indivíduo
 infância
 informação
@@ -173,6 +174,7 @@ pastoris
 pequeno
 persistência
 pesquisa
+pesquisador
 pessoa
 política
 população
@@ -205,6 +207,7 @@ recusar
 referência
 reflexão
 relação
+relatar
 resposta
 risco
 ruim

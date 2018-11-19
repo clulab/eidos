@@ -11,7 +11,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/por/]|[tag=ADV]))
       cause: Entity = (obl) (?= case [word=/(?i)(por)/]) (${ preps })? /conj/{,3}
-      effect: Entity = (<acl|${ agents }) /conj|<conj/{,3}
+      effect: Entity = (<acl|${ agents }) (${ preps })? /conj|<conj/{,3}
 
   - name: causa_de-${addlabel}
     priority: ${ rulepriority }

@@ -8,7 +8,9 @@ rules:
     priority: 1
     type: token
     pattern: |
-      [lemma=/${increase_triggers}|${noncausal_increase_triggers}|${decrease_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${nonavoid_causal_triggers}|${reverse_direction_cause_triggers}|${affect_triggers}|${nonavoid_affect_triggers}|${correlation_triggers}/]
+      #[tag=/^VERB|NOUN/ & word=/^(${increase_triggers}|${noncausal_increase_triggers}|${decrease_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${nonavoid_causal_triggers}|${reverse_direction_cause_triggers}|${affect_triggers}|${nonavoid_affect_triggers}|${correlation_triggers})/]
+      [word=/^(${increase_triggers}|${noncausal_increase_triggers}|${decrease_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${nonavoid_causal_triggers}|${reverse_direction_cause_triggers}|${affect_triggers}|${nonavoid_affect_triggers}|${correlation_triggers})/]
+
 
   - name: "avoid-conjunctions"
     label: Avoid
@@ -34,6 +36,14 @@ rules:
       [lemma="-lrb-"]
       [word=/^[^%\d]+$/]*
       [lemma="-rrb-"]
+
+  - name: "avoid-common-headers"
+    label: Avoid
+    priority: 1
+    type: token
+    pattern: |
+      # digits are a-ok!
+      [word="RESUMO"]
 
   - name: "references-et-al"
     label: Citation

@@ -16,5 +16,5 @@ affect_triggers: "afet|alter|desloc|influenci|modifi|modificação"
 
 nonavoid_affect_triggers: "impact"
 
-correlation_triggers: "coincid|lig"
+correlation_triggers: "correlacion$|lig(a|ou|ar)$"
 
