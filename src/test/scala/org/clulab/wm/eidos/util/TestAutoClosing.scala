@@ -19,7 +19,7 @@ class TestAutoClosing extends Test {
   
   it should "be able to produce a simple result" in {
     val closing = new Closing()
-    val result = closing.autoClose { closing =>
+    val result = closing.autoClose { _ =>
       5
     }
     result should be (5)
@@ -28,7 +28,7 @@ class TestAutoClosing extends Test {
 
   it should "be able to produce a null result" in {
     val closing = new Closing()
-    val result: AnyRef = closing.autoClose { closing =>
+    val result: AnyRef = closing.autoClose { _ =>
       null
     }
 
@@ -38,7 +38,7 @@ class TestAutoClosing extends Test {
 
   it should "be able to produce a None result" in {
     val closing = new Closing()
-    val result = closing.autoClose { closing =>
+    val result = closing.autoClose { _ =>
       None
     }
     result should be (None)
@@ -47,7 +47,7 @@ class TestAutoClosing extends Test {
 
   it should "be able to produce a Some result" in {
     val closing = new Closing()
-    val result = closing.autoClose { closing =>
+    val result = closing.autoClose { _ =>
       Some(5)
     }
     result should be (Some(5))
@@ -129,12 +129,12 @@ class TestAutoClosing extends Test {
   it should "not close if argument throws an exception" in {
     val closing = new Closing(None)
 
-    def getClosing(): Closing = {
+    def getClosing: Closing = {
       throw new RuntimeException("Boom!")
     }
 
     an [RuntimeException] should be thrownBy {
-      getClosing()autoClose( _ => 5)
+      getClosing.autoClose( _ => 5)
     }
     closing.closed should be (false)
   }
