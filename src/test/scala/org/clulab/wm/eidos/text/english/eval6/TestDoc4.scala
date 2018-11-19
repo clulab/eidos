@@ -24,7 +24,7 @@ as IPC Phase 4: "Emergency".
     
     // Sentence 2
     // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
-    val conditions2 = NodeSpec(""""Catastrophe" food security conditions""", Dec("declined"))
+    val conditions2 = NodeSpec("""" Catastrophe " food security conditions""", Dec("declined"))
     val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
     
     behavior of "TestDoc4 Paragraph 1"

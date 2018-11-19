@@ -133,7 +133,7 @@ class TestDoc3 extends EnglishTest {
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight")) // todo (temporal?): really should capture the "compared to the previous month"...
     val rainfall4 = NodeSpec("rainfall", Dec("decline"))
     val moistureStress = NodeSpec("moisture stress on crops")
-    val rainfall5 = NodeSpec("Meanwhile, in Greater Equatoria, favorable rainfall", GeoLoc("Greater Equatoria"), Inc("favorable"), Quant("favorable"))
+    val rainfall5 = NodeSpec("Meanwhile , in Greater Equatoria , favorable rainfall", GeoLoc("Greater Equatoria"), Inc("favorable"), Quant("favorable"))
     val sowing = NodeSpec("agricultural households to begin sowing")
     val infestation = NodeSpec("infestations of Fall Armyworm", Quant("significant"))
 
@@ -548,7 +548,7 @@ class TestDoc3 extends EnglishTest {
 
     val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"), Quant("most"))
     val insecurity = NodeSpec("insecurity")
-    val availability = NodeSpec("lack of availability and/or access to farm inputs", Dec("lack"))
+    val availability = NodeSpec("lack of availability and / or access to farm inputs", Dec("lack"))
     //val longFarmInput = NodeSpec("access to farm inputs due to ongoing conflict", Dec("lack"), Quant("ongoing"))
 
 //    val shortFarmInput = NodeSpec("access to farm inputs", Dec("lack"))
