@@ -1,10 +1,11 @@
 package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidos.Aliases.Param
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 class DomainParams(domainParamKBFile: String) {
   protected val domainParamValues: Map[Param, Map[String, Double]] =
-      Closer.autoClose(Sourcer.sourceFromResource(domainParamKBFile)) { source =>
+      (Sourcer.sourceFromResource(domainParamKBFile)).autoClose { source =>
         FileUtils.getCommentedLinesFromSource(source)
             .map { line => // line = [param]\t[variable]\t[value] => e.g. "rainfall  mean  30.5"
               val fields = line.split("\t")

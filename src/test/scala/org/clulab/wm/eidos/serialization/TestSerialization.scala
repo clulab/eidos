@@ -5,14 +5,15 @@ import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import org.clulab.odin.{EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
-import org.clulab.wm.eidos.utils.{Closer, FileUtils}
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileUtils
 
 class TestSerialization extends Test {
   val reader = new EidosSystem()
 
   def serialize(original: Any, index: Int): Unit = {
-    val copy = Closer.autoClose(new ByteArrayOutputStream()) { streamOut =>
-      Closer.autoClose(new ObjectOutputStream(streamOut)) { encoder =>
+    val copy = (new ByteArrayOutputStream()).autoClose { streamOut =>
+      (new ObjectOutputStream(streamOut)).autoClose { encoder =>
         encoder.writeObject(original)
       }
 

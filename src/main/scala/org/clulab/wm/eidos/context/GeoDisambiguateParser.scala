@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.context
 
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
@@ -21,7 +21,7 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
   lazy protected val loc2geonameID: Map[String, Int] = readDict(loc2geonameIDPath)
 
   protected def readDict(dictPath: String): Map[String, Int] = {
-    Closer.autoClose(Sourcer.sourceFromResource(dictPath)) { source =>
+    (Sourcer.sourceFromResource(dictPath)).autoClose { source =>
       source.getLines.map { line =>
         val words = line.split(' ')
 
