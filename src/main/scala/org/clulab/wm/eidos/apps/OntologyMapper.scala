@@ -1,29 +1,20 @@
 package org.clulab.wm.eidos.apps
 
+import java.io.PrintWriter
+
 import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.word2vec.Word2Vec
+import org.clulab.processors.Processor
 import org.clulab.wm.eidos.utils.{PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder, EidosWordToVec}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
-object OntologyMapper extends App {
-
-  val reader = new EidosSystem()
-  val proc = reader.proc
-  val w2v = reader.wordToVec
-
-  val config = reader.config
-
-  val outputFile: String = config[String]("apps.ontologymapper.outfile")
-  val topN: Int = config[Int]("apps.groundTopN")
-
-  // Do something...
-  mapIndicators(reader, outputFile, topN)
+object OntologyMapper {
 
 
-  def loadOtherOntology(file: String): Seq[ConceptEmbedding] = {
+  def loadOtherOntology(file: String, w2v: EidosWordToVec): Seq[ConceptEmbedding] = {
     val ces = (Sourcer.sourceFromFile(file)).autoClose { source =>
       val lines = source.getLines().toSeq
 
@@ -33,7 +24,7 @@ object OntologyMapper extends App {
         path = fields(0).split(",")
         //pathSanitized = path.map(Word2Vec.sanitizeWord(_))
         examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
-        embedding = reader.wordToVec.makeCompositeVector(examples)
+        embedding = w2v.makeCompositeVector(examples)
       } yield new ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
     }
     ces
@@ -51,7 +42,7 @@ object OntologyMapper extends App {
   }
 
   // Filter out non-content words or not
-  def selectWords(ws: Seq[String], contentOnly: Boolean): Seq[String] = {
+  def selectWords(ws: Seq[String], contentOnly: Boolean, proc: Processor): Seq[String] = {
 
     def contentTag(s: String): Boolean = {
       s.startsWith("N") || s.startsWith("V") || s.startsWith("J")
@@ -75,7 +66,7 @@ object OntologyMapper extends App {
 
   def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
     val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
-    reader.wordToVec.makeCompositeVector(selectWords(words, contentOnly))
+    reader.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.proc))
   }
 
   def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Float = {
@@ -127,7 +118,7 @@ object OntologyMapper extends App {
     sum
   }
 
-  def pairwiseScore(ce1: ConceptEmbedding, ce2: ConceptEmbedding, reader: EidosSystem): Float = {
+  def pairwiseScore(ce1: ConceptEmbedding, ce2: ConceptEmbedding, reader: EidosSystem, exampleWeight: Float, parentWeight: Float): Float = {
     // Semantic similarity between leaf nodes (based on their examples)
     val examplesScore = dotProduct(ce1.embedding, ce2.embedding)
     // Semantic similarity of the parents (going up the hierarchy, more weight closer to leaves)
@@ -135,17 +126,18 @@ object OntologyMapper extends App {
     // Similarity between the indicator an the ontology concept ancestors
     val indicatorToAncestorScore = weightedNodeToParentScore(ce1.namer.name, ce2.namer.name, reader)
 
-    0.8f * examplesScore + 0.1f * structureScore //+ 0.3 * indicatorToAncestorScore
+    exampleWeight * examplesScore + parentWeight * structureScore //+ 0.3 * indicatorToAncestorScore
   }
 
-  def mostSimilarIndicators(concepts: Seq[ConceptEmbedding], indicators: Seq[ConceptEmbedding], n: Int = 10, reader: EidosSystem): Seq[(String, Seq[(String, Float)])] = {
+  def mostSimilarIndicators(concepts: Seq[ConceptEmbedding], indicators: Seq[ConceptEmbedding], n: Int = 10,
+                            reader: EidosSystem, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f): Seq[(String, Seq[(String, Float)])] = {
     concepts.map(c => (c.namer.name, mostSimilar(c, indicators, n, reader)))
   }
 
   // n is to limit the number returned, 0 means return all
-  def mostSimilar(concept: ConceptEmbedding, indicators: Seq[ConceptEmbedding], n: Int, reader: EidosSystem): Seq[(String, Float)] = {
+  def mostSimilar(concept: ConceptEmbedding, indicators: Seq[ConceptEmbedding], n: Int, reader: EidosSystem, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f): Seq[(String, Float)] = {
     println(s"comparing $concept...")
-    val comparisons = indicators.map(indicator => (indicator.namer.name, pairwiseScore(concept, indicator, reader)))//.filter(p => p._2 > 0.7)
+    val comparisons = indicators.map(indicator => (indicator.namer.name, pairwiseScore(concept, indicator, reader, exampleWeight, parentWeight)))//.filter(p => p._2 > 0.7)
     if (n > 0) {
       comparisons.sortBy(- _._2).take(n)
     } else {
@@ -201,47 +193,56 @@ object OntologyMapper extends App {
     }
   }
 
-  def mapOntologies(): Unit = {
-    // Used if we are mapping to other teams' ontologies
-    //  val sofiaFile = "/Users/bsharp/ech/onts/Sofia_Ontology.tbs"
-    //  val bbnFile = "/Users/bsharp/Downloads/hume_ontology_examples.tsv"
+  /** Generates the mappings between the reader ontologies in a String format
+    *
+    * @param reader EidosSystem
+    * @param bbnPath path to the BBN ontology file
+    * @param sofiaPath path to the Sofia ontology file
+    * @param exampleWeight the weight for the similarity of the pair of nodes (default = 0.8)
+    * @param parentWeight the weight for the similarity of the node parents (default = 0.1)
+    * @param topN the number of similarity scores to return, when set to 0, return them all (default = 0)
+    * @return String version of the mapping, akin to a file, newlines separate the "rows"
+    */
+  def mapOntologies(reader: EidosSystem, bbnPath: String, sofiaPath: String, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
+    // EidosSystem stuff
+    val proc = reader.proc
+    val w2v = reader.wordToVec
+    val config = reader.config
 
-    //  val sofiaConceptEmbeddings = loadOtherOntology(sofiaFile)
-    //  val bbnConceptEmbeddings = loadOtherOntology(bbnFile)
-    //  println("Finished loading other ontologies")
+    // Load
+    val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
+    val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
+    val bbnConceptEmbeddings = loadOtherOntology(bbnPath, w2v)
+    println("Finished loading other ontologies")
 
+    // Initialize output
+    val sb = new StringBuilder
 
-    // Make the table
-    //  val topN = 0
-    //  // current string, seq[other_string_orig!!, Double)
-    //  val eidos2Sofia = mostSimilarIndicators(eidosConceptEmbeddings, sofiaConceptEmbeddings, topN)
-    ////  eidos2Sofia.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar sofia: ${mapping._2.mkString(",")}"))
-    //  val eidos2BBN = mostSimilarIndicators(eidosConceptEmbeddings, bbnConceptEmbeddings, topN)
-    ////  eidos2BBN.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar BBN: ${mapping._2.mkString(",")}"))
-    //  val sofia2BBN = mostSimilarIndicators(sofiaConceptEmbeddings, bbnConceptEmbeddings, topN)
-    ////  sofia2BBN.foreach(mapping => println(s"sofia: ${mapping._1} --> most similar BBN: ${mapping._2.mkString(",")}"))
-    //
-    //  FileUtils.closing(new PrintWriter(s"/Users/bsharp/ech/ontologyMappings_2018-07-30.tsv")) { pw =>
-    //    for {
-    //      (eidosConcept, sofiaMappings) <- eidos2Sofia
-    //      (sofiaConcept, score) <- sofiaMappings
-    //    } pw.println(s"eidos\t$eidosConcept\tsofia\t$sofiaConcept\t$score")
-    //
-    //    for {
-    //      (eidosConcept, bbnMappings) <- eidos2BBN
-    //      (bbnConcept, score) <- bbnMappings
-    //    } pw.println(s"eidos\t$eidosConcept\tBBN\t$bbnConcept\t$score")
-    //
-    //    for {
-    //      (sofiaConcept, bbnMappings) <- sofia2BBN
-    //      (bbnConcept, score) <- bbnMappings
-    //    } pw.println(s"sofia\t$sofiaConcept\tBBN\t$bbnConcept\t$score")
-    // }
-    ???
+    // current string, seq[other_string_orig!!, Double)
+    val eidos2Sofia = mostSimilarIndicators(eidosConceptEmbeddings, sofiaConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
+    //  eidos2Sofia.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar sofia: ${mapping._2.mkString(",")}"))
+    val eidos2BBN = mostSimilarIndicators(eidosConceptEmbeddings, bbnConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
+    //  eidos2BBN.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar BBN: ${mapping._2.mkString(",")}"))
+    val sofia2BBN = mostSimilarIndicators(sofiaConceptEmbeddings, bbnConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
+    //  sofia2BBN.foreach(mapping => println(s"sofia: ${mapping._1} --> most similar BBN: ${mapping._2.mkString(",")}"))
+
+    for {
+      (eidosConcept, sofiaMappings) <- eidos2Sofia
+      (sofiaConcept, score) <- sofiaMappings
+    } sb.append(s"eidos\t$eidosConcept\tsofia\t$sofiaConcept\t$score")
+
+    for {
+      (eidosConcept, bbnMappings) <- eidos2BBN
+      (bbnConcept, score) <- bbnMappings
+    } sb.append(s"eidos\t$eidosConcept\tBBN\t$bbnConcept\t$score")
+
+    for {
+      (sofiaConcept, bbnMappings) <- sofia2BBN
+      (bbnConcept, score) <- bbnMappings
+    } sb.append(s"sofia\t$sofiaConcept\tBBN\t$bbnConcept\t$score")
+
+    sb.mkString("\n")
   }
-
-
-
 
 
 }
