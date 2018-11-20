@@ -114,7 +114,7 @@ class PortugueseExpansionHandler extends TraversalBasedExpansion with LazyLoggin
 
   /** Expands only entities */
   def expand(mentions: Seq[Mention], maxHops: Int, stateFromAvoid: State): Seq[Mention] = {
-    println("Expand!")
+    //println("Expand!")
     mentions.map(expandMention(_, maxHops, stateFromAvoid))
   }
   def expandMention(mention: Mention, maxHops: Int, stateFromAvoid: State): Mention = mention match {
