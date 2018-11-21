@@ -158,26 +158,23 @@ object OntologyMapper extends App {
     println(s"number of eidos ontologies - ${reader.loadableAttributes.ontologyGrounders.length}")
     val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
 
-    // WorldBank indicators
-    val wdiOntology = reader.loadableAttributes.ontologyGrounders.find(_.name == EidosOntologyGrounder.WDI_NAMESPACE)
-    val eidosWDIConceptEmbeddings = if (wdiOntology.isDefined) wdiOntology.get.conceptEmbeddings else Seq()
-    // Food and Agriculture Organization of the UN indicators
-    val faoOntology = reader.loadableAttributes.ontologyGrounders.find(_.name == EidosOntologyGrounder.FAO_NAMESPACE)
-    val eidosFAOConceptEmbeddings = if (faoOntology.isDefined) faoOntology.get.conceptEmbeddings else Seq()
 
-    // Find the most similar indicators
-    val un2fao = mostSimilarIndicators(eidosConceptEmbeddings, eidosFAOConceptEmbeddings, topN, reader).toMap
-    un2fao.foreach(mapping => println(s"un: ${mapping._1} --> most similar FAO: ${mapping._2.mkString(",")}"))
-    val un2wdi = mostSimilarIndicators(eidosConceptEmbeddings, eidosWDIConceptEmbeddings, topN, reader).toMap
-    un2wdi.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar WDI: ${mapping._2.mkString(",")}"))
+    val indicatorMaps = EidosOntologyGrounder.indicatorNamespaces.toSeq.map{
+      namespace =>
+        val ontology = reader.loadableAttributes.ontologyGrounders.find(_.name == namespace)
+        val concepts = ontology.map(_.conceptEmbeddings).getOrElse(Seq())
+        val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
+        mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
+
+        (namespace, mostSimilar)
+    }
 
     // Write the mapping file
     (FileUtils.printWriterFromFile(outputFile)).autoClose { pw =>
       (FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions")).autoClose { pwInterventionSpecific =>
-        for (unConcept <- un2wdi.keys) {
-          val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
-          val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "FAO"))
-          val sorted = (wdiMappings ++ faoMappings).sortBy(-_._2)
+        for (unConcept <- indicatorMaps.head._2.keys) {
+          val mappings = indicatorMaps.flatMap(x => x._2(unConcept).map(p => (p._1, p._2, x._1)))
+          val sorted = mappings.sortBy(-_._2)
           for ((indicator, score, label) <- sorted) {
             pw.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
             if (!unConcept.startsWith("UN/interventions")) {
@@ -245,3 +242,4 @@ object OntologyMapper extends App {
 
 
 }
+
