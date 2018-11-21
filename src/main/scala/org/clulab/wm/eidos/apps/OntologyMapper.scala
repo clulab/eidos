@@ -16,7 +16,7 @@ object OntologyMapper {
 
   def loadOtherOntology(file: String, w2v: EidosWordToVec): Seq[ConceptEmbedding] = {
     val ces = (Sourcer.sourceFromFile(file)).autoClose { source =>
-      val lines = source.getLines().toSeq
+      val lines = source.getLines().toArray
 
       for {
         line <- lines
@@ -218,13 +218,9 @@ object OntologyMapper {
     // Initialize output
     val sb = new StringBuilder
 
-    // current string, seq[other_string_orig!!, Double)
     val eidos2Sofia = mostSimilarIndicators(eidosConceptEmbeddings, sofiaConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
-    //  eidos2Sofia.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar sofia: ${mapping._2.mkString(",")}"))
     val eidos2BBN = mostSimilarIndicators(eidosConceptEmbeddings, bbnConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
-    //  eidos2BBN.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar BBN: ${mapping._2.mkString(",")}"))
     val sofia2BBN = mostSimilarIndicators(sofiaConceptEmbeddings, bbnConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
-    //  sofia2BBN.foreach(mapping => println(s"sofia: ${mapping._1} --> most similar BBN: ${mapping._2.mkString(",")}"))
 
     for {
       (eidosConcept, sofiaMappings) <- eidos2Sofia
