@@ -1,5 +1,7 @@
 vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
 
+#ruleHelpers: org/clulab/wm/eidos/portuguese/grammars/ruleHelpers.yml
+
 rules:
 
 ############# over 60% rules
@@ -10,7 +12,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/por/]|[tag=ADV]))
-      cause: Entity = (obl) (?= case [word=/(?i)(por)/]) (${ preps })? /conj/{,3}
+      cause: Entity = (${obl_por}) (${ preps })? /conj/{,3}
       effect: Entity = (<acl|${ agents }) (${ preps })? /conj|<conj/{,3}
 
   - name: causa_de-${addlabel}
@@ -20,7 +22,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(caus)/ & tag=/^NOUN/]
-      cause: Entity = (${ agents }) /conj/{,3}
+      cause: Entity = (${ agents }|nmod_por) /conj/{,3}
       effect: Entity = nmod_de /conj/{,3}
 
   - name: leva_a-${addlabel}
@@ -30,8 +32,8 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(lev)/ & tag=/^V/] (?= ([word=/^(a)$/] [word=/^(o|a)$/] ) )
-      cause: Entity = (${ agents })/conj|(${ preps })/{,3}
-      effect: Entity = obl (?= case [word=/^(a)$/]) /conj|(${ preps })/{,3}
+      cause: Entity = (${ agents }) /conj|(${ preps })/{,3}
+      effect: Entity = (${obl_a}) /conj|(${ preps })/{,3}
 
 
   - name: trigger+devido_a-${addlabel}
@@ -71,8 +73,8 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(contrib|colab)/ & tag=/^V/] (?= ([word=/^(com|para)$/] ) )
-      cause: Entity = (${ agents }|(obl (?= case [word=/(?i)(por)/]) )) (${preps})? /conj/{,3}
-      effect: Entity = obl (?= case [word=/^(com|para)$/]) (${preps})? /conj/{,3}
+      cause: Entity = (${ agents }) (${preps})? /conj/{,3}
+      effect: Entity =  (${obl_para}|${obl_por}) (${preps})? /conj/{,3}
 
   - name: invertido_causa_de-${addlabel}
     priority: ${ rulepriority }

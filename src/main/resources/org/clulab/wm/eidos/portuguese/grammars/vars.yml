@@ -25,3 +25,11 @@ passive_mark_verbs: "marcado|definido|indicado|caracterizado"
 transparent_nouns: "nivel|quantidade" # do we need these in general?
 
 # Todo: nmod_from "X will follow from Y"
+
+
+
+##
+obl_para: "(obl (?= case [word=/^(?i)(para)$/]))"
+obl_por: "(obl (?= case [word=/^(?i)(por)$/]))"
+obl_a: "(obl (?= case [word=/^(?i)(a)$/]))"
+obl_em: "(obl (?= case [word=/^(?i)(em)$/]))"

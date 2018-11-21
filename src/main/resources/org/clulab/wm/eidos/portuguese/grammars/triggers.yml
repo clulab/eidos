@@ -2,11 +2,11 @@ increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|au
 
 noncausal_increase_triggers: "acima|melhor|bom|boa|maior|forte|aument|difundid|alt(o|a|os|as)"
 
-decrease_triggers: "abol|anul|apag|atenu|bloque|cancel|combat|cess|debilit|degener|degrad|depreci|desaceler|desativ|desestabiliz|destru|desvaloriz|dificult|diminu|dizim|elimin|encolh|encurt|enfraquec|esgot|exaur|imped|inib|invalid|limit|mitig|paraliz|pior|prejudic|preven|previn|rebaix|reduz|reprim|restring|retard|revert|revog|suprim"
+decrease_triggers: "abol|anul|apag|atenu|bloque|cancel|combat|cess|debilit|degener|degrad|depreci|desaceler|desativ|desestabiliz|destru|desvaloriz|dificult|diminu|dizim|elimin|encolh|encurt|enfraquec|esgot|exaur|imped|inib|invalid|limit|mitig|minimiz|paraliz|pior|prejudic|preven|previn|rebaix|reduz|reprim|restring|retard|revert|revog|suprim"
 
-noncausal_decrease_triggers: "ausencia|baix|declínio|déficit|derrub|desadequ|desativ|descontinu|deslig|escassez|escass|falha|falta|inadequ|inativ|interromp|menor|perda|pobre|recessão|redução"
+noncausal_decrease_triggers: "ausencia|baix|declínio|déficit|derrub|desadequ|desativ|descontinu|deslig|escassez|escass|falha|falta|inadequ|inativ|interromp|menor|pobre|recessão|redução"
 
-cause_triggers: "ajud|ativ(a|ou|am|aram|ado|ada)$|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|facilit|forç|induz|interconvert|lev|modul|possibilit|provoc|sinaliz|proporcion|propici|ocasion|acarretou"
+cause_triggers: "ajud|ativ(a|ou|am|aram|ado|ada)$|auxili|catalis|caus|colabor|conduz|contribu|deduz|desencade|facilit|induz|interconvert|lev|modul|possibilit|provoc|sinaliz|proporcion|propici|ocasion|acarretou"
 
 nonavoid_causal_triggers: "produz"
 
