@@ -1,25 +1,10 @@
-import yaml
-import re
-
-# Since we seem to want a None for OntologyNode, but don't want to display it :)
-def represent_none(self, _):
-    return self.represent_scalar('tag:yaml.org,2002:null', '')
-
-yaml.add_representer(type(None), represent_none)
+from mk_yaml_ontology import ont_node, dump_yaml
 
 import sys
 from collections import defaultdict
 
 # todo: check??
 syn_relations = {"Synonym", "B is a subset of A", "A is a subset of B", "Rough synonym"}
-
-def ont_node(name, examples, keywords):
-    # Make sure the node name is added to the examples to be used for grounding
-    examples.append(name)
-    d = {'OntologyNode': None, "name": name, 'examples': examples, 'polarity': 1.0}
-    if keywords is not None:
-        d['keywords'] = keywords
-    return d
 
 def is_valid_synonym(s):
     return s in syn_relations
@@ -113,10 +98,6 @@ def load_intervention_types(fn, syn_file):
 
     # return interventions
     return final_interventions
-
-def dump_yaml(d, fn):
-    with open(fn, 'w') as yaml_file:
-        yaml.dump(d, yaml_file, default_flow_style=False)
 
 def main():
     intervention_classes_file = sys.argv[1]
