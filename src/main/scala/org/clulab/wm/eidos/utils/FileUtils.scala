@@ -34,9 +34,9 @@ object FileUtils {
   def getCommentedLinesFromSource(source: Source): Array[String] =
       source
           .getLines()
-          .toArray
           // Skips "empty" lines as well as comments
           .filter(line => !line.startsWith("#") && line.trim().nonEmpty)
+          .toArray
 
   // Add FromFile as necessary.  See getText below.
   def getCommentedTextsFromResource(path: String): Seq[String] =
