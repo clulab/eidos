@@ -103,8 +103,8 @@
         name: TB prevalence rate
       - OntologyNode:
         examples:
-        - Malaria parasite prevalence among children aged 6−59 months
-        name: Malaria parasite prevalence among children aged 6−59 months
+        - Malaria parasite prevalence among children aged 6-59 months
+        name: Malaria parasite prevalence among children aged 6-59 months
       - OntologyNode:
         examples:
         - Malaria incidence rate
@@ -117,8 +117,8 @@
     - Nutrition:
       - OntologyNode:
         examples:
-        - Exclusive breastfeeding rate 0–5 months of age 
-        name: Exclusive breastfeeding rate 0–5 months of age 
+        - Exclusive breastfeeding rate 0-5 months of age 
+        name: Exclusive breastfeeding rate 0-5 months of age 
       - OntologyNode:
         examples:
         - Early initiation of breastfeeding
