@@ -1,0 +1,427 @@
+# SOURCE: https://www.who.int/healthinfo/indicators/2015/100CoreHealthIndicators_2015_infographic.pdf?ua=1]
+#  Core Health Indicators
+- WHO:
+  - Health Status:
+    - Mortality by age and sex:
+      - OntologyNode:
+        examples:
+        - Life expectancy at birth
+        name: Life expectancy at birth
+      - OntologyNode:
+        examples:
+        - Adult mortality rate between 15 and 60 years of age 
+        name: Adult mortality rate between 15 and 60 years of age 
+      - OntologyNode:
+        examples:
+        - Under-five mortality rate
+        name: Under-five mortality rate
+      - OntologyNode:
+        examples:
+        - Infant mortality rate
+        name: Infant mortality rate
+      - OntologyNode:
+        examples:
+        - Neonatal mortality rate
+        name: Neonatal mortality rate
+      - OntologyNode:
+        examples:
+        - Stillbirth rate
+        name: Stillbirth rate
+    - Mortality by cause:
+      - OntologyNode:
+        examples:
+        - Maternal mortality ratio
+        name: Maternal mortality ratio
+      - OntologyNode:
+        examples:
+        - TB mortality rate
+        name: TB mortality rate
+      - OntologyNode:
+        examples:
+        - AIDS-related mortality rate
+        name: AIDS-related mortality rate
+      - OntologyNode:
+        examples:
+        - Malaria mortality rate
+        name: Malaria mortality rate
+      - OntologyNode:
+        examples:
+        - Mortality between 30 and 70 years of age from cardiovascular diseases, cancer, diabetes or chronic respiratory diseases
+        name: Mortality between 30 and 70 years of age from cardiovascular diseases, cancer, diabetes or chronic respiratory diseases
+      - OntologyNode:
+        examples:
+        - Suicide rate
+        name: Suicide rate
+      - OntologyNode:
+        examples:
+        - Mortality rate from road traffic injuries
+        name: Mortality rate from road traffic injuries
+    - Fertility:
+      - OntologyNode:
+        examples:
+        - Adolescent fertility rate 
+        name: Adolescent fertility rate 
+      - OntologyNode:
+        examples:
+        - Total fertility rate
+        name: Total fertility rate
+    - Morbidity:
+      - OntologyNode:
+        examples:
+        - New cases of vaccine-preventable diseases
+        name: New cases of vaccine-preventable diseases
+      - OntologyNode:
+        examples:
+        - New cases of IHR-notifiable diseases and other notifiable diseases 
+        name: New cases of IHR-notifiable diseases and other notifiable diseases 
+      - OntologyNode:
+        examples:
+        - HIV incidence rate
+        name: HIV incidence rate
+      - OntologyNode:
+        examples:
+        - HIV prevalence rate
+        name: HIV prevalence rate
+      - OntologyNode:
+        examples:
+        - Hepatitis B surface antigen prevalence
+        name: Hepatitis B surface antigen prevalence
+      - OntologyNode:
+        examples:
+        - Sexually transmitted infections (STIs) incidence rate
+        name: Sexually transmitted infections (STIs) incidence rate
+      - OntologyNode:
+        examples:
+        - TB incidence rate
+        name: TB incidence rate
+      - OntologyNode:
+        examples:
+        - TB notification rate
+        name: TB notification rate
+      - OntologyNode:
+        examples:
+        - TB prevalence rate
+        name: TB prevalence rate
+      - OntologyNode:
+        examples:
+        - Malaria parasite prevalence among children aged 6-59 months
+        name: Malaria parasite prevalence among children aged 6-59 months
+      - OntologyNode:
+        examples:
+        - Malaria incidence rate
+        name: Malaria incidence rate
+      - OntologyNode:
+        examples:
+        - Cancer incidence, by type of cancer
+        name: Cancer incidence, by type of cancer
+  - Risk Factors:
+    - Nutrition:
+      - OntologyNode:
+        examples:
+        - Exclusive breastfeeding rate 0-5 months of age 
+        name: Exclusive breastfeeding rate 0-5 months of age 
+      - OntologyNode:
+        examples:
+        - Early initiation of breastfeeding
+        name: Early initiation of breastfeeding
+      - OntologyNode:
+        examples:
+        - Incidence of low birth weight among newborns 
+        name: Incidence of low birth weight among newborns 
+      - OntologyNode:
+        examples:
+        - Children under 5 years who are stunted
+        name: Children under 5 years who are stunted
+      - OntologyNode:
+        examples:
+        - Children under 5 years who are wasted
+        name: Children under 5 years who are wasted
+      - OntologyNode:
+        examples:
+        - Anaemia prevalence in children
+        name: Anaemia prevalence in children
+      - OntologyNode:
+        examples:
+        - Anaemia prevalence in women of reproductive age
+        name: Anaemia prevalence in women of reproductive age
+    - Infections:
+      - OntologyNode:
+        examples:
+        - Condom use at last sex with high-risk partner 
+        name: Condom use at last sex with high-risk partner 
+    - Environmental risk factors:
+      - OntologyNode:
+        examples:
+        - Population using safely managed drinking-water services
+        name: Population using safely managed drinking-water services
+      - OntologyNode:
+        examples:
+        - Population using safely managed sanitation services
+        name: Population using safely managed sanitation services
+      - OntologyNode:
+        examples:
+        - Population using modern fuels for cooking/heating/lighting 
+        name: Population using modern fuels for cooking/heating/lighting 
+      - OntologyNode:
+        examples:
+        - Air pollution level in cities
+        name: Air pollution level in cities
+    - Noncommunicable diseases:
+      - OntologyNode:
+        examples:
+        - Total alcohol per capita (age 15+ years) consumption 
+        name: Total alcohol per capita (age 15+ years) consumption 
+      - OntologyNode:
+        examples:
+        - Tobacco use among persons aged 18+ years
+        name: Tobacco use among persons aged 18+ years
+      - OntologyNode:
+        examples:
+        - Children aged under 5 years who are overweight
+        name: Children aged under 5 years who are overweight
+      - OntologyNode:
+        examples:
+        - Overweight and obesity in adults (Also adolescents)
+        name: Overweight and obesity in adults (Also adolescents)
+      - OntologyNode:
+        examples:
+        - Raised blood pressure among adults
+        name: Raised blood pressure among adults
+      - OntologyNode:
+        examples:
+        - Raised blood glucose/diabetes among adults
+        name: Raised blood glucose/diabetes among adults
+      - OntologyNode:
+        examples:
+        - Salt intake
+        name: Salt intake
+      - OntologyNode:
+        examples:
+        - Insufficient physical activity in adults (Also adolescents)
+        name: Insufficient physical activity in adults (Also adolescents)
+    - Injuries:
+      - OntologyNode:
+        examples:
+        - Intimate partner violence prevalence
+        name: Intimate partner violence prevalence
+  - Service Coverage:
+    - Reproductive, maternal, newborn, child and adolescent:
+      - OntologyNode:
+        examples:
+        - Demand for family planning satis ed with modern methods 
+        name: Demand for family planning satis ed with modern methods 
+      - OntologyNode:
+        examples:
+        - Contraceptive prevalence rate
+        name: Contraceptive prevalence rate
+      - OntologyNode:
+        examples:
+        - Antenatal care coverage
+        name: Antenatal care coverage
+      - OntologyNode:
+        examples:
+        - Births attended by skilled health personnel
+        name: Births attended by skilled health personnel
+      - OntologyNode:
+        examples:
+        - Postpartum care coverage
+        name: Postpartum care coverage
+      - OntologyNode:
+        examples:
+        - Care-seeking for symptoms of pneumonia
+        name: Care-seeking for symptoms of pneumonia
+      - OntologyNode:
+        examples:
+        - Children with diarrhoea receiving oral rehydration solution (ORS) 
+        name: Children with diarrhoea receiving oral rehydration solution (ORS) 
+      - OntologyNode:
+        examples:
+        - Vitamin A supplementation coverage
+        name: Vitamin A supplementation coverage
+    - Immunization:
+      - OntologyNode:
+        examples:
+        - Immunization coverage rate by vaccine for each vaccine in the national schedule
+        name: Immunization coverage rate by vaccine for each vaccine in the national schedule
+    - HIV:
+      - OntologyNode:
+        examples:
+        - People living with HIV who have been diagnosed 
+        name: People living with HIV who have been diagnosed 
+      - OntologyNode:
+        examples:
+        - Prevention of mother-to-child transmission
+        name: Prevention of mother-to-child transmission
+      - OntologyNode:
+        examples:
+        - HIV care coverage
+        name: HIV care coverage
+      - OntologyNode:
+        examples:
+        - Antiretroviral therapy (ART) coverage
+        name: Antiretroviral therapy (ART) coverage
+      - OntologyNode:
+        examples:
+        - HIV viral load suppression
+        name: HIV viral load suppression
+    - HIV/TB:
+      - OntologyNode:
+        examples:
+        - TB preventive therapy for HIV-positive people newly enrolled in HIV care
+        name: TB preventive therapy for HIV-positive people newly enrolled in HIV care
+      - OntologyNode:
+        examples:
+        - HIV test results for registered new and relapse TB patients
+        name: HIV test results for registered new and relapse TB patients
+      - OntologyNode:
+        examples:
+        - HIV-positive new and relapse TB patients on ART during TB treatment
+        name: HIV-positive new and relapse TB patients on ART during TB treatment
+    - Tuberculosis:
+      - OntologyNode:
+        examples:
+        - TB patients with results for drug susceptibility testing
+        name: TB patients with results for drug susceptibility testing
+      - OntologyNode:
+        examples:
+        - TB case detection rate
+        name: TB case detection rate
+      - OntologyNode:
+        examples:
+        - Second-line treatment coverage among multidrug-resistant tuberculosis (MDR-TB) cases
+        name: Second-line treatment coverage among multidrug-resistant tuberculosis (MDR-TB) cases
+    - Malaria:
+      - OntologyNode:
+        examples:
+        - Intermittent preventive therapy for malaria during pregnancy (IPTp) 
+        name: Intermittent preventive therapy for malaria during pregnancy (IPTp) 
+      - OntologyNode:
+        examples:
+        - Use of insecticide treated nets (ITNs)
+        name: Use of insecticide treated nets (ITNs)
+      - OntologyNode:
+        examples:
+        - Treatment of confirmed malaria cases
+        name: Treatment of confirmed malaria cases
+      - OntologyNode:
+        examples:
+        - Indoor residual spraying (IRS) coverage
+        name: Indoor residual spraying (IRS) coverage
+    - Neglected tropical diseases:
+      - OntologyNode:
+        examples:
+        - Coverage of preventive chemotherapy for selected neglected tropical diseases
+        name: Coverage of preventive chemotherapy for selected neglected tropical diseases
+    - Screening and preventive care:
+      - OntologyNode:
+        examples:
+        - Cervical cancer screening
+        name: Cervical cancer screening
+    - Mental Health:
+      - OntologyNode:
+        examples:
+        - Coverage of services for severe mental health disorders
+        name: Coverage of services for severe mental health disorders
+  - Health Systems:
+    - Quality and safety of care:
+      - OntologyNode:
+        examples:
+        - Perioperative mortality rate
+        name: Perioperative mortality rate
+      - OntologyNode:
+        examples:
+        - Obstetric and gynaecological admissions owing to abortion 
+        name: Obstetric and gynaecological admissions owing to abortion 
+      - OntologyNode:
+        examples:
+        - Institutional maternal mortality ratio
+        name: Institutional maternal mortality ratio
+      - OntologyNode:
+        examples:
+        - Maternal death reviews
+        name: Maternal death reviews
+      - OntologyNode:
+        examples:
+        - ART retention rate
+        name: ART retention rate
+      - OntologyNode:
+        examples:
+        - TB treatment success rate
+        name: TB treatment success rate
+      - OntologyNode:
+        examples:
+        - Service-specific availability and readiness 
+        name: Service-specific availability and readiness 
+    - Access:
+      - OntologyNode:
+        examples:
+        - Service utilization
+        name: Service utilization
+      - OntologyNode:
+        examples:
+        - Health service access
+        name: Health service access
+      - OntologyNode:
+        examples:
+        - Hospital bed density
+        name: Hospital bed density
+      - OntologyNode:
+        examples:
+        - Availability of essential medicines and commodities 
+        name: Availability of essential medicines and commodities 
+    - Health workforce:
+      - OntologyNode:
+        examples:
+        - Health worker density and distribution 
+        name: Health worker density and distribution 
+      - OntologyNode:
+        examples:
+        - Output training institutions
+        name: Output training institutions
+    - Health information:
+      - OntologyNode:
+        examples:
+        - Birth registration coverage
+        name: Birth registration coverage
+      - OntologyNode:
+        examples:
+        - Death registration coverage
+        name: Death registration coverage
+      - OntologyNode:
+        examples:
+        - Completeness of reporting by facilities
+        name: Completeness of reporting by facilities
+    - Health financing:
+      - OntologyNode:
+        examples:
+        - Total current expenditure on health (% of gross domestic product)
+        name: Total current expenditure on health (% of gross domestic product)
+      - OntologyNode:
+        examples:
+        - Current expenditure on health by general government and compulsory schemes (% of current expenditure on health)
+        name: Current expenditure on health by general government and compulsory schemes (% of current expenditure on health)
+      - OntologyNode:
+        examples:
+        - Out-of-pocket payment for health (% of current expenditure on health) 
+        name: Out-of-pocket payment for health (% of current expenditure on health) 
+      - OntologyNode:
+        examples:
+        - Externally sourced funding (% of current expenditure on health)
+        name: Externally sourced funding (% of current expenditure on health)
+      - OntologyNode:
+        examples:
+        - Total capital expenditure on health (% current + capital expenditure on health)
+        name: Total capital expenditure on health (% current + capital expenditure on health)
+      - OntologyNode:
+        examples:
+        - Headcount ratio of catastrophic health expenditure
+        name: Headcount ratio of catastrophic health expenditure
+      - OntologyNode:
+        examples:
+        - Headcount ratio of impoverishing health expenditure
+        name: Headcount ratio of impoverishing health expenditure
+    - Health security:
+      - OntologyNode:
+        examples:
+        - International Health Regulations (IHR) core capacity index
+        name: International Health Regulations (IHR) core capacity index
