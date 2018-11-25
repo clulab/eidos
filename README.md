@@ -440,6 +440,7 @@ Grounding **does** require additional installation.  There are two significantly
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
 [Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
 
+- [geonorm_model.hdf5](https://drive.google.com/file/d/16vIRhfEHjEMxnGTemnaUhkQT1eVbUm6j/view?usp=sharing) ,
 - [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
 - [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
 
@@ -448,11 +449,13 @@ more accurate.  Either should be downloaded and if necessary unzipped and untarr
 file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
 Next check the configuration value for `wordToVecPath`.  It is already set up for `vectors.txt`,
 but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
-value for `useW2V` from `false` to `true`.
+value for `useW2V` from `false` to `true`. 
 
 After `useTimeNorm` and `useW2V` are set to `true`, your output should look more like this:
 
 ![Eidos with Grounding](/doc/grounding.png?raw=True")
+
+'geonorm_model.hdf5' is the gelocation NER model file which should be saved in 'src/main/resources/org/clulab/wm/eidos/models/'. 
 
 ## Optimizing
 
