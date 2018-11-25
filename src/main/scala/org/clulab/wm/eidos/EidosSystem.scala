@@ -49,6 +49,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     }
   }
 
+  // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
+  val documentFilter = FilterByLength(proc, cutoff = 300)
+
   val debug = true // Allow external control with var if needed
 
   println("Loading W2V...")
@@ -249,15 +252,21 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
-    val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
-    val doc = EidosDocument(oldDoc, keepText)
+    // Syntactic pre-processing
+    val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
+    val filtered = documentFilter.filter(tokenized)         // Filter noise from document
+    val annotated = proc.annotate(filtered)
+    val doc = EidosDocument(annotated, keepText)
+    // Add the tags from the lexicons we load
     doc.sentences.foreach(addLexiconNER)
+    // Time and Location
     doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
     doc.parseTime(loadableAttributes.timenorm)
     doc.parseGeoNorm(loadableAttributes.geonorm)
-
+    // Document ID
     doc.id = filename
     doc
+
   }
 
   protected def addLexiconNER(s: Sentence) = {
