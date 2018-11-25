@@ -503,16 +503,16 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def mkJsonFromLocationExpressions(location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
     val result = location.map { location =>
       var x = 0
-      val timexs = for (t <- location; i <- t) yield {
+      val geoexps = for (t <- location; i <- t) yield {
         x += 1
         Json.arr(
-          s"X$x",
-          "x",
+          s"G$x",
+          "GeoLocation",
           Json.arr(Json.arr(i.startOffset, i.endOffset)),
           Json.toJson(i.geonameID)
         )
       }
-      Json.toJson(timexs)
+      Json.toJson(geoexps)
     }.getOrElse(Json.toJson(Json.arr()))
     result
   }
