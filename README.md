@@ -428,6 +428,7 @@ that aren't very likely to change.  The latter is where users are advised to mak
 adjustments.  These values in particular are often changed:
 
 - useTimeNorm - activates time processing functions
+- useGeoNorm - activates geolocation functions
 - useW2V - turns on grounding, which uses Word2Vec
 
 The model file used for time processing functions is included in the Eidos repository, so there
@@ -436,11 +437,15 @@ in the project [timenorm](https://github.com/clulab/timenorm), which is separate
 Eidos and declared in `built.sbt` as a library dependency.  Change the value of
 `useTimeNorm` from `false` to `true` to use the time functions.
 
-Grounding **does** require additional installation.  There are two significantly large files of
+The newest model file used for geolocations is too large for GitHub and requires additional installation.
+Download [geonorm_model.hdf5](https://drive.google.com/file/d/16vIRhfEHjEMxnGTemnaUhkQT1eVbUm6j/view?usp=sharing)
+and place it in the directory `src/main/resources/org/clulab/wm/eidos/models/`.  Then change the value of
+`useGeoNorm` from `false` to `true` to use the functions.
+
+Grounding also requires additional installation.  There are two significantly large files of
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
 [Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
 
-- [geonorm_model.hdf5](https://drive.google.com/file/d/16vIRhfEHjEMxnGTemnaUhkQT1eVbUm6j/view?usp=sharing) ,
 - [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
 - [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
 
@@ -451,11 +456,10 @@ Next check the configuration value for `wordToVecPath`.  It is already set up fo
 but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
 value for `useW2V` from `false` to `true`. 
 
-After `useTimeNorm` and `useW2V` are set to `true`, your output should look more like this:
+After `useTimeNorm`, `useGeoNorm`, and `useW2V` are set to `true`, your output should look more like this:
 
 ![Eidos with Grounding](/doc/grounding.png?raw=True")
 
-'geonorm_model.hdf5' is the gelocation NER model file which should be saved in 'src/main/resources/org/clulab/wm/eidos/models/'. 
 
 ## Optimizing
 
