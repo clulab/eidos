@@ -53,4 +53,13 @@ object MeshOntology {
       DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
 }
 
+object MITRE12Ontology {
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
+    DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
+}
+
+object WHOOntology {
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
+    DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
+}
 

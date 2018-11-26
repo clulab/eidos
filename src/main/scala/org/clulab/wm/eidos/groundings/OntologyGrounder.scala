@@ -64,11 +64,15 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
 
 object EidosOntologyGrounder {
   // Namespace strings for the different in-house ontologies we typically use
-  val    UN_NAMESPACE = "un"
-  val   WDI_NAMESPACE = "wdi"
-  val   FAO_NAMESPACE = "fao"
-  val  MESH_NAMESPACE = "mesh"
-  val PROPS_NAMESPACE = "props"
+  val      UN_NAMESPACE = "un"
+  val     WDI_NAMESPACE = "wdi"
+  val     FAO_NAMESPACE = "fao"
+  val    MESH_NAMESPACE = "mesh"
+  val   PROPS_NAMESPACE = "props"
+  val MITRE12_NAMESPACE = "mitre12"
+  val     WHO_NAMESPACE = "who"
+
+  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE)
 
   protected val logger = LoggerFactory.getLogger(this.getClass())
 
