@@ -12,29 +12,29 @@ import org.clulab.serialization.json.{DocOps, JSONSerializer}
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 
 class TestDocSerialization extends Test {
-  val reader = new EidosSystem()
   val text = "Water trucking has decreased due to the cost of fuel last week." // "last week" added for time
-  val annotatedDocument = reader.extractFromText(text)
+  val reader = new EidosSystem()
+  val document = reader.extractFromText(text).document
 
   behavior of "Java serializer"
 
   it should "serialize and deserialize documents" in {
 
-    def serialize(original: Any): Unit = {
-      val copy = (new ByteArrayOutputStream()).autoClose { streamOut =>
+    def serialize(original: Document): Unit = {
+      val serial = (new ByteArrayOutputStream()).autoClose { streamOut =>
         (new ObjectOutputStream(streamOut)).autoClose { encoder =>
           encoder.writeObject(original)
         }
-
-        val bytes = streamOut.toByteArray
-
-        FileUtils.load[Any](bytes, this)
+        streamOut.toByteArray
       }
+      val copy = FileUtils.load[Document](serial, this)
 
       copy should not be (None)
+//      copy should be (original)
+//      document.hashCode should be (copy.hashCode)
     }
 
-    serialize(annotatedDocument.document)
+    serialize(document)
   }
 
   behavior of "JSON serializer"
@@ -48,7 +48,7 @@ class TestDocSerialization extends Test {
       copy should not be (None)
     }
 
-    serialize(annotatedDocument.document)
+    serialize(document)
   }
 
   behavior of "Custom serializer"
@@ -63,6 +63,6 @@ class TestDocSerialization extends Test {
       copy should not be (None)
     }
 
-    serialize(annotatedDocument.document)
+    serialize(document)
   }
 }
