@@ -227,17 +227,17 @@ object OntologyMapper {
     for {
       (eidosConcept, sofiaMappings) <- eidos2Sofia
       (sofiaConcept, score) <- sofiaMappings
-    } sb += s"eidos\t$eidosConcept\tsofia\t$sofiaConcept\t$score"
+    } sb += s"UN\t$eidosConcept\tSOFIA\t$sofiaConcept\t$score"
 
     for {
       (eidosConcept, bbnMappings) <- eidos2BBN
       (bbnConcept, score) <- bbnMappings
-    } sb += s"eidos\t$eidosConcept\tBBN\t$bbnConcept\t$score"
+    } sb += s"UN\t$eidosConcept\tHUME\t$bbnConcept\t$score"
 
     for {
       (sofiaConcept, bbnMappings) <- sofia2BBN
       (bbnConcept, score) <- bbnMappings
-    } sb += s"sofia\t$sofiaConcept\tBBN\t$bbnConcept\t$score"
+    } sb += s"SOFIA\t$sofiaConcept\tHUME\t$bbnConcept\t$score"
 
     sb.mkString("\n")
   }
