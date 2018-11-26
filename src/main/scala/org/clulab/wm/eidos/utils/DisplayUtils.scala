@@ -54,8 +54,11 @@ object DisplayUtils {
     for (interval <- intervals) {
       sb.append(s"$tab span: ${interval.span._1},${interval.span._2} $nl")
       for (i <- interval.intervals) {
-        sb.append(s"$tab start: ${i._1} $nl")
-        sb.append(s"$tab end: ${i._2} $nl")
+        val start = Option(i._1).map(_.toString).getOrElse("Undef")
+        val end = Option(i._2).map(_.toString).getOrElse("Undef")
+
+        sb.append(s"$tab start: ${start} $nl")
+        sb.append(s"$tab end: ${end} $nl")
         sb.append(s"$tab duration: ${i._3} $nl")
       }
       sb.append(nl)
@@ -66,8 +69,10 @@ object DisplayUtils {
   def displayLocationExpressions(geolocations: Seq[GeoPhraseID]): String = {
     val sb = new StringBuffer()
     for (location <- geolocations) {
+      val geonameID = location.geonameID.map(_.toString).getOrElse("Undef")
+
       sb.append(s"$tab span: ${location.startOffset},${location.endOffset} $nl")
-      sb.append(s"$tab geoNameID: ${location.geonameID}$nl")
+      sb.append(s"$tab geoNameID: ${geonameID}$nl")
 
       /*
       for (i <- location.geolocations) {

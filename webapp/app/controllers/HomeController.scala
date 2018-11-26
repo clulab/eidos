@@ -481,9 +481,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def mkJsonFromTimeExpressions(time: Option[Array[Seq[TimeInterval]]]): Json.JsValueWrapper = {
-    if (time.isDefined) {
+    val result = time.map { time =>
       var x = 0
-      val timexs = for (t <- time.get; i <- t) yield {
+      val timexs = for (t <- time; i <- t) yield {
         x += 1
         Json.arr(
           s"X$x",
@@ -496,25 +496,25 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         )
       }
       Json.toJson(timexs)
-    }
-    else Json.toJson(DocumentSerializer.NIL)
+    }.getOrElse(Json.toJson(Json.arr()))
+    result
   }
 
   def mkJsonFromLocationExpressions(location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
-    if (location.isDefined) {
+    val result = location.map { location =>
       var x = 0
-      val timexs = for (t <- location.get; i <- t) yield {
+      val geoexps = for (t <- location; i <- t) yield {
         x += 1
         Json.arr(
-          s"X$x",
-          "x",
+          s"G$x",
+          "GeoLocation",
           Json.arr(Json.arr(i.startOffset, i.endOffset)),
           Json.toJson(i.geonameID)
         )
       }
-      Json.toJson(timexs)
-    }
-    else Json.toJson(DocumentSerializer.NIL)
+      Json.toJson(geoexps)
+    }.getOrElse(Json.toJson(Json.arr()))
+    result
   }
 
 
