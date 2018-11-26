@@ -37,8 +37,8 @@ object ExtractDocumentFromDirectory extends App {
 
   val inputDir = args(0)
   val outputDir = args(1)
-  val format = if (args.length >= 2) args(2) else "1"
-  val extension = if (args.length >= 3) args(3) else "txt"
+  val format = if (args.length > 2) args(2) else "1"
+  val extension = if (args.length > 3) args(3) else "txt"
   val annotator = format match {
     case "1" => annotateTxt _
     case "2" => annotateJson _
