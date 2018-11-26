@@ -10,6 +10,8 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder, EidosWordToVec}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
+import scala.collection.mutable.ArrayBuffer
+
 
 object OntologyMapper {
 
@@ -216,7 +218,7 @@ object OntologyMapper {
     println("Finished loading other ontologies")
 
     // Initialize output
-    val sb = new StringBuilder
+    val sb = new ArrayBuffer[String]()
 
     val eidos2Sofia = mostSimilarIndicators(eidosConceptEmbeddings, sofiaConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
     val eidos2BBN = mostSimilarIndicators(eidosConceptEmbeddings, bbnConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
@@ -225,17 +227,17 @@ object OntologyMapper {
     for {
       (eidosConcept, sofiaMappings) <- eidos2Sofia
       (sofiaConcept, score) <- sofiaMappings
-    } sb.append(s"eidos\t$eidosConcept\tsofia\t$sofiaConcept\t$score")
+    } sb += s"eidos\t$eidosConcept\tsofia\t$sofiaConcept\t$score"
 
     for {
       (eidosConcept, bbnMappings) <- eidos2BBN
       (bbnConcept, score) <- bbnMappings
-    } sb.append(s"eidos\t$eidosConcept\tBBN\t$bbnConcept\t$score")
+    } sb += s"eidos\t$eidosConcept\tBBN\t$bbnConcept\t$score"
 
     for {
       (sofiaConcept, bbnMappings) <- sofia2BBN
       (bbnConcept, score) <- bbnMappings
-    } sb.append(s"sofia\t$sofiaConcept\tBBN\t$bbnConcept\t$score")
+    } sb += s"sofia\t$sofiaConcept\tBBN\t$bbnConcept\t$score"
 
     sb.mkString("\n")
   }
