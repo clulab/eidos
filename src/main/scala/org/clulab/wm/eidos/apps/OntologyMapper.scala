@@ -148,7 +148,7 @@ object OntologyMapper {
     println(s"number of eidos ontologies - ${reader.loadableAttributes.ontologyGrounders.length}")
     val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
 
-
+      // Version from master
 //    val indicatorMaps = EidosOntologyGrounder.indicatorNamespaces.toSeq.map{
 //      namespace =>
 //        val ontology = reader.loadableAttributes.ontologyGrounders.find(_.name == namespace)
@@ -175,6 +175,12 @@ object OntologyMapper {
     // Write the mapping file
     FileUtils.printWriterFromFile(outputFile).autoClose { pw =>
       FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions").autoClose { pwInterventionSpecific =>
+
+          // Version from master
+//        for (unConcept <- indicatorMaps.head._2.keys) {
+//          val mappings = indicatorMaps.flatMap(x => x._2(unConcept).map(p => (p._1, p._2, x._1)))
+//          val sorted = mappings.sortBy(-_._2)
+
         for (unConcept <- un2wdi.keys) {
           val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
           val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "FAO"))
