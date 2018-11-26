@@ -149,15 +149,28 @@ object OntologyMapper {
     val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
 
 
-    val indicatorMaps = EidosOntologyGrounder.indicatorNamespaces.toSeq.map{
-      namespace =>
-        val ontology = reader.loadableAttributes.ontologyGrounders.find(_.name == namespace)
-        val concepts = ontology.map(_.conceptEmbeddings).getOrElse(Seq())
-        val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
-        mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
+//    val indicatorMaps = EidosOntologyGrounder.indicatorNamespaces.toSeq.map{
+//      namespace =>
+//        val ontology = reader.loadableAttributes.ontologyGrounders.find(_.name == namespace)
+//        val concepts = ontology.map(_.conceptEmbeddings).getOrElse(Seq())
+//        val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
+//        mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
+//
+//        (namespace, mostSimilar)
+//    }
 
-        (namespace, mostSimilar)
-    }
+    // WorldBank indicators
+    val wdiOntology = reader.loadableAttributes.ontologyGrounders.find(_.name == EidosOntologyGrounder.WDI_NAMESPACE)
+    val eidosWDIConceptEmbeddings = if (wdiOntology.isDefined) wdiOntology.get.conceptEmbeddings else Seq()
+    // Food and Agriculture Organization of the UN indicators
+    val faoOntology = reader.loadableAttributes.ontologyGrounders.find(_.name == EidosOntologyGrounder.FAO_NAMESPACE)
+    val eidosFAOConceptEmbeddings = if (faoOntology.isDefined) faoOntology.get.conceptEmbeddings else Seq()
+
+    // Find the most similar indicators
+    val un2fao = mostSimilarIndicators(eidosConceptEmbeddings, eidosFAOConceptEmbeddings, topN, reader).toMap
+    un2fao.foreach(mapping => println(s"un: ${mapping._1} --> most similar FAO: ${mapping._2.mkString(",")}"))
+    val un2wdi = mostSimilarIndicators(eidosConceptEmbeddings, eidosWDIConceptEmbeddings, topN, reader).toMap
+    un2wdi.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar WDI: ${mapping._2.mkString(",")}"))
 
     // Write the mapping file
     FileUtils.printWriterFromFile(outputFile).autoClose { pw =>
