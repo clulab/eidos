@@ -1,8 +1,5 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.PrintWriter
-
-import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.processors.Processor
 import org.clulab.wm.eidos.utils.{PassThruNamer, Sourcer}
@@ -12,22 +9,21 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import scala.collection.mutable.ArrayBuffer
 
-
 object OntologyMapper {
 
-
   def loadOtherOntology(file: String, w2v: EidosWordToVec): Seq[ConceptEmbedding] = {
-    val ces = (Sourcer.sourceFromFile(file)).autoClose { source =>
-      val lines = source.getLines().toArray
-
-      for {
+    val ces = Sourcer.sourceFromFile(file).autoClose { source =>
+      val lines = source.getLines()
+      val result = for {
         line <- lines
         fields = line.split("\t")
         path = fields(0).split(",")
         //pathSanitized = path.map(Word2Vec.sanitizeWord(_))
         examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
         embedding = w2v.makeCompositeVector(examples)
-      } yield new ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
+      } yield ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
+
+      result.toArray
     }
     ces
   }
@@ -126,7 +122,7 @@ object OntologyMapper {
     // Semantic similarity of the parents (going up the hierarchy, more weight closer to leaves)
     val structureScore = weightedParentScore(ce1.namer.name, ce2.namer.name, reader)
     // Similarity between the indicator an the ontology concept ancestors
-    val indicatorToAncestorScore = weightedNodeToParentScore(ce1.namer.name, ce2.namer.name, reader)
+    //val indicatorToAncestorScore = weightedNodeToParentScore(ce1.namer.name, ce2.namer.name, reader)
 
     exampleWeight * examplesScore + parentWeight * structureScore //+ 0.3 * indicatorToAncestorScore
   }
@@ -166,8 +162,8 @@ object OntologyMapper {
     un2wdi.foreach(mapping => println(s"eidos: ${mapping._1} --> most similar WDI: ${mapping._2.mkString(",")}"))
 
     // Write the mapping file
-    (FileUtils.printWriterFromFile(outputFile)).autoClose { pw =>
-      (FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions")).autoClose { pwInterventionSpecific =>
+    FileUtils.printWriterFromFile(outputFile).autoClose { pw =>
+      FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions").autoClose { pwInterventionSpecific =>
         for (unConcept <- un2wdi.keys) {
           val wdiMappings = un2wdi(unConcept).map(p => (p._1, p._2, "WB"))
           val faoMappings = un2fao(unConcept).map(p => (p._1, p._2, "FAO"))
@@ -241,6 +237,4 @@ object OntologyMapper {
 
     sb.mkString("\n")
   }
-
-
 }
