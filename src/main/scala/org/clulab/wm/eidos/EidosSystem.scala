@@ -43,7 +43,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
   val documentFilter = FilterByLength(proc, cutoff = 300)
   val debug = true // Allow external control with var if needed
-  val wordToVec = {
+  val wordToVec: EidosWordToVec = {
     // This isn't intended to be (re)loadable.  This only happens once.
     EidosSystem.logger.info("Loading W2V...")
     EidosWordToVec(
@@ -366,7 +366,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 object EidosSystem {
   type Corpus = Seq[AnnotatedDocument]
 
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val PREFIX = "EidosSystem"
 

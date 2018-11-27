@@ -3,16 +3,16 @@ package org.clulab.wm.eidos.utils
 import java.io.{File, FileOutputStream, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
 
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 class Sink(file: File, charsetName: String) extends OutputStreamWriter(new FileOutputStream(file), charsetName)
 
 object Sinker {
-  val logger = LoggerFactory.getLogger(this.getClass())
-  val utf8 = StandardCharsets.UTF_8.toString
+  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  val utf8: String = StandardCharsets.UTF_8.toString
 
   def printWriterFromFile(file: File): PrintWriter = {
-    logger.info("Sinking file " + file.getPath())
+    logger.info("Sinking file " + file.getPath)
 
     new PrintWriter(new Sink(file, Sourcer.utf8))
   }

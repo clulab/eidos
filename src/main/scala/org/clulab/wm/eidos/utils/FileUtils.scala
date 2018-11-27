@@ -40,13 +40,13 @@ object FileUtils {
 
   // Add FromFile as necessary.  See getText below.
   def getCommentedTextSetFromResource(path: String): Set[String] =
-      (Sourcer.sourceFromResource(path)).autoClose { source =>
+      Sourcer.sourceFromResource(path).autoClose { source =>
         getCommentedLinesFromSource(source).map(_.trim).toSet
       }
 
   // Add FromResource as necessary.  See getText below,
   def getCommentedTextFromFile(file: File, sep: String = " "): String =
-      (Sourcer.sourceFromFile(file)).autoClose { source =>
+      Sourcer.sourceFromFile(file).autoClose { source =>
         // These haven't been trimmed in case esp. trailing spaces are important.
         getCommentedLinesFromSource(source).mkString(sep)
       }
@@ -54,17 +54,17 @@ object FileUtils {
   protected def getTextFromSource(source: Source): String = source.mkString
 
   def getTextFromResource(path: String): String =
-      (Sourcer.sourceFromResource(path)).autoClose { source =>
+      Sourcer.sourceFromResource(path).autoClose { source =>
         getTextFromSource(source)
       }
 
   def getTextFromFile(file: File): String =
-      (Sourcer.sourceFromFile(file)).autoClose { source =>
+      Sourcer.sourceFromFile(file).autoClose { source =>
         getTextFromSource(source)
       }
 
   def getTextFromFile(path: String): String =
-      (Sourcer.sourceFromFile(path)).autoClose { source =>
+      Sourcer.sourceFromFile(path).autoClose { source =>
         getTextFromSource(source)
       }
 
@@ -84,8 +84,8 @@ object FileUtils {
   }
 
   def copyResourceToFile(src: String, dest: File): Unit = {
-    (FileUtils.getClass.getResourceAsStream(src)).autoClose { is: InputStream =>
-      (new FileOutputStream(dest)).autoClose { os: FileOutputStream =>
+    FileUtils.getClass.getResourceAsStream(src).autoClose { is: InputStream =>
+      new FileOutputStream(dest).autoClose { os: FileOutputStream =>
         val buf = new Array[Byte](8192)
 
         def transfer: Boolean = {
@@ -105,20 +105,20 @@ object FileUtils {
   }
 
   def newClassLoaderObjectInputStream(filename: String, classProvider: Any = this): ClassLoaderObjectInputStream = {
-    val classLoader = classProvider.getClass().getClassLoader()
+    val classLoader = classProvider.getClass.getClassLoader
 
     new ClassLoaderObjectInputStream(classLoader, new FileInputStream(filename))
   }
 
   def load[A](filename: String, classProvider: Any): A =
-      (newClassLoaderObjectInputStream(filename, classProvider)).autoClose { objectInputStream =>
+      newClassLoaderObjectInputStream(filename, classProvider).autoClose { objectInputStream =>
         objectInputStream.readObject().asInstanceOf[A]
       }
 
   def load[A](bytes: Array[Byte], classProvider: Any): A = {
-    val classLoader = classProvider.getClass().getClassLoader()
+    val classLoader = classProvider.getClass.getClassLoader
 
-    (new ClassLoaderObjectInputStream(classLoader, new ByteArrayInputStream(bytes))).autoClose { objectInputStream =>
+    new ClassLoaderObjectInputStream(classLoader, new ByteArrayInputStream(bytes)).autoClose { objectInputStream =>
       objectInputStream.readObject().asInstanceOf[A]
     }
   }

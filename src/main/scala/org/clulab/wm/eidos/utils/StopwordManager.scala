@@ -6,12 +6,11 @@ import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 trait StopwordManaging {
   def containsStopword(stopword: String): Boolean
   def containsStopwordStrict(stopword: String): Boolean = containsStopword(stopword)
-
 }
 
 class StopwordManager(stopwordsPath: String, transparentPath: String) extends StopwordManaging {
-  protected def stopwords = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
-  protected def transparentWords = FileUtils.getCommentedTextSetFromResource(transparentPath)
+  protected def stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
+  protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
 
   protected val bothWords = stopwords ++ transparentWords
 

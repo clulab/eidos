@@ -74,7 +74,7 @@ object EidosOntologyGrounder {
 
   val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE)
 
-  protected val logger = LoggerFactory.getLogger(this.getClass())
+  protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
   def apply(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec): EidosOntologyGrounder =
     name match {

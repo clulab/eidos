@@ -95,6 +95,8 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends Dom
 }
 
 object TreeDomainOntology {
+  protected lazy val logger = LoggerFactory.getLogger(this.getClass())
+
   val FIELD = "OntologyNode"
   val NAME = "name"
   val EXAMPLES = "examples"
@@ -102,8 +104,6 @@ object TreeDomainOntology {
   val POLARITY = "polarity"
 
   def load(path: String): TreeDomainOntology = {
-    val logger = LoggerFactory.getLogger(this.getClass())
-
     logger.info(s"Loading serialized Ontology from $path")
     val domainOntology = FileUtils.load[TreeDomainOntology](path, this)
     logger.info("Serialized Ontology successfully loaded.")

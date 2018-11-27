@@ -174,7 +174,7 @@ object CompactWord2Vec {
 
   protected type StoreType = (String, ArrayType)
 
-  protected val logger = LoggerFactory.getLogger(classOf[CompactWord2Vec])
+  protected lazy val logger = LoggerFactory.getLogger(classOf[CompactWord2Vec])
 
   def apply(filename: String, resource: Boolean = true, cached: Boolean = false): CompactWord2Vec = {
     logger.debug("Started to load word2vec matrix from file " + filename + "...")
