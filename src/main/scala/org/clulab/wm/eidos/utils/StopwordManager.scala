@@ -10,8 +10,8 @@ trait StopwordManaging {
 }
 
 class StopwordManager(stopwordsPath: String, transparentPath: String) extends StopwordManaging {
-  protected def stopwords = FileUtils.getCommentedTextsFromResource(stopwordsPath).toSet
-  protected def transparentWords = FileUtils.getCommentedTextsFromResource(transparentPath).toSet
+  protected def stopwords = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
+  protected def transparentWords = FileUtils.getCommentedTextSetFromResource(transparentPath)
 
   protected val bothWords = stopwords ++ transparentWords
 

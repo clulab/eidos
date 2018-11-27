@@ -32,17 +32,16 @@ object FileUtils {
     result
   }
 
-  def getCommentedLinesFromSource(source: Source): Array[String] =
+  def getCommentedLinesFromSource(source: Source): Iterator[String] =
       source
           .getLines()
           // Skips "empty" lines as well as comments
           .filter(line => !line.startsWith("#") && line.trim().nonEmpty)
-          .toArray
 
   // Add FromFile as necessary.  See getText below.
-  def getCommentedTextsFromResource(path: String): Seq[String] =
+  def getCommentedTextSetFromResource(path: String): Set[String] =
       (Sourcer.sourceFromResource(path)).autoClose { source =>
-        getCommentedLinesFromSource(source).map(_.trim)
+        getCommentedLinesFromSource(source).map(_.trim).toSet
       }
 
   // Add FromResource as necessary.  See getText below,
