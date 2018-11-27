@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.utils
 
 import java.io._
+import java.net.URL
+import java.nio.file.Paths
 import java.util.Collection
 
 import org.clulab.serialization.json.stringify
@@ -8,7 +10,6 @@ import org.clulab.utils.ClassLoaderObjectInputStream
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -120,6 +121,42 @@ object FileUtils {
 
     (new ClassLoaderObjectInputStream(classLoader, new ByteArrayInputStream(bytes))).autoClose { objectInputStream =>
       objectInputStream.readObject().asInstanceOf[A]
+    }
+  }
+
+  def withResourceAsFile[T](resourcePath: String)(function: File => T): T = {
+    val resource: URL = Option(this.getClass.getResource(resourcePath))
+        .getOrElse(throw new IOException("Resource " + resourcePath + " could not be found."))
+    val (file, temporary) =
+        if (resource.getProtocol == "file")
+        // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+          (Paths.get(resource.toURI).toFile, false)
+        else {
+          // If a single file is to be (re)used, then some careful synchronization needs to take place.
+          // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
+          // Instead, make a new temporary file each time and delete it afterwards.
+          val tmpFile = File.createTempFile(
+            StringUtils.afterLast(resourcePath, '/') + '-', // Help identify the file later.
+            "." + StringUtils.afterLast(resourcePath, '.') // Keep extension for good measure.
+          )
+
+          try {
+            FileUtils.copyResourceToFile(resourcePath, tmpFile)
+            (tmpFile, true)
+          }
+          catch {
+            case exception: Throwable =>
+              tmpFile.delete()
+              throw exception
+          }
+        }
+
+    try {
+      function(file)
+    }
+    finally {
+      if (temporary)
+        file.delete()
     }
   }
 }
