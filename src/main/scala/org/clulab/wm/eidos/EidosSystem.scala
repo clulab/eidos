@@ -32,28 +32,28 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   val eidosConf: Config = config[Config]("EidosSystem")
   val language: String = eidosConf[String]("language")
-
-  EidosSystem.logger.info("Loading processor...")
-  val proc: Processor = language match {
-    case "english" => new FastNLPProcessor
-    case "spanish" => new SpanishCluProcessor
-    case "portuguese" => new PortugueseCluProcessor
+  val proc: Processor = {
+    EidosSystem.logger.info("Loading processor...")
+    language match {
+      case "english" => new FastNLPProcessor
+      case "spanish" => new SpanishCluProcessor
+      case "portuguese" => new PortugueseCluProcessor
+    }
   }
-
   // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
   val documentFilter = FilterByLength(proc, cutoff = 300)
-
   val debug = true // Allow external control with var if needed
-
-  EidosSystem.logger.info("Loading W2V...")
-  // This isn't intended to be (re)loadable.  This only happens once.
-  val wordToVec = EidosWordToVec(
-    LoadableAttributes.useW2V,
-    LoadableAttributes.wordToVecPath,
-    LoadableAttributes.topKNodeGroundings,
-    LoadableAttributes.cacheDir,
-    LoadableAttributes.useCache
-  )
+  val wordToVec = {
+    // This isn't intended to be (re)loadable.  This only happens once.
+    EidosSystem.logger.info("Loading W2V...")
+    EidosWordToVec(
+      LoadableAttributes.useW2V,
+      LoadableAttributes.wordToVecPath,
+      LoadableAttributes.topKNodeGroundings,
+      LoadableAttributes.cacheDir,
+      LoadableAttributes.useCache
+    )
+  }
 
   class LoadableAttributes(
     // These are the values which can be reloaded.  Query them for current assignments.
@@ -74,43 +74,43 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   object LoadableAttributes {
     // Extraction
-    def       masterRulesPath: String = eidosConf[String]("masterRulesPath")
-    def      quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
-    def     domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
-    def        quantifierPath: String = eidosConf[String]("quantifierPath")
-    def        propertiesPath: String = eidosConf[String]("propertiesPath")
-    def       entityRulesPath: String = eidosConf[String]("entityRulesPath")
-    def        avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
-    def          taxonomyPath: String = eidosConf[String]("taxonomyPath")
+    val       masterRulesPath: String = eidosConf[String]("masterRulesPath")
+    val      quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
+    val     domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
+    val        quantifierPath: String = eidosConf[String]("quantifierPath")
+    val        propertiesPath: String = eidosConf[String]("propertiesPath")
+    val       entityRulesPath: String = eidosConf[String]("entityRulesPath")
+    val        avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
+    val          taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
-    def       topKNodeGroundings: Int = eidosConf[Int]("topKNodeGroundings")
-    def         stopwordsPath: String = eidosConf[String]("stopWordsPath")
-    def       transparentPath: String = eidosConf[String]("transparentPath")
+    val       topKNodeGroundings: Int = eidosConf[Int]("topKNodeGroundings")
+    val         stopwordsPath: String = eidosConf[String]("stopWordsPath")
+    val       transparentPath: String = eidosConf[String]("transparentPath")
     // Hedging
-    def           hedgingPath: String = eidosConf[String]("hedgingPath")
+    val           hedgingPath: String = eidosConf[String]("hedgingPath")
     // Ontology handling
-    def        unOntologyPath: String = eidosConf[String]("unOntologyPath")
-    def       wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
-    def       faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
-    def      meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
-    def     propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
-    def   mitre12OntologyPath: String = eidosConf[String]("mitre12OntologyPath")
-    def       whoOntologyPath: String = eidosConf[String]("whoOntologyPath")
-    def              cacheDir: String = eidosConf[String]("cacheDir")
+    val        unOntologyPath: String = eidosConf[String]("unOntologyPath")
+    val       wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
+    val       faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
+    val      meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
+    val     propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
+    val   mitre12OntologyPath: String = eidosConf[String]("mitre12OntologyPath")
+    val       whoOntologyPath: String = eidosConf[String]("whoOntologyPath")
+    val              cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
-    def    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
-    def               maxHops: Int = eidosConf[Int]("maxHops")
-    def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
-    def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
-    def   geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
-    def    geoWord2IdxPath: String = eidosConf[String]("geoWord2IdxPath")
-    def      geoLoc2IdPath: String = eidosConf[String]("geoLoc2IdPath")
+    val    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
+    val               maxHops: Int = eidosConf[Int]("maxHops")
+    val      wordToVecPath: String = eidosConf[String]("wordToVecPath")
+    val  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
+    val   geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
+    val    geoWord2IdxPath: String = eidosConf[String]("geoWord2IdxPath")
+    val      geoLoc2IdPath: String = eidosConf[String]("geoLoc2IdPath")
 
-    def            useW2V: Boolean = eidosConf[Boolean]("useW2V")
-    def       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    def        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
-    def          useCache: Boolean = eidosConf[Boolean]("useCache")
+    val            useW2V: Boolean = eidosConf[Boolean]("useW2V")
+    val       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    val        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
+    val          useCache: Boolean = eidosConf[Boolean]("useCache")
 
     val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
     val canonicalizer = new Canonicalizer(stopwordManager)
@@ -178,8 +178,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     }
   }
 
-  EidosSystem.logger.info("Loading loadableAttributes...")
-  var loadableAttributes = LoadableAttributes()
+  var loadableAttributes = {
+    EidosSystem.logger.info("Loading loadableAttributes...")
+    LoadableAttributes()
+  }
 
   // These public variables are accessed directly by clients which
   // don't know they are loadable and which had better not keep copies.
@@ -236,7 +238,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     }
 
     val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
-
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
