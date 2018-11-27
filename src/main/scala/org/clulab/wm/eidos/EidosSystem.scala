@@ -11,7 +11,6 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
-import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
@@ -19,7 +18,7 @@ import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.wm.eidos.actions.ExpansionHandler
@@ -27,7 +26,7 @@ import org.clulab.wm.eidos.context.GeoDisambiguateParser
 
 import scala.annotation.tailrec
 
-case class AnnotatedDocument(val document: Document, val odinMentions: Seq[Mention], val eidosMentions: Seq[EidosMention])
+case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eidosMentions: Seq[EidosMention])
 
 /**
   * A system for text processing and information extraction
@@ -35,7 +34,7 @@ case class AnnotatedDocument(val document: Document, val odinMentions: Seq[Menti
 class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
-  val eidosConf = config[Config]("EidosSystem")
+  val eidosConf: Config = config[Config]("EidosSystem")
   val language: String = eidosConf[String]("language")
 
   println("Loading processor...")
@@ -55,7 +54,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   val debug = true // Allow external control with var if needed
 
   println("Loading W2V...")
-  val word2vec = eidosConf[Boolean]("useW2V") // Turn this on and off here
+  val word2vec: Boolean = eidosConf[Boolean]("useW2V") // Turn this on and off here
   // This isn't intended to be (re)loadable.  This only happens once.
   val wordToVec = EidosWordToVec(
     word2vec,
@@ -79,9 +78,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val expansionHandler: ExpansionHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val timenorm: Option[TemporalCharbasedParser],
-    // val geonorm: Option[Geo_disambiguate_parser]
     val geonorm: Option[GeoDisambiguateParser]
-
   )
 
   object LoadableAttributes {
@@ -154,31 +151,30 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology, useCache), wordToVec)).seq
           else Seq.empty
 
-      val timenorm: Option[TemporalCharbasedParser] = {
+      def withResourceAsFile(normModelPath: String): (File, Boolean) = {
+        val resource: URL = EidosSystem.getClass.getResource(normModelPath)
 
-        def getTimeNormFileAndTemporary(): (File, Boolean) = {
-          val timeNormResource: URL = EidosSystem.getClass.getResource(timeNormModelPath)
+        if (resource.getProtocol == "file")
+        // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
+          (Paths.get(resource.toURI).toFile, false)
+        else {
+          // If a single file is to be (re)used, then some careful synchronization needs to take place.
+          // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
+          // Instead, make a new temporary file each time and delete it afterwards.
+          val tmpFile = File.createTempFile(
+            StringUtils.afterLast(normModelPath, '/') + '-', // Help identify the file later.
+            "." + StringUtils.afterLast(normModelPath, '.') // Keep extension for good measure.
+          )
 
-          if (timeNormResource.getProtocol() == "file")
-            // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            (Paths.get(timeNormResource.toURI()).toFile(), false)
-          else {
-            // If a single file is to be (re)used, then some careful synchronization needs to take place.
-            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
-            // Instead, make a new temporary file each time and delete it afterwards.
-            val tmpFile = File.createTempFile(
-              StringUtils.afterLast(timeNormModelPath, '/') + '-', // Help identify the file later.
-              "." + StringUtils.afterLast(timeNormModelPath, '.') // Keep extension for good measure.
-            )
-
-            FileUtils.copyResourceToFile(timeNormModelPath, tmpFile)
-            (tmpFile, true)
-          }
+          FileUtils.copyResourceToFile(normModelPath, tmpFile)
+          (tmpFile, true)
         }
+      }
 
+      val timenorm: Option[TemporalCharbasedParser] = {
         if (!useTimeNorm) None
         else {
-          val (timeNormFile, temporary) = getTimeNormFileAndTemporary()
+          val (timeNormFile, temporary) = withResourceAsFile(timeNormModelPath)
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
           val timeNorm = new TemporalCharbasedParser(timeNormFile.getAbsolutePath)
 
@@ -189,30 +185,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       }
 
       val geonorm: Option[GeoDisambiguateParser]  = {
-
-        def getGeoNormFileAndTemporary(): (File, Boolean) = {
-          val geoNormResource: URL = EidosSystem.getClass.getResource(geoNormModelPath)
-
-          if (geoNormResource.getProtocol() == "file")
-          // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            (Paths.get(geoNormResource.toURI()).toFile(), false)
-          else {
-            // If a single file is to be (re)used, then some careful synchronization needs to take place.
-            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
-            // Instead, make a new temporary file each time and delete it afterwards.
-            val tmpFile = File.createTempFile(
-              StringUtils.afterLast(geoNormModelPath, '/') + '-', // Help identify the file later.
-              "." + StringUtils.afterLast(geoNormModelPath, '.') // Keep extension for good measure.
-            )
-
-            FileUtils.copyResourceToFile(geoNormModelPath, tmpFile)
-            (tmpFile, true)
-          }
-        }
-
         if (!useGeoNorm) None
         else {
-          val (geoNormFile, temporary) = getGeoNormFileAndTemporary()
+          val (geoNormFile, temporary) = withResourceAsFile(geoNormModelPath)
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
           val geoNorm = new GeoDisambiguateParser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
 
@@ -246,13 +221,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   // These public variables are accessed directly by clients which
   // don't know they are loadable and which had better not keep copies.
-  def domainParams = loadableAttributes.domainParams
-  def engine = loadableAttributes.engine
-  def ner = loadableAttributes.ner
-  def timenorm = loadableAttributes.timenorm
-  def geonorm = loadableAttributes.geonorm
+  def domainParams: DomainParams = loadableAttributes.domainParams
+  def engine: ExtractorEngine = loadableAttributes.engine
+  def ner: LexiconNER = loadableAttributes.ner
+  def timenorm: Option[TemporalCharbasedParser] = loadableAttributes.timenorm
+  def geonorm: Option[GeoDisambiguateParser] = loadableAttributes.geonorm
 
-  def reload() = loadableAttributes = LoadableAttributes()
+  def reload(): Unit = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
@@ -270,10 +245,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // Document ID
     doc.id = filename
     doc
-
   }
 
-  protected def addLexiconNER(s: Sentence) = {
+  protected def addLexiconNER(s: Sentence): Unit = {
     // The Portuguese parser does not currently generate entities, so we want to create an empty list here for
     // further processing and filtering operations that expect to be able to query the entities
     if (s.entities.isEmpty) s.entities = Some(Array.fill[String](s.words.length)("O"))
@@ -281,7 +255,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       (lexiconNERTag, i) <- ner.find(s).zipWithIndex
       if lexiconNERTag != EidosSystem.NER_OUTSIDE
     } s.entities.get(i) = lexiconNERTag
-
   }
 
   // MAIN PIPELINE METHOD
@@ -311,7 +284,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
     val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
-    new AnnotatedDocument(doc, afterNegation, eidosMentions)
+    AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
@@ -369,7 +342,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // 3) These last ones may overlap with the above or include mentions not in the original list.
     val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
     // Put them all together.
-    val releventEdgesAndTheirArgs = cagEdgeMentions ++ cagEdgeArguments
+    // val releventEdgesAndTheirArgs = cagEdgeMentions ++ cagEdgeArguments
     // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
     mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
   }
@@ -405,7 +378,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       Grounding
   */
 
-  def containsStopword(stopword: String) =
+  def containsStopword(stopword: String): Boolean =
     loadableAttributes.stopwordManager.containsStopword(stopword)
 
   def groundOntology(mention: EidosMention): Groundings =
@@ -434,19 +407,19 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 object EidosSystem {
   type Corpus = Seq[AnnotatedDocument]
 
-  val logger = LoggerFactory.getLogger(this.getClass())
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val PREFIX: String = "EidosSystem"
+  val PREFIX = "EidosSystem"
 
-  val EXPAND_SUFFIX: String = "expandParams"
-  val SPLIT_SUFFIX: String = "splitAtCC"
+  val EXPAND_SUFFIX = "expandParams"
+  val SPLIT_SUFFIX = "splitAtCC"
 
   // Taxonomy relations that should make it to final causal analysis graph
-  val CAUSAL_LABEL: String = "Causal"
-  val CORR_LABEL: String = "Correlation"
-  val COREF_LABEL: String = "Coreference"
+  val CAUSAL_LABEL = "Causal"
+  val CORR_LABEL = "Correlation"
+  val COREF_LABEL = "Coreference"
   // Taxonomy relations for other uses
-  val RELATION_LABEL: String = "EntityLinker"
+  val RELATION_LABEL = "EntityLinker"
 
   // Stateful Labels used by webapp
   val INC_LABEL_AFFIX = "-Inc"
@@ -457,5 +430,5 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES = Set(CAUSAL_LABEL, CORR_LABEL, COREF_LABEL)
+  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CORR_LABEL, COREF_LABEL)
 }
