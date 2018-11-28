@@ -15,10 +15,10 @@ object FilteredExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val metaDir = args(2)
-  var threads = args(3).toInt
+  val threads = args(3).toInt
 
+  val doneDir = inputDir + "/done"
   val converter = MetaUtils.convertTextToMeta17k _
-
   val intervals = Seq(
     (0,     0),
     (1,   999),
@@ -72,9 +72,10 @@ object FilteredExtractMetaFromDirectory extends App {
   intervals.foreach { interval =>
     val min = interval._1
     val max = interval._2
-    val filterOutputDir = s"$outputDir/$min-$max"
+    val filterOutputDir = outputDir
+//    val filterOutputDir = s"$outputDir/$min-$max"
 
-    new File(filterOutputDir).mkdirs()
+    //new File(filterOutputDir).mkdirs()
 
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
@@ -107,6 +108,11 @@ object FilteredExtractMetaFromDirectory extends App {
         val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)
         pw = FileUtils.printWriterFromFile(path)
         pw.println(stringify(mentionsJSONLD, pretty = true))
+
+        // Now move the file to directory done
+        val newPath = doneDir + "/" + file.getName
+
+        file.renameTo(new File(newPath))
       }
       catch {
         case exception: Exception =>
@@ -114,8 +120,9 @@ object FilteredExtractMetaFromDirectory extends App {
           exception.printStackTrace()
       }
       finally {
-        if (pw != null)
+        if (pw != null) {
           pw.close()
+        }
       }
     }
   }
