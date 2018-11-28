@@ -1,7 +1,5 @@
 vars: org/clulab/wm/eidos/portuguese/grammars/vars.yml
 
-#ruleHelpers: org/clulab/wm/eidos/portuguese/grammars/ruleHelpers.yml
-
 rules:
 
 ############# over 60% rules
@@ -11,7 +9,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?= ([word=/por/]|[tag=ADV]))
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !word=/${ disallowed_affixes }/] (?= ([word=/por/]|[tag=ADV]))
       cause: Entity = (${obl_por}) (${ preps })? /conj/{,3}
       effect: Entity = (<acl|${ agents }) (${ preps })? /conj|<conj/{,3}
 
@@ -21,7 +19,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(caus)/ & tag=/^NOUN/]
+      trigger = [word=/(?i)^(caus)/ & tag=/^NOUN/ & !word=/${ disallowed_affixes }/]
       cause: Entity = (${ agents }|nmod_por) /conj/{,3}
       effect: Entity = nmod_de /conj/{,3}
 
@@ -42,7 +40,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !word=/${ disallowed_affixes }/]
       cause: Entity = (advmod  [word=/devido|graças/]) (obl) (${ preps })?  /conj/{,3}
       effect: Entity = (nsubj:pass|${ objects }) /conj/{,3}
 
@@ -52,7 +50,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/]
+      trigger = [word=/(?i)^(${trigger})/ & tag=/^V/ & !word=/${ disallowed_affixes }/]
       cause: Entity =  obl [lemma=/decorrente|resultante|consequência|meio/] nmod_de
       effect: Entity =  ${objects} /conj/{,3}
 
@@ -62,7 +60,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !word=/${ disallowed_affixes }/]
       cause: Entity = (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
       effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }|conj/{,3} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
@@ -72,7 +70,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(contrib|colab)/ & tag=/^V/] (?= ([word=/^(com|para)$/] ) )
+      trigger = [word=/(?i)^(contrib|colab)/ & tag=/^V/ & !word=/${ disallowed_affixes }/] (?= ([word=/^(com|para)$/] ) )
       cause: Entity = (${ agents }) (${preps})? /conj/{,3}
       effect: Entity =  (${obl_para}|${obl_por}) (${preps})? /conj/{,3}
 
@@ -88,25 +86,25 @@ rules:
 
 ############# over 60% but need tweeks
 
-  - name: 2a-verbs-conj-${addlabel}
-    priority: ${ rulepriority }
-    example: "Fungos medicinais podem normalizar a função intestinal , aumentar o apetite e reduzir os efeitos adversos do tratamento convencional do câncer ."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (</conj/{,3} [tag=/^V/]) (${agents}) /(${preps})/{,2} /conj/{,3}
-      effect: Entity = (${objects}) /conj/{,3}
-
-  - name: 2a-verb+adj_conj-${addlabel}
-    priority: ${ rulepriority }
-    example: "Fungos medicinais podem normalizar a função intestinal , aumentar o apetite e reduzir os efeitos adversos do tratamento convencional do câncer ."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = (<conj [tag=/^ADJ/]) (${agents}) /(${preps})/{,2} /conj/{,3}
-      effect: Entity = (${objects}) /conj/{,3}
+#  - name: 2a-verbs-conj-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "Fungos medicinais podem normalizar a função intestinal , aumentar o apetite e reduzir os efeitos adversos do tratamento convencional do câncer ."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      cause: Entity = (</conj/{,3} [tag=/^V/]) (${agents}) /(${preps})/{,2} /conj/{,3}
+#      effect: Entity = (${objects}) /conj/{,3}
+#
+#  - name: 2a-verb+adj_conj-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "Fungos medicinais podem normalizar a função intestinal , aumentar o apetite e reduzir os efeitos adversos do tratamento convencional do câncer ."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      cause: Entity = (<conj [tag=/^ADJ/]) (${agents}) /(${preps})/{,2} /conj/{,3}
+#      effect: Entity = (${objects}) /conj/{,3}
 
   - name: alem_de_ported_syntax_1_verb-${addlabel}
     priority: ${ rulepriority }
@@ -114,7 +112,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !word=/${ disallowed_affixes }/]
       cause: Entity = </conj/{,2} <advcl <advmod (${ agents }) /${ objects }|${ conjunctions }|${ noun_modifiers}/{,2} #([word=/(?i)^(${ trigger })/] /${ preps }/{,2})
       effect: Entity = (xcomp|${objects} | ${complements}) /${ noun_modifiers }|${ preps }|conj/{,3} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
@@ -124,7 +122,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(melhor|pior|aument|diminu)/ & tag=/^V/]
+      trigger = [word=/(?i)^(melhor|pior|aument|diminu)/ & tag=/^V/ & !word=/${ disallowed_affixes }/]
       cause: Entity = obl (?= case [word = /(?i)(com|por)$/]) (${preps}|acl)? /conj/{,3}
       effect: Entity = (${ agents }) /conj/{,3}
 

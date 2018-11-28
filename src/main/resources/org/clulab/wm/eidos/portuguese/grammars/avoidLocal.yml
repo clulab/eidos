@@ -1,5 +1,6 @@
 taxonomy: org/clulab/wm/eidos/portuguese/grammars/taxonomy.yml
 
+# all variables defined in this file are available to use in the following rules
 vars: org/clulab/wm/eidos/portuguese/grammars/triggers.yml
 
 rules:
@@ -9,7 +10,7 @@ rules:
     type: token
     pattern: |
       #[tag=/^VERB|NOUN/ & word=/^(${increase_triggers}|${noncausal_increase_triggers}|${decrease_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${nonavoid_causal_triggers}|${reverse_direction_cause_triggers}|${affect_triggers}|${nonavoid_affect_triggers}|${correlation_triggers})/]
-      [word=/(?i)^(${increase_triggers}|${noncausal_increase_triggers}|${decrease_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${nonavoid_causal_triggers}|${reverse_direction_cause_triggers}|${affect_triggers}|${nonavoid_affect_triggers}|${correlation_triggers})/]
+      [word=/(?i)^(${increase_triggers}|${noncausal_increase_triggers}|${decrease_triggers}|${noncausal_decrease_triggers}|${cause_triggers}|${nonavoid_causal_triggers}|${reverse_direction_cause_triggers}|${affect_triggers}|${nonavoid_affect_triggers}|${correlation_triggers})/ & !word=/${disallowed_suffixes}/]
 
   - name: "avoid-conjunctions"
     label: Avoid

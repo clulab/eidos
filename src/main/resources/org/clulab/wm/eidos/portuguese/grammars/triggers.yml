@@ -1,4 +1,4 @@
-increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|aument|auxili|benefici|comp[õô]|compo(n|m)|compor$|compu[ns]|contribu|dobr|elev|estend|estimul|exacerb|exorbit|facilit|favorec|impulsion|increment|intensifi|melhor|prolong|perpetu|promov|propag|reativ|restaur|otimiz|maximiz|normaliz"
+increase_triggers: "aceler|acrescent|agrav|ajud|ampli|aperfeiço|apoi|aprimor|aument|auxili|benefici|comp[õô]|compo(n|m)|compor$|compu[ns]|contribu|dobr|elev|estend|estimul|exacerb|exorbit|facilit|favorec|(gera|gerar|gerou)|impulsion|increment|intensifi|melhor|prolong|perpetu|promov|propag|reativ|restaur|otimiz|maximiz|normaliz"
 
 noncausal_increase_triggers: "acima|melhor|bom|boa|maior|forte|aument|difundid|alt(o|a|os|as)"
 
@@ -17,4 +17,7 @@ affect_triggers: "afet|alter|desloc|influenci|modifi|modificação"
 nonavoid_affect_triggers: "impact"
 
 correlation_triggers: "correlacion$|lig(a|ou|ar)$"
+
+# FIXME: write me!
+disallowed_suffixes: "(ções|ção|ento)$"
 

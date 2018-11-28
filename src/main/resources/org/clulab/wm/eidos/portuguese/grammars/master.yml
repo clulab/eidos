@@ -49,4 +49,4 @@ rules:
       label: Causal
       action: default
       trigger: ${cause_triggers}|${nonavoid_causal_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
-
+      disallowed_affixes: ${disallowed_suffixes}

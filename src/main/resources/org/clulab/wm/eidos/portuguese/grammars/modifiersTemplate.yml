@@ -30,7 +30,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/ & !outgoing=/${objects}|${complements}/ ]  # original rule had RB as possible tag
-      theme: Entity = >${complements}? (?! [outgoing=/dobj|${complements}/]) ${ agents }
+      theme: Entity = >${complements}? (?! [outgoing=/obj|${complements}/]) ${ agents }
       quantifier:Quantifier? = ${quant_modifiers}
 
   # Note: Captures passive voice; thus verb must be VBD|VBN
@@ -62,7 +62,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/VBN|RB/]
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/V|ADJ/]
       theme: Entity = (< /amod|xcomp|rcmod|appos/){1,2} /${ conjunctions }|${ noun_modifiers }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
@@ -73,7 +73,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^${ trigger }/ & tag=/VBN/]
+      trigger = [word=/(?i)^${ trigger }/ & tag=/V/]
       theme: Entity = <amod
       quantifier: Quantifier? = ${quant_modifiers}
 
@@ -152,7 +152,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger =   [lemma=/${ trigger }/ & !outgoing=dobj]
+      trigger =   [lemma=/${ trigger }/ & !outgoing=obj]
       theme: Entity = (?= /(aux|cop)/ [lemma=/be/ & tag=/^V/]) nsubj
       #todo: Quantifiers ?
 
@@ -163,8 +163,8 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger =   [lemma=/${ trigger }/ & outgoing=dobj]
-      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) dobj
+      trigger =   [lemma=/${ trigger }/ & outgoing=obj]
+      theme: Entity = (?= aux [lemma=/be/ & tag=/^V/]) obj
       #todo: Quantifiers ?
 
 # ------------------- Nominal Triggers --------------------------
@@ -195,7 +195,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      theme: Entity = /^acl/ dobj /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = /^acl/ obj /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
