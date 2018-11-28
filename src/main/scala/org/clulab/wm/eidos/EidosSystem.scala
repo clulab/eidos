@@ -15,14 +15,15 @@ import org.clulab.wm.eidos.attachments.NegationHandler._
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, MITRE12_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, WHO_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
-import org.clulab.wm.eidos.context.Geo_disambiguate_parser
+import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.context.GeoDisambiguateParser
 
 import scala.annotation.tailrec
 
@@ -48,7 +49,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     }
   }
 
-  var debug = true // Allow external control with var
+  // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
+  val documentFilter = FilterByLength(proc, cutoff = 300)
+
+  val debug = true // Allow external control with var if needed
 
   println("Loading W2V...")
   val word2vec = eidosConf[Boolean]("useW2V") // Turn this on and off here
@@ -72,35 +76,38 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val stopwordManager: StopwordManager,
     val hedgingHandler: HypothesisHandler,
     val negationHandler: NegationHandler,
+    val expansionHandler: ExpansionHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val timenorm: Option[TemporalCharbasedParser],
     // val geonorm: Option[Geo_disambiguate_parser]
-    val geonorm: Option[Geo_disambiguate_parser]
+    val geonorm: Option[GeoDisambiguateParser]
 
   )
 
   object LoadableAttributes {
     // Extraction
-    def     masterRulesPath: String = eidosConf[String]("masterRulesPath")
-    def    quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
-    def   domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
-    def      quantifierPath: String = eidosConf[String]("quantifierPath")
-    def      propertiesPath: String = eidosConf[String]("propertiesPath")
-    def     entityRulesPath: String = eidosConf[String]("entityRulesPath")
-    def      avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
-    def        taxonomyPath: String = eidosConf[String]("taxonomyPath")
+    def       masterRulesPath: String = eidosConf[String]("masterRulesPath")
+    def      quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
+    def     domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
+    def        quantifierPath: String = eidosConf[String]("quantifierPath")
+    def        propertiesPath: String = eidosConf[String]("propertiesPath")
+    def       entityRulesPath: String = eidosConf[String]("entityRulesPath")
+    def        avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
+    def          taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
-    def       stopwordsPath: String = eidosConf[String]("stopWordsPath")
-    def     transparentPath: String = eidosConf[String]("transparentPath")
+    def         stopwordsPath: String = eidosConf[String]("stopWordsPath")
+    def       transparentPath: String = eidosConf[String]("transparentPath")
     // Hedging
-    def         hedgingPath: String = eidosConf[String]("hedgingPath")
+    def           hedgingPath: String = eidosConf[String]("hedgingPath")
     // Ontology handling
-    def      unOntologyPath: String = eidosConf[String]("unOntologyPath")
-    def     wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
-    def     faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
-    def    meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
-    def   propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
-    def            cacheDir: String = eidosConf[String]("cacheDir")
+    def        unOntologyPath: String = eidosConf[String]("unOntologyPath")
+    def       wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
+    def       faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
+    def      meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
+    def     propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
+    def   mitre12OntologyPath: String = eidosConf[String]("mitre12OntologyPath")
+    def       whoOntologyPath: String = eidosConf[String]("whoOntologyPath")
+    def              cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     def    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
@@ -119,16 +126,19 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val canonicalizer = new Canonicalizer(stopwordManager)
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
+    val expansionHandler = ExpansionHandler(language)
 
-    protected def mkDomainOntology(name: String): DomainOntology = {
+    def mkDomainOntology(name: String, useCached: Boolean): DomainOntology = {
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case    UN_NAMESPACE =>          UNOntology(  unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case   WDI_NAMESPACE =>         WDIOntology( wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case   FAO_NAMESPACE =>         FAOOntology( faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case  MESH_NAMESPACE =>        MeshOntology(meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
-        case PROPS_NAMESPACE => PropertiesOntology(propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCache)
+        case      UN_NAMESPACE =>         UNOntology(     unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case     WDI_NAMESPACE =>        WDIOntology(    wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case     FAO_NAMESPACE =>        FAOOntology(    faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case    MESH_NAMESPACE =>       MeshOntology(   meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case   PROPS_NAMESPACE => PropertiesOntology(  propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case MITRE12_NAMESPACE =>    MITRE12Ontology(mitre12OntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case     WHO_NAMESPACE =>        WHOOntology(    whoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
     }
@@ -137,11 +147,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
-      val actions = EidosActions(taxonomyPath)
+      val actions = EidosActions(taxonomyPath, expansionHandler)
 
       // Domain Ontologies:
       val ontologyGrounders =
-          if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology), wordToVec)).seq
+          if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology, useCache), wordToVec)).seq
           else Seq.empty
 
       val timenorm: Option[TemporalCharbasedParser] = {
@@ -178,7 +188,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         }
       }
 
-      val geonorm: Option[Geo_disambiguate_parser]  = {
+      val geonorm: Option[GeoDisambiguateParser]  = {
 
         def getGeoNormFileAndTemporary(): (File, Boolean) = {
           val geoNormResource: URL = EidosSystem.getClass.getResource(geoNormModelPath)
@@ -204,7 +214,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         else {
           val (geoNormFile, temporary) = getGeoNormFileAndTemporary()
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-          val geoNorm = new Geo_disambiguate_parser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
+          val geoNorm = new GeoDisambiguateParser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
 
           if (temporary)
             geoNormFile.delete()
@@ -223,6 +233,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         stopwordManager,
         hypothesisHandler,
         negationHandler,
+        expansionHandler,
         ontologyGrounders,
         timenorm,
         geonorm
@@ -245,15 +256,21 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
-    val oldDoc = proc.annotate(text, true) // Formerly keepText, must now be true
-    val doc = EidosDocument(oldDoc, keepText)
+    // Syntactic pre-processing
+    val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
+    val filtered = documentFilter.filter(tokenized)         // Filter noise from document
+    val annotated = proc.annotate(filtered)
+    val doc = EidosDocument(annotated, keepText)
+    // Add the tags from the lexicons we load
     doc.sentences.foreach(addLexiconNER)
+    // Time and Location
     doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
     doc.parseTime(loadableAttributes.timenorm)
-    doc.parseGeoNorm_flag(loadableAttributes.geonorm)
-
+    doc.parseGeoNorm(loadableAttributes.geonorm)
+    // Document ID
     doc.id = filename
     doc
+
   }
 
   protected def addLexiconNER(s: Sentence) = {

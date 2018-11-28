@@ -6,7 +6,6 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE}
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.utils.Canonicalizer
 
@@ -30,19 +29,13 @@ object CacheOntologies extends App with Configured {
 
     println(s"Saving ontologies to $cacheDir...")
     ontologies.foreach { domainOntology =>
-      val serializedPath = DomainOntologies.serializedPath(domainOntology, cacheDir)
-
-      val ontology: DomainOntology = domainOntology match {
-        case   UN_NAMESPACE =>          UNOntology(loadableAttributes.unOntologyPath,    serializedPath, proc, canonicalizer, useCache = false)
-        case  WDI_NAMESPACE =>         WDIOntology(loadableAttributes.wdiOntologyPath,   serializedPath, proc, canonicalizer, useCache = false)
-        case  FAO_NAMESPACE =>         FAOOntology(loadableAttributes.faoOntologyPath,   serializedPath, proc, canonicalizer, useCache = false)
-        case MESH_NAMESPACE =>        MeshOntology(loadableAttributes.meshOntologyPath,  serializedPath, proc, canonicalizer, useCache = false)
-        case PROPS_NAMESPACE => PropertiesOntology(loadableAttributes.propsOntologyPath, serializedPath, proc, canonicalizer, useCache = false)
-        case _ => throw new IllegalArgumentException("Ontology " + domainOntology + " is not recognized.")
-      }
+      // make
+      val ontology: DomainOntology = reader.LoadableAttributes.mkDomainOntology(domainOntology, useCached = false)
+      // convert
       val treeDomainOntology = ontology.asInstanceOf[TreeDomainOntology]
       val compactDomainOntology = new CompactDomainOntologyBuilder(treeDomainOntology).build()
-
+      // save
+      val serializedPath = DomainOntologies.serializedPath(domainOntology, cacheDir)
       compactDomainOntology.save(serializedPath)
     }
     println(s"Finished serializing ${ontologies.length} ontologies.")

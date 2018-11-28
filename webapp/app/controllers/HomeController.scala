@@ -6,6 +6,7 @@ import com.typesafe.config.ConfigRenderOptions
 
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
+import org.clulab.serialization.DocumentSerializer
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
@@ -294,7 +295,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Array[List[TimeInterval]], location: Array[List[GeoPhraseID]]): String = {
+  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Option[Array[Seq[TimeInterval]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
 
     var objectToReturn = ""
 
@@ -327,15 +328,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     // TimeExpressions
     objectToReturn += "<h2>Found TimeExpressions:</h2>"
-    for (t <-time) {
-      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
-    }
+    if (time.isDefined)
+      time.get.foreach { t =>
+        objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
+      }
 
     // GeoLocations
     objectToReturn += "<h2>Found GeoLocations:</h2>"
-    for (l <-location) {
-      objectToReturn += s"${DisplayUtils.webAppGeoLocations(l)}"
-    }
+    if (location.isDefined)
+      location.get.foreach { l =>
+        objectToReturn += s"${DisplayUtils.webAppGeoLocations(l)}"
+      }
 
 
     // Concepts
@@ -377,7 +380,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Array[List[TimeInterval]], location: Array[List[GeoPhraseID]]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Option[Array[Seq[TimeInterval]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
 
     // collect event mentions for display
@@ -477,37 +480,41 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkJsonFromTimeExpressions(time: Array[List[TimeInterval]]): Json.JsValueWrapper = {
-    var x = 0
-    val timexs = for (t <- time; i <- t) yield {
-      x += 1
-      Json.arr(
-        s"X$x",
-        "TimeExpression",
-        Json.arr(Json.arr(i.span._1,i.span._2)),
-        Json.toJson(for(d <- i.intervals) yield ((
-          d._1 match {
-          case null => "Undef"
-          case start => start.toString},
-          d._2 match {
-          case null => "Undef"
-          case end => end.toString},
-          d._3)))
-      )}
-    Json.toJson(timexs)
+  def mkJsonFromTimeExpressions(time: Option[Array[Seq[TimeInterval]]]): Json.JsValueWrapper = {
+    val result = time.map { time =>
+      var x = 0
+      val timexs = for (t <- time; i <- t) yield {
+        x += 1
+        Json.arr(
+          s"X$x",
+          "TimeExpression",
+          Json.arr(Json.arr(i.span._1, i.span._2)),
+          Json.toJson(for (d <- i.intervals) yield ((
+              Option(d._1).map(_.toString).getOrElse("Undef"),
+              Option(d._2).map(_.toString).getOrElse("Undef"),
+              d._3)))
+        )
+      }
+      Json.toJson(timexs)
+    }.getOrElse(Json.toJson(Json.arr()))
+    result
   }
 
-  def mkJsonFromLocationExpressions(location: Array[List[GeoPhraseID]]): Json.JsValueWrapper = {
-    var x = 0
-    val timexs = for (t <- location; i <- t) yield {
-      x += 1
-      Json.arr(
-        s"X$x",
-        "x",
-        Json.arr(Json.arr(i.StartOffset_locs,i.EndOffset_locs)),
-        Json.toJson(i.PhraseGeoID)
-      )}
-    Json.toJson(timexs)
+  def mkJsonFromLocationExpressions(location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
+    val result = location.map { location =>
+      var x = 0
+      val geoexps = for (t <- location; i <- t) yield {
+        x += 1
+        Json.arr(
+          s"G$x",
+          "GeoLocation",
+          Json.arr(Json.arr(i.startOffset, i.endOffset)),
+          Json.toJson(i.geonameID)
+        )
+      }
+      Json.toJson(geoexps)
+    }.getOrElse(Json.toJson(Json.arr()))
+    result
   }
 
 

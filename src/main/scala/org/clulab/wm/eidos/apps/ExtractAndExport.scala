@@ -13,12 +13,11 @@ import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.{findFiles, printWriterFromFile}
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
-
 
 /**
   * App used to extract mentions from files in a directory and produce the desired output format (i.e., jsonld, mitre
@@ -29,8 +28,8 @@ object ExtractAndExport extends App with Configured {
 
   def getExporter(exporterString: String, filename: String, topN: Int): Exporter = {
     exporterString match {
-      case "jsonld" => JSONLDExporter(printWriterFromFile(filename + ".jsonld"), reader)
-      case "mitre" => MitreExporter(printWriterFromFile(filename + ".mitre.tsv"), reader, filename, topN)
+      case "jsonld" => JSONLDExporter(FileUtils.printWriterFromFile(filename + ".jsonld"), reader)
+      case "mitre" => MitreExporter(FileUtils.printWriterFromFile(filename + ".mitre.tsv"), reader, filename, topN)
       case "serialized" => SerializedExporter(filename)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
@@ -44,47 +43,50 @@ object ExtractAndExport extends App with Configured {
   val inputExtension = getArgString("apps.inputFileExtension", None)
   val exportAs = getArgStrings("apps.exportAs", None)
   val topN = getArgInt("apps.groundTopN", Some(5))
-
-  val files = findFiles(inputDir, inputExtension)
+  val files = FileUtils.findFiles(inputDir, inputExtension)
   val reader = new EidosSystem()
 
   // For each file in the input directory:
   files.par.foreach { file =>
     // 1. Open corresponding output file and make all desired exporters
     println(s"Extracting from ${file.getName}")
-    val exporters = exportAs.map(getExporter(_, s"$outputDir/${file.getName}", topN))
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
     val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
     // 4. Export to all desired formats
-    exporters.foreach(_.export(annotatedDocuments))
+    exportAs.foreach { format =>
+      (getExporter(format, s"$outputDir/${file.getName}", topN)).autoClose { exporter =>
+        exporter.export(annotatedDocuments)
+      }
+    }
   }
-
 }
-
 
 trait Exporter {
   def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit
+  def close(): Unit
 }
 
 // Helper classes for facilitating the different export formats
-case class JSONLDExporter (pw: PrintWriter, reader: EidosSystem) extends Exporter {
+case class JSONLDExporter(pw: PrintWriter, reader: EidosSystem) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     val corpus = new JLDCorpus(annotatedDocuments, reader)
     val mentionsJSONLD = corpus.serialize()
     pw.println(stringify(mentionsJSONLD, pretty = true))
-    pw.close()
   }
+
+  override def close(): Unit = Option(pw).map(_.close())
 }
 
-case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String, topN: Int) extends Exporter {
+case class MitreExporter(pw: PrintWriter, reader: EidosSystem, filename: String, topN: Int) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     // Header
     pw.println(header())
     annotatedDocuments.foreach(printTableRows(_, pw, filename, reader))
-    pw.close()
   }
+
+  override def close(): Unit = Option(pw).map(_.close())
 
   def header(): String = {
     "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
@@ -94,8 +96,6 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
       s"Factor A top${topN}_UNOntology\tFactor A top${topN}_FAOOntology\tFactor A top${topN}_WDIOntology" +
         s"Factor B top${topN}_UNOntology\tFactor B top${topN}_FAOOntology\tFactor B top${topN}_WDIOntology"
   }
-
-
 
   def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
     val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
@@ -131,21 +131,17 @@ case class MitreExporter (pw: PrintWriter, reader: EidosSystem, filename: String
         factor_b_info.toTSV() + "\t" +
         location + "\t" + time + "\t" + evidence + "\t" + factor_a_info.groundingToTSV + "\t" +
         factor_b_info.groundingToTSV + "\n"
-
-
     } pw.print(row)
   }
-
-
-
 }
 
-
-case class SerializedExporter (filename: String) extends Exporter {
+case class SerializedExporter(filename: String) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     val odinMentions = annotatedDocuments.flatMap(ad => ad.odinMentions)
     Serializer.save[SerializedMentions](new SerializedMentions(odinMentions), filename + ".serialized")
   }
+
+  override def close(): Unit = ()
 }
 
 // Helper Class to facilitate serializing the mentions
@@ -168,8 +164,6 @@ case class EntityInfo(m: EidosMention, topN: Int = 5) {
   def toTSV(): String = Seq(text, norm, modifier, polarity).map(_.normalizeSpace).mkString("\t")
 
   def groundingToTSV() = Seq(un, fao, wdi).map(_.normalizeSpace).mkString("\t")
-
-
 }
 
 object ExporterUtils {

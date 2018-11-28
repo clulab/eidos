@@ -1,16 +1,15 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.PrintWriter
 import java.util.{Calendar, Date}
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin.{EventMention, State}
-import org.clulab.struct.{Counter, Lexicon}
+import org.clulab.struct.Counter
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import ai.lum.common.StringUtils._
 
 object AnnotationTSV extends App with Configured {
@@ -98,7 +97,7 @@ object AnnotationTSV extends App with Configured {
   val exportAs = getArgStrings("apps.exportAs", None)
   val topN = getArgInt("apps.groundTopN", Some(5))
 
-  val files = findFiles(inputDir, inputExtension)
+  val files = FileUtils.findFiles(inputDir, inputExtension)
   val reader = new EidosSystem()
 
   // For each file in the input directory:
@@ -121,19 +120,18 @@ object AnnotationTSV extends App with Configured {
   }
 
   val timestamp = Calendar.getInstance.getTime
-  val sheet1 = FileUtils.printWriterFromFile(s"$outputDir/rule_annotation.tsv")
-  val sheet2 = FileUtils.printWriterFromFile(s"$outputDir/rule_summary.tsv")
 
-  // Sheet 1 -- Extraction Data
-  sheet1.println(header(timestamp))
-  rows.flatten.foreach(sheet1.println)
-  // Sheet 2 -- Summary Statistics
-  val sheet2Header = "RULE\tCOUNT of RULE\t% of all\tNum correct\tNum incorrect\t% correct\t% curated"
-  sheet2.println(sheet2Header)
-  val summaryRows = counterToRows(totalRulesFound)
-  summaryRows.foreach(sheet2.println)
+  (FileUtils.printWriterFromFile(s"$outputDir/rule_annotation.tsv")).autoClose { sheet1 =>
+    (FileUtils.printWriterFromFile(s"$outputDir/rule_summary.tsv")).autoClose { sheet2 =>
 
-  sheet1.close()
-  sheet2.close()
-
+      // Sheet 1 -- Extraction Data
+      sheet1.println(header(timestamp))
+      rows.flatten.foreach(sheet1.println)
+      // Sheet 2 -- Summary Statistics
+      val sheet2Header = "RULE\tCOUNT of RULE\t% of all\tNum correct\tNum incorrect\t% correct\t% curated"
+      sheet2.println(sheet2Header)
+      val summaryRows = counterToRows(totalRulesFound)
+      summaryRows.foreach(sheet2.println)
+    }
+  }
 }
