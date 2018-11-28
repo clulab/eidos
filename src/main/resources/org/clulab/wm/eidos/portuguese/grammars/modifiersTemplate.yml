@@ -17,7 +17,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/] # original rule had RB as possible tag
-      theme: Entity = nmod_by? (${objects}|${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
+      theme: Entity = nmod_por? (<acl|${objects}|${complements}) /${ conjunctions }|${ objects }|${ noun_modifiers }|${ preps }/{,2}
       quantifier:Quantifier? = ${quant_modifiers}
 
   # old name: ${ label }_syntax_1_verb_edited
@@ -52,7 +52,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VERB/] (?= [word=/(?i)(para|por)/])
-      theme: Entity = (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = (>/^nsubj/) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
@@ -94,7 +94,7 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^${ trigger }/ & tag=/VBG/]
+      trigger = [word=/(?i)^${ trigger }/ & tag=/V/]
       theme: Entity = <amod
       quantifier: Quantifier? = ${quant_modifiers}
 
@@ -218,5 +218,5 @@ rules:
     type: token
     pattern: |
       @theme: Entity
-      [lemma=have]
-      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/VBN/ & !outgoing=/${objects}|${complements}/])
+      [lemma=ter]
+      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/V/ & !outgoing=/${objects}|${complements}/])

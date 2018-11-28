@@ -19,5 +19,6 @@ nonavoid_affect_triggers: "impact"
 correlation_triggers: "correlacion$|lig(a|ou|ar)$"
 
 # FIXME: write me!
-disallowed_suffixes: "(ções|ção|ento)$"
+disallowed_suffixes: "(ração)$
+"
 

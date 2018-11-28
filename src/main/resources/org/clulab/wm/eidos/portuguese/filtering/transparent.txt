@@ -134,6 +134,7 @@ infância
 informação
 ingestão
 intervenção
+investigação
 item
 maior
 mais
@@ -150,6 +151,7 @@ menor
 menos
 meta
 metodologia
+mesmo
 mg
 missão
 modo
