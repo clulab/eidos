@@ -55,6 +55,15 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     )
   }
 
+  /**
+    * The loadable aspect here applies to (most of) the files whose paths are specified in the config.  These
+    * files can be reloaded.  It does not refer to the config itself, which is set when the EidosSystem is
+    * constructed.  For example, the masterRules, actions, and ontologyGrounders are read anew in the apply method
+    * from the same files used the previous time.  The file contents may have changed the since then, and the
+    * new contents (e.g., rules) will be used, which is the purpose of the class.  The values for useW2V and useCache
+    * will not have changed since initial construction of EidosSystem.  Note that word2Vec will not be reloaded,
+    * since that is done once above.  It's not expected to change.
+    */
   class LoadableAttributes(
     // These are the values which can be reloaded.  Query them for current assignments.
     val entityFinder: EidosEntityFinder,
@@ -183,12 +192,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     LoadableAttributes()
   }
 
-  // These public variables are accessed directly by clients which
-  // don't know they are loadable and which had better not keep copies.
-  def domainParams: DomainParams = loadableAttributes.domainParams
-  def timenorm: Option[TemporalCharbasedParser] = loadableAttributes.timenorm
-  def geonorm: Option[GeoDisambiguateParser] = loadableAttributes.geonorm
-
   def reload(): Unit = loadableAttributes = LoadableAttributes()
 
   // Annotate the text using a Processor and then populate lexicon labels
@@ -209,14 +212,24 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     doc
   }
 
+  /**
+    * This will use any non-O tags that are found to overwrite anything that proc has previously found.
+    */
   protected def addLexiconNER(s: Sentence): Unit = {
+    val eidosEntities = loadableAttributes.ner.find(s)
     // The Portuguese parser does not currently generate entities, so we want to create an empty list here for
     // further processing and filtering operations that expect to be able to query the entities
-    if (s.entities.isEmpty) s.entities = Some(Array.fill[String](s.words.length)("O"))
-    for {
-      (lexiconNERTag, i) <- loadableAttributes.ner.find(s).zipWithIndex
-      if lexiconNERTag != EidosSystem.NER_OUTSIDE
-    } s.entities.get(i) = lexiconNERTag
+    if (s.entities.isEmpty)
+      s.entities = Some(eidosEntities)
+    else {
+      val procEntities = s.entities.get
+
+      eidosEntities.indices.foreach { index =>
+        if (eidosEntities(index) != EidosSystem.NER_OUTSIDE)
+          // Overwrite only if eidosEntities contains something interesting.
+          procEntities(index) = eidosEntities(index)
+      }
+    }
   }
 
   // MAIN PIPELINE METHOD
@@ -273,7 +286,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     events
     //cagRelevant.toVector
   }
-
 
   // Old version
   def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
@@ -335,10 +347,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       true
   }
 
-  /*
-      Grounding
-  */
-
+  /**
+    * Grounding
+    */
   def containsStopword(stopword: String): Boolean = loadableAttributes.stopwordManager.containsStopword(stopword)
 
   def groundOntology(mention: EidosMention): Groundings =
@@ -348,15 +359,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def groundAdjective(quantifier: String): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
 
-  /*
-      Wrapper for using w2v on some strings
-   */
+  /**
+    * Wrapper for using w2v on some strings
+    */
   def stringSimilarity(string1: String, string2: String): Float = wordToVec.stringSimilarity(string1, string2)
 
-  /*
-     Debugging Methods
-   */
-
+  /**
+    * Debugging Methods
+    */
   def debugPrint(str: String): Unit = if (debug) EidosSystem.logger.debug(str)
 
   def debugMentions(mentions: Seq[Mention]): Unit =
