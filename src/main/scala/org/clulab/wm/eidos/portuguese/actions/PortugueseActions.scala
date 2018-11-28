@@ -46,7 +46,7 @@ class PortugueseActions extends EidosBaseActions {
               while(i < mentionSize && mentionMask(i) == 1){
                 i=i+1
               }
-              val end=i+m.start+1
+              val end=i+m.start
               // add result to final mentions
               finalMentions = finalMentions ++ Seq(tbm.copy(tokenInterval = Interval(start, end)))
             }
