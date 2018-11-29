@@ -126,4 +126,5 @@ object FilteredExtractMetaFromDirectory extends App {
       }
     }
   }
+  println("I am exiting!")
 }
