@@ -16,3 +16,5 @@
 (integrat)(\s|\w)+into(\s|\w)+(policy|policies|program)
 (capacity\s+building)
 (public\s+sector\s+support)
+(invest)(\s|\w)+(in)
+(intervention)
