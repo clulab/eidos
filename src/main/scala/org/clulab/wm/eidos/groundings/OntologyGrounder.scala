@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidos.utils.{Namer, Sourcer}
 import org.slf4j.LoggerFactory
 
 object Aliases {
@@ -27,19 +27,31 @@ trait MultiOntologyGrounder {
 }
 
 class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+  // FIXME
+  val pathToInterventionLexicon = ""
+  val interventionLookupRegexes = Sourcer.sourceFromFile(pathToInterventionLexicon).getLines().toArray.map(_.r)
 
-  val conceptEmbeddings: Seq[ConceptEmbedding] =
+  val conceptEmbeddingsAll: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),
           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
+  val (conceptEmbeddingsInterventions, conceptEmbeddingsUN) = conceptEmbeddingsAll.partition(_.namer.name.startsWith("UN/interventions"))
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
+
+
     if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
       val canonicalName = mention.canonicalName
       val canonicalNameParts = canonicalName.split(" +")
 
-      OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+      // FIXME - check to see if any of the regular exressions matches
+      if (interventionLookupRegexes.exists(regex => regex.findFirstIn(mention.odinMention.text).nonEmpty)) {
+        // If you match a regex from the list, then it's an intervention
+        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddingsInterventions))
+      } else {
+        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddingsUN))
+      }
     }
     else
       OntologyGrounding()
