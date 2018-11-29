@@ -21,7 +21,9 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
   def filter(doc: Document): Document = {
     // Iterate through the sentences, any sentence that is too long (number of tokens), remove
     val kept = doc.sentences.filter(s => s.words.length < cutoff)
+//    val sanitizedText = sanitizeText(doc)
     val skipped = doc.sentences.size - kept.size
+//    val newDoc = Document(doc.id, kept, doc.coreferenceChains, doc.discourseTree, sanitizedText)
     val newDoc = Document(doc.id, kept, doc.coreferenceChains, doc.discourseTree, doc.text)
     val newerDoc = // This is a hack for lack of copy constructor for CoreNLPDocument
       if (doc.isInstanceOf[CoreNLPDocument])
@@ -32,6 +34,12 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
       FilterByLength.logger.info(s"skipping $skipped sentences")
     // Return a new document from these sentences
     newerDoc
+  }
+
+  def sanitizeText(doc: Document): Option[String] = doc.text.map { text =>
+
+//    newText
+    ???
   }
 }
 object FilterByLength {
