@@ -49,8 +49,8 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
 //      val matches = interventionLookupRegexes
       if (interventionLookupRegexes.exists(regex => regex.findFirstIn(mention.odinMention.text).nonEmpty)) {
         val matchingRegexes = interventionLookupRegexes.filter(regex => regex.findFirstIn(mention.odinMention.text).nonEmpty)
-        println(s"for Concept text: ${mention.odinMention.text}...")
-        println(s"\tThe Matches found were: ${matchingRegexes.map(_.pattern.pattern()).mkString(", ")}")
+//        println(s"for Concept text: ${mention.odinMention.text}...")
+//        println(s"\tThe Matches found were: ${matchingRegexes.map(_.pattern.pattern()).mkString(", ")}")
         // If you match a regex from the list, then it's an intervention
         OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddingsInterventions))
       } else {
