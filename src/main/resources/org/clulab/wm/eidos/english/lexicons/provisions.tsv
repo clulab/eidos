@@ -1,2 +1,2 @@
-agricultural\s+training
-((provision\s+of)|providing|provide)\s+(credit|training)
+((provision\s+of)|providing|provide)(\s|\w)+(credit|training|learning|education|feeding|relief|shelter|renting|hosting|home|cash|food|vouchers|livestock|fishing|seeds|fertilizers||water|treatment|facilit(y|ies))
+(food|nutrition(al)?)\s+assistance
