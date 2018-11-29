@@ -1,4 +1,4 @@
-((provision\s+of)|(distribution\s+of)|providing|provide|distribute)(\s|\w)+)
+((provision\s+of)|(distribution\s+of)|providing|provide|distribute)(\s|\w)+
 \w+\s+(provision|distribution|assistance)
 (((rehabilitation|restoration|construction|repair)\s+of)|(build|restoring|constructing|repairing))
 (peacekeeping|peacekeepers|peace\s+(talk|treaty)|political\s+mediation)
