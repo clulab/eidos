@@ -28,15 +28,15 @@ trait MultiOntologyGrounder {
 
 class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
   // FIXME
-  val pathToInterventionLexicon = ""
+  val pathToInterventionLexicon = "/Users/bsharp/github/eidos/src/main/resources/org/clulab/wm/eidos/english/lexicons/provisions.tsv"
   val interventionLookupRegexes = Sourcer.sourceFromFile(pathToInterventionLexicon).getLines().toArray.map(_.r)
 
-  val conceptEmbeddingsAll: Seq[ConceptEmbedding] =
+  val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),
           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
-  val (conceptEmbeddingsInterventions, conceptEmbeddingsUN) = conceptEmbeddingsAll.partition(_.namer.name.startsWith("UN/interventions"))
+  val (conceptEmbeddingsInterventions, conceptEmbeddingsUN) = conceptEmbeddings.partition(_.namer.name.startsWith("UN/interventions"))
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
 
@@ -46,7 +46,11 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
       val canonicalNameParts = canonicalName.split(" +")
 
       // FIXME - check to see if any of the regular exressions matches
+//      val matches = interventionLookupRegexes
       if (interventionLookupRegexes.exists(regex => regex.findFirstIn(mention.odinMention.text).nonEmpty)) {
+        val matchingRegexes = interventionLookupRegexes.filter(regex => regex.findFirstIn(mention.odinMention.text).nonEmpty)
+        println(s"for Concept text: ${mention.odinMention.text}...")
+        println(s"\tThe Matches found were: ${matchingRegexes.map(_.pattern.pattern()).mkString(", ")}")
         // If you match a regex from the list, then it's an intervention
         OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddingsInterventions))
       } else {
@@ -67,6 +71,7 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
       // eventual multiplication of floats in different orders produces different results.
       val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray.sorted
 
+      // FIXME - replaced conceptEmbeddings with conceptEmbeddingsAll
       OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
     }
     else
