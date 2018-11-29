@@ -50,7 +50,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   }
 
   // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
-  val documentFilter = FilterByLength(proc, cutoff = 300)
+  val documentFilter = FilterByLength(proc, cutoff = 150)
 
   val debug = true // Allow external control with var if needed
 

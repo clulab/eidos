@@ -38,7 +38,7 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
 
   def sanitizeText(doc: Document): Option[String] = doc.text.map { text =>
     var newText = text.replace('\n', ' ').replace(0x0C.toChar, ' ')
-    for (s <- doc.sentences) {
+    for (s <- doc.sentences if s.endOffsets.last < newText.size) {
       newText = newText.updated(s.endOffsets.last, '\n')
     }
     newText
