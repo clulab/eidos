@@ -1,5 +1,5 @@
-((provision\s+of)|providing|provide)(\s|\w)+(credit|training|learning|education|feeding|relief|shelter|renting|hosting|home|cash|food|vouchers|livestock|fishing|seeds|fertilizers|water|treatment|facilit(y|ies))
-(food|nutrition(al)?)\s+assistance
+((provision\s+of)|(distribution\s+of)|providing|provide|distribute)(\s|\w)+)
+\w+\s+(provision|distribution|assistance)
 (((rehabilitation|restoration|construction|repair)\s+of)|(build|restoring|constructing|repairing))
 (peacekeeping|peacekeepers|peace\s+(talk|treaty)|political\s+mediation)
 (capacity\s+building)
