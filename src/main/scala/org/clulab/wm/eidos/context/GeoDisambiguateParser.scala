@@ -4,6 +4,7 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 import org.deeplearning4j.nn.graph.ComputationGraph
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
+import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.factory.Nd4j
 
 object GeoDisambiguateParser {
@@ -14,8 +15,29 @@ object GeoDisambiguateParser {
   val TIME_DISTRIBUTED_1 = "time_distributed_1"
 }
 
+/**
+  * An object for Keras to DeepLearning4J conversion. Needed currently because the geonorm model
+  * is built using Keras but loaded into Eidos using DeepLearning4J.
+  */
+object KerasToDL4J {
+
+  /**
+    * Reads a Keras model and converts it to a DeepLearning4J model.
+    * The Keras model file should have the extension .hdf5.
+    * The DeepLearning4J model written out will have the extension .dl4j.zip.
+    *
+    * @param args A single argument, the Keras model path.
+    */
+  def main(args: Array[String]): Unit = {
+    val Array(kerasPath) = args
+    val network = KerasModelImport.importKerasModelAndWeights(kerasPath, false)
+    val dl4jPath = kerasPath.replace(".hdf5", ".dl4j.zip")
+    ModelSerializer.writeModel(network, dl4jPath, false)
+  }
+}
+
 class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
-  protected val network: ComputationGraph = KerasModelImport.importKerasModelAndWeights(modelPath, false)
+  protected val network: ComputationGraph = ModelSerializer.restoreComputationGraph(modelPath)
   lazy protected val word2int: Map[String, Int] = readDict(word2IdxPath)
   // provide path of geoname dict file having geonameID with max population
   lazy protected val loc2geonameID: Map[String, Int] = readDict(loc2geonameIDPath)
