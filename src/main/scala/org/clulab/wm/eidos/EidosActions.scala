@@ -468,18 +468,15 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       flattenedContextAttachments = entities.flatMap(_.attachments.filter(_.isInstanceOf[ContextAttachment]).map(_.asInstanceOf[ContextAttachment]))
       filteredAttachments = filterAttachments(flattenedTriggeredAttachments)
     } yield {
-      if (filteredAttachments.nonEmpty) {
-
+      val bestEntities = if (filteredAttachments.nonEmpty) {
         val bestAttachment = filteredAttachments.sorted.reverse.head
         // Since head was used above and there could have been a tie, == should be used below
         // The tie can be broken afterwards.
-        val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
-        val bestEntity = tieBreaker(bestEntities)
-
-        MentionUtils.withOnlyAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
+        entities.filter(_.attachments.exists(_ == bestAttachment))
+      } else {
+        entities
       }
-      else
-        tieBreaker(entities)
+      MentionUtils.withOnlyAttachments(tieBreaker(bestEntities), filteredAttachments ++ flattenedContextAttachments)
     }
 
     val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
