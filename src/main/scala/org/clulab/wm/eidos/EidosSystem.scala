@@ -188,38 +188,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         }
       }
 
-      val geonorm: Option[GeoDisambiguateParser]  = {
-
-        def getGeoNormFileAndTemporary(): (File, Boolean) = {
-          val geoNormResource: URL = EidosSystem.getClass.getResource(geoNormModelPath)
-
-          if (geoNormResource.getProtocol() == "file")
-          // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            (Paths.get(geoNormResource.toURI()).toFile(), false)
-          else {
-            // If a single file is to be (re)used, then some careful synchronization needs to take place.
-            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
-            // Instead, make a new temporary file each time and delete it afterwards.
-            val tmpFile = File.createTempFile(
-              StringUtils.afterLast(geoNormModelPath, '/') + '-', // Help identify the file later.
-              "." + StringUtils.afterLast(geoNormModelPath, '.') // Keep extension for good measure.
-            )
-
-            FileUtils.copyResourceToFile(geoNormModelPath, tmpFile)
-            (tmpFile, true)
-          }
-        }
-
-        if (!useGeoNorm) None
-        else {
-          val (geoNormFile, temporary) = getGeoNormFileAndTemporary()
-          // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-          val geoNorm = new GeoDisambiguateParser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
-
-          if (temporary)
-            geoNormFile.delete()
-          Some(geoNorm)
-        }
+      val geonorm: Option[GeoDisambiguateParser]  = if (useGeoNorm) {
+        // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
+        val modelStream = EidosSystem.getClass.getResourceAsStream(geoNormModelPath)
+        Some(new GeoDisambiguateParser(modelStream, geoWord2IdxPath, geoLoc2IdPath))
+      } else {
+        None
       }
 
       new LoadableAttributes(
