@@ -7,10 +7,8 @@ import org.clulab.wm.eidos.utils.QuicklyEqualable
 class TestQuicklyEqualable extends Test {
 
   class Superclass(val value: Int) extends QuicklyEqualable {
-    override def biEquals(other: Any): Boolean = {
-      val that = other.asInstanceOf[Superclass]
-
-      this.value == that.value
+    override def biEquals(other: Any): Boolean = other match {
+      case that: Superclass => this.value == that.value
     }
 
     override protected def calculateHashCode: Int = value
@@ -21,14 +19,9 @@ class TestQuicklyEqualable extends Test {
 
   class Subclass2(value: Int, var increment: Int) extends Superclass(value) {
 
-    override def biEquals(other: Any): Boolean = {
-      super.biEquals(other) && {
-        val that = other.asInstanceOf[Subclass2]
-
-        this.value == that.value &&
-            this.increment == that.increment
-      }
-    }
+    override def biEquals(other: Any): Boolean = super.biEquals(other) && (other match {
+      case that: Subclass2 => this.value == that.value && this.increment == that.increment
+    })
 
     override protected def calculateHashCode: Int = super.hashCode + increment
   }

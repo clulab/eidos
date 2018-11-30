@@ -185,8 +185,8 @@ object ExporterUtils {
   def getPolarity(mention: EidosMention): String = {
     val sb = new ArrayBuffer[String]
     val attachments = mention.odinMention.attachments
-    val incTriggers = attachments.filter(a => a.isInstanceOf[Increase]).map(inc => inc.asInstanceOf[Increase].trigger)
-    val decTriggers = attachments.filter(a => a.isInstanceOf[Decrease]).map(inc => inc.asInstanceOf[Decrease].trigger)
+    val incTriggers = attachments.collect{ case inc: Increase => inc.trigger}
+    val decTriggers = attachments.collect{ case dec: Decrease => dec.trigger}
     for (t <- incTriggers) sb.append(s"Increase(${t})")
     for (t <- decTriggers) sb.append(s"Decrease(${t})")
 

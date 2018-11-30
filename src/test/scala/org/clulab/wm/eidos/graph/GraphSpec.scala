@@ -71,11 +71,10 @@ abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[
 
   override def calculateHashCode: Int = mix(trigger.##, sortedQuantifiers.##)
 
-  override def biEquals(other: Any): Boolean = {
-    val that = other.asInstanceOf[TriggeredAttachmentSpec]
-
-    this.trigger == that.trigger &&
-        this.sortedQuantifiers == that.sortedQuantifiers
+  override def biEquals(other: Any): Boolean = other match {
+    case that: TriggeredAttachmentSpec =>
+      this.trigger == that.trigger &&
+      this.sortedQuantifiers == that.sortedQuantifiers
   }
 }
 
@@ -103,20 +102,12 @@ object TriggeredAttachmentSpec {
   }
 
   def matchAttachments(mention: Mention, attachmentSpecs: Set[TriggeredAttachmentSpec]): Boolean = {
-    // For now, let's not write tests for Property attachments as it's likey to be fluid for a bit
-    // FIXME: revisit
-    def filterCriteria(a: Attachment): Boolean = a.isInstanceOf[TriggeredAttachment] && ! a.isInstanceOf[Property]
-
-
-    if (mention.attachments.count(filterCriteria) != attachmentSpecs.size)
-      false
-    else {
-      val attachments: Set[TriggeredAttachment] = mention.attachments
-          .filter(filterCriteria)
-          .map(_.asInstanceOf[TriggeredAttachment])
-
-      recMatchAttachments(attachments, attachmentSpecs.toSeq)
+    val attachments: Set[TriggeredAttachment] = mention.attachments.collect{
+      // For now, let's not write tests for Property attachments as it's likey to be fluid for a bit
+      // FIXME: revisit
+      case a: TriggeredAttachment if !a.isInstanceOf[Property] => a
     }
+    attachments.size == attachmentSpecs.size && recMatchAttachments(attachments, attachmentSpecs.toSeq)
   }
 }
 
@@ -136,10 +127,8 @@ abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
 
   override def calculateHashCode: Int = text.##
 
-  override def biEquals(other: Any): Boolean = {
-    val that = other.asInstanceOf[ContextAttachmentSpec]
-
-    this.text == that.text
+  override def biEquals(other: Any): Boolean = other match {
+    case that: ContextAttachmentSpec => this.text == that.text
   }
 }
 
@@ -166,15 +155,10 @@ object ContextAttachmentSpec {
   }
 
   def matchAttachments(mention: Mention, attachmentSpecs: Set[ContextAttachmentSpec]): Boolean = {
-    if (mention.attachments.count(_.isInstanceOf[ContextAttachment]) != attachmentSpecs.size)
-      false
-    else {
-      val attachments: Set[ContextAttachment] = mention.attachments
-        .filter(_.isInstanceOf[ContextAttachment])
-        .map(_.asInstanceOf[ContextAttachment])
-
-      recMatchAttachments(attachments, attachmentSpecs.toSeq)
+    val attachments: Set[ContextAttachment] = mention.attachments.collect{
+      case a: ContextAttachment => a
     }
+    attachments.size == attachmentSpecs.size && recMatchAttachments(attachments, attachmentSpecs.toSeq)
   }
 }
 
@@ -280,11 +264,11 @@ object Unmarked {
 class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
 
   protected def matchAttachments(useTimeNorm: Boolean, useGeoNorm: Boolean)(mention: Mention): Boolean =
-      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TriggeredAttachmentSpec]).map(_.asInstanceOf[TriggeredAttachmentSpec])) &&
+      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TriggeredAttachmentSpec => a}) &&
         ((useTimeNorm, useGeoNorm) match {
-          case (true, true) =>  ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[ContextAttachmentSpec]).map(_.asInstanceOf[ContextAttachmentSpec]))
-          case (true, false) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[TimEx]).map(_.asInstanceOf[ContextAttachmentSpec]))
-          case (false, true) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.filter(_.isInstanceOf[GeoLoc]).map(_.asInstanceOf[ContextAttachmentSpec]))
+          case (true, true) =>  ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: ContextAttachmentSpec => a})
+          case (true, false) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TimEx => a})
+          case (false, true) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: GeoLoc => a})
           case _ => true
         })
 
@@ -297,8 +281,7 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
     
   protected def testSpec(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[Mention] = {
     val matches1 = mentions
-        .filter(_.isInstanceOf[TextBoundMention])
-        .map(_.asInstanceOf[TextBoundMention])
+        .collect{ case m: TextBoundMention => m }
         .filter(matchText)
         .filter(matchAttachments(useTimeNorm, useGeoNorm))
 
@@ -408,8 +391,7 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
 
   protected def testSpec(mentions: Seq[Mention], causeMention: Option[Mention], effectMention: Option[Mention]): Seq[Mention] = {
     val matches1 = mentions
-    val matches2 = matches1.filter(_.isInstanceOf[EventMention])
-    val matches3 = matches2.map(_.asInstanceOf[EventMention])
+    val matches3 = matches1.collect{ case a: EventMention => a }
     val matches4 = matches3.filter(_.matches(event.label))
 
     val matches5a = matches4.filter(matchCause(causeMention))
