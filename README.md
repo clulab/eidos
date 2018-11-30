@@ -438,7 +438,7 @@ Eidos and declared in `built.sbt` as a library dependency.  Change the value of
 `useTimeNorm` from `false` to `true` to use the time functions.
 
 The newest model file used for geolocations is too large for GitHub and requires additional installation.
-Download [geonorm_model.hdf5](https://drive.google.com/file/d/16vIRhfEHjEMxnGTemnaUhkQT1eVbUm6j/view?usp=sharing)
+Download [geonorm_model.dl4j.zip](https://drive.google.com/open?id=10d8QSatXHQCfW5G-ON0kC698zo7q5BzT)
 and place it in the directory `src/main/resources/org/clulab/wm/eidos/models/`.  Then change the value of
 `useGeoNorm` from `false` to `true` to use the functions.
 
