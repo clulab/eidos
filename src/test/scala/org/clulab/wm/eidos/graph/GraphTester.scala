@@ -34,10 +34,9 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   }
 
   protected def toString(mentions: Seq[Mention]): String = {
-    val stringBuilder = new StringBuilder()
-
-    mentions.indices.foreach(index => stringBuilder.append(s"$index: ${mentions(index).text}\n"))
-    stringBuilder.toString()
+    mentions.zipWithIndex.map{case (mention, index) => {
+      s"$index: ${mention.text} ${mention.attachments.mkString(", ")}"
+    }}.mkString("\n")
   }
 
   protected def annotateTest(result: Seq[String]): Seq[String] =
