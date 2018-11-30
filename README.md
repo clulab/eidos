@@ -437,11 +437,6 @@ in the project [timenorm](https://github.com/clulab/timenorm), which is separate
 Eidos and declared in `built.sbt` as a library dependency.  Change the value of
 `useTimeNorm` from `false` to `true` to use the time functions.
 
-The newest model file used for geolocations is too large for GitHub and requires additional installation.
-Download [geonorm_model.dl4j.zip](https://drive.google.com/open?id=10d8QSatXHQCfW5G-ON0kC698zo7q5BzT)
-and place it in the directory `src/main/resources/org/clulab/wm/eidos/models/`.  Then change the value of
-`useGeoNorm` from `false` to `true` to use the functions.
-
 Grounding also requires additional installation.  There are two significantly large files of
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
 [Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
