@@ -80,12 +80,12 @@ object FilteredExtractMetaFromDirectory extends App {
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
     val files = findFiles(inputDir, "txt").filter(filter)
-    val parFiles = files.par
+    val parFiles = files // .par
 
-    val forkJoinPool = new ForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-
-    parFiles.tasksupport = forkJoinTaskSupport
+//    val forkJoinPool = new ForkJoinPool(threads)
+//    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
+//
+//    parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
       var pw: PrintWriter = null
