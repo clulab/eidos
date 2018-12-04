@@ -25,12 +25,35 @@ trait QuicklyEqualable {
     // Not if they are both the exact same class.
   }
 
-  // This is what subclasses should implement.  They should
-  // normally check with the superclass first, so super.biEquals(other).
-  // The top class should not consult this one, however, at least
-  // not expecting true out of it.  false is here so that the
-  // result is only true if triEquals has decided in equals below.
-  // In the end one gets this.eq(other) by default.
+  /**
+    * This is what subclasses should implement.  They should
+    * normally check with the superclass first, so super.biEquals(other).
+    * The top class should not consult this one, however, at least
+    * not expecting true out of it.  false is here so that the
+    * result is only true if triEquals has decided in equals below.
+    * In the end one gets this.eq(other) by default.
+    *
+    * Note that biEquals should be called by equals after triEquals.
+    * triEquals will have already checked with canEqual that other
+    * has the same class as this.  In biEquals it is therefore possible
+    * to blindly cast to the class of this, which should be faster than
+    * matching.  Even though that's not the Scala way, for the sake of
+    * efficiency of QuicklyEqualable, that's how how it's implemented.
+    *
+    * For example,
+    *
+    * override def biEquals(other: Any): Boolean = {
+    *   val that = other.asInstanceOf[ContextAttachmentSpec]
+    *
+    *   this.text == that.text
+    * }
+    *
+    * is being favored over
+    *
+    * override def biEquals(other: Any): Boolean = other match {
+    *   case that: ContextAttachmentSpec => this.text == that.text
+    * }
+    */
   protected def biEquals(other: Any): Boolean = false
 
   // This could be very expensive.  This is default behavior so that

@@ -71,10 +71,11 @@ abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[
 
   override def calculateHashCode: Int = mix(trigger.##, sortedQuantifiers.##)
 
-  override def biEquals(other: Any): Boolean = other match {
-    case that: TriggeredAttachmentSpec =>
-      this.trigger == that.trigger &&
-      this.sortedQuantifiers == that.sortedQuantifiers
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[TriggeredAttachmentSpec]
+
+    this.trigger == that.trigger &&
+        this.sortedQuantifiers == that.sortedQuantifiers
   }
 }
 
@@ -127,8 +128,10 @@ abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
 
   override def calculateHashCode: Int = text.##
 
-  override def biEquals(other: Any): Boolean = other match {
-    case that: ContextAttachmentSpec => this.text == that.text
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[ContextAttachmentSpec]
+
+    this.text == that.text
   }
 }
 

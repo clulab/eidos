@@ -103,10 +103,11 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
       if (quantifiers.isEmpty) Seq.empty
       else quantifiers.get.sorted
 
-  override def biEquals(other: Any): Boolean = other match {
-    case that: TriggeredAttachment =>
-      this.trigger == that.trigger &&
-      this.sortedQuantifiers == that.sortedQuantifiers
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[TriggeredAttachment]
+
+    this.trigger == that.trigger &&
+        this.sortedQuantifiers == that.sortedQuantifiers
   }
 
   override protected def calculateHashCode: Int = {
@@ -350,8 +351,10 @@ abstract class ContextAttachment(val text: String, val value: Object) extends Ei
     (EidosAttachment.TYPE -> label)
   }
 
-  override def biEquals(other: Any): Boolean = other match {
-    case that: ContextAttachment => this.text == that.text
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[ContextAttachment]
+
+    this.text == that.text
   }
 
   override protected def calculateHashCode: Int = text.##
@@ -371,12 +374,16 @@ class Time(val interval: TimeInterval) extends ContextAttachment(interval.text, 
 
   override def toJson(): JValue = toJson(Time.label)
 
-  override def biEquals(other: Any): Boolean = super.biEquals(other) && (other match {
-    case that: Time => this.interval.span == that.interval.span // &&
-        // interval.text is already taken care of in super.
-        // Assume that same span results in same intervals.
-        // this.interval.intervals == that.interval.intervals
-  })
+  override def biEquals(other: Any): Boolean = {
+    super.biEquals(other) && {
+      val that = other.asInstanceOf[Time]
+
+      this.interval.span == that.interval.span // &&
+      // interval.text is already taken care of in super.
+      // Assume that same span results in same intervals.
+      // this.interval.intervals == that.interval.intervals
+    }
+  }
 
   override protected def calculateHashCode: Int =
       mix(super.calculateHashCode, interval.span.##)
@@ -418,9 +425,13 @@ class Location(val geoPhraseID: GeoPhraseID) extends ContextAttachment(geoPhrase
 
   override def toJson(): JValue = toJson(Location.label)
 
-  override def biEquals(other: Any): Boolean = super.biEquals(other) && (other match {
-      case that: Location => this.geoPhraseID == that.geoPhraseID // Case classes support this.
-  })
+  override def biEquals(other: Any): Boolean = {
+    super.biEquals(other) && {
+      val that = other.asInstanceOf[Location]
+
+      this.geoPhraseID == that.geoPhraseID // Case classes support this.
+    }
+  }
 
   override protected def calculateHashCode: Int =
       mix(super.calculateHashCode, geoPhraseID.##)
