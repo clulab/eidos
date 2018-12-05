@@ -38,7 +38,7 @@ trait QuicklyEqualable {
     * has the same class as this.  In biEquals it is therefore possible
     * to blindly cast to the class of this, which should be faster than
     * matching.  Even though that's not the Scala way, for the sake of
-    * efficiency of QuicklyEqualable, that's how how it's implemented.
+    * efficiency of QuicklyEqualable, that's how it's just now implemented.
     *
     * For example,
     *
