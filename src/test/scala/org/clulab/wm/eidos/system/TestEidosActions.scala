@@ -122,8 +122,7 @@ class TestEidosActions extends ExtractionTest {
 
 
   def hasProperty(m: Mention, term: String): Boolean = {
-    val props = m.attachments.filter(_.isInstanceOf[Property])
-    props.exists(p => p.asInstanceOf[Property].trigger == term)
+    m.attachments.collect{ case p: Property => p.trigger }.contains(term)
   }
 
 
