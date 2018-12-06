@@ -1,7 +1,5 @@
 package org.clulab.wm.eidos.context
 
-import java.io.InputStream
-
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 import org.deeplearning4j.nn.graph.ComputationGraph
@@ -38,8 +36,10 @@ object KerasToDL4J {
   }
 }
 
-class GeoDisambiguateParser(modelStream: InputStream, word2IdxPath: String, loc2geonameIDPath: String) {
-  protected val network: ComputationGraph = ModelSerializer.restoreComputationGraph(modelStream)
+class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
+  val network: ComputationGraph = (GeoDisambiguateParser.getClass.getResourceAsStream(geoNormModelPath)).autoClose { modelStream =>
+    ModelSerializer.restoreComputationGraph(modelStream)
+  }
   lazy protected val word2int: Map[String, Int] = readDict(word2IdxPath)
   // provide path of geoname dict file having geonameID with max population
   lazy protected val loc2geonameID: Map[String, Int] = readDict(loc2geonameIDPath)

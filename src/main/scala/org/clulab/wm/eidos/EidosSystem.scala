@@ -188,13 +188,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         }
       }
 
-      val geonorm: Option[GeoDisambiguateParser]  = if (useGeoNorm) {
-        // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-        val modelStream = EidosSystem.getClass.getResourceAsStream(geoNormModelPath)
-        Some(new GeoDisambiguateParser(modelStream, geoWord2IdxPath, geoLoc2IdPath))
-      } else {
-        None
-      }
+      val geonorm: Option[GeoDisambiguateParser] =
+        if (useGeoNorm)
+          // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
+          Some(new GeoDisambiguateParser(geoNormModelPath, geoWord2IdxPath, geoLoc2IdPath))
+        else
+          None
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
