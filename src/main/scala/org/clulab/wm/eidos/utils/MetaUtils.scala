@@ -47,6 +47,16 @@ object MetaUtils {
     documentTitle
   }
 
+  def getDocumentCreationTimes(json: Option[JValue]): Seq[String] = {
+    json.map { json =>
+      val okDate: Option[String] = getMetaValue(json, "spreadsheet date")
+      val goodDate: Option[String] = getMetaValue(json, "creation date")
+      val betterDate: Option[String] = getMetaValue(json, "publicationDate")
+
+      Seq(okDate, goodDate, betterDate).flatten
+    }.getOrElse(Seq.empty[String])
+  }
+
   def getDocumentCreationTime(json: Option[JValue]): Option[String] = {
     val documentCreationTime = json.flatMap { json =>
       val okDate: Option[String] = getMetaValue(json, "spreadsheet date")
@@ -72,10 +82,9 @@ object MetaUtils {
     documentCreationTime.map(_ + ".")
   }
 
-  def getMetaData(converter: (String, File) => File, metaDir: String, textFile: File): Option[JValue] = {
-    val file = converter(metaDir, textFile)
-    val json = if (file.exists()) {
-      val text = FileUtils.getTextFromFile(file)
+  def getMetaData(metaFile: File): Option[JValue] = {
+    val json = if (metaFile.exists()) {
+      val text = FileUtils.getTextFromFile(metaFile)
       val json = parse(text)
 
       Some(json)
@@ -83,6 +92,12 @@ object MetaUtils {
     else None
 
     json
+  }
+
+  def getMetaData(converter: (String, File) => File, metaDir: String, textFile: File): Option[JValue] = {
+    val metaFile = converter(metaDir, textFile)
+
+    getMetaData(metaFile)
   }
 
   def convertTextToMeta17k(metaDir: String, textFile: File): File = {
