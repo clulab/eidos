@@ -161,12 +161,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
               Some(new TemporalCharbasedParser(file.getAbsolutePath))
             }
       val geonorm: Option[GeoDisambiguateParser] =
-          if (!useGeoNorm) None
+          if (useGeoNorm)
+            // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
+            Some(new GeoDisambiguateParser(geoNormModelPath, geoWord2IdxPath, geoLoc2IdPath))
           else
-            FileUtils.withResourceAsFile(geoNormModelPath) { file =>
-              // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-              Some(new GeoDisambiguateParser(file.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath))
-            }
+            None
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -194,13 +193,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   def reload(): Unit = loadableAttributes = LoadableAttributes()
 
-  // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
-    // Syntactic pre-processing
-    val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
-    val filtered = documentFilter.filter(tokenized)         // Filter noise from document
-    val annotated = proc.annotate(filtered)
-    val doc = EidosDocument(annotated, keepText)
+  def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
+    val doc = EidosDocument(document, keepText)
     // Add the tags from the lexicons we load
     doc.sentences.foreach(addLexiconNER)
     // Time and Location
@@ -209,6 +203,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     doc.parseGeoNorm(loadableAttributes.geonorm)
     // Document ID
     doc.id = filename
+    doc
+  }
+
+  // Annotate the text using a Processor and then populate lexicon labels
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
+    // Syntactic pre-processing
+    val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
+    val filtered = documentFilter.filter(tokenized)         // Filter noise from document
+    val annotated = proc.annotate(filtered)
+    val doc = annotateDoc(annotated, keepText, documentCreationTime, filename)
     doc
   }
 
@@ -232,11 +236,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     }
   }
 
-  // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
-                      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
-    val doc = annotate(text, keepText, documentCreationTime, filename)
+  // MAIN PIPELINE METHOD if given doc
+  def extractFromDoc(doc: EidosDocument, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
+      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
     val odinMentions = extractFrom(doc)
+
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
     @tailrec
     def traverse(ms: Seq[Mention], results: Seq[Mention], seen: Set[Mention]): Seq[Mention] = {
@@ -259,6 +263,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
+  }
+
+  // MAIN PIPELINE METHOD if given text
+  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
+      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
+    val eidosDoc = annotate(text, keepText, documentCreationTime, filename)
+
+    extractFromDoc(eidosDoc, keepText, cagRelevantOnly, documentCreationTime, filename)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {

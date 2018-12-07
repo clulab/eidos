@@ -35,10 +35,8 @@ object EidosAttachment {
   val TRIGGER = "trigger"
   val QUANTIFICATIONS = "quantifications"
 
-  def newEidosAttachment(mention: Mention): TriggeredAttachment = {
-    val eventMention = mention.asInstanceOf[EventMention]
-
-    eventMention.label match {
+  def newEidosAttachment(mention: Mention): TriggeredAttachment = mention match {
+    case eventMention: EventMention => eventMention.label match {
       case Quantification.label => Quantification(eventMention)
       case Increase.label => Increase(eventMention)
       case Decrease.label => Decrease(eventMention)
@@ -381,9 +379,9 @@ class Time(val interval: TimeInterval) extends ContextAttachment(interval.text, 
       val that = other.asInstanceOf[Time]
 
       this.interval.span == that.interval.span // &&
-          // interval.text is already taken care of in super.
-          // Assume that same span results in same intervals.
-          // this.interval.intervals == that.interval.intervals
+      // interval.text is already taken care of in super.
+      // Assume that same span results in same intervals.
+      // this.interval.intervals == that.interval.intervals
     }
   }
 

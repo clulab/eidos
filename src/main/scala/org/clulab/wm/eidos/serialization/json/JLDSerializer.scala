@@ -336,23 +336,19 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
 
   override def toJObject: JObject = {
     val jldAttachments = mention.odinMention.attachments.toList
-        .filter(_.isInstanceOf[TriggeredAttachment])
-        .map(_.asInstanceOf[TriggeredAttachment])
+        .collect{ case a: TriggeredAttachment => a }
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
     val jldTimeAttachments = mention.odinMention.attachments.toList
-        .filter(_.isInstanceOf[Time])
-        .map(_.asInstanceOf[Time])
+        .collect{ case a: Time => a }
         .sortWith(Time.lessThan)
         .map(attachment => newJLDAttachment(attachment))
     val jldLocationAttachments = mention.odinMention.attachments.toList
-        .filter(_.isInstanceOf[Location])
-        .map(_.asInstanceOf[Location])
+        .collect{ case a: Location => a }
         .sortWith(Location.lessThan)
         .map(attachment => newJLDAttachment(attachment))
     val jldDctAttachments = mention.odinMention.attachments.toList
-        .filter(_.isInstanceOf[DCTime])
-        .map(_.asInstanceOf[DCTime])
+        .collect{ case a: DCTime => a }
         .sortWith(DCTime.lessThan)
         .map(attachment => newJLDAttachment(attachment))
 
