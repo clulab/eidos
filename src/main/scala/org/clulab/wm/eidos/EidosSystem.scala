@@ -154,12 +154,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           else
             Seq.empty
       val timenorm: Option[TemporalCharbasedParser] =
-          if (!useTimeNorm) None
-          else
+          if (useTimeNorm)
             FileUtils.withResourceAsFile(timeNormModelPath) { file =>
               // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
               Some(new TemporalCharbasedParser(file.getAbsolutePath))
             }
+          else
+            None
       val geonorm: Option[GeoDisambiguateParser] =
           if (useGeoNorm)
             // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
@@ -186,7 +187,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     }
   }
 
-  var loadableAttributes = {
+  var loadableAttributes: LoadableAttributes = {
     EidosSystem.logger.info("Loading loadableAttributes...")
     LoadableAttributes()
   }
