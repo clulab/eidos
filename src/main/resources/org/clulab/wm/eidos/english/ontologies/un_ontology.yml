@@ -5,6 +5,15 @@
       pattern:
       - (intervention)
       - (humanitarian)(\s|\w)+(aid|assistance)
+      examples:
+      - access
+      - humanitarian response
+      - humanitarian aid
+      - assistance
+      - humanitarian support
+      - intervention
+      - rehabilitation
+      - poverty alleviation
       name: humanitarian assistance
       polarity: 1.0
     # Four main types (categories) of interventions provided by Kimetrica
@@ -229,19 +238,6 @@
         - flee        
         name: human_migration
         polarity: 1.0
-      - intervention:
-        - OntologyNode:
-          examples:
-          - access
-          - humanitarian response
-          - humanitarian aid
-          - assistance
-          - humanitarian support
-          - intervention
-          - rehabilitation
-          - poverty alleviation
-          name: intervention
-          polarity: 1.0
       - OntologyNode:
         examples:
         - vaccine
