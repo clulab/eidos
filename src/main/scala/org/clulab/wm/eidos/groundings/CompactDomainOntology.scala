@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.utils.Namer
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.collection.mutable.ArrayBuffer
+import scala.util.matching.Regex
 
 class CompactNamerData(val nodeStrings: Array[String], val leafIndexes: Array[Int], val branchIndexes: Array[Int])
 
@@ -55,6 +56,9 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
 
     start.until(stop).toArray.map(n => leafStrings(leafStringIndexes(n)))
   }
+
+  // fixme: Keith can you please help with this?
+  def getPatterns(n: Integer): Option[Seq[Regex]] = ???
 
   def save(filename: String): Unit = {
     (new ObjectOutputStream(new FileOutputStream(filename))).autoClose { objectOutputStream =>

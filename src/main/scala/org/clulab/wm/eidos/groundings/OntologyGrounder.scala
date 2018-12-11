@@ -5,6 +5,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{Namer, Sourcer}
 import org.slf4j.LoggerFactory
 
+import scala.util.matching.Regex
+
 object Aliases {
   type SingleGrounding = (Namer, Float)
   type MultipleGrounding = Seq[SingleGrounding]
@@ -27,34 +29,49 @@ trait MultiOntologyGrounder {
 }
 
 class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
-  // FIXME
-  val pathToInterventionLexicon = "/Users/bsharp/github/eidos/src/main/resources/org/clulab/wm/eidos/english/lexicons/provisions.tsv"
-  val interventionLookupRegexes = Sourcer.sourceFromFile(pathToInterventionLexicon).getLines().toArray.map(rx => s"(?i)$rx".r)
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),
           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
-  val (conceptEmbeddingsInterventions, conceptEmbeddingsUN) = conceptEmbeddings.partition(_.namer.name.startsWith("UN/interventions"))
+
+  val conceptPatterns: Seq[ConceptPatterns] =
+    0.until(domainOntology.size).map { n =>
+      new ConceptPatterns(domainOntology.getNamer(n),
+        domainOntology.getPatterns(n))
+    }
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
 
+    def nodePatternsMatch(s: String, patterns: Option[Seq[Regex]]): Boolean = {
+      patterns match {
+        case None => false
+        case Some(rxs) =>
+          for (r <- rxs) {
+            if (r.findFirstIn(s).nonEmpty) return true
+          }
+          false
+      }
+    }
 
-    if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
-      val canonicalName = mention.canonicalName
-      val canonicalNameParts = canonicalName.split(" +")
+    def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[(Namer, Float)] = {
+      nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => (node.namer, 1.0f))
+    }
 
-      // FIXME - check to see if any of the regular exressions matches
-//      val matches = interventionLookupRegexes
-      if (interventionLookupRegexes.exists(regex => regex.findFirstIn(mention.odinMention.text).nonEmpty)) {
-        val matchingRegexes = interventionLookupRegexes.filter(regex => regex.findFirstIn(mention.odinMention.text).nonEmpty)
-//        println(s"for Concept text: ${mention.odinMention.text}...")
-//        println(s"\tThe Matches found were: ${matchingRegexes.map(_.pattern.pattern()).mkString(", ")}")
-        // If you match a regex from the list, then it's an intervention
-        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddingsInterventions))
-      } else {
-        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddingsUN))
+    // Sieve-based approach
+    if (mention.odinMention.matches(EidosOntologyGrounder.GROUNDABLE)) {
+      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+      // grounding and we want to use it.
+      val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
+      if (matchedPatterns.nonEmpty) {
+        OntologyGrounding(matchedPatterns)
+      }
+      // Otherwise, back-off to the w2v-based approach
+      else {
+        val canonicalName = mention.canonicalName
+        val canonicalNameParts = canonicalName.split(" +")
+        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
       }
     }
     else
@@ -80,6 +97,7 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
 }
 
 object EidosOntologyGrounder {
+  val        GROUNDABLE = "Entity"
   // Namespace strings for the different in-house ontologies we typically use
   val      UN_NAMESPACE = "un"
   val     WDI_NAMESPACE = "wdi"

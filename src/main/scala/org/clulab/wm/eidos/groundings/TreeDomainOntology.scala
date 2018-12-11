@@ -14,6 +14,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
 abstract class OntologyNode extends Serializable {
@@ -59,7 +60,7 @@ class OntologyBranchNode(val nodeName: String, val parent: OntologyParentNode) e
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(val nodeName: String, val parent: OntologyParentNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None) extends OntologyNode with Namer {
+class OntologyLeafNode(val nodeName: String, val parent: OntologyParentNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Seq[String]] = None, descriptions: Option[Seq[String]] = None, val patterns: Option[Seq[Regex]] = None) extends OntologyNode with Namer {
 
   def name: String = fullName
 
@@ -85,6 +86,8 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends Dom
 
   def getValues(n: Integer): Array[String] = ontologyNodes(n).values
 
+  def getPatterns(n: Integer): Option[Seq[Regex]] = ontologyNodes(n).patterns
+
   def getNode(n: Integer): OntologyLeafNode = ontologyNodes(n)
 
   def getParents(n: Integer): Seq[OntologyParentNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
@@ -100,6 +103,7 @@ object TreeDomainOntology {
   val EXAMPLES = "examples"
   val DESCRIPTION = "descriptions"
   val POLARITY = "polarity"
+  val PATTERN = "pattern"
 
   def load(path: String): TreeDomainOntology = {
     val logger = LoggerFactory.getLogger(this.getClass())
@@ -169,6 +173,14 @@ object TreeDomainOntology {
     protected def yamlNodesToStrings(yamlNodes: mutable.Map[String, JCollection[Any]], name: String): Option[Seq[String]] =
       yamlNodes.get(name).map(_.asInstanceOf[JCollection[String]].asScala.toSeq)
 
+    // Used to match against specific regular expressions for ontology nodes
+    protected def yamlNodesToRegexes(yamlNodes: mutable.Map[String, JCollection[Any]], name: String): Option[Seq[Regex]] = {
+      yamlNodesToStrings(yamlNodes, name) match {
+        case Some(regexes) => Some(regexes.map(rx => s"(?i)$rx".r))
+        case None => None
+      }
+    }
+
     protected def unescape(name: String): String = {
       // Sometimes the words in names are concatenated with _
       // TODO: We should avoid this practice
@@ -182,12 +194,13 @@ object TreeDomainOntology {
       val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
       val descriptions: Option[Seq[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
       val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
+      val patterns: Option[Seq[Regex]] = yamlNodesToRegexes(yamlNodes, TreeDomainOntology.PATTERN)
 
       /*val filteredNames = names.flatMap(filtered)*/
       val filteredExamples = examples.map(_.flatMap(filtered))
       val filteredDescriptions = descriptions.map(_.flatMap(filtered))
 
-      val res = new OntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions)
+      val res = new OntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
       res
     }
 
