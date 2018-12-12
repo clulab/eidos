@@ -42,6 +42,7 @@ class TestDomainOntology extends Test {
   def show1(ontology: DomainOntology): Unit = {
     0.until(ontology.size).foreach { i =>
       println(ontology.getNamer(i).name + " = " + ontology.getValues(i).mkString(", "))
+      ontology.getPatterns(i).map(_.foreach(regex => println(regex.toString)))
     }
     println
   }
