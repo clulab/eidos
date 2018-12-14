@@ -16,6 +16,7 @@
       - Causal
       - IsA
       - Coreference
+      - Definition
     - UndirectedRelation:
       - Correlation
       - SameAs

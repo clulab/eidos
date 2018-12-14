@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.entities
 
-import org.clulab.odin.{Mention, State, TextBoundMention}
+import org.clulab.odin.{Mention, State, TextBoundMention, RelationMention}
 import org.clulab.struct.Interval
 
 import scala.annotation.tailrec
@@ -76,7 +76,10 @@ object EntityHelper {
     else {
       // Return a new entity with the trimmed token interval
       val interval = Interval(firstValidStart, lastValidEnd + 1)
-      entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
+      if(entity.isInstanceOf[TextBoundMention])
+        entity.asInstanceOf[TextBoundMention].copy(tokenInterval = interval)
+      else
+        entity.asInstanceOf[RelationMention].copy(tokenInterval = interval)
     }
   }
 
