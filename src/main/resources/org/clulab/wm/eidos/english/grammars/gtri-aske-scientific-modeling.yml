@@ -1,0 +1,21 @@
+rules:
+
+  - name: gtri-aske-scimod-def1
+    label: Definition
+    priority: 2
+    type: token
+    pattern: |
+      # Simple definition pattern where a Concept is defined after a comma for another Concept
+      @effect:Concept ("," @cause:Concept)
+
+
+  - name: gtri-aske-scimod-def2
+    label: Definition
+    priority: 2
+    example: "Epidemiology is the study and analysis of the distribution (who, when, and where) and determinants of health and disease conditions in defined populations."
+    type: token
+    pattern: |
+      # Rule that recognizes X is the Y (X is a concept and Y is anything else within the sentence.) Needs to be further scoped.
+      @effect:Concept
+      [word="is"] [word="the"]
+      (?<cause> []+ )

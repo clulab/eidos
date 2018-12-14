@@ -98,7 +98,8 @@ rules:
       action: pass
       trigger: ${reverse_direction_cause_triggers}
 
-  - import: org/clulab/wm/eidos/english/grammars/gtri-aske.yml
+  # ------ Scientific Modeling related -----
+  - import: org/clulab/wm/eidos/english/grammars/gtri-aske-scientific-modeling.yml
     vars:
       rulepriority: "6"
       addLabel: "Definition"
