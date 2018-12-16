@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos
 
-import java.io.File
+import java.io.{File, FileInputStream}
 import java.net.URL
 import java.nio.file.Paths
 
@@ -21,11 +21,12 @@ import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
 import org.slf4j.LoggerFactory
 import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.timenorm.TemporalCharbasedParser
+import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.wm.eidos.actions.ExpansionHandler
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 
 import scala.annotation.tailrec
+import scala.reflect.io
 
 case class AnnotatedDocument(val document: Document, val odinMentions: Seq[Mention], val eidosMentions: Seq[EidosMention])
 
@@ -78,7 +79,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val negationHandler: NegationHandler,
     val expansionHandler: ExpansionHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
-    val timenorm: Option[TemporalCharbasedParser],
+    val timenorm: Option[TemporalNeuralParser],
     // val geonorm: Option[Geo_disambiguate_parser]
     val geonorm: Option[GeoDisambiguateParser]
 
@@ -113,7 +114,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     def    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
     def               maxHops: Int = eidosConf[Int]("maxHops")
     def      wordToVecPath: String = eidosConf[String]("wordToVecPath")
-    def  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
     def   geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
     def    geoWord2IdxPath: String = eidosConf[String]("geoWord2IdxPath")
     def      geoLoc2IdPath: String = eidosConf[String]("geoLoc2IdPath")
@@ -154,36 +154,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
           if (word2vec) ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology, useCache), wordToVec)).seq
           else Seq.empty
 
-      val timenorm: Option[TemporalCharbasedParser] = {
-
-        def getTimeNormFileAndTemporary(): (File, Boolean) = {
-          val timeNormResource: URL = EidosSystem.getClass.getResource(timeNormModelPath)
-
-          if (timeNormResource.getProtocol() == "file")
-            // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            (Paths.get(timeNormResource.toURI()).toFile(), false)
-          else {
-            // If a single file is to be (re)used, then some careful synchronization needs to take place.
-            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
-            // Instead, make a new temporary file each time and delete it afterwards.
-            val tmpFile = File.createTempFile(
-              StringUtils.afterLast(timeNormModelPath, '/') + '-', // Help identify the file later.
-              "." + StringUtils.afterLast(timeNormModelPath, '.') // Keep extension for good measure.
-            )
-
-            FileUtils.copyResourceToFile(timeNormModelPath, tmpFile)
-            (tmpFile, true)
-          }
-        }
+      val timenorm: Option[TemporalNeuralParser] = {
 
         if (!useTimeNorm) None
         else {
-          val (timeNormFile, temporary) = getTimeNormFileAndTemporary()
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-          val timeNorm = new TemporalCharbasedParser(timeNormFile.getAbsolutePath)
-
-          if (temporary)
-            timeNormFile.delete()
+          val timeNorm = new TemporalNeuralParser()
           Some(timeNorm)
         }
       }

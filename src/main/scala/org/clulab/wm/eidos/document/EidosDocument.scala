@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
-import org.clulab.timenorm.TemporalCharbasedParser
+import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.timenorm.formal.Interval
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.context.GeoPhraseID
@@ -17,19 +17,22 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
 
-  protected def parseTime(timenorm: TemporalCharbasedParser): Array[Seq[TimeInterval]] = {
+  protected def parseTime(timenorm: TemporalNeuralParser): Array[Seq[TimeInterval]] = {
+    val sentenceToParse = sentences.filter(_.entities.get.contains("DATE"))
+    val textToParse = sentenceToParse.map(sentence =>
+                      text.map(text => text.slice(sentence.startOffsets(0), sentence.endOffsets.last))
+                      .getOrElse(sentence.getSentenceText)).toList
+    // This might be turned into a class with variable names for documentation.
+    // The offset might be used in the constructor to adjust it once and for all.
+    val docIntervals = dct.map(dct => timenorm.intervals(timenorm.parse(textToParse), Some(dct.interval)))
+                          .getOrElse(timenorm.intervals(timenorm.parse(textToParse)))
+    // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
+    // Account for this by adding the offset in time values or subtracting it from word values.
     sentences.map { sentence =>
-      if (sentence.entities.get.contains("DATE")) {
-        val sentenceText = text
-            .map(text => text.slice(sentence.startOffsets(0), sentence.endOffsets.last))
-            .getOrElse(sentence.getSentenceText)
-        // This might be turned into a class with variable names for documentation.
-        // The offset might be used in the constructor to adjust it once and for all.
-        val intervals: Seq[((Int, Int), List[(LocalDateTime, LocalDateTime, Long)])] = dct
-            .map(dct => timenorm.intervals(timenorm.parse(sentenceText), Some(dct.interval)))
-            .getOrElse(timenorm.intervals(timenorm.parse(sentenceText)))
-        // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
-        // Account for this by adding the offset in time values or subtracting it from word values.
+      if (sentenceToParse.contains(sentence)) {
+        val indexOfSentence = sentenceToParse.indexOf(sentence)
+        val sentenceText = textToParse(indexOfSentence)
+        val intervals: Seq[((Int, Int), List[(LocalDateTime, LocalDateTime, Long)])] = docIntervals(indexOfSentence)
         val offset = sentence.startOffsets(0)
 
         // Update norms with B-I time expressions
@@ -58,12 +61,12 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
     }
   }
 
-  def parseDCT(timenorm: Option[TemporalCharbasedParser], documentCreationTime:Option[String]): Unit = {
+  def parseDCT(timenorm: Option[TemporalNeuralParser], documentCreationTime:Option[String]): Unit = {
     if (timenorm.isDefined && documentCreationTime.isDefined)
-      dct = Some(DCT(timenorm.get.dct(timenorm.get.parse(documentCreationTime.get)), documentCreationTime.get))
+      dct = Some(DCT(timenorm.get.dct(timenorm.get.parse(List(documentCreationTime.get)).head), documentCreationTime.get))
   }
 
-  def parseTime(timenorm: Option[TemporalCharbasedParser]): Unit =
+  def parseTime(timenorm: Option[TemporalNeuralParser]): Unit =
      times = timenorm.map(parseTime)
 
   def parseGeoNorm(geoDisambiguateParser: GeoDisambiguateParser): Array[Seq[GeoPhraseID]] = {
