@@ -17,15 +17,20 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
 
-  protected def parseTime(timenorm: TemporalNeuralParser): Array[Seq[TimeInterval]] = {
+  protected def parseTime(timenorm: TemporalNeuralParser, documentCreationTime: Option[String]): Array[Seq[TimeInterval]] = {
     val sentenceToParse = sentences.filter(_.entities.get.contains("DATE"))
     val textToParse = sentenceToParse.map(sentence =>
                       text.map(text => text.slice(sentence.startOffsets(0), sentence.endOffsets.last))
                       .getOrElse(sentence.getSentenceText)).toList
     // This might be turned into a class with variable names for documentation.
     // The offset might be used in the constructor to adjust it once and for all.
-    val docIntervals = dct.map(dct => timenorm.intervals(timenorm.parse(textToParse), Some(dct.interval)))
-                          .getOrElse(timenorm.intervals(timenorm.parse(textToParse)))
+    val docIntervals = documentCreationTime match {
+      case Some(docTime) =>
+          val parsed = timenorm.parse(docTime :: textToParse)
+          dct = Some(DCT(timenorm.dct(parsed.head), documentCreationTime.get))
+          timenorm.intervals(parsed.tail, Some(dct.get.interval))
+      case None => timenorm.intervals(timenorm.parse(textToParse))
+    }
     // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
     // Account for this by adding the offset in time values or subtracting it from word values.
     sentences.map { sentence =>
@@ -61,13 +66,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
     }
   }
 
-  def parseDCT(timenorm: Option[TemporalNeuralParser], documentCreationTime:Option[String]): Unit = {
-    if (timenorm.isDefined && documentCreationTime.isDefined)
-      dct = Some(DCT(timenorm.get.dct(timenorm.get.parse(List(documentCreationTime.get)).head), documentCreationTime.get))
-  }
-
-  def parseTime(timenorm: Option[TemporalNeuralParser]): Unit =
-     times = timenorm.map(parseTime)
+  def parseTime(timenorm: Option[TemporalNeuralParser], documentCreationTime: Option[String]): Unit =
+     times = timenorm.map(parseTime(_, documentCreationTime))
 
   def parseGeoNorm(geoDisambiguateParser: GeoDisambiguateParser): Array[Seq[GeoPhraseID]] = {
     sentences.map { sentence =>
