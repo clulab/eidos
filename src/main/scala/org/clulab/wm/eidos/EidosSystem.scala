@@ -1,9 +1,5 @@
 package org.clulab.wm.eidos
 
-import java.io.{File, FileInputStream}
-import java.net.URL
-import java.nio.file.Paths
-
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.clu._

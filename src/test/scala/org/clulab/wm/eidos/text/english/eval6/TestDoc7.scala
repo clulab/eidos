@@ -53,9 +53,9 @@ class TestDoc7 extends EnglishTest {
 
     val foodAvailability = NodeSpec("food availability",
                                     Inc("improvements", "slight"))
-    val seasonalHarvests = NodeSpec("seasonal harvests from October")
+    val seasonalHarvests = NodeSpec("seasonal harvests from October", TimEx("October"))
     val leanSeasons = NodeSpec("lean seasons")
-    val foodSecurity = NodeSpec("Food security", Dec("deteriorate"))
+    val foodSecurity = NodeSpec("Food security", Dec("deteriorate"), TimEx("March"))
     val foodInsecurity = NodeSpec("levels of acute food insecurity", Dec("worse"))
     
     behavior of "TestDoc7 Paragraph 2"
@@ -114,7 +114,7 @@ class TestDoc7 extends EnglishTest {
   
     val tester = new GraphTester(text)
 
-    val refugees = NodeSpec("2.4 million refugees", Quant("approximately"))
+    val refugees = NodeSpec("2.4 million refugees", Quant("approximately"), TimEx("January 2017"))
     val insecurity = NodeSpec("Widespread insecurity", Inc("Widespread"))
     val communities = NodeSpec("communities")
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disrupt"))

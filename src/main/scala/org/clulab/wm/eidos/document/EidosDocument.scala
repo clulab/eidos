@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.document
 
 import java.time.LocalDateTime
-
+import scala.math.{max, min}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
@@ -16,29 +16,76 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   var times: Option[Array[Seq[TimeInterval]]] = None
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
+  var context_window_size = 5
+  var batch_size = 40
+  type IntervalType = ((Int, Int), List[(LocalDateTime, LocalDateTime, Long)])
 
   protected def parseTime(timenorm: TemporalNeuralParser, documentCreationTime: Option[String]): Array[Seq[TimeInterval]] = {
-    val sentenceToParse = sentences.filter(_.entities.get.contains("DATE"))
-    val textToParse = sentenceToParse.map(sentence =>
-                      text.map(text => text.slice(sentence.startOffsets(0), sentence.endOffsets.last))
-                      .getOrElse(sentence.getSentenceText)).toList
+    // Only parse tokens with entity == DATE. Get the surrounding context. If the contexts for different tokens overlap, join them.
+    // Do not include in the context text beyond 2 consecutive newline characters.
+    val sentencesToParse = sentences.filter(_.entities.get.contains("DATE"))
+    val textToParse = sentencesToParse.map(sentence =>
+      text.map(text => text.slice(sentence.startOffsets.head, sentence.endOffsets.last))
+        .getOrElse(sentence.getSentenceText)).toList
+    val nearContext = (token: Int, sent: Sentence) => {
+      val firstOffset = sent.startOffsets.head
+      val sentText = textToParse(sentencesToParse.indexOf(sent))
+      val contextStart = {
+        val start = sent.startOffsets(max(0, token - context_window_size)) - firstOffset
+        sentText.slice(start, sent.startOffsets(token) - firstOffset).reverse.indexOf("\n\n") match {
+          case -1 => start
+          case i => sent.startOffsets(token) - firstOffset - i
+        }
+      }
+      val contextEnd = {
+        val end = sent.endOffsets(min(token + context_window_size, sent.size - 1)) - firstOffset
+        sentText.slice(sent.endOffsets(token) - firstOffset, end).indexOf("\n\n") match {
+          case -1 => end
+          case i => sent.endOffsets(token) - firstOffset + i
+        }
+      }
+      (contextStart, contextEnd)
+    }
+    val spansToParse = sentencesToParse.zipWithIndex.flatMap { case (sent, sindex) =>
+      sent.entities.get.zipWithIndex.collect { case (entity, eindex) if entity == "DATE" => nearContext(eindex, sent) }
+        .foldLeft(List.empty[(Int, Int, Int)]) { (list, e) =>
+          list match {
+            case l if l.isEmpty => List((sindex, e._1, e._2))
+            case l if l.last._3 >= e._1 => l.init :+ (sindex, l.last._2, e._2)
+            case l if l.last._3 < e._1 => l :+ (sindex, e._1, e._2)
+            case l => l :+ (sindex, e._1, e._2)
+          }
+        }
+    }.toList
+    val contextsToParse = spansToParse.map(span => textToParse(span._1).slice(span._2, span._3))
     // This might be turned into a class with variable names for documentation.
     // The offset might be used in the constructor to adjust it once and for all.
-    val docIntervals = documentCreationTime match {
+    // Parse the contexts in batches of batch_size. The dct goes in the first batch.
+    val contextsIntervals = documentCreationTime match {
       case Some(docTime) =>
-          val parsed = timenorm.parse(docTime :: textToParse)
+          val parsed = (docTime :: contextsToParse).sliding(batch_size, batch_size).flatMap(timenorm.parse).toList
           dct = Some(DCT(timenorm.dct(parsed.head), documentCreationTime.get))
           timenorm.intervals(parsed.tail, Some(dct.get.interval))
-      case None => timenorm.intervals(timenorm.parse(textToParse))
+      case None => timenorm.intervals(contextsToParse.sliding(batch_size, batch_size).flatMap(timenorm.parse).toList)
     }
+    // Recover the list of intervals for each sentence.
+    val docIntervals = (spansToParse zip contextsIntervals).map({ case(span, intervals) =>
+      (span._1, intervals.map(i => ((i._1._1 + span._2, i._1._2 + span._2), i._2)))
+    }).foldLeft(List.empty[(Int, List[IntervalType])]) { (list, n) =>
+      list match {
+        case l if l.isEmpty => List(n)
+        case l if l.last._1 == n._1 => l.init :+ (l.last._1, l.last._2 ::: n._2)
+        case l if l.last._1 != n._1 => l :+ n
+      }
+    }.map(_._2)
     // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
     // Account for this by adding the offset in time values or subtracting it from word values.
     sentences.map { sentence =>
-      if (sentenceToParse.contains(sentence)) {
-        val indexOfSentence = sentenceToParse.indexOf(sentence)
+      if (sentencesToParse.contains(sentence)) {
+        val indexOfSentence = sentencesToParse.indexOf(sentence)
         val sentenceText = textToParse(indexOfSentence)
-        val intervals: Seq[((Int, Int), List[(LocalDateTime, LocalDateTime, Long)])] = docIntervals(indexOfSentence)
-        val offset = sentence.startOffsets(0)
+        val intervals: Seq[IntervalType] = docIntervals(indexOfSentence)
+        val offset = sentence.startOffsets.head
 
         // Update norms with B-I time expressions
         sentence.norms.foreach { norms =>
