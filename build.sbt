@@ -8,7 +8,7 @@ scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 resolvers += "jitpack" at "https://jitpack.io"
-resolvers += Resolver.url("orgclulab-1121", url("https://oss.sonatype.org/content/repositories/orgclulab-1121/"))
+resolvers += "orgclulab-1121" at "https://oss.sonatype.org/content/repositories/orgclulab-1121/"
 
 libraryDependencies ++= {
   val procVer = "7.4.2"
