@@ -37,7 +37,6 @@ train*.dat
 xgboostOut/
 null_*
 timenorm_model.hdf5
-geonorm_model.hdf5
 vectors.txt
 embeddings_november_2016.txt
 glove.840B.300d.vectors.txt

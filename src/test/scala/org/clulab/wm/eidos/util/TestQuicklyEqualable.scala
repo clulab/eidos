@@ -7,6 +7,7 @@ import org.clulab.wm.eidos.utils.QuicklyEqualable
 class TestQuicklyEqualable extends Test {
 
   class Superclass(val value: Int) extends QuicklyEqualable {
+
     override def biEquals(other: Any): Boolean = {
       val that = other.asInstanceOf[Superclass]
 

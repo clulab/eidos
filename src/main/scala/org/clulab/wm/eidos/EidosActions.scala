@@ -219,7 +219,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     }
 
     val argumentSize = attachmentsSet.toSeq.map(_.asInstanceOf[EidosAttachment].argumentSize).sum
-    val triggerSize = mention.attachments.toSeq.filter(_.isInstanceOf[TriggeredAttachment]).map(_.asInstanceOf[TriggeredAttachment].trigger.length).sum
+    val triggerSize = mention.attachments.toSeq.collect{ case a: TriggeredAttachment => a.trigger.length}.sum
     val attachArgumentsSz = argumentSize + triggerSize
 
     val res = attachArgumentsSz + modSize + numArgs + mention.tokenInterval.length
@@ -464,22 +464,19 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     val mergedEntities = for {
       (_, entities) <- entitiesBySpan
       // These are now for the same span, so only one should win as the main one.
-      flattenedTriggeredAttachments = entities.flatMap(_.attachments.filter(_.isInstanceOf[TriggeredAttachment]).map(_.asInstanceOf[TriggeredAttachment]))
-      flattenedContextAttachments = entities.flatMap(_.attachments.filter(_.isInstanceOf[ContextAttachment]).map(_.asInstanceOf[ContextAttachment]))
+      flattenedTriggeredAttachments = entities.flatMap(_.attachments.collect{ case a: TriggeredAttachment => a })
+      flattenedContextAttachments = entities.flatMap(_.attachments.collect{ case a: ContextAttachment => a })
       filteredAttachments = filterAttachments(flattenedTriggeredAttachments)
     } yield {
-      if (filteredAttachments.nonEmpty) {
-
+      val bestEntities = if (filteredAttachments.nonEmpty) {
         val bestAttachment = filteredAttachments.sorted.reverse.head
         // Since head was used above and there could have been a tie, == should be used below
         // The tie can be broken afterwards.
-        val bestEntities = entities.filter(_.attachments.exists(_ == bestAttachment))
-        val bestEntity = tieBreaker(bestEntities)
-
-        MentionUtils.withOnlyAttachments(bestEntity, filteredAttachments  ++ flattenedContextAttachments)
+        entities.filter(_.attachments.exists(_ == bestAttachment))
+      } else {
+        entities
       }
-      else
-        tieBreaker(entities)
+      MentionUtils.withOnlyAttachments(tieBreaker(bestEntities), filteredAttachments ++ flattenedContextAttachments)
     }
 
     val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)

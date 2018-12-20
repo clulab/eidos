@@ -188,39 +188,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         }
       }
 
-      val geonorm: Option[GeoDisambiguateParser]  = {
-
-        def getGeoNormFileAndTemporary(): (File, Boolean) = {
-          val geoNormResource: URL = EidosSystem.getClass.getResource(geoNormModelPath)
-
-          if (geoNormResource.getProtocol() == "file")
-          // See https://stackoverflow.com/questions/6164448/convert-url-to-normal-windows-filename-java/17870390
-            (Paths.get(geoNormResource.toURI()).toFile(), false)
-          else {
-            // If a single file is to be (re)used, then some careful synchronization needs to take place.
-            // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
-            // Instead, make a new temporary file each time and delete it afterwards.
-            val tmpFile = File.createTempFile(
-              StringUtils.afterLast(geoNormModelPath, '/') + '-', // Help identify the file later.
-              "." + StringUtils.afterLast(geoNormModelPath, '.') // Keep extension for good measure.
-            )
-
-            FileUtils.copyResourceToFile(geoNormModelPath, tmpFile)
-            (tmpFile, true)
-          }
-        }
-
-        if (!useGeoNorm) None
-        else {
-          val (geoNormFile, temporary) = getGeoNormFileAndTemporary()
+      val geonorm: Option[GeoDisambiguateParser] =
+        if (useGeoNorm)
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-          val geoNorm = new GeoDisambiguateParser(geoNormFile.getAbsolutePath, geoWord2IdxPath, geoLoc2IdPath)
-
-          if (temporary)
-            geoNormFile.delete()
-          Some(geoNorm)
-        }
-      }
+          Some(new GeoDisambiguateParser(geoNormModelPath, geoWord2IdxPath, geoLoc2IdPath))
+        else
+          None
 
       new LoadableAttributes(
         EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
@@ -254,13 +227,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 
   def reload() = loadableAttributes = LoadableAttributes()
 
-  // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
-    // Syntactic pre-processing
-    val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
-    val filtered = documentFilter.filter(tokenized)         // Filter noise from document
-    val annotated = proc.annotate(filtered)
-    val doc = EidosDocument(annotated, keepText)
+  def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
+    val doc = EidosDocument(document, keepText)
     // Add the tags from the lexicons we load
     doc.sentences.foreach(addLexiconNER)
     // Time and Location
@@ -270,7 +238,17 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // Document ID
     doc.id = filename
     doc
+  }
 
+  // Annotate the text using a Processor and then populate lexicon labels
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
+    // Syntactic pre-processing
+    val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
+    val filtered = documentFilter.filter(tokenized)         // Filter noise from document
+    val annotated = proc.annotate(filtered)
+    val doc = annotateDoc(annotated, keepText, documentCreationTime, filename)
+
+    doc
   }
 
   protected def addLexiconNER(s: Sentence) = {
@@ -281,14 +259,13 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       (lexiconNERTag, i) <- ner.find(s).zipWithIndex
       if lexiconNERTag != EidosSystem.NER_OUTSIDE
     } s.entities.get(i) = lexiconNERTag
-
   }
 
-  // MAIN PIPELINE METHOD
-  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
-                      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
-    val doc = annotate(text, keepText, documentCreationTime, filename)
+  // MAIN PIPELINE METHOD if given doc
+  def extractFromDoc(doc: EidosDocument, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
+      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
     val odinMentions = extractFrom(doc)
+
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
     @tailrec
     def traverse(ms: Seq[Mention], results: Seq[Mention], seen: Set[Mention]): Seq[Mention] = {
@@ -312,6 +289,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this)
 
     new AnnotatedDocument(doc, afterNegation, eidosMentions)
+  }
+
+  // MAIN PIPELINE METHOD if given text
+  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
+      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
+    val eidosDoc = annotate(text, keepText, documentCreationTime, filename)
+
+    extractFromDoc(eidosDoc, keepText, cagRelevantOnly, documentCreationTime, filename)
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
