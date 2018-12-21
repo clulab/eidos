@@ -12,7 +12,7 @@ trait DomainOntology {
 
   def getValues(n: Integer): Array[String]
 
-  def getPatterns(n: Integer): Option[Seq[Regex]]
+  def getPatterns(n: Integer): Option[Array[Regex]]
 
   def save(filename: String): Unit
 }
