@@ -44,7 +44,7 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
 
   def groundOntology(mention: EidosMention): OntologyGrounding = {
 
-    def nodePatternsMatch(s: String, patterns: Option[Seq[Regex]]): Boolean = {
+    def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
       patterns match {
         case None => false
         case Some(rxs) =>
