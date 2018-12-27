@@ -2,8 +2,10 @@ package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidos.utils.{Namer, Sourcer}
 import org.slf4j.LoggerFactory
+
+import scala.util.matching.Regex
 
 object Aliases {
   type SingleGrounding = (Namer, Float)
@@ -34,12 +36,43 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
 
-  def groundOntology(mention: EidosMention): OntologyGrounding = {
-    if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
-      val canonicalName = mention.canonicalName
-      val canonicalNameParts = canonicalName.split(" +")
+  val conceptPatterns: Seq[ConceptPatterns] =
+    0.until(domainOntology.size).map { n =>
+      new ConceptPatterns(domainOntology.getNamer(n),
+        domainOntology.getPatterns(n))
+    }
 
-      OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+  def groundOntology(mention: EidosMention): OntologyGrounding = {
+
+    def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
+      patterns match {
+        case None => false
+        case Some(rxs) =>
+          for (r <- rxs) {
+            if (r.findFirstIn(s).nonEmpty) return true
+          }
+          false
+      }
+    }
+
+    def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[(Namer, Float)] = {
+      nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => (node.namer, 1.0f))
+    }
+
+    // Sieve-based approach
+    if (mention.odinMention.matches(EidosOntologyGrounder.GROUNDABLE)) {
+      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+      // grounding and we want to use it.
+      val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
+      if (matchedPatterns.nonEmpty) {
+        OntologyGrounding(matchedPatterns)
+      }
+      // Otherwise, back-off to the w2v-based approach
+      else {
+        val canonicalName = mention.canonicalName
+        val canonicalNameParts = canonicalName.split(" +")
+        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+      }
     }
     else
       OntologyGrounding()
@@ -55,6 +88,7 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
       // eventual multiplication of floats in different orders produces different results.
       val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray.sorted
 
+      // FIXME - replaced conceptEmbeddings with conceptEmbeddingsAll
       OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
     }
     else
@@ -63,6 +97,7 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
 }
 
 object EidosOntologyGrounder {
+  val        GROUNDABLE = "Entity"
   // Namespace strings for the different in-house ontologies we typically use
   val      UN_NAMESPACE = "un"
   val     WDI_NAMESPACE = "wdi"

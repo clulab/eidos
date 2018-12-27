@@ -2,6 +2,8 @@ package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.utils.Namer
 
+import scala.util.matching.Regex
+
 trait DomainOntology {
 
   def size: Integer
@@ -9,6 +11,8 @@ trait DomainOntology {
   def getNamer(n: Integer): Namer
 
   def getValues(n: Integer): Array[String]
+
+  def getPatterns(n: Integer): Option[Array[Regex]]
 
   def save(filename: String): Unit
 }
