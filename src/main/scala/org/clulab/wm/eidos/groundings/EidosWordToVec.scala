@@ -78,7 +78,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
 }
 
 object EidosWordToVec {
-  protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def makeCachedFilename(path: String, file: String): String =
       path + "/" + file.split('/').last + ".serialized"

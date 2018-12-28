@@ -30,9 +30,9 @@ object DisplayUtils {
       sb.append(nl)
 
       if (time.isDefined)
-        sb.append("timeExpressions:" + nl + (displayTimeExpressions(time.get(i))) + nl)
+        sb.append("timeExpressions:" + nl + displayTimeExpressions(time.get(i)) + nl)
       if (location.isDefined)
-        sb.append("locationExpressions:" + nl + (displayLocationExpressions(location.get(i))) + nl)
+        sb.append("locationExpressions:" + nl + displayLocationExpressions(location.get(i)) + nl)
 
       val sortedMentions = mentionsBySentence(i).sortBy(_.label)
       val (events, entities) = sortedMentions.partition(_ matches "Event")
@@ -57,8 +57,8 @@ object DisplayUtils {
         val start = Option(i._1).map(_.toString).getOrElse("Undef")
         val end = Option(i._2).map(_.toString).getOrElse("Undef")
 
-        sb.append(s"$tab start: ${start} $nl")
-        sb.append(s"$tab end: ${end} $nl")
+        sb.append(s"$tab start: $start $nl")
+        sb.append(s"$tab end: $end $nl")
         sb.append(s"$tab duration: ${i._3} $nl")
       }
       sb.append(nl)
@@ -72,7 +72,7 @@ object DisplayUtils {
       val geonameID = location.geonameID.map(_.toString).getOrElse("Undef")
 
       sb.append(s"$tab span: ${location.startOffset},${location.endOffset} $nl")
-      sb.append(s"$tab geoNameID: ${geonameID}$nl")
+      sb.append(s"$tab geoNameID: $geonameID$nl")
 
       /*
       for (i <- location.geolocations) {

@@ -26,12 +26,10 @@ import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
 class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandler) extends Actions with LazyLogging {
 
-
   /*
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
-
     // expand arguments
     val (expandable, textBounds) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
     val expanded = expansionHandler.expandArguments(expandable, state)
@@ -126,7 +124,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     prevSentenceMentions.filter(_ matches EidosSystem.CAUSAL_LABEL)
   }
 
-
   def createEventChain(causal: Seq[Mention], arg1: String, arg2: String): Seq[Mention] = {
     val arg1Mentions = State(causal.flatMap(_.arguments.getOrElse(arg1, Nil)))
     // replace event causes with captured effects if possible
@@ -156,7 +153,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
 
     assembled.flatten
   }
-
 
   /*
       Filtering Methods
@@ -226,7 +222,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
 
     res
   }
-
 
   def filterSubstringEntities(entities: Seq[TextBoundMention]): Seq[Mention] = {
 
@@ -313,7 +308,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     val allArgMentions = m.arguments.values.toSeq.flatten.map(mention => mention.attachments.size)
     argTokenInterval(m).length
   }
-
 
   // Remove incomplete Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
@@ -423,7 +417,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     }
   }
 
-
   def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
     for {
       m <- ms
@@ -437,9 +430,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     }
   }
 
-
-
-
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
     ms
@@ -447,10 +437,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
-
   def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
-
-
 
   // Currently used as a GLOBAL ACTION in EidosSystem:
   // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
@@ -467,15 +454,18 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       flattenedTriggeredAttachments = entities.flatMap(_.attachments.collect{ case a: TriggeredAttachment => a })
       flattenedContextAttachments = entities.flatMap(_.attachments.collect{ case a: ContextAttachment => a })
       filteredAttachments = filterAttachments(flattenedTriggeredAttachments)
-    } yield {
-      val bestEntities = if (filteredAttachments.nonEmpty) {
-        val bestAttachment = filteredAttachments.sorted.reverse.head
-        // Since head was used above and there could have been a tie, == should be used below
-        // The tie can be broken afterwards.
-        entities.filter(_.attachments.exists(_ == bestAttachment))
-      } else {
-        entities
-      }
+    }
+    yield {
+      val bestEntities =
+          if (filteredAttachments.nonEmpty) {
+            val bestAttachment = filteredAttachments.sorted.reverse.head
+            // Since head was used above and there could have been a tie, == should be used below
+            // The tie can be broken afterwards.
+            entities.filter(_.attachments.exists(_ == bestAttachment))
+          }
+          else
+            entities
+
       MentionUtils.withOnlyAttachments(tieBreaker(bestEntities), filteredAttachments ++ flattenedContextAttachments)
     }
 
@@ -529,21 +519,13 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       case _ => throw new UnsupportedClassVersionError()
     }
   }
-
-
-
-
 }
 
 object EidosActions extends Actions {
-
   // Used for simplistic coreference identification
   val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
   val ANTECEDENT: String = "antecedent"
   val ANAPHOR: String = "anaphor"
-
-  
-
 
   def apply(taxonomyPath: String, expansionHandler: ExpansionHandler) =
       new EidosActions(readTaxonomy(taxonomyPath), expansionHandler)

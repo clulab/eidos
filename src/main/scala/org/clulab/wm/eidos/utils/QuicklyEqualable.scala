@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.utils
 trait QuicklyEqualable {
 
   // Default behavior is to require an exact match on the classes.
-  protected def canEqual(other: AnyRef): Boolean = this.getClass() == other.getClass()
+  protected def canEqual(other: AnyRef): Boolean = this.getClass == other.getClass
 
   // Tri because this is tri-state logic: yes, no, maybe.
   protected def triEquals(other: Any): Option[Boolean] = {
@@ -66,7 +66,7 @@ trait QuicklyEqualable {
   // This could be expensive, so therefore cache it.
   override def hashCode: Int = cachedHashCode
 
-  protected lazy val cachedHashCode = calculateHashCode
+  protected lazy val cachedHashCode: Int = calculateHashCode
 
   // Default implementation that gives everything the same hash.
   protected def calculateHashCode: Int = 0

@@ -6,7 +6,7 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import org.slf4j.LoggerFactory
 
 object DomainOntologies {
-  val logger = LoggerFactory.getLogger(this.getClass())
+  protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
   def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
 
