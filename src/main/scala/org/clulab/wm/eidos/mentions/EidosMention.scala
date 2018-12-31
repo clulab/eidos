@@ -124,6 +124,8 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
     canonicalMentions.sortWith(lessThan).map(canonicalFormSimple).mkString(" ")
   }
 
+  lazy val canonicalNameParts: Array[String] = canonicalName.split(" +")
+
   // Return any mentions that are involved in the canonical name.  By default, the argument values.
   protected def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
 

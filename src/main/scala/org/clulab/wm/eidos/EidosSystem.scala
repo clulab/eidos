@@ -10,7 +10,7 @@ import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.entities.EidosEntityFinder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, MESH_NAMESPACE, MITRE12_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, WHO_NAMESPACE}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, INT_NAMESPACE, MESH_NAMESPACE, MITRE12_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, WHO_NAMESPACE}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import ai.lum.common.ConfigUtils._
@@ -105,6 +105,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val     propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
     val   mitre12OntologyPath: String = eidosConf[String]("mitre12OntologyPath")
     val       whoOntologyPath: String = eidosConf[String]("whoOntologyPath")
+    val       intOntologyPath: String = eidosConf[String]("intOntologyPath")
     val              cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
@@ -131,13 +132,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
 
       name match {
-        case      UN_NAMESPACE =>         UNOntology(     unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case     WDI_NAMESPACE =>        WDIOntology(    wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case     FAO_NAMESPACE =>        FAOOntology(    faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case    MESH_NAMESPACE =>       MeshOntology(   meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case   PROPS_NAMESPACE => PropertiesOntology(  propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case MITRE12_NAMESPACE =>    MITRE12Ontology(mitre12OntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case     WHO_NAMESPACE =>        WHOOntology(    whoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case           UN_NAMESPACE =>         UNOntology(     unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case          WDI_NAMESPACE =>        WDIOntology(    wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case          FAO_NAMESPACE =>        FAOOntology(    faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case         MESH_NAMESPACE =>       MeshOntology(   meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case        PROPS_NAMESPACE => PropertiesOntology(  propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case      MITRE12_NAMESPACE =>    MITRE12Ontology(mitre12OntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case          WHO_NAMESPACE =>        WHOOntology(    whoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
+        case          INT_NAMESPACE =>        IntOntology(    intOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
         case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
       }
     }
@@ -365,9 +367,24 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     */
   def containsStopword(stopword: String): Boolean = loadableAttributes.stopwordManager.containsStopword(stopword)
 
-  def groundOntology(mention: EidosMention): Groundings =
-      loadableAttributes.ontologyGrounders.map (ontologyGrounder =>
-        (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+  def groundOntology(mention: EidosMention): Groundings = {
+    def mkGrounding(mention: EidosMention, grounder: EidosOntologyGrounder, previousGroundings: Map[String, OntologyGrounding] = Map.empty[String, OntologyGrounding]): OntologyGrounding= {
+      grounder match {
+        case sg: SecondaryGrounder => sg.groundOntology(mention, previousGroundings)
+        case other => other.groundOntology(mention)
+      }
+    }
+    // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
+    val (secondaryGrounders, primaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isInstanceOf[SecondaryGrounder])
+
+    val primaryGroundings = primaryGrounders.map (ontologyGrounder =>
+      (ontologyGrounder.name, mkGrounding(mention, ontologyGrounder))).toMap
+
+    val secondaryGroundings = secondaryGrounders.map (ontologyGrounder =>
+      (ontologyGrounder.name, mkGrounding(mention, ontologyGrounder, primaryGroundings))).toMap
+
+    primaryGroundings ++ secondaryGroundings
+  }
 
   def groundAdjective(quantifier: String): AdjectiveGrounding =
     loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)

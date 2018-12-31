@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{Namer, Sourcer}
+import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
 
 import scala.util.matching.Regex
@@ -26,6 +26,13 @@ trait OntologyGrounder {
 
 trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
+}
+
+/**
+  * trait for OntologyGrounders that are dependent in some way on the output of a previous grounder
+  */
+trait SecondaryGrounder {
+  def groundOntology(mention: EidosMention, previousGroundings: Aliases.Groundings): OntologyGrounding
 }
 
 class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
@@ -60,7 +67,7 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
     }
 
     // Sieve-based approach
-    if (mention.odinMention.matches(EidosOntologyGrounder.GROUNDABLE)) {
+    if (groundable(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
       val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
@@ -69,30 +76,63 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
       }
       // Otherwise, back-off to the w2v-based approach
       else {
-        val canonicalName = mention.canonicalName
-        val canonicalNameParts = canonicalName.split(" +")
-        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+        OntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalNameParts, conceptEmbeddings))
       }
+    }
+    else
+      OntologyGrounding()
+  }
+
+  def groundable(mention: EidosMention): Boolean = EidosOntologyGrounder.groundableType(mention)
+
+}
+
+// todo: surely there is a way to unify this with the PluginOntologyGrounder below -- maybe split out to a "stringMatchPlugin" and an "attachmentBasedPlugin" ?
+class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends EidosOntologyGrounder(name, domainOntology, wordToVec) {
+
+  override def groundable(mention: EidosMention): Boolean = super.groundable(mention) && mention.odinMention.attachments.exists(a => a.isInstanceOf[Property])
+
+  override def groundOntology(mention: EidosMention): OntologyGrounding = {
+    if (groundable(mention)) {
+      val propertyAttachments = mention.odinMention.attachments.filter(a => a.isInstanceOf[Property])
+      // These need to be sorted after retrieval from a set.  Otherwise the order differs and
+      // eventual multiplication of floats in different orders produces different results.
+      val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray.sorted
+
+      // FIXME - should be lemmas?
+      OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
     }
     else
       OntologyGrounding()
   }
 }
 
-class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends EidosOntologyGrounder(name, domainOntology, wordToVec) {
-
-  override def groundOntology(mention: EidosMention): OntologyGrounding = {
-    if (mention.odinMention.matches("Entity")) { // TODO: Store this string somewhere
-      val propertyAttachments = mention.odinMention.attachments.filter(a => a.isInstanceOf[Property])
-      // These need to be sorted after retrieval from a set.  Otherwise the order differs and
-      // eventual multiplication of floats in different orders produces different results.
-      val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray.sorted
-
-      // FIXME - replaced conceptEmbeddings with conceptEmbeddingsAll
-      OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
+/**
+  * Used to make a secondary grounding ONLY IF the primary grounding matches the specified trigger
+  * @param name name of the ontology
+  * @param domainOntology the ontology to use
+  * @param wordToVec the w2v to calculate the similarities
+  * @param pluginGroundingTrigger the string to look for in the primary grounding
+  */
+class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, pluginGroundingTrigger: String) extends EidosOntologyGrounder(name, domainOntology, wordToVec) with SecondaryGrounder {
+  def groundable(mention: EidosMention, previousGrounding: Aliases.Groundings): Boolean = {
+    previousGrounding.get(EidosOntologyGrounder.UN_NAMESPACE) match {
+      case None => false
+      case Some(groundings) =>
+        if (groundings.nonEmpty)
+          groundings.head._1.name.contains(pluginGroundingTrigger)
+        else
+          false
+      case _ => ???
     }
-    else
+  }
+
+  override def groundOntology(mention: EidosMention, previousGroundings: Aliases.Groundings): OntologyGrounding = {
+    if (groundable(mention, previousGroundings)) {
+      super.groundOntology(mention)
+    } else {
       OntologyGrounding()
+    }
   }
 }
 
@@ -106,13 +146,19 @@ object EidosOntologyGrounder {
   val   PROPS_NAMESPACE = "props"
   val MITRE12_NAMESPACE = "mitre12"
   val     WHO_NAMESPACE = "who"
+  val     INT_NAMESPACE = "interventions"
+  // Used for plugin ontologies
+  val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
 
   val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE)
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
+  def groundableType(mention: EidosMention): Boolean = mention.odinMention.matches(GROUNDABLE)
+
   def apply(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec): EidosOntologyGrounder =
     name match {
+      case INT_NAMESPACE => new PluginOntologyGrounder(name, domainOntology, wordToVec, INTERVENTION_PLUGIN_TRIGGER)
       case PROPS_NAMESPACE => new PropertiesOntologyGrounder(name, domainOntology, wordToVec)
       case _ => new EidosOntologyGrounder(name, domainOntology, wordToVec)
     }

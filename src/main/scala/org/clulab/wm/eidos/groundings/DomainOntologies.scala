@@ -63,3 +63,8 @@ object WHOOntology {
     DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
 }
 
+// Intervention Ontology
+object IntOntology {
+  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
+    DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
+}
