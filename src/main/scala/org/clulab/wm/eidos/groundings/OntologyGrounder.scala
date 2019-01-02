@@ -21,21 +21,26 @@ case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
 }
 
 trait OntologyGrounder {
-  def groundOntology(mention: EidosMention): OntologyGrounding
+  val isPrimary: Boolean
+
+  def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding
+  def groundOntology(mention: EidosMention): OntologyGrounding = groundOntology(mention, None)
+  def groundOntology(mention: EidosMention, previousGroundings: Aliases.Groundings): OntologyGrounding = groundOntology(mention, Some(previousGroundings))
+
+  def groundable(mention: EidosMention, previousGroundings: Option[OntologyGrounding]): Boolean
+  def groundable(mention: EidosMention): Boolean = groundable(mention, None)
+  def groundable(mention: EidosMention, previousGroundings: OntologyGrounding): Boolean = groundable(mention, Some(previousGroundings))
+
 }
 
 trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
-/**
-  * trait for OntologyGrounders that are dependent in some way on the output of a previous grounder
-  */
-trait SecondaryGrounder {
-  def groundOntology(mention: EidosMention, previousGroundings: Aliases.Groundings): OntologyGrounding
-}
 
 class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+  // Is not dependent on the output of other grounders
+  val isPrimary = true
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
@@ -49,7 +54,7 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
         domainOntology.getPatterns(n))
     }
 
-  def groundOntology(mention: EidosMention): OntologyGrounding = {
+  def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
 
     def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
       patterns match {
@@ -83,7 +88,7 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
       OntologyGrounding()
   }
 
-  def groundable(mention: EidosMention): Boolean = EidosOntologyGrounder.groundableType(mention)
+  def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGrounding]): Boolean = EidosOntologyGrounder.groundableType(mention)
 
 }
 
@@ -92,7 +97,7 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
 
   override def groundable(mention: EidosMention): Boolean = super.groundable(mention) && mention.odinMention.attachments.exists(a => a.isInstanceOf[Property])
 
-  override def groundOntology(mention: EidosMention): OntologyGrounding = {
+  override def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
     if (groundable(mention)) {
       val propertyAttachments = mention.odinMention.attachments.filter(a => a.isInstanceOf[Property])
       // These need to be sorted after retrieval from a set.  Otherwise the order differs and
@@ -114,20 +119,20 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
   * @param wordToVec the w2v to calculate the similarities
   * @param pluginGroundingTrigger the string to look for in the primary grounding
   */
-class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, pluginGroundingTrigger: String) extends EidosOntologyGrounder(name, domainOntology, wordToVec) with SecondaryGrounder {
-  def groundable(mention: EidosMention, previousGrounding: Aliases.Groundings): Boolean = {
-    previousGrounding.get(EidosOntologyGrounder.UN_NAMESPACE) match {
-      case None => false
-      case Some(groundings) =>
-        if (groundings.nonEmpty)
-          groundings.head._1.name.contains(pluginGroundingTrigger)
-        else
-          false
-      case _ => ???
+class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, pluginGroundingTrigger: String) extends EidosOntologyGrounder(name, domainOntology, wordToVec) {
+
+  // No, because it IS dependent on the output of other grounders
+  override val isPrimary = false
+
+  def groundable(mention: EidosMention, previousGrounding: Option[Aliases.Groundings]): Boolean = {
+    previousGrounding match {
+      case Some(prev) =>
+        prev.get(EidosOntologyGrounder.UN_NAMESPACE).exists(_.head._1.name contains pluginGroundingTrigger)
+      case _ => false
     }
   }
 
-  override def groundOntology(mention: EidosMention, previousGroundings: Aliases.Groundings): OntologyGrounding = {
+  override def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
     if (groundable(mention, previousGroundings)) {
       super.groundOntology(mention)
     } else {

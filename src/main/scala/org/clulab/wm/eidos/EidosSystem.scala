@@ -368,20 +368,14 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   def containsStopword(stopword: String): Boolean = loadableAttributes.stopwordManager.containsStopword(stopword)
 
   def groundOntology(mention: EidosMention): Groundings = {
-    def mkGrounding(mention: EidosMention, grounder: EidosOntologyGrounder, previousGroundings: Map[String, OntologyGrounding] = Map.empty[String, OntologyGrounding]): OntologyGrounding= {
-      grounder match {
-        case sg: SecondaryGrounder => sg.groundOntology(mention, previousGroundings)
-        case other => other.groundOntology(mention)
-      }
-    }
     // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
-    val (secondaryGrounders, primaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isInstanceOf[SecondaryGrounder])
+    val (primaryGrounders, secondaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isPrimary)
 
     val primaryGroundings = primaryGrounders.map (ontologyGrounder =>
-      (ontologyGrounder.name, mkGrounding(mention, ontologyGrounder))).toMap
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
 
     val secondaryGroundings = secondaryGrounders.map (ontologyGrounder =>
-      (ontologyGrounder.name, mkGrounding(mention, ontologyGrounder, primaryGroundings))).toMap
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
 
     primaryGroundings ++ secondaryGroundings
   }
