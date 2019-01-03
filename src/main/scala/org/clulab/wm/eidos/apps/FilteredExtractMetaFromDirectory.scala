@@ -1,13 +1,15 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.{File, PrintWriter}
+import java.io._
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils}
+import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils, Sourcer}
+import org.slf4j.LoggerFactory
 
 import scala.collection.parallel.ForkJoinTaskSupport
 
@@ -105,10 +107,25 @@ object FilteredExtractMetaFromDirectory extends App {
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
         val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)
-        pw = FileUtils.printWriterFromFile(path)
+
+
+        // This is done pedantically so that the FileOutputStream is accessible.
+        val fos = new FileOutputStream(path)
+        val osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8.toString)
+        val pw = new PrintWriter(osw)
+
         pw.println(stringify(mentionsJSONLD, pretty = true))
+
+        pw.flush()
+        osw.flush()
+        fos.flush()
+        fos.getFD().sync()
       }
       catch {
+        case exception: SyncFailedException =>
+          println(s"Synchonization failed for file $file")
+          println("Exiting with code -2 on assumption that the disk is full")
+          System.exit(-2)
         case exception: Exception =>
           println(s"Exception for file $file")
           exception.printStackTrace()
