@@ -28,8 +28,8 @@ trait MultiOntologyGrounder {
 
 class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
   // FIXME
-  val pathToInterventionLexicon = "/Users/bsharp/github/eidos/src/main/resources/org/clulab/wm/eidos/english/lexicons/provisions.tsv"
-  val interventionLookupRegexes = Sourcer.sourceFromFile(pathToInterventionLexicon).getLines().toArray.map(rx => s"(?i)$rx".r)
+  val pathToInterventionLexicon = "/org/clulab/wm/eidos/english/lexicons/provisions.tsv"
+  val interventionLookupRegexes = Sourcer.sourceFromResource(pathToInterventionLexicon).getLines().toArray.map(rx => s"(?i)$rx".r)
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>

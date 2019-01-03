@@ -46,8 +46,8 @@ class GeoDisambiguateParser(modelPath: String, word2IdxPath: String, loc2geoname
       values.indexWhere(_ == max)
     }
 
-    val input = Nd4j.create(features)
     val results = this.synchronized {
+      val input = Nd4j.create(features)
       network.setInput(0, input)
       network.feedForward()
     }
