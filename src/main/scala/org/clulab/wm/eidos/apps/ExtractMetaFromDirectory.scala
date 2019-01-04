@@ -1,12 +1,12 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.PrintWriter
 import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils, Timer}
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 import scala.collection.parallel.ForkJoinTaskSupport
@@ -42,8 +42,6 @@ object ExtractMetaFromDirectory extends App {
     parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
-      var jsonldPrintWriter: PrintWriter = null
-
       try {
         // 1. Open corresponding output file
         println(s"Extracting from ${file.getName}")
@@ -62,8 +60,9 @@ object ExtractMetaFromDirectory extends App {
           val mentionsJSONLD = corpus.serialize()
           // 5. Write to output file
           val path = MetaUtils.convertTextToJsonld(outputDir, file)
-          jsonldPrintWriter = FileUtils.printWriterFromFile(path)
-          jsonldPrintWriter.println(stringify(mentionsJSONLD, pretty = true))
+          FileUtils.printWriterFromFile(path).autoClose { pw =>
+            pw.println(stringify(mentionsJSONLD, pretty = true))
+          }
           text.size
         }
         this.synchronized {
@@ -74,10 +73,6 @@ object ExtractMetaFromDirectory extends App {
         case exception: Exception =>
           println(s"Exception for file $file")
           exception.printStackTrace()
-      }
-      finally {
-        if (jsonldPrintWriter != null)
-          jsonldPrintWriter.close()
       }
     }
     timePrintWriter.close()

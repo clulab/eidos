@@ -69,7 +69,7 @@ object FilteredExtractMetaFromDirectory extends App {
     (100000, 199999),
     (200000, 299999)
   )
-
+  val allFiles = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
   intervals.foreach { interval =>
@@ -82,7 +82,7 @@ object FilteredExtractMetaFromDirectory extends App {
 
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
-    val files = findFiles(inputDir, "txt").filter(filter)
+    val files = allFiles.filter(filter)
     val parFiles = files.par
 
     val forkJoinPool = new ForkJoinPool(threads)

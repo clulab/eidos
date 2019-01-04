@@ -6,9 +6,12 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils}
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 object FilteredExtractFromDirectory extends App {
+  val inputDir = args(0)
+  val outputDir = args(1)
   val intervals = Seq(
     (0,     0),
     (1,   999),
@@ -54,11 +57,9 @@ object FilteredExtractFromDirectory extends App {
 
     (90000, 94999),
     (95000, 99999),
-    (100000, 200000)
+    (100000, 199999),
+    (200000, 299999)
   )
-  val inputDir = args(0)
-  val outputDir = args(1)
-
   val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
@@ -73,8 +74,6 @@ object FilteredExtractFromDirectory extends App {
 
     // For each file in the input directory:
     files.filter(filter).par.foreach { file =>
-      var pw: PrintWriter = null
-
       try {
         // 1. Open corresponding output file
         println(s"Extracting from ${file.getName}")
@@ -87,17 +86,14 @@ object FilteredExtractFromDirectory extends App {
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
         val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)
-        pw = FileUtils.printWriterFromFile(path)
-        pw.println(stringify(mentionsJSONLD, pretty = true))
+        FileUtils.printWriterFromFile(path).autoClose { pw =>
+          pw.println(stringify(mentionsJSONLD, pretty = true))
+        }
       }
       catch {
         case exception: Exception =>
           println(s"Exception for file $file")
           exception.printStackTrace()
-      }
-      finally {
-        if (pw != null)
-          pw.close()
       }
     }
   }
