@@ -18,6 +18,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-odin"          % procVer,
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
+    "org.clulab"    % "geonorm-models"            % "0.9.0",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",

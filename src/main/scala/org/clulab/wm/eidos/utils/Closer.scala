@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.utils
 
+import scala.language.reflectiveCalls
 import scala.util.control.NonFatal
 
 object Closer {

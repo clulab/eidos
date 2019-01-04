@@ -8,4 +8,4 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [norm="LOC"] [norm="LOC"]*
-      theme: Entity = </^nmod/ >nmod_in?
+      theme: Entity = <compound? </^nmod/ >nmod_in?

@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.utils
 
 class Canonicalizer(stopwordManaging: StopwordManaging) {
 
-  protected def isContentTag(tag: String) =
+  protected def isContentTag(tag: String): Boolean =
       tag.startsWith("NN") ||
       tag.startsWith("VB")
 

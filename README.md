@@ -428,6 +428,7 @@ that aren't very likely to change.  The latter is where users are advised to mak
 adjustments.  These values in particular are often changed:
 
 - useTimeNorm - activates time processing functions
+- useGeoNorm - activates geolocation functions
 - useW2V - turns on grounding, which uses Word2Vec
 
 The model file used for time processing functions is included in the Eidos repository, so there
@@ -436,7 +437,7 @@ in the project [timenorm](https://github.com/clulab/timenorm), which is separate
 Eidos and declared in `built.sbt` as a library dependency.  Change the value of
 `useTimeNorm` from `false` to `true` to use the time functions.
 
-Grounding **does** require additional installation.  There are two significantly large files of
+Grounding also requires additional installation.  There are two significantly large files of
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
 [Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
 
@@ -448,11 +449,12 @@ more accurate.  Either should be downloaded and if necessary unzipped and untarr
 file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
 Next check the configuration value for `wordToVecPath`.  It is already set up for `vectors.txt`,
 but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
-value for `useW2V` from `false` to `true`.
+value for `useW2V` from `false` to `true`. 
 
-After `useTimeNorm` and `useW2V` are set to `true`, your output should look more like this:
+After `useTimeNorm`, `useGeoNorm`, and `useW2V` are set to `true`, your output should look more like this:
 
 ![Eidos with Grounding](/doc/grounding.png?raw=True")
+
 
 ## Optimizing
 

@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.apps
 import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.collection.Seq
@@ -51,21 +52,21 @@ object MakeRuleTSVs extends App {
   // ok print them
   for ((rule, mentionsForRule) <- byRulesSet) {
     if (rule.contains(EidosSystem.CAUSAL_LABEL)) {
-      val pw = FileUtils.printWriterFromFile(s"${outputDir}/${rule}.tsv")
-      pw.println(header)
-//      println(s"MENTIONS for RULE: ${rule}")
-      for (m <- mentionsForRule) {
-        val sentenceText = m.document.sentences(m.sentence).getSentenceText
-        val toPrint = new ArrayBuffer[String]
-        toPrint.append(rule)
-        toPrint.appendAll(causalStringForCSV(m))
-        toPrint.append(sentenceText)
-//        println(s"* Sentence: $sentenceText")
-//        displayMention(m)
-//        println(causalStringForCSV(m))
-        pw.println(toPrint.mkString("\t"))
+      (FileUtils.printWriterFromFile(s"${outputDir}/${rule}.tsv")).autoClose { pw =>
+        pw.println(header)
+        //      println(s"MENTIONS for RULE: ${rule}")
+        for (m <- mentionsForRule) {
+          val sentenceText = m.document.sentences(m.sentence).getSentenceText
+          val toPrint = new ArrayBuffer[String]
+          toPrint.append(rule)
+          toPrint.appendAll(causalStringForCSV(m))
+          toPrint.append(sentenceText)
+          //        println(s"* Sentence: $sentenceText")
+          //        displayMention(m)
+          //        println(causalStringForCSV(m))
+          pw.println(toPrint.mkString("\t"))
+        }
       }
-      pw.close()
     }
   }
 

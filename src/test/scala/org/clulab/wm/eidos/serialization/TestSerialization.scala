@@ -1,26 +1,26 @@
 package org.clulab.wm.eidos.serialization
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 
 import org.clulab.odin.{EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
-import org.apache.commons.io.input.ClassLoaderObjectInputStream
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileUtils
 
 class TestSerialization extends Test {
   val reader = new EidosSystem()
 
   def serialize(original: Any, index: Int): Unit = {
-    val streamOut = new ByteArrayOutputStream()
-    val encoder = new ObjectOutputStream(streamOut)
-    encoder.writeObject(original)
-    encoder.close()
+    val copy = (new ByteArrayOutputStream()).autoClose { streamOut =>
+      (new ObjectOutputStream(streamOut)).autoClose { encoder =>
+        encoder.writeObject(original)
+      }
 
-    val bytes = streamOut.toByteArray
-    val streamIn = new ByteArrayInputStream(bytes)
-    val decoder = new ClassLoaderObjectInputStream(getClass.getClassLoader, streamIn)
-    val copy = decoder.readObject()
-    decoder.close()
+      val bytes = streamOut.toByteArray
+
+      FileUtils.load[Any](bytes, this)
+    }
 
     if (original.isInstanceOf[Mention])
       require(original == copy)
@@ -36,7 +36,7 @@ class TestSerialization extends Test {
 
     mentionsOut.foreach {
         case eventMention: EventMention =>
-          var index = 0
+          var index = 0 // test
 
           serialize(eventMention.labels, index)
           index += 1
@@ -65,7 +65,7 @@ class TestSerialization extends Test {
           serialize(eventMention, index)
           index += 1
         case textBoundMention: TextBoundMention =>
-          var index = 0
+          var index = 0 // test
 
           textBoundMention.attachments.foreach { attachment =>
             serialize(attachment, index); index += 1

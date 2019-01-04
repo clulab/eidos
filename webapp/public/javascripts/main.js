@@ -93,8 +93,8 @@ var collData = {
             "borderColor": "darken"
         },
         {
-            "type"   : "GeoidPhrases",
-            "labels" : ["GeoidPhrases", "GEOLOC"],
+            "type"   : "GeoLocation",
+            "labels" : ["GeoLocation", "GEOLOC"],
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
             "bgColor": geoLocationColor,

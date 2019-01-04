@@ -262,6 +262,7 @@ var Visualizer = (function($, window, undefined) {
           'relations',
           'triggers',
           'timexs',
+          'geoexps',
       ], function(attrNo, attr) {
         if (sourceData[attr] === undefined) {
           sourceData[attr] = [];
@@ -550,6 +551,15 @@ var Visualizer = (function($, window, undefined) {
               new Span(timex[0], timex[1], timex[2], 'timex');
           span.splitMultilineOffsets(data.text);
           data.spans[timex[0]] = span;
+        });
+
+          $.each(sourceData.geoexps, function(geoexpNo, geoexp) {
+          // offsets given as array of (start, end) pairs
+          var span =
+              //      (id,        type,      offsets,   generalType)
+              new Span(geoexp[0], geoexp[1], geoexp[2], 'geoexp');
+          span.splitMultilineOffsets(data.text);
+          data.spans[geoexp[0]] = span;
         });
 
         var triggerHash = {};

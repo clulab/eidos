@@ -27,7 +27,7 @@ object TestUtils {
   object Ben      extends TesterTag
   object Heather  extends TesterTag
   object Vikas    extends TesterTag
-  object George    extends TesterTag
+  object George   extends TesterTag
 
 
   class CategoryTag  extends Tag("CategoryTag")
@@ -75,15 +75,15 @@ object TestUtils {
 
   class ContraptionTest extends Test
 
-  class ExtractionTest(var ieSystem: EidosSystem) extends ContraptionTest {
+  class ExtractionTest(val ieSystem: EidosSystem) extends ContraptionTest {
     def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config))
 
     class GraphTester(text: String) extends graph.GraphTester(ieSystem, text)
 
     class RuleTester(text: String) extends rule.RuleTester(ieSystem, text)
 
-    def useTimeNorm = ieSystem.timenorm.isDefined
-    def useGeoNorm = ieSystem.geonorm.isDefined
+    def useTimeNorm = ieSystem.loadableAttributes.timenorm.isDefined
+    def useGeoNorm = ieSystem.loadableAttributes.geonorm.isDefined
 
     def extractMentions(text: String): Seq[Mention] = TestUtils.extractMentions(ieSystem, text)
   }

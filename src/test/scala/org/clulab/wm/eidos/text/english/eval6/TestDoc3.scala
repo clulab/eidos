@@ -129,7 +129,7 @@ class TestDoc3 extends EnglishTest {
 
     val rainfall1 = NodeSpec("rainfall", Quant("average to above average"))
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Inc("favorable"), Quant("favorable"))
-    val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", Inc("favorable"))
+    val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Inc("favorable"))
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight")) // todo (temporal?): really should capture the "compared to the previous month"...
     val rainfall4 = NodeSpec("rainfall", Dec("decline"))
     val moistureStress = NodeSpec("moisture stress on crops")
@@ -305,7 +305,7 @@ class TestDoc3 extends EnglishTest {
     behavior of "TestDoc3 Paragraph 9"
     val cropCond = NodeSpec("Cropping conditions", Inc("favorable"), Quant("favorable"))
     val rainfall = NodeSpec("good performance of seasonal rainfall", Quant("good"), Inc("good"))
-    val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average","persistently", "well"), Quant("above-average", "persistently", "well"))
+    val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average","persistently", "well"), Quant("above-average", "persistently", "well"), GeoLoc("Ethiopia"))
     val flood = NodeSpec("flooding", TimEx("weeks"))
     val rainfall3 = NodeSpec("continued rains")
     val worm = NodeSpec("impact of Fall Armyworm", Dec("reduce"))

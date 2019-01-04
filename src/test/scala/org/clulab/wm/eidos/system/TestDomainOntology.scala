@@ -42,6 +42,7 @@ class TestDomainOntology extends Test {
   def show1(ontology: DomainOntology): Unit = {
     0.until(ontology.size).foreach { i =>
       println(ontology.getNamer(i).name + " = " + ontology.getValues(i).mkString(", "))
+      ontology.getPatterns(i).map(_.foreach(regex => println(regex.toString)))
     }
     println
   }
@@ -72,7 +73,7 @@ class TestDomainOntology extends Test {
         }
 
 //    val newestOntology = Timer.time("Load UN from cache") {
-//      UNOntology("", cachePath("un"), proc, filter, useCache = true)
+//      UNOntology("", cachePath("un"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -100,7 +101,7 @@ class TestDomainOntology extends Test {
 
 
 //    val newestOntology = Timer.time("Load FAO with cache") {
-//      FAOOntology("", cachePath("fao"), proc, filter, useCache = true)
+//      FAOOntology("", cachePath("fao"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -127,7 +128,7 @@ class TestDomainOntology extends Test {
         }
 
 //    val newestOntology = Timer.time("Load WDI with cache") {
-//      WDIOntology("", cachePath("wdi"), proc, filter, useCache = true)
+//      WDIOntology("", cachePath("wdi"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -166,12 +167,39 @@ class TestDomainOntology extends Test {
         }
 
 //    val newestOntology = Timer.time("Load MeSH with cache") {
-//      MeshOntology("", cachePath("mesh"), proc, filter, useCache = true)
+//      MeshOntology("", cachePath("mesh"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
 
     hasDuplicates("mesh", newOntology) should be (false)
     hasDuplicates("mesh", newerOntology) should be (false)
+  }
+
+  behavior of "props ontology"
+  it should "load and not have duplicates" in {
+    val path = baseDir + "/un_properties.yml"
+
+    val newOntology = Timer.time("Load UN properties without cache") {
+      PropertiesOntology(path, "", proc, canonicalizer, filter, useCache = false)
+    }
+    val newerOntology =
+      if (convert)
+        Timer.time("Convert UN properties to compact") {
+          new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        }
+      else
+        Timer.time("Load UN properties from cache") {
+          PropertiesOntology(path, "", proc, canonicalizer, filter, useCache = true)
+        }
+
+//    val newestOntology = Timer.time("Load UN properties from cache") {
+//      PropertiesOntology("", cachePath("props"), proc, canonicalizer, filter, useCache = true)
+//    }
+//
+//    show3(newOntology, newerOntology, newestOntology)
+
+    hasDuplicates("props", newOntology) should be (false)
+    hasDuplicates("props", newerOntology) should be (false)
   }
 }

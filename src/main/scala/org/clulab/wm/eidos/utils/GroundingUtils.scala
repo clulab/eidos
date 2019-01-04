@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.utils
 
-import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.{EidosOntologyGrounder}
 import org.clulab.wm.eidos.mentions.EidosMention
 
 object GroundingUtils {

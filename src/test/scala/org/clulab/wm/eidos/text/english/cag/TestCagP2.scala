@@ -11,7 +11,7 @@ class TestCagP2 extends EnglishTest {
     val tester = new GraphTester(p2s1)
 
     val economicCrisis = NodeSpec("South Sudan's economic crisis", GeoLoc("South Sudan"))
-    val sudanesePound = NodeSpec("rapidly depreciating value of the South Sudanese Pound (SSP)", Dec("depreciating", "rapidly"))
+    val sudanesePound = NodeSpec("rapidly depreciating value of the South Sudanese Pound (SSP)", Dec("depreciating", "rapidly"), GeoLoc("South"), GeoLoc("Pound"))
     val hardCurrency = NodeSpec("shortages of hard currency", Dec("shortages"))
     val oilPrices = NodeSpec("global declines in oil prices", Dec("declines"))
     val dependenceOnImports = NodeSpec("significant dependence on imports", Quant("significant"))
@@ -97,10 +97,6 @@ class TestCagP2 extends EnglishTest {
     val livestock = NodeSpec("livestock to be looted") //todo: add more modifications when we have that functionality
     val displacement = NodeSpec("displacement")
     val delayedPlanting = NodeSpec("late planting") //todo: adjust when more mods available
-
-
-    val node1 = NodeSpec(null)
-    val node2 = NodeSpec(null)
 
     behavior of "p2s4"
 

@@ -29,7 +29,7 @@ class CliReader(prompt: String, parentProperty: String, child: String) extends L
     history.flush() // flush file before exiting
   }
 
-  override def readLine = reader.readLine
+  override def readLine(): String = reader.readLine
 }
 
 class IdeReader(protected val prompt: String) extends LineReader {
@@ -37,7 +37,7 @@ class IdeReader(protected val prompt: String) extends LineReader {
 
   protected val reader = new Scanner(System.in)
 
-  override def readLine = {
+  override def readLine(): String = {
     print(prompt)
     Console.flush()
     reader.nextLine

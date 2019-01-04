@@ -106,42 +106,47 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   protected def remapOdinMention(odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder, mentionMapper: MentionMapper): EidosMention =
       EidosMention.asEidosMentions(Seq(odinMention), canonicalizer, ontologyGrounder, mentionMapper)(0)
 
-  // This is lazy because canonicalMentions is called and that may be overridden in the derived class.
-  // The overriden method will not be called in this constructor.
-  lazy val canonicalName: String = {
+  /* Methods for canonicalForms of Mentions */
+
+  /**
+    * The canonical version of the mention text, with any appropriate filtering/simplification.
+    *
+    * This is lazy because canonicalMentions is called and that may be overridden in the derived class.
+    * The overriden method will not be called in this constructor.
+    */
+  lazy val canonicalName: String = canonicalNameParts.mkString(" ")
+
+  /**
+    * To handle mentions that span multiple sentences, we sort the pieces of the mention and then filter each
+    * to get the tokens that will make it into the canonicalName.
+    */
+  lazy val canonicalNameParts: Array[String] = {
     // Sentence has been added to account for cross sentence mentions.
     def lessThan(left: Mention, right: Mention): Boolean =
-        if (left.sentence != right.sentence)
-          left.sentence < right.sentence
-        else if (left.start != right.start)
-          left.start < right.start
-        // This one shouldn't really be necessary.
-        else if (left.end != right.end)
-          left.end < right.end
-        else
-          false // False is needed to preserve order on tie.
+      if (left.sentence != right.sentence)
+        left.sentence < right.sentence
+      else if (left.start != right.start)
+        left.start < right.start
+      // This one shouldn't really be necessary.
+      else if (left.end != right.end)
+        left.end < right.end
+      else
+        false // False is needed to preserve order on tie.
 
-    canonicalMentions.sortWith(lessThan).map(canonicalFormSimple).mkString(" ")
+    canonicalMentions.sortWith(lessThan).flatMap(canonicalTokensSimple).toArray
   }
 
   // Return any mentions that are involved in the canonical name.  By default, the argument values.
   protected def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
 
-  // This is similarly lazy because groundOntology calls canonicalName.
-  lazy val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
-
-  // Some way to calculate or store these, possibly in subclass
-  def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
-  def negation: Boolean = ???
-
-  /* Methods for canonicalForms of Mentions */
-  protected def canonicalFormSimple(m: Mention): String = {
+  // This is the filtering method for deciding what makes it into the canonical name and what doesn't.
+  protected def canonicalTokensSimple(m: Mention): Seq[String] = {
     val words = m.words
     val lemmas = m.lemmas.get
     val tags = m.tags.get
     val ners = m.entities.get
 
-    val attachmentWords = m.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a)).toSet
+    val attachmentWords = m.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
 
     val contentLemmas = for {
       i <- lemmas.indices
@@ -150,11 +155,19 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
     } yield lemmas(i)
 
     if (contentLemmas.isEmpty)
-      m.text // fixme -- better and cleaner backoff
+      words   // fixme -- better and cleaner backoff
     else
-      contentLemmas.mkString(" ").trim.replaceAll(" +", " ")
-//    println("  * result: " + contentLemmas.mkString(" "))
+      contentLemmas
   }
+
+  // This is similarly lazy because groundOntology calls canonicalName.
+  lazy val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
+
+  // Some way to calculate or store these, possibly in subclass
+  def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
+  def negation: Boolean = ???
+
+
 }
 
 object EidosMention {
