@@ -17,7 +17,6 @@ object ExtractFromDirectory extends App {
   files.par.foreach { file =>
     // 1. Open corresponding output file
     println(s"Extracting from ${file.getName}")
-      pw.println(stringify(mentionsJSONLD, pretty = true))
     (FileUtils.printWriterFromFile(s"$outputDir/${file.getName}.jsonld")).autoClose { pw =>
       // 2. Get the input file contents
       val text = FileUtils.getTextFromFile(file)
