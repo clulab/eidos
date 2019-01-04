@@ -8,8 +8,8 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils, Sourcer}
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils}
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 import scala.collection.parallel.ForkJoinTaskSupport
 
@@ -17,10 +17,10 @@ object FilteredExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val metaDir = args(2)
-  var threads = args(3).toInt
+  val threads = args(3).toInt
 
-  val converter = MetaUtils.convertTextToMeta17k _
-
+  val doneDir = inputDir + "/done"
+  val converter = MetaUtils.convertTextToMeta _ // 17k _
   val intervals = Seq(
     (0,     0),
     (1,   999),
@@ -66,7 +66,8 @@ object FilteredExtractMetaFromDirectory extends App {
 
     (90000, 94999),
     (95000, 99999),
-    (100000, 200000)
+    (100000, 199999),
+    (200000, 299999)
   )
 
   val reader = new EidosSystem()
@@ -74,9 +75,10 @@ object FilteredExtractMetaFromDirectory extends App {
   intervals.foreach { interval =>
     val min = interval._1
     val max = interval._2
-    val filterOutputDir = s"$outputDir/$min-$max"
+    val filterOutputDir = outputDir
+//    val filterOutputDir = s"$outputDir/$min-$max"
 
-    new File(filterOutputDir).mkdirs()
+    //new File(filterOutputDir).mkdirs()
 
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
@@ -89,8 +91,6 @@ object FilteredExtractMetaFromDirectory extends App {
     parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
-      var pw: PrintWriter = null
-
       try {
         // 1. Open corresponding output file
         println(s"Extracting from ${file.getName}")
@@ -108,18 +108,21 @@ object FilteredExtractMetaFromDirectory extends App {
         // 5. Write to output file
         val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)
 
-
         // This is done pedantically so that the FileOutputStream is accessible.
         val fos = new FileOutputStream(path)
         val osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8.toString)
-        val pw = new PrintWriter(osw)
 
-        pw.println(stringify(mentionsJSONLD, pretty = true))
+        new PrintWriter(osw).autoClose { pw =>
+          pw.println(stringify(mentionsJSONLD, pretty = true))
+          pw.flush()
+          osw.flush()
+          fos.flush()
+          fos.getFD.sync()
 
-        pw.flush()
-        osw.flush()
-        fos.flush()
-        fos.getFD().sync()
+          // Now move the file to directory done
+          val newPath = doneDir + "/" + file.getName
+          file.renameTo(new File(newPath))
+        }
       }
       catch {
         case exception: SyncFailedException =>
@@ -130,10 +133,7 @@ object FilteredExtractMetaFromDirectory extends App {
           println(s"Exception for file $file")
           exception.printStackTrace()
       }
-      finally {
-        if (pw != null)
-          pw.close()
-      }
     }
   }
+  println("I am exiting of my own free will!")
 }
