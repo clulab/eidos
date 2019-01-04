@@ -24,7 +24,7 @@ object FilterWithMetaFromDirectory extends App {
   val cutoff = LocalDateTime.of(2017, 4, 1, 0, 0) // April 1, 2017
   val files = FileUtils.findFiles(inputDir, "txt")
   val reader = new EidosSystem()
-  val timenorm = reader.timenorm.get
+  val timenorm = reader.loadableAttributes.timenorm.get
 
   println("Good\t\t\tBad")
   println("txt\tmeta\ttime\tdct\ttxt\tmeta\ttime\tdct")
