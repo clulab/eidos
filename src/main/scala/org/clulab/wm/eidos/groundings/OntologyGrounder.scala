@@ -17,7 +17,8 @@ case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
   def nonEmpty: Boolean = grounding.nonEmpty
 
   def take(n: Int): Aliases.MultipleGrounding = grounding.take(n)
-  def head: Aliases.SingleGrounding = grounding.head
+  def headOption: Option[Aliases.SingleGrounding] = grounding.headOption
+  def headName: Option[String] = headOption.map(_._1.name)
 }
 
 trait OntologyGrounder {
@@ -126,7 +127,7 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
   override def groundable(mention: EidosMention, previousGrounding: Option[Aliases.Groundings]): Boolean = {
     previousGrounding match {
       case Some(prev) =>
-        prev.get(EidosOntologyGrounder.UN_NAMESPACE).exists(_.head._1.name contains pluginGroundingTrigger)
+        prev.get(EidosOntologyGrounder.UN_NAMESPACE).exists(_.headName.map(_ contains pluginGroundingTrigger).getOrElse(false))
       case _ => false
     }
   }
