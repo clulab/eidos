@@ -55,7 +55,6 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
     }
 
   def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
-
     def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
       patterns match {
         case None => false
@@ -72,7 +71,7 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
     }
 
     // Sieve-based approach
-    if (groundable(mention)) {
+    if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
       val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
@@ -95,10 +94,10 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
 // todo: surely there is a way to unify this with the PluginOntologyGrounder below -- maybe split out to a "stringMatchPlugin" and an "attachmentBasedPlugin" ?
 class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends EidosOntologyGrounder(name, domainOntology, wordToVec) {
 
-  override def groundable(mention: EidosMention, primaryGrounding: Option[Aliases.Groundings]): Boolean = super.groundable(mention) && mention.odinMention.attachments.exists(a => a.isInstanceOf[Property])
+  override def groundable(mention: EidosMention, primaryGrounding: Option[Aliases.Groundings]): Boolean = EidosOntologyGrounder.groundableType(mention) && mention.odinMention.attachments.exists(a => a.isInstanceOf[Property])
 
   override def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
-    if (groundable(mention)) {
+    if (groundable(mention, previousGroundings)) {
       val propertyAttachments = mention.odinMention.attachments.filter(a => a.isInstanceOf[Property])
       // These need to be sorted after retrieval from a set.  Otherwise the order differs and
       // eventual multiplication of floats in different orders produces different results.
@@ -134,7 +133,7 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
 
   override def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
     if (groundable(mention, previousGroundings)) {
-      super.groundOntology(mention)
+      super.groundOntology(mention, None)
     } else {
       OntologyGrounding()
     }
