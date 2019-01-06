@@ -1,4 +1,16 @@
 - interventions:
+  - OntologyNode:
+    examples:
+    - access
+    - humanitarian response
+    - humanitarian aid
+    - assistance
+    - humanitarian support
+    - intervention
+    - rehabilitation
+    - poverty alleviation
+    name: humanitarian assistance (high level)
+    polarity: 1.0
   - provision of goods and services:
     - early recovery:
       - OntologyNode:

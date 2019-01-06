@@ -19,8 +19,8 @@
     # Four main types (categories) of interventions provided by Kimetrica
     - OntologyNode:
       pattern:
-      - ((provision\s+of)|(distribution\s+of)|providing|provide|distribute)(\s|\w)+
-      - \w+\s+(provision|distribution|assistance)
+      - ((provision\s+of)|(distribution\s+of)|providing|provided?|distributed?)\s+(?!.*(rain|rainfall))
+      - (\w)+(?<!rain|rainfall)\s+(provision|distribution|assistance)
       name: provision of goods and services
       polarity: 1.0
     - OntologyNode:
