@@ -1,4 +1,5 @@
 result=1
+cp=./eidos-assembly-0.2.2-SNAPSHOT.jar
 #app=org.clulab.wm.eidos.apps.ExitCode
 app=org.clulab.wm.eidos.apps.FilteredExtractMetaFromDirectory
 inputDir=../corpora/Doc500/txt
@@ -22,7 +23,7 @@ memory=-Xmx16g
 threads=6
 # 2 is our special secret and may indicate disk full
 while [ $result -ne 0 ] && [ $result -ne 2 ]; do
-    java $memory -cp eidos-assembly-0.2.2-SNAPSHOT.jar $app $inputDir $outputDir $metaDir $threads
+    java $memory -cp $cp $app $inputDir $outputDir $metaDir $threads
     result=$?
     echo
     echo "<<<<<<< Exit code was $result >>>>>>>"

@@ -9,8 +9,6 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 resolvers += "jitpack" at "https://jitpack.io"
 
-mainClass in Compile := Some("org.clulab.wm.eidos.apps.ExitCode")
-
 libraryDependencies ++= {
   val procVer = "7.4.2"
 
