@@ -8,11 +8,9 @@ object GroundingUtils {
   // Get the top UN ontology grounding.
   def getBaseGrounding(mention: EidosMention): String = {
     val namespace = EidosOntologyGrounder.UN_NAMESPACE
-
-    if (mention.grounding.contains(namespace) && mention.grounding(namespace).nonEmpty)
-      mention.grounding(namespace).head._1.name
-    else
-      "(unavailable)"
+    mention.grounding(namespace)
+      .headName
+      .getOrElse("(unavailable)")
   }
 
   // Get the top k groundings from the desired ontology (identified by namespace: String), with scores.
