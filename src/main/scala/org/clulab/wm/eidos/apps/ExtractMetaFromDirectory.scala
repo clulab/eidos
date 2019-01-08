@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.apps
 
+import java.io.File
 import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
@@ -17,9 +18,11 @@ object ExtractMetaFromDirectory extends App {
   val outputDir = args(2)
   val timeFile = args(3)
 
+  val doneDir = inputDir + "/done"
   val converter = MetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
+  val parFiles = files.par
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
@@ -37,8 +40,6 @@ object ExtractMetaFromDirectory extends App {
 
     val forkJoinPool = new ForkJoinPool(8)
     val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-
-    val parFiles = files.par
     parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
@@ -63,6 +64,10 @@ object ExtractMetaFromDirectory extends App {
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(stringify(mentionsJSONLD, pretty = true))
           }
+          // Now move the file to directory done
+          val newPath = doneDir + "/" + file.getName
+          file.renameTo(new File(newPath))
+
           text.size
         }
         this.synchronized {
