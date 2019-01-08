@@ -118,11 +118,10 @@ object FilteredExtractMetaFromDirectory extends App {
           osw.flush()
           fos.flush()
           fos.getFD.sync()
-
-          // Now move the file to directory done
-          val newPath = doneDir + "/" + file.getName
-          file.renameTo(new File(newPath))
         }
+        // Now move the file to directory done
+        val newPath = doneDir + "/" + file.getName
+        file.renameTo(new File(newPath))
       }
       catch {
         case exception: SyncFailedException =>
