@@ -27,7 +27,7 @@ case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eid
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends MultiOntologyGrounder with AdjectiveGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   val eidosConf: Config = config[Config]("EidosSystem")
@@ -365,8 +365,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   /**
     * Grounding
     */
-  def containsStopword(stopword: String): Boolean = loadableAttributes.stopwordManager.containsStopword(stopword)
-
   def groundOntology(mention: EidosMention): Groundings = {
     // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
     val (primaryGrounders, secondaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isPrimary)
