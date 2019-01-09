@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{HashMap => JHashMap}
 
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.AnnotatedDocument
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import com.github.jsonldjava.core.JsonLdOptions

@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
+import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
@@ -138,6 +139,20 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
     } else {
       OntologyGrounding()
     }
+  }
+}
+
+class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) extends MultiOntologyGrounding {
+  // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
+  protected val (primaryGrounders, secondaryGrounders) = ontologyGrounders.partition(_.isPrimary)
+
+  def groundOntology(mention: EidosMention): Groundings = {
+    val primaryGroundings = primaryGrounders.map(ontologyGrounder =>
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+    val secondaryGroundings = secondaryGrounders.map(ontologyGrounder =>
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
+
+    primaryGroundings ++ secondaryGroundings
   }
 }
 

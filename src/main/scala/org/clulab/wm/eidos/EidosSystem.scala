@@ -1,42 +1,28 @@
 package org.clulab.wm.eidos
 
+import ai.lum.common.ConfigUtils._
+
 import com.typesafe.config.{Config, ConfigFactory}
+
 import org.clulab.odin._
 import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
-import org.clulab.wm.eidos.entities.EidosEntityFinder
-import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, INT_NAMESPACE, MESH_NAMESPACE, MITRE12_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, WHO_NAMESPACE}
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils._
-import ai.lum.common.ConfigUtils._
-import org.slf4j.{Logger, LoggerFactory}
-import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
+import org.clulab.wm.eidos.document.{AnnotatedDocument, EidosDocument}
+import org.clulab.wm.eidos.entities.EidosEntityFinder
+import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder._
+import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils._
+
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
-
-case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eidosMentions: Seq[EidosMention])
-
-class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) extends MultiOntologyGrounding {
-  // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
-  protected val (primaryGrounders, secondaryGrounders) = ontologyGrounders.partition(_.isPrimary)
-
-  def groundOntology(mention: EidosMention): Groundings = {
-    val primaryGroundings = primaryGrounders.map(ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
-    val secondaryGroundings = secondaryGrounders.map(ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
-
-    primaryGroundings ++ secondaryGroundings
-  }
-}
 
 /**
   * A system for text processing and information extraction
@@ -394,8 +380,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
 }
 
 object EidosSystem {
-  type Corpus = Seq[AnnotatedDocument]
-
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val PREFIX = "EidosSystem"

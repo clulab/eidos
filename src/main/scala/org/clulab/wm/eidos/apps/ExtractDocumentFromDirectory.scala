@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.apps
 import org.clulab.processors.Document
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json.{JSONSerializer, stringify}
-import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
