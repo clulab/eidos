@@ -2,8 +2,8 @@ package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.odin.CrossSentenceMention
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.EidosSystem.Corpus
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
