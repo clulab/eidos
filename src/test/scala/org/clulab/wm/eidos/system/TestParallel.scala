@@ -30,7 +30,7 @@ class TestParallel extends ExtractionTest {
 
   protected def toText(eidosSystem: EidosSystem): String = {
     val annotatedDocuments = texts.map(eidosSystem.extractFromText(_))
-    val corpus = new JLDCorpus(annotatedDocuments, ieSystem)
+    val corpus = new JLDCorpus(annotatedDocuments, ieSystem.loadableAttributes.adjectiveGrounder)
     val result = corpus.toJsonStr
 
     // Pick a random batch to do

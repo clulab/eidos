@@ -71,7 +71,7 @@ trait Exporter {
 // Helper classes for facilitating the different export formats
 case class JSONLDExporter(pw: PrintWriter, reader: EidosSystem) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
-    val corpus = new JLDCorpus(annotatedDocuments, reader)
+    val corpus = new JLDCorpus(annotatedDocuments, reader.loadableAttributes.adjectiveGrounder)
     val mentionsJSONLD = corpus.serialize()
     pw.println(stringify(mentionsJSONLD, pretty = true))
   }

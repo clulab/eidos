@@ -27,7 +27,7 @@ case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eid
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends MultiOntologyGrounder with AdjectiveGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends MultiOntologyGrounder {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   val eidosConf: Config = config[Config]("EidosSystem")
@@ -377,9 +377,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Mult
 
     primaryGroundings ++ secondaryGroundings
   }
-
-  def groundAdjective(quantifier: String): AdjectiveGrounding =
-    loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
 
   /**
     * Wrapper for using w2v on some strings

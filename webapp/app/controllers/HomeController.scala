@@ -122,7 +122,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val annotatedDocument = ieSystem.extractFromText(text)
 
     // Export to JSON-LD
-    val corpus = new JLDCorpus(Seq(annotatedDocument), ieSystem)
+    val corpus = new JLDCorpus(Seq(annotatedDocument), ieSystem.loadableAttributes.adjectiveGrounder)
     val mentionsJSONLD = corpus.serialize()
     (mentionsJSONLD)
   }
@@ -155,7 +155,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val paramDetails = domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
     val paramMean = paramDetails.get(DomainParams.PARAM_MEAN).get
     val paramStdev = paramDetails.get(DomainParams.PARAM_STDEV).get
-    val grounding = ieSystem.groundAdjective(quantifier)
+    val grounding = ieSystem.loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
     val predictedDelta = grounding.predictDelta(paramMean, paramStdev)
 
     GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText, quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
