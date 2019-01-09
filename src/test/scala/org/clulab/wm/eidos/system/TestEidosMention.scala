@@ -11,10 +11,13 @@ import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManaging}
 
-class TestEidosMention extends ExtractionTest with StopwordManaging with MultiOntologyGrounder {
+class TestEidosMention extends ExtractionTest with MultiOntologyGrounder {
   
   def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
-  def containsStopword(stopword: String) = stopword == "policy"
+
+  object StopwordManager extends StopwordManaging {
+    def containsStopword(stopword: String) = stopword == "policy"
+  }
 
   def test(text: String) = {
     def myprintln(text: String) = {
@@ -44,7 +47,7 @@ class TestEidosMention extends ExtractionTest with StopwordManaging with MultiOn
 
     val odinMentions = reachableOdinMentions // These should already be distinct
     val distinctOdinMentions = new HashCodeBagger[Mention].put(odinMentions).get() // This shouldn't make a difference
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, new Canonicalizer(this), this)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions, new Canonicalizer(this.StopwordManager), this)
     odinMentions.size should be (distinctOdinMentions.size)
     odinMentions.size should be (eidosMentions.size)
 
@@ -93,7 +96,7 @@ than in the corresponding period two years earlier.
   it should "properly make canonical form" in {
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
-    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, new Canonicalizer(this), this)
+    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, new Canonicalizer(this.StopwordManager), this)
 
 //    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 
@@ -111,6 +114,4 @@ than in the corresponding period two years earlier.
     oil.head.canonicalName should be ("oil")
 
   }
-
-
 }
