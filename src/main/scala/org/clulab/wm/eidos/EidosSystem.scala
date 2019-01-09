@@ -27,7 +27,7 @@ case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eid
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends MultiOntologyGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   val eidosConf: Config = config[Config]("EidosSystem")
@@ -196,6 +196,22 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Mult
 
   def reload(): Unit = loadableAttributes = LoadableAttributes()
 
+  object MultiOntologyGrounder extends MultiOntologyGrounder {
+
+    def groundOntology(mention: EidosMention): Groundings = {
+      // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
+      val (primaryGrounders, secondaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isPrimary)
+
+      val primaryGroundings = primaryGrounders.map (ontologyGrounder =>
+        (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+
+      val secondaryGroundings = secondaryGrounders.map (ontologyGrounder =>
+        (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
+
+      primaryGroundings ++ secondaryGroundings
+    }
+  }
+
   def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
     val doc = EidosDocument(document, keepText)
     // Add the tags from the lexicons we load
@@ -263,7 +279,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Mult
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this)
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this.MultiOntologyGrounder)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
@@ -360,22 +376,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Mult
       causes.exists(loadableAttributes.stopwordManager.hasContent(_, state)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_, state))
     else
       true
-  }
-
-  /**
-    * Grounding
-    */
-  def groundOntology(mention: EidosMention): Groundings = {
-    // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
-    val (primaryGrounders, secondaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isPrimary)
-
-    val primaryGroundings = primaryGrounders.map (ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
-
-    val secondaryGroundings = secondaryGrounders.map (ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
-
-    primaryGroundings ++ secondaryGroundings
   }
 
   /**
