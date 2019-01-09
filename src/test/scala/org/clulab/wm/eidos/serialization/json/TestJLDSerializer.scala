@@ -130,7 +130,7 @@ class TestJLDSerializer extends ExtractionTest {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.loadableAttributes.stopwordManager), ieSystem.MultiOntologyGrounder)
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.loadableAttributes.stopwordManager), ieSystem.loadableAttributes.multiOntologyGrounder)
       val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
 
       nextAnnotatedDocument

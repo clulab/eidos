@@ -34,7 +34,7 @@ trait OntologyGrounder {
 
 }
 
-trait MultiOntologyGrounder {
+trait MultiOntologyGrounding {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 

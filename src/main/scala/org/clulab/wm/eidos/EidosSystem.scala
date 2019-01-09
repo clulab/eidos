@@ -24,6 +24,20 @@ import scala.annotation.tailrec
 
 case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eidosMentions: Seq[EidosMention])
 
+class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) extends MultiOntologyGrounding {
+  // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
+  protected val (primaryGrounders, secondaryGrounders) = ontologyGrounders.partition(_.isPrimary)
+
+  def groundOntology(mention: EidosMention): Groundings = {
+    val primaryGroundings = primaryGrounders.map(ontologyGrounder =>
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+    val secondaryGroundings = secondaryGrounders.map(ontologyGrounder =>
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
+
+    primaryGroundings ++ secondaryGroundings
+  }
+}
+
 /**
   * A system for text processing and information extraction
   */
@@ -77,6 +91,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     val negationHandler: NegationHandler,
     val expansionHandler: ExpansionHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
+    val multiOntologyGrounder: MultiOntologyGrounding,
     val timenorm: Option[TemporalCharbasedParser],
     val geonorm: Option[GeoDisambiguateParser]
   )
@@ -155,6 +170,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
             ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology, useCache), wordToVec)).seq
           else
             Seq.empty
+      val multiOntologyGrounder = new MultiOntologyGrounder(ontologyGrounders)
       val timenorm: Option[TemporalCharbasedParser] =
           if (useTimeNorm)
             FileUtils.withResourceAsFile(timeNormModelPath) { file =>
@@ -183,6 +199,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
         negationHandler,
         expansionHandler,
         ontologyGrounders,
+        multiOntologyGrounder,
         timenorm,
         geonorm
       )
@@ -195,22 +212,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
   }
 
   def reload(): Unit = loadableAttributes = LoadableAttributes()
-
-  object MultiOntologyGrounder extends MultiOntologyGrounder {
-
-    def groundOntology(mention: EidosMention): Groundings = {
-      // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
-      val (primaryGrounders, secondaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isPrimary)
-
-      val primaryGroundings = primaryGrounders.map (ontologyGrounder =>
-        (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
-
-      val secondaryGroundings = secondaryGrounders.map (ontologyGrounder =>
-        (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
-
-      primaryGroundings ++ secondaryGroundings
-    }
-  }
 
   def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
     val doc = EidosDocument(document, keepText)
@@ -279,7 +280,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this.MultiOntologyGrounder)
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), loadableAttributes.multiOntologyGrounder)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
