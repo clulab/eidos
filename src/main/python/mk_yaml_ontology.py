@@ -26,9 +26,9 @@ def ont_node(name, examples, keywords):
 
 
 def dump_yaml(d, fn, ont_name):
-    super_dict = [{ont_name: d}]
+    super_list = [{ont_name: d}]
     with open(fn, 'w') as yaml_file:
-        yaml.dump(super_dict, yaml_file, default_flow_style=False)
+        yaml.dump(super_list, yaml_file, default_flow_style=False)
 
 
 def main():
