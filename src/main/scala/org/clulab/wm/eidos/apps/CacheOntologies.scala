@@ -25,7 +25,6 @@ object CacheOntologies extends App {
     throw new RuntimeException("No ontologies were specified, please check the config file.")
   else {
     val proc = reader.proc
-    val canonicalizer = new Canonicalizer(reader)
 
     println(s"Saving ontologies to $cacheDir...")
     ontologyGrounders.foreach { grounder =>

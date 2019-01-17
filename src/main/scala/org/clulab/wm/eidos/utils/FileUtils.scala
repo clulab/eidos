@@ -7,7 +7,8 @@ import java.util.Collection
 
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.ClassLoaderObjectInputStream
-import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.yaml.snakeyaml.Yaml
@@ -77,7 +78,7 @@ object FileUtils {
 
   def writeToJSONLD(annotatedDocuments: Seq[AnnotatedDocument], pw: PrintWriter, reader: EidosSystem): Unit = {
     // 4. Convert to JSON
-    val corpus = new JLDCorpus(annotatedDocuments, reader)
+    val corpus = new JLDCorpus(annotatedDocuments, reader.loadableAttributes.adjectiveGrounder)
     val mentionsJSONLD = corpus.serialize()
     // 5. Write to output file
     pw.println(stringify(mentionsJSONLD, pretty = true))

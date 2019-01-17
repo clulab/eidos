@@ -1,33 +1,33 @@
 package org.clulab.wm.eidos
 
+import ai.lum.common.ConfigUtils._
+
 import com.typesafe.config.{Config, ConfigFactory}
+
 import org.clulab.odin._
 import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
-import org.clulab.wm.eidos.entities.EidosEntityFinder
-import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.groundings.Aliases.Groundings
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.{FAO_NAMESPACE, INT_NAMESPACE, MESH_NAMESPACE, MITRE12_NAMESPACE, PROPS_NAMESPACE, UN_NAMESPACE, WDI_NAMESPACE, WHO_NAMESPACE}
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils._
-import ai.lum.common.ConfigUtils._
-import org.slf4j.{Logger, LoggerFactory}
-import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
+import org.clulab.wm.eidos.document.{AnnotatedDocument, EidosDocument}
+import org.clulab.wm.eidos.entities.EidosEntityFinder
+import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder._
+import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils._
+
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
-
-case class AnnotatedDocument(document: Document, odinMentions: Seq[Mention], eidosMentions: Seq[EidosMention])
 
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends StopwordManaging with MultiOntologyGrounder with AdjectiveGrounder {
+class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   val eidosConf: Config = config[Config]("EidosSystem")
@@ -77,6 +77,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val negationHandler: NegationHandler,
     val expansionHandler: ExpansionHandler,
     val ontologyGrounders: Seq[EidosOntologyGrounder],
+    val multiOntologyGrounder: MultiOntologyGrounding,
     val timenorm: Option[TemporalCharbasedParser],
     val geonorm: Option[GeoDisambiguateParser]
   )
@@ -131,6 +132,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
             ontologyHandler.ontologyGroundersFromConfig(config[Config]("ontologies"))
           else
             Seq.empty
+      val multiOntologyGrounder = new MultiOntologyGrounder(ontologyGrounders)
       val timenorm: Option[TemporalCharbasedParser] =
           if (useTimeNorm)
             FileUtils.withResourceAsFile(timeNormModelPath) { file =>
@@ -159,6 +161,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
         negationHandler,
         expansionHandler,
         ontologyGrounders,
+        multiOntologyGrounder,
         timenorm,
         geonorm
       )
@@ -239,7 +242,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), this)
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), loadableAttributes.multiOntologyGrounder)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
@@ -339,27 +342,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
   }
 
   /**
-    * Grounding
-    */
-  def containsStopword(stopword: String): Boolean = loadableAttributes.stopwordManager.containsStopword(stopword)
-
-  def groundOntology(mention: EidosMention): Groundings = {
-    // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
-    val (primaryGrounders, secondaryGrounders) = loadableAttributes.ontologyGrounders.partition(_.isPrimary)
-
-    val primaryGroundings = primaryGrounders.map (ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
-
-    val secondaryGroundings = secondaryGrounders.map (ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
-
-    primaryGroundings ++ secondaryGroundings
-  }
-
-  def groundAdjective(quantifier: String): AdjectiveGrounding =
-    loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
-
-  /**
     * Wrapper for using w2v on some strings
     */
   def stringSimilarity(string1: String, string2: String): Float = wordToVec.stringSimilarity(string1, string2)
@@ -374,8 +356,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
 }
 
 object EidosSystem {
-  type Corpus = Seq[AnnotatedDocument]
-
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val PREFIX = "EidosSystem"

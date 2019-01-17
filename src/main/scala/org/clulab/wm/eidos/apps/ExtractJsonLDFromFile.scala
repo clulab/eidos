@@ -18,7 +18,7 @@ object ExtractJsonLDFromFile extends App {
     // 3. Extract causal mentions from the text
     val annotatedDocument = reader.extractFromText(text)
     // 4. Convert to an object that can be serialized as desired
-    val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
+    val corpus = new JLDCorpus(Seq(annotatedDocument), reader.loadableAttributes.adjectiveGrounder)
     // 5. Convert to JSON
     val mentionsJSONLD = corpus.serialize()
     // 6. Write to output file
