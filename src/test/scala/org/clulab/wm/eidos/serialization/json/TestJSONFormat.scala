@@ -6,40 +6,56 @@ import org.clulab.wm.eidos.utils.PlayUtils
 import org.json4s.JsonAST.JValue
 import org.json4s._
 import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
 
 class TestJSONFormat extends Test {
 
   def hasUndesired(text: String): Boolean = {
     val line = text.replace('\n', ' ').replace('\r', ' ')
 
-    line.matches(".*(null|nothing|empty).*")
+    line.matches(".*(blank|absence|null|nothing|empty).*")
   }
 
-  // This method is taken from JLDSerializer.
-  def noneIfEmpty(values: Seq[JValue]): Option[Seq[JValue]] =
-    if (values.isEmpty) None
-    else Some(values)
+  def isUndesired(jValue: JValue): Boolean = {
 
-  // This method is taken from JLDSerializer.
-  def toJObjects(jldObjects: Seq[JLDObject]): Option[Seq[JValue]] =
-    noneIfEmpty(jldObjects.map(_.toJObject).toList)
+  }
+  
+  def clean(map: Map[String, JValue]): JObject = {
+    val cleaned: List[(String, JValue)] = map.toList.filter { case (_, value) =>
+      value match {
+        case JNull => false
+        case JNothing => false
+        case value: JString => value != null && value.values.size > 0
+        case value: JArray => value != null && value.values.size > 0
+        case value: JSet => value != null && value.values.size > 0
+        case value => value != null
+      }
+    }
+    val fielded: List[JField] = cleaned.map { case (key, value) => new JField(key, value)}
+
+    new JObject(fielded)
+  }
+
+  // Check first to see if dirty and if not, return original object
+  // Can this be made recursive?
+  // isUndesired?
+
 
   val jObject: JObject = {
     val full = List[Int](1, 2, 3, 4)
     val empty = List.empty[Int]
-    val something: JValue = Option[String]("hello")
-    val nothing: JValue = Option[String](null)
+    val something = Option[String]("hello")
+    val nothing = Option[String](null)
 
-    val safeFull = noneIfEmpty(full.map(new JInt(_)))
-    val safeEmpty = noneIfEmpty(empty.map(new JInt(_)))
-
-    ("string" -> "Hello, world!") ~
-        // ("absence" -> null) ~ // An actual null will crash the webapp.
-        ("full" -> safeFull) ~
-        ("empty" -> safeEmpty) ~
-        ("something" -> something) ~
+    val result: JObject = clean(Map[String, JValue](
+        ("string" -> "Hello, world!"),
+        ("blank" -> ""),
+        ("absence" -> null), // An actual null would heretofore crash the webapp.
+        ("full" -> full),
+        ("empty" -> empty),
+        ("something" -> something),
         ("nothing" -> nothing)
+    ))
+    result
   }
 
   behavior of "pretty string"
