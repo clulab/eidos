@@ -6,8 +6,9 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin.{EventMention, State}
 import org.clulab.struct.Counter
 import org.clulab.utils.Configured
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosEventMention
-import org.clulab.wm.eidos.{AnnotatedDocument, EidosSystem}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import ai.lum.common.StringUtils._
