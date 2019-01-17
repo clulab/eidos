@@ -97,19 +97,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val       transparentPath: String = eidosConf[String]("transparentPath")
     // Hedging
     val           hedgingPath: String = eidosConf[String]("hedgingPath")
-    // Ontology handling
-    val        unOntologyPath: String = eidosConf[String]("unOntologyPath")
-    val       wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
-    val       faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
-    val      meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
-    val     propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
-    val   mitre12OntologyPath: String = eidosConf[String]("mitre12OntologyPath")
-    val       whoOntologyPath: String = eidosConf[String]("whoOntologyPath")
-    val       intOntologyPath: String = eidosConf[String]("intOntologyPath")
     val              cacheDir: String = eidosConf[String]("cacheDir")
 
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
-    val    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
     val               maxHops: Int = eidosConf[Int]("maxHops")
     val      wordToVecPath: String = eidosConf[String]("wordToVecPath")
     val  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
@@ -127,22 +117,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
     val expansionHandler = ExpansionHandler(language)
-
-    def mkDomainOntology(name: String, useCached: Boolean): DomainOntology = {
-      val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
-
-      name match {
-        case           UN_NAMESPACE =>         UNOntology(     unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          WDI_NAMESPACE =>        WDIOntology(    wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          FAO_NAMESPACE =>        FAOOntology(    faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case         MESH_NAMESPACE =>       MeshOntology(   meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case        PROPS_NAMESPACE => PropertiesOntology(  propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case      MITRE12_NAMESPACE =>    MITRE12Ontology(mitre12OntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          WHO_NAMESPACE =>        WHOOntology(    whoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          INT_NAMESPACE =>        IntOntology(    intOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
-      }
-    }
+    // For use in creating the ontologies
+    val ontologyHandler = new OntologyHandler(proc, wordToVec, canonicalizer)
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -152,7 +128,7 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) extends Stop
       // Domain Ontologies:
       val ontologyGrounders =
           if (useW2V)
-            ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology, useCache), wordToVec)).seq
+            ontologyHandler.ontologyGroundersFromConfig(config[Config]("ontologies"))
           else
             Seq.empty
       val timenorm: Option[TemporalCharbasedParser] =

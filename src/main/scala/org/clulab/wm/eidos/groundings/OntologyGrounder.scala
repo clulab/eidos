@@ -39,14 +39,14 @@ trait MultiOntologyGrounder {
 }
 
 
-class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
   // Is not dependent on the output of other grounders
   val isPrimary = true
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),
-          wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
@@ -152,10 +152,11 @@ object EidosOntologyGrounder {
   val MITRE12_NAMESPACE = "mitre12"
   val     WHO_NAMESPACE = "who"
   val     INT_NAMESPACE = "interventions"
+  val   ICASA_NAMESPACE = "icasa"
   // Used for plugin ontologies
   val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
 
-  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE)
+  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
