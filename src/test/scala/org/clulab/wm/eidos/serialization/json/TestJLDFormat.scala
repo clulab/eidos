@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{HashMap => JHashMap}
 
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.AnnotatedDocument
-import org.clulab.wm.eidos.EidosSystem.Corpus
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
@@ -25,7 +25,7 @@ class TestJLDFormat extends ExtractionTest {
   }
   
   def serialize(corpus: Corpus): String = {
-    val jldCorpus = new JLDCorpus(corpus, ieSystem)
+    val jldCorpus = new JLDCorpus(corpus, ieSystem.loadableAttributes.adjectiveGrounder)
     val jValue = jldCorpus.serialize()
     stringify(jValue, pretty = true)
   }

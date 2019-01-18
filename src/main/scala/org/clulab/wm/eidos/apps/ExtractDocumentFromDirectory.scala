@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.apps
 import org.clulab.processors.Document
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json.{JSONSerializer, stringify}
-import org.clulab.wm.eidos.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
@@ -58,7 +58,7 @@ object ExtractDocumentFromDirectory extends App {
       // 3. Extract causal mentions from the text
       val annotatedDocuments = Seq(annotator(reader, text))
       // 4. Convert to JSON
-      val corpus = new JLDCorpus(annotatedDocuments, reader)
+      val corpus = new JLDCorpus(annotatedDocuments, reader.loadableAttributes.adjectiveGrounder)
       val mentionsJSONLD = corpus.serialize()
       // 5. Write to output file
       pw.println(stringify(mentionsJSONLD, pretty = true))

@@ -1,13 +1,12 @@
 package org.clulab.wm.eidos.serialization.json
 
-import org.clulab.odin.{Attachment, CrossSentenceMention, Mention}
+import org.clulab.odin.CrossSentenceMention
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.AnnotatedDocument
-import org.clulab.wm.eidos.EidosSystem.Corpus
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
-import org.clulab.wm.eidos.test.TestUtils
-import org.clulab.wm.eidos.test.TestUtils.{ExtractionTest, Test}
+import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.Canonicalizer
 
@@ -26,7 +25,7 @@ class TestJLDSerializer extends ExtractionTest {
   
   def serialize(corpus: Corpus) = {
     val json = {
-      val jldCorpus = new JLDEidosCorpus(corpus, ieSystem)
+      val jldCorpus = new JLDEidosCorpus(corpus, ieSystem.loadableAttributes.adjectiveGrounder)
       val jValue = jldCorpus.serialize()
       stringify(jValue, true)
     }
@@ -130,7 +129,7 @@ class TestJLDSerializer extends ExtractionTest {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.loadableAttributes.stopwordManager), ieSystem)
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.loadableAttributes.stopwordManager), ieSystem.loadableAttributes.multiOntologyGrounder)
       val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
 
       nextAnnotatedDocument
