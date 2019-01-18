@@ -9,8 +9,10 @@ import org.json4s.JsonDSL._
 
 
 class TestJSONFormat extends Test {
-  private val occupied = List[Int](1, 2, 3, 4)
-  private val deserted = List.empty[Int]
+  private val occupiedList = List[Int](1, 2, 3, 4)
+  private val desertedList = List.empty[Int]
+  private val occupiedSet = Set[Int](1, 2, 3, 4)
+  private val desertedSet = Set.empty[Int]
   private val something = Option[String]("hello")
   private val nothing = Option[String](null)
   private val recursive = List("", "", "")
@@ -19,8 +21,10 @@ class TestJSONFormat extends Test {
     ("string" -> "Hello, world!") ~
         ("blank" -> "") ~
         // ("absence" -> null) ~
-        ("occupied" -> occupied) ~
-        ("deserted" -> deserted) ~
+        ("occupiedList" -> occupiedList) ~
+        ("desertedList" -> desertedList) ~
+        ("occupiedSet" -> occupiedSet) ~
+        ("desertedSet" -> desertedSet) ~
         ("something" -> something) ~
         ("nothing" -> nothing) ~
         ("recursive" -> recursive)
@@ -29,8 +33,10 @@ class TestJSONFormat extends Test {
     "string" -> "Hello, world!",
     "blank" -> "",
     "absence" -> null,
-    "occupied" -> occupied,
-    "deserted" -> deserted,
+    "occupiedList" -> occupiedList,
+    "desertedList" -> desertedList,
+    "occupiedSet" -> occupiedSet,
+    "desertedSet" -> desertedSet,
     "something" -> something,
     "nothing" -> nothing,
     "recursive" -> TidyJObject(recursive.zipWithIndex.map { case(value, index) => new JField(index.toString, value) })
@@ -39,7 +45,7 @@ class TestJSONFormat extends Test {
   def hasDirtyField(text: String): Boolean = {
     val line = text.replace('\n', ' ').replace('\r', ' ')
 
-    line.matches(".*(blank|absence|null|nothing|deserted).*")
+    line.matches(".*(blank|absence|null|nothing|desertedList).*")
   }
 
   behavior of "pretty string"
