@@ -15,7 +15,11 @@ class TestJSONFormat extends Test {
   private val desertedSet = Set.empty[Int]
   private val something = Option[String]("hello")
   private val nothing = Option[String](null)
-  private val recursive = List("", "", "")
+  private val sloppyRecursive = List("", null)
+  private val tidyRecursive = TidyJObject(List(
+    "first" -> "",
+    "last" -> null
+  ))
 
   val sloppyJObject: JObject =
     ("string" -> "Hello, world!") ~
@@ -27,7 +31,7 @@ class TestJSONFormat extends Test {
         ("desertedSet" -> desertedSet) ~
         ("something" -> something) ~
         ("nothing" -> nothing) ~
-        ("recursive" -> recursive)
+        ("sloppyRecursive" -> sloppyRecursive)
 
   val tidyJObject: TidyJObject = TidyJObject(List(
     "string" -> "Hello, world!",
@@ -39,7 +43,7 @@ class TestJSONFormat extends Test {
     "desertedSet" -> desertedSet,
     "something" -> something,
     "nothing" -> nothing,
-    "recursive" -> TidyJObject(recursive.zipWithIndex.map { case(value, index) => new JField(index.toString, value) })
+    "tidyRecursive" -> tidyRecursive
   ))
 
   def hasDirtyField(text: String): Boolean = {

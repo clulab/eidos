@@ -75,7 +75,7 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
   def byTypename(typename: String): JavaSet[JLDObject] = jldObjectsByTypenameByIdentity(typename).keySet()
 
   protected def mkId(typename: String, id: Int): JField =
-      new JField("@id", "_:" + typename + "_" + id)
+      new JField("@id", s"_:${typename}_$id")
 
   def mkId(jldObject: JLDObject): JField = {
     val identity = jldObject.value
@@ -189,11 +189,11 @@ class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option
 
     TidyJObject(List(
       serializer.mkType(this),
-      ("text" -> quantifier),
-      (JLDProvenance.singular -> jldProvenance),
-      ("intercept" -> grounding.intercept),
-      ("mu" -> grounding.mu),
-      ("sigma" -> grounding.sigma)
+      "text" -> quantifier,
+      JLDProvenance.singular -> jldProvenance,
+      "intercept" -> grounding.intercept,
+      "mu" -> grounding.mu,
+      "sigma" -> grounding.sigma
     ))
   }
 }
@@ -232,10 +232,10 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
 
     TidyJObject(List(
       serializer.mkType(this),
-      ("type", kind),
-      ("text", text),
-      (JLDProvenance.singular -> jldProvanance),
-      (JLDModifier.plural -> jldModifiers)
+      "type" -> kind,
+      "text" -> text,
+      JLDProvenance.singular -> jldProvanance,
+      JLDModifier.plural -> jldModifiers
     ))
   }
 }
@@ -243,27 +243,27 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
 class JLDContextAttachment(serializer: JLDSerializer, kind: String, contextAttachment: ContextAttachment)
     extends JLDAttachment(serializer, "State") {
 
-  override def toJObject(): TidyJObject = {
+  override def toJObject: TidyJObject = {
     val value = serializer.mkRef(contextAttachment.value)
     val text = contextAttachment.text
 
     TidyJObject(List(
       serializer.mkType(this),
-      ("type", kind),
-      ("text", text),
-      ("value", value)
+      "type" -> kind,
+      "text" -> text,
+      "value" -> value
     ))
   }
 }
 
-// TODO: This format is not documented
+// TODO: This format is not documented, nor is it used AFAICT.
 class JLDScoredAttachment(serializer: JLDSerializer, kind: String, scoredAttachment: Score)
   extends JLDAttachment(serializer, "Score") {
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
-    ("type", kind),
-    ("value", scoredAttachment.score)
+    "type" -> kind,
+    "value" -> scoredAttachment.score
   ))
 }
 
@@ -272,8 +272,8 @@ class JLDInterval(serializer: JLDSerializer, interval: Interval)
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
-    ("start", interval.start + 1), // Start at 1.
-    ("end", interval.end) // It is now inclusive.
+    "start" -> (interval.start + 1), // Start at 1.
+    "end" -> interval.end // It is now inclusive.
   ))
 }
 
@@ -301,10 +301,10 @@ class JLDProvenance(serializer: JLDSerializer, mention: Mention)
 
     TidyJObject(List(
       serializer.mkType(this),
-      (JLDDocument.singular -> serializer.mkRef(document)),
-      ("documentCharInterval" -> Seq(new JLDInterval(serializer, documentCharInterval).toJObject)),
-      (JLDSentence.singular -> serializer.mkRef(sentence)),
-      ("positions" -> Seq(new JLDInterval(serializer, tokenInterval).toJObject))
+      JLDDocument.singular -> serializer.mkRef(document),
+      "documentCharInterval" -> Seq(new JLDInterval(serializer, documentCharInterval).toJObject),
+      JLDSentence.singular -> serializer.mkRef(sentence),
+      "positions" -> Seq(new JLDInterval(serializer, tokenInterval).toJObject)
     ))
   }
 }
@@ -319,8 +319,8 @@ class JLDTrigger(serializer: JLDSerializer, mention: EidosMention)
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
-    ("text" -> mention.odinMention.text),
-    (JLDProvenance.singular -> Seq(new JLDProvenance(serializer, mention).toJObject))
+    "text" -> mention.odinMention.text,
+    JLDProvenance.singular -> Seq(new JLDProvenance(serializer, mention).toJObject)
   ))
 }
 
@@ -365,15 +365,15 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      ("type" -> typeString),
-      ("subtype" -> subtypeString),
-      ("labels" -> mention.odinMention.labels),
-      ("text" -> mention.odinMention.text),
-      ("rule" -> mention.odinMention.foundBy),
-      ("canonicalName" -> mention.canonicalName),
-      ("groundings" -> jldGroundings),
-      (JLDProvenance.singular -> provenance()),
-      (JLDAttachment.plural -> jldAllAttachments)
+      "type" -> typeString,
+      "subtype" -> subtypeString,
+      "labels" -> mention.odinMention.labels,
+      "text" -> mention.odinMention.text,
+      "rule" -> mention.odinMention.foundBy,
+      "canonicalName" -> mention.canonicalName,
+      "groundings" -> jldGroundings,
+      JLDProvenance.singular -> provenance(),
+      JLDAttachment.plural -> jldAllAttachments
     ))
   }
 }
@@ -446,12 +446,12 @@ class JLDRelationCausation(serializer: JLDSerializer, mention: EidosEventMention
     val sources = mention.eidosArguments.getOrElse(JLDRelationCausation.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationCausation.effect, Seq.empty).filter(isExtractable)
     val jldArguments =
-        sources.map(new JLDArgument(serializer, "source", _).toJObject).toSeq ++
-        targets.map(new JLDArgument(serializer, "destination", _).toJObject).toSeq
+        sources.map(new JLDArgument(serializer, "source", _).toJObject) ++
+        targets.map(new JLDArgument(serializer, "destination", _).toJObject)
 
     super.toJObject + TidyJObject(List(
-      (JLDTrigger.singular -> trigger),
-      (JLDArgument.plural -> jldArguments)
+      JLDTrigger.singular -> trigger,
+      JLDArgument.plural -> jldArguments
     ))
   }
 }
@@ -478,12 +478,12 @@ class JLDRelationCorrelation(serializer: JLDSerializer, mention: EidosEventMenti
     val sources = mention.eidosArguments.getOrElse(JLDRelationCorrelation.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationCorrelation.effect, Seq.empty).filter(isExtractable)
     val jldArguments =
-        sources.map(new JLDArgument(serializer, "argument", _).toJObject).toSeq ++
-        targets.map(new JLDArgument(serializer, "argument", _).toJObject).toSeq
+        sources.map(new JLDArgument(serializer, "argument", _).toJObject) ++
+        targets.map(new JLDArgument(serializer, "argument", _).toJObject)
 
     super.toJObject + TidyJObject(List(
-      (JLDTrigger.singular -> trigger),
-      (JLDArgument.plural -> jldArguments)
+      JLDTrigger.singular -> trigger,
+      JLDArgument.plural -> jldArguments
     ))
   }
 }
@@ -503,9 +503,9 @@ class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSente
 
   // The provenance of this mention is just that of anchor and neighbor.
   override protected def provenance(): Seq[JValue] = Seq(
-      new JLDProvenance(serializer, mention.eidosAnchor),
-      new JLDProvenance(serializer, mention.eidosNeighbor)
-  ).map(_.toJObject)
+      new JLDProvenance(serializer, mention.eidosAnchor).toJObject,
+      new JLDProvenance(serializer, mention.eidosNeighbor).toJObject
+  )
 
   override def toJObject: TidyJObject = {
     val jldArguments = Seq(
@@ -514,7 +514,7 @@ class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSente
     )
 
     super.toJObject + TidyJObject(List(
-      (JLDArgument.plural -> jldArguments)
+      JLDArgument.plural -> jldArguments
     ))
   }
 }
@@ -533,10 +533,10 @@ class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: 
     val relation = edge._3
 
     TidyJObject(List(
-        serializer.mkType(this),
-        ("source" -> serializer.mkRef(source)),
-        ("destination" -> serializer.mkRef(destination)),
-        ("relation" -> relation)
+      serializer.mkType(this),
+      "source" -> serializer.mkRef(source),
+      "destination" -> serializer.mkRef(destination),
+      "relation" -> relation
     ))
   }
 }
@@ -572,14 +572,14 @@ class JLDWord(serializer: JLDSerializer, val document: Document, val sentence: S
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      ("text" -> jldText),
-      ("tag" -> getOrNone(sentence.tags)),
-      ("entity" -> getOrNone(sentence.entities)),
-      ("startOffset" -> startOffset),
-      ("endOffset" -> endOffset),
-      ("lemma" -> getOrNone(sentence.lemmas)),
-      ("chunk" -> getOrNone(sentence.chunks)),
-      ("norm" -> getOrNone(sentence.norms))
+      "text" -> jldText,
+      "tag" -> getOrNone(sentence.tags),
+      "entity" -> getOrNone(sentence.entities),
+      "startOffset" -> startOffset,
+      "endOffset" -> endOffset,
+      "lemma" -> getOrNone(sentence.lemmas),
+      "chunk" -> getOrNone(sentence.chunks),
+      "norm" -> getOrNone(sentence.norms)
     ))
   }
 }
@@ -594,16 +594,16 @@ class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val en
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimeInterval.typename) {
   
-  override def toJObject(): TidyJObject = {
+  override def toJObject: TidyJObject = {
     val startDateTime = Option(start).map(_.toString)
     val endDateTime = Option(end).map(_.toString)
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      ("start" -> startDateTime),
-      ("end" -> endDateTime),
-      ("duration" -> duration)
+      "start" -> startDateTime,
+      "end" -> endDateTime,
+      "duration" -> duration
     ))
   }
 }
@@ -619,16 +619,16 @@ class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimex.typename, interval) {
   
-  override def toJObject(): TidyJObject = {
+  override def toJObject: TidyJObject = {
     val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i._1, i._2, i._3).toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      ("startOffset" -> interval.span._1),
-      ("endOffset" -> interval.span._2),
-      ("text" -> interval.text),
-      (JLDTimeInterval.plural -> jldIntervals)
+      "startOffset" -> interval.span._1,
+      "endOffset" -> interval.span._2,
+      "text" -> interval.text,
+      JLDTimeInterval.plural -> jldIntervals
     ))
   }
 }
@@ -643,14 +643,14 @@ class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDGeoID.typename, geoid) {
 
-  override def toJObject(): TidyJObject = TidyJObject(List(
+  override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
     serializer.mkId(this),
-    ("startOffset" -> geoid.startOffset),
-    ("endOffset" -> geoid.endOffset),
-    ("text" -> geoid.text),
-    ("geoID" -> geoid.geonameID.map(_.toString))
-    // (JLDTimeInterval.plural -> toJObjects(jldIntervals))
+    "startOffset" -> geoid.startOffset,
+    "endOffset" -> geoid.endOffset,
+    "text" -> geoid.text,
+    "geoID" -> geoid.geonameID.map(_.toString)
+    // JLDTimeInterval.plural -> toJObjects(jldIntervals)
   ))
 }
 
@@ -664,7 +664,7 @@ class JLDDCT(serializer:JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDDCT.typename, dct) {
 
-  override def toJObject(): TidyJObject = {
+  override def toJObject: TidyJObject = {
     val text = Option(dct.text)
     val start = if (dct.interval.isDefined) Some(dct.interval.start.toString) else None
     val end = if (dct.interval.isDefined) Some(dct.interval.end.toString) else None
@@ -672,9 +672,9 @@ class JLDDCT(serializer:JLDSerializer, val dct: DCT)
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      ("text" -> text),
-      ("start" -> start),
-      ("end" -> end)
+      "text" -> text,
+      "start" -> start,
+      "end" -> end
     ))
   }
 }
@@ -704,11 +704,11 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      ("text" -> sentence.getSentenceText),
-      (JLDWord.plural -> jldWords.map(_.toJObject)),
-      (JLDDependency.plural -> jldGraphMapPair),
-      (JLDTimex.plural -> timexes),
-      (JLDGeoID.plural -> geoExps)
+      "text" -> sentence.getSentenceText,
+      JLDWord.plural -> jldWords.map(_.toJObject),
+      JLDDependency.plural -> jldGraphMapPair,
+      JLDTimex.plural -> timexes,
+      JLDGeoID.plural -> geoExps
     ))
   }
 }
@@ -730,10 +730,10 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      ("title" -> annotatedDocument.document.id),
-      ("text" -> jldText),
-      ("dct" -> jldDCT),
-      (JLDSentence.plural -> jldSentences)
+      "title" -> annotatedDocument.document.id,
+      "text" -> jldText,
+      "dct" -> jldDCT,
+      JLDSentence.plural -> jldSentences
     ))
   }
 }
@@ -809,8 +809,8 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
 
     TidyJObject(List(
       serializer.mkType(this),
-      (JLDDocument.plural -> jldDocuments),
-      (JLDExtraction.plural -> jldExtractions)
+      JLDDocument.plural -> jldDocuments,
+      JLDExtraction.plural -> jldExtractions
     ))
   }
 }

@@ -9,13 +9,14 @@ class TidyJObject(protected var jFields: List[JField]) extends JObject(TidyJObje
 object TidyJObject {
 
   def isTidy(keyAndValue: (String, JValue)): Boolean = keyAndValue._2 match {
+    case null => false
     case JNull => false
     case JNothing => false
-    case value: JString => value != null && value.values.size > 0
-    case value: JArray => value != null && value.values.size > 0
-    case value: JSet => value != null && value.values.size > 0
+    case value: JString => value.values.size > 0
+    case value: JArray => value.values.size > 0
+    case value: JSet => value.values.size > 0
     case value: TidyJObject => value.jFields.exists(isTidy)
-    case value => value != null
+    case _ => true
   }
 
   def tidy(jFields: List[JField]): List[JField] = jFields.filter(isTidy)
