@@ -4,36 +4,37 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.utils.PlayUtils
 
-import org.json4s.JObject
+import org.json4s.{JField, JObject}
 import org.json4s.JsonDSL._
 
 
 class TestJSONFormat extends Test {
-  val occupied = List[Int](1, 2, 3, 4)
-  val deserted = List.empty[Int]
-  val something = Option[String]("hello")
-  val nothing = Option[String](null)
+  private val occupied = List[Int](1, 2, 3, 4)
+  private val deserted = List.empty[Int]
+  private val something = Option[String]("hello")
+  private val nothing = Option[String](null)
+  private val recursive = List("", "", "")
 
-  val sloppyJObjectList: JObject =
+  val sloppyJObject: JObject =
     ("string" -> "Hello, world!") ~
         ("blank" -> "") ~
-//        ("absence" -> null) ~
+        // ("absence" -> null) ~
         ("occupied" -> occupied) ~
         ("deserted" -> deserted) ~
         ("something" -> something) ~
-        ("nothing" -> nothing)
+        ("nothing" -> nothing) ~
+        ("recursive" -> recursive)
 
-  val sloppyJObject: JObject = sloppyJObjectList
-
-  val tidyJObject: TidyJObject = new TidyJObject(List(
-    ("string" -> "Hello, world!"),
-    ("blank" -> ""),
-    ("absence" -> null),
-    ("occupied" -> occupied),
-    ("deserted" -> deserted),
-    ("something" -> something),
-    ("nothing" -> nothing))
-  )
+  val tidyJObject: TidyJObject = TidyJObject(List(
+    "string" -> "Hello, world!",
+    "blank" -> "",
+    "absence" -> null,
+    "occupied" -> occupied,
+    "deserted" -> deserted,
+    "something" -> something,
+    "nothing" -> nothing,
+    "recursive" -> TidyJObject(recursive.zipWithIndex.map { case(value, index) => new JField(index.toString, value) })
+  ))
 
   def hasDirtyField(text: String): Boolean = {
     val line = text.replace('\n', ' ').replace('\r', ' ')
