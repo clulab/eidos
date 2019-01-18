@@ -46,6 +46,7 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
+      println(s"working on concept $n: name: ${domainOntology.getNamer(n)}")
       new ConceptEmbedding(domainOntology.getNamer(n),
            wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
