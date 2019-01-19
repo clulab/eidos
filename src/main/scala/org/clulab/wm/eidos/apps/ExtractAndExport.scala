@@ -163,14 +163,21 @@ case class VanillaOdinJsonExporter(file: File) extends Exporter {
   import org.clulab.odin.serialization.json._
   import org.clulab.serialization.json._
 
-  val causeRole = ""
-  val effectRole = ""
-  val causalRelation = ""
-  val INCREASE = ""
-  val DECREASE = ""
   val CAUSE = "cause"
   val EFFECT = "effect"
-  val NODE_LABEL = ""
+
+  val NODE_LABEL = "Node" // org.clulab.influencer.ie.OdinUtils.NODE_LABEL
+
+  // org.clulab.influencer.assembly.DeduplicationUtils
+  val causeRole = "controller"
+  val effectRole = "controlled"
+  val causalRelation = "CausalEvent"
+  val increaseEvent = "IncreaseEvent"
+  val decreaseEvent = "DecreaseEvent"
+
+  val INCREASE = "increases"
+  val DECREASE = "decreases"
+
 
 
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
