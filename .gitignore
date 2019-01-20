@@ -40,7 +40,7 @@ timenorm_model.hdf5
 vectors.txt
 embeddings_november_2016.txt
 geonamesDict_noUnicode.txt
-glove.840B.300d.vectors.txt
+glove.840B.300d.txt
 cache/*.serialized
 cache/english/*.serialized
 
