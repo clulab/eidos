@@ -84,11 +84,7 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends Dom
 
   def getNamer(n: Integer): Namer = ontologyNodes(n)
 
-  def getValues(n: Integer): Array[String] = {
-    println("!!!!!!!!!!!!!!!!\n\t Made it to TreeDomainOntology")
-    println(s"\t returning ${ontologyNodes(n).values}")
-    ontologyNodes(n).values
-  }
+  def getValues(n: Integer): Array[String] = ontologyNodes(n).values
 
   def getPatterns(n: Integer): Option[Array[Regex]] = ontologyNodes(n).patterns
 
