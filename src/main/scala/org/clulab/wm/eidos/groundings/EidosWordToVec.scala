@@ -75,7 +75,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)
-  
+
 }
 
 object EidosWordToVec {
