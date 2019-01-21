@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.entities
 
+import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
@@ -153,5 +155,12 @@ object EidosEntityFinder extends LazyLogging {
     val avoidEngine = ExtractorEngine(avoidRules)
 
     new EidosEntityFinder(entityEngine = entityEngine, avoidEngine = avoidEngine, maxHops = maxHops)
+  }
+
+  def fromConfig(config: Config): EidosEntityFinder = {
+    val entityRulesPath = config[String]("entityRulesPath")
+    val avoidRulesPath = config[String]("avoidRulesPath")
+    val maxHops = config[Int]("maxHops")
+    EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops)
   }
 }

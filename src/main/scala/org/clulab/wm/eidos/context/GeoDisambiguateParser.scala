@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.context
 
+import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 import org.deeplearning4j.nn.graph.ComputationGraph
@@ -13,6 +15,13 @@ object GeoDisambiguateParser {
   val O_LOC = 2
   val UNKNOWN_TOKEN = "UNKNOWN_TOKEN"
   val TIME_DISTRIBUTED_1 = "time_distributed_1"
+
+  def fromConfig(config: Config): GeoDisambiguateParser = {
+    val   geoNormModelPath: String = config[String]("geoNormModelPath")
+    val    geoWord2IdxPath: String = config[String]("geoWord2IdxPath")
+    val      geoLoc2IdPath: String = config[String]("geoLoc2IdPath")
+    new GeoDisambiguateParser(geoNormModelPath, geoWord2IdxPath, geoLoc2IdPath)
+  }
 }
 
 /**
