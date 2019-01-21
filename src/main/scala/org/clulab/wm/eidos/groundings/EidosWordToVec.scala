@@ -8,8 +8,6 @@ import org.slf4j.{Logger, LoggerFactory}
 trait EidosWordToVec {
   type Similarities = Seq[(Namer, Float)]
 
-  def name: String
-
   def stringSimilarity(string1: String, string2: String): Float
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities
@@ -17,9 +15,6 @@ trait EidosWordToVec {
 }
 
 class FakeWordToVec extends EidosWordToVec {
-  println("Loaded a FAKE w2v")
-
-  def name = "Fake"
 
   override def stringSimilarity(string1: String, string2: String): Float =
     throw new RuntimeException("Word2Vec wasn't loaded, please check configurations.")
@@ -33,8 +28,7 @@ class FakeWordToVec extends EidosWordToVec {
 }
 
 class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
-  println("Loaded a REAL w2v!")
-  def name = "Real"
+
   protected def split(string: String): Array[String] = string.split(" +")
 
   def stringSimilarity(string1: String, string2: String): Float =
@@ -80,13 +74,12 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     }
   }
 
-  def makeCompositeVector(t: Iterable[String]): Array[Float] = {
-    println("******** Made it to w2v makeCompositeVector")
-    w2v.makeCompositeVector(t)
-  }
+  def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)
+  
 }
 
 object EidosWordToVec {
+
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def makeCachedFilename(path: String, file: String): String =

@@ -10,11 +10,7 @@ class OntologyHandler(val proc: Processor, val wordToVec: EidosWordToVec, val ca
 
   import OntologyHandler.serializedPath
 
-  println(s"In OntologyHandler, w2v name: ${wordToVec.name}")
-
   def ontologyGroundersFromConfig(config: Config): Seq[EidosOntologyGrounder] = {
-    println("*********************")
-    println(config.entrySet())
 
     val cacheDir: String = config[String]("cacheDir")
     val useCached: Boolean = config[Boolean]("useCache")
@@ -23,7 +19,6 @@ class OntologyHandler(val proc: Processor, val wordToVec: EidosWordToVec, val ca
       ontologyName <- selected
       path = config[String](ontologyName)
       domainOntology = mkDomainOntology(ontologyName, path, cacheDir, useCached)
-      _ = println(s"Making $ontologyName ontology from $path")
     } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec)
   }
 
