@@ -55,6 +55,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     )
   }
 
+  val stopwordManager = StopwordManager.fromConfig(config[Config]("filtering"))
+  val canonicalizer = new Canonicalizer(stopwordManager)
+  val ontologyHandler = new OntologyHandler(proc, wordToVec, canonicalizer)
+
   /**
     * The loadable aspect here applies to (most of) the files whose paths are specified in the config.  These
     * files can be reloaded.  It does not refer to the config itself, which is set when the EidosSystem is
@@ -72,7 +76,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     val actions: EidosActions,
     val engine: ExtractorEngine,
     val ner: LexiconNER,
-    val stopwordManager: StopwordManager,
     val hedgingHandler: HypothesisHandler,
     val negationHandler: NegationHandler,
     val expansionHandler: ExpansionHandler,
@@ -94,12 +97,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     val          taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
     val       topKNodeGroundings: Int = eidosConf[Int]("topKNodeGroundings")
-    val         stopwordsPath: String = eidosConf[String]("stopWordsPath")
-    val       transparentPath: String = eidosConf[String]("transparentPath")
     // Hedging
     val           hedgingPath: String = eidosConf[String]("hedgingPath")
     val              cacheDir: String = eidosConf[String]("cacheDir")
-
     // These are needed to construct some of the loadable attributes even though it isn't a path itself.
     val               maxHops: Int = eidosConf[Int]("maxHops")
     val      wordToVecPath: String = eidosConf[String]("wordToVecPath")
@@ -113,13 +113,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     val        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     val          useCache: Boolean = eidosConf[Boolean]("useCache")
 
-    val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
-    val canonicalizer = new Canonicalizer(stopwordManager)
+
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
     val expansionHandler = ExpansionHandler(language)
     // For use in creating the ontologies
-    val ontologyHandler = new OntologyHandler(proc, wordToVec, canonicalizer)
+
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -153,10 +152,8 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
         DomainParams(domainParamKBPath),
         EidosAdjectiveGrounder(quantifierKBPath),
         actions,
-//        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         LexiconNER(Seq(quantifierPath, propertiesPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
-        stopwordManager,
         hypothesisHandler,
         negationHandler,
         expansionHandler,
@@ -238,11 +235,11 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
 
     val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
-    val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
+    val cagRelevant = if (cagRelevantOnly) stopwordManager.keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), loadableAttributes.multiOntologyGrounder)
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(stopwordManager), loadableAttributes.multiOntologyGrounder)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
@@ -263,83 +260,16 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
   def extractFrom(doc: Document): Vector[Mention] = {
     // get entities
     val entities: Seq[Mention] = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
-//    println("Entities that made it to EidosSystem:")
-//    entities.foreach(e => DisplayUtils.shortDisplay(e))
-    // filter entities which are entirely stop or transparent
-    //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
-    // Becky says not to filter yet
-    //val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
-    val filtered = entities
-    //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
 
-    val events = extractEventsFrom(doc, State(filtered)).distinct
+    val events = extractEventsFrom(doc, State(entities)).distinct
     // Note -- in main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
     // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports
     //val cagRelevant = keepCAGRelevant(events)
 
     events
-    //cagRelevant.toVector
   }
 
-  // Old version
-  def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-    // 1) These will be "Causal" and "Correlation" which fall under "Event"
-    val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    // 2) and these will be "Entity", without overlap from above.
-    val entityMentions = mentions.filter(m => m.matches("Entity") && m.attachments.nonEmpty)
-    // 3) These last ones may overlap with the above or include mentions not in the original list.
-    val argumentMentions: Seq[Mention] = cagEdgeMentions.flatMap(_.arguments.values.flatten)
-    // Put them all together.
-    val goodMentions = cagEdgeMentions ++ entityMentions ++ argumentMentions
-    // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
-    val relevantMentions = mentions.filter(m => goodMentions.exists(m.eq))
 
-    relevantMentions
-  }
-
-  // New version
-  def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-
-    // 1) These will be "Causal" and "Correlation" which fall under "Event" if they have content
-    val allMentions = State(mentions)
-    val cagEdgeMentions = mentions.filter(m => releventEdge(m, allMentions))
-
-    // Should these be included as well?
-
-    // 3) These last ones may overlap with the above or include mentions not in the original list.
-    val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
-    // Put them all together.
-    // val releventEdgesAndTheirArgs = cagEdgeMentions ++ cagEdgeArguments
-    // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
-    mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
-  }
-
-  def isCAGRelevant(mention: Mention, cagEdgeMentions: Seq[Mention], cagEdgeArguments: Seq[Mention]): Boolean =
-    // We're no longer keeping all modified entities
-    //(mention.matches("Entity") && mention.attachments.nonEmpty) ||
-      cagEdgeMentions.contains(mention) ||
-      cagEdgeArguments.contains(mention)
-
-  def releventEdge(m: Mention, state: State): Boolean = {
-    m match {
-      case tb: TextBoundMention => EidosSystem.CAG_EDGES.contains(tb.label)
-      case rm: RelationMention => EidosSystem.CAG_EDGES.contains(rm.label)
-      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em, state)
-      case cs: CrossSentenceMention => EidosSystem.CAG_EDGES.contains(cs.label)
-      case _ => throw new UnsupportedClassVersionError()
-    }
-  }
-
-  def argumentsHaveContent(mention: EventMention, state: State): Boolean = {
-    val causes: Seq[Mention] = mention.arguments.getOrElse("cause", Seq.empty)
-    val effects: Seq[Mention] = mention.arguments.getOrElse("effect", Seq.empty)
-
-    if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
-    // then both causes and effects should have some content
-      causes.exists(loadableAttributes.stopwordManager.hasContent(_, state)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_, state))
-    else
-      true
-  }
 
   /**
     * Wrapper for using w2v on some strings

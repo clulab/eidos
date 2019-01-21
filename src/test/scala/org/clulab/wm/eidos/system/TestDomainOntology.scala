@@ -34,7 +34,7 @@ class TestDomainOntology extends Test {
       .withValue("EidosSystem.useW2V", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
   val reader = new EidosSystem(config)
   val proc = reader.proc
-  val canonicalizer = new Canonicalizer(reader.loadableAttributes.stopwordManager)
+  val canonicalizer = new Canonicalizer(reader.stopwordManager)
   val convert = true
   val filter = true
 

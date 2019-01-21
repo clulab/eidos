@@ -44,11 +44,17 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
   // Is not dependent on the output of other grounders
   val isPrimary = true
 
+  // fixme -- the w2v is Null for some reason!
+  println(s"W2V name: ${wordToVec.name}")
+
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
-      println(s"working on concept $n: name: ${domainOntology.getNamer(n)}")
+      println(s"working on concept $n: name: ${domainOntology.getNamer(n).name} <EOL>")
+      println(s"$name\t${domainOntology.size}")
+      val values = domainOntology.getValues(n)
+      values.foreach(v => println(s"\t$v"))
       new ConceptEmbedding(domainOntology.getNamer(n),
-           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+           wordToVec.makeCompositeVector(values))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
