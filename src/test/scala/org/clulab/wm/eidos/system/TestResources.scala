@@ -37,7 +37,7 @@ class TestResources extends Test {
   type Operation = (File) => Unit
 
   val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
-  val unwantedSuffixes = Seq("vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
+  val unwantedSuffixes = Seq("300d.txt", "vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
                               "geo_dict_with_population_SOUTH_SUDAN.txt", "word2idx_file.txt")
 
   def fileMatches(file: File): Boolean = {
