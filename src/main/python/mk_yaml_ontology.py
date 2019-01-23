@@ -16,9 +16,10 @@ def represent_none(self, _):
 yaml.add_representer(type(None), represent_none)
 
 
-def ont_node(name, examples, keywords):
-    # Make sure the node name is added to the examples to be used for grounding
-    examples.append(name)
+def ont_node(name, examples, keywords, add_name = True):
+    # If selected, make sure the node name is added to the examples to be used for grounding
+    if add_name:
+        examples.append(name)
     d = {'OntologyNode': None, "name": name, 'examples': examples, 'polarity': 1.0}
     if keywords is not None:
         d['keywords'] = keywords

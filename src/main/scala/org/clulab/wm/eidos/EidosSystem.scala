@@ -1,9 +1,7 @@
 package org.clulab.wm.eidos
 
 import ai.lum.common.ConfigUtils._
-
 import com.typesafe.config.{Config, ConfigFactory}
-
 import org.clulab.odin._
 import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
@@ -14,12 +12,10 @@ import org.clulab.wm.eidos.actions.ExpansionHandler
 import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.document.{AnnotatedDocument, EidosDocument}
-import org.clulab.wm.eidos.entities.EidosEntityFinder
+import org.clulab.wm.eidos.entities.{EidosEntityFinder, EntityFinder}
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
-
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
@@ -55,6 +51,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     )
   }
 
+  val stopwordManager = StopwordManager.fromConfig(config[Config]("filtering"))
+  val canonicalizer = new Canonicalizer(stopwordManager)
+  val ontologyHandler = new OntologyHandler(proc, wordToVec, canonicalizer)
+
   /**
     * The loadable aspect here applies to (most of) the files whose paths are specified in the config.  These
     * files can be reloaded.  It does not refer to the config itself, which is set when the EidosSystem is
@@ -66,13 +66,12 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     */
   class LoadableAttributes(
     // These are the values which can be reloaded.  Query them for current assignments.
-    val entityFinder: EidosEntityFinder,
-    val domainParams: DomainParams,
-    val adjectiveGrounder: AdjectiveGrounder,
+    val entityFinder: Option[EntityFinder],
+    val domainParams: DomainParams, // todo: move out
+    val adjectiveGrounder: AdjectiveGrounder, // todo: move out
     val actions: EidosActions,
     val engine: ExtractorEngine,
-    val ner: LexiconNER,
-    val stopwordManager: StopwordManager,
+    val ner: Option[LexiconNER],
     val hedgingHandler: HypothesisHandler,
     val negationHandler: NegationHandler,
     val expansionHandler: ExpansionHandler,
@@ -87,76 +86,59 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     val       masterRulesPath: String = eidosConf[String]("masterRulesPath")
     val      quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
     val     domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
-    val        quantifierPath: String = eidosConf[String]("quantifierPath")
-    val        propertiesPath: String = eidosConf[String]("propertiesPath")
-    val       entityRulesPath: String = eidosConf[String]("entityRulesPath")
-    val        avoidRulesPath: String = eidosConf[String]("avoidRulesPath")
     val          taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
     val       topKNodeGroundings: Int = eidosConf[Int]("topKNodeGroundings")
-    val         stopwordsPath: String = eidosConf[String]("stopWordsPath")
-    val       transparentPath: String = eidosConf[String]("transparentPath")
     // Hedging
     val           hedgingPath: String = eidosConf[String]("hedgingPath")
-    // Ontology handling
-    val        unOntologyPath: String = eidosConf[String]("unOntologyPath")
-    val       wdiOntologyPath: String = eidosConf[String]("wdiOntologyPath")
-    val       faoOntologyPath: String = eidosConf[String]("faoOntologyPath")
-    val      meshOntologyPath: String = eidosConf[String]("meshOntologyPath")
-    val     propsOntologyPath: String = eidosConf[String]("propsOntologyPath")
-    val   mitre12OntologyPath: String = eidosConf[String]("mitre12OntologyPath")
-    val       whoOntologyPath: String = eidosConf[String]("whoOntologyPath")
-    val       intOntologyPath: String = eidosConf[String]("intOntologyPath")
     val              cacheDir: String = eidosConf[String]("cacheDir")
-
-    // These are needed to construct some of the loadable attributes even though it isn't a path itself.
-    val    ontologies: Seq[String] = eidosConf[List[String]]("ontologies")
-    val               maxHops: Int = eidosConf[Int]("maxHops")
     val      wordToVecPath: String = eidosConf[String]("wordToVecPath")
-    val  timeNormModelPath: String = eidosConf[String]("timeNormModelPath")
-    val   geoNormModelPath: String = eidosConf[String]("geoNormModelPath")
-    val    geoWord2IdxPath: String = eidosConf[String]("geoWord2IdxPath")
-    val      geoLoc2IdPath: String = eidosConf[String]("geoLoc2IdPath")
-
+    val  timeNormModelPath: String = eidosConf[String]("timeNormModelPath") // todo push to companion obj too
+    val       useLexicons: Boolean = eidosConf[Boolean]("useLexicons")
+    val   useEntityFinder: Boolean = eidosConf[Boolean]("useEntityFinder")
     val            useW2V: Boolean = eidosConf[Boolean]("useW2V")
     val       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     val        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     val          useCache: Boolean = eidosConf[Boolean]("useCache")
 
-    val stopwordManager = StopwordManager(stopwordsPath, transparentPath)
-    val canonicalizer = new Canonicalizer(stopwordManager)
+
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
-    val expansionHandler = ExpansionHandler(language)
+    val expansionHandler = ExpansionHandler(language) // todo - make more optional
+    // For use in creating the ontologies
 
-    def mkDomainOntology(name: String, useCached: Boolean): DomainOntology = {
-      val serializedPath: String = DomainOntologies.serializedPath(name, cacheDir)
-
-      name match {
-        case           UN_NAMESPACE =>         UNOntology(     unOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          WDI_NAMESPACE =>        WDIOntology(    wdiOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          FAO_NAMESPACE =>        FAOOntology(    faoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case         MESH_NAMESPACE =>       MeshOntology(   meshOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case        PROPS_NAMESPACE => PropertiesOntology(  propsOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case      MITRE12_NAMESPACE =>    MITRE12Ontology(mitre12OntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          WHO_NAMESPACE =>        WHOOntology(    whoOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case          INT_NAMESPACE =>        IntOntology(    intOntologyPath, serializedPath, proc, canonicalizer, useCache = useCached)
-        case _ => throw new IllegalArgumentException("Ontology " + name + " is not recognized.")
-      }
-    }
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
       val actions = EidosActions(taxonomyPath, expansionHandler)
-      // Domain Ontologies:
+
+      // Entity Finders can be used to preload entities into the odin state, their use is optional.
+      val entityFinder = if (useEntityFinder) {
+        val entityFinderConfig = config[Config]("entityFinder")
+        entityFinderConfig[String]("finderType") match {
+          case "eidos" => Some(EidosEntityFinder.fromConfig(entityFinderConfig))
+          case _ => throw new RuntimeException(s"Unexpected entity finder type")
+        }
+      } else None
+
+      // LexiconNER files
+      val lexiconNER = if(useLexicons) {
+        val lexiconNERConfig = config[Config]("lexiconNER")
+        val lexicons = lexiconNERConfig[List[String]]("lexicons")
+        Some(LexiconNER(lexicons, caseInsensitiveMatching = true))
+      } else None
+
+      // Ontologies
       val ontologyGrounders =
           if (useW2V)
-            ontologies.par.map(ontology => EidosOntologyGrounder(ontology, mkDomainOntology(ontology, useCache), wordToVec)).seq
+            ontologyHandler.ontologyGroundersFromConfig(config[Config]("ontologies"))
           else
             Seq.empty
       val multiOntologyGrounder = new MultiOntologyGrounder(ontologyGrounders)
+
+      // Temporal Parsing
       val timenorm: Option[TemporalCharbasedParser] =
           if (useTimeNorm)
             FileUtils.withResourceAsFile(timeNormModelPath) { file =>
@@ -165,27 +147,27 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
             }
           else
             None
+
+      // Geospatial Parsing
       val geonorm: Option[GeoDisambiguateParser] =
           if (useGeoNorm)
             // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-            Some(new GeoDisambiguateParser(geoNormModelPath, geoWord2IdxPath, geoLoc2IdPath))
+            Some(GeoDisambiguateParser.fromConfig(config[Config]("geoparser")))
           else
             None
 
       new LoadableAttributes(
-        EidosEntityFinder(entityRulesPath, avoidRulesPath, maxHops = maxHops),
+        entityFinder,
         DomainParams(domainParamKBPath),
         EidosAdjectiveGrounder(quantifierKBPath),
         actions,
-//        ExtractorEngine(masterRules, actions, actions.mergeAttachments), // ODIN component
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
-        LexiconNER(Seq(quantifierPath, propertiesPath), caseInsensitiveMatching = true), //TODO: keep Quantifier...
-        stopwordManager,
+        lexiconNER,
         hypothesisHandler,
         negationHandler,
         expansionHandler,
         ontologyGrounders,
-        multiOntologyGrounder,
+        multiOntologyGrounder,  // todo: do we need this and ontologyGrounders?
         timenorm,
         geonorm
       )
@@ -198,6 +180,10 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
   }
 
   def reload(): Unit = loadableAttributes = LoadableAttributes()
+
+  // ---------------------------------------------------------------------------------------------
+  //                                 Annotation Methods
+  // ---------------------------------------------------------------------------------------------
 
   def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
     val doc = EidosDocument(document, keepText)
@@ -226,20 +212,36 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     * This will use any non-O tags that are found to overwrite anything that proc has previously found.
     */
   protected def addLexiconNER(s: Sentence): Unit = {
-    val eidosEntities = loadableAttributes.ner.find(s)
-    // The Portuguese parser does not currently generate entities, so we want to create an empty list here for
-    // further processing and filtering operations that expect to be able to query the entities
-    if (s.entities.isEmpty)
-      s.entities = Some(eidosEntities)
-    else {
-      val procEntities = s.entities.get
+    // LexiconNER is an option
+    for (ner <- loadableAttributes.ner) {
+      val eidosEntities = ner.find(s)
 
-      eidosEntities.indices.foreach { index =>
-        if (eidosEntities(index) != EidosSystem.NER_OUTSIDE)
+      // The Portuguese parser does not currently generate entities, so we want to create an empty list here for
+      // further processing and filtering operations that expect to be able to query the entities
+      if (s.entities.isEmpty)
+        s.entities = Some(eidosEntities)
+      else {
+        val procEntities = s.entities.get
+
+        eidosEntities.indices.foreach { index =>
+          if (eidosEntities(index) != EidosSystem.NER_OUTSIDE)
           // Overwrite only if eidosEntities contains something interesting.
-          procEntities(index) = eidosEntities(index)
+            procEntities(index) = eidosEntities(index)
+        }
       }
     }
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  //                                 Extraction Methods
+  // ---------------------------------------------------------------------------------------------
+
+  // MAIN PIPELINE METHOD if given text
+  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
+                      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
+    val eidosDoc = annotate(text, keepText, documentCreationTime, filename)
+
+    extractFromDoc(eidosDoc, keepText, cagRelevantOnly, documentCreationTime, filename)
   }
 
   // MAIN PIPELINE METHOD if given doc
@@ -262,21 +264,29 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
 
     val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
-    val cagRelevant = if (cagRelevantOnly) keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
+    val cagRelevant = if (cagRelevantOnly) stopwordManager.keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(loadableAttributes.stopwordManager), loadableAttributes.multiOntologyGrounder)
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(stopwordManager), loadableAttributes.multiOntologyGrounder)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
-  // MAIN PIPELINE METHOD if given text
-  def extractFromText(text: String, keepText: Boolean = true, cagRelevantOnly: Boolean = true,
-      documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
-    val eidosDoc = annotate(text, keepText, documentCreationTime, filename)
+  def extractFrom(doc: Document): Vector[Mention] = {
+    // Prepare the initial state -- if you are using the entity finder then it contains the found entities,
+    // else it is empty
+    val initalState = loadableAttributes.entityFinder match {
+      case None => new State()
+      case Some(ef) => State(ef.extract(doc))
+    }
+    // Run the main extraction engine, pre-populated with the initial state
+    val events = extractEventsFrom(doc, initalState).distinct
+    // Note -- in main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
+    // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports
+    //val cagRelevant = keepCAGRelevant(events)
 
-    extractFromDoc(eidosDoc, keepText, cagRelevantOnly, documentCreationTime, filename)
+    events
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
@@ -284,86 +294,9 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
   }
 
-  def extractFrom(doc: Document): Vector[Mention] = {
-    // get entities
-    val entities: Seq[Mention] = loadableAttributes.entityFinder.extractAndFilter(doc).toVector
-//    println("Entities that made it to EidosSystem:")
-//    entities.foreach(e => DisplayUtils.shortDisplay(e))
-    // filter entities which are entirely stop or transparent
-    //println(s"In extractFrom() -- entities : \n\t${entities.map(m => m.text).sorted.mkString("\n\t")}")
-    // Becky says not to filter yet
-    //val filtered = loadableAttributes.ontologyGrounder.filterStopTransparent(entities)
-    val filtered = entities
-    //println(s"\nAfter filterStopTransparent() -- entities : \n\t${filtered.map(m => m.text).sorted.mkString("\n\t")}")
-
-    val events = extractEventsFrom(doc, State(filtered)).distinct
-    // Note -- in main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
-    // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports
-    //val cagRelevant = keepCAGRelevant(events)
-
-    events
-    //cagRelevant.toVector
-  }
-
-  // Old version
-  def oldKeepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-    // 1) These will be "Causal" and "Correlation" which fall under "Event"
-    val cagEdgeMentions = mentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
-    // 2) and these will be "Entity", without overlap from above.
-    val entityMentions = mentions.filter(m => m.matches("Entity") && m.attachments.nonEmpty)
-    // 3) These last ones may overlap with the above or include mentions not in the original list.
-    val argumentMentions: Seq[Mention] = cagEdgeMentions.flatMap(_.arguments.values.flatten)
-    // Put them all together.
-    val goodMentions = cagEdgeMentions ++ entityMentions ++ argumentMentions
-    // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
-    val relevantMentions = mentions.filter(m => goodMentions.exists(m.eq))
-
-    relevantMentions
-  }
-
-  // New version
-  def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
-
-    // 1) These will be "Causal" and "Correlation" which fall under "Event" if they have content
-    val allMentions = State(mentions)
-    val cagEdgeMentions = mentions.filter(m => releventEdge(m, allMentions))
-
-    // Should these be included as well?
-
-    // 3) These last ones may overlap with the above or include mentions not in the original list.
-    val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
-    // Put them all together.
-    // val releventEdgesAndTheirArgs = cagEdgeMentions ++ cagEdgeArguments
-    // To preserve order, avoid repeats, and not allow anything new in the list, filter the original.
-    mentions.filter(mention => isCAGRelevant(mention, cagEdgeMentions, cagEdgeArguments))
-  }
-
-  def isCAGRelevant(mention: Mention, cagEdgeMentions: Seq[Mention], cagEdgeArguments: Seq[Mention]): Boolean =
-    // We're no longer keeping all modified entities
-    //(mention.matches("Entity") && mention.attachments.nonEmpty) ||
-      cagEdgeMentions.contains(mention) ||
-      cagEdgeArguments.contains(mention)
-
-  def releventEdge(m: Mention, state: State): Boolean = {
-    m match {
-      case tb: TextBoundMention => EidosSystem.CAG_EDGES.contains(tb.label)
-      case rm: RelationMention => EidosSystem.CAG_EDGES.contains(rm.label)
-      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em, state)
-      case cs: CrossSentenceMention => EidosSystem.CAG_EDGES.contains(cs.label)
-      case _ => throw new UnsupportedClassVersionError()
-    }
-  }
-
-  def argumentsHaveContent(mention: EventMention, state: State): Boolean = {
-    val causes: Seq[Mention] = mention.arguments.getOrElse("cause", Seq.empty)
-    val effects: Seq[Mention] = mention.arguments.getOrElse("effect", Seq.empty)
-
-    if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
-    // then both causes and effects should have some content
-      causes.exists(loadableAttributes.stopwordManager.hasContent(_, state)) && effects.exists(loadableAttributes.stopwordManager.hasContent(_, state))
-    else
-      true
-  }
+  // ---------------------------------------------------------------------------------------------
+  //                                 Helper Methods
+  // ---------------------------------------------------------------------------------------------
 
   /**
     * Wrapper for using w2v on some strings
