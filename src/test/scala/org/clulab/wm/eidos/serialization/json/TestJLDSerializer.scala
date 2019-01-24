@@ -2,8 +2,10 @@ package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.odin.CrossSentenceMention
 import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
@@ -13,7 +15,8 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import scala.collection.Seq
 
 class TestJLDSerializer extends ExtractionTest {
-  
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig("adjectiveGrounder"))
+
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
@@ -26,7 +29,7 @@ class TestJLDSerializer extends ExtractionTest {
   def serialize(corpus: Corpus) = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
-      val jValue = jldCorpus.serialize()
+      val jValue = jldCorpus.serialize(adjectiveGrounder)
       stringify(jValue, true)
     }
     

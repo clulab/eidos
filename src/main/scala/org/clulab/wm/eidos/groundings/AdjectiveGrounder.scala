@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import com.typesafe.config.Config
+import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
