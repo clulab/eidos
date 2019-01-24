@@ -25,7 +25,7 @@ class TestJLDSerializer extends ExtractionTest {
   
   def serialize(corpus: Corpus) = {
     val json = {
-      val jldCorpus = new JLDEidosCorpus(corpus, ieSystem.loadableAttributes.adjectiveGrounder)
+      val jldCorpus = new JLDEidosCorpus(corpus)
       val jValue = jldCorpus.serialize()
       stringify(jValue, true)
     }

@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.wm.eidos.Aliases.Quantifier
+import com.typesafe.config.Config
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
@@ -71,5 +71,7 @@ object EidosAdjectiveGrounder {
   val MU_COEFF: String = "mu_coeff"
   val SIGMA_COEFF: String = "sigma_coeff"
 
-  def apply(quantifierKBFile: String) = new EidosAdjectiveGrounder(quantifierKBFile)
+  def apply(quantifierKBFile: String): EidosAdjectiveGrounder = new EidosAdjectiveGrounder(quantifierKBFile)
+
+  def fromConfig(config: Config): EidosAdjectiveGrounder = apply(config.getString("quantifierKBPath"))
 }

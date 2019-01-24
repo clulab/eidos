@@ -23,7 +23,7 @@ import scala.annotation.tailrec
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
+class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   val eidosConf: Config = config[Config]("EidosSystem")
@@ -68,7 +68,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
     // These are the values which can be reloaded.  Query them for current assignments.
     val entityFinder: Option[EntityFinder],
     val domainParams: DomainParams, // todo: move out
-    val adjectiveGrounder: AdjectiveGrounder, // todo: move out
     val actions: EidosActions,
     val engine: ExtractorEngine,
     val ner: Option[LexiconNER],
@@ -84,7 +83,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
   object LoadableAttributes {
     // Extraction
     val       masterRulesPath: String = eidosConf[String]("masterRulesPath")
-    val      quantifierKBPath: String = eidosConf[String]("quantifierKBPath")
     val     domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
     val          taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
@@ -159,7 +157,6 @@ class EidosSystem(val config: Config = ConfigFactory.load("eidos")) {
       new LoadableAttributes(
         entityFinder,
         DomainParams(domainParamKBPath),
-        EidosAdjectiveGrounder(quantifierKBPath),
         actions,
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         lexiconNER,
@@ -337,4 +334,6 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CORR_LABEL, COREF_LABEL)
+
+  def defaultConfig: Config = ConfigFactory.load("eidos")
 }

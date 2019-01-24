@@ -1,13 +1,10 @@
 package controllers
 
 import javax.inject._
-
 import com.typesafe.config.ConfigRenderOptions
-
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.DocumentSerializer
-
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
@@ -18,13 +15,12 @@ import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
-
 import play.api.mvc._
 import play.api.libs.json._
-
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
@@ -38,6 +34,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem = new EidosSystem()
   val proc = ieSystem.proc
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(EidosSystem.defaultConfig.getConfig("adjectiveGrounder"))
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -122,8 +119,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val annotatedDocument = ieSystem.extractFromText(text)
 
     // Export to JSON-LD
-    val corpus = new JLDCorpus(Seq(annotatedDocument), ieSystem.loadableAttributes.adjectiveGrounder)
-    val mentionsJSONLD = corpus.serialize()
+    val corpus = new JLDCorpus(annotatedDocument)
+    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
     (mentionsJSONLD)
   }
 
@@ -155,12 +152,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val paramDetails = domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
     val paramMean = paramDetails.get(DomainParams.PARAM_MEAN).get
     val paramStdev = paramDetails.get(DomainParams.PARAM_STDEV).get
-    val grounding = ieSystem.loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
+    val grounding = adjectiveGrounder.groundAdjective(quantifier)
     val predictedDelta = grounding.predictDelta(paramMean, paramStdev)
 
     GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText, quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
   }
-
 
   def groundEntities(ieSystem: EidosSystem, mentions: Seq[EidosMention]): Vector[GroundedEntity] = {
     val gms = for {
