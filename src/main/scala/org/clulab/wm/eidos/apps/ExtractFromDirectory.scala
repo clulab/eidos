@@ -14,7 +14,7 @@ object ExtractFromDirectory extends App {
   val files = findFiles(inputDir, "txt")
   val reader = new EidosSystem()
   // 0. Optionally include adjective grounding
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(EidosSystem.defaultConfig.getConfig("adjectiveGrounder"))
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(reader.config.getConfig("adjectiveGrounder"))
 
   // For each file in the input directory:
   files.par.foreach { file =>
