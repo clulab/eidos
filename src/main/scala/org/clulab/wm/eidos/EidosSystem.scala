@@ -67,7 +67,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   class LoadableAttributes(
     // These are the values which can be reloaded.  Query them for current assignments.
     val entityFinder: Option[EntityFinder],
-    val domainParams: DomainParams, // todo: move out
     val actions: EidosActions,
     val engine: ExtractorEngine,
     val ner: Option[LexiconNER],
@@ -83,7 +82,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   object LoadableAttributes {
     // Extraction
     val       masterRulesPath: String = eidosConf[String]("masterRulesPath")
-    val     domainParamKBPath: String = eidosConf[String]("domainParamKBPath")
     val          taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Filtering
     val       topKNodeGroundings: Int = eidosConf[Int]("topKNodeGroundings")
@@ -156,7 +154,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
 
       new LoadableAttributes(
         entityFinder,
-        DomainParams(domainParamKBPath),
         actions,
         ExtractorEngine(masterRules, actions, actions.globalAction), // ODIN component
         lexiconNER,
