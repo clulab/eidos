@@ -37,8 +37,7 @@ def main():
     ont_file = sys.argv[2]
     ont_name = sys.argv[3]
     with open(flat_file, "r") as f:
-        lines = [line.rstrip() for line in f.readlines()]
-    nodes = [ont_node(line, [], None) for line in lines]
+        nodes = [ont_node(line.rstrip(), [], None) for line in f]
     dump_yaml(nodes, ont_file, ont_name)
 
 if __name__ == "__main__":
