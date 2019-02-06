@@ -82,59 +82,31 @@ class TestDomainOntology extends Test {
     hasDuplicates("un", newerOntology) should be (false)
   }
 
-  behavior of "fao ontology"
+  behavior of "mitre12 ontology"
   it should "load and not have duplicates" in {
-    val path = baseDir + "/fao_variable_ontology.yml"
+    val path = baseDir + "/mitre12_indicators.yml"
 
-    val newOntology = Timer.time("Load FAO without cache") {
+    val newOntology = Timer.time("Load MITRE12 without cache") {
       DomainOntologies(path, "", proc, canonicalizer, filter, useCache =false)
     }
     val newerOntology =
       if (convert)
-        Timer.time("Convert FAO to compact") {
+        Timer.time("Convert MITRE12 to compact") {
           new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
         }
       else
-        Timer.time("Load FAO from cache") {
+        Timer.time("Load MITRE12 from cache") {
           DomainOntologies(path, "", proc, canonicalizer, filter, useCache = true)
         }
 
-
-//    val newestOntology = Timer.time("Load FAO with cache") {
-//      FAOOntology("", cachePath("fao"), proc, canonicalizer, filter, useCache = true)
+//    val newestOntology = Timer.time("Load MITRE12 with cache") {
+//      FAOOntology("", cachePath("mitre12"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
 
-    hasDuplicates("fao", newOntology) should be (false)
-    hasDuplicates("fao", newerOntology) should be (false)
-  }
-
-  behavior of "wdi ontology"
-  it should "load and not have duplicates" in {
-    val path = baseDir + "/wdi_ontology.yml"
-
-    val newOntology = Timer.time("Load WDI without cache") {
-      DomainOntologies(path, "", proc, canonicalizer, filter, useCache = false)
-    }
-    val newerOntology =
-      if (convert)
-        Timer.time("Convert WDI to compact") {
-        new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
-        }
-      else
-        Timer.time("Load WDI from cache") {
-          DomainOntologies(path, "", proc, canonicalizer, filter, useCache = true)
-        }
-
-//    val newestOntology = Timer.time("Load WDI with cache") {
-//      WDIOntology("", cachePath("wdi"), proc, canonicalizer, filter, useCache = true)
-//    }
-//
-//    show3(newOntology, newerOntology, newestOntology)
-
-    hasDuplicates("wdi", newOntology) should be (false)
-    hasDuplicates("wdi", newerOntology) should be (false)
+    hasDuplicates("mitre12", newOntology) should be (false)
+    hasDuplicates("mitre12", newerOntology) should be (false)
   }
 
   // TODO: This one appears to have many duplicates.
