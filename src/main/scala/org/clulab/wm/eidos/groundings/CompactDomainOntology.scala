@@ -83,7 +83,7 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
   }
 
   def save(filename: String): Unit = {
-    new ObjectOutputStream(new FileOutputStream(filename)).autoClose { objectOutputStream =>
+    FileUtils.newObjectOutputStream(filename).autoClose { objectOutputStream =>
       objectOutputStream.writeObject(leafStrings.mkString("\n"))
       objectOutputStream.writeObject(leafStringIndexes)
       objectOutputStream.writeObject(leafStartIndexes)
