@@ -1,9 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileOutputStream, ObjectOutputStream}
-
 import org.clulab.embeddings.word2vec.Word2Vec
-
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer

@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileOutputStream, ObjectOutputStream}
 import java.util.IdentityHashMap
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
