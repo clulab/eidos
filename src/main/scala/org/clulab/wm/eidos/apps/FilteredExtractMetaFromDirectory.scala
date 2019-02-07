@@ -110,7 +110,7 @@ object FilteredExtractMetaFromDirectory extends App {
 
         // This is done pedantically so that the FileOutputStream is accessible.
         val fos = new FileOutputStream(path)
-        val osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8.toString)
+        val osw = new OutputStreamWriter(new BufferedOutputStream(fos), StandardCharsets.UTF_8.toString)
 
         new PrintWriter(osw).autoClose { pw =>
           pw.println(stringify(mentionsJSONLD, pretty = true))
@@ -125,7 +125,11 @@ object FilteredExtractMetaFromDirectory extends App {
       }
       catch {
         case exception: SyncFailedException =>
-          println(s"Synchonization failed for file $file")
+          println(s"Synchronization failed for file $file")
+          println("Exiting with code -2 on assumption that the disk is full")
+          System.exit(-2)
+        case exception: IOException =>
+          println(s"IO failed for file $file")
           println("Exiting with code -2 on assumption that the disk is full")
           System.exit(-2)
         case exception: Exception =>
