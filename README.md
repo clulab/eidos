@@ -376,7 +376,7 @@ Follow their links for details.
 
 Eidos reading output (JSON-LD) can be visualized using [INDRA](https://github.com/sorgerlab/indra)
 and Jupyter notebooks. Here is an example:
-![Link to Delphi](/doc/delphi_example.png?raw=True")
+![Link to Delphi](/doc/indra_example.png?raw=True")
 
 
 ## Delphi
