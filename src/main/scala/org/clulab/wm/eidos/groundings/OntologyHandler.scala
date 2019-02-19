@@ -35,9 +35,9 @@ class OntologyHandler(val proc: Processor, val wordToVec: EidosWordToVec, val ca
     new TreeDomainOntologyBuilder(proc, canonicalizer, filter).buildFromYaml(ontologyYaml)
   }
 
-  def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10): Seq[Seq[(String, Float)]] = {
-    def reformat(grounding: OntologyGrounding): Seq[(String, Float)] ={
-      val topGroundings = grounding.take(topk)
+  def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10): Array[Array[(String, Float)]] = {
+    def reformat(grounding: OntologyGrounding): Array[(String, Float)] ={
+      val topGroundings = grounding.take(topk).toArray
       topGroundings.map(gr => (gr._1.name, gr._2))
     }
 
@@ -45,7 +45,7 @@ class OntologyHandler(val proc: Processor, val wordToVec: EidosWordToVec, val ca
     val ontology = mkDomainOntologyFromYaml(name, ontologyYaml, filter)
     val grounder = EidosOntologyGrounder(name, ontology, wordToVec)
     val groundings = grounder match {
-      case g: EidosOntologyGrounder => texts.map(text => g.groundText(text))
+      case g: EidosOntologyGrounder => texts.toArray.map(text => g.groundText(text))
       case _ => throw new RuntimeException("Regrounding needs an EidosOntologyGrounder")
     }
     groundings.map(reformat)
