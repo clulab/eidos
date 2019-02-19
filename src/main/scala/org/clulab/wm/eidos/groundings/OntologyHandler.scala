@@ -24,9 +24,15 @@ class OntologyHandler(val proc: Processor, val wordToVec: EidosWordToVec, val ca
   }
 
   // todo: I removed all the variants bc we don't currently need specialization, but we can specialize as needed later
+  // fixme == this all needs to be unified, the constructors in DomainOntolgies and in TreeDomainOntBUilder / here should all
+  // be in one place!
   def mkDomainOntology(name: String, ontologyPath: String, cacheDir: String, useCached: Boolean): DomainOntology = {
     val ontSerializedPath: String = serializedPath(name, cacheDir)
     DomainOntologies(ontologyPath, ontSerializedPath, proc, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
+  }
+
+  def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, filter: Boolean = true): DomainOntology = {
+    new TreeDomainOntologyBuilder(proc, canonicalizer, filter).buildFromYaml(ontologyYaml)
   }
 
   def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10): Seq[Seq[(String, Float)]] = {
@@ -36,7 +42,7 @@ class OntologyHandler(val proc: Processor, val wordToVec: EidosWordToVec, val ca
     }
 
     //OntologyGrounding
-    val ontology = new TreeDomainOntologyBuilder(proc, canonicalizer, filter).buildFromYaml(ontologyYaml)
+    val ontology = mkDomainOntologyFromYaml(name, ontologyYaml, filter)
     val grounder = EidosOntologyGrounder(name, ontology, wordToVec)
     val groundings = grounder match {
       case g: EidosOntologyGrounder => texts.map(text => g.groundText(text))
