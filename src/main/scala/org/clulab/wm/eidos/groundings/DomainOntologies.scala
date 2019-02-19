@@ -15,7 +15,7 @@ object DomainOntologies {
     }
     else {
       logger.info(s"Processing yml ontology ${ontologyPath}..")
-      new TreeDomainOntologyBuilder(ontologyPath, proc, canonicalizer, filter).build()
+      new TreeDomainOntologyBuilder(proc, canonicalizer, filter).buildFromPath(ontologyPath)
     }
   }
 
