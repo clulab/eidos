@@ -8,7 +8,6 @@ scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 resolvers += "jitpack" at "https://jitpack.io"
-resolvers += "orgclulab-1121" at "https://oss.sonatype.org/content/repositories/orgclulab-1121/"
 
 libraryDependencies ++= {
   val procVer = "7.4.2"
@@ -27,7 +26,14 @@ libraryDependencies ++= {
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
+
+    "org.deeplearning4j" % "deeplearning4j-modelimport" % "1.0.0-beta2",
+    "org.deeplearning4j" % "deeplearning4j-nn" % "1.0.0-beta2",
+    "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2",
+    "com.typesafe.play" % "play-json_2.12" % "2.6.9",
+    "com.al333z" % "anti-xml_2.12" % "0.7.11",
+    "org.tensorflow" % "tensorflow" % "1.12.0"
   )
 }
 
@@ -57,12 +63,12 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
 }
 
 
-libraryDependencies ++= {
-  val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
-  val timenorm = "timenorm-0.10.2" + (if (minor == 11) "_2.11.11" else "")
-
-  Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
-}
+//libraryDependencies ++= {
+//  val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
+//  val timenorm = "timenorm-0.9.6.15" + (if (minor == 11) "_2.11.11" else "")
+//
+//  Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
+//}
 
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test can seemingly only be run once before it will fail with
