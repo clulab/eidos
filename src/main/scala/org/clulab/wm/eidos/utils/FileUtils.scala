@@ -76,9 +76,9 @@ object FileUtils {
     yaml.load(input).asInstanceOf[Collection[Any]]
   }
 
-  def writeToJSONLD(annotatedDocuments: Seq[AnnotatedDocument], pw: PrintWriter, reader: EidosSystem): Unit = {
+  def writeToJSONLD(annotatedDocument: AnnotatedDocument, pw: PrintWriter, reader: EidosSystem): Unit = {
     // 4. Convert to JSON
-    val corpus = new JLDCorpus(annotatedDocuments, reader.loadableAttributes.adjectiveGrounder)
+    val corpus = new JLDCorpus(annotatedDocument)
     val mentionsJSONLD = corpus.serialize()
     // 5. Write to output file
     pw.println(stringify(mentionsJSONLD, pretty = true))
