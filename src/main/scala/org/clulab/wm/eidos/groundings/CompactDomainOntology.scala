@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileOutputStream, ObjectOutputStream}
 import java.util.IdentityHashMap
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
@@ -83,7 +82,7 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
   }
 
   def save(filename: String): Unit = {
-    new ObjectOutputStream(new FileOutputStream(filename)).autoClose { objectOutputStream =>
+    FileUtils.newObjectOutputStream(filename).autoClose { objectOutputStream =>
       objectOutputStream.writeObject(leafStrings.mkString("\n"))
       objectOutputStream.writeObject(leafStringIndexes)
       objectOutputStream.writeObject(leafStartIndexes)

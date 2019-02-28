@@ -159,4 +159,24 @@ object FileUtils {
         file.delete()
     }
   }
+
+  // Output
+  def newBufferedOutputStream(file: File): BufferedOutputStream =
+    new BufferedOutputStream(new FileOutputStream(file))
+
+  def newBufferedOutputStream(filename: String): BufferedOutputStream =
+      newBufferedOutputStream(new File(filename))
+
+  def newObjectOutputStream(filename: String): ObjectOutputStream =
+      new ObjectOutputStream(newBufferedOutputStream(filename))
+
+  // Input
+  def newBufferedInputStream(file: File): BufferedInputStream =
+    new BufferedInputStream(new FileInputStream(file))
+
+  def newBufferedInputStream(filename: String): BufferedInputStream =
+      newBufferedInputStream(new File(filename))
+
+  def newObjectInputStream(filename: String): ObjectInputStream =
+      new ObjectInputStream(newBufferedInputStream(filename))
 }
