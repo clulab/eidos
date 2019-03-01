@@ -775,9 +775,10 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
         JLDRelationCorrelation.subtypeString,
         JLDRelationCoreference.subtypeString
     )
+
     val mapOfMentions = new JIdentityHashMap[EidosMention, Int]()
 
-    def lt(left: JLDExtraction, right: JLDExtraction) = {
+    def lt(left: JLDExtraction, right: JLDExtraction): Boolean = {
       val leftOrdering = ordering.indexOf(left.subtypeString)
       val rightOrdering = ordering.indexOf(right.subtypeString)
       
@@ -787,12 +788,39 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
         mapOfMentions.get(left.value) < mapOfMentions.get(right.value)
     }
 
-    collectMentions(mentions, mapOfMentions).sortWith(lt)
+    val jldExtractions = collectMentions(mentions, mapOfMentions)
+
+    jldExtractions.sortWith(lt)
   }
   
   override def toJObject: TidyJObject = {
+
+    def lt(left: EidosMention, right: EidosMention): Boolean = {
+      val leftSentence = left.odinMention.sentence
+      val rightSentence = right.odinMention.sentence
+
+      if (leftSentence != rightSentence)
+        leftSentence < rightSentence
+      else {
+        val leftStart = left.odinMention.start
+        val rightStart = right.odinMention.start
+
+        if (leftStart != rightStart)
+          leftStart < rightStart
+        else {
+          val leftEnd = left.odinMention.end
+          val rightEnd = right.odinMention.end
+
+          if (leftEnd != rightEnd)
+            leftEnd < rightEnd
+          else
+            true
+        }
+      }
+    }
+
     val jldDocuments = corpus.map(new JLDDocument(serializer, _).toJObject)
-    val eidosMentions = corpus.flatMap(_.eidosMentions)
+    val eidosMentions = corpus.flatMap(_.eidosMentions).sortWith(lt) // At least start out in order
     val jldExtractions = collectMentions(eidosMentions).map(_.toJObject)
 
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
