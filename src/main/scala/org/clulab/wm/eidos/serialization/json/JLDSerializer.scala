@@ -758,14 +758,15 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
       }
     }
 
-    if (newMentions.nonEmpty) {
-      val jldExtractions = newMentions.map(newJLDExtraction)
-      val recMentions = jldExtractions.flatMap(_.getMentions)
+    newMentions.flatMap { mention =>
+      // Add these in parent, children, parent, children order instead of
+      // the previously used parents, children, children order.
+      val jldExtraction = newJLDExtraction(mention)
+      val recMentions = jldExtraction.getMentions
+      val jldExtractions = jldExtraction +: collectMentions(recMentions, mapOfMentions)
 
-      jldExtractions ++ collectMentions(recMentions, mapOfMentions)
+      jldExtractions
     }
-    else
-      Seq.empty
   }
 
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
@@ -788,39 +789,12 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
         mapOfMentions.get(left.value) < mapOfMentions.get(right.value)
     }
 
-    val jldExtractions = collectMentions(mentions, mapOfMentions)
-
-    jldExtractions.sortWith(lt)
+    collectMentions(mentions, mapOfMentions).sortWith(lt)
   }
   
   override def toJObject: TidyJObject = {
-
-    def lt(left: EidosMention, right: EidosMention): Boolean = {
-      val leftSentence = left.odinMention.sentence
-      val rightSentence = right.odinMention.sentence
-
-      if (leftSentence != rightSentence)
-        leftSentence < rightSentence
-      else {
-        val leftStart = left.odinMention.start
-        val rightStart = right.odinMention.start
-
-        if (leftStart != rightStart)
-          leftStart < rightStart
-        else {
-          val leftEnd = left.odinMention.end
-          val rightEnd = right.odinMention.end
-
-          if (leftEnd != rightEnd)
-            leftEnd < rightEnd
-          else
-            true
-        }
-      }
-    }
-
     val jldDocuments = corpus.map(new JLDDocument(serializer, _).toJObject)
-    val eidosMentions = corpus.flatMap(_.eidosMentions).sortWith(lt) // At least start out in order
+    val eidosMentions = corpus.flatMap(_.eidosMentions).sortWith(EidosMention.before) // At least start out in order
     val jldExtractions = collectMentions(eidosMentions).map(_.toJObject)
 
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
