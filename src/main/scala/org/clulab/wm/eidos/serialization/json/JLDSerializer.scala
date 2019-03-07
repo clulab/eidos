@@ -772,14 +772,15 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
       }
     }
 
-    if (newMentions.nonEmpty) {
-      val jldExtractions = newMentions.map(newJLDExtraction)
-      val recMentions = jldExtractions.flatMap(_.getMentions)
+    newMentions.flatMap { mention =>
+      // Add these in parent, children, parent, children order instead of
+      // the previously used parents, children, children order.
+      val jldExtraction = newJLDExtraction(mention)
+      val recMentions = jldExtraction.getMentions
+      val jldExtractions = jldExtraction +: collectMentions(recMentions, mapOfMentions)
 
-      jldExtractions ++ collectMentions(recMentions, mapOfMentions)
+      jldExtractions
     }
-    else
-      Seq.empty
   }
 
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
@@ -789,9 +790,10 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
         JLDRelationCorrelation.subtypeString,
         JLDRelationCoreference.subtypeString
     )
+
     val mapOfMentions = new JIdentityHashMap[EidosMention, Int]()
 
-    def lt(left: JLDExtraction, right: JLDExtraction) = {
+    def lt(left: JLDExtraction, right: JLDExtraction): Boolean = {
       val leftOrdering = ordering.indexOf(left.subtypeString)
       val rightOrdering = ordering.indexOf(right.subtypeString)
       
@@ -806,7 +808,7 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
   
   override def toJObject: TidyJObject = {
     val jldDocuments = corpus.map(new JLDDocument(serializer, _).toJObject)
-    val eidosMentions = corpus.flatMap(_.eidosMentions)
+    val eidosMentions = corpus.flatMap(_.eidosMentions).sortWith(EidosMention.before) // At least start out in order
     val jldExtractions = collectMentions(eidosMentions).map(_.toJObject)
 
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
