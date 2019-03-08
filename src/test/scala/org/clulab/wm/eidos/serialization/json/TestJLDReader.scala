@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import org.clulab.odin.CrossSentenceMention
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
+import org.clulab.processors.Sentence
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
@@ -12,7 +13,6 @@ import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.Canonicalizer
-
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -48,7 +48,30 @@ class TestJLDReader extends ExtractionTest {
     }
 
     def readDocument(jldDocumentValue: JValue): (Document, String) = {
-      (null, "nothing")
+      require(jldDocumentValue.isInstanceOf[JObject])
+      val jldDocumentObject: JObject = jldDocumentValue.asInstanceOf[JObject]
+      val objectType = jldDocumentObject \ "@type"
+      require(objectType == JString("Document"))
+
+      val documentIdValue = jldDocumentObject \ "@type"
+      require(documentIdValue.isInstanceOf[JString])
+      val documentId = documentIdValue.asInstanceOf[JString].values
+
+      val titleValue = jldDocumentObject \ "title"
+      require(documentIdValue.isInstanceOf[JString])
+      val title = titleValue.asInstanceOf[JString].values
+
+      val textValue = jldDocumentObject \ "text"
+      require(textValue.isInstanceOf[JString])
+      val text = titleValue.asInstanceOf[JString].values
+
+      // Need to iterate through these now
+      val sentences = Array.empty[Sentence]
+      val document = new Document(sentences)
+      document.id = Some(title)
+      document.text = Some(text)
+
+      (document, documentId)
     }
 
     def readCorpus(jldCorpusValue: JValue): Corpus = {
