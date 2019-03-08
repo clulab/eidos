@@ -19,7 +19,7 @@ import org.json4s.jackson.JsonMethods._
 
 import scala.collection.Seq
 
-class TestJLDReader extends ExtractionTest {
+class TestJLDDeserializer extends ExtractionTest {
   val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig("adjectiveGrounder"))
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
