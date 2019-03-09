@@ -13,13 +13,13 @@ object CacheOntologies extends App {
 
   val config = ConfigFactory.load("eidos")
   val reader = new EidosSystem(config)
-  val cacheDir: String = reader.LoadableAttributes.cacheDir
+  val cacheDir: String = config[String]("cacheDir")
   // Since here we want to cache the current, we can't load from cached:
   assert(config[Boolean]("ontologies.useCache") == false, "To use CacheOntologies, you must set ontologies.useCache = false")
-  assert(reader.LoadableAttributes.useW2V == true, "To use CacheOntologies, you must set useW2V = true")
+  assert(config[Boolean]("useW2V") == true, "To use CacheOntologies, you must set useW2V = true")
   new File(cacheDir).mkdirs()
 
-  val ontologyGrounders: Seq[EidosOntologyGrounder] = reader.loadableAttributes.ontologyGrounders
+  val ontologyGrounders: Seq[EidosOntologyGrounder] = reader.ontologyHandler.grounders
 
   if (ontologyGrounders.isEmpty)
     throw new RuntimeException("No ontologies were specified, please check the config file.")
@@ -40,7 +40,7 @@ object CacheOntologies extends App {
     println(s"Finished serializing ${ontologyGrounders.length} ontologies.")
   }
 
-  val filenameIn = reader.LoadableAttributes.wordToVecPath
+  val filenameIn = config[String]("wordToVecPath")
   val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn)
   println(s"Saving vectors to $filenameOut...")
   val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
