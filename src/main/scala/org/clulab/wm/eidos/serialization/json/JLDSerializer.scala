@@ -27,6 +27,17 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   serializer.register(this)
   
   def serialize(): JValue = serializer.serialize(this)
+
+  def serialize(adjectiveGrounder: AdjectiveGrounder): JValue = {
+    val oldAdjectiveGrounder = serializer.adjectiveGrounder
+
+    serializer.adjectiveGrounder = Option(adjectiveGrounder)
+
+    val result = serialize()
+
+    serializer.adjectiveGrounder = oldAdjectiveGrounder
+    result
+  }
   
   def toJsonStr: String =
       pretty(render(serialize()))
@@ -50,7 +61,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 // This class helps serialize/convert a JLDObject to JLD by keeping track of
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
-class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
+class JLDSerializer(var adjectiveGrounder: Option[AdjectiveGrounder]) {
   protected val typenames: mutable.HashSet[String] = mutable.HashSet[String]()
   protected val typenamesByIdentity: JIdentityHashMap[Any, String] = new JIdentityHashMap[Any, String]()
   protected val idsByTypenameByIdentity: mutable.HashMap[String, JIdentityHashMap[Any, Int]] = mutable.HashMap()
@@ -124,10 +135,6 @@ class JLDSerializer(val adjectiveGrounder: Some[AdjectiveGrounder]) {
       "@context" -> mkContext
     )) + jObject
   }
-
-  def ground(quantifier: String): AdjectiveGrounding =
-      if (adjectiveGrounder.isDefined) adjectiveGrounder.get.groundAdjective(quantifier)
-      else AdjectiveGrounding.noAdjectiveGrounding
 }
 
 object JLDSerializer {
@@ -184,7 +191,7 @@ class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option
     extends JLDObject(serializer, "Modifier") {
 
   override def toJObject: TidyJObject = {
-    val grounding = serializer.ground(quantifier)
+    val grounding = serializer.adjectiveGrounder.map(_.groundAdjective(quantifier)).getOrElse(AdjectiveGrounding.noAdjectiveGrounding)
     val jldProvenance = mention.map(mention => new JLDProvenance(serializer, mention).toJObject)
 
     TidyJObject(List(
@@ -743,10 +750,17 @@ object JLDDocument {
   val plural = "documents"
 }
 
-class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
-    extends JLDObject(serializer, "Corpus", corpus) {
+class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JLDObject(serializer, "Corpus", corpus) {
 
-  def this(corpus: Corpus, entityGrounder: AdjectiveGrounder) = this(new JLDSerializer(Some(entityGrounder)), corpus)
+  protected def this(corpus: Corpus, adjectiveGrounder: Option[AdjectiveGrounder]) = this(new JLDSerializer(adjectiveGrounder), corpus)
+
+  // Traditional, expert call that some may still be using that includes an adjective grounder from Eidos or now from elsewhere
+  def this(corpus: Corpus, adjectiveGrounder: AdjectiveGrounder) = this(corpus, Option(adjectiveGrounder))
+
+  // New call used in examples so that AdjectiveGrounder can be ignored
+  def this(corpus: Corpus) = this(corpus, Option.empty[AdjectiveGrounder])
+
+  def this(annotatedDocument: AnnotatedDocument) = this(Seq(annotatedDocument))
 
   protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: JIdentityHashMap[EidosMention, Int]): Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable).filter { mention =>
@@ -758,14 +772,15 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
       }
     }
 
-    if (newMentions.nonEmpty) {
-      val jldExtractions = newMentions.map(newJLDExtraction)
-      val recMentions = jldExtractions.flatMap(_.getMentions)
+    newMentions.flatMap { mention =>
+      // Add these in parent, children, parent, children order instead of
+      // the previously used parents, children, children order.
+      val jldExtraction = newJLDExtraction(mention)
+      val recMentions = jldExtraction.getMentions
+      val jldExtractions = jldExtraction +: collectMentions(recMentions, mapOfMentions)
 
-      jldExtractions ++ collectMentions(recMentions, mapOfMentions)
+      jldExtractions
     }
-    else
-      Seq.empty
   }
 
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
@@ -775,9 +790,10 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
         JLDRelationCorrelation.subtypeString,
         JLDRelationCoreference.subtypeString
     )
+
     val mapOfMentions = new JIdentityHashMap[EidosMention, Int]()
 
-    def lt(left: JLDExtraction, right: JLDExtraction) = {
+    def lt(left: JLDExtraction, right: JLDExtraction): Boolean = {
       val leftOrdering = ordering.indexOf(left.subtypeString)
       val rightOrdering = ordering.indexOf(right.subtypeString)
       
@@ -792,7 +808,7 @@ class JLDCorpus(serializer: JLDSerializer, corpus: Corpus)
   
   override def toJObject: TidyJObject = {
     val jldDocuments = corpus.map(new JLDDocument(serializer, _).toJObject)
-    val eidosMentions = corpus.flatMap(_.eidosMentions)
+    val eidosMentions = corpus.flatMap(_.eidosMentions).sortWith(EidosMention.before) // At least start out in order
     val jldExtractions = collectMentions(eidosMentions).map(_.toJObject)
 
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))

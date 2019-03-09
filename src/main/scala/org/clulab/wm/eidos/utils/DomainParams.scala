@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.utils
 
+import com.typesafe.config.Config
 import org.clulab.wm.eidos.Aliases.Param
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
@@ -32,6 +33,7 @@ object DomainParams {
   val PARAM_MEAN: String = "mean"
   val PARAM_STDEV: String = "stdev"
 
-  def apply(domainParamKBFile: String) =
-      new DomainParams(domainParamKBFile)
+  def apply(domainParamKBFile: String): DomainParams = new DomainParams(domainParamKBFile)
+
+  def fromConfig(config: Config): DomainParams = apply(config.getString("domainParamKBPath"))
 }

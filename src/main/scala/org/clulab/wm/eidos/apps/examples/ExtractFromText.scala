@@ -21,7 +21,7 @@ object ExtractFromText extends App {
   annotatedDocument.odinMentions.foreach(displayMention)
 
   // Export to JSON-LD
-  val corpus = new JLDCorpus(Seq(annotatedDocument), reader.loadableAttributes.adjectiveGrounder)
+  val corpus = new JLDCorpus(annotatedDocument)
   val mentionsJSONLD = corpus.serialize()
   println(stringify(mentionsJSONLD, pretty = true))
 

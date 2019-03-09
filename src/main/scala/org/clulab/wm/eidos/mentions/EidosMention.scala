@@ -234,6 +234,30 @@ object EidosMention {
   }
 
   def hasUnderlyingMentions(surfaceMentions: Seq[Mention]): Boolean = findUnderlyingMentions(surfaceMentions).nonEmpty
+
+  def before(left: EidosMention, right: EidosMention): Boolean = {
+    val leftSentence = left.odinMention.sentence
+    val rightSentence = right.odinMention.sentence
+
+    if (leftSentence != rightSentence)
+      leftSentence < rightSentence
+    else {
+      val leftStart = left.odinMention.start
+      val rightStart = right.odinMention.start
+
+      if (leftStart != rightStart)
+        leftStart < rightStart
+      else {
+        val leftEnd = left.odinMention.end
+        val rightEnd = right.odinMention.end
+
+        if (leftEnd != rightEnd)
+          leftEnd < rightEnd
+        else
+          true
+      }
+    }
+  }
 }
 
 class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
