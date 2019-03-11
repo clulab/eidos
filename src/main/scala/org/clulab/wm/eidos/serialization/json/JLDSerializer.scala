@@ -8,6 +8,7 @@ import org.clulab.odin.{Attachment, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
+import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoPhraseID
@@ -695,7 +696,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     extends JLDObject(serializer, "Sentence", sentence) {
 
   override def toJObject: TidyJObject = {
-    val key = "universal-enhanced"
+    val key = GraphMap.UNIVERSAL_ENHANCED
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
     val sent_id = document.sentences.indexOf(sentence)
