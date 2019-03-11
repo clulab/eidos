@@ -101,6 +101,6 @@ object EidosDocument {
 }
 
 @SerialVersionUID(1L)
-case class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, LocalDateTime, Long)], val text: String)
+case class TimeInterval(span: (Int, Int), intervals: List[(LocalDateTime, LocalDateTime, Long)], text: String)
 @SerialVersionUID(1L)
-case class DCT(val interval: Interval, val text: String)
+case class DCT(interval: Interval, text: String)
