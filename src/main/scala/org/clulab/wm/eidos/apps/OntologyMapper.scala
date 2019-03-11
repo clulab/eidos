@@ -200,14 +200,23 @@ object OntologyMapper {
     * @param topN the number of similarity scores to return, when set to 0, return them all (default = 0)
     * @return String version of the mapping, akin to a file, newlines separate the "rows"
     */
-  def mapOntologies(reader: EidosSystem, bbnPath: String, sofiaPath: String, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
+  def mapOntologies(reader: EidosSystem, bbnPath: String, sofiaPath: String, providedOntology: Option[String], providedOntName: String = "ProvidedOntology",
+                    exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
     // EidosSystem stuff
     val proc = reader.proc
     val w2v = reader.wordToVec
     val config = reader.config
 
     // Load
-    val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
+    val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
+      val grounder = reader.ontologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get)
+      grounder match {
+        case g: EidosOntologyGrounder => g.conceptEmbeddings
+        case _ => throw new RuntimeException("Custom ontology Grounder must be an EidosOntologyGrounder")
+      }
+    } else {
+      reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
+    }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
     val bbnConceptEmbeddings = loadOtherOntology(bbnPath, w2v)
     println("Finished loading other ontologies")
