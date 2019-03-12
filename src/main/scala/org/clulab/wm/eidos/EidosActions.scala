@@ -410,7 +410,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
       times = m.document.asInstanceOf[EidosDocument].times
-      time: Option[TimeInterval] = if (times.isDefined) times.get(m.sentence).find(_.span._1 == trigger.startOffset) else None
+      time: Option[TimeInterval] = if (times.isDefined) times.get(m.sentence).find(_.span.start == trigger.startOffset) else None
     } yield time match {
       case None => theme
       case Some(t) => theme.withAttachment(new Time(t))

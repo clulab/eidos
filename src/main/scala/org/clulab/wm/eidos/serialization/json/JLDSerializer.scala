@@ -189,7 +189,7 @@ object JLDOntologyGroundings {
 }
 
 class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option[Mention])
-    extends JLDObject(serializer, "Modifier") {
+    extends JLDObject(serializer, JLDModifier.typename) {
 
   override def toJObject: TidyJObject = {
     val grounding = serializer.adjectiveGrounder.map(_.groundAdjective(quantifier)).getOrElse(AdjectiveGrounding.noAdjectiveGrounding)
@@ -209,6 +209,7 @@ class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option
 object JLDModifier {
   val singular = "modifier"
   val plural = "modifiers"
+  val typename = "Modifier"
 }
 
 abstract class JLDAttachment(serializer: JLDSerializer, kind: String)
@@ -533,7 +534,7 @@ object JLDRelationCoreference {
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
-    extends JLDObject(serializer, "Dependency") {
+    extends JLDObject(serializer, JLDDependency.typename) {
 
   override def toJObject: TidyJObject = {
     val source = words(edge._1).value
@@ -552,6 +553,7 @@ class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: 
 object JLDDependency {
   val singular = "dependency"
   val plural = "dependencies"
+  val typename = "Dependency"
 }
 
 class JLDGraphMapPair(serializer: JLDSerializer, key: String, directedGraph: DirectedGraph[String], words: Seq[JLDWord])
@@ -623,18 +625,18 @@ object JLDTimeInterval {
 }
 
 
-class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
+class JLDTimex(serializer: JLDSerializer, val interval: TimeInterval)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimex.typename, interval) {
   
   override def toJObject: TidyJObject = {
-    val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i._1, i._2, i._3).toJObject)
+    val jldIntervals = interval.intervals.map(timeStep => new JLDTimeInterval(serializer, timeStep.start, timeStep.end, timeStep.duration).toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      "startOffset" -> interval.span._1,
-      "endOffset" -> interval.span._2,
+      "startOffset" -> interval.span.start,
+      "endOffset" -> interval.span.end,
       "text" -> interval.text,
       JLDTimeInterval.plural -> jldIntervals
     ))
@@ -668,7 +670,7 @@ object JLDGeoID {
   val typename = "GeoLocation"
 }
 
-class JLDDCT(serializer:JLDSerializer, val dct: DCT)
+class JLDDCT(serializer: JLDSerializer, val dct: DCT)
 // The document, sentence, index above will be used to recognized words.
   extends JLDObject(serializer, JLDDCT.typename, dct) {
 
@@ -693,7 +695,7 @@ object JLDDCT {
 }
 
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
-    extends JLDObject(serializer, "Sentence", sentence) {
+    extends JLDObject(serializer, JLDSentence.typename, sentence) {
 
   override def toJObject: TidyJObject = {
     val key = GraphMap.UNIVERSAL_ENHANCED
@@ -724,10 +726,11 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
 object JLDSentence {
   val singular = "sentence"
   val plural = "sentences"
+  val typename = "Sentence"
 }
 
 class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocument)
-    extends JLDObject(serializer, "Document", annotatedDocument.document) {
+    extends JLDObject(serializer, JLDDocument.typename, annotatedDocument.document) {
 
   override def toJObject: TidyJObject = {
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _).toJObject).toSeq
@@ -749,9 +752,10 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
 object JLDDocument {
   val singular = "document"
   val plural = "documents"
+  val typename = "Document"
 }
 
-class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JLDObject(serializer, "Corpus", corpus) {
+class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JLDObject(serializer, JLDCorpus.typename, corpus) {
 
   protected def this(corpus: Corpus, adjectiveGrounder: Option[AdjectiveGrounder]) = this(new JLDSerializer(adjectiveGrounder), corpus)
 
@@ -835,4 +839,5 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 object JLDCorpus {
   val singular = "corpus"
   val plural = "corpora"
+  val typename = "Corpus"
 }

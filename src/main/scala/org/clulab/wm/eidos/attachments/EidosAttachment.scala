@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
+import org.clulab.processors.Document
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.{DCT, TimeInterval}
@@ -80,6 +82,14 @@ object EidosAttachment {
 
 case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[String]] = None,
     triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None)
+
+@SerialVersionUID(1L)
+class TextAndProvenance(mention: Mention) {
+  val text: String = mention.text
+  val document: Document = mention.document
+  val sentence: Int = mention.sentence
+  val interval: Interval = mention.tokenInterval
+}
 
 @SerialVersionUID(1L)
 abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
@@ -404,12 +414,12 @@ object Time {
     if (superDiff != 0)
       superDiff
     else {
-      val startDiff = left.interval.span._1 - right.interval.span._1
+      val startDiff = left.interval.span.start - right.interval.span.start
 
       if (startDiff != 0)
         startDiff
       else {
-        val endDiff = left.interval.span._2 - right.interval.span._2
+        val endDiff = left.interval.span.end - right.interval.span.end
 
         endDiff
       }
