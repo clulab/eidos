@@ -2,6 +2,8 @@ package org.clulab.wm.eidos.document
 
 import java.time.LocalDateTime
 import scala.math.{max, min}
+import scala.io.Source
+import scala.util.matching.Regex
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
@@ -16,48 +18,49 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   var times: Option[Array[Seq[TimeInterval]]] = None
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
-  var context_window_size = 5
+  var context_window_size = 50
   var batch_size = 40
   type IntervalType = ((Int, Int), List[(LocalDateTime, LocalDateTime, Long)])
-
+  val regexs = Source.fromInputStream(getClass.getResourceAsStream("/org/clulab/wm/eidos/english/context/timenorm-regexes.txt")).getLines.map(_.r).toList
+	
   protected def parseTime(timenorm: TemporalNeuralParser, documentCreationTime: Option[String]): Array[Seq[TimeInterval]] = {
     // Only parse tokens with entity == DATE. Get the surrounding context. If the contexts for different tokens overlap, join them.
     // Do not include in the context text beyond 2 consecutive newline characters.
-    val sentencesToParse = sentences.filter(_.entities.get.contains("DATE"))
-    val textToParse = sentencesToParse.map(sentence =>
-      text.map(text => text.slice(sentence.startOffsets.head, sentence.endOffsets.last))
-        .getOrElse(sentence.getSentenceText)).toList
-    val nearContext = (token: Int, sent: Sentence) => {
-      val firstOffset = sent.startOffsets.head
-      val sentText = textToParse(sentencesToParse.indexOf(sent))
+
+    val sentenceText = (sentence: Sentence) => text.map(text => text.slice(sentence.startOffsets.head, sentence.endOffsets.last)).getOrElse(sentence.getSentenceText)
+    val sentenceMatches = sentences.map(sentence => this.regexs.map(_.findAllMatchIn(sentenceText(sentence)).toList).flatten.sortBy(_.start))
+    val (sentencesToParse, sentenceMatchesToParse) = (sentences zip sentenceMatches).filter{ case(s, m) => m.nonEmpty }.unzip
+    val textToParse = sentencesToParse.map(sentenceText).toList
+
+    val nearContext = (sentText: String, match_start: Int, match_end: Int) => {
       val contextStart = {
-        val start = sent.startOffsets(max(0, token - context_window_size)) - firstOffset
-        sentText.slice(start, sent.startOffsets(token) - firstOffset).reverse.indexOf("\n\n") match {
+	  val start = max(0, match_start - context_window_size)
+	  sentText.slice(start, match_start).reverse.indexOf("\n\n") match {
           case -1 => start
-          case i => sent.startOffsets(token) - firstOffset - i
+          case i => match_start - i
         }
       }
       val contextEnd = {
-        val end = sent.endOffsets(min(token + context_window_size, sent.size - 1)) - firstOffset
-        sentText.slice(sent.endOffsets(token) - firstOffset, end).indexOf("\n\n") match {
+	  val end = min(match_end + context_window_size, sentText.size)
+	  sentText.slice(match_end, end).indexOf("\n\n") match {
           case -1 => end
-          case i => sent.endOffsets(token) - firstOffset + i
+          case i => match_end + i
         }
       }
       (contextStart, contextEnd)
     }
-    val spansToParse = sentencesToParse.zipWithIndex.flatMap { case (sent, sindex) =>
-      sent.entities.get.zipWithIndex.collect { case (entity, eindex) if entity == "DATE" => nearContext(eindex, sent) }
-        .foldLeft(List.empty[(Int, Int, Int)]) { (list, e) =>
-          list match {
-            case l if l.isEmpty => List((sindex, e._1, e._2))
-            case l if l.last._3 >= e._1 => l.init :+ (sindex, l.last._2, e._2)
-            case l if l.last._3 < e._1 => l :+ (sindex, e._1, e._2)
-            case l => l :+ (sindex, e._1, e._2)
-          }
-        }
-    }.toList
+    val spansToParse = sentenceMatchesToParse.zipWithIndex.map{ case(sentMatch, sindex) => sentMatch.map(m => nearContext(textToParse(sindex), m.start, m.end))
+    	  .foldLeft(List.empty[(Int, Int, Int)]) { (list, c) =>
+    	     list match {
+               case l if l.isEmpty => List((sindex, c._1, c._2))
+               case l if l.last._3 >= c._1 => l.init :+ (sindex, l.last._2, c._2)
+               case l if l.last._3 < c._1 => l :+ (sindex, c._1, c._2)
+               case l => l :+ (sindex, c._1, c._2)
+    	    }
+    	}
+    }.toList.flatten
     val contextsToParse = spansToParse.map(span => textToParse(span._1).slice(span._2, span._3))
+    
     // This might be turned into a class with variable names for documentation.
     // The offset might be used in the constructor to adjust it once and for all.
     // Parse the contexts in batches of batch_size. The dct goes in the first batch.
