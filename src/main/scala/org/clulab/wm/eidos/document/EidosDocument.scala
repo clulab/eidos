@@ -24,9 +24,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   val regexs = Source.fromInputStream(getClass.getResourceAsStream("/org/clulab/wm/eidos/english/context/timenorm-regexes.txt")).getLines.map(_.r).toList
 	
   protected def parseTime(timenorm: TemporalNeuralParser, documentCreationTime: Option[String]): Array[Seq[TimeInterval]] = {
-    // Only parse tokens with entity == DATE. Get the surrounding context. If the contexts for different tokens overlap, join them.
+    // Only parse text where a regex detects a time expressions. Get the surrounding context. If the contexts for different tokens overlap, join them.
     // Do not include in the context text beyond 2 consecutive newline characters.
-
     val sentenceText = (sentence: Sentence) => text.map(text => text.slice(sentence.startOffsets.head, sentence.endOffsets.last)).getOrElse(sentence.getSentenceText)
     val sentenceMatches = sentences.map(sentence => this.regexs.map(_.findAllMatchIn(sentenceText(sentence)).toList).flatten.sortBy(_.start))
     val (sentencesToParse, sentenceMatchesToParse) = (sentences zip sentenceMatches).filter{ case(s, m) => m.nonEmpty }.unzip
