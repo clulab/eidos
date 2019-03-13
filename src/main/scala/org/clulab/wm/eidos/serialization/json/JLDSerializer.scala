@@ -188,12 +188,12 @@ object JLDOntologyGroundings {
   val pural: String = singular
 }
 
-class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option[Mention])
+class JLDModifier(serializer: JLDSerializer, quantifier: String, provenance: Option[Provenance])
     extends JLDObject(serializer, JLDModifier.typename) {
 
   override def toJObject: TidyJObject = {
     val grounding = serializer.adjectiveGrounder.map(_.groundAdjective(quantifier)).getOrElse(AdjectiveGrounding.noAdjectiveGrounding)
-    val jldProvenance = mention.map(mention => new JLDProvenance(serializer, mention).toJObject)
+    val jldProvenance = provenance.map(provenance => Seq(new JLDProvenance(serializer, provenance).toJObject))
 
     TidyJObject(List(
       serializer.mkType(this),
@@ -213,20 +213,21 @@ object JLDModifier {
 }
 
 abstract class JLDAttachment(serializer: JLDSerializer, kind: String)
-    extends JLDObject(serializer, "State") {
+    extends JLDObject(serializer, JLDAttachment.kind) {
 }
 
 object JLDAttachment {
   val singular = "state"
   val plural = "states"
+  val kind = "State"
 }
 
 class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredAttachment: TriggeredAttachment)
-    extends JLDAttachment(serializer, "State") {
+    extends JLDAttachment(serializer, JLDAttachment.kind) {
 
   override def toJObject: TidyJObject = {
     val text = triggeredAttachment.trigger
-    val jldProvanance = triggeredAttachment.getTriggerMention.map(mention => new JLDProvenance(serializer, mention).toJObject)
+    val jldProvanance = triggeredAttachment.triggerProvenance.map(provenance => Seq(new JLDProvenance(serializer, provenance).toJObject))
     val jldModifiers =
         if (triggeredAttachment.quantifiers.isEmpty) Seq.empty
         else
@@ -250,7 +251,7 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
 }
 
 class JLDContextAttachment(serializer: JLDSerializer, kind: String, contextAttachment: ContextAttachment)
-    extends JLDAttachment(serializer, "State") {
+    extends JLDAttachment(serializer, JLDAttachment.kind) {
 
   override def toJObject: TidyJObject = {
     val value = serializer.mkRef(contextAttachment.value)
@@ -296,16 +297,16 @@ object JLDInterval {
 //  val plural = "positions"
 }
 
-class JLDProvenance(serializer: JLDSerializer, mention: Mention)
+class JLDProvenance(serializer: JLDSerializer, provenance: Provenance)
     // Do not include the mention here because provenances are not to be referenced!
     extends JLDObject(serializer, "Provenance") {
 
-  def this(serializer: JLDSerializer, eidosMention: EidosMention) = this(serializer, eidosMention.odinMention)
+  def this(serializer: JLDSerializer, eidosMention: EidosMention) = this(serializer, new MentionProvenance(eidosMention.odinMention))
 
   override def toJObject: TidyJObject = {
-    val document = mention.document
-    val sentence = mention.sentenceObj
-    val tokenInterval = mention.tokenInterval
+    val document = provenance.document
+    val sentence = document.sentences(provenance.sentence)
+    val tokenInterval = provenance.interval
     val documentCharInterval = {
       val start = sentence.startOffsets(tokenInterval.start)
       val end = sentence.endOffsets(tokenInterval.end - 1)
