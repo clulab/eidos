@@ -5,11 +5,15 @@ import java.time.LocalDateTime
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.json4s.jackson.JsonMethods._
+
+import JLDDeserializer.DocumentMap
+import JLDDeserializer.DocumentSentenceMap
 
 import scala.collection.Seq
 
@@ -164,4 +168,149 @@ class TestJLDDeserializer extends ExtractionTest {
     val dependencyValue = parse(json)
     val dependency = new JLDDeserializer().deserializeDependency(dependencyValue, wordMap)
   }
+
+  it should "deserialize interval from json" in {
+    val json = """
+      |{
+      |  "@type" : "Interval",
+      |  "start" : 3232,
+      |  "end" : 3234
+      |}"""".stripMargin
+    val intervalValue = parse(json)
+    val interval = new JLDDeserializer().deserializeInterval(intervalValue, offset = 1, inclusiveEnd = true)
+
+    interval.start should be (3231)
+    interval.end should be (3234)
+  }
+
+  it should "deserialize provenance from json" in {
+    val json = """
+    |[ {
+    |  "@type" : "Provenance",
+    |  "document" : {
+    |    "@id" : "_:Document_1"
+    |  },
+    |  "documentCharInterval" : [ {
+    |    "@type" : "Interval",
+    |    "start" : 3232,
+    |    "end" : 3234
+    |  } ],
+    |  "sentence" : {
+    |    "@id" : "_:Sentence_35"
+    |  },
+    |  "sentenceWordPositions" : [ {
+    |    "@type" : "Interval",
+    |    "start" : 1,
+    |    "end" : 1
+    |  } ]
+    |} ]"""".stripMargin
+    val provenanceValue = parse(json)
+    val documentMap: DocumentMap = Map("_:Document_1" -> null)
+    val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_35" -> 34))
+    val provenance = new JLDDeserializer().deserializeProvenance(provenanceValue, documentMap, documentSentenceMap)
+  }
+
+  it should "deserialize extraction from json" in {
+    val json = """
+      |{
+      |  "@type" : "Extraction",
+      |  "@id" : "_:Extraction_1",
+      |  "type" : "relation",
+      |  "subtype" : "causation",
+      |  "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
+      |  "text" : "conflict are also forcing many families to leave South Sudan for neighbouring countries",
+      |  "rule" : "ported_syntax_1_verb-Causal",
+      |  "canonicalName" : "conflict force leave",
+      |  "provenance" : [ {
+      |    "@type" : "Provenance",
+      |    "document" : {
+      |      "@id" : "_:Document_1"
+      |    },
+      |    "documentCharPositions" : [ {
+      |      "@type" : "Interval",
+      |      "start" : 1559,
+      |      "end" : 1645
+      |    } ],
+      |    "sentence" : {
+      |      "@id" : "_:Sentence_7"
+      |    },
+      |    "sentenceWordPositions" : [ {
+      |      "@type" : "Interval",
+      |      "start" : 4,
+      |      "end" : 16
+      |    } ]
+      |  } ],
+      |  "trigger" : {
+      |    "@type" : "Trigger",
+      |    "text" : "forcing",
+      |    "provenance" : [ {
+      |      "@type" : "Provenance",
+      |      "document" : {
+      |        "@id" : "_:Document_1"
+      |      },
+      |      "documentCharPositions" : [ {
+      |        "@type" : "Interval",
+      |        "start" : 1577,
+      |        "end" : 1583
+      |      } ],
+      |      "sentence" : {
+      |        "@id" : "_:Sentence_7"
+      |      },
+      |      "sentenceWordPositions" : [ {
+      |        "@type" : "Interval",
+      |        "start" : 7,
+      |        "end" : 7
+      |      } ]
+      |    } ]
+      |  },
+      |  "arguments" : [ {
+      |    "@type" : "Argument",
+      |    "type" : "source",
+      |    "value" : {
+      |      "@id" : "_:Extraction_7"
+      |    }
+      |  }, {
+      |    "@type" : "Argument",
+      |    "type" : "destination",
+      |    "value" : {
+      |      "@id" : "_:Extraction_8"
+      |    }
+      |  } ]
+      |}""".stripMargin
+    val extractionValue = parse(json)
+    val documentMap: DocumentMap = Map("_:Document_1" -> null)
+    val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_7" -> 0))
+    val extraction = new JLDDeserializer().deserializeExtraction(extractionValue, documentMap, documentSentenceMap)
+
+  }
+
+//  it should "deserialize trigger from json" in {
+//    val json = """
+//      |{
+//      |  "@type" : "Trigger",
+//      |  "text" : "Due",
+//      |  "provenance" : [ {
+//      |    "@type" : "Provenance",
+//      |    "document" : {
+//      |      "@id" : "_:Document_1"
+//      |    },
+//      |    "documentCharInterval" : [ {
+//      |      "@type" : "Interval",
+//      |      "start" : 3232,
+//      |      "end" : 3234
+//      |    } ],
+//      |    "sentence" : {
+//      |      "@id" : "_:Sentence_35"
+//      |    },
+//      |    "positions" : [ {
+//      |      "@type" : "Interval",
+//      |      "start" : 1,
+//      |      "end" : 1
+//      |    } ]
+//      |  } ]
+//      ||}""".stripMargin
+//    val wordMap = Map("_:Word_2" -> 2, "_:Word_1" -> 1)
+//    val dependencyValue = parse(json)
+//    val dependency = new JLDDeserializer().deserializeDependency(dependencyValue, wordMap)
+//  }
 }

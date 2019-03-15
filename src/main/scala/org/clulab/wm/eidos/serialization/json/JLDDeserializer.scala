@@ -32,17 +32,32 @@ import org.clulab.wm.eidos.document.DCT
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.timenorm.formal.{Interval => TInterval}
+import org.clulab.wm.eidos.attachments.Provenance
+import org.clulab.wm.eidos.attachments.StaticProvenance
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.document.TimeStep
+import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
+import org.clulab.wm.eidos.mentions.EidosMention.newEidosMention
+import org.clulab.wm.eidos.mentions.MentionMapper
+import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
+import scala.annotation.tailrec
 import scala.collection.Seq
 
 
 class IdAndValue[ValueType](val id: String, val value: ValueType)
+
+object IdAndValue {
+  def toMap[ValueType](idsAndValues: Seq[IdAndValue[ValueType]]): Map[String, ValueType] =
+      idsAndValues.map { idAndValue => idAndValue.id -> idAndValue.value }.toMap
+
+  def toArray[ValueType](idsAndValues: Seq[IdAndValue[ValueType]]): Array[ValueType] =
+      idsAndValues.map(_.value).toArray
+}
 
 class IdAndDct(id: String, value: DCT) extends IdAndValue[DCT](id, value)
 
@@ -60,9 +75,12 @@ case class SentencesSpec(sentences: Array[Sentence], sentenceMap: Map[String, In
     timexes: Array[Seq[TimeInterval]], timexMap: Map[String, TimeInterval],
     geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID])
 
-class IdAndDocument(id: String, value: Document) extends IdAndValue(id, value)
+class IdAndDocument(id: String, value: EidosDocument) extends IdAndValue(id, value)
 
 case class DocumentSpec(idAndDocument: IdAndDocument, sentencesSpec: SentencesSpec)
+
+class IdAndMention(id: String, value: Mention) extends IdAndValue[Mention](id,value)
+
 
 
 // Above is for the document, belo is for the extractions
@@ -80,7 +98,20 @@ case class ModifierData(text: String, documentId: String, sentenceId: String, st
 //EidosCrossSentenceMention -> CrossSentenceMention -> JLDRelation
 //EidosRelationMention -> RelationMention // These are skipped
 
+object JLDDeserializer {
+  type DocumentMap = Map[String, EidosDocument]
+  type SentenceMap = Map[String, Int]
+  // So do documentSentenceMap(documentId)(sentenceId) to get the Int
+  type DocumentSentenceMap = Map[String, SentenceMap]
+  type MentionMap = Map[String, Mention]
+  type GeolocMap = Map[String, GeoPhraseID]
+  type TimexMap = Map[String, TimeInterval]
+
+  type ProvenanceMap = Map[Provenance, String] // Do we really want this document involved?
+}
+
 class JLDDeserializer {
+  import org.clulab.wm.eidos.serialization.json.JLDDeserializer._
   implicit val formats = org.json4s.DefaultFormats
 
   protected def requireType(jValue: JValue, typeName: String): Unit =
@@ -89,10 +120,10 @@ class JLDDeserializer {
   protected def id(jValue: JValue): String =
       (jValue \ "@id").extract[String]
 
-  protected def toInterval(start: Int, stop: Int, offset: Int, inclusiveEnd: Boolean): Interval = {
+  protected def toInterval(start: Int, end: Int, offset: Int, inclusiveEnd: Boolean): Interval = {
     // Coordinate this with JLDSerializer.
     val endCorrection = if (inclusiveEnd) -1 else 0
-    Interval(start - offset, stop - offset - endCorrection)
+    Interval(start - offset, end - offset - endCorrection)
   }
 
   def deserializeDct(dctValue: JValue): IdAndDct = {
@@ -232,101 +263,43 @@ class JLDDeserializer {
     SentencesSpec(sentences, sentenceMap, timexes.toArray, timexMap, geolocs.toArray, geolocMap)
   }
 
-  // probably need sentence and document maps, maybe sentence only because that is unique
-  def deserializeExtractions(jldExtractionValue: JValue): (Seq[Mention], Seq[EidosMention]) = {
-    requireType(jldExtractionValue, "Extraction") // Reference the serializer here?
-    val extractionId = id(jldExtractionValue)
-    val extractionType = (jldExtractionValue \ "type").extract[String]
-    val extractionSubtype = (jldExtractionValue \ "subtype").extract[String]
-    val labels = (jldExtractionValue \ "labels").extract[List[String]]
-    val tokenIntervalStart = (jldExtractionValue \ "provenance" \ "sentenceWordPositions" \ "start").extract[Int]
-    val tokenIntervalStop = (jldExtractionValue \ "provenance" \ "sentenceWordPositions" \ "end").extract[Int]
-    val tokenInterval = toInterval(tokenIntervalStart, tokenIntervalStop, offset = 1, inclusiveEnd = true)
-    val sentence = 5
-    // Need sentence integer in right document from provement
-    val document: Document = null // so this needs to be tracked down
-    val rule = (jldExtractionValue \ "rule").extract[String]
+  def deserializeInterval(intervalValue: JValue, offset: Int, inclusiveEnd: Boolean): Interval = {
+    requireType(intervalValue, JLDInterval.typename)
+    val start = (intervalValue \ "start").extract[Int]
+    val end = (intervalValue \ "end").extract[Int]
+    val interval = toInterval(start, end, offset, inclusiveEnd)
 
-    val stateDatas = (jldExtractionValue \ "state").extract[JArray].arr.map { jldStatesValue =>
-      requireType(jldStatesValue, "State")
-      val stateType = (jldStatesValue \ "type").extract[String]
-      val text = (jldStatesValue \ "text").extract[String]
-      val documentId = id(jldStatesValue \ "provenance" \ "document")
-      val sentenceId = id(jldStatesValue \ "provenance" \ "sentence")
-      val start = (jldStatesValue \ "provenance" \ "positions" \ "start").extract[Int]
-      val end = (jldStatesValue \ "provenance" \ "positions" \ "end").extract[Int]
-
-      val timeValue = (jldStatesValue \ "value" \ "@id").extractOpt[String]
-      val geoValue = (jldStatesValue \ "value" \ "@id").extractOpt[String]
-
-      val modifierDatas = (jldStatesValue \ "modifiers").extract[JArray].arr.map { jldModifersValue =>
-        requireType(jldModifersValue, "Modifier")
-        val text = (jldModifersValue \ "text").extract[String]
-        // Provenance is unavailable, so can't track these down
-        val documentId = id(jldModifersValue \ "provenance" \ "document")
-        val sentenceId = id(jldModifersValue \ "provenance" \ "sentence")
-        val start = (jldModifersValue \ "provenance" \ "sentenceWordPositions" \ "start").extract[Int]
-        val end = (jldModifersValue \ "provenance" \ "sentenceWordPositions" \ "end").extract[Int]
-
-        ModifierData(text, documentId, sentenceId, start, end)
-      }
-      StateData(stateType, text, documentId, sentenceId, start, end, timeValue, geoValue, modifierDatas)
-    }
-
-/*
-    // Need to track down all the mentions now
-    val attachments = stateDatas.map { stateData => stateData.stateType match {
-      // use the text to find the triggerMention?
-        // for quantifiers look at trigger and check its arguments,
-
-      case "QUANT" =>
-        val trigger = stateData.text
-        val quantifiers = stateData..modifierDatas.map(_.text)
-
-        new Quantification(stateData.text, triggerMention = None, quantifierMentions = None)
-      case "INC" => new Increase()
-      case "DEC" => new Decrease()
-
-      case "PROP" => new Property()
-      case "HEDGE" => new Hedging()
-      case "NEGATION" => new Negation()
-      case "TIMEX" => new Time()
-      case "LocationExp" => new Location()
-    }.toSet
-
-    val arguments: Map[String, Seq[Mention]] = null
-    val paths: Map[String, Map[Mention, SynPath]] = Map.empty
-
-    val attachments: Set[Attachment] = Set.empty
-
-    if (extractionType == "relation") {
-      if (extractionSubtype == "correlation")
-        new RelationMention(labels, tokenInterval, arguments, paths, sentence, document, keep = true, rule, attachments)
-      else if (extractionSubtype == "causation") {
-        val trigger: TextBoundMention = null
-        new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep = true, rule, attachments)
-      }
-      else if (extractionSubtype == "coreference") {
-        val anchor: Mention = null
-        val neighbor: Mention = null
-        new CrossSentenceMention(labels, anchor, neighbor, arguments, document, keep = true, rule, attachments)
-      }
-      else
-        throw new Exception("Unknwon kind of relation")
-    }
-    else if (extractionType == "concept") {
-      if (extractionSubtype == "entity")
-        new TextBoundMention(labels, tokenInterval, sentence, document, keep = true, rule, attachments)
-      else
-        throw new Exception("Unknown kind of concept")
-    }
-    else
-      throw new Exception("Unknown kind of extraction")
-
-
-*/
-    (Seq.empty, Seq.empty)
+    interval
   }
+
+  protected def deserializeSingularProvenance(provenanceValue: JValue, documentMap: DocumentMap,
+      documentSentenceMap: DocumentSentenceMap): Provenance = {
+    requireType(provenanceValue, JLDProvenance.typename)
+    val documentId = id(provenanceValue \ "document")
+    val document = documentMap(documentId)
+
+    val sentenceId = id(provenanceValue \ "sentence")
+    val sentence = documentSentenceMap(documentId)(sentenceId)
+
+    val sentenceWordPositions = (provenanceValue \ "sentenceWordPositions").extract[JArray].arr.map { intervalValue =>
+      deserializeInterval(intervalValue, offset = 1, inclusiveEnd = true)
+    }
+    require(sentenceWordPositions.size == 1)
+
+    StaticProvenance(document, sentence, sentenceWordPositions.head)
+  }
+
+  protected def deserializePluralProvenance(provenanceValue: JValue, documentMap: DocumentMap,
+      documentSentenceMap: DocumentSentenceMap): Provenance = {
+    val provenanceValues: JArray = provenanceValue.asInstanceOf[JArray]
+    require(provenanceValues.arr.size == 1)
+
+    deserializeSingularProvenance(provenanceValues.arr.head, documentMap, documentSentenceMap)
+  }
+
+  def deserializeProvenance(provenanceValueOpt: Option[JValue], documentMap: DocumentMap,
+      documentSentenceMap: DocumentSentenceMap): Option[Provenance] =
+      provenanceValueOpt.map(deserializePluralProvenance(_, documentMap, documentSentenceMap))
 
   def deserializeDocument(documentValue: JValue): DocumentSpec = {
     requireType(documentValue, JLDDocument.typename)
@@ -344,19 +317,216 @@ class JLDDeserializer {
     document.geolocs = Option(sentencesSpec.geolocs)
     document.dct = Option(idAndDct.value)
 
-    val idAndDocument = new IdAndDocument(documentId, Document(document))
+    val idAndDocument = new IdAndDocument(documentId, document)
     DocumentSpec(idAndDocument, sentencesSpec)
   }
 
-  def deserializeCorpus(jldCorpusValue: JValue): Corpus = {
-    requireType(jldCorpusValue, JLDCorpus.typename)
-    val documentSpecs = (jldCorpusValue \ "documents").extract[JArray].arr.map(deserializeDocument)
-    val documentMap = documentSpecs.map { documentSpec =>
+  case class Extraction(id: String, extractionType: String, extractionSubtype: String, provenance: Provenance,
+      triggerProvenance: Option[Provenance], childIds: Seq[String])
+
+  def deserializeExtraction(extractionValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap): Extraction = {
+    requireType(extractionValue, JLDExtraction.typename)
+    val extractionId = id(extractionValue)
+    val extractionType = (extractionValue \ "type").extract[String]
+    val extractionSubtype = (extractionValue \ "subtype").extract[String]
+    val provenance = deserializeProvenance((extractionValue \ "provenance").extractOpt[JValue], documentMap, documentSentenceMap).get
+    val triggerProvenance = None // deserializeTrigger(extractionVAlue \ "trigger")
+    val childIds = Seq.empty[String] //deserializeArguments(extractionValue \ "arguments")
+
+    Extraction(extractionId, extractionType, extractionSubtype, provenance, triggerProvenance, childIds)
+  }
+
+  def deserializeModifier(modifierValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap): (String, Provenance) = {
+    requireType(modifierValue, JLDModifier.typename)
+    val text = (modifierValue \ "text").extract[String]
+    val provenance = deserializeProvenance((modifierValue \ "provenance").extractOpt[JArray],
+      documentMap, documentSentenceMap).get
+
+    (text, provenance)
+  }
+
+  def deserializeModifiers(modifiersValueOpt: Option[JArray], documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap):
+      (Option[Seq[String]], Option[Seq[Provenance]]) = {
+    if (modifiersValueOpt.isDefined) {
+      val textsAndProvenances = modifiersValueOpt.get.arr.map { modifierValue =>
+        deserializeModifier(modifierValue, documentMap, documentSentenceMap)
+      }
+      val texts = textsAndProvenances.map(_._1)
+      val provenances = textsAndProvenances.map(_._2)
+
+      (Option(texts), Option(provenances))
+    }
+    else
+      (None, None)
+  }
+
+  def deserializeState(stateValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
+      timexMap: TimexMap, geolocMap: GeolocMap): EidosAttachment = {
+    requireType(stateValue, JLDAttachment.kind)
+    val stateType = (stateValue \ "type").extract[String]
+    val text = (stateValue \ "text").extract[String]
+    val provenanceOpt = deserializeProvenance((stateValue \ "provenance").extractOpt[JArray],
+        documentMap, documentSentenceMap)
+    val modifiersValueOpt = (stateValue \ "modifiers").extractOpt[JArray]
+    val (quantifiers, quantifierProvenances) = deserializeModifiers(modifiersValueOpt, documentMap, documentSentenceMap)
+    val attachment = stateType match {
+      case "QUANT" =>
+        require(provenanceOpt.isDefined)
+        new Quantification(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "INC" =>
+        require(provenanceOpt.isDefined)
+        new Increase(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "DEC" =>
+        require(provenanceOpt.isDefined)
+        new Decrease(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "PROP" =>
+        require(provenanceOpt.isDefined)
+        new Property(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "HEDGE" =>
+        require(provenanceOpt.isDefined)
+        new Hedging(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "NEGATION" =>
+        require(provenanceOpt.isDefined)
+        new Negation(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "TIMEX" =>
+        require(provenanceOpt.isEmpty)
+        val value = id((stateValue \ "value").extract[JValue])
+        val timeInterval = timexMap(value)
+
+        new Time(timeInterval)
+      case "LocationExp" =>
+        require(provenanceOpt.isEmpty)
+        val value = id((stateValue \ "value").extract[JValue])
+        val geoPhraseId = geolocMap(value)
+
+        new Location(geoPhraseId)
+      case _ =>
+        throw new Exception(s"Unknown state type $stateType")
+    }
+
+    attachment
+  }
+
+  def deserializeMention(extractionValue: JValue, extraction: Extraction, mentionMap: Map[String, Mention],
+      documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap, timexMap: TimexMap, geolocMap: GeolocMap): Mention = {
+    requireType(extractionValue, JLDExtraction.typename)
+    val extractionId = extraction.id
+    val extractionType = extraction.extractionType
+    val extractionSubtype = extraction.extractionSubtype
+    val labels = (extractionValue \ "labels").extract[List[String]]
+    val tokenInterval = extraction.provenance.interval
+    val sentence = extraction.provenance.sentence
+    val document = extraction.provenance.document
+    val keep = true // We do not save this anywhere
+    val foundBy = (extractionValue \ "rule").extract[String]
+    val paths: Map[String, Map[Mention, SynPath]] = Map.empty // Document this
+
+    val attachments: Set[Attachment] = (extractionValue \ "states").extract[JArray].arr.map { stateValue =>
+      deserializeState(stateValue, documentMap, documentSentenceMap, timexMap, geolocMap)
+    }.toSet
+
+    val arguments: Map[String, Seq[Mention]] = Map.empty // TODO
+
+    val mention =
+        if (extractionType == "concept" && extractionSubtype == "entity") {
+          require(arguments.isEmpty)
+          new TextBoundMention(labels, tokenInterval, sentence, document, keep, foundBy, attachments)
+        }
+        else if (extractionType == "relation" && extractionSubtype == "causation") {
+          require(JLDRelationCausation.taxonomy == labels.head)
+          val trigger: TextBoundMention = null // TODO, should verify this class
+          // query source and destination for arguments or check that are them
+          new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document,
+              keep, foundBy, attachments)
+        }
+        else if (extractionType == "relation" && extractionSubtype == "correlation") {
+          require(JLDRelationCorrelation.taxonomy == labels.head)
+          val trigger: TextBoundMention = null // TODO, should verify this class
+          // query argument for arguments by order for cause and effect
+          new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document,
+              keep, foundBy, attachments)
+        }
+        else if (extractionType == "relation" && extractionSubtype == "coreference") {
+          require(JLDRelationCoreference.taxonomy == labels.head)
+          // query anchor and reference for arguments, but do these have to be changed?
+          val anchor: Mention = null // TODO
+          val neighbor: Mention = null // TODO
+
+          new CrossSentenceMention(labels, anchor, neighbor, arguments, document,
+              keep, foundBy, attachments)
+        }
+        else
+          throw new Exception(s"Unknown extraction type = $extractionType, subtype = $extractionSubtype")
+
+    val stateDatas = (extractionValue \ "state").extract[JArray].arr.map { statesValue =>
+      requireType(statesValue, "State")
+      val stateType = (statesValue \ "type").extract[String]
+      val text = (statesValue \ "text").extract[String]
+      val documentId = id(statesValue \ "provenance" \ "document")
+      val sentenceId = id(statesValue \ "provenance" \ "sentence")
+      val start = (statesValue \ "provenance" \ "positions" \ "start").extract[Int]
+      val end = (statesValue \ "provenance" \ "positions" \ "end").extract[Int]
+
+      val timeValue = (statesValue \ "value" \ "@id").extractOpt[String]
+      val geoValue = (statesValue \ "value" \ "@id").extractOpt[String]
+
+      val modifierDatas = (statesValue \ "modifiers").extract[JArray].arr.map { modifersValue =>
+        requireType(modifersValue, "Modifier")
+        val text = (modifersValue \ "text").extract[String]
+        // Provenance is unavailable, so can't track these down
+        val documentId = id(modifersValue \ "provenance" \ "document")
+        val sentenceId = id(modifersValue \ "provenance" \ "sentence")
+        val start = (modifersValue \ "provenance" \ "sentenceWordPositions" \ "start").extract[Int]
+        val end = (modifersValue \ "provenance" \ "sentenceWordPositions" \ "end").extract[Int]
+
+        ModifierData(text, documentId, sentenceId, start, end)
+      }
+      StateData(stateType, text, documentId, sentenceId, start, end, timeValue, geoValue, modifierDatas)
+    }
+  }
+
+  @tailrec
+  final def deserializeMentions(extractionsValue: JArray, extractions: Seq[Extraction],
+      mentionMap: Map[String, Mention], provenanceMap: Map[Provenance, String],
+      documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
+      timexMap: TimexMap, geolocMap: GeolocMap): Map[String, Mention] = {
+    def isRipe(extraction: Extraction): Boolean = extraction.childIds.forall(mentionMap.contains) &&
+        extraction.triggerProvenance.forall(provenanceMap.contains)
+
+    if (extractions.isEmpty)
+      mentionMap
+    else {
+      val groupedExtractions = extractions.groupBy(isRipe)
+      val ripeExtractions = groupedExtractions(true)
+      require(ripeExtractions.nonEmpty)
+      val unripeExtractions = groupedExtractions(false)
+      val idsAndMentions = ripeExtractions.map { extraction =>
+        val extractionValue = extractionsValue.find { extractionValue =>
+          requireType(extractionValue, JLDExtraction.typename)
+          val extractionId = id(extractionValue)
+
+          extractionId == extraction.id
+        }
+        val mention = deserializeMention(extractionValue, extraction, mentionMap, documentMap, documentSentenceMap,
+            timexMap, geolocMap)
+
+        new IdAndMention(extraction.id, mention)
+      }
+      val newMentionMap = mentionMap ++ IdAndValue.toMap[Mention](idsAndMentions)
+
+      deserializeMentions(extractionsValue, unripeExtractions, newMentionMap, provenanceMap,
+          documentMap, documentSentenceMap, timexMap, geolocMap)
+    }
+  }
+
+  def deserializeCorpus(corpusValue: JValue): Corpus = {
+    requireType(corpusValue, JLDCorpus.typename)
+    // Check to see about DCT value and if it has id
+    val documentSpecs = (corpusValue \ "documents").extract[JArray].arr.map(deserializeDocument)
+    val documentMap: DocumentMap = documentSpecs.map { documentSpec =>
       documentSpec.idAndDocument.id -> documentSpec.idAndDocument.value
     }.toMap
-    // Maps DocumentId, then SentenceId to Int of sentence within document
-    // Is this really necessary?
-    val sentenceSpecMap: Map[String, Map[String, Int]] = documentSpecs.map { documentSpec =>
+    val documentSentenceMap: DocumentSentenceMap = documentSpecs.map { documentSpec =>
       documentSpec.idAndDocument.id -> documentSpec.sentencesSpec.sentenceMap
     }.toMap
     // Combine all the timexes and geolocs of all corpora
@@ -366,18 +536,18 @@ class JLDDeserializer {
     val geolocMap = documentSpecs.flatMap { documentSpec =>
       documentSpec.sentencesSpec.geolocMap
     }.toMap
-
-// needs to have all the maps go along
-
-    val mentions: List[(Mention, EidosMention)] = (jldCorpusValue \ "extractions").extract[JArray].arr.map { extractionValue =>
-//      val (odinMention, eidosMention) = (null // deserializeExtraction(extractionValue)
-      (null, null)
+    // Todo probably need these others as well
+    val extractionsValue = (corpusValue \ "extractions").extract[JArray]
+    val extractions = extractionsValue.arr.map { extractionValue =>
+      deserializeExtraction(extractionValue, documentMap, documentSentenceMap)
     }
-    // Need to know which mentions belong to this document and which to others
-    // So have to collect them somewhere, documentSpec has extractions for that particular document?
-    val odinMentions = mentions.map(_._1)
-    val eidosMentions = mentions.map(_._2)
-
+    // Combine maps into one? so less parameter passing
+    val mentionMap = deserializeMentions(extractionsValue, extractions, Map.empty, Map.empty,
+        documentMap, documentSentenceMap, timexMap, geolocMap)
+    val odinMentions = mentionMap.values.toArray
+    val canonicalizer: Canonicalizer = null // TODO pass these into method
+    val ontologyGrounder: MultiOntologyGrounding = null // TODO pass these into method
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, ontologyGrounder)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
       AnnotatedDocument(documentSpec.idAndDocument.value, odinMentions, eidosMentions)
     }

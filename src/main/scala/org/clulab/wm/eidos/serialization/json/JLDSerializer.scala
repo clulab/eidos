@@ -185,7 +185,7 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
 
 object JLDOntologyGroundings {
   val singular = "groundings"
-  val pural: String = singular
+  val plural: String = singular
 }
 
 class JLDModifier(serializer: JLDSerializer, quantifier: String, provenance: Option[Provenance])
@@ -278,7 +278,7 @@ class JLDScoredAttachment(serializer: JLDSerializer, kind: String, scoredAttachm
 }
 
 class JLDInterval(serializer: JLDSerializer, interval: Interval, offset: Int, inclusiveEnd: Boolean)
-    extends JLDObject(serializer, "Interval") {
+    extends JLDObject(serializer, JLDInterval.typename) {
 
   override def toJObject: TidyJObject = {
     val endCorrection = if (inclusiveEnd) -1 else 0
@@ -295,11 +295,12 @@ object JLDInterval {
 //  There are many kinds of intervals, so this generic version is not being used.
 //  val singular = "position"
 //  val plural = "positions"
+  val typename = "Interval"
 }
 
 class JLDProvenance(serializer: JLDSerializer, provenance: Provenance)
     // Do not include the mention here because provenances are not to be referenced!
-    extends JLDObject(serializer, "Provenance") {
+    extends JLDObject(serializer, JLDProvenance.typename) {
 
   def this(serializer: JLDSerializer, eidosMention: EidosMention) = this(serializer, new MentionProvenance(eidosMention.odinMention))
 
@@ -327,6 +328,7 @@ class JLDProvenance(serializer: JLDSerializer, provenance: Provenance)
 object JLDProvenance {
   val singular = "provenance"
   val plural = "provenances"
+  val typename = "Provenance"
 }
 
 class JLDTrigger(serializer: JLDSerializer, mention: EidosMention)
