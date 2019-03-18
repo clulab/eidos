@@ -55,10 +55,10 @@ class TestDoc8 extends EnglishTest {
     
     behavior of "TestDoc8 Objective 1"
 
-    passingTest should "have correct edge 1" taggedAs(Ajay) in {
+    failingTest should "have correct edge 1" taggedAs(Ajay) in {
       tester.test(EdgeSpec(emergencySupport, Causal, foodSecurity)) should be (successful) 
     }
-    passingTest should "have correct edge 2" taggedAs(Ajay) in {
+    failingTest should "have correct edge 2" taggedAs(Ajay) in {
       tester.test(EdgeSpec(emergencySupport, Causal, foodGap)) should be (successful) 
     }
   }

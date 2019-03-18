@@ -6,9 +6,7 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import org.slf4j.LoggerFactory
 
 object DomainOntologies {
-  val logger = LoggerFactory.getLogger(this.getClass())
-
-  def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
+  protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
   def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false): DomainOntology = {
     if (useCache) {
@@ -17,49 +15,8 @@ object DomainOntologies {
     }
     else {
       logger.info(s"Processing yml ontology ${ontologyPath}..")
-      new TreeDomainOntologyBuilder(ontologyPath, proc, canonicalizer, filter).build()
+      new TreeDomainOntologyBuilder(proc, canonicalizer, filter).buildFromPath(ontologyPath)
     }
   }
-}
 
-// These are just here for when behavior might have to start differing.
-object UNOntology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-      DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
 }
-
-object PropertiesOntology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-    DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
-}
-
-object WDIOntology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-      DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
-}
-
-object FAOOntology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-      DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
-}
-
-object TopoFlowOntology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-      DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
-}
-
-object MeshOntology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-      DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
-}
-
-object MITRE12Ontology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-    DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
-}
-
-object WHOOntology {
-  def apply(ontologyPath: String, serializedPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false) =
-    DomainOntologies(ontologyPath, serializedPath, proc, canonicalizer: Canonicalizer, filter, useCache)
-}
-

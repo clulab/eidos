@@ -35,7 +35,7 @@ object GenerateExampleMitre extends App {
   displayMentions(annotatedDocument.odinMentions, annotatedDocument.document)
 
   // Convert to JSON
-  val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
+  val corpus = new JLDCorpus(annotatedDocument)
   val mentionsJSONLD = corpus.serialize()
 
   // Write

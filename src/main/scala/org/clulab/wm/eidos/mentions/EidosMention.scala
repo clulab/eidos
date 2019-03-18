@@ -76,7 +76,7 @@ class IdentityBagger[T] extends Bagger[T] {
   def size: Int = map.size
 }
 
-abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
     mentionMapper: MentionMapper) /* extends Mention if really needs to */ {
   type StringAndStart = (String, Int)
 
@@ -98,50 +98,55 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
     EidosMention.asEidosMentions(attachmentMentions, canonicalizer, ontologyGrounder, mentionMapper)
   }
 
-  protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+  protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
       mentionMapper: MentionMapper): Map[String, Seq[EidosMention]] = {
     odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, canonicalizer, ontologyGrounder, mentionMapper))
   }
 
-  protected def remapOdinMention(odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder, mentionMapper: MentionMapper): EidosMention =
+  protected def remapOdinMention(odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding, mentionMapper: MentionMapper): EidosMention =
       EidosMention.asEidosMentions(Seq(odinMention), canonicalizer, ontologyGrounder, mentionMapper)(0)
 
-  // This is lazy because canonicalMentions is called and that may be overridden in the derived class.
-  // The overriden method will not be called in this constructor.
-  lazy val canonicalName: String = {
+  /* Methods for canonicalForms of Mentions */
+
+  /**
+    * The canonical version of the mention text, with any appropriate filtering/simplification.
+    *
+    * This is lazy because canonicalMentions is called and that may be overridden in the derived class.
+    * The overriden method will not be called in this constructor.
+    */
+  lazy val canonicalName: String = canonicalNameParts.mkString(" ")
+
+  /**
+    * To handle mentions that span multiple sentences, we sort the pieces of the mention and then filter each
+    * to get the tokens that will make it into the canonicalName.
+    */
+  lazy val canonicalNameParts: Array[String] = {
     // Sentence has been added to account for cross sentence mentions.
     def lessThan(left: Mention, right: Mention): Boolean =
-        if (left.sentence != right.sentence)
-          left.sentence < right.sentence
-        else if (left.start != right.start)
-          left.start < right.start
-        // This one shouldn't really be necessary.
-        else if (left.end != right.end)
-          left.end < right.end
-        else
-          false // False is needed to preserve order on tie.
+      if (left.sentence != right.sentence)
+        left.sentence < right.sentence
+      else if (left.start != right.start)
+        left.start < right.start
+      // This one shouldn't really be necessary.
+      else if (left.end != right.end)
+        left.end < right.end
+      else
+        false // False is needed to preserve order on tie.
 
-    canonicalMentions.sortWith(lessThan).map(canonicalFormSimple).mkString(" ")
+    canonicalMentions.sortWith(lessThan).flatMap(canonicalTokensSimple).toArray
   }
 
   // Return any mentions that are involved in the canonical name.  By default, the argument values.
   protected def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
 
-  // This is similarly lazy because groundOntology calls canonicalName.
-  lazy val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
-
-  // Some way to calculate or store these, possibly in subclass
-  def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
-  def negation: Boolean = ???
-
-  /* Methods for canonicalForms of Mentions */
-  protected def canonicalFormSimple(m: Mention): String = {
+  // This is the filtering method for deciding what makes it into the canonical name and what doesn't.
+  protected def canonicalTokensSimple(m: Mention): Seq[String] = {
     val words = m.words
     val lemmas = m.lemmas.get
     val tags = m.tags.get
     val ners = m.entities.get
 
-    val attachmentWords = m.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a)).toSet
+    val attachmentWords = m.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
 
     val contentLemmas = for {
       i <- lemmas.indices
@@ -150,11 +155,19 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
     } yield lemmas(i)
 
     if (contentLemmas.isEmpty)
-      m.text // fixme -- better and cleaner backoff
+      words   // fixme -- better and cleaner backoff
     else
-      contentLemmas.mkString(" ").trim.replaceAll(" +", " ")
-//    println("  * result: " + contentLemmas.mkString(" "))
+      contentLemmas
   }
+
+  // This is similarly lazy because groundOntology calls canonicalName.
+  lazy val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
+
+  // Some way to calculate or store these, possibly in subclass
+  def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
+  def negation: Boolean = ???
+
+
 }
 
 object EidosMention {
@@ -165,7 +178,7 @@ object EidosMention {
   protected def newMentionBagger() = new HashCodeBagger[Mention]()
 //  protected def newMentionBagger() = new IdentityBagger[Mention]()
 
-  def newEidosMention(odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+  def newEidosMention(odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
       mentionMapper: MentionMapper): EidosMention = {
     odinMention match {
       case mention: TextBoundMention => new EidosTextBoundMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
@@ -176,7 +189,7 @@ object EidosMention {
     }
   }
 
-  def asEidosMentions(odinMentions: Seq[Mention], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+  def asEidosMentions(odinMentions: Seq[Mention], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
       mentionMapper: MentionMapper): Seq[EidosMention] = {
     val eidosMentions = odinMentions.map { odinMention =>
       mentionMapper.getOrElse(odinMention, newEidosMention(odinMention, canonicalizer, ontologyGrounder, mentionMapper))
@@ -184,7 +197,7 @@ object EidosMention {
     eidosMentions
   }
 
-  def asEidosMentions(odinMentions: Seq[Mention], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder): Seq[EidosMention] =
+  def asEidosMentions(odinMentions: Seq[Mention], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding): Seq[EidosMention] =
       // One could optionally keep this map around
       asEidosMentions(odinMentions, canonicalizer, ontologyGrounder, newMentionMapper()): Seq[EidosMention]
 
@@ -221,16 +234,40 @@ object EidosMention {
   }
 
   def hasUnderlyingMentions(surfaceMentions: Seq[Mention]): Boolean = findUnderlyingMentions(surfaceMentions).nonEmpty
+
+  def before(left: EidosMention, right: EidosMention): Boolean = {
+    val leftSentence = left.odinMention.sentence
+    val rightSentence = right.odinMention.sentence
+
+    if (leftSentence != rightSentence)
+      leftSentence < rightSentence
+    else {
+      val leftStart = left.odinMention.start
+      val rightStart = right.odinMention.start
+
+      if (leftStart != rightStart)
+        leftStart < rightStart
+      else {
+        val leftEnd = left.odinMention.end
+        val rightEnd = right.odinMention.end
+
+        if (leftEnd != rightEnd)
+          leftEnd < rightEnd
+        else
+          true
+      }
+    }
+  }
 }
 
-class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
     mentionMapper: MentionMapper)
     extends EidosMention(odinTextBoundMention, canonicalizer, ontologyGrounder, mentionMapper) {
 
   protected override def canonicalMentions: Seq[Mention] = Seq(odinMention)
 }
 
-class EidosEventMention(val odinEventMention: EventMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+class EidosEventMention(val odinEventMention: EventMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
     mentionMapper: MentionMapper)
     extends EidosMention(odinEventMention, canonicalizer, ontologyGrounder, mentionMapper) {
 
@@ -242,12 +279,12 @@ class EidosEventMention(val odinEventMention: EventMention, canonicalizer: Canon
       super.canonicalMentions ++ Seq(odinTrigger)
 }
 
-class EidosRelationMention(val odinRelationMention: RelationMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+class EidosRelationMention(val odinRelationMention: RelationMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
     mentionMapper: MentionMapper)
     extends EidosMention(odinRelationMention, canonicalizer, ontologyGrounder, mentionMapper) {
 }
 
-class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder,
+class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
     mentionMapper: MentionMapper)
     extends EidosMention(odinCrossSentenceMention, canonicalizer, ontologyGrounder, mentionMapper) {
 

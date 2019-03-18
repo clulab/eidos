@@ -57,6 +57,6 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
     annotateTest(testResult.complaints)
   }
 
-  def useTimeNorm: Boolean = ieSystem.timenorm.isDefined
-  def useGeoNorm: Boolean = ieSystem.geonorm.isDefined
+  def useTimeNorm: Boolean = ieSystem.loadableAttributes.timenorm.isDefined
+  def useGeoNorm: Boolean = ieSystem.loadableAttributes.geonorm.isDefined
 }

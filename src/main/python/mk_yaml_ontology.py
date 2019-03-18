@@ -1,3 +1,11 @@
+"""
+This script takes a flat list of indicators (a text file with one column)
+and converts it into a YAML ontology suitable for usage with Eidos.
+
+Usage:
+    python mk_yaml_ontology.py flat_list.txt ontology_filename.yml ontology_name
+"""
+
 import yaml
 import sys
 
@@ -8,25 +16,29 @@ def represent_none(self, _):
 yaml.add_representer(type(None), represent_none)
 
 
-def ont_node(name, examples, keywords):
-    # Make sure the node name is added to the examples to be used for grounding
-    examples.append(name)
+def ont_node(name, examples, keywords, add_name = True):
+    # If selected, make sure the node name is added to the examples to be used for grounding
+    if add_name:
+        examples.append(name)
     d = {'OntologyNode': None, "name": name, 'examples': examples, 'polarity': 1.0}
     if keywords is not None:
         d['keywords'] = keywords
     return d
 
 
-def dump_yaml(d, fn):
+def dump_yaml(d, fn, ont_name):
+    super_list = [{ont_name: d}]
     with open(fn, 'w') as yaml_file:
-        yaml.dump(d, yaml_file, default_flow_style=False)
+        yaml.dump(super_list, yaml_file, default_flow_style=False)
 
 
 def main():
     flat_file = sys.argv[1]
     ont_file = sys.argv[2]
-    lines = [line.rstrip() for line in open(flat_file, 'r').readlines()]
-    nodes = [ont_node(line, [], None) for line in lines]
-    dump_yaml(nodes, ont_file)
+    ont_name = sys.argv[3]
+    with open(flat_file, "r") as f:
+        nodes = [ont_node(line.rstrip(), [], None) for line in f]
+    dump_yaml(nodes, ont_file, ont_name)
 
-main()
+if __name__ == "__main__":
+    main()

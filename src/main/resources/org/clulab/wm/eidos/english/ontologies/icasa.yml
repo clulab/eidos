@@ -1,0 +1,2975 @@
+- icasa:
+  - OntologyNode:
+    examples:
+    - Active phosphorus - soil a soil layer .
+    name: active_P_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Anthesis date as day of year
+    name: anthesis_day_of_year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Assimilate production
+    name: assimilate_production
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Assimilate reduction, cumulative
+    name: assimilation_reduc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Average daily carbon O2 concentration, sowing to harvest
+    name: co2_concentration_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Basal dry weight
+    name: basal_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - By-product removed at harvest as dry wt
+    name: byprod_removed_at_harv
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - By-product weight at maturity
+    name: byprod_removed_at_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Cane fresh yield
+    name: cane_yield_fresh_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Cane fresh yield at harvest
+    name: cane_yield_harv
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy height
+    name: canopy_height
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy height at anthesis
+    name: canopy_height_anthesis
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy height at harvest
+    name: canopy_height_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy height at physiological maturity
+    name: canopy_height_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy height, max value
+    name: canopy_height_max
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy height, std dev of max value
+    name: canopy_ht_max_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy length (to extended leaf tip)
+    name: canopy_length
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy length as soil to tip of longest leaf
+    name: canopy_length
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Canopy width (for 1 row)
+    name: canopy_width
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Carbohydrate accumulation
+    name: carbohydr_accumulation
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Carbohydrate in stem
+    name: stem_carbohydrate_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Carbohydrate mobilization
+    name: carbohydr_mobilization
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Carbohydrate pool reduction
+    name: carbohydr_pool_reduction
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Carbohydrate, concentration in leaf
+    name: leaf_carbohydrate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Chaff dry weight, harvest
+    name: chaff_dry_weight_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Chaff nitrogen '
+    name: chaff_N_content
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Chaff nitrogen concentration
+    name: chaff_N_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Chaff phosphorus
+    name: chaff_P_content
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Chaff phosphorus concentration
+    name: chaff_P_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Chaff weight at a given date
+    name: chaff_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' carbon dioxide factor for photosynthesis (0 to 1 scale)'
+    name: CO2_factor_photosynth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - CO2, accumulated by soil surface
+    name: CO2_accumulated_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - CO2, accumulated soil
+    name: CO2_soil_accumulated
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Corm
+    name: corm_population
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Corm dry weight
+    name: corm_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Corm unit dry weight
+    name: corm_unit_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Corn earworms population (larvae)
+    name: corn_earworm
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Crop age
+    name: crop_age
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Crop age (vegetative days, e.g., thermal time)
+    name: crop_age_vegetative_days
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Crop component number
+    name: crop_component_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Crown dry weight
+    name: crown_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Cumulative phosphorus immobilization .
+    name: P_immobilized_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Cumulative phosphorus mineralization .
+    name: P_mineralized_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Daily air temperature, average, sowing to harvest
+    name: temperature_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Date of first square on plant
+    name: first_square_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Date of measurement
+    name: date_of_measurement
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Date of physiological maturity using alternate criteria
+    name: maturity_day_2
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Day of year, or if year = -99 then DA phosphorus or DAH
+    name: day
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Daylength factor (0 to 1 scale)
+    name: daylength_factor
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Days after planting
+    name: days_after_planting
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Days after start of simulation
+    name: days_after_sim_start
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead canopy dry weight
+    name: dead_canopy_dry_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead leaf dry weight
+    name: dead_leaf_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead material dry increase
+    name: dead_mater_dry_increase
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead material dry weight
+    name: dead_material_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead nitrogen increment
+    name: dead_N_increment
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead phosphorus increment
+    name: dead_P_increment
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead root dry weight
+    name: dead_root_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Dead stem dry weight
+    name: dead_stem_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Drainage, cumulative
+    name: drainage_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Drainage,season
+    name: drainage_over_season
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ear (grain+chaff) dry weight
+    name: ear_grain_chaff_dry_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ear area index
+    name: ear_area_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ear height, max value
+    name: ear_height_max
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ear height, std dev of max value
+    name: ear_ht_max_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ear number
+    name: ear_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ear plus grain dry weight
+    name: ear_plus_grain_dry_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ear plus grain dry weight per shoot
+    name: ear_dry_wt_per_shoot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Ethanol yield of grain
+    name: grain_ethanol_yield
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evaporation, floodwater, cumulative
+    name: floodwater_evap_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evaporation, soil, daily
+    name: soil_evaporation_daily
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evaporation,soil, cumulative
+    name: soil_evap_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evaporation,soil, cumulative from planting to harvest
+    name: soil_evap_cumul_pl_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evaporation,soil, cumulative to end of season
+    name: soil_evap_cumul_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evaporation,soil, daily, averaged
+    name: soil_evap_daily_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evapotranspiration
+    name: evapotranspiration_daily
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evapotranspiration, averaged over season
+    name: evapotransp_average
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evapotranspiration, cumulative from planting to harvest
+    name: evapotrans_cumul_pl_harv
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evapotranspiration, cumulative over season
+    name: evapotransp_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evapotranspiration, cumulative to end of season
+    name: evapotrans_cumul_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evapotranspiration, potential
+    name: potential_evapotrans
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Evapotranspiration, potential, average over season
+    name: potential_evapotrans_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Eye number at maturity
+    name: eye_number_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Eye number at maturity (per harvested unit, e.g. fruit)
+    name: eye_no_per_unit_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Eye weight at harvest maturity
+    name: eye_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Fall armyworm population count
+    name: fall_armyworm
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Flag to identify time series observed data with specific problems or significance
+    name: flag_time_series_data
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Floodwater Ammoniacal nitrogen '
+    name: floodwater_Ammoniacal_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater Ammonium nitrogen (NH4) carbon onc.
+    name: floodwtr_ammonium_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater Aqueous nitrogen H3 nitrogen carbon onc.
+    name: floodwtr_aqu_NH3_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater denitrification date (N)
+    name: floodwater_denitrif_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater depth
+    name: floodwater_depth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater evaporation rate
+    name: floodwater_evap_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater light index (0 to 1 scale)
+    name: floodwater_light_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater nitrogen itrate nitrogen (NO3) carbon onc.
+    name: floodwtr_nitrate_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater nitrogen Index (0 to 1 scale)
+    name: floodwater_N_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater pH, maximum daytime
+    name: floodwater_pH_max_day
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater photosynth. activity index (0 to 1 scale)
+    name: floodwater_photosyn_ind
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater runoff over bund
+    name: floodwtr_runoff_ovr_bund
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Floodwater Temperature Index (0 to 1 scale)
+    name: floodwater_temper_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Floodwater Urea nitrogen '
+    name: floodwater_Urea_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Forcing date
+    name: forcing_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Fruit fresh weight
+    name: fruit_fresh_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Fruit fresh weight at harvest
+    name: fruit_fresh_wt_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Fruit nitrogen '
+    name: fruit_N_content
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain carbohydrate concentration
+    name: grain_carbohydrate_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain dry weight
+    name: grain_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain dry wt at maturity
+    name: grain_dry_wt_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain dry wt at maturity, per plant basis
+    name: grain_dry_wt_matur_plnt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain mass consumed
+    name: grain_mass_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain mass consumed, cumulative
+    name: grain_mass_consum_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain moisture at maturity
+    name: grain_moisture_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Grain nitrogen '
+    name: grain_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain nitrogen at maturity
+    name: grain_N_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain nitrogen concentration at maturity
+    name: grain_N_conc_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain nitrogen concentration on sampling date
+    name: grain_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain number consumed
+    name: grain_number_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain number consumed, cumulative
+    name: grain_numb_consum_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain number on sampling date
+    name: grain_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain number per plant
+    name: grain_number_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain number per shoot
+    name: grain_number_per_shoot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain oil concentration
+    name: grain_oil_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain oil concentration at maturity
+    name: grain_oil_conc_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain phosphorus
+    name: grain_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain phosphorus at maturity
+    name: grain_P_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain phosphorus concentration
+    name: grain_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain phosphorus concentration at maturity
+    name: grain_P_conc_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain protein concentration
+    name: grain_protein_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain protein concentration at maturity
+    name: grain_protein_conc_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain starch concentration at maturity
+    name: grain_starch_conc_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain unit dry weight
+    name: grain_unit_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Grain unit dry wt at maturity
+    name: grain_unit_dry_wt_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Green area index (any green material on plants)
+    name: green_area_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth rate, crop (=tops+storage)
+    name: crop_growth_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth rate, relative
+    name: growth_rate_relative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage
+    name: growth_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage according to Haun scale
+    name: growth_stage_Haun
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage according to Zadok's scale
+    name: growth_stage_Zadoks
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage as days after planting
+    name: harvest_dap
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage as days after planting, anthesis
+    name: anthesis_dap
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date for branch 1
+    name: growth_stage_branch_1
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, anthesis
+    name: anthesis_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, apex 1cm
+    name: growth_stage_apex_1_cm
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, beginning bloom
+    name: beginning_bloom_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, beginning maturity
+    name: beginning_maturity_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, beginning peg
+    name: beginning_peg_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, beginning pod
+    name: beginning_pod_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, beginning seed
+    name: beginning_seed_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, branch 2
+    name: growth_stage_branch_2
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, branch 3
+    name: growth_stage_branch_3
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, branch 4
+    name: growth_stage_branch_4
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, double ridges
+    name: double_ridge_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, ear emergence
+    name: ear_emergence_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, emergence
+    name: emergence_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, full seed
+    name: full_seed_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, full-sized pod
+    name: full_size_pod_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, harvest
+    name: harvest_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, harvest maturity
+    name: harvest_maturity_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, last leaf
+    name: last_leaf_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, leaf3 full expansion
+    name: leaf_3_full_expansion
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, leaf5 full expansion
+    name: leaf_5_full_expansion
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, pod over-mature
+    name: pod_over-mature_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, terminal spikelet
+    name: terminal_spikelet_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, tuber initiation
+    name: tuber_initiation_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, Zadoks 21
+    name: zadoks_21_growth_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, Zadoks 30
+    name: zadoks_30_growth_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, Zadoks 31
+    name: zadoks_31_growth_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, Zadoks 37
+    name: zadoks_37_growth_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage date, Zadoks 39
+    name: zadoks_39_growth_stage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage days>planting, harv mature
+    name: harvest_maturity_dap
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage days>planting, tuber init
+    name: tuber_initiation_dap
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of first pod, as date
+    name: first_pod_set_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of first pod, as days after planting
+    name: first_pod_set_days
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of full-sized pod, as date
+    name: full_size_pod_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of full-sized pod, as days after planting
+    name: full_pod_days
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of jointing (node detectable through sheath) in cereals
+    name: jointing_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of panicle initiation, as date
+    name: panicle_initiation_date
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of panicle initiation, as days after planting
+    name: panicle_initiation_dap
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of physiol. maturity, as date
+    name: physiologic_maturity_dat
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of physiol. maturity, as day of year
+    name: maturity_day_of_year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage of physiol. maturity, as days after planting
+    name: physiologic_maturity_dap
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Growth stage when harvest occurs
+    name: growth_stage_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest index at maturity
+    name: harvest_index_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest index for nitrogen on sampling date
+    name: nitrogen_harvest_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest index for phosphorus on sampling date
+    name: phosphorus_harvest_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest index on sampling date
+    name: harvest_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest number per area at maturity (e.g., seed or tubers)
+    name: harvest_no_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest number per group at maturity
+    name: harvest_no_per_grp_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest number per unit at maturity (e.g., seed per spike or pod)
+    name: harv_no_per_unit
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest unit dry (e.g., seed) weight at harv. maturity
+    name: unit_dry_wt_harv_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield (fresh wt) at a given day
+    name: harvest_yield_fresh_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield (grain, fresh), maturity
+    name: harv_yld_grn_fresh_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield (grain, fresh), per plant at maturity
+    name: harv_yld_grn_fr_pl_mat
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield at harvest maturity (dry wt)
+    name: harvest_yld_matur_dry_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield at harvest maturity (fresh wt)
+    name: harv_yield_matur_f_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield at harvest, standard deviation
+    name: harvest_yld_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield corrected for various factors
+    name: yield_corrected
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvest yield, specified day (dry wt)
+    name: harvest_yield_at_day_dw
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvested yield at harvest (dry wt)
+    name: harvest_yield_harvest_dw
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvested yield at harvest (fresh wt)
+    name: harv_yield_harv_f_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - id
+    name: id
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Infiltration rate
+    name: infiltration_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Initial water content of entire profile
+    name: initial_profile_wtr_cont_sim
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Irrigation amount per day
+    name: irrigation
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Irrigation applications, cumulative
+    name: irrigation_applications
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Irrigation, cumulative
+    name: irrigation_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - K, inorganic, in soil at harvest maturity
+    name: K_inorganic_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Labile phosphorus - soil a soil layer (ppm) .
+    name: labile_P_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf appearance rate
+    name: leaf_appearance_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf appearance rate on a biological day basis
+    name: lf_appear_rate_bio_day_b
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area consumed or destroyed by pests or diseases, cumulative
+    name: leaf_area_consumed_cumu
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area consumed per day
+    name: leaf_area_consumption
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area index (live+dead)
+    name: leaf_ar_index_live_dead
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area index on a given day
+    name: leaf_area_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area index, maximum
+    name: leaf_area_index_maximum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area per leaf
+    name: leaf_area_per_leaf
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area per plant
+    name: leaf_area_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area, flag leaf
+    name: leaf_area_flag_leaf
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area, increase in diseased area
+    name: increase_disease_lf_area
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area, increase in diseased area fraction
+    name: incr_disease_lf_ar_pcent
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf area, new on leaves
+    name: leaf_area_new
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf critical nitrogen factor
+    name: leaf_critical_N_factor
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf dry weight
+    name: leaf_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf dry weight at harvest maturity
+    name: leaf_dry_wt_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf dry weight per plant
+    name: leaf_dry_wt_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf dry weight, green areas
+    name: leaf_dry_wt_green_areas
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf mass consumed per day
+    name: leaf_mass_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf mass consumed, cumulative
+    name: leaf_mass_consumed_cumu
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Leaf nitrogen '
+    name: leaf_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf nitrogen concentration
+    name: leaf_N_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf nitrogen of dead (senesced) leaves
+    name: dead_leaf_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf nitrogen of green leaves
+    name: green_leaf_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf number increase rate
+    name: leaf_no_increase_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf number of cereals as Haun stage
+    name: leaf_number_as_haun_stg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf number per stem
+    name: leaf_number_per_stem
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf number per stem, at harvest maturity
+    name: leaf_no_per_stem_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf number per stem, maximum
+    name: leaf_number_per_stem_max
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf phosphorus
+    name: leaf_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf phosphorus concentration
+    name: leaf_P_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Leaf tip number per stem
+    name: leaf_tip_number_per_stem
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Lint weight at maturity
+    name: lint_weight_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Lint weight on sample date
+    name: lint_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter (trash) dry weight
+    name: litter_trash_dry_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon - soil a soil layer
+    name: litter_C_soil_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon on surface
+    name: litter_C_on_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon, metabolic
+    name: litter_C_metabolic
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon, metabolic a soil layer
+    name: litter_C_metabol_by_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon, metabolic surface
+    name: litter_C_metabol_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon, structural
+    name: litter_Cstructural
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon, structural a soil layer
+    name: litter_C_struct__by_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon, structural surface
+    name: litter_C_struct_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter carbon, total
+    name: litter_carbon_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen for a soil layer
+    name: litter_N_soil_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen on surface
+    name: litter_N_on_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen , metabolic
+    name: litter_N_metabolic
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen , metabolic a soil layer
+    name: litter_N_metabol_by_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen , metabolic surface
+    name: litter_N_metabol_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen , structural
+    name: litter_Nstructural
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen , structural a soil layer
+    name: litter_N_struct_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen , structural surface
+    name: litter_N_struct_surf
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter nitrogen ,total
+    name: litter_Nal
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter phosphorus - soil a soil layer
+    name: litter_P_soil_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter phosphorus in all soil layers and surface
+    name: litter_P_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter phosphorus in surface litter
+    name: litter_P_on_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter phosphorus , metabolic
+    name: litter_P_metabolic
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter phosphorus , metabolic a soil layer
+    name: litter_P_metabol_by_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Litter phosphorus , metabolic surface
+    name: litter_P_metabol_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Mass of shoot (leaf + stem) at a given day
+    name: shoot_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Maximum daily air temperature, average, sowing to harvest
+    name: temperature_max_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Minimum daily air temperature, average, sowing to harvest
+    name: temperature_min_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Minimum root phosphorus concentration calculated dynamically
+    name: minimum_root_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Minimum seed phosphorus concentration
+    name: minimum_seed_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Minimum shell phosphorus concentration
+    name: minimum_shell_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Minimum shoot phosphorus concentration
+    name: minimum_shoot_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Moisture content of fresh yield (e.g., grain, fruit, leaves) at harvest
+    name: harvest_moisture
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen applications'
+    name: N_applications
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen denitrification, cumulative'
+    name: N_denitrification_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen factor for leaf growth (0 to 1 scale)'
+    name: N_factor_for_leaf_growth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen factor for nitrogen uptake'
+    name: N_factor_for_N_uptake
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen factor for photosynthesis (0 to 1 scale)'
+    name: N_factor_photosynthesis
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen factor for senescence (0 to 1 scale)'
+    name: N_factor_for_senescence
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen factor for tillering (0 to 1 scale)'
+    name: N_factor_for_tillering
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen fixation rate'
+    name: N_fixation_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen fixed'
+    name: N_fixed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen fixed during season'
+    name: N_fixed_during_season
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen immobilization, cumulative'
+    name: N_immobilization_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen leached up to harvest maturity, from bottom of soil profile'
+    name: N_leached_during_season
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen leached, cumulative from bottom of profile'
+    name: N_leached
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen mineralization, cumulative from bottom of profile'
+    name: N_mineralization_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen nitrification, cumulative'
+    name: N_nitrification_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen to phosphorus ratio in vegetative tissue'
+    name: N_to_P_ratio
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen uptake'
+    name: N_uptake
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen uptake during season'
+    name: N_uptake_during_season
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen uptake rate'
+    name: N_uptake_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen uptake to demand ratio'
+    name: N_uptake_to_demand_ratio
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrogen uptake, cumulative'
+    name: N_uptake_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - N, inorganic, applied to date
+    name: N_inorganic_applied
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - N, inorganic, applied up to harvest maturity
+    name: N_inorganic_appl_tot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - N, inorganic, in soil at harvest maturity
+    name: N_inorganic_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' ammonia nitrogen volatilization rate'
+    name: NH3_volatilization_rate
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' ammonia nitrogen volatilization, cumulative'
+    name: NH3_volatilization_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' ammonium nitrogen ,soil total'
+    name: NH4_Nsoil_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - NH4[N], for a given soil layer
+    name: NH4_soil_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrificaton Rate (N), oxidized layer
+    name: nitrificat_rate_oxid_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen concentration in shaded leaves, noon
+    name: shaded_leaf_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen in above ground plant parts
+    name: tops_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen in above ground plant parts
+    name: tops_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen in above ground plant parts at anthesis
+    name: tops_N_at_anthesis
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen in above ground plant parts at maturity
+    name: tops_N_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen stress factor, photosynthesis (0 to 1 scale)
+    name: N_stress_photosyn_daily
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen stress factor, physiol average for life span of a single leaf (0 to
+      1 scale)
+    name: N_stress_photosyn_leaf
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nitrogen sunlit leaves, noon
+    name: sunlit_leaf_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' nitrate nitrogen ,soil total'
+    name: NO3_Nsoil_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - NO3[N], for a given soil layer
+    name: NO3_soil_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - NO3+ ammonium nitrogen ,soil total
+    name: NO3_NH4_Nsoil_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Nodule dry weight
+    name: nodule_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Optimum root phosphorus concentration
+    name: optimum_root_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Optimum seed phosphorus concentration
+    name: optimum_seed_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Optimum shell phosphorus concentration
+    name: optimum_shell_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Optimum shoot phosphorus concentration
+    name: optimum_shoot_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Option for crop in sequence
+    name: option_for_crop_in_seq
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon in soil a soil layer
+    name: organic_C_soil_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon in soil at maturity
+    name: organic_C_soil_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , active - a soil layer
+    name: organic_C_active_by_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , active on surface
+    name: organic_C_active_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , active,soil total
+    name: organic_C_active_tot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , intermediate - a soil layer
+    name: organic_C_intermed_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , intermediate, soil total
+    name: organic_C_intermed_tot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , passive - a soil layer
+    name: org_C_passive_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , passive, soil total
+    name: soil_org_C_passive_tot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon , stable at user defined depth
+    name: org_C_stable_user_depth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic carbon, soil total
+    name: organic_carbon_soil_tot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic matter added, cumulative
+    name: org_matter_added_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic matter appl (dry), cumulative
+    name: org_matter_appl_dry_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic matter nitrogen added, cumulative
+    name: org_matter_N_added_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic matter phosphorus added, cumulative
+    name: org_matter_P_added_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen in soil
+    name: organic_N_in_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen in soil a soil layer
+    name: organic_N_soil_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen in soil at maturity
+    name: soil_organic_N_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , active - a soil layer
+    name: org_N_active_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , active on surface
+    name: organic_N_active_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , active,soil total
+    name: org_N_active_soil_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , intermediate - a soil layer
+    name: organic_N_intermed_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , intermediate, soil total
+    name: organic_N_intermed_tot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , passive a soil layer
+    name: organic_N_passive_by_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , passive, soil total
+    name: org_N_passive_soil_tot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen , stable @ user depth
+    name: org_N_stable_user_depth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic nitrogen, soil total
+    name: org_nitrogen_soil_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic phosphorus , active - a soil layer
+    name: org_P_active_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic phosphorus , active on surface
+    name: organic_P_active_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Organic phosphorus , active,soil total
+    name: org_P_active_soil_total
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus available for plant uptake .'
+    name: available_P_kg/ha
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus concentration in leaf and stem'
+    name: shoot_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus content in leaf and stem (kg[P]/ha)'
+    name: shoot_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus content in plant'
+    name: plant_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus content in roots on sampling day'
+    name: root_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus content in seed'
+    name: seed_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus content in shell (kg[P]/ha)'
+    name: shell_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus senesced to soil'
+    name: P_senesce_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus senesced to surface'
+    name: P_senesce_surf
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus stress factor for reducing photosynthate (0-1)'
+    name: P_stress_photo
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus stress which affects vegetative partitioning (0-1)'
+    name: P_stress_veg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - ' phosphorus uptake'
+    name: P_uptake_day
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - P, inorganic, in soil at harvest maturity
+    name: P_inorganic_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Panicle number
+    name: panicle_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Panicle number per area at maturity
+    name: panicle_number_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Panicle weight (grain+structural)
+    name: panicle_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - PAR (light) interception
+    name: PAR_interception-daily
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - PAR (light) noon interception
+    name: PAR_intercepted_noon
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - PAR absorbed
+    name: PAR_absorbed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - PAR interception
+    name: PAR_interception
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - PAR utilization efficiency
+    name: PAR_utiliz_efficiency
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Partitioning of weight to shoot
+    name: partitioning_of_wt_shoot
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Percent lodging
+    name: lodging_percent
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Phosphorus amount in roots at harvest
+    name: root_P_at_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Phosphorus amount in stems at maturity
+    name: stem_P_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Phosphorus applications (cumulative no.)
+    name: phosphorus_applic_no
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Phosphorus applied (cumulative)
+    name: phosphorus_applied_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Phosphorus in above ground plant parts at anthesis
+    name: tops_P_at_anthesis
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Phosphorus in above ground plant parts at maturity
+    name: tops_P_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Phosphorus leached, cumulative from bottom of profile
+    name: P_leached
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Photosynthesis, gross (as carbon H2O)
+    name: photosynth_gross_CH2O
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Photosynthesis, gross (CO2), noon
+    name: photosyn_gross_CO2_noon
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Photosynthesis, phosphorus max for shaded leaves at noon
+    name: leaf_phot_shaded_lf_noon
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Photosynthesis, phosphorus max for sunlit leaves at noon
+    name: leaf_phot_sunlit_lf_noon
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant density (population or stand) at fulle emergence, equivalent to initial
+      stand count
+    name: plant_density_emergence
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant density (population or stand) at harvest
+    name: plant_density_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant density (population or stand) at maturity
+    name: plant_density_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant density on sampling date
+    name: plant_density
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant height (e.g., including spikes above canopy per se) at anthesis
+    name: plant_height_anthesis
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant height (e.g., including spikes above canopy per se) at maturity
+    name: plant_height_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant height (e.g., including spikes above canopy per se), maximum value in
+      season
+    name: plant_height_max
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant population
+    name: plant_population
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant population reduction
+    name: plant_pop_reduction_day
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant population reduction, cumulative
+    name: plant_pop_reduct_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Plant_height (e.g., including spikes above canopy per se)
+    name: plant_height
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Planting material dry weight
+    name: planting_material_dry_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pod dry weight
+    name: pod_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pod dry weight at maturity
+    name: pod_dry_weight_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pod number
+    name: pod_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pod number per area at maturity
+    name: pod_number_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pod, detached, dry weight
+    name: pod_detached_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pod, panicle, ear or head harvest index
+    name: pod_harvest_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pod, panicle, head or ear harvest index at maturity
+    name: pod_harv_index_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Pods, portion that are mature
+    name: pods_mature
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Purity of sugar, e.g. extract from cane
+    name: purity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Rainfall, cumulative
+    name: rainfall_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Rainfall, planting to harvest
+    name: rainfall_plant_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Rainfall, season (may differ from planting to harvest)
+    name: rainfall_in_season
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Replicate number
+    name: replicate_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Reserve nitrogen '
+    name: reserve_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Reserve nitrogen '
+    name: reserve_N_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Reserve phosphorus
+    name: reserve_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Reserve phosphorus on per plant basis
+    name: reserve_P_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Reserves factor for photosynthesis (0 to 1 scale)
+    name: reserves_factor_photosyn
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Reserves weight
+    name: reserves_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Reserves, concentration of carbon H2O
+    name: reserves_CH2O_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Residue nitrogen remaining
+    name: residue_N_remaining
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Respiration associated with translocation
+    name: respiration_translocat
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Respiration, growth component (as carbon H2O)
+    name: growth_respiration_daily
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Respiration, maintenance (CH2O)
+    name: maintenance_respir_CH2O
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root depth, maximum extent at date
+    name: root_depth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root dry weight
+    name: root_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root length
+    name: root_length
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root length consumed
+    name: root_length_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root length consumed, cumulative
+    name: root_length_consum_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root length density consumed
+    name: root_length_dens_consum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root length to root weight
+    name: root_length/weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root length_density in a soil layer
+    name: root_length_dens_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root ln density consumed, cumulative
+    name: root_lngth_dens_cons_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root mass consumed
+    name: root_mass_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root mass consumed, cumulative
+    name: root_mass_consum_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root mass density in a soil layer
+    name: root_mass_dens_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root nitrogen concentration on sampling day
+    name: root_N_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root nitrogen on sampling day
+    name: root_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root nitrogen amount at harvest
+    name: root_N_at_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root phosphorus concentration
+    name: root_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root senesced dry weight
+    name: root_senesced_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root weight/length
+    name: root_weight/length
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Root worm population count
+    name: root_worm
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Roots critical [N] factor
+    name: roots_critical_N_factor
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Runoff, cumulative
+    name: runoff_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Runoff, season total
+    name: runoff_season
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Runoff, surface
+    name: runoff_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Seasonal cumulative phosphorus uptake
+    name: P_uptake_cum
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Sediment loss
+    name: sediment_loss
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Seed (i.e., what is sown) nitrogen concentration
+    name: seed_N_conc_planting
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Seed (i.e., what sown) nitrogen
+    name: seed_or_what_sown_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Seed (i.e., what sown) weight
+    name: weight_of_sown_seed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Seed phosphorus concentration
+    name: seed_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Seed weight per plant
+    name: seed_wt_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced carbon added to litter
+    name: senesced_C_added_litter
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced carbon added to soil
+    name: senesced_C_added_to_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced dry matter to soil
+    name: senesced_dry_mat_to_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced dry matter to surface
+    name: senesced_dry_mat_to_surf
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced lignin added to litter
+    name: senesced_lignin_to_lit
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced lignin added to soil
+    name: senesced_lignin_to_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced nitrogen added to litter
+    name: senesced_N_added_litter
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced nitrogen added to litter+soil
+    name: senesced_N_add_lit_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced nitrogen added to soil
+    name: senesced_N_added_to_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced nitrogen to soil
+    name: senesced_N_to_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced nitrogen to surface
+    name: senesced_N_to_surface
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senesced wt added to litter+soil
+    name: senesced_wt_to_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Senescence rate,tops (dry weight)
+    name: senescence_rate_tops
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Sequence number
+    name: sequence_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shell dry weight
+    name: shell_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shell mass consumed
+    name: shell_mass_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shell mass consumed, cumulative
+    name: shell_mass_consum_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shell nitrogen concentration
+    name: shell_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shell number consumed
+    name: shell_number_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shell number consumed, cumulative
+    name: shell_numb_consum_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shell phosphorus concentration
+    name: shell_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shelling (seed wt/pod wt*100)
+    name: shelling_percentage
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shoot (apex) number
+    name: shoot_(apex)_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Shoot (apex) number per plant
+    name: shoot_apex_num_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil bulk density, puddled surface lyer
+    name: bulk_dens_puddl_surf_lyr
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil carbon in a soil layer
+    name: soil_carbon_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil carbon O2 (as carbon ) emission on a given day
+    name: soil_CO2_emission
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil layer depth to lower boundary of sample (bottom)
+    name: soil_layer_bot_depth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil layer depth to upper boundary of sample (top)
+    name: soil_layer_top_depth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil nitrogen in a soil layer
+    name: soil_nitrogen_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil organic carbon, total in profile
+    name: soil_organic_carbon
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil phosphorus at maturity
+    name: soil_P_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil water measured at a specified depth
+    name: soil_water_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soil water, extractable at maturity
+    name: extractable_soil_wtr_mat
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Solar radiation, average, sowing to harvest
+    name: solar_radiation_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Southern green stinkbug population count
+    name: southern_green_stinkbug
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Soybean looper population count
+    name: soybean_looper
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Specific leaf area
+    name: specific_leaf_area
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Specific leaf nitrogen '
+    name: specific_leaf_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Specific leaf wt, shaded leaves, noon
+    name: specif_lf_wt_shaded_noon
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Specific leaf wt, sunlit leaves, noon
+    name: specif_lf_wt_sunlit_noon
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Spikelet number
+    name: spikelet_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stable phosphorus - soil a soil layer .
+    name: stabile_P_by_layer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standard deviation of anthesis DAP
+    name: anthesis_dap_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standard deviation of harvest maturity DAP
+    name: harvest_mat_dap_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standard deviation of harvest moisture fraction
+    name: harvest_moisture_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standard deviation of harvested yield at harvest (fresh wt)
+    name: harv_yield_harv_f_wt_sd
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standard deviation of physiological maturity DAP
+    name: phys_mat_dap_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standard deviation of tops weight, maturity
+    name: tops_dw_mat_stdev
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem area index
+    name: stem_area_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem critical nitrogen factor
+    name: stem_critical_N_factor
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem dry weight
+    name: stem_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem dry weight per plant
+    name: stem_dry_wt_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem mass consumed
+    name: stem_mass_consumed
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem mass consumed, cumulative
+    name: stem_mass_consum_cumul
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Stem nitrogen '
+    name: stem_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem nitrogen at maturity
+    name: stem_N_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem nitrogen concentration
+    name: stem_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem phosphorus
+    name: stem_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem phosphorus concentration
+    name: stem_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem plus chaff
+    name: stem_plus_chaff
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem reserves weight
+    name: stem_reserves_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Stem structural weight
+    name: stem_structural_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Sucker dry weight
+    name: sucker_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Sucrose dry weight
+    name: sucrose_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Sucrose harvest index
+    name: sucrose_harvest_index
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Sucrose, commercial, dry weight
+    name: sucrose_commercial_d_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Temperature factor for leaf growth (0 to 1 scale)
+    name: temp_fact_leaf_growth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Temperature factor for photosynthesis (0 to 1 scale)
+    name: temp_fact_photosyn
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Temperature for plant death (dynamic)
+    name: plant_death_temperature
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Temperature, daily canopy average
+    name: canopy_temp_daily_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Temperature, noon canopy
+    name: temperature_noon_canopy
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Test weight (fresh) at maturity
+    name: test_wt_fresh_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Threshing % at maturity
+    name: threshing_%_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tillage operations number
+    name: tillage_operations_no
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tiller number
+    name: tiller_number
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tiller number per area at maturity
+    name: tiller_number_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tiller number per plant
+    name: tiller_number_per_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops (i.e., canopy) nitrogen concentration
+    name: tops_N_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops (i.e., canopy) phosphorus concentration
+    name: tops_P_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops (i.e., canopy) protein concentration
+    name: tops_protein_concentration
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Tops (ie canopy) nitrogen '
+    name: tops_(ie_canopy)_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops (ie canopy) phosphorus
+    name: tops_(ie_canopy)_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops dry weight
+    name: tops_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops dry weight
+    name: tops_dry_weight_plant
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops dry weight at anthesis
+    name: tops_dry_weight_anthesis
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops dry weight at harvest
+    name: tops_dry_weight_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops dry weight at maturity
+    name: tops_dry_weight_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops+dead dry wt at anthesis
+    name: tops_dead_dry_wt_anthes
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops+roots+storage dry weight
+    name: tops_roots_storage_d_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tops+roots+storage+senesced tissue (dry weight)
+    name: tot_crop_wt_w_senesced
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total active soil phosphorus .
+    name: total_active_P_kg/ha
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total biomass without senesced material (dry weight)
+    name: total_biomass_dry_wt
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total dry weight at harvest
+    name: tot_dry_wt_at_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total dry weight at maturity
+    name: tot_dry_weight_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total inorganic soil phosphorus .
+    name: total_inorganic_P_in_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total labile soil phosphorus .
+    name: total_labile_P_in_soil
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total nitrogen at maturity
+    name: total_N_at_maturity
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total phosphorus in soil
+    name: total_soil_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Total stable soil phosphorus .
+    name: stable_P_kg/ha
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Transpiration (evaporation from plant), daily
+    name: transpiration_daily
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Transpiration, cumulative from planting to harvest
+    name: transpirat_cumul_pl_harv
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Transpiration, cumulative over season
+    name: transpiration_cumulative
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Transpiration, cumulative to end of season
+    name: transpirat_cumul_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Transpiration, daily, averaged
+    name: transpiration_daily_avg
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Treatment id for observed data, unique internal ID
+    name: observ_treat_ID
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber dry weight
+    name: tuber_dry_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber dry weight at harvest
+    name: tuber_dry_wt_at_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber fresh weight
+    name: tuber_fresh_weight
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber fresh weight at harvest
+    name: tuber_fresh_wt_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Tuber nitrogen '
+    name: tuber_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber nitrogen at harvest
+    name: tuber_N_at_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber nitrogen concentration
+    name: tuber_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber nitrogen concentration at harvest
+    name: tuber_N_conc_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber phosphorus
+    name: tuber_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber phosphorus at harvest
+    name: tuber_P_at_harvest
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber phosphorus concentration
+    name: tuber_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Tuber+stem+leaf nitrogen '
+    name: tuber_stem_leaf_N
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber+stem+leaf nitrogen at harvest
+    name: tuber_stem_leaf_N_harv
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Tuber+stem+leaf phosphorus
+    name: tuber_stem_leaf_P
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Urea nitrogen Hydrolysis Rate in Floodwater
+    name: urea_N_hydrol_rt_flood
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Veg (leaf+stemt) dry wt, maturity
+    name: vegetative_dry_wt_matur
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Veg (stem+leaf) nitrogen '
+    name: vegetative_N_content
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Veg (stem+leaf) nitrogen concentration
+    name: veg_stem_leaf_N_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Veg (stem+leaf) phosphorus
+    name: vegetative_P_content
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Veg (stem+leaf) phosphorus concentration
+    name: veg_stem_leaf_P_conc
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Velvetbean caterpillar 5 instar count
+    name: velvetbn_catrpllar_5inst
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Velvetbean caterpillar 6 instar count
+    name: velvetbn_catrpllar_6inst
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Vernalization factor (0 to 1 scale)
+    name: vernalization_factor
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water available in root zone
+    name: water_avail_root_zone
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water available to demand ratio
+    name: water_avail_demand_ratio
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress - excess (0 to 1 scale)
+    name: water_stress_excess
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress - growth (0 to 1 scale)
+    name: water_stress_growth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress - photosynthesis (0 to 1 scale)
+    name: water_stress_photosynth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress factor accelerating senescence (0 to 1 scale)
+    name: water_factor_senescence
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress factor affecting photosynthesis, average for life span of a single
+      leaf (0 to 1 scale)
+    name: water_stress_photosyn_lf
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress factor reducing growth (0 to 1 scale)
+    name: water_factor_for_growth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress factor reducing photosynthesis (0 to 1 scale)
+    name: water_factor_photosynth
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress factor reducing tillering (0 to 1 scale)
+    name: water_factor_tillering
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water stress factor reducing transpiration (0 to 1 scale)
+    name: water_factor_transpir
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water table depth
+    name: water_table_depth_daily
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Water uptake to demand ratio
+    name: water_uptake_demand_rat
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Whole plant phosphorus concentration
+    name: plant_P_conc
+    polarity: 1.0

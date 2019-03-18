@@ -49,12 +49,13 @@ rules:
   - name: syntax_verb-Correlation_with
     priority: ${ rulepriority }
     example: "moderate to heavy seasonal rainfall is expected to continue, with heightened risk of flooding in these regions"
+    # Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income .
     label: Correlation
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/^VB/]
-      cause: Entity = nmod_with
-      effect: Entity  = nsubj
+      cause: Entity = nmod_with /${preps}/{,2}
+      effect: Entity  = /${agents}/ /${preps}/{,2}
 
 
   - name: syntax_5_verb-Correlation

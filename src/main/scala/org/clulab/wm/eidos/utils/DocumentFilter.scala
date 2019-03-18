@@ -2,8 +2,8 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
-import org.clulab.processors.{Document, Processor, Sentence}
-import org.slf4j.LoggerFactory
+import org.clulab.processors.{Document, Processor}
+import org.slf4j.{Logger, LoggerFactory}
 
 trait DocumentFilter {
   def filter(doc: Document): Document
@@ -20,12 +20,14 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
 
   def filter(doc: Document): Document = {
     // Iterate through the sentences, any sentence that is too long (number of tokens), remove
+    val sanitizedText = sanitizeText(doc)
     val kept = doc.sentences.filter(s => s.words.length < cutoff)
-    val skipped = doc.sentences.size - kept.size
-    val newDoc = Document(doc.id, kept, doc.coreferenceChains, doc.discourseTree, doc.text)
+    val skipped = doc.sentences.length - kept.length
+    val newDoc = Document(doc.id, kept, doc.coreferenceChains, doc.discourseTree, sanitizedText)
+//    val newDoc = Document(doc.id, kept, doc.coreferenceChains, doc.discourseTree, doc.text)
     val newerDoc = // This is a hack for lack of copy constructor for CoreNLPDocument
       if (doc.isInstanceOf[CoreNLPDocument])
-        ShallowNLPProcessor.cluDocToCoreDoc(newDoc, true)
+        ShallowNLPProcessor.cluDocToCoreDoc(newDoc, keepText = true)
       else
         newDoc
     if (skipped != 0)
@@ -33,9 +35,17 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
     // Return a new document from these sentences
     newerDoc
   }
+
+  def sanitizeText(doc: Document): Option[String] = doc.text.map { text =>
+    var newText = text.replace('\n', ' ').replace(0x0C.toChar, ' ')
+    for (s <- doc.sentences if s.endOffsets.last < newText.size) {
+      newText = newText.updated(s.endOffsets.last, '\n')
+    }
+    newText
+  }
 }
 object FilterByLength {
-  val logger = LoggerFactory.getLogger(this.getClass())
+  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def apply(processor: Processor, cutoff: Int = 200): FilterByLength = new FilterByLength(processor, cutoff)
 }

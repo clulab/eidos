@@ -3,25 +3,25 @@ package org.clulab.wm.eidos.utils
 import java.io.{File, FileNotFoundException}
 import java.nio.charset.StandardCharsets
 
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.BufferedSource
 import scala.io.Source
 
 object Sourcer {
-  val logger = LoggerFactory.getLogger(this.getClass())
-  val utf8 = StandardCharsets.UTF_8.toString
+  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  val utf8: String = StandardCharsets.UTF_8.toString
   
   def sourceFromResource(path: String): BufferedSource = {
     val url = Option(Sourcer.getClass.getResource(path))
         .getOrElse(throw newFileNotFoundException(path))
 
-    logger.info("Sourcing resource " + url.getPath())
+    logger.info("Sourcing resource " + url.getPath)
     Source.fromURL(url, utf8)
   }
   
   def sourceFromFile(file: File): BufferedSource = {
-    logger.info("Sourcing file " + file.getPath())
+    logger.info("Sourcing file " + file.getPath)
     Source.fromFile(file, utf8)
   }
 

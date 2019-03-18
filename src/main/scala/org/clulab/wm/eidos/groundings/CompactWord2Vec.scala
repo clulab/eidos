@@ -1,9 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.{FileOutputStream, ObjectOutputStream}
-
 import org.clulab.embeddings.word2vec.Word2Vec
-
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
@@ -36,7 +33,7 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
   def save(filename: String): Unit = {
     val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
 
-    (new ObjectOutputStream(new FileOutputStream(filename))).autoClose { objectOutputStream =>
+    FileUtils.newObjectOutputStream(filename).autoClose { objectOutputStream =>
       // Writing is performed in two steps so that the parts can be
       // processed separately when read back in.
       objectOutputStream.writeObject(words)
@@ -174,7 +171,7 @@ object CompactWord2Vec {
 
   protected type StoreType = (String, ArrayType)
 
-  protected val logger = LoggerFactory.getLogger(classOf[CompactWord2Vec])
+  protected lazy val logger = LoggerFactory.getLogger(classOf[CompactWord2Vec])
 
   def apply(filename: String, resource: Boolean = true, cached: Boolean = false): CompactWord2Vec = {
     logger.debug("Started to load word2vec matrix from file " + filename + "...")
