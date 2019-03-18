@@ -7,7 +7,7 @@ import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.timenorm.TemporalCharbasedParser
+import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.wm.eidos.actions.ExpansionHandler
 import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
@@ -94,7 +94,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val           hedgingPath: String = eidosConf[String]("hedgingPath")
     val              cacheDir: String = eidosConf[String]("cacheDir")
     val      wordToVecPath: String = eidosConf[String]("wordToVecPath")
-    val  timeNormModelPath: String = eidosConf[String]("timeNormModelPath") // todo push to companion obj too
     val       useLexicons: Boolean = eidosConf[Boolean]("useLexicons")
     val   useEntityFinder: Boolean = eidosConf[Boolean]("useEntityFinder")
     val            useW2V: Boolean = eidosConf[Boolean]("useW2V")
