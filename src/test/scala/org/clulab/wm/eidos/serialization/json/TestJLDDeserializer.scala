@@ -28,7 +28,7 @@ class TestJLDDeserializer extends ExtractionTest {
     annotatedDocument.document.id = Some(title)
     annotatedDocument
   }
-  
+
   def serialize(corpus: Corpus) = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
@@ -49,7 +49,7 @@ class TestJLDDeserializer extends ExtractionTest {
         newTitledAnnotatedDocument(p1s1, "This is a test")
     ))
 
-    val corpus = new JLDDeserializer().deserialize(json)
+    val corpus = new JLDDeserializer().deserialize(json, ieSystem.canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
   }
 
   it should "deserialize a DCT from json" in {
@@ -207,7 +207,7 @@ class TestJLDDeserializer extends ExtractionTest {
     val provenanceValue = parse(json)
     val documentMap: DocumentMap = Map("_:Document_1" -> null)
     val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_35" -> 34))
-    val provenance = new JLDDeserializer().deserializeProvenance(provenanceValue, documentMap, documentSentenceMap)
+    val provenance = new JLDDeserializer().deserializeProvenance(Option(provenanceValue), documentMap, documentSentenceMap)
   }
 
   it should "deserialize extraction from json" in {

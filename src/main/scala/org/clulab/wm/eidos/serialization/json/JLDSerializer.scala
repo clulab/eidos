@@ -143,7 +143,7 @@ object JLDSerializer {
 }
 
 class JLDArgument(serializer: JLDSerializer, typeString: String, mention: EidosMention)
-    extends JLDObject(serializer, "Argument") {
+    extends JLDObject(serializer, JLDArgument.typename) {
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
@@ -155,6 +155,7 @@ class JLDArgument(serializer: JLDSerializer, typeString: String, mention: EidosM
 object JLDArgument {
   val singular = "argument"
   val plural = "arguments"
+  val typename = "Argument"
 }
 
 class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float)
@@ -332,7 +333,7 @@ object JLDProvenance {
 }
 
 class JLDTrigger(serializer: JLDSerializer, mention: EidosMention)
-    extends JLDObject(serializer, "Trigger", mention) {
+    extends JLDObject(serializer, JLDTrigger.typename, mention) {
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
@@ -344,6 +345,7 @@ class JLDTrigger(serializer: JLDSerializer, mention: EidosMention)
 object JLDTrigger {
   val singular = "trigger"
   val plural = "triggers"
+  val typename = "Trigger"
 }
 
 abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, mention: EidosMention)
