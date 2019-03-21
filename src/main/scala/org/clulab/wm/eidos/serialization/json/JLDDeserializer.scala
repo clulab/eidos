@@ -218,11 +218,15 @@ class JLDDeserializer {
       val roots = sourceRoots ++ destinationRoots
       val graph = DirectedGraph[String](dependencies, roots)
 
-      val idsAndTimexes = (sentenceValue \ "timexes").extract[JArray].arr.map(deserializeTimex)
+      val idsAndTimexes = (sentenceValue \ "timexes").extractOpt[JArray].map { jArray =>
+        jArray.arr.map(deserializeTimex)
+      }.getOrElse(List.empty)
       timexes = timexes :+ idsAndTimexes.map(_.value)
       timexMap = timexMap ++ idsAndTimexes.map { idAndTimex => idAndTimex.id -> idAndTimex.value }
 
-      val idsAndGeolocs = (sentenceValue \ "geolocs").extract[JArray].arr.map(deserializeGeoloc)
+      val idsAndGeolocs = (sentenceValue \ "geolocs").extractOpt[JArray].map { jArray =>
+        jArray.arr.map(deserializeGeoloc)
+      }.getOrElse(List.empty)
       geolocs = geolocs :+ idsAndGeolocs.map(_.value)
       geolocMap = geolocMap ++ idsAndGeolocs.map { idAndGeoloc => idAndGeoloc.id -> idAndGeoloc.value }
 
@@ -351,7 +355,7 @@ class JLDDeserializer {
     Extraction(extractionId, extractionType, extractionSubtype, provenance, triggerProvenanceOpt, argumentMap)
   }
 
-  def deserializeModifier(modifierValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap): (String, Provenance) = {
+  protected def deserializeModifier(modifierValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap): (String, Provenance) = {
     requireType(modifierValue, JLDModifier.typename)
     val text = (modifierValue \ "text").extract[String]
     val provenance = deserializeProvenance((modifierValue \ "provenance").extractOpt[JArray],
@@ -376,7 +380,7 @@ class JLDDeserializer {
   }
 
   def deserializeState(stateValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
-      timexMap: TimexMap, geolocMap: GeolocMap): EidosAttachment = {
+      timexMap: TimexMap, geolocMap: GeolocMap): Attachment = {
     requireType(stateValue, JLDAttachment.kind)
     val stateType = (stateValue \ "type").extract[String]
     val text = (stateValue \ "text").extract[String]
@@ -395,7 +399,7 @@ class JLDDeserializer {
         require(provenanceOpt.isDefined)
         new Decrease(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "PROP" =>
-        require(provenanceOpt.isDefined)
+        require(provenanceOpt.isEmpty) // TODO should this be different?
         new Property(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "HEDGE" =>
         require(provenanceOpt.isDefined)
@@ -422,6 +426,17 @@ class JLDDeserializer {
     attachment
   }
 
+  def deserializeStates(statesValueOpt: Option[JArray], documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
+      timexMap: TimexMap, geolocMap: GeolocMap): Set[Attachment] = {
+    val attachments = statesValueOpt.map { statesValue =>
+      statesValue.arr.map { stateValue =>
+        deserializeState(stateValue, documentMap, documentSentenceMap, timexMap, geolocMap)
+      }.toSet
+    }.getOrElse(Set.empty)
+
+    attachments
+  }
+
   def deserializeMention(extractionValue: JValue, extraction: Extraction, mentionMap: Map[String, Mention],
       documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap, timexMap: TimexMap,
       geolocMap: GeolocMap, provenanceMap: ProvenanceMap): Mention = {
@@ -442,9 +457,8 @@ class JLDDeserializer {
     val misnamedArguments: Map[String, Seq[Mention]] = extraction.argumentMap.map { case (name, ids) =>
       (name -> ids.map { id => mentionMap(id) })
     }
-    val attachments: Set[Attachment] = (extractionValue \ "states").extract[JArray].arr.map { stateValue =>
-      deserializeState(stateValue, documentMap, documentSentenceMap, timexMap, geolocMap)
-    }.toSet
+    val attachments: Set[Attachment] = deserializeStates((extractionValue \ "states").extractOpt[JArray],
+        documentMap, documentSentenceMap, timexMap, geolocMap)
     val mention =
         if (extractionType == "concept" && extractionSubtype == "entity") {
           require(triggerOpt.isEmpty)
