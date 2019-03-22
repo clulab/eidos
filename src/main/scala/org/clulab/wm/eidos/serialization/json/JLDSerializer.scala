@@ -456,8 +456,9 @@ class JLDRelationCausation(serializer: JLDSerializer, mention: EidosEventMention
   override def getMentions: Seq[EidosMention] = {
     val sources = mention.eidosArguments.getOrElse(JLDRelationCausation.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationCausation.effect, Seq.empty).filter(isExtractable)
+    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets ++ super.getMentions
+    sources ++ targets ++ triggers ++ super.getMentions
   }
 
   override def toJObject: TidyJObject = {
@@ -488,8 +489,9 @@ class JLDRelationCorrelation(serializer: JLDSerializer, mention: EidosEventMenti
   override def getMentions: Seq[EidosMention] = {
     val sources = mention.eidosArguments.getOrElse(JLDRelationCorrelation.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationCorrelation.effect, Seq.empty).filter(isExtractable)
+    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets ++ super.getMentions
+    sources ++ targets ++ triggers ++ super.getMentions
   }
 
   override def toJObject: TidyJObject = {
