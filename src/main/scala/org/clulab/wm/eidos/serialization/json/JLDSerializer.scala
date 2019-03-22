@@ -303,7 +303,7 @@ class JLDProvenance(serializer: JLDSerializer, provenance: Provenance)
     // Do not include the mention here because provenances are not to be referenced!
     extends JLDObject(serializer, JLDProvenance.typename) {
 
-  def this(serializer: JLDSerializer, eidosMention: EidosMention) = this(serializer, new MentionProvenance(eidosMention.odinMention))
+  def this(serializer: JLDSerializer, eidosMention: EidosMention) = this(serializer, Provenance(eidosMention.odinMention))
 
   override def toJObject: TidyJObject = {
     val document = provenance.document

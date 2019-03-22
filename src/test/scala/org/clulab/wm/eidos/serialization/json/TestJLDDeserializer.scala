@@ -15,7 +15,6 @@ import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.attachments.StaticProvenance
 import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.document.TimeStep
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
@@ -628,7 +627,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val timexMap = Map("_:DCT_1" -> timeIntervel)
       val geolocMap: GeolocMap = Map.empty
       val mentionMap: MentionMap = Map.empty
-      val provenanceMap: ProvenanceMap = Map(StaticProvenance(null, 480, Interval(0, 1)) -> "_:Extraction_1")
+      val provenanceMap: ProvenanceMap = Map(Provenance(null, 480, Interval(0, 1)) -> "_:Extraction_1")
       val mention = new JLDDeserializer().deserializeMention(extractionValue, extraction, mentionMap,
         documentMap, documentSentenceMap, timexMap, geolocMap, provenanceMap)
     }

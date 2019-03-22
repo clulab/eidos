@@ -84,21 +84,18 @@ object EidosAttachment {
 case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[String]] = None,
     triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
 
-trait Provenance {
-  val document: Document
-  val sentence: Int
-  val interval: Interval
-}
 
-@SerialVersionUID(1L)
-class MentionProvenance(mention: Mention) extends Provenance {
-  val document: Document = mention.document
-  val sentence: Int = mention.sentence
-  val interval: Interval = mention.tokenInterval
-}
+case class Provenance(document: Document, sentence: Int, interval: Interval)
 
-@SerialVersionUID(1L)
-case class StaticProvenance(val document: Document, val sentence: Int, val interval: Interval) extends Provenance
+object Provenance {
+  def apply(mention: Mention): Provenance = {
+    val document: Document = mention.document
+    val sentence: Int = mention.sentence
+    val interval: Interval = mention.tokenInterval
+
+    Provenance(document, sentence, interval)
+  }
+}
 
 @SerialVersionUID(1L)
 abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
@@ -219,11 +216,11 @@ object TriggeredAttachment {
 
   def getAttachmentInfo(mention: Mention, key: String): AttachmentInfo = {
     val triggerMention: TextBoundMention = mention.asInstanceOf[EventMention].trigger
-    val triggerProvenance: Option[Provenance] = Some(new MentionProvenance(triggerMention))
+    val triggerProvenance: Option[Provenance] = Some(Provenance(triggerMention))
     val triggerText: String = triggerMention.text
     val quantifierMentions: Option[Seq[Mention]] = mention.asInstanceOf[EventMention].arguments.get(key)
     val quantifierTexts: Option[Seq[String]] = quantifierMentions.map(_.map(_.text))
-    val quantifierProvenances: Option[Seq[Provenance]] = quantifierMentions.map(_.map(new MentionProvenance(_)))
+    val quantifierProvenances: Option[Seq[Provenance]] = quantifierMentions.map(_.map(Provenance(_)))
 
     AttachmentInfo(triggerText, quantifierTexts, triggerProvenance, quantifierProvenances)
   }

@@ -29,7 +29,6 @@ import org.clulab.wm.eidos.document.DCT
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
-import org.clulab.wm.eidos.attachments.StaticProvenance
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.document.TimeStep
@@ -280,7 +279,7 @@ class JLDDeserializer {
     }
     require(sentenceWordPositions.size == 1)
 
-    StaticProvenance(document, sentence, sentenceWordPositions.head)
+    Provenance(document, sentence, sentenceWordPositions.head)
   }
 
   protected def deserializePluralProvenance(provenanceValue: JValue, documentMap: DocumentMap,
