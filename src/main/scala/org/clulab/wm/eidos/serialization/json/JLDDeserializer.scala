@@ -411,10 +411,10 @@ class JLDDeserializer {
         require(provenanceOpt.isEmpty)
         new Property(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "HEDGE" =>
-        require(provenanceOpt.isDefined)
+        // require(provenanceOpt.isDefined) // todo add this back
         new Hedging(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "NEGATION" =>
-        require(provenanceOpt.isDefined)
+        // require(provenanceOpt.isDefined) // todo add this back
         new Negation(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "TIMEX" =>
         require(provenanceOpt.isEmpty)
@@ -568,6 +568,25 @@ class JLDDeserializer {
     }
   }
 
+  protected def removeTriggerOnlyMentions(mentions: Seq[Mention]): Seq[Mention] = {
+    var argumentMentions = mentions.flatMap { mention => mention.arguments.values.flatten }
+    var triggerMentions = mentions.collect {
+      case eventMention: EventMention => eventMention.trigger
+    }
+    var triggerOnlyMentions = triggerMentions.filter { triggerMention =>
+      !argumentMentions.exists { argumentMention =>
+        triggerMention.eq(argumentMention) // eq is important here
+      }
+    }
+    var remainingMentions = mentions.filter { mention =>
+      !triggerOnlyMentions.exists { triggerOnlyMention =>
+        mention.eq(triggerOnlyMention)
+      }
+    }
+
+    remainingMentions
+  }
+
   def deserializeCorpus(corpusValue: JValue, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding): Corpus = {
     requireType(corpusValue, JLDCorpus.typename)
     // Check to see about DCT value and if it has id
@@ -585,13 +604,18 @@ class JLDDeserializer {
     val geolocMap = documentSpecs.flatMap { documentSpec =>
       documentSpec.sentencesSpec.geolocMap
     }.toMap
-    val extractionsValue = (corpusValue \ "extractions").extract[JArray]
-    val extractions = extractionsValue.arr.map { extractionValue =>
-      deserializeExtraction(extractionValue, documentMap, documentSentenceMap)
-    }
-    val mentionMap = deserializeMentions(extractionsValue, extractions, Map.empty, Map.empty,
+    val extractionsValueOpt = (corpusValue \ "extractions").extractOpt[JArray]
+    val extractions = extractionsValueOpt.map { extractionsValue =>
+      extractionsValue.arr.map { extractionValue =>
+        deserializeExtraction(extractionValue, documentMap, documentSentenceMap)
+      }
+    }.getOrElse(Seq.empty[Extraction])
+    val mentionMap = extractionsValueOpt.map { extractionsValue =>
+      deserializeMentions(extractionsValue, extractions, Map.empty, Map.empty,
         documentMap, documentSentenceMap, timexMap, geolocMap)
-    val odinMentions = mentionMap.values.toArray
+    }.getOrElse(Map.empty)
+    val allOdinMentions = mentionMap.values.toArray
+    val odinMentions = removeTriggerOnlyMentions(allOdinMentions)
     val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, ontologyGrounder)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
       AnnotatedDocument(documentSpec.idAndDocument.value, odinMentions, eidosMentions)
