@@ -8,6 +8,7 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.SynPath
 import org.clulab.odin.TextBoundMention
+import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Edge
@@ -16,7 +17,6 @@ import org.clulab.struct.Interval
 import org.clulab.timenorm.formal.SimpleInterval
 import org.clulab.timenorm.formal.UnknownInterval
 import org.clulab.wm.eidos.attachments.Decrease
-import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
@@ -75,13 +75,8 @@ case class DocumentSpec(idAndDocument: IdAndDocument, sentencesSpec: SentencesSp
 
 class IdAndMention(id: String, value: Mention) extends IdAndValue[Mention](id,value)
 
-//case class StateData(stateType: String, text: String, documentId: String, sentenceId: String, start: Int, end: Int,
-//    timeValue: Option[String], geoValue: Option[String], modifierDatas: Seq[ModifierData])
-
-//case class ModifierData(text: String, documentId: String, sentenceId: String, start: Int, end: Int)
-
 case class Extraction(id: String, extractionType: String, extractionSubtype: String, provenance: Provenance,
-  triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
+    triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
 
 object JLDDeserializer {
   type DocumentMap = Map[String, EidosDocument]
@@ -111,31 +106,41 @@ class JLDDeserializer {
     Interval(start - offset, end - offset - endCorrection)
   }
 
-  def deserializeDct(dctValue: JValue): IdAndDct = {
-    requireType(dctValue, JLDDCT.typename)
-    val dctId = id(dctValue)
-    val text = (dctValue \ "text").extract[String]
-    val optStart = (dctValue \ "start").extractOpt[String]
-    val optEnd = (dctValue \ "end").extractOpt[String]
+  protected def nothingToNone(jValueOpt: Option[JValue]): Option[JValue] = {
+    jValueOpt match {
+      case Some(JNothing) => None
+      case None => None
+      case value @ Some(_) => value
+    }
+  }
 
-    val dct =
-      if (optStart.isEmpty && optEnd.isEmpty) DCT(UnknownInterval, text)
-      else {
-        val start = optStart.getOrElse(optEnd.get)
-        val end = optEnd.getOrElse(optStart.get)
-        val startDateTime = LocalDateTime.parse(start)
-        val endDateTime = LocalDateTime.parse(end)
-        val interval = SimpleInterval(startDateTime, endDateTime)
+  def deserializeDct(dctValueOpt: Option[JValue]): Option[IdAndDct] = {
+    dctValueOpt.map { dctValue =>
+      requireType(dctValue, JLDDCT.typename)
+      val dctId = id(dctValue)
+      val text = (dctValue \ "text").extract[String]
+      val optStart = (dctValue \ "start").extractOpt[String]
+      val optEnd = (dctValue \ "end").extractOpt[String]
 
-        DCT(interval, text)
-      }
+      val dct =
+        if (optStart.isEmpty && optEnd.isEmpty) DCT(UnknownInterval, text)
+        else {
+          val start = optStart.getOrElse(optEnd.get)
+          val end = optEnd.getOrElse(optStart.get)
+          val startDateTime = LocalDateTime.parse(start)
+          val endDateTime = LocalDateTime.parse(end)
+          val interval = SimpleInterval(startDateTime, endDateTime)
 
-    new IdAndDct(dctId, dct)
+          DCT(interval, text)
+        }
+
+      new IdAndDct(dctId, dct)
+    }
   }
 
   def deserializeTimeInterval(timeIntervalValue: JValue): TimeStep = {
     requireType(timeIntervalValue, JLDTimeInterval.typename)
-    val timeIntervalId = id (timeIntervalValue) // This is never used, so why do we have it?
+    val timeIntervalId = id(timeIntervalValue) // This is never used, so why do we have it?
     val start = LocalDateTime.parse((timeIntervalValue \ "start").extract[String])
     val end = LocalDateTime.parse((timeIntervalValue \ "end").extract[String])
     val duration = (timeIntervalValue \ "duration").extract[Int]
@@ -239,9 +244,9 @@ class JLDDeserializer {
       sentence.entities = Some(idsAndWordSpecs.map(it => it.value.entity))
       sentence.norms = Some(idsAndWordSpecs.map(it => it.value.norm))
       sentence.chunks = Some(idsAndWordSpecs.map(it => it.value.chunk))
-      sentence.syntacticTree = None
+      sentence.syntacticTree = None // Documented
       sentence.graphs = GraphMap(Map(GraphMap.UNIVERSAL_ENHANCED -> graph))
-      sentence.relations = None
+      sentence.relations = None // Documented
       new IdAndSentence(sentenceId, sentence)
     }
 
@@ -295,23 +300,27 @@ class JLDDeserializer {
     val documentId = id(documentValue)
     val title = (documentValue \ "title").extractOpt[String]
     val text = (documentValue \ "text").extractOpt[String]
-    val idAndDct = deserializeDct(documentValue \ "dct")
-
+    val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ "dct").extractOpt[JValue]))
     val sentencesSpec = deserializeSentences(documentValue \ "sentences")
+    val timexCount = sentencesSpec.timexes.map(_.size).sum
+    val geolocsCount = sentencesSpec.geolocs.map(_.size).sum
     val sentences = sentencesSpec.sentences
+    val eidosDocument = new EidosDocument(sentences, text)
 
-    val document = new EidosDocument(sentences, text)
-    document.id = title
-    document.times = Option(sentencesSpec.timexes) // If empty or missing?
-    document.geolocs = Option(sentencesSpec.geolocs)
-    document.dct = Option(idAndDct.value)
+    eidosDocument.id = title
+    eidosDocument.text = text
+    // We really don't know whether time and geo were on or not.  If none were found
+    // at all, then assume they were off and use None rather than Some(List.empty).
+    eidosDocument.times = if (timexCount == 0) None else Some(sentencesSpec.timexes)
+    eidosDocument.geolocs = if (geolocsCount == 0) None else Some(sentencesSpec.geolocs)
+    eidosDocument.dct = idAndDctOpt.map(_.value)
 
-    val idAndDocument = new IdAndDocument(documentId, document)
+    val idAndDocument = new IdAndDocument(documentId, eidosDocument)
     DocumentSpec(idAndDocument, sentencesSpec)
   }
 
   def deserializeTrigger(triggerValueOpt: Option[JValue], documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap): Option[Provenance] = {
-    triggerValueOpt.map { triggerValue =>
+    nothingToNone(triggerValueOpt).map { triggerValue =>
       requireType(triggerValue, JLDTrigger.typename)
       val provenance = deserializeProvenance((triggerValue \ "provenance").extractOpt[JValue], documentMap, documentSentenceMap).get
 
@@ -322,7 +331,7 @@ class JLDDeserializer {
   def deserializeArguments(argumentsValueOpt: Option[JValue]): Map[String, Seq[String]] = {
     var argumentMap: Map[String, Seq[String]] = Map.empty
 
-    argumentsValueOpt.foreach { argumentsValue =>
+    nothingToNone(argumentsValueOpt).foreach { argumentsValue =>
       val argumentsValues: JArray = argumentsValue.asInstanceOf[JArray]
       val arguments = argumentsValues.arr.map { argumentsValue =>
         requireType(argumentsValue, JLDArgument.typename)
@@ -399,7 +408,7 @@ class JLDDeserializer {
         require(provenanceOpt.isDefined)
         new Decrease(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "PROP" =>
-        require(provenanceOpt.isEmpty) // TODO should this be different?
+        require(provenanceOpt.isEmpty)
         new Property(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "HEDGE" =>
         require(provenanceOpt.isDefined)
@@ -530,21 +539,20 @@ class JLDDeserializer {
       hasAllArguments && hasTrigger
     }
 
-    // TODO need to add to provenance map when find something
     if (extractions.isEmpty)
       mentionMap
     else {
       val groupedExtractions = extractions.groupBy(isRipe)
-      val ripeExtractions = groupedExtractions(true)
+      val ripeExtractions = groupedExtractions.getOrElse(true, Seq.empty)
       require(ripeExtractions.nonEmpty)
-      val unripeExtractions = groupedExtractions(false)
+      val unripeExtractions = groupedExtractions.getOrElse(false, Seq.empty)
       val idsAndMentions = ripeExtractions.map { extraction =>
-        val extractionValue = extractionsValue.find { extractionValue =>
+        val extractionValue = extractionsValue.arr.find { extractionValue =>
           requireType(extractionValue, JLDExtraction.typename)
           val extractionId = id(extractionValue)
 
           extractionId == extraction.id
-        }
+        }.get
         val mention = deserializeMention(extractionValue, extraction, mentionMap, documentMap, documentSentenceMap,
             timexMap, geolocMap, provenanceMap)
 
