@@ -140,11 +140,13 @@ class JLDDeserializer {
   def deserializeTimeInterval(timeIntervalValue: JValue): TimeStep = {
     requireType(timeIntervalValue, JLDTimeInterval.typename)
     val timeIntervalId = id(timeIntervalValue) // This is never used, so why do we have it?
-    val start = LocalDateTime.parse((timeIntervalValue \ "start").extract[String])
-    val end = LocalDateTime.parse((timeIntervalValue \ "end").extract[String])
+    val startOpt = (timeIntervalValue \ "start").extractOpt[String]
+    val endOpt = (timeIntervalValue \ "end").extractOpt[String]
+    val startDateOpt = startOpt.map(LocalDateTime.parse)
+    val endDateOpt = endOpt.map(LocalDateTime.parse)
     val duration = (timeIntervalValue \ "duration").extract[Int]
 
-    TimeStep(start, end, duration)
+    TimeStep(startDateOpt, endDateOpt, duration)
   }
 
   // TODO function name and variable names match text names in file

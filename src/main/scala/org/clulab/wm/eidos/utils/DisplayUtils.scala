@@ -54,8 +54,8 @@ object DisplayUtils {
     for (interval <- intervals) {
       sb.append(s"$tab span: ${interval.span.start},${interval.span.end} $nl")
       for (i <- interval.intervals) {
-        val start = Option(i.start).map(_.toString).getOrElse("Undef")
-        val end = Option(i.end).map(_.toString).getOrElse("Undef")
+        val start = i.startDateOpt.map(_.toString).getOrElse("Undef")
+        val end = i.endDateOpt.map(_.toString).getOrElse("Undef")
 
         sb.append(s"$tab start: $start $nl")
         sb.append(s"$tab end: $end $nl")

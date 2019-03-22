@@ -14,7 +14,6 @@ import JLDDeserializer.DocumentMap
 import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Provenance
-import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.TimeInterval
 import org.clulab.wm.eidos.document.TimeStep
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
@@ -86,8 +85,8 @@ class TestJLDDeserializer extends ExtractionTest {
       val timeIntervalValue = parse(json)
       val timeStep = new JLDDeserializer().deserializeTimeInterval(timeIntervalValue)
 
-      timeStep.start should be(LocalDateTime.parse("2017-01-01T00:00"))
-      timeStep.end should be(LocalDateTime.parse("2017-02-01T00:00"))
+      timeStep.startDateOpt.get should be(LocalDateTime.parse("2017-01-01T00:00"))
+      timeStep.endDateOpt.get should be(LocalDateTime.parse("2017-02-01T00:00"))
       timeStep.duration should be(2678400)
     }
 

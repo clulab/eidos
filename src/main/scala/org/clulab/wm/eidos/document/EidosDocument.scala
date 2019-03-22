@@ -51,7 +51,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
           }
         }
         intervals.map { interval =>
-          val timeSteps = interval._2.map { interval => TimeStep(interval._1, interval._2, interval._3) }
+          val timeSteps = interval._2.map { interval => TimeStep(Option(interval._1), Option(interval._2), interval._3) }
           TimeInterval(TextInterval(interval._1._1 + offset, interval._1._2 + offset), timeSteps, sentenceText.slice(interval._1._1, interval._1._2))
         }
       }
@@ -103,7 +103,7 @@ object EidosDocument {
 }
 
 @SerialVersionUID(1L)
-case class TimeStep(start: LocalDateTime, end: LocalDateTime, duration: Long)
+case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
 @SerialVersionUID(1L)
 case class TimeInterval(span: TextInterval, intervals: List[TimeStep], text: String)
 @SerialVersionUID(1L)
