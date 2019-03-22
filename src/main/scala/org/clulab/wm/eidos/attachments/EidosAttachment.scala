@@ -357,7 +357,6 @@ class Negation(trigger: String, quantifiers: Option[Seq[String]],
   override def toJson(): JValue = toJson(trigger)
 }
 
-
 object Negation {
   val label = "Negation"
   val kind = "NEGATION"

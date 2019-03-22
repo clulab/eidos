@@ -410,10 +410,10 @@ class JLDDeserializer {
         require(provenanceOpt.isEmpty)
         new Property(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "HEDGE" =>
-        // require(provenanceOpt.isDefined) // todo add this back
+        require(provenanceOpt.isDefined)
         new Hedging(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "NEGATION" =>
-        // require(provenanceOpt.isDefined) // todo add this back
+         require(provenanceOpt.isDefined)
         new Negation(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "TIMEX" =>
         require(provenanceOpt.isEmpty)
