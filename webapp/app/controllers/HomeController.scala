@@ -11,7 +11,7 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
@@ -292,7 +292,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Option[Array[Seq[TimeInterval]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
+  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
 
     var objectToReturn = ""
 
@@ -377,7 +377,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Option[Array[Seq[TimeInterval]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
 
     // collect event mentions for display
@@ -477,7 +477,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkJsonFromTimeExpressions(time: Option[Array[Seq[TimeInterval]]]): Json.JsValueWrapper = {
+  def mkJsonFromTimeExpressions(time: Option[Array[Seq[TimEx]]]): Json.JsValueWrapper = {
     val result = time.map { time =>
       var x = 0
       val timexs = for (t <- time; i <- t) yield {
@@ -487,9 +487,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
           "TimeExpression",
           Json.arr(Json.arr(i.span._1, i.span._2)),
           Json.toJson(for (d <- i.intervals) yield (
-              Option(d._1).map(_.toString).getOrElse("Undef"),
-              Option(d._2).map(_.toString).getOrElse("Undef"),
-              d._3))
+              Option(d.start).map(_.toString).getOrElse("Undef"),
+              Option(d.end).map(_.toString).getOrElse("Undef"),
+              d.duration))
         )
       }
       Json.toJson(timexs)

@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.attachments
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.{DCT, TimeInterval}
+import org.clulab.wm.eidos.document.{DCT, TimEx}
 import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
 import org.clulab.wm.eidos.utils.QuicklyEqualable
 import org.json4s._
@@ -367,7 +367,7 @@ object ContextAttachment {
 }
 
 @SerialVersionUID(1L)
-class Time(val interval: TimeInterval) extends ContextAttachment(interval.text, interval) {
+class Time(val interval: TimEx) extends ContextAttachment(interval.text, interval) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, Time.kind)
@@ -393,7 +393,7 @@ object Time {
   val label = "Time"
   val kind = "TIMEX"
 
-  def apply(interval: TimeInterval) = new Time(interval)
+  def apply(interval: TimEx) = new Time(interval)
 
   def lessThan(left: Time, right: Time): Boolean =
     compare(left, right) < 0

@@ -11,7 +11,7 @@ import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.{AnnotatedDocument, DCT, EidosDocument, TimeInterval}
+import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
@@ -622,12 +622,12 @@ object JLDTimeInterval {
 }
 
 
-class JLDTimex(serializer:JLDSerializer, val interval: TimeInterval)
+class JLDTimex(serializer:JLDSerializer, val interval: TimEx)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimex.typename, interval) {
   
   override def toJObject: TidyJObject = {
-    val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i._1, i._2, i._3).toJObject)
+    val jldIntervals = interval.intervals.map(i => new JLDTimeInterval(serializer, i.start, i.end, i.duration).toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),

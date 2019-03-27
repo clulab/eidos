@@ -24,6 +24,8 @@ import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
 import scala.reflect.io
+import scala.io.Source
+import scala.util.matching.Regex
 
 /**
   * A system for text processing and information extraction
@@ -81,6 +83,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val ontologyGrounders: Seq[EidosOntologyGrounder],
     val multiOntologyGrounder: MultiOntologyGrounding,
     val timenorm: Option[TemporalNeuralParser],
+    val timeregexs: Option[List[Regex]],
     val geonorm: Option[GeoDisambiguateParser]
   )
 
@@ -139,14 +142,17 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       val multiOntologyGrounder = new MultiOntologyGrounder(ontologyGrounders)
 
       // Temporal Parsing
-      val timenorm: Option[TemporalNeuralParser] = {
-        if (!useTimeNorm) None
+      val (timenorm: Option[TemporalNeuralParser], timeregexs: Option[List[Regex]]) = {
+        if (!useTimeNorm) (None, None)
         else {
           // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
           val timeNorm = new TemporalNeuralParser()
-          Some(timeNorm)
+          val timeRegexPath: String = eidosConf[String]("timeRegexPath")
+          val regexs = Source.fromInputStream(getClass.getResourceAsStream(timeRegexPath)).getLines.map(_.r).toList
+          (Some(timeNorm), Some(regexs))
         }
       }
+
 
 		
       // Geospatial Parsing
@@ -168,6 +174,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         ontologyGrounders,
         multiOntologyGrounder,  // todo: do we need this and ontologyGrounders?
         timenorm,
+        timeregexs,
         geonorm
       )
     }
@@ -189,7 +196,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     // Add the tags from the lexicons we load
     doc.sentences.foreach(addLexiconNER)
     // Time and Location
-    doc.parseTime(loadableAttributes.timenorm, documentCreationTime)
+    doc.parseTime(loadableAttributes.timenorm, loadableAttributes.timeregexs, documentCreationTime)
     doc.parseGeoNorm(loadableAttributes.geonorm)
     // Document ID
     doc.id = filename

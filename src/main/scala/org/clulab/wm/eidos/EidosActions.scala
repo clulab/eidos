@@ -14,7 +14,7 @@ import utils.DisplayUtils.{displayMention, shortDisplay}
 import org.clulab.wm.eidos.actions.ExpansionHandler
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
@@ -410,7 +410,7 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
       times = m.document.asInstanceOf[EidosDocument].times
-      time: Option[TimeInterval] = if (times.isDefined) times.get(m.sentence).find(_.span._1 == trigger.startOffset) else None
+      time: Option[TimEx] = if (times.isDefined) times.get(m.sentence).find(_.span._1 == trigger.startOffset) else None
     } yield time match {
       case None => theme
       case Some(t) => theme.withAttachment(new Time(t))
