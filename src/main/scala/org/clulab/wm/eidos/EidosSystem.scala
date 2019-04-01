@@ -9,7 +9,7 @@ import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.wm.eidos.actions.ExpansionHandler
-import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.document.{AnnotatedDocument, EidosDocument}
 import org.clulab.wm.eidos.entities.{EidosEntityFinder, EntityFinder}
@@ -247,9 +247,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val odinMentions = extractFrom(doc)
 
     // Expand the Concepts that have a modified state if they are not part of a causal event
-    val (concepts, relations) = odinMentions.partition(_ matches EidosSystem.CONCEPT_LABEL)
-    val expandedConcepts = maybeExpandConcepts(concepts, loadableAttributes.keepStatefulConcepts)
-    val afterConceptExpansion = expandedConcepts ++ relations
+    val afterExpandingConcepts = maybeExpandConcepts(odinMentions, loadableAttributes.keepStatefulConcepts)
 
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
     @tailrec
@@ -264,7 +262,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       }
     }
 
-    val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
+    val mentionsAndNestedArgs = traverse(afterExpandingConcepts, Seq.empty, Set.empty)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) stopwordManager.keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
@@ -313,8 +311,33 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def debugMentions(mentions: Seq[Mention]): Unit =
       mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
 
-  def maybeExpandConcepts(concepts: Seq[Mention], keepStatefulConcepts: Boolean): Seq[Mention] = {
-    concepts
+  def maybeExpandConcepts(mentions: Seq[Mention], keepStatefulConcepts: Boolean): Seq[Mention] = {
+    def isIncDecQuant(a: Attachment): Boolean = a.isInstanceOf[Increase] || a.isInstanceOf[Decrease] || a.isInstanceOf[Quantification]
+    def expandIfNotExpanded(m: Mention, expandedState: State): Mention = {
+      if (expandedState.mentionsFor(m.sentence, m.tokenInterval).isEmpty) {
+        val expanded = loadableAttributes.expansionHandler.expandIfNotAvoid(m, ExpansionHandler.MAX_HOPS_EXPANDING, new State())
+        MentionUtils.withLabel(expanded, EidosSystem.CONCEPT_EXPANDED_LABEL)
+      } else m
+    }
+
+    if (!keepStatefulConcepts) {
+      mentions
+    } else {
+      // Split the mentions into Cpncepts and Relations by the label
+      val (concepts, relations) = mentions.partition(_ matches EidosSystem.CONCEPT_LABEL)
+      // Check to see if any of the Concepts have state attachments
+      val (expandable, notExpandable) = concepts.partition(_.attachments.filter(isIncDecQuant).nonEmpty)
+      if (expandable.nonEmpty) {
+        // Get the already expanded mentions for this document
+        val prevExpandableState = State(relations.filter(rel => EidosSystem.CAG_EDGES.contains(rel.label)))
+        // Expand the Concepts if they weren't already part of an expanded Relation
+        // todo: note this filter is based on token interval overlap, perhaps a smarter way is needed (e.g., checking the argument token intervals?)
+        val expandedConcepts = expandable.map(m => expandIfNotExpanded(m, prevExpandableState))
+        expandedConcepts ++ notExpandable ++ relations
+      } else {
+        mentions
+      }
+    }
   }
 
 }
