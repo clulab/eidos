@@ -21,12 +21,14 @@ object MentionUtils {
   def withMoreAttachments(mention: Mention, attachments: Seq[Attachment]): Mention =
       withOnlyAttachments(mention, mention.attachments ++ attachments)
 
-  def withLabel(mention: Mention, lab: String): Mention = {
+  def withLabel(mention: Mention, label: String): Mention = {
+    val newLabels = label +: mention.labels
     mention match {
-      case m: TextBoundMention => m.copy(labels = Seq(lab) ++ m.labels)
-      case m: RelationMention => m.copy(labels = Seq(lab) ++ m.labels)
-      case m: EventMention => m.copy(labels = Seq(lab) ++ m.labels)
-      case _ => ??? // not done for cross-sentence
+      // Unfortunately, Mention itself does not have a copy(WithLabels) method.
+      case m: TextBoundMention => m.copy(newLabels)
+      case m:  RelationMention => m.copy(newLabels)
+      case m:     EventMention => m.copy(newLabels)
+      case _ => ??? // not done for cross-sentence or anything else
     }
   }
 }
