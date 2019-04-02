@@ -1,9 +1,12 @@
 package org.clulab.wm.eidos.actions
 
+import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.actions.ExpansionHandler.{INVALID_INCOMING, INVALID_OUTGOING, VALID_INCOMING, VALID_OUTGOING}
 import org.clulab.wm.eidos.attachments.{DCTime, Property, Time}
 import org.clulab.wm.eidos.document.EidosDocument
@@ -16,6 +19,17 @@ import scala.collection.mutable.ArrayBuffer
 // todo: currently the language doesn't do anything special, but in the future will allow the handler to do
 // things diff for diff languages
 class ExpansionHandler(val language: String) extends LazyLogging {
+
+  def shouldExpand(m: Mention): Boolean = {
+    EidosSystem.CAG_EDGES.contains(m.label)
+  }
+
+  // Here expanding only arguments of causal mentions, but that can/should change
+  def expand(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    val (expandable, other) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val expanded = expandArguments(expandable, state)
+    expanded ++ other
+  }
 
   def expandArguments(mentions: Seq[Mention], state: State): Seq[Mention] = {
     // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
@@ -401,4 +415,8 @@ object ExpansionHandler {
   )
 
   def apply(language: String) = new ExpansionHandler(language)
+  def fromConfig(config: Config): ExpansionHandler = {
+    val language: String = config[String]("language")
+    ExpansionHandler(language)
+  }
 }
