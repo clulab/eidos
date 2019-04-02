@@ -184,7 +184,7 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
 
 object JLDOntologyGroundings {
   val singular = "groundings"
-  val pural: String = singular
+  val plural: String = singular
 }
 
 class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option[Mention])
@@ -192,7 +192,7 @@ class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option
 
   override def toJObject: TidyJObject = {
     val grounding = serializer.adjectiveGrounder.map(_.groundAdjective(quantifier)).getOrElse(AdjectiveGrounding.noAdjectiveGrounding)
-    val jldProvenance = mention.map(mention => new JLDProvenance(serializer, mention).toJObject)
+    val jldProvenance = mention.map(mention => Seq(new JLDProvenance(serializer, mention).toJObject))
 
     TidyJObject(List(
       serializer.mkType(this),
@@ -224,7 +224,7 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
 
   override def toJObject: TidyJObject = {
     val text = triggeredAttachment.trigger
-    val jldProvanance = triggeredAttachment.getTriggerMention.map(mention => new JLDProvenance(serializer, mention).toJObject)
+    val jldProvanance = triggeredAttachment.getTriggerMention.map(mention => Seq(new JLDProvenance(serializer, mention).toJObject))
     val jldModifiers =
         if (triggeredAttachment.quantifiers.isEmpty) Seq.empty
         else
