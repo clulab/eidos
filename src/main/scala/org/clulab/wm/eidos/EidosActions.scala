@@ -28,14 +28,14 @@ class EidosActions(val expansionHandler: Option[ExpansionHandler], val coref: Op
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
     // Expand mentions, if enabled
     val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
-    val mostComplete = keepMostCompleteEvents(expanded, state.updated(expanded))
-
     // Merge attachments
-    val merged = mergeAttachments(mostComplete, state.updated(mostComplete))
+    val merged = mergeAttachments(expanded, state.updated(expanded))
+    // Keep only the most complete version of any given Mention
+    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
 
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
-    val (causal, nonCausal) = merged.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val (causal, nonCausal) = mostComplete.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
 
     val assemble1 = createEventChain(causal, "effect", "cause")
     // FIXME please
