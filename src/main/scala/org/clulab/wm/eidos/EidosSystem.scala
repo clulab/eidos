@@ -51,7 +51,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     )
   }
 
-  val stopwordManager = StopwordManager.fromConfig(config)
+  val stopwordManager = StopwordManager.fromConfig(eidosConf)
   val canonicalizer = new Canonicalizer(stopwordManager)
   val ontologyHandler = new OntologyHandler(proc, wordToVec, canonicalizer)
 
@@ -108,7 +108,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
-      val actions = EidosActions.fromConfig(config)
+      val actions = EidosActions.fromConfig(eidosConf)
 
       // Entity Finders can be used to preload entities into the odin state, their use is optional.
       val entityFinder = if (useEntityFinder) {
