@@ -184,7 +184,7 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
 
 object JLDOntologyGroundings {
   val singular = "groundings"
-  val pural: String = singular
+  val plural: String = singular
 }
 
 class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option[Mention])
@@ -192,7 +192,7 @@ class JLDModifier(serializer: JLDSerializer, quantifier: String, mention: Option
 
   override def toJObject: TidyJObject = {
     val grounding = serializer.adjectiveGrounder.map(_.groundAdjective(quantifier)).getOrElse(AdjectiveGrounding.noAdjectiveGrounding)
-    val jldProvenance = mention.map(mention => new JLDProvenance(serializer, mention).toJObject)
+    val jldProvenance = mention.map(mention => Seq(new JLDProvenance(serializer, mention).toJObject))
 
     TidyJObject(List(
       serializer.mkType(this),
@@ -224,7 +224,7 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
 
   override def toJObject: TidyJObject = {
     val text = triggeredAttachment.trigger
-    val jldProvanance = triggeredAttachment.getTriggerMention.map(mention => new JLDProvenance(serializer, mention).toJObject)
+    val jldProvanance = triggeredAttachment.getTriggerMention.map(mention => Seq(new JLDProvenance(serializer, mention).toJObject))
     val jldModifiers =
         if (triggeredAttachment.quantifiers.isEmpty) Seq.empty
         else
@@ -274,19 +274,24 @@ class JLDScoredAttachment(serializer: JLDSerializer, kind: String, scoredAttachm
   ))
 }
 
-class JLDInterval(serializer: JLDSerializer, interval: Interval)
+class JLDInterval(serializer: JLDSerializer, interval: Interval, offset: Int, inclusiveEnd: Boolean)
     extends JLDObject(serializer, "Interval") {
 
-  override def toJObject: TidyJObject = TidyJObject(List(
-    serializer.mkType(this),
-    "start" -> (interval.start + 1), // Start at 1.
-    "end" -> interval.end // It is now inclusive.
-  ))
+  override def toJObject: TidyJObject = {
+    val endCorrection = if (inclusiveEnd) -1 else 0
+
+    TidyJObject(List(
+      serializer.mkType(this),
+      "start" -> (interval.start + offset),
+      "end" -> (interval.end + offset + endCorrection)
+    ))
+  }
 }
 
 object JLDInterval {
-  val singular = "position"
-  val plural = "positions"
+//  There are many kinds of intervals, so this generic version is not being used.
+//  val singular = "position"
+//  val plural = "positions"
 }
 
 class JLDProvenance(serializer: JLDSerializer, mention: Mention)
@@ -309,9 +314,9 @@ class JLDProvenance(serializer: JLDSerializer, mention: Mention)
     TidyJObject(List(
       serializer.mkType(this),
       JLDDocument.singular -> serializer.mkRef(document),
-      "documentCharInterval" -> Seq(new JLDInterval(serializer, documentCharInterval).toJObject),
+      "documentCharPositions" -> Seq(new JLDInterval(serializer, documentCharInterval, offset = 0, inclusiveEnd = true).toJObject),
       JLDSentence.singular -> serializer.mkRef(sentence),
-      "positions" -> Seq(new JLDInterval(serializer, tokenInterval).toJObject)
+      "sentenceWordPositions" -> Seq(new JLDInterval(serializer, tokenInterval, offset = 1, inclusiveEnd = true).toJObject)
     ))
   }
 }
