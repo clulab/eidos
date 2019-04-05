@@ -39,21 +39,9 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
   val documentFilter = FilterByLength(proc, cutoff = 150)
   val debug = true // Allow external control with var if needed
-  val wordToVec: EidosWordToVec = {
-    // This isn't intended to be (re)loadable.  This only happens once.
-    EidosSystem.logger.info("Loading W2V...")
-    EidosWordToVec(
-      LoadableAttributes.useW2V,
-      LoadableAttributes.wordToVecPath,
-      LoadableAttributes.topKNodeGroundings,
-      LoadableAttributes.cacheDir,
-      LoadableAttributes.useCache
-    )
-  }
 
-  val stopwordManager = StopwordManager.fromConfig(config[Config]("filtering"))
-  val canonicalizer = new Canonicalizer(stopwordManager)
-  val ontologyHandler = new OntologyHandler(proc, wordToVec, canonicalizer)
+  val stopwordManager: StopwordManager = StopwordManager.fromConfig(config[Config]("filtering"))
+  val ontologyHandler: OntologyHandler = OntologyHandler.load(config[Config]("ontologies"), proc, stopwordManager)
 
   /**
     * The loadable aspect here applies to (most of) the files whose paths are specified in the config.  These
@@ -73,7 +61,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val hedgingHandler: HypothesisHandler,
     val negationHandler: NegationHandler,
     val expansionHandler: ExpansionHandler,
-    val ontologyGrounders: Seq[EidosOntologyGrounder],
     val multiOntologyGrounder: MultiOntologyGrounding,
     val timenorm: Option[TemporalCharbasedParser],
     val geonorm: Option[GeoDisambiguateParser],
@@ -82,29 +69,21 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
 
   object LoadableAttributes {
     // Extraction
-    val       masterRulesPath: String = eidosConf[String]("masterRulesPath")
-    val          taxonomyPath: String = eidosConf[String]("taxonomyPath")
-    // Filtering
-    val       topKNodeGroundings: Int = eidosConf[Int]("topKNodeGroundings")
+    val      masterRulesPath: String = eidosConf[String]("masterRulesPath")
+    val         taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Hedging
-    val           hedgingPath: String = eidosConf[String]("hedgingPath")
-    val              cacheDir: String = eidosConf[String]("cacheDir")
-    val         wordToVecPath: String = eidosConf[String]("wordToVecPath")
-    val     timeNormModelPath: String = eidosConf[String]("timeNormModelPath") // todo push to companion obj too
+    val          hedgingPath: String = eidosConf[String]("hedgingPath")
+    val    timeNormModelPath: String = eidosConf[String]("timeNormModelPath") // todo push to companion obj too
     val          useLexicons: Boolean = eidosConf[Boolean]("useLexicons")
     val      useEntityFinder: Boolean = eidosConf[Boolean]("useEntityFinder")
-    val               useW2V: Boolean = eidosConf[Boolean]("useW2V")
     val          useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     val           useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
-    val             useCache: Boolean = eidosConf[Boolean]("useCache")
     val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
-
 
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
     val expansionHandler = ExpansionHandler(language) // todo - make more optional
     // For use in creating the ontologies
-
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -129,12 +108,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       } else None
 
       // Ontologies
-      val ontologyGrounders =
-          if (useW2V)
-            ontologyHandler.ontologyGroundersFromConfig(config[Config]("ontologies"))
-          else
-            Seq.empty
-      val multiOntologyGrounder = new MultiOntologyGrounder(ontologyGrounders)
+      val multiOntologyGrounder = ontologyHandler.ontologyGrounders
 
       // Temporal Parsing
       val timenorm: Option[TemporalCharbasedParser] =
@@ -162,7 +136,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         hypothesisHandler,
         negationHandler,
         expansionHandler,
-        ontologyGrounders,
         multiOntologyGrounder,  // todo: do we need this and ontologyGrounders?
         timenorm,
         geonorm,
@@ -268,7 +241,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(stopwordManager), loadableAttributes.multiOntologyGrounder)
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer((stopwordManager)), loadableAttributes.multiOntologyGrounder)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
@@ -301,7 +274,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   /**
     * Wrapper for using w2v on some strings
     */
-  def stringSimilarity(string1: String, string2: String): Float = wordToVec.stringSimilarity(string1, string2)
+  def stringSimilarity(string1: String, string2: String): Float = ontologyHandler.wordToVec.stringSimilarity(string1, string2)
 
   /**
     * Debugging Methods
