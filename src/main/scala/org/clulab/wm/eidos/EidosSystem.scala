@@ -9,7 +9,7 @@ import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.sequences.LexiconNER
 import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.wm.eidos.actions.ExpansionHandler
-import org.clulab.wm.eidos.attachments.{HypothesisHandler, NegationHandler}
+import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.document.{AnnotatedDocument, EidosDocument}
 import org.clulab.wm.eidos.entities.{EidosEntityFinder, EntityFinder}
@@ -63,27 +63,27 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val expansionHandler: ExpansionHandler,
     val multiOntologyGrounder: MultiOntologyGrounding,
     val timenorm: Option[TemporalCharbasedParser],
-    val geonorm: Option[GeoDisambiguateParser]
+    val geonorm: Option[GeoDisambiguateParser],
+    val keepStatefulConcepts: Boolean
   )
 
   object LoadableAttributes {
     // Extraction
-    val    masterRulesPath: String = eidosConf[String]("masterRulesPath")
-    val       taxonomyPath: String = eidosConf[String]("taxonomyPath")
+    val      masterRulesPath: String = eidosConf[String]("masterRulesPath")
+    val         taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Hedging
-    val        hedgingPath: String = eidosConf[String]("hedgingPath")
-    val  timeNormModelPath: String = eidosConf[String]("timeNormModelPath") // todo push to companion obj too
-    val       useLexicons: Boolean = eidosConf[Boolean]("useLexicons")
-    val   useEntityFinder: Boolean = eidosConf[Boolean]("useEntityFinder")
-    val       useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    val        useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
-
+    val          hedgingPath: String = eidosConf[String]("hedgingPath")
+    val    timeNormModelPath: String = eidosConf[String]("timeNormModelPath") // todo push to companion obj too
+    val          useLexicons: Boolean = eidosConf[Boolean]("useLexicons")
+    val      useEntityFinder: Boolean = eidosConf[Boolean]("useEntityFinder")
+    val          useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
+    val           useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
+    val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
 
     val hypothesisHandler = HypothesisHandler(hedgingPath)
     val negationHandler = NegationHandler(language)
     val expansionHandler = ExpansionHandler(language) // todo - make more optional
     // For use in creating the ontologies
-
 
     def apply(): LoadableAttributes = {
       // Odin rules and actions:
@@ -138,7 +138,8 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         expansionHandler,
         multiOntologyGrounder,  // todo: do we need this and ontologyGrounders?
         timenorm,
-        geonorm
+        geonorm,
+        keepStatefulConcepts
       )
     }
   }
@@ -218,6 +219,9 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       documentCreationTime: Option[String] = None, filename: Option[String] = None): AnnotatedDocument = {
     val odinMentions = extractFrom(doc)
 
+    // Expand the Concepts that have a modified state if they are not part of a causal event
+    val afterExpandingConcepts = maybeExpandConcepts(odinMentions, loadableAttributes.keepStatefulConcepts)
+
     // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
     @tailrec
     def traverse(ms: Seq[Mention], results: Seq[Mention], seen: Set[Mention]): Seq[Mention] = {
@@ -231,7 +235,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       }
     }
 
-    val mentionsAndNestedArgs = traverse(odinMentions, Seq.empty, Set.empty)
+    val mentionsAndNestedArgs = traverse(afterExpandingConcepts, Seq.empty, Set.empty)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) stopwordManager.keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
@@ -279,6 +283,36 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
 
   def debugMentions(mentions: Seq[Mention]): Unit =
       mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
+
+  def maybeExpandConcepts(mentions: Seq[Mention], keepStatefulConcepts: Boolean): Seq[Mention] = {
+    def isIncDecQuant(a: Attachment): Boolean = a.isInstanceOf[Increase] || a.isInstanceOf[Decrease] || a.isInstanceOf[Quantification]
+    def expandIfNotExpanded(m: Mention, expandedState: State): Mention = {
+      if (expandedState.mentionsFor(m.sentence, m.tokenInterval).isEmpty) {
+        val expanded = loadableAttributes.expansionHandler.expandIfNotAvoid(m, ExpansionHandler.MAX_HOPS_EXPANDING, new State())
+        MentionUtils.withLabel(expanded, EidosSystem.CONCEPT_EXPANDED_LABEL)
+      } else m
+    }
+
+    if (!keepStatefulConcepts) {
+      mentions
+    } else {
+      // Split the mentions into Cpncepts and Relations by the label
+      val (concepts, relations) = mentions.partition(_ matches EidosSystem.CONCEPT_LABEL)
+      // Check to see if any of the Concepts have state attachments
+      val (expandable, notExpandable) = concepts.partition(_.attachments.filter(isIncDecQuant).nonEmpty)
+      if (expandable.nonEmpty) {
+        // Get the already expanded mentions for this document
+        val prevExpandableState = State(relations.filter(rel => EidosSystem.CAG_EDGES.contains(rel.label)))
+        // Expand the Concepts if they weren't already part of an expanded Relation
+        // todo: note this filter is based on token interval overlap, perhaps a smarter way is needed (e.g., checking the argument token intervals?)
+        val expandedConcepts = expandable.map(m => expandIfNotExpanded(m, prevExpandableState))
+        expandedConcepts ++ notExpandable ++ relations
+      } else {
+        mentions
+      }
+    }
+  }
+
 }
 
 object EidosSystem {
@@ -291,6 +325,8 @@ object EidosSystem {
 
   // Taxonomy relations that should make it to final causal analysis graph
   val CAUSAL_LABEL = "Causal"
+  val CONCEPT_LABEL = "Concept"
+  val CONCEPT_EXPANDED_LABEL = "Concept-Expanded"
   val CORR_LABEL = "Correlation"
   val COREF_LABEL = "Coreference"
   // Taxonomy relations for other uses
@@ -305,7 +341,7 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CORR_LABEL, COREF_LABEL)
+  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 }
