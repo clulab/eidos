@@ -39,7 +39,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
   val documentFilter = FilterByLength(proc, cutoff = 150)
   val debug = true // Allow external control with var if needed
-  val stopwordManager: StopwordManager = StopwordManager.fromConfig(config[Config]("filtering"))
+  val stopwordManager: StopwordManager = StopwordManager.fromConfig(eidosConf)
   val ontologyHandler: OntologyHandler = OntologyHandler.load(config[Config]("ontologies"), proc, stopwordManager)
 
   /**
