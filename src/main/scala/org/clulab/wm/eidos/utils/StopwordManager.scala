@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.utils
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
+import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 
 trait StopwordManaging {
@@ -10,7 +11,7 @@ trait StopwordManaging {
   def containsStopwordStrict(stopword: String): Boolean = containsStopword(stopword)
 }
 
-class StopwordManager(stopwordsPath: String, transparentPath: String) extends StopwordManaging {
+class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) extends StopwordManaging {
   protected def stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
   protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
 
@@ -36,21 +37,14 @@ class StopwordManager(stopwordsPath: String, transparentPath: String) extends St
   }
 
   def resolvedCoref(mention: Mention, state: State): Boolean = {
-    if (hasCorefToResolve(mention)) {
-      val corefRelations = state.allMentions.filter(m => m.matches(EidosSystem.COREF_LABEL))
+    if (corefHandler.hasCorefToResolve(mention)) {
+      val corefRelations = state.allMentions.filter(m => m.matches(EidosSystem.COREF_LABEL)) // fixme
       corefRelations.exists(cr => cr.arguments.values.toSeq.flatten.contains(mention))
     }
     else false
   }
 
-  def hasCorefToResolve(m: Mention): Boolean = {
-    m match {
-      case tb: TextBoundMention => EidosActions.startsWithCorefDeterminer(tb)
-      case rm: RelationMention => EidosActions.existsDeterminerCause(rm)
-      case em: EventMention => EidosActions.existsDeterminerCause(em)
-      case _ => false
-    }
-  }
+
 
   def isContentPOS(tag: String): Boolean = StopwordManager.CONTENT_POS_PREFIXES.exists(prefix => tag.startsWith(prefix))
 
@@ -110,11 +104,12 @@ object StopwordManager {
   val STOP_POS: Set[String] = Set("CD")
   val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "PERSON", "PLACE", "SET", "TIME")
 
-  def apply(stopwordsPath: String, transparentPath: String) = new StopwordManager(stopwordsPath, transparentPath)
+  def apply(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) = new StopwordManager(stopwordsPath, transparentPath, corefHandler)
 
   def fromConfig(config: Config) = {
     val stopwordsPath: String = config[String]("stopWordsPath")
     val transparentPath: String = config[String]("transparentPath")
-    apply(stopwordsPath, transparentPath)
+    val corefHandler: CorefHandler = CorefHandler.fromConfig(config)
+    apply(stopwordsPath, transparentPath, corefHandler)
   }
 }
