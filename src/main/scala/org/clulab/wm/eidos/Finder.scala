@@ -129,15 +129,24 @@ case class Dependencies(validIncoming: Set[Regex], invalidIncoming: Set[Regex], 
 
 trait ContentManager {
   def isContent(s: String): Boolean
+  def isCanonical(lemma: String, tag: String, ner: String): Boolean
 }
 
-class StopTransparentContentManager(stopWords: Set[String], transparentWords: Set[String]) extends ContentManager {
+class StopTransparentContentManager(stopWords: Set[String], transparentWords: Set[String], stopNER: Set[String]) extends ContentManager {
   def isContent(s: String): Boolean = !isStop(s) && !isTransparent(s)
   def isStop(s:String): Boolean = stopWords.contains(s)
   def isTransparent(s: String): Boolean = transparentWords.contains(s)
+
+  def isCanonical(lemma: String, tag: String, ner: String): Boolean = {
+    // Valid POS, not a stop/transparent word, and not a named entity we're choosing to ignore
+    // todo: lemma for isContent?  if so, let's rename the method or its args
+    EidosUtils.isContentTag(tag) && isContent(lemma) && !stopNER.contains(ner)
+  }
 }
 
-
+object EidosUtils {
+  def isContentTag(tag: String): Boolean = tag.startsWith("NN") || tag.startsWith("VB")
+}
 
 // -------------------------------
 //         PostProcessing
@@ -149,12 +158,13 @@ trait PostProcessingStep {
 
 class PostProcessor(steps: Seq[PostProcessingStep], serializer: EidosSerializer) {
   def toEidosMention(m: Mention): EidosMention = ???
+  // todo: we should add `copy` methods to each type of EidosMention (and the super class) sot that we can rapidly
+  // create the new ones with additional post processing
 
   def process(mentions: Seq[Mention]): AnnotatedDocument = {
     val eidosMentions = mentions.map(toEidosMention)
-    //
-    // now apply all the additional non-Antlr steps such as solving contractions, normalization, post-processing
-    //
+
+    // Apply all post-processing steps (e.g., canonicalizing, grounding, etc.)
     var postProcessedMentions = eidosMentions
     for(step <- steps) {
       postProcessedMentions = step.process(postProcessedMentions)
