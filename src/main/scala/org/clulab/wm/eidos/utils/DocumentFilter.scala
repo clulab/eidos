@@ -37,9 +37,12 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
   }
 
   def sanitizeText(doc: Document): Option[String] = doc.text.map { text =>
+    // Assume that these characters are never parts of words.
     var newText = text.replace('\n', ' ').replace(0x0C.toChar, ' ')
     for (s <- doc.sentences if s.endOffsets.last < newText.size) {
-      newText = newText.updated(s.endOffsets.last, '\n')
+      // Only perform this if it isn't part of a word.  A space is most reliable.
+      if (newText(s.endOffsets.last) == ' ')
+        newText = newText.updated(s.endOffsets.last, '\n')
     }
     newText
   }
