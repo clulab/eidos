@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.serialization.json
 
+import java.io.File
 import java.time.LocalDateTime
 
 import org.clulab.serialization.json.stringify
@@ -13,6 +14,9 @@ import org.json4s.jackson.JsonMethods._
 import JLDDeserializer.DocumentMap
 import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.apps.ExtractFromDirectory.adjectiveGrounder
+import org.clulab.wm.eidos.apps.ExtractFromDirectory.inputDir
+import org.clulab.wm.eidos.apps.ExtractFromDirectory.reader
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
@@ -21,6 +25,8 @@ import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.ProvenanceMap
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.JArray
 
 import scala.collection.Seq
@@ -175,6 +181,7 @@ class TestJLDDeserializer extends ExtractionTest {
     }
 
     it should "deserialize Sentence from jsonld" in {
+      val documentText = "Contents.  IntErnatIonal cErEal PrIcES ..............."
       val json = """
         |[ {
         |  "@type" : "Sentence",
@@ -292,7 +299,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |  } ]
         |} ]""".stripMargin
       val sentencesValue = parse(json)
-      val sentenceSpec = new JLDDeserializer().deserializeSentences(sentencesValue)
+      val sentenceSpec = new JLDDeserializer().deserializeSentences(sentencesValue, documentText)
     }
 
     it should "deserialize Interval from jsonld" in {
@@ -642,7 +649,17 @@ class TestJLDDeserializer extends ExtractionTest {
 
       oldLineCount should be (newLineCount)
       oldJson.size should be (newJson.size)
-      oldJson should be (newJson) // Not identical are p3s2 p3
+      oldJson should be (newJson)
+    }
+  }
+
+  def testFiles(directoryName: String): Unit = {
+    val files = findFiles(directoryName, "txt")
+
+    files.foreach { file =>
+      val text = FileUtils.getTextFromFile(file)
+
+      testCorpus(text, file.getName())
     }
   }
 
@@ -690,9 +707,9 @@ class TestJLDDeserializer extends ExtractionTest {
     testCorpus(fullText, "fullText")
   }
 
-  testParts()
-  testSentences()
-  testParagraphs()
-  testDocuments()
-//  testFiles()
+//  testParts()
+//  testSentences()
+//  testParagraphs()
+//  testDocuments()
+  testFiles("../corpora/Doc52/txt")
 }
