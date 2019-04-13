@@ -8,7 +8,6 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.SynPath
 import org.clulab.odin.TextBoundMention
-import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Edge
@@ -92,7 +91,7 @@ object JLDDeserializer {
 
 class JLDDeserializer {
   import org.clulab.wm.eidos.serialization.json.JLDDeserializer._
-  implicit val formats = org.json4s.DefaultFormats
+  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
   protected def requireType(jValue: JValue, typeName: String): Unit =
       require((jValue \ "@type").extract[String] == typeName)
@@ -140,7 +139,7 @@ class JLDDeserializer {
 
   def deserializeTimeInterval(timeIntervalValue: JValue): TimeStep = {
     requireType(timeIntervalValue, JLDTimeInterval.typename)
-    val timeIntervalId = id(timeIntervalValue) // This is never used, so why do we have it?
+    val _ = id(timeIntervalValue) // This is never used, so why do we have it?
     val startOpt = (timeIntervalValue \ "start").extractOpt[String]
     val endOpt = (timeIntervalValue \ "end").extractOpt[String]
     val startDateOpt = startOpt.map(LocalDateTime.parse)
@@ -171,7 +170,7 @@ class JLDDeserializer {
     val endOffset = (geoIdValue \ "endOffset").extract[Int]
     val text = (geoIdValue \ "text").extract[String]
     val geoId = (geoIdValue \ "geoID").extractOpt[String].map(Integer.parseInt)
-    val geoPhraseId = new GeoPhraseID(text, geoId, startOffset, endOffset)
+    val geoPhraseId = GeoPhraseID(text, geoId, startOffset, endOffset)
 
     new IdAndGeoPhraseId(geoIdId, geoPhraseId)
   }
@@ -202,7 +201,16 @@ class JLDDeserializer {
     edge
   }
 
-  def deserializeSentences(sentencesValue: JValue): SentencesSpec = {
+  protected def mkRaw(idsAndWordSpecs: Array[IdAndWordSpec], documentText: String): Array[String] = {
+    idsAndWordSpecs.map { idAndWordSpec =>
+      val wordSpec = idAndWordSpec.value
+      val word = documentText.substring(wordSpec.startOffset, wordSpec.endOffset)
+
+      word
+    }
+  }
+
+  def deserializeSentences(sentencesValue: JValue, documentText: String): SentencesSpec = {
     // Keep global map because references can be used outside of this sentence context.
     var timexes: List[Seq[TimeInterval]] = List.empty
     var timexMap: Map[String, TimeInterval] = Map.empty
@@ -212,18 +220,23 @@ class JLDDeserializer {
     val idsAndSentences = sentencesValue.extract[JArray].arr.map { sentenceValue: JValue =>
       requireType(sentenceValue, JLDSentence.typename)
       val sentenceId = id(sentenceValue)
-      val raw: Array[String] = (sentenceValue \ "text").extract[String].split(' ')
 
       val idsAndWordSpecs = (sentenceValue \ "words").extract[JArray].arr.map(deserializeWordData).toArray
       val wordMap = idsAndWordSpecs.indices.map(index => idsAndWordSpecs(index).id -> index).toMap // why not directly to wordspec?
+      // This doesn't work if there are double spaces in the text.  Too many elements will be made.
+      // val raw: Array[String] = (sentenceValue \ "text").extract[String].split(' ')
+      val raw = mkRaw(idsAndWordSpecs, documentText)
+      val graphMap = (sentenceValue \ "dependencies").extractOpt[JArray].map { dependenciesValue =>
+        val dependencies = dependenciesValue.arr.map { dependencyValue: JValue =>
+          deserializeDependency(dependencyValue, wordMap)
+        }
+        val sourceRoots = dependencies.map(_.source).toSet
+        val destinationRoots = dependencies.map(_.destination).toSet
+        val roots = sourceRoots ++ destinationRoots
+        val graph = DirectedGraph[String](dependencies, roots)
 
-      val dependencies = (sentenceValue \ "dependencies").extract[JArray].arr.map { dependencyValue: JValue =>
-        deserializeDependency(dependencyValue, wordMap)
-      }
-      val sourceRoots = dependencies.map(_.source).toSet
-      val destinationRoots = dependencies.map(_.destination).toSet
-      val roots = sourceRoots ++ destinationRoots
-      val graph = DirectedGraph[String](dependencies, roots)
+        GraphMap(Map(GraphMap.UNIVERSAL_ENHANCED -> graph))
+      }.getOrElse(new GraphMap)
 
       val idsAndTimexes = (sentenceValue \ "timexes").extractOpt[JArray].map { jArray =>
         jArray.arr.map(deserializeTimex)
@@ -247,7 +260,7 @@ class JLDDeserializer {
       sentence.norms = Some(idsAndWordSpecs.map(it => it.value.norm))
       sentence.chunks = Some(idsAndWordSpecs.map(it => it.value.chunk))
       sentence.syntacticTree = None // Documented
-      sentence.graphs = GraphMap(Map(GraphMap.UNIVERSAL_ENHANCED -> graph))
+      sentence.graphs = graphMap
       sentence.relations = None // Documented
       new IdAndSentence(sentenceId, sentence)
     }
@@ -288,8 +301,10 @@ class JLDDeserializer {
   protected def deserializePluralProvenance(provenanceValue: JValue, documentMap: DocumentMap,
       documentSentenceMap: DocumentSentenceMap): Provenance = {
     val provenanceValues: JArray = provenanceValue.asInstanceOf[JArray]
-    require(provenanceValues.arr.size == 1)
-
+    require(provenanceValues.arr.size >= 1)
+    // In all cases, the additional provenance is thrown away.  It is recorded for a
+    // relation/coreference, but the value is taken directly from the arguments and
+    // it is superfluous.
     deserializeSingularProvenance(provenanceValues.arr.head, documentMap, documentSentenceMap)
   }
 
@@ -303,7 +318,8 @@ class JLDDeserializer {
     val title = (documentValue \ "title").extractOpt[String]
     val text = (documentValue \ "text").extractOpt[String]
     val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ "dct").extractOpt[JValue]))
-    val sentencesSpec = deserializeSentences(documentValue \ "sentences")
+    // Text is required here!  Can't otherwise make raw for sentences.
+    val sentencesSpec = deserializeSentences(documentValue \ "sentences", text.get)
     val timexCount = sentencesSpec.timexes.map(_.size).sum
     val geolocsCount = sentencesSpec.geolocs.map(_.size).sum
     val sentences = sentencesSpec.sentences
@@ -335,7 +351,8 @@ class JLDDeserializer {
 
     nothingToNone(argumentsValueOpt).foreach { argumentsValue =>
       val argumentsValues: JArray = argumentsValue.asInstanceOf[JArray]
-      val arguments = argumentsValues.arr.map { argumentsValue =>
+
+      argumentsValues.arr.map { argumentsValue =>
         requireType(argumentsValue, JLDArgument.typename)
         val name = (argumentsValue \ "type").extract[String]
         val argumentId = id(argumentsValue \ "value")
@@ -345,10 +362,10 @@ class JLDDeserializer {
           // It is done this way to keep the values in order
           val newValues = oldValues :+ argumentId
 
-          argumentMap += (name -> newValues)
+          argumentMap += name -> newValues
         }
         else
-          argumentMap += (name -> List(argumentId))
+          argumentMap += name -> List(argumentId)
       }
     }
     argumentMap
@@ -455,24 +472,27 @@ class JLDDeserializer {
       documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap, timexMap: TimexMap,
       geolocMap: GeolocMap, provenanceMap: ProvenanceMap, dctMap: DctMap): Mention = {
     requireType(extractionValue, JLDExtraction.typename)
-    val extractionId = extraction.id
     val extractionType = extraction.extractionType
     val extractionSubtype = extraction.extractionSubtype
     val labels = (extractionValue \ "labels").extract[List[String]]
     val tokenInterval = extraction.provenance.interval
-    val triggerOpt: Option[TextBoundMention] = extraction.triggerProvenanceOpt.map { provenance =>
-      mentionMap(provenanceMap(provenance)).asInstanceOf[TextBoundMention]
-    }
     val sentence = extraction.provenance.sentence
     val document = extraction.provenance.document
     val keep = true // Documented
     val foundBy = (extractionValue \ "rule").extract[String]
     val paths: Map[String, Map[Mention, SynPath]] = Map.empty // Documented
     val misnamedArguments: Map[String, Seq[Mention]] = extraction.argumentMap.map { case (name, ids) =>
-      (name -> ids.map { id => mentionMap(id) })
+      name -> ids.map { id => mentionMap(id) }
     }
     val attachments: Set[Attachment] = deserializeStates((extractionValue \ "states").extractOpt[JArray],
         documentMap, documentSentenceMap, timexMap, geolocMap, dctMap)
+    val triggerOpt: Option[TextBoundMention] = extraction.triggerProvenanceOpt.map { provenance =>
+      val triggerSentence = provenance.sentence
+      val triggerDocument = provenance.document
+
+      new TextBoundMention(labels, provenance.interval, triggerSentence, triggerDocument, keep, foundBy) // See GraphPattern, line 100.
+      //      mentionMap(provenanceMap(provenance)).asInstanceOf[TextBoundMention]
+    }
     val mention =
         if (extractionType == "concept" && extractionSubtype == "entity") {
           require(triggerOpt.isEmpty)
@@ -485,8 +505,8 @@ class JLDDeserializer {
           require(misnamedArguments.get("source").nonEmpty)
           require(misnamedArguments.get("destination").nonEmpty)
           val renamedArguments: Map[String, Seq[Mention]] = Map(
-            ("cause" -> misnamedArguments("source")),
-            ("effect" -> misnamedArguments("destination"))
+            "cause" -> misnamedArguments("source"),
+            "effect" -> misnamedArguments("destination")
           )
           new EventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
               keep, foundBy, attachments)
@@ -497,8 +517,8 @@ class JLDDeserializer {
           require(misnamedArguments.get("argument").nonEmpty)
           require(misnamedArguments("argument").size == 2)
           val renamedArguments: Map[String, Seq[Mention]] = Map(
-            ("cause" -> Seq(misnamedArguments("argument")(0))),
-            ("effect" -> Seq(misnamedArguments("argument")(1)))
+            "cause" -> Seq(misnamedArguments("argument").head),
+            "effect" -> Seq(misnamedArguments("argument")(1))
           )
           new EventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
               keep, foundBy, attachments)
@@ -510,13 +530,13 @@ class JLDDeserializer {
           require(misnamedArguments.get("reference").nonEmpty)
           require(misnamedArguments.get("anchor").size == 1)
           require(misnamedArguments.get("reference").size == 1)
-          val anchor = misnamedArguments("anchor")(0)
-          val neighbor = misnamedArguments("reference")(0)
+          val anchor = misnamedArguments("anchor").head
+          val neighbor = misnamedArguments("reference").head
           // These arguments seem to get duplicated from the anchor and neighbor.
           // See org.clulab.odin.impl.CrossSentenceExtractor.mkMention.
           val renamedArguments: Map[String, Seq[Mention]] = Map(
-            ("cause" -> misnamedArguments("anchor")),
-            ("effect" -> misnamedArguments("reference"))
+            "cause" -> misnamedArguments("anchor"),
+            "effect" -> misnamedArguments("reference")
           )
           new CrossSentenceMention(labels, anchor, neighbor, renamedArguments, document,
               keep, foundBy, attachments)
@@ -535,14 +555,14 @@ class JLDDeserializer {
 
     // TODO don't pass so many variables, only ones that change!
     def isRipe(extraction: Extraction): Boolean = {
-      val hasAllArguments = extraction.argumentMap.forall { case (key, mentionIds) =>
+      val hasAllArguments = extraction.argumentMap.forall { case (_, mentionIds) =>
         mentionIds.forall { mentionId =>
-          (mentionMap.contains(mentionId))
+          mentionMap.contains(mentionId)
         }
       }
-      val hasTrigger = extraction.triggerProvenanceOpt.forall(provenanceMap.contains)
+//      val hasTrigger = extraction.triggerProvenanceOpt.forall(provenanceMap.contains)
 
-      hasAllArguments && hasTrigger
+      hasAllArguments // && hasTrigger
     }
 
     if (extractions.isEmpty)
@@ -575,16 +595,16 @@ class JLDDeserializer {
   }
 
   protected def removeTriggerOnlyMentions(mentions: Seq[Mention]): Seq[Mention] = {
-    var argumentMentions = mentions.flatMap { mention => mention.arguments.values.flatten }
-    var triggerMentions = mentions.collect {
+    val argumentMentions = mentions.flatMap { mention => mention.arguments.values.flatten }
+    val triggerMentions = mentions.collect {
       case eventMention: EventMention => eventMention.trigger
     }
-    var triggerOnlyMentions = triggerMentions.filter { triggerMention =>
+    val triggerOnlyMentions = triggerMentions.filter { triggerMention =>
       !argumentMentions.exists { argumentMention =>
         triggerMention.eq(argumentMention) // eq is important here
       }
     }
-    var remainingMentions = mentions.filter { mention =>
+    val remainingMentions = mentions.filter { mention =>
       !triggerOnlyMentions.exists { triggerOnlyMention =>
         mention.eq(triggerOnlyMention)
       }
