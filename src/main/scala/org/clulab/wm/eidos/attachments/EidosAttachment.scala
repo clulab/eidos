@@ -85,7 +85,9 @@ case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[Strin
     triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
 
 
-case class Provenance(document: Document, sentence: Int, interval: Interval)
+case class Provenance(document: Document, sentence: Int, interval: Interval) extends Comparable[Provenance] {
+  override def compareTo(other: Provenance): Int = Provenance.compare(this, other)
+}
 
 object Provenance {
   def apply(mention: Mention): Provenance = {
@@ -94,6 +96,32 @@ object Provenance {
     val interval: Interval = mention.tokenInterval
 
     Provenance(document, sentence, interval)
+  }
+
+  def compare(left: Provenance, right: Provenance): Int = {
+    require(left.document.eq(right.document))
+
+    val leftSentence = left.sentence
+    val rightSentence = right.sentence
+
+    if (leftSentence != rightSentence)
+      leftSentence - rightSentence
+    else {
+      val leftStart = left.interval.start
+      val rightStart = right.interval.start
+
+      if (leftStart != rightStart)
+        leftStart - rightStart
+      else {
+        val leftEnd = left.interval.end
+        val rightEnd = right.interval.end
+
+        if (leftEnd != rightEnd)
+          leftEnd - rightEnd
+        else
+          0
+      }
+    }
   }
 }
 
