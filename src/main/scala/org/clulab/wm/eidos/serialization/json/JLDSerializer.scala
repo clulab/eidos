@@ -4,6 +4,10 @@ import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
 
+import org.clulab.odin.CrossSentenceMention
+import org.clulab.odin.EventMention
+import org.clulab.odin.RelationMention
+import org.clulab.odin.TextBoundMention
 import org.clulab.odin.{Attachment, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
@@ -599,7 +603,10 @@ class JLDWord(serializer: JLDSerializer, val document: Document, val sentence: S
 
     val startOffset = sentence.startOffsets(index)
     val endOffset = sentence.endOffsets(index)
-    val jldText: Option[String] = document.text.map(text => text.substring(startOffset, endOffset))
+    // This used to use the raw text and not show the processed word.  However, that does not work well
+    // when we round-trip the data, because the conversion from raw to processed does not take place then.
+    // val jldText: Option[String] = document.text.map(text => text.substring(startOffset, endOffset))
+    val jldText: Option[String] = Some(sentence.words(index))
 
     TidyJObject(List(
       serializer.mkType(this),
@@ -719,6 +726,28 @@ object JLDDCT {
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
     extends JLDObject(serializer, JLDSentence.typename, sentence) {
 
+  protected def getSentenceText(sentence: Sentence): String = getSentenceFragmentText(sentence, 0, sentence.words.length)
+
+  // This and the one above are copied almost verbatim from Sentence.scala.  We can't readily
+  // use the version with the raw text because when the words are read back in, the conversion
+  // is not performed again.
+  protected def getSentenceFragmentText(sentence: Sentence, start: Int, end: Int): String = {
+    if (end - start == 1) return sentence.raw(start)
+
+    val text = new mutable.StringBuilder()
+    for (i <- start until end) {
+      if(i > start) {
+        // add as many white spaces as recorded between tokens
+        val numberOfSpaces = math.max(1, sentence.startOffsets(i) - sentence.endOffsets(i - 1))
+        for (j <- 0 until numberOfSpaces) {
+          text.append(" ")
+        }
+      }
+      text.append(sentence.words(i)) // Changed from raw
+    }
+    text.toString()
+  }
+
   override def toJObject: TidyJObject = {
     val key = GraphMap.UNIVERSAL_ENHANCED
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
@@ -736,7 +765,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      "text" -> sentence.getSentenceText,
+      "text" -> getSentenceText(sentence),
       JLDWord.plural -> jldWords.map(_.toJObject),
       JLDDependency.plural -> jldGraphMapPair,
       JLDTimex.plural -> timexes,
@@ -819,56 +848,86 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
   case class SortRecord(document: Document, documentIndex: Int, jldExtraction: JLDExtraction, mention: Mention)
 
-  protected def sortJldExtractions(jldExtractions: Seq[JLDExtraction], corpus: Corpus): Seq[JLDExtraction] = {
+  protected def compare(leftProvenances: Seq[Provenance], rightProvenances: Seq[Provenance]): Int = {
+    if (leftProvenances.isEmpty != rightProvenances.isEmpty)
+      if (leftProvenances.isEmpty) -1
+      else +1
+    else {
+      if (leftProvenances.isEmpty) 0 // They both are.
+      else {
+        val leftProvenance = leftProvenances.head
+        val rightProvenance = rightProvenances.head
+        val provenanceComparison = leftProvenance.compareTo(rightProvenance)
+
+        if (provenanceComparison != 0)
+          provenanceComparison
+        else
+          compare(leftProvenances.tail, rightProvenances.tail)
+      }
+    }
+  }
+
+  def lessThan(mapOfDocuments: JIdentityHashMap[Document, Int])(left: JLDExtraction, right: JLDExtraction): Boolean = {
     val ordering = Array(
       JLDConceptEntity.subtypeString,
       JLDRelationCausation.subtypeString,
       JLDRelationCorrelation.subtypeString,
       JLDRelationCoreference.subtypeString
     )
+    val leftOdinMention = left.eidosMention.odinMention
+    val rightOdinMention = right.eidosMention.odinMention
+    val leftDocumentIndex = mapOfDocuments.get(leftOdinMention.document)
+    val rightDocumentIndex = mapOfDocuments.get(rightOdinMention.document)
 
-    val mapOfDocuments = new JIdentityHashMap[Document, Int]()
+    if (leftDocumentIndex != rightDocumentIndex)
+      leftDocumentIndex < rightDocumentIndex
+    else {
+      val provenanceComparison = Provenance(leftOdinMention).compareTo(Provenance(rightOdinMention))
 
-    def lt(left: JLDExtraction, right: JLDExtraction): Boolean = {
-      val leftOdinMention = left.eidosMention.odinMention
-      val rightOdinMention = right.eidosMention.odinMention
-
-      val leftDocumentIndex = mapOfDocuments.get(leftOdinMention.document)
-      val rightDocumentIndex = mapOfDocuments.get(rightOdinMention.document)
-
-      if (leftDocumentIndex != rightDocumentIndex)
-        leftDocumentIndex < rightDocumentIndex
+      if (provenanceComparison != 0)
+        provenanceComparison < 0
       else {
-        val leftStartOffset = leftOdinMention.startOffset
-        val rightStartOffset = rightOdinMention.startOffset
+        val leftProvenances = left.getMentions.map { eidosMention => Provenance(eidosMention.odinMention) }.sorted
+        val rightProvenances = right.getMentions.map { eidosMention => Provenance(eidosMention.odinMention) }.sorted
+        val provenanceComparison = compare(leftProvenances, rightProvenances)
 
-        if (leftStartOffset != rightStartOffset)
-          leftStartOffset < rightStartOffset
+        if (provenanceComparison != 0)
+          provenanceComparison < 0
         else {
-          val leftEndOffset = leftOdinMention.endOffset
-          val rightEndOffset = rightOdinMention.endOffset
+          val leftOrdering = ordering.indexOf(left.subtypeString)
+          val rightOrdering = ordering.indexOf(right.subtypeString)
 
-          if (leftEndOffset != rightEndOffset)
-            leftEndOffset < rightEndOffset
+          if (leftOrdering != rightOrdering)
+            leftOrdering < rightOrdering
           else {
-            val leftOrdering = ordering.indexOf(left.subtypeString)
-            val rightOrdering = ordering.indexOf(right.subtypeString)
+            if ((leftOrdering == 1 && rightOrdering == 1) || (leftOrdering == 2 && rightOrdering == 2)) {
+              val leftTrigger = leftOdinMention.asInstanceOf[EventMention].trigger
+              val rightTrigger = rightOdinMention.asInstanceOf[EventMention].trigger
+              val leftProvenance = Provenance(leftTrigger)
+              val rightProvenance = Provenance(rightTrigger)
+              val provenanceComparison = compare(leftProvenances, rightProvenances)
 
-            if (leftOrdering != rightOrdering)
-              leftOrdering < rightOrdering
+              if (provenanceComparison != 0)
+                provenanceComparison < 0
+              else
+                // try for attachments?
+                true
+            }
             else
-              // Give advantage to initial ordering
               true
           }
         }
       }
     }
+  }
 
+  protected def sortJldExtractions(jldExtractions: Seq[JLDExtraction], corpus: Corpus): Seq[JLDExtraction] = {
+    val mapOfDocuments = new JIdentityHashMap[Document, Int]()
     corpus.foreach { annotatedDocument =>
       mapOfDocuments.put(annotatedDocument.document, mapOfDocuments.size() + 1)
     }
 
-    val sortedJldExtractions = jldExtractions.sortWith(lt)
+    val sortedJldExtractions = jldExtractions.sortWith(lessThan(mapOfDocuments))
 
     // This is definitely the hack!  Make so that extractions are numbered nicely 1..n,
     // even though they have been discovered in a different order.
