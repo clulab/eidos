@@ -21,6 +21,7 @@ import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.ProvenanceMap
+import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.JArray
@@ -630,11 +631,12 @@ class TestJLDDeserializer extends ExtractionTest {
 
   def testCorpus(text: String, name: String) = {
     it should "deserialize corpus " + name + " from jsonld" in {
-      // with and without time, geonorm
+      val canonicalizer = new Canonicalizer(ieSystem.stopwordManager)
+
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, ieSystem.canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')
