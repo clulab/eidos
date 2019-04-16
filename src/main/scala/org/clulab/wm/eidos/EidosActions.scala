@@ -1,21 +1,17 @@
 package org.clulab.wm.eidos
 
+import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
-import org.clulab.odin.impl.Taxonomy
-import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils, MentionUtils}
+import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.struct.Interval
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.Constructor
-
 import utils.DisplayUtils.{displayMention, shortDisplay}
-import org.clulab.wm.eidos.actions.ExpansionHandler
+import org.clulab.wm.eidos.actions.{CorefHandler, ExpansionHandler}
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
-import org.clulab.wm.eidos.entities.{EntityConstraints, EntityHelper}
 
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
@@ -24,24 +20,22 @@ import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
 //TODO: need to add polarity flipping
 
-class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandler) extends Actions with LazyLogging {
+class EidosActions(val expansionHandler: Option[ExpansionHandler], val coref: Option[CorefHandler]) extends Actions with LazyLogging {
 
   /*
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    // expand arguments
-    val (expandable, textBounds) = mentions.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
-    val expanded = expansionHandler.expandArguments(expandable, state)
-    val mostComplete = keepMostCompleteEvents(expanded, state.updated(expanded))
-    val result = mostComplete ++ textBounds
-
+    // Expand mentions, if enabled
+    val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
     // Merge attachments
-    val merged = mergeAttachments(result, state.updated(result))
+    val merged = mergeAttachments(expanded, state.updated(expanded))
+    // Keep only the most complete version of any given Mention
+    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
 
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
-    val (causal, nonCausal) = merged.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val (causal, nonCausal) = mostComplete.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
 
     val assemble1 = createEventChain(causal, "effect", "cause")
     // FIXME please
@@ -53,76 +47,16 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     // In Kenya , the shortened length of the main growing season , due in part to a delayed onset of seasonal rainfall , coupled with long dry spells and below-average rainfall is resulting in below-average production prospects in large parts of the eastern , central , and southern Rift Valley .
     val modifiedMentions = assemble2 ++ nonCausal
 
-    // Basic coreference
-    val afterResolving = basicDeterminerCoref(modifiedMentions, state)
+    // Basic coreference, if enabled
+    val afterResolving = coref.map(_.resolveCoref(modifiedMentions, state)).getOrElse(modifiedMentions)
 
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
     afterResolving
   }
 
-  def basicDeterminerCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    val (eventMentions, otherMentions) = mentions.partition(_.isInstanceOf[EventMention])
 
-    if (eventMentions.isEmpty) mentions
-    else {
-      val orderedBySentence = eventMentions.groupBy(_.sentence)
-      val numSentences = eventMentions.head.document.sentences.length
 
-      if (orderedBySentence.isEmpty) mentions
-      else {
-        val resolvedMentions = new ArrayBuffer[Mention]
 
-        for (i <- 1 until numSentences) {
-          for (mention <- orderedBySentence.getOrElse(i, Seq.empty[Mention])) {
-
-            // If there is an event with "this/that" as cause...
-            if (EidosActions.existsDeterminerCause(mention)) {
-
-              // Get Causal mentions from the previous sentence (if any)
-              val prevSentenceCausal = getPreviousSentenceCausal(orderedBySentence, i)
-              if (prevSentenceCausal.nonEmpty) {
-
-                // If there was also a causal event in the previous sentence
-                val lastOccurring = prevSentenceCausal.sortBy(-_.tokenInterval.end).head
-                // antecedant
-                val prevEffects = lastOccurring.arguments("effect")
-                // reference
-                val currCauses = mention.asInstanceOf[EventMention].arguments("cause")
-                if (prevEffects.nonEmpty && currCauses.nonEmpty) {
-                  // todo: cover if there is more than one effect?
-                  val antecedent = prevEffects.head
-                  val anaphor = currCauses.head
-                  // Make a new CrossSentence mention using the previous effect as the anchor
-                  // Note: Overly simplistic, this is a first pass
-                  // todo: expand approach
-                  val corefMention = new CrossSentenceMention(
-                    labels = taxonomy.hypernymsFor(EidosSystem.COREF_LABEL),
-                    anchor = antecedent,
-                    neighbor = anaphor,
-                    arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(antecedent)), (EidosActions.ANAPHOR, Seq(anaphor))),
-                    document = mention.document,
-                    keep = true,
-                    foundBy = s"BasicCorefAction_ant:${lastOccurring.foundBy}_ana:${mention.foundBy}",
-                    attachments = Set.empty[Attachment]
-                  )
-                  resolvedMentions.append(corefMention)
-
-                } else throw new RuntimeException(s"Previous or current Causal mention doesn't have effects " +
-                  s"\tsent1: ${lastOccurring.sentenceObj.getSentenceText}\n" +
-                  s"\tsent2 ${mention.sentenceObj.getSentenceText}")
-              }
-            }
-          }
-        }
-        mentions ++ resolvedMentions
-      }
-    }
-  }
-
-  def getPreviousSentenceCausal(orderedBySentence: Map[Int, Seq[Mention]], i: Int): Seq[Mention] = {
-    val prevSentenceMentions = orderedBySentence.getOrElse(i - 1, Seq.empty[Mention])
-    prevSentenceMentions.filter(_ matches EidosSystem.CAUSAL_LABEL)
-  }
 
   def createEventChain(causal: Seq[Mention], arg1: String, arg2: String): Seq[Mention] = {
     val arg1Mentions = State(causal.flatMap(_.arguments.getOrElse(arg1, Nil)))
@@ -168,10 +102,6 @@ class EidosActions(val taxonomy: Taxonomy, val expansionHandler: ExpansionHandle
     newBest
   }
 
-  /**
-    * @author Gus Hahn-Powell
-    *         Copies the label of the lowest overlapping entity in the taxonomy
-    */
   def customAttachmentFilter(mentions: Seq[Mention]): Seq[Mention] = {
 
     // --- To distinguish between :
@@ -527,22 +457,17 @@ object EidosActions extends Actions {
   val ANTECEDENT: String = "antecedent"
   val ANAPHOR: String = "anaphor"
 
-  def apply(taxonomyPath: String, expansionHandler: ExpansionHandler) =
-      new EidosActions(readTaxonomy(taxonomyPath), expansionHandler)
+  def fromConfig(config: Config): EidosActions = {
+    val useCoref: Boolean = config[Boolean]("useCoref")
+    val corefHandler = if (useCoref) Some(CorefHandler.fromConfig(config)) else None
 
-  private def readTaxonomy(path: String): Taxonomy = {
-    val input = FileUtils.getTextFromResource(path)
-    val yaml = new Yaml(new Constructor(classOf[java.util.Collection[Any]]))
-    val data = yaml.load(input).asInstanceOf[java.util.Collection[Any]]
-    Taxonomy(data)
+    val useExpansion: Boolean = config[Boolean]("useExpansion")
+    val expansionHandler = if (useExpansion) Some(ExpansionHandler.fromConfig(config)) else None
+
+    new EidosActions(expansionHandler, corefHandler)
   }
 
-  def existsDeterminerCause(mention: Mention): Boolean = {
-    startsWithCorefDeterminer(mention.arguments("cause").head)
-  }
 
-  def startsWithCorefDeterminer(m: Mention): Boolean = {
-    val corefDeterminers = COREF_DETERMINERS
-    corefDeterminers.exists(det => m.text.toLowerCase.startsWith(det))
-  }
+
+
 }
