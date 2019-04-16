@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.serialization.json
 
-import java.io.File
 import java.time.LocalDateTime
 
 import org.clulab.serialization.json.stringify
@@ -14,9 +13,6 @@ import org.json4s.jackson.JsonMethods._
 import JLDDeserializer.DocumentMap
 import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.apps.ExtractFromDirectory.adjectiveGrounder
-import org.clulab.wm.eidos.apps.ExtractFromDirectory.inputDir
-import org.clulab.wm.eidos.apps.ExtractFromDirectory.reader
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimeInterval
@@ -37,7 +33,7 @@ class TestJLDDeserializer extends ExtractionTest {
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
-    val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString)
+    val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
     val annotatedDocument = ieSystem.extractFromText(text, keepText = true, cagRelevantOnly = true,
       documentCreationTime, filename = None)
 
@@ -711,5 +707,5 @@ class TestJLDDeserializer extends ExtractionTest {
 //  testSentences()
 //  testParagraphs()
 //  testDocuments()
-  testFiles("../corpora/Doc52/txt")
+  testFiles("../corpora/Doc1/txt")
 }

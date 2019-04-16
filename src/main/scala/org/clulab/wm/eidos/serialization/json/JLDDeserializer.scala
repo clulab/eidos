@@ -144,7 +144,7 @@ class JLDDeserializer {
     val endOpt = (timeIntervalValue \ "end").extractOpt[String]
     val startDateOpt = startOpt.map(LocalDateTime.parse)
     val endDateOpt = endOpt.map(LocalDateTime.parse)
-    val duration = (timeIntervalValue \ "duration").extract[Int]
+    val duration = (timeIntervalValue \ "duration").extract[Long]
 
     TimeStep(startDateOpt, endDateOpt, duration)
   }
@@ -178,7 +178,10 @@ class JLDDeserializer {
   def deserializeWordData(wordDataValue: JValue): IdAndWordSpec = {
     requireType(wordDataValue, JLDWord.typename)
     val wordId = id(wordDataValue)
-    val text = (wordDataValue \ "text").extract[String]
+    // extractOpt is necessary because now the processed word is being stored rather than
+    // the raw one.  The processed version can be empty in which case it will be tidied on
+    // serialization and not be available here.
+    val text = (wordDataValue \ "text").extractOpt[String].getOrElse("")
     val tag = (wordDataValue \ "tag").extract[String]
     val entity = (wordDataValue \ "entity").extract[String]
     val startOffset = (wordDataValue \ "startOffset").extract[Int]
@@ -216,8 +219,8 @@ class JLDDeserializer {
     var timexMap: Map[String, TimeInterval] = Map.empty
     var geolocs: List[Seq[GeoPhraseID]] = List.empty
     var geolocMap: Map[String, GeoPhraseID] = Map.empty
-
-    val idsAndSentences = sentencesValue.extract[JArray].arr.map { sentenceValue: JValue =>
+    var sentencesOpt = sentencesValue.extractOpt[JArray].map(_.arr)
+    val idsAndSentences = sentencesOpt.map { sentences => sentences.map { sentenceValue: JValue =>
       requireType(sentenceValue, JLDSentence.typename)
       val sentenceId = id(sentenceValue)
 
@@ -263,8 +266,7 @@ class JLDDeserializer {
       sentence.graphs = graphMap
       sentence.relations = None // Documented
       new IdAndSentence(sentenceId, sentence)
-    }
-
+    }}.getOrElse(List.empty)
     val sentences = idsAndSentences.map(_.value).toArray // Document needs an Array[Sentence]
     // This is because Mention only uses index of sentence in document, not reference to Sentence itself.
     val sentenceMap = idsAndSentences.indices.map { index => idsAndSentences(index).id -> index }.toMap
