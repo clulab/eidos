@@ -92,13 +92,6 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   // Access to new and improved Eidos arguments
   val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, canonicalizer, ontologyGrounder, mentionMapper)
 
-  // kwa
-//  val eidosMentionsFromAttachments: Seq[EidosMention] = {
-//    val attachmentMentions = odinMention.attachments.toSeq.flatMap(_.asInstanceOf[EidosAttachment].attachmentMentions)
-//
-//    EidosMention.asEidosMentions(attachmentMentions, canonicalizer, ontologyGrounder, mentionMapper)
-//  }
-
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
       mentionMapper: MentionMapper): Map[String, Seq[EidosMention]] = {
     odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, canonicalizer, ontologyGrounder, mentionMapper))
@@ -207,7 +200,6 @@ object EidosMention {
       mentionBagger.putIfNew(odinMention, {
         odinMention.arguments.flatMap(_._2).foreach(addMention)
         // Skipping paths
-// kwa       odinMention.attachments.asInstanceOf[Set[EidosAttachment]].flatMap(_.attachmentMentions).foreach(addMention)
         if (odinMention.isInstanceOf[EventMention])
           addMention(odinMention.asInstanceOf[EventMention].trigger)
         if (odinMention.isInstanceOf[CrossSentenceMention]) {

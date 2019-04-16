@@ -27,10 +27,6 @@ abstract class EidosAttachment extends Attachment with Serializable with Quickly
 
   // Support for JSON serialization
   def toJson(): JValue
-
-  // Support for EidosMention which returns any mentions hiding in the attachments
-  // kwa
-//  def attachmentMentions: Seq[Mention] = Seq.empty
 }
 
 object EidosAttachment {
@@ -142,7 +138,6 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
   }
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
-  // kwa: this is hopefully not used yet
   @BeanProperty val sortedQuantifiers: Seq[String] =
       if (quantifiers.isEmpty) Seq.empty
       else quantifiers.get.sorted
@@ -164,18 +159,6 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
 
   def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosTriggeredAttachment =
     new JLDEidosTriggeredAttachment(serializer, kind, this)
-
-  // kwa
-//  override def attachmentMentions: Seq[Mention] = {
-//    val someTriggerMentions =
-//        if (triggerMention.isEmpty) Seq.empty
-//        else Seq(triggerMention.get)
-//    val someQuantifierMentions =
-//        if (quantifierMentions.isEmpty) Seq.empty
-//        else quantifierMentions.get
-//
-//    someTriggerMentions ++ someQuantifierMentions
-//  }
 
   def toJson(label: String): JValue = {
     val quants =
