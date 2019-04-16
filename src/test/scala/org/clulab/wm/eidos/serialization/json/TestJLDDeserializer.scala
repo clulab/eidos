@@ -295,7 +295,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |  } ]
         |} ]""".stripMargin
       val sentencesValue = parse(json)
-      val sentenceSpec = new JLDDeserializer().deserializeSentences(sentencesValue, documentText)
+      val sentenceSpec = new JLDDeserializer().deserializeSentences(sentencesValue, Some(documentText))
     }
 
     it should "deserialize Interval from jsonld" in {
@@ -637,9 +637,6 @@ class TestJLDDeserializer extends ExtractionTest {
       val newCorpus = new JLDDeserializer().deserialize(oldJson, ieSystem.canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
       val newJson = serialize(newCorpus)
 
-      val matches = oldJson == newJson
-      if (!matches)
-        println("Oh no!")
       val oldLineCount = oldJson.count(_ == '\n')
       val newLineCount = newJson.count(_ == '\n')
 
@@ -688,6 +685,9 @@ class TestJLDDeserializer extends ExtractionTest {
     testCorpus(p6s1, "p6s1")
     testCorpus(p6s2, "p6s2")
     testCorpus(p6s3, "p6s3")
+
+    testCorpus("\n", "noSentencesCorpus")
+    testCorpus("", "noTextCorpus")
   }
 
   def testParagraphs() = {
@@ -703,9 +703,11 @@ class TestJLDDeserializer extends ExtractionTest {
     testCorpus(fullText, "fullText")
   }
 
-//  testParts()
-//  testSentences()
-//  testParagraphs()
-//  testDocuments()
-  testFiles("../corpora/Doc1/txt")
+  testParts()
+  testSentences()
+  testParagraphs()
+  testDocuments()
+  // Do not run this last test on Travis, but instead periodically on a real corpus
+  // with all options enabled (useW2V, useTimeNorm, useGeoNorm, etc.)
+//  testFiles("../corpora/Doc52/txt")
 }

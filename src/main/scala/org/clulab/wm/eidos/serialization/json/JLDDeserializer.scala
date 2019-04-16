@@ -149,14 +149,13 @@ class JLDDeserializer {
     TimeStep(startDateOpt, endDateOpt, duration)
   }
 
-  // TODO function name and variable names match text names in file
-  // return type matches type names (left column)
   def deserializeTimex(timexValue: JValue): IdAndTimex = {
     requireType(timexValue, JLDTimex.typename)
     val timexId = id(timexValue)
     val text = (timexValue \ "text").extract[String]
     val startOffset = (timexValue \ "startOffset").extract[Int]
     val endOffset = (timexValue \ "endOffset").extract[Int]
+    // A TimeExpression, if it exists at all, must have intervals; therefore, no extractOpt here.
     val intervals = (timexValue \ "intervals").extract[JArray].arr.map { timeIntervalValue =>
       deserializeTimeInterval(timeIntervalValue)
     }
@@ -204,16 +203,16 @@ class JLDDeserializer {
     edge
   }
 
-  protected def mkRaw(idsAndWordSpecs: Array[IdAndWordSpec], documentText: String): Array[String] = {
+  protected def mkRaw(idsAndWordSpecs: Array[IdAndWordSpec], documentText: Option[String]): Array[String] = {
     idsAndWordSpecs.map { idAndWordSpec =>
       val wordSpec = idAndWordSpec.value
-      val word = documentText.substring(wordSpec.startOffset, wordSpec.endOffset)
+      val word = documentText.get.substring(wordSpec.startOffset, wordSpec.endOffset)
 
       word
     }
   }
 
-  def deserializeSentences(sentencesValue: JValue, documentText: String): SentencesSpec = {
+  def deserializeSentences(sentencesValue: JValue, documentText: Option[String]): SentencesSpec = {
     // Keep global map because references can be used outside of this sentence context.
     var timexes: List[Seq[TimeInterval]] = List.empty
     var timexMap: Map[String, TimeInterval] = Map.empty
@@ -223,7 +222,7 @@ class JLDDeserializer {
     val idsAndSentences = sentencesOpt.map { sentences => sentences.map { sentenceValue: JValue =>
       requireType(sentenceValue, JLDSentence.typename)
       val sentenceId = id(sentenceValue)
-
+      // A sentence, if it exists at all, must have words; therefore, no extractOpt here.
       val idsAndWordSpecs = (sentenceValue \ "words").extract[JArray].arr.map(deserializeWordData).toArray
       val wordMap = idsAndWordSpecs.indices.map(index => idsAndWordSpecs(index).id -> index).toMap // why not directly to wordspec?
       // This doesn't work if there are double spaces in the text.  Too many elements will be made.
@@ -253,6 +252,7 @@ class JLDDeserializer {
       geolocs = geolocs :+ idsAndGeolocs.map(_.value)
       geolocMap = geolocMap ++ idsAndGeolocs.map { idAndGeoloc => idAndGeoloc.id -> idAndGeoloc.value }
 
+      // IntelliJ doesn't like these, but the compiler is OK with them.
       val startOffsets: Array[Int] = idsAndWordSpecs.map(it => it.value.startOffset)
       val endOffsets: Array[Int] = idsAndWordSpecs.map(it => it.value.endOffset)
       val words: Array[String] = idsAndWordSpecs.map(it => it.value.word)
@@ -262,9 +262,9 @@ class JLDDeserializer {
       sentence.entities = Some(idsAndWordSpecs.map(it => it.value.entity))
       sentence.norms = Some(idsAndWordSpecs.map(it => it.value.norm))
       sentence.chunks = Some(idsAndWordSpecs.map(it => it.value.chunk))
-      sentence.syntacticTree = None // Documented
+      sentence.syntacticTree = None // Documented on Wiki
       sentence.graphs = graphMap
-      sentence.relations = None // Documented
+      sentence.relations = None // Documented on Wiki
       new IdAndSentence(sentenceId, sentence)
     }}.getOrElse(List.empty)
     val sentences = idsAndSentences.map(_.value).toArray // Document needs an Array[Sentence]
@@ -292,6 +292,7 @@ class JLDDeserializer {
     val sentenceId = id(provenanceValue \ "sentence")
     val sentence = documentSentenceMap(documentId)(sentenceId)
 
+    // Provenance is always available and therefore extractOpt is not used.
     val sentenceWordPositions = (provenanceValue \ "sentenceWordPositions").extract[JArray].arr.map { intervalValue =>
       deserializeInterval(intervalValue, offset = 1, inclusiveEnd = true)
     }
@@ -321,7 +322,7 @@ class JLDDeserializer {
     val text = (documentValue \ "text").extractOpt[String]
     val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ "dct").extractOpt[JValue]))
     // Text is required here!  Can't otherwise make raw for sentences.
-    val sentencesSpec = deserializeSentences(documentValue \ "sentences", text.get)
+    val sentencesSpec = deserializeSentences(documentValue \ "sentences", text)
     val timexCount = sentencesSpec.timexes.map(_.size).sum
     val geolocsCount = sentencesSpec.geolocs.map(_.size).sum
     val sentences = sentencesSpec.sentences
@@ -480,9 +481,9 @@ class JLDDeserializer {
     val tokenInterval = extraction.provenance.interval
     val sentence = extraction.provenance.sentence
     val document = extraction.provenance.document
-    val keep = true // Documented
+    val keep = true // Documented on Wiki
     val foundBy = (extractionValue \ "rule").extract[String]
-    val paths: Map[String, Map[Mention, SynPath]] = Map.empty // Documented
+    val paths: Map[String, Map[Mention, SynPath]] = Map.empty // Documented on Wiki
     val misnamedArguments: Map[String, Seq[Mention]] = extraction.argumentMap.map { case (name, ids) =>
       name -> ids.map { id => mentionMap(id) }
     }
@@ -617,7 +618,7 @@ class JLDDeserializer {
 
   def deserializeCorpus(corpusValue: JValue, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding): Corpus = {
     requireType(corpusValue, JLDCorpus.typename)
-    // Check to see about DCT value and if it has id
+    // A corpus with no documents is hardly a corpus, so no extractOpt is used (for now).
     val documentSpecs = (corpusValue \ "documents").extract[JArray].arr.map(deserializeDocument)
     val documentMap: DocumentMap = documentSpecs.map { documentSpec =>
       documentSpec.idAndDocument.id -> documentSpec.idAndDocument.value
