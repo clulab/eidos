@@ -18,7 +18,7 @@ import scala.util.matching.Regex
 class EidosSystem(reader: EidosReader, postProcessor: PostProcessor, serializer: EidosSerializer) {
 
   def findFiles(s: String): Seq[String] = ??? // fixme, placeholder
-  def runExtraction(collectionDir: String, outputDir: String) = {
+  def processDirectory(collectionDir: String, outputDir: String) = {
     val annotated = for {
       f <- findFiles(collectionDir)
       text <- scala.io.Source.fromFile(f).getLines().toArray // fixme, placeholder
@@ -27,7 +27,7 @@ class EidosSystem(reader: EidosReader, postProcessor: PostProcessor, serializer:
     serializer.serialize(annotated, outputDir)
   }
   // todo: better versions of input/output
-  def runExtractionFile(inputFile: String, outputFile: String) = {
+  def processFile(inputFile: String, outputFile: String) = {
     ??? // maybe...?
   }
 }
@@ -41,12 +41,11 @@ class EidosSystem(reader: EidosReader, postProcessor: PostProcessor, serializer:
 class EidosReader ( // or do we call it EidosSystem??
   entityFinders: Seq[Finder],       // 0 or more
   eventFinders: Seq[Finder],        // 0 or more?
-  preProcessor: PreProcessor,       // in case you need to parse stuff
-  contentManager: ContentManager    // ??? to filter empty stuff before you give it to post-processing
+//  preProcessor: PreProcessor,       // in case you need to parse stuf
 ) extends Finder {
 
   def extract(doc: Document): Seq[Mention] = ???
-  def extract(text: String): Seq[Mention] = ???
+//  def extract(text: String): Seq[Mention] = ???
 
 }
 
@@ -60,22 +59,22 @@ class EidosReader ( // or do we call it EidosSystem??
 
 trait Finder {
   def extract(doc: Document): Seq[Mention]
-  def extract(text: String): Seq[Mention]
+//  def extract(text: String): Seq[Mention]
 }
 
 class RuleBasedEntityFinder(expander: Option[Expander], val entityEngine: ExtractorEngine, val avoidEngine: ExtractorEngine) extends Finder {
   def extract(doc: Document): Seq[Mention] = ???
-  def extract(text: String): Seq[Mention] = ???
+//  def extract(text: String): Seq[Mention] = ???
 }
 
 class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) extends Finder {
   def extract(doc: Document): Seq[Mention] = ???
-  def extract(text: String): Seq[Mention] = ???
+//  def extract(text: String): Seq[Mention] = ???
 }
 
 class EventFinder(eventEngine: ExtractorEngine) extends Finder {
   def extract(doc: Document): Seq[Mention] = ???
-  def extract(text: String): Seq[Mention] = ???
+//  def extract(text: String): Seq[Mention] = ???
 }
 
 
@@ -86,7 +85,7 @@ class EidosActions(expander: Option[Expander], corefHandler: Option[CorefHandler
 //         Preprocessing
 // -------------------------------
 
-
+// outside -- in the system
 trait PreProcessor {
   def parse(text: String): Document
 }
@@ -106,11 +105,13 @@ trait Expander {
   def expand(ms: Seq[Mention]): Seq[Mention]
 }
 
-class EntityExpander(validLabels: Set[String], dependencies: Dependencies) extends Expander {
+class TextBoundExpander(validLabels: Set[String], dependencies: Dependencies) extends Expander {
   def expand(ms: Seq[Mention]): Seq[Mention] = ???
 }
 
 class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], dependencies: Dependencies) extends Expander {
+  private val textBoundExpander;
+
   def expand(ms: Seq[Mention]): Seq[Mention] = ???
 }
 case class Dependencies(validIncoming: Set[Regex], invalidIncoming: Set[Regex], validOutgoing: Set[Regex], invalidOutgoing: Set[Regex])
@@ -122,27 +123,8 @@ case class Dependencies(validIncoming: Set[Regex], invalidIncoming: Set[Regex], 
 // -------------------------------
 
 
-// TODO: remove -- put in an object, the one method `isCanonical` is generic + stopwords,
-//trait Canonicalizer {
-//
-//}
 
-trait ContentManager {
-  def isContent(s: String): Boolean
-  def isCanonical(lemma: String, tag: String, ner: String): Boolean
-}
 
-class StopTransparentContentManager(stopWords: Set[String], transparentWords: Set[String], stopNER: Set[String]) extends ContentManager {
-  def isContent(s: String): Boolean = !isStop(s) && !isTransparent(s)
-  def isStop(s:String): Boolean = stopWords.contains(s)
-  def isTransparent(s: String): Boolean = transparentWords.contains(s)
-
-  def isCanonical(lemma: String, tag: String, ner: String): Boolean = {
-    // Valid POS, not a stop/transparent word, and not a named entity we're choosing to ignore
-    // todo: lemma for isContent?  if so, let's rename the method or its args
-    EidosUtils.isContentTag(tag) && isContent(lemma) && !stopNER.contains(ner)
-  }
-}
 
 object EidosUtils {
   def isContentTag(tag: String): Boolean = tag.startsWith("NN") || tag.startsWith("VB")
@@ -156,7 +138,7 @@ trait PostProcessingStep {
   def process(inputs:Seq[EidosMention]):Seq[EidosMention]
 }
 
-class PostProcessor(steps: Seq[PostProcessingStep], serializer: EidosSerializer) {
+class PostProcessor(steps: Seq[PostProcessingStep]) {
   def toEidosMention(m: Mention): EidosMention = ???
   // todo: we should add `copy` methods to each type of EidosMention (and the super class) sot that we can rapidly
   // create the new ones with additional post processing
@@ -169,17 +151,30 @@ class PostProcessor(steps: Seq[PostProcessingStep], serializer: EidosSerializer)
     for(step <- steps) {
       postProcessedMentions = step.process(postProcessedMentions)
     }
-    // todo: is this null ok?
-    AnnotatedDocument(mentions.headOption.map(_.document).orNull, mentions, postProcessedMentions)
+
+    // Make empty doc
+    val doc: Document = ???
+    AnnotatedDocument(doc, mentions, postProcessedMentions)
   }
-  // or something like this...
-  def serialize(annotatedDocuments: Seq[AnnotatedDocument], filename: String) = ???
+
 
 }
 
-class CanonicalizerStep(contentManager: ContentManager) extends PostProcessingStep {
+// Filter and canonicalize
+class CanonicalizerStep(stopWords: Set[String], transparentWords: Set[String], stopNER: Set[String]) extends PostProcessingStep {
   // Make the canonical name
   def process(inputs:Seq[EidosMention]):Seq[EidosMention] = ???
+
+  def isContent(s: String): Boolean = !isStop(s) && !isTransparent(s)
+  def isStop(s:String): Boolean = stopWords.contains(s)
+  def isTransparent(s: String): Boolean = transparentWords.contains(s)
+
+  def isCanonical(lemma: String, tag: String, ner: String): Boolean = {
+    // Valid POS, not a stop/transparent word, and not a named entity we're choosing to ignore
+    // todo: lemma for isContent?  if so, let's rename the method or its args
+    EidosUtils.isContentTag(tag) && isContent(lemma) && !stopNER.contains(ner)
+  }
+
 }
 
 class GroundingStep(ontologies: Seq[OntologyGrounder]) extends PostProcessingStep {
