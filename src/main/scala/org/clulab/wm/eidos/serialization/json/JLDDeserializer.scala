@@ -206,9 +206,9 @@ class JLDDeserializer {
   protected def mkRaw(idsAndWordSpecs: Array[IdAndWordSpec], documentText: Option[String]): Array[String] = {
     idsAndWordSpecs.map { idAndWordSpec =>
       val wordSpec = idAndWordSpec.value
-      val word = documentText.get.substring(wordSpec.startOffset, wordSpec.endOffset)
+      val raw = documentText.get.substring(wordSpec.startOffset, wordSpec.endOffset)
 
-      word
+      raw
     }
   }
 
@@ -227,7 +227,6 @@ class JLDDeserializer {
       val wordMap = idsAndWordSpecs.indices.map(index => idsAndWordSpecs(index).id -> index).toMap // why not directly to wordspec?
       // This doesn't work if there are double spaces in the text.  Too many elements will be made.
       // val raw: Array[String] = (sentenceValue \ "text").extract[String].split(' ')
-      val raw = mkRaw(idsAndWordSpecs, documentText)
       val graphMap = (sentenceValue \ "dependencies").extractOpt[JArray].map { dependenciesValue =>
         val dependencies = dependenciesValue.arr.map { dependencyValue: JValue =>
           deserializeDependency(dependencyValue, wordMap)
@@ -253,15 +252,16 @@ class JLDDeserializer {
       geolocMap = geolocMap ++ idsAndGeolocs.map { idAndGeoloc => idAndGeoloc.id -> idAndGeoloc.value }
 
       // IntelliJ doesn't like these, but the compiler is OK with them.
-      val startOffsets: Array[Int] = idsAndWordSpecs.map(it => it.value.startOffset)
-      val endOffsets: Array[Int] = idsAndWordSpecs.map(it => it.value.endOffset)
-      val words: Array[String] = idsAndWordSpecs.map(it => it.value.word)
+      val startOffsets: Array[Int] = idsAndWordSpecs.map(idAndSpec => idAndSpec.value.startOffset)
+      val endOffsets: Array[Int] = idsAndWordSpecs.map(idAndSpec => idAndSpec.value.endOffset)
+      val raw = mkRaw(idsAndWordSpecs, documentText)
+      val words: Array[String] = idsAndWordSpecs.map(idAndSpec => idAndSpec.value.word)
       val sentence = Sentence(raw, startOffsets, endOffsets, words)
-      sentence.tags = Some(idsAndWordSpecs.map(it => it.value.tag))
-      sentence.lemmas = Some(idsAndWordSpecs.map(it => it.value.lemma))
-      sentence.entities = Some(idsAndWordSpecs.map(it => it.value.entity))
-      sentence.norms = Some(idsAndWordSpecs.map(it => it.value.norm))
-      sentence.chunks = Some(idsAndWordSpecs.map(it => it.value.chunk))
+      sentence.tags = Some(idsAndWordSpecs.map(idAndSpec => idAndSpec.value.tag))
+      sentence.lemmas = Some(idsAndWordSpecs.map(idAndSpec => idAndSpec.value.lemma))
+      sentence.entities = Some(idsAndWordSpecs.map(idAndSpec => idAndSpec.value.entity))
+      sentence.norms = Some(idsAndWordSpecs.map(idAndSpec => idAndSpec.value.norm))
+      sentence.chunks = Some(idsAndWordSpecs.map(idAndSpec => idAndSpec.value.chunk))
       sentence.syntacticTree = None // Documented on Wiki
       sentence.graphs = graphMap
       sentence.relations = None // Documented on Wiki
