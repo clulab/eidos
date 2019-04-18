@@ -34,49 +34,6 @@ class EidosSystem(reader: EidosReader, postProcessor: PostProcessor, serializer:
 
 
 
-// -------------------------------
-//            Reader
-// -------------------------------
-
-class EidosReader ( // or do we call it EidosSystem??
-  entityFinders: Seq[Finder],       // 0 or more
-  eventFinders: Seq[Finder],        // 0 or more?
-//  preProcessor: PreProcessor,       // in case you need to parse stuf
-) extends Finder {
-
-  def extract(doc: Document): Seq[Mention] = ???
-//  def extract(text: String): Seq[Mention] = ???
-
-}
-
-
-
-
-
-// -------------------------------
-//            Finders
-// -------------------------------
-
-trait Finder {
-  def extract(doc: Document): Seq[Mention]
-//  def extract(text: String): Seq[Mention]
-}
-
-class RuleBasedEntityFinder(expander: Option[Expander], val entityEngine: ExtractorEngine, val avoidEngine: ExtractorEngine) extends Finder {
-  def extract(doc: Document): Seq[Mention] = ???
-//  def extract(text: String): Seq[Mention] = ???
-}
-
-class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) extends Finder {
-  def extract(doc: Document): Seq[Mention] = ???
-//  def extract(text: String): Seq[Mention] = ???
-}
-
-class EventFinder(eventEngine: ExtractorEngine) extends Finder {
-  def extract(doc: Document): Seq[Mention] = ???
-//  def extract(text: String): Seq[Mention] = ???
-}
-
 
 class EidosActions(expander: Option[Expander], corefHandler: Option[CorefHandler]) extends Actions
 
