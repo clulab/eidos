@@ -4,6 +4,7 @@ import org.clulab.odin.{Actions, ExtractorEngine, Mention}
 import org.clulab.processors.{Document, Processor}
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.extraction.EidosReader
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DocumentFilter
@@ -15,27 +16,28 @@ import scala.util.matching.Regex
 // -------------------------------
 
 // OR -- is this too much -- better handled in an App??
-class EidosSystem(reader: EidosReader, postProcessor: PostProcessor, serializer: EidosSerializer) {
+// todo
+//class EidosSystem(reader: EidosReader, postProcessor: PostProcessor, serializer: EidosSerializer) {
+//
+//  def findFiles(s: String): Seq[String] = ??? // fixme, placeholder
+//  def processDirectory(collectionDir: String, outputDir: String) = {
+//    val annotated = for {
+//      f <- findFiles(collectionDir)
+//      text <- scala.io.Source.fromFile(f).getLines().toArray // fixme, placeholder
+//      mentions = reader.extract(text)
+//    } yield postProcessor.process(mentions)
+//    serializer.serialize(annotated, outputDir)
+//  }
+//  // todo: better versions of input/output
+//  def processFile(inputFile: String, outputFile: String) = {
+//    ??? // maybe...?
+//  }
+//}
 
-  def findFiles(s: String): Seq[String] = ??? // fixme, placeholder
-  def processDirectory(collectionDir: String, outputDir: String) = {
-    val annotated = for {
-      f <- findFiles(collectionDir)
-      text <- scala.io.Source.fromFile(f).getLines().toArray // fixme, placeholder
-      mentions = reader.extract(text)
-    } yield postProcessor.process(mentions)
-    serializer.serialize(annotated, outputDir)
-  }
-  // todo: better versions of input/output
-  def processFile(inputFile: String, outputFile: String) = {
-    ??? // maybe...?
-  }
-}
 
 
-
-
-class EidosActions(expander: Option[Expander], corefHandler: Option[CorefHandler]) extends Actions
+// todo
+//class EidosActions(expander: Option[Expander], corefHandler: Option[CorefHandler]) extends Actions
 
 
 // -------------------------------
@@ -67,7 +69,7 @@ class TextBoundExpander(validLabels: Set[String], dependencies: Dependencies) ex
 }
 
 class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], dependencies: Dependencies) extends Expander {
-  private val textBoundExpander;
+  private val textBoundExpander = new TextBoundExpander(validLabels, dependencies)
 
   def expand(ms: Seq[Mention]): Seq[Mention] = ???
 }
