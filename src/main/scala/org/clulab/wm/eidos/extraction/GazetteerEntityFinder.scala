@@ -8,6 +8,7 @@ import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.Expander
 import GazetteerEntityFinder.NER_OUTSIDE
 
+// todo docstring
 class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) extends Finder {
 
   val gazetteers = LexiconNER(lexicons, caseInsensitiveMatching = true)
@@ -46,6 +47,9 @@ class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) e
     * @return the mentions corresponding to the gazetteer items
     */
   def extract(doc: Document): Seq[Mention] = {
+    // Annotate the document for gazetteer elements
+    doc.sentences.map(annotateSentence)
+    // Find them and convert them to mentions
     val mentions = for {
       label <- gazetteers.getLabels
       ruleTemplate =
@@ -70,7 +74,7 @@ object GazetteerEntityFinder {
   def apply(lexicons: Seq[String], expander: Option[Expander]) = new GazetteerEntityFinder(lexicons, expander)
   def fromConfig(config: Config) = {
     val lexicons = config[List[String]]("lexicons")
-    val overwrite = config[Boolean]("overwriteNER")
+
 
   }
 }
