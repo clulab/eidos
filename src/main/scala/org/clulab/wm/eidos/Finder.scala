@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos
 
+import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
 import org.clulab.odin.{Actions, ExtractorEngine, Mention}
 import org.clulab.processors.{Document, Processor}
 import org.clulab.wm.eidos.actions.CorefHandler
@@ -67,14 +69,35 @@ trait Expander {
 class TextBoundExpander(validLabels: Set[String], dependencies: Dependencies) extends Expander {
   def expand(ms: Seq[Mention]): Seq[Mention] = ???
 }
+object TextBoundExpander {
+  def fromConfig(config: Config): TextBoundExpander = {
+    ???
+  }
+}
 
 class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], dependencies: Dependencies) extends Expander {
   private val textBoundExpander = new TextBoundExpander(validLabels, dependencies)
 
   def expand(ms: Seq[Mention]): Seq[Mention] = ???
 }
+object ArgumentExpander {
+  def fromConfig(config: Config): ArgumentExpander = {
+    ???
+  }
+}
 case class Dependencies(validIncoming: Set[Regex], invalidIncoming: Set[Regex], validOutgoing: Set[Regex], invalidOutgoing: Set[Regex])
 
+object Expander {
+  def fromConfig(config: Config): Expander = {
+    val expandType: String = config[String]("expansionTyoe") // fixme
+    expandType match {
+      case "textbound" => TextBoundExpander.fromConfig(config) // todo: check about scoping with these nested configs
+      case "argument" => ArgumentExpander.fromConfig(config)
+      case _ => ???
+
+    }
+  }
+}
 
 
 // -------------------------------

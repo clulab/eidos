@@ -8,9 +8,16 @@ import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.Expander
 import GazetteerEntityFinder.NER_OUTSIDE
 
-// todo docstring
+/**
+  * The GazetteerEntityFinder finds mentions of gazetteer elements.  The matching uses a processors LexiconNER,
+  * so the lexicons are provided as paths to the csv files (stored in `resources`) and matching is based on exact
+  * string match.  The found mentions are odin TextBoundMentions, where the Mention label is the same as the base
+  * name of the gazetteer that matched it.
+  * @param lexicons
+  * @param expander
+  */
 class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) extends Finder {
-
+  // todo: what happens if more than one gazetteer matches?
   val gazetteers = LexiconNER(lexicons, caseInsensitiveMatching = true)
 
   /**
@@ -73,8 +80,9 @@ object GazetteerEntityFinder {
 
   def apply(lexicons: Seq[String], expander: Option[Expander]) = new GazetteerEntityFinder(lexicons, expander)
   def fromConfig(config: Config) = {
-    val lexicons = config[List[String]]("lexicons")
-
-
+    val lexicons = config[List[String]]("gazetteers.lexicons")
+    val expanderConfig = config.get[Config]("gazetteers.expander")
+    val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig)
+    GazetteerEntityFinder(lexicons, expander)
   }
 }
