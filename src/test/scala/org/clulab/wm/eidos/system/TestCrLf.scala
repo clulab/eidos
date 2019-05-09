@@ -13,7 +13,7 @@ class TestCrLf extends Test {
   behavior of "resources"
 
   def test(file: File): Unit = {
-    val path = file.getCanonicalPath()
+    val path = file.getCanonicalPath
     val buffer = new Array[Char](1024)
 
     it should "not have any CrLf line endings in " + path in {
@@ -40,13 +40,13 @@ class TestCrLf extends Test {
   }
   
   // https://groups.google.com/forum/#!topic/scala-user/WrmYHHzcJPw  
-  type Operation = (File) => Unit
+  type Operation = File => Unit
 
-  val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
-  val unwantedSuffixes = Seq.empty[String]
+  val wantedSuffixes: Seq[String] = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
+  val unwantedSuffixes: Seq[String] = Seq.empty
 
   def fileMatches(file: File): Boolean = {
-    val canonicalPath = file.getCanonicalPath().replace('\\', '/')
+    val canonicalPath = file.getCanonicalPath.replace('\\', '/')
 
     wantedSuffixes.exists(suffix => canonicalPath.endsWith(suffix)) &&
     !unwantedSuffixes.exists(suffix => canonicalPath.endsWith(suffix))
@@ -56,12 +56,12 @@ class TestCrLf extends Test {
   
   def doOperation(path: String)(operation: Operation): Unit = {
     for (files <- Option(new File(path).listFiles); file <- files) {
-        if (file.isFile() && fileMatches(file) && file.getAbsolutePath.contains("english"))
+        if (file.isFile && fileMatches(file))
           operation(file)
         if (file.isDirectory && directoryMatches(file))
           doOperation(file.getAbsolutePath)(operation)
     }
   }
   
-  doOperation(new File("./src/main/resources").getCanonicalPath())(test)
+  doOperation(new File("./src/main/resources").getCanonicalPath)(test)
 }
