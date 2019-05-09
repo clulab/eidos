@@ -1,37 +1,41 @@
 package org.clulab.wm.eidos.system
 
 import java.io.File
+import java.io.InputStreamReader
 
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
-import scala.io.Source
-
-class TestResources extends Test {
+class TestCrLf extends Test {
   
   behavior of "resources"
 
   def test(file: File): Unit = {
     val path = file.getCanonicalPath()
+    val buffer = new Array[Char](1024)
 
-    it should "not have any Unicode characters in " + path in {
-      val count = Sourcer.sourceFromFile(file).autoClose { source =>
-        source.getLines().zipWithIndex.foldRight(0) { (lineAndLineNo, sum) =>
-          val line = lineAndLineNo._1
-          val lineNo = lineAndLineNo._2
-          val badCharAndIndex = line.zipWithIndex.filter { case (c: Char, index: Int) =>
-            (c < 32 || 127 < c) && c != '\r' && c != '\n' && c != '\t'
-          }
-          val complaints = badCharAndIndex.map { case (c: Char, index: Int) =>
-            "'" + c + "' found at index " + index + "."
-          }
+    it should "not have any CrLf line endings in " + path in {
+      val inputReader = new InputStreamReader(
+        FileUtils.newBufferedInputStream(file),
+        Sourcer.utf8
+      )
+      val hasCrLf = inputReader.autoClose { inputReader =>
+        var hasCrLf = false
+        var endedWithCr = false
 
-          complaints.foreach(complaint => println("Line " + (lineNo + 1) + ": " + complaint))
-          sum + complaints.size
+        var readCount = inputReader.read(buffer)
+        while (!hasCrLf && readCount > 0) {
+          hasCrLf |= (endedWithCr && buffer(0) == '\n')
+          hasCrLf |= buffer.containsSlice("\r\n")
+          endedWithCr = buffer(readCount - 1) == '\r'
+          readCount = inputReader.read(buffer)
         }
+        hasCrLf
       }
-      count should be (0)
+
+      hasCrLf should be (false)
     }
   }
   
@@ -39,8 +43,7 @@ class TestResources extends Test {
   type Operation = (File) => Unit
 
   val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
-  val unwantedSuffixes = Seq("300d.txt", "vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
-                              "geo_dict_with_population_SOUTH_SUDAN.txt", "word2idx_file.txt")
+  val unwantedSuffixes = Seq.empty[String]
 
   def fileMatches(file: File): Boolean = {
     val canonicalPath = file.getCanonicalPath().replace('\\', '/')
