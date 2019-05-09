@@ -120,7 +120,8 @@ class NegationHandler(val language: String) {
               .toSeq
               .sortBy(_.tokenInterval)
               .head
-          m.withAttachment(Negation(singleNeg.text, None))
+
+          m.withAttachment(new Negation(singleNeg.text, None, Option(Provenance(singleNeg)), None))
       }
       withNeg
     } else m
