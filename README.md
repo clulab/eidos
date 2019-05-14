@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/clulab/eidos.svg?branch=master)](https://travis-ci.org/clulab/eidos)
+[![Build Status](http://jenkins.cs.arizona.edu:8090/job/eidos/job/egoitz-flairTimeTF/)](http://jenkins.cs.arizona.edu:8090/job/eidos/job/egoitz-flairTimeTF/)
 
 
 # Eidos
