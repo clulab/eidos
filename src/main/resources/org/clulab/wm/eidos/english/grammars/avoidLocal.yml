@@ -69,6 +69,14 @@ rules:
       # avoid gradable adjectives tagged by lexicon
       [entity="B-Quantifier"] [entity="I-Quantifier"]*
 
+  - name: "gradable-mentions"
+    label: Avoid
+    priority: 1
+    type: token
+    pattern: |
+      # avoid gradable adjectives tagged by lexicon
+      [mention="Quantifier"]
+
   - name: "causal-triggers"
     label: Avoid-Strict
     priority: 1
