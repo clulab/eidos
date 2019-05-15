@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.utils
 
+import scala.util.matching.Regex
+
 object StringUtils {
 
   def before(string: String, index: Int, all: Boolean): String = {
@@ -27,4 +29,6 @@ object StringUtils {
 
   def afterFirst(string: String, char: Char, all: Boolean = true): String =
       after(string, string.indexOf(char), all)
+
+  def toRegex(string: String): Regex = s"$string".r
 }
