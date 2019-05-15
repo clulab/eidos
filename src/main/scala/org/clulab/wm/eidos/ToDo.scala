@@ -9,7 +9,8 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.extraction.EidosReader
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.DocumentFilter
+import org.clulab.wm.eidos.utils.{DocumentFilter}
+import org.clulab.wm.eidos.utils.StringUtils.toRegex
 
 import scala.util.matching.Regex
 
@@ -57,56 +58,15 @@ class EidosPreprocessor(documentFilter: Option[DocumentFilter], processor: Proce
 }
 
 
-// -------------------------------
-//            Expanders
-// -------------------------------
 
 
-trait Expander {
-  def expand(ms: Seq[Mention]): Seq[Mention]
-}
 
-class TextBoundExpander(validLabels: Set[String], dependencies: Dependencies) extends Expander {
-  def expand(ms: Seq[Mention]): Seq[Mention] = ???
-}
-object TextBoundExpander {
-  def fromConfig(config: Config): TextBoundExpander = {
-    ???
-  }
-}
 
-class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], dependencies: Dependencies) extends Expander {
-  private val textBoundExpander = new TextBoundExpander(validLabels, dependencies)
-
-  def expand(ms: Seq[Mention]): Seq[Mention] = ???
-}
-object ArgumentExpander {
-  def fromConfig(config: Config): ArgumentExpander = {
-    ???
-  }
-}
-case class Dependencies(validIncoming: Set[Regex], invalidIncoming: Set[Regex], validOutgoing: Set[Regex], invalidOutgoing: Set[Regex])
-
-object Expander {
-  def fromConfig(config: Config): Expander = {
-    val expandType: String = config[String]("expansionTyoe") // fixme
-    expandType match {
-      case "textbound" => TextBoundExpander.fromConfig(config) // todo: check about scoping with these nested configs
-      case "argument" => ArgumentExpander.fromConfig(config)
-      case _ => ???
-
-    }
-  }
-}
 
 
 // -------------------------------
 //         ContentManagers
 // -------------------------------
-
-
-
-
 
 object EidosUtils {
   def isContentTag(tag: String): Boolean = tag.startsWith("NN") || tag.startsWith("VB")
@@ -116,53 +76,6 @@ object EidosUtils {
 //         PostProcessing
 // -------------------------------
 
-trait PostProcessingStep {
-  def process(inputs:Seq[EidosMention]):Seq[EidosMention]
-}
-
-class PostProcessor(steps: Seq[PostProcessingStep]) {
-  def toEidosMention(m: Mention): EidosMention = ???
-  // todo: we should add `copy` methods to each type of EidosMention (and the super class) sot that we can rapidly
-  // create the new ones with additional post processing
-
-  def process(mentions: Seq[Mention]): AnnotatedDocument = {
-    val eidosMentions = mentions.map(toEidosMention)
-
-    // Apply all post-processing steps (e.g., canonicalizing, grounding, etc.)
-    var postProcessedMentions = eidosMentions
-    for(step <- steps) {
-      postProcessedMentions = step.process(postProcessedMentions)
-    }
-
-    // Make empty doc
-    val doc: Document = ???
-    AnnotatedDocument(doc, mentions, postProcessedMentions)
-  }
-
-
-}
-
-// Filter and canonicalize
-class CanonicalizerStep(stopWords: Set[String], transparentWords: Set[String], stopNER: Set[String]) extends PostProcessingStep {
-  // Make the canonical name
-  def process(inputs:Seq[EidosMention]):Seq[EidosMention] = ???
-
-  def isContent(s: String): Boolean = !isStop(s) && !isTransparent(s)
-  def isStop(s:String): Boolean = stopWords.contains(s)
-  def isTransparent(s: String): Boolean = transparentWords.contains(s)
-
-  def isCanonical(lemma: String, tag: String, ner: String): Boolean = {
-    // Valid POS, not a stop/transparent word, and not a named entity we're choosing to ignore
-    // todo: lemma for isContent?  if so, let's rename the method or its args
-    EidosUtils.isContentTag(tag) && isContent(lemma) && !stopNER.contains(ner)
-  }
-
-}
-
-class GroundingStep(ontologies: Seq[OntologyGrounder]) extends PostProcessingStep {
-  // Add the grounding, based on the canonical name
-  def process(inputs:Seq[EidosMention]):Seq[EidosMention] = ???
-}
 
 
 //trait ddd {
