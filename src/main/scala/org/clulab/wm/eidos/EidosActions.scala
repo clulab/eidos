@@ -77,165 +77,6 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     assembled.flatten
   }
 
-
-
-
-  /*
-      Method for assembling Event Chain Events from flat text, i.e., ("(A --> B)" --> C) ==> (A --> B), (B --> C)
-  */
-
-  // this method ensures that if a cause of one event is the effect of another then they are connected
-  // FIXME -- not working for this:
-  //    However , prospects for 2017 aggregate cereal production are generally unfavourable as agricultural activities continue to be severely affected by the protracted and widespread insecurity , which is constraining farmers ' access to fields and is causing large scale displacement of people , input shortages and damage to households ' productive assets .
-  def assembleEventChain(event: EventMention, origCause: Mention, landed: Int, effects: State): Seq[EventMention] = {
-    effects.mentionsFor(event.sentence, landed) match {
-      case Seq() => Seq(event) // return original event
-      case newCauses =>
-        val arguments = event.arguments
-        newCauses.map { nc =>
-          val retainedCauses = arguments("cause").filterNot(_ == origCause)
-          val newArguments = arguments.filterKeys(_ != "cause") + (("cause", retainedCauses :+ nc))
-          val mentions = (newArguments.values.flatten.toSeq :+ event.trigger)
-          val newStart = mentions.map(_.start).min
-          val newEnd = mentions.map(_.end).max
-          event.copy(arguments = newArguments, tokenInterval = Interval(newStart, newEnd))
-        }
-    }
-  }
-
-  /*
-      Mention State / Attachment Methods
-   */
-
-  //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
-  //Rule to add Increase/Decrease to the state of an entity
-  //TODO: perhaps keep token interval of the EVENT because it will be longer?
-  // todo BECKY: if trigger is also a quant (i.e. has a quant attachment), add as quant in inc/dec
-  def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-      //if m matches "EntityModifier"
-      attachment = getAttachment(m)
-
-      copyWithMod = m match {
-        case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
-        // Here, we want to keep the theme that is being modified, not the modification event itself
-        case rm: RelationMention =>
-          val theme = tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
-          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
-        case em: EventMention =>
-          val theme = tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
-          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
-      }
-    } yield copyWithMod
-  }
-
-  def applyTimeAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-      trigger = m.asInstanceOf[EventMention].trigger
-      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      times = m.document.asInstanceOf[EidosDocument].times
-      time: Option[TimeInterval] = if (times.isDefined) times.get(m.sentence).find(_.span._1 == trigger.startOffset) else None
-    } yield time match {
-      case None => theme
-      case Some(t) => theme.withAttachment(new Time(t))
-    }
-  }
-
-  def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-      trigger = m.asInstanceOf[EventMention].trigger
-      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
-    } yield location match {
-      case None => theme
-      case Some(l) => theme.withAttachment(new Location(l))
-    }
-  }
-
-  def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
-    println("DEBUG ACTION")
-    ms
-  }
-
-  def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
-
-  def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
-
-  // Currently used as a GLOBAL ACTION in EidosSystem:
-  // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
-  // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
-  // of each other.
-  def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    // Get all the entity mentions for this span (i.e. all the "rainfall in Spain" mentions)
-    val (entities, nonentities) = mentions.partition(mention => mention matches "Entity")
-    val entitiesBySpan = entities.groupBy(entity => (entity.sentence, entity.tokenInterval, entity.label))
-    val mergedEntities = for {
-      (_, entities) <- entitiesBySpan
-      // These are now for the same span, so only one should win as the main one.
-      flattenedTriggeredAttachments = entities.flatMap(_.attachments.collect{ case a: TriggeredAttachment => a })
-      flattenedContextAttachments = entities.flatMap(_.attachments.collect{ case a: ContextAttachment => a })
-      filteredAttachments = filterAttachments(flattenedTriggeredAttachments)
-    }
-    yield {
-      val bestEntities =
-          if (filteredAttachments.nonEmpty) {
-            val bestAttachment = filteredAttachments.sorted.reverse.head
-            // Since head was used above and there could have been a tie, == should be used below
-            // The tie can be broken afterwards.
-            entities.filter(_.attachments.exists(_ == bestAttachment))
-          }
-          else
-            entities
-
-      MentionUtils.withOnlyAttachments(tieBreaker(bestEntities), filteredAttachments ++ flattenedContextAttachments)
-    }
-
-    val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
-    res
-    mergedEntities.toSeq ++ nonentities
-  }
-
-  // Filter out substring attachments, then keep most complete.
-  def filterAttachments(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
-    attachments
-        // Perform first mapping based on class
-        .groupBy(_.getClass)
-        // Filter out substring attachments
-        .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
-        // Next map based on both class and trigger.
-        .groupBy(attachment => (attachment.getClass, attachment.trigger))
-        // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
-        .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
-        .toSeq
-  }
-
-  // Keep the most complete attachment here.
-  protected def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
-      attachments.maxBy(_.argumentSize)
-
-  // Filter out substring attachments.
-  protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
-    val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
-
-    attachments
-        .sorted
-        .reverse
-        .filter { attachment =>
-          val trigger = attachment.trigger
-
-          if (!triggersKept.exists(_.contains(trigger))) {
-            triggersKept.add(trigger) // Add this trigger.
-            true // Keep the attachment.
-          }
-          else
-            false
-        }
-  }
-
   /*
       Filtering Methods
    */
@@ -431,6 +272,164 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     // Useful for debug
     res
   }
+
+
+  /*
+      Method for assembling Event Chain Events from flat text, i.e., ("(A --> B)" --> C) ==> (A --> B), (B --> C)
+  */
+
+  // this method ensures that if a cause of one event is the effect of another then they are connected
+  // FIXME -- not working for this:
+  //    However , prospects for 2017 aggregate cereal production are generally unfavourable as agricultural activities continue to be severely affected by the protracted and widespread insecurity , which is constraining farmers ' access to fields and is causing large scale displacement of people , input shortages and damage to households ' productive assets .
+  def assembleEventChain(event: EventMention, origCause: Mention, landed: Int, effects: State): Seq[EventMention] = {
+    effects.mentionsFor(event.sentence, landed) match {
+      case Seq() => Seq(event) // return original event
+      case newCauses =>
+        val arguments = event.arguments
+        newCauses.map { nc =>
+          val retainedCauses = arguments("cause").filterNot(_ == origCause)
+          val newArguments = arguments.filterKeys(_ != "cause") + (("cause", retainedCauses :+ nc))
+          val mentions = (newArguments.values.flatten.toSeq :+ event.trigger)
+          val newStart = mentions.map(_.start).min
+          val newEnd = mentions.map(_.end).max
+          event.copy(arguments = newArguments, tokenInterval = Interval(newStart, newEnd))
+        }
+    }
+  }
+
+  /*
+      Mention State / Attachment Methods
+   */
+
+  //Rule to apply quantifiers directly to the state of an Entity (e.g. "small puppies") and
+  //Rule to add Increase/Decrease to the state of an entity
+  //TODO: perhaps keep token interval of the EVENT because it will be longer?
+  // todo BECKY: if trigger is also a quant (i.e. has a quant attachment), add as quant in inc/dec
+  def applyAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+      //if m matches "EntityModifier"
+      attachment = getAttachment(m)
+
+      copyWithMod = m match {
+        case tb: TextBoundMention => tb.copy(attachments = tb.attachments ++ Set(attachment), foundBy = s"${tb.foundBy}++mod")
+        // Here, we want to keep the theme that is being modified, not the modification event itself
+        case rm: RelationMention =>
+          val theme = tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
+        case em: EventMention =>
+          val theme = tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
+      }
+    } yield copyWithMod
+  }
+
+  def applyTimeAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+      trigger = m.asInstanceOf[EventMention].trigger
+      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
+      times = m.document.asInstanceOf[EidosDocument].times
+      time: Option[TimeInterval] = if (times.isDefined) times.get(m.sentence).find(_.span.start == trigger.startOffset) else None
+    } yield time match {
+      case None => theme
+      case Some(t) => theme.withAttachment(new Time(t))
+    }
+  }
+
+  def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for {
+      m <- ms
+      trigger = m.asInstanceOf[EventMention].trigger
+      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
+      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
+      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
+    } yield location match {
+      case None => theme
+      case Some(l) => theme.withAttachment(new Location(l))
+    }
+  }
+
+  def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
+    println("DEBUG ACTION")
+    ms
+  }
+
+  def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
+
+  def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
+
+  // Currently used as a GLOBAL ACTION in EidosSystem:
+  // Merge many Mentions of a single entity that have diff attachments, so that you have only one entity with
+  // all the attachments.  Also handles filtering of attachments of the same type whose triggers are substrings
+  // of each other.
+  def mergeAttachments(mentions: Seq[Mention], state: State): Seq[Mention] = {
+
+    // Get all the entity mentions for this span (i.e. all the "rainfall in Spain" mentions)
+    val (entities, nonentities) = mentions.partition(mention => mention matches "Entity")
+    val entitiesBySpan = entities.groupBy(entity => (entity.sentence, entity.tokenInterval, entity.label))
+    val mergedEntities = for {
+      (_, entities) <- entitiesBySpan
+      // These are now for the same span, so only one should win as the main one.
+      flattenedTriggeredAttachments = entities.flatMap(_.attachments.collect{ case a: TriggeredAttachment => a })
+      flattenedContextAttachments = entities.flatMap(_.attachments.collect{ case a: ContextAttachment => a })
+      filteredAttachments = filterAttachments(flattenedTriggeredAttachments)
+    }
+    yield {
+      val bestEntities =
+          if (filteredAttachments.nonEmpty) {
+            val bestAttachment = filteredAttachments.sorted.reverse.head
+            // Since head was used above and there could have been a tie, == should be used below
+            // The tie can be broken afterwards.
+            entities.filter(_.attachments.exists(_ == bestAttachment))
+          }
+          else
+            entities
+
+      MentionUtils.withOnlyAttachments(tieBreaker(bestEntities), filteredAttachments ++ flattenedContextAttachments)
+    }
+
+    val res = keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
+    res
+  }
+
+  // Filter out substring attachments, then keep most complete.
+  def filterAttachments(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
+    attachments
+        // Perform first mapping based on class
+        .groupBy(_.getClass)
+        // Filter out substring attachments
+        .flatMap { case (_, attachments) => filterSubstringTriggers(attachments) }
+        // Next map based on both class and trigger.
+        .groupBy(attachment => (attachment.getClass, attachment.trigger))
+        // Now that substrings are filtered, keep only most complete of each class-trigger-combo.
+        .map { case (_, attachments) => filterMostComplete(attachments.toSeq) }
+        .toSeq
+  }
+
+  // Keep the most complete attachment here.
+  protected def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
+      attachments.maxBy(_.argumentSize)
+
+  // Filter out substring attachments.
+  protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
+    val triggersKept = MutableSet[String]() // Cache triggers of itermediate results.
+
+    attachments
+        .sorted
+        .reverse
+        .filter { attachment =>
+          val trigger = attachment.trigger
+
+          if (!triggersKept.exists(_.contains(trigger))) {
+            triggersKept.add(trigger) // Add this trigger.
+            true // Keep the attachment.
+          }
+          else
+            false
+        }
+  }
+
 
   // Get trigger from an attachment
   protected def triggerOf(attachment: Attachment): String = {

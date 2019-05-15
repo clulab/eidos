@@ -6,7 +6,8 @@ import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.TemporalCharbasedParser
-import org.clulab.timenorm.formal.Interval
+import org.clulab.timenorm.formal.{ Interval => TimexInterval }
+import org.clulab.struct.{ Interval => TextInterval }
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.context.GeoPhraseID
 
@@ -50,7 +51,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
           }
         }
         intervals.map { interval =>
-          TimeInterval((interval._1._1 + offset, interval._1._2 + offset), interval._2, sentenceText.slice(interval._1._1, interval._1._2))
+          val timeSteps = interval._2.map { interval => TimeStep(Option(interval._1), Option(interval._2), interval._3) }
+          TimeInterval(TextInterval(interval._1._1 + offset, interval._1._2 + offset), timeSteps, sentenceText.slice(interval._1._1, interval._1._2))
         }
       }
       else
@@ -101,6 +103,8 @@ object EidosDocument {
 }
 
 @SerialVersionUID(1L)
-case class TimeInterval(val span: (Int, Int), val intervals: List[(LocalDateTime, LocalDateTime, Long)], val text: String)
+case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
 @SerialVersionUID(1L)
-case class DCT(val interval: Interval, val text: String)
+case class TimeInterval(span: TextInterval, intervals: List[TimeStep], text: String)
+@SerialVersionUID(1L)
+case class DCT(interval: TimexInterval, text: String)

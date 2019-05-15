@@ -52,14 +52,14 @@ object DisplayUtils {
   def displayTimeExpressions(intervals: Seq[TimeInterval]): String = {
     val sb = new StringBuffer()
     for (interval <- intervals) {
-      sb.append(s"$tab span: ${interval.span._1},${interval.span._2} $nl")
+      sb.append(s"$tab span: ${interval.span.start},${interval.span.end} $nl")
       for (i <- interval.intervals) {
-        val start = Option(i._1).map(_.toString).getOrElse("Undef")
-        val end = Option(i._2).map(_.toString).getOrElse("Undef")
+        val start = i.startDateOpt.map(_.toString).getOrElse("Undef")
+        val end = i.endDateOpt.map(_.toString).getOrElse("Undef")
 
         sb.append(s"$tab start: $start $nl")
         sb.append(s"$tab end: $end $nl")
-        sb.append(s"$tab duration: ${i._3} $nl")
+        sb.append(s"$tab duration: ${i.duration} $nl")
       }
       sb.append(nl)
     }
