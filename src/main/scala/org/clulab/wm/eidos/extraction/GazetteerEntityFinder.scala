@@ -2,11 +2,12 @@ package org.clulab.wm.eidos.extraction
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.odin.{ExtractorEngine, Mention}
+import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.sequences.LexiconNER
-import org.clulab.wm.eidos.Expander
+import org.clulab.wm.eidos.expansion.Expander
 import GazetteerEntityFinder.NER_OUTSIDE
+import org.clulab.wm.eidos.utils.DisplayUtils
 
 /**
   * The GazetteerEntityFinder finds mentions of gazetteer elements.  The matching uses a processors LexiconNER,
@@ -53,7 +54,7 @@ class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) e
     * @param doc Processors Document, already annotated.  The named entities field does not need to be populated.
     * @return the mentions corresponding to the gazetteer items
     */
-  def extract(doc: Document): Seq[Mention] = {
+  def extract(doc: Document, initialState: State = new State()): Seq[Mention] = {
     // Annotate the document for gazetteer elements
     doc.sentences.map(annotateSentence)
     // Find them and convert them to mentions
@@ -66,12 +67,14 @@ class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) e
          |   priority: 1
          |   type: token
          |   pattern: |
-         |       [entity="B-${label}"] [entity="I-${label}"]*
+         |       [entity="B-${label}"] [entity="I-${label}"]* (to [entity="B-${label}"] [entity="I-${label}"]*)?
          |
         """.stripMargin
       engine = ExtractorEngine(ruleTemplate)
-    } yield engine.extractFrom(doc)
-    mentions.flatten
+    } yield engine.extractFrom(doc, initialState)
+    val flattened = mentions.flatten
+//    DisplayUtils.displayMentions(flattened, doc)
+    expander.map(_.expand(flattened)).getOrElse(flattened)
   }
 }
 
