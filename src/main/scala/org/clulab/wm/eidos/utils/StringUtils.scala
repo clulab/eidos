@@ -29,6 +29,4 @@ object StringUtils {
 
   def afterFirst(string: String, char: Char, all: Boolean = true): String =
       after(string, string.indexOf(char), all)
-
-  def toRegex(string: String): Regex = s"$string".r
 }

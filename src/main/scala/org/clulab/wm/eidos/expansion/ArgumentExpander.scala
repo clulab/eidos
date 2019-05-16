@@ -5,7 +5,6 @@ import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.extraction.EntityHelper
-import org.clulab.wm.eidos.utils.StringUtils.toRegex
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.expansion.ArgumentExpander.logger
 
@@ -190,10 +189,10 @@ object ArgumentExpander {
     val validOutgoing: List[String] = config[List[String]]("validOutgoing")
     val invalidOutgoing: List[String] = config[List[String]]("invalidOutgoing")
     val expansionDeps = Dependencies(
-      validIncoming.map(toRegex).toSet,
-      invalidIncoming.map(toRegex).toSet,
-      validOutgoing.map(toRegex).toSet,
-      invalidOutgoing.map(toRegex).toSet
+      validIncoming.map(_.r).toSet,
+      invalidIncoming.map(_.r).toSet,
+      validOutgoing.map(_.r).toSet,
+      invalidOutgoing.map(_.r).toSet
     )
     val maxHops: Int = config[Int]("maxHops")
     new ArgumentExpander(validArgs.toSet, validLabels.toSet, expansionDeps, maxHops)
