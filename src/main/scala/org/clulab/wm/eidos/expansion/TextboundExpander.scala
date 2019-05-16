@@ -6,7 +6,6 @@ import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.extraction.EntityConstraints
-import org.clulab.wm.eidos.utils.StringUtils.toRegex
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.expansion.TextBoundExpander.logger
 
@@ -163,10 +162,10 @@ object TextBoundExpander {
     val validOutgoing: List[String] = config[List[String]]("validOutgoing")
     val invalidOutgoing: List[String] = config[List[String]]("invalidOutgoing")
     val expansionDeps = Dependencies(
-      validIncoming.map(toRegex).toSet,
-      invalidIncoming.map(toRegex).toSet,
-      validOutgoing.map(toRegex).toSet,
-      invalidOutgoing.map(toRegex).toSet
+      validIncoming.map(_.r).toSet,
+      invalidIncoming.map(_.r).toSet,
+      validOutgoing.map(_.r).toSet,
+      invalidOutgoing.map(_.r).toSet
     )
     val maxHops: Int = config[Int]("maxHops")
     new TextBoundExpander(expansionDeps, maxHops)
