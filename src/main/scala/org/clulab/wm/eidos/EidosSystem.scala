@@ -93,7 +93,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       val multiOntologyGrounder = ontologyHandler.ontologyGrounders
 
       // Expander for expanding the bare events
-      val expander = config.get[Config]("conceptExpander").map(Expander.fromConfig)
+      val expander = eidosConf.get[Config]("conceptExpander").map(Expander.fromConfig)
       if (keepStatefulConcepts && expander.isEmpty) println("NOTICE: You're keeping stateful Concepts but didn't load an expander.")
 
       // Temporal Parsing
