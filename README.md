@@ -1,4 +1,4 @@
-[![Build Status](http://jenkins.cs.arizona.edu:8090/job/eidos/job/egoitz-flairTimeTF/badge/icon)](http://jenkins.cs.arizona.edu:8090/job/eidos/job/egoitz-flairTimeTF/badge/icon)
+[![Build Status](http://jenkins.cs.arizona.edu:8090/job/eidos/job/egoitz-flairTimeTF/badge/icon)](http://jenkins.cs.arizona.edu:8090/job/eidos/job/egoitz-flairTimeTF/)
 
 
 # Eidos
