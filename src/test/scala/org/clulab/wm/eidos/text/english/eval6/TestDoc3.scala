@@ -601,10 +601,10 @@ class TestDoc3 extends EnglishTest {
     // Nodes here
     val rainfall = NodeSpec("seasonal rains", Inc("intensification"))
     val rainfallDeficit = NodeSpec("rainfall", Dec("deficits"), Dec("ease"))
-    val rainfall2 = NodeSpec("rains", Quant("heavy"))
-    val maize = NodeSpec("maize harvesting", Dec("hamper"))
+    val rainfall2 = NodeSpec("expected heavy rains", Quant("heavy"), Inc("heavy"))
+    val maize = NodeSpec("ongoing maize harvesting", Quant("ongoing"), Dec("hamper"))
     val drying = NodeSpec("drying activities", Dec("hamper"))
-    val losses = NodeSpec("post-harvest losses")
+    val losses = NodeSpec("post-harvest losses", Dec("losses"))
     val dry = NodeSpec("dry days", Quant("significant")) // todo: this is a part of the hyper edge, should handle one day
 
     behavior of "TestDoc3 Paragraph 15"
@@ -613,13 +613,13 @@ class TestDoc3 extends EnglishTest {
     failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, rainfallDeficit)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 2" taggedAs(Somebody) in {
+    passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall2, Causal, maize)) should be (successful) // Test edges connecting them
     }
     failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall2, Causal, drying)) should be (successful) // Test edges connecting them
     }
-    failingTest should "have correct edges 4" taggedAs(Somebody) in {
+    passingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall2, Causal, losses)) should be (successful) // Test edges connecting them
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {

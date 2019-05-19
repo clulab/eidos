@@ -7,6 +7,7 @@ import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosActions
+import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
 
@@ -88,7 +89,7 @@ class EidosEntityFinder(entityEngine: ExtractorEngine, avoidEngine: ExtractorEng
     // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
     (entity.tags.get.last.startsWith("JJ") || entity.tags.get.last.startsWith("ADJ")) && nextTagNN(entity) ||
     // Otherwise, is it a determiner that may need to be resolved downstream?
-    EidosActions.startsWithCorefDeterminer(entity)
+    CorefHandler.startsWithCorefDeterminer(entity) // fixme
     // Otherwise, it's not valid
   }
 

@@ -12,7 +12,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/] (in|to|into)
       cause: Entity  = nsubj /^nmod_/?
-      effect: Entity = (nmod_in | nmod_to){1,2} | ccomp (nsubj | dobj)?
+      effect: Entity = (nmod_in | nmod_to){1,2} (amod | compound)? | ccomp (nsubj | dobj)?
 
   - name: reverse_causal-noun-2
     priority: ${ rulepriority }

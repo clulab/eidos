@@ -49,13 +49,13 @@ object DisplayUtils {
     sb.toString
   }
 
-  def displayTimeExpressions(intervals: Seq[TimEx]): String = {
+  def displayTimeExpressions(timexes: Seq[TimEx]): String = {
     val sb = new StringBuffer()
-    for (interval <- intervals) {
-      sb.append(s"$tab span: ${interval.span._1},${interval.span._2} $nl")
-      for (i <- interval.intervals) {
-        val start = Option(i.start).map(_.toString).getOrElse("Undef")
-        val end = Option(i.end).map(_.toString).getOrElse("Undef")
+    for (timex <- timexes) {
+      sb.append(s"$tab span: ${timex.span.start},${timex.span.end} $nl")
+      for (i <- timex.intervals) {
+        val start = i.startDateOpt.map(_.toString).getOrElse("Undef")
+        val end = i.endDateOpt.map(_.toString).getOrElse("Undef")
 
         sb.append(s"$tab start: $start $nl")
         sb.append(s"$tab end: $end $nl")

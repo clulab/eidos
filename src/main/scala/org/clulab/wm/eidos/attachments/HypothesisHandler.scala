@@ -68,23 +68,29 @@ class HypothesisHandler(hintsFile: String) {
       // Remove duplicates
       val indexes: Seq[Int] = (eventInterval ++ spannedIndexes).distinct
 
-      // Get the lemmas
-      val lemmas = indexes map (mention.sentenceObj.lemmas.get(_))
+      // Get the lemmas along with the indexes
+      val indexesAndLemmas = indexes.map { index =>
+        (index, mention.sentenceObj.lemmas.get(index))
+      }
 
       // Get the hedging "hints"
       // Reach was making intervals for each, I don't think we need that here, but we can always
       // up the amount of structure we store.
-      val hedgedLemmas = lemmas.filter(lemma => hints contains lemma)
+      val hedgedIndexesAndLemmas = indexesAndLemmas.filter { case(index, lemma) => hints contains lemma }
 
-      withApplicableHedging(mention, hedgedLemmas)
+      withApplicableHedging(mention, hedgedIndexesAndLemmas)
     } else {
       mention
     }
   }
 
   // If any hedging was found, store it as an attachment
-  def withApplicableHedging(m: Mention, hedgedLemmas: Seq[String]): Mention = {
-    val attachments = hedgedLemmas.map(Hedging(_, None))
+  def withApplicableHedging(m: Mention, hedgedIndexesAndLemmas: Seq[(Int, String)]): Mention = {
+    val attachments = hedgedIndexesAndLemmas.map { case (index, lemma) =>
+      val provenance = Provenance(m.document, m.sentence, Interval(index, index + 1))
+
+      new Hedging(lemma, None, Option(provenance), None)
+    }
 
     MentionUtils.withMoreAttachments(m, attachments)
   }

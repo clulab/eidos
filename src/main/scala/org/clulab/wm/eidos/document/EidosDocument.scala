@@ -1,12 +1,15 @@
 package org.clulab.wm.eidos.document
 
+import java.time.LocalDateTime
+
 import scala.math.{max, min}
 import scala.util.matching.Regex
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
-import org.clulab.timenorm.formal.Interval
-import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeExpression, TimeInterval}
+import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeInterval}
+import org.clulab.timenorm.formal.{ Interval => TimExInterval }
+import org.clulab.struct.{ Interval => TextInterval }
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.context.GeoPhraseID
 
@@ -105,7 +108,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
           }
         }
         timeExpressions.map { timex =>
-          TimEx((timex._1._1 + offset, timex._1._2 + offset), timex._2, sentenceText.slice(timex._1._1, timex._1._2))
+          val timeSteps = timex._2.map { interval => TimeStep(Option(interval.start), Option(interval.end), interval.duration) }
+          TimEx(TextInterval(timex._1._1 + offset, timex._1._2 + offset), timeSteps, sentenceText.slice(timex._1._1, timex._1._2))
         }
       }
       else
@@ -151,6 +155,8 @@ object EidosDocument {
 }
 
 @SerialVersionUID(1L)
-case class TimEx(span: (Int, Int), intervals: List[TimeInterval], text: String)
+case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
 @SerialVersionUID(1L)
-case class DCT(interval: Interval, text: String)
+case class TimEx(span: TextInterval, intervals: List[TimeStep], text: String)
+@SerialVersionUID(1L)
+case class DCT(interval: TimExInterval, text: String)

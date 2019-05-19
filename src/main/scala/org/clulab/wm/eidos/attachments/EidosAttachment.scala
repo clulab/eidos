@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
+import org.clulab.processors.Document
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.{DCT, TimEx}
@@ -25,9 +27,6 @@ abstract class EidosAttachment extends Attachment with Serializable with Quickly
 
   // Support for JSON serialization
   def toJson(): JValue
-
-  // Support for EidosMention which returns any mentions hiding in the attachments
-  def attachmentMentions: Seq[Mention] = Seq.empty
 }
 
 object EidosAttachment {
@@ -79,17 +78,58 @@ object EidosAttachment {
 }
 
 case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[String]] = None,
-    triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]] = None)
+    triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+
+
+case class Provenance(document: Document, sentence: Int, interval: Interval) extends Comparable[Provenance] {
+  override def compareTo(other: Provenance): Int = Provenance.compare(this, other)
+}
+
+object Provenance {
+  def apply(mention: Mention): Provenance = {
+    val document: Document = mention.document
+    val sentence: Int = mention.sentence
+    val interval: Interval = mention.tokenInterval
+
+    Provenance(document, sentence, interval)
+  }
+
+  def compare(left: Provenance, right: Provenance): Int = {
+    require(left.document.eq(right.document))
+
+    val leftSentence = left.sentence
+    val rightSentence = right.sentence
+
+    if (leftSentence != rightSentence)
+      leftSentence - rightSentence
+    else {
+      val leftStart = left.interval.start
+      val rightStart = right.interval.start
+
+      if (leftStart != rightStart)
+        leftStart - rightStart
+      else {
+        val leftEnd = left.interval.end
+        val rightEnd = right.interval.end
+
+        if (leftEnd != rightEnd)
+          leftEnd - rightEnd
+        else
+          0
+      }
+    }
+  }
+}
 
 @SerialVersionUID(1L)
 abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
-    triggerMention: Option[TextBoundMention] = None, quantifierMentions: Option[Seq[Mention]]) extends EidosAttachment {
+    val triggerProvenance: Option[Provenance] = None, val quantifierProvenances: Option[Seq[Provenance]]) extends EidosAttachment {
 
   // It is done this way, at least temporarily, so that serialization and comparisons can be made between
   // objects with and without the optional values.
-  def getTriggerMention = triggerMention
+  def getTriggerMention = triggerProvenance
 
-  def getQuantifierMentions = quantifierMentions
+  def getQuantifierMentions = quantifierProvenances
 
   override val argumentSize: Int = if (quantifiers.isDefined) quantifiers.get.size else 0
 
@@ -98,7 +138,6 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
   }
   // We keep the original order in adverbs for printing and things,
   // but the sorted version will be used for comparison.
-  // kwa: this is hopefully not used yet
   @BeanProperty val sortedQuantifiers: Seq[String] =
       if (quantifiers.isEmpty) Seq.empty
       else quantifiers.get.sorted
@@ -120,17 +159,6 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
 
   def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosTriggeredAttachment =
     new JLDEidosTriggeredAttachment(serializer, kind, this)
-
-  override def attachmentMentions: Seq[Mention] = {
-    val someTriggerMentions =
-        if (triggerMention.isEmpty) Seq.empty
-        else Seq(triggerMention.get)
-    val someQuantifierMentions =
-        if (quantifierMentions.isEmpty) Seq.empty
-        else quantifierMentions.get
-
-    someTriggerMentions ++ someQuantifierMentions
-  }
 
   def toJson(label: String): JValue = {
     val quants =
@@ -199,17 +227,20 @@ object TriggeredAttachment {
 
   def getAttachmentInfo(mention: Mention, key: String): AttachmentInfo = {
     val triggerMention: TextBoundMention = mention.asInstanceOf[EventMention].trigger
+    val triggerProvenance: Option[Provenance] = Some(Provenance(triggerMention))
     val triggerText: String = triggerMention.text
     val quantifierMentions: Option[Seq[Mention]] = mention.asInstanceOf[EventMention].arguments.get(key)
     val quantifierTexts: Option[Seq[String]] = quantifierMentions.map(_.map(_.text))
+    val quantifierProvenances: Option[Seq[Provenance]] = quantifierMentions.map(_.map(Provenance(_)))
 
-    AttachmentInfo(triggerText, quantifierTexts, Some(triggerMention), quantifierMentions)
+    AttachmentInfo(triggerText, quantifierTexts, triggerProvenance, quantifierProvenances)
   }
 }
 
 @SerialVersionUID(1L)
-class Quantification(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
-    quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
+class Quantification(trigger: String, quantifiers: Option[Seq[String]],
+    triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+    extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Quantification.kind)
@@ -227,13 +258,15 @@ object Quantification {
   def apply(mention: Mention): Quantification = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
-    new Quantification(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
+    new Quantification(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+        attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
   }
 }
 
 @SerialVersionUID(1L)
-class Property(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
-                     quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
+class Property(trigger: String, quantifiers: Option[Seq[String]],
+    triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+    extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDTriggeredAttachment(serializer, Property.kind)
@@ -251,13 +284,15 @@ object Property {
   def apply(mention: Mention): Property = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
-    new Property(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
+    new Property(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+        attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
   }
 }
 
 @SerialVersionUID(1L)
-class Increase(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
-    quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
+class Increase(trigger: String, quantifiers: Option[Seq[String]],
+    triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+    extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Increase.kind)
@@ -275,13 +310,15 @@ object Increase {
   def apply(mention: Mention): Increase = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
-    new Increase(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
+    new Increase(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+        attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
   }
 }
 
 @SerialVersionUID(1L)
-class Decrease(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
-    quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
+class Decrease(trigger: String, quantifiers: Option[Seq[String]],
+    triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+    extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDTriggeredAttachment(serializer, Decrease.kind)
@@ -299,13 +336,15 @@ object Decrease {
   def apply(mention: Mention): Decrease = {
     val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
 
-    new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts, attachmentInfo.triggerMention, attachmentInfo.quantifierMentions)
+    new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+        attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
   }
 }
 
 @SerialVersionUID(1L)
-class Hedging(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
-              quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
+class Hedging(trigger: String, quantifiers: Option[Seq[String]],
+    triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+    extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Hedging.kind)
 
@@ -317,18 +356,17 @@ object Hedging {
   val kind = "HEDGE"
 
   def apply(trigger: String, quantifiers: Option[Seq[String]]) = new Hedging(trigger, quantifiers)
-
 }
 
 @SerialVersionUID(1L)
-class Negation(trigger: String, quantifiers: Option[Seq[String]], triggerMention: Option[TextBoundMention] = None,
-               quantifierMentions: Option[Seq[Mention]] = None) extends TriggeredAttachment(trigger, quantifiers, triggerMention, quantifierMentions) {
+class Negation(trigger: String, quantifiers: Option[Seq[String]],
+    triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+    extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Negation.kind)
 
   override def toJson(): JValue = toJson(trigger)
 }
-
 
 object Negation {
   val label = "Negation"
@@ -404,12 +442,12 @@ object Time {
     if (superDiff != 0)
       superDiff
     else {
-      val startDiff = left.interval.span._1 - right.interval.span._1
+      val startDiff = left.interval.span.start - right.interval.span.start
 
       if (startDiff != 0)
         startDiff
       else {
-        val endDiff = left.interval.span._2 - right.interval.span._2
+        val endDiff = left.interval.span.end - right.interval.span.end
 
         endDiff
       }

@@ -145,7 +145,7 @@ class TestEidosActions extends ExtractionTest {
 //  }
 
   // fixme: do we want a default here for "english" ???
-  class TestEidosActions extends EidosActions(new Taxonomy(Map.empty), ExpansionHandler("english")) {
+  class TestEidosActions extends EidosActions(Some(ExpansionHandler("english")), None) {
     // Relax some protected functions for testing
 
     override def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] =
