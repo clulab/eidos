@@ -1,0 +1,20 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+
+rules:
+
+  - name: migration-1
+    priority: ${ rulepriority }
+    example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
+    label: ${ label }
+    #action: ${ action } # parse out quantity as an attachment
+    pattern: |
+      trigger = [lemma=arrive & tag=/^VB/]
+      group: Entity = >/${agents}/
+      moveTo: Location = >nmod_in
+#      moveFrom: Entity = >nmod_from
+# time!
+
+# I think i need to first make the geolocations proper mentions?
+# then modify the trigger of the locations
+# do the same for the times
