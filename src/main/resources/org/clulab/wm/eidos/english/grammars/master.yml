@@ -3,10 +3,22 @@ taxonomy: org/clulab/wm/eidos/english/grammars/taxonomy.yml
 vars: org/clulab/wm/eidos/english/grammars/triggers.yml
 
 rules:
+  #Entities are found with EntityFinder! Not extracted here!
+
+  # todo: add geolocations as mentions
+
 
   #Events
 
-  #Step 1: find the first attachments of entities (e.g., quantification, temporal and geospatial context)
+  # Higher priority domain-specific events
+  - import: org/clulab/wm/eidos/english/grammars/migration.yml
+    vars:
+      rulepriority: "1"
+      #action: ???
+      label: HumanMigration
+
+
+  # Find the direct attachments of entities (e.g., quantification, temporal and geospatial context)
   - import: org/clulab/wm/eidos/english/grammars/entityQuantification.yml
     vars:
       rulepriority: "2"
@@ -16,16 +28,16 @@ rules:
   - import: org/clulab/wm/eidos/english/grammars/temporalAttachment.yml
     vars:
       rulepriority: "2"
-      action: applyTimeAttachment #Should add quantifier to state of entity
+      action: applyTimeAttachment #Should add time expression to state of entity
       label: Time
 
   - import: org/clulab/wm/eidos/english/grammars/geoLocationAttachment.yml
     vars:
       rulepriority: "2"
-      action: applyLocationAttachment #Should add quantifier to state of entity
+      action: applyLocationAttachment #Should add geolocation to state of entity
       label: Location
 
-  #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
+  # Find other entity-modifying events (e.g. "Increase in rainfall")
   - import: org/clulab/wm/eidos/english/grammars/modifiersTemplate.yml
     vars:
       rulepriority: "3"
@@ -46,8 +58,6 @@ rules:
       action: applyAttachment #Should add Increase/Decrease to state of entity
 
 
-  #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
-  #Acts upon previously found entities
 
   # ------------ Causal ------------
   - import: org/clulab/wm/eidos/english/grammars/causal.yml

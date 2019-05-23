@@ -5,6 +5,7 @@
 - Property
 - Quantifier
 - Event:
+  - HumanMigration
   - EntityModifier:
     - Quantification
     - Increase
