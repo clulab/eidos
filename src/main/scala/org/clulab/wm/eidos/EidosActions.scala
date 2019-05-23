@@ -346,7 +346,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
       location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
     } yield location match {
       case None => theme
-      case Some(l) => Seq(theme.withAttachment(new Location(l)), trigger)
+      case Some(l) => theme.withAttachment(new Location(l))
     }
   }
 

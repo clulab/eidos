@@ -11,9 +11,16 @@ rules:
   #Events
 
   # Higher priority domain-specific events
-  - import: org/clulab/wm/eidos/english/grammars/migration.yml
+  - import: org/clulab/wm/eidos/english/grammars/context.yml
     vars:
       rulepriority: "1"
+
+
+
+
+  - import: org/clulab/wm/eidos/english/grammars/migration.yml
+    vars:
+      rulepriority: "2"
       #action: ???
       label: HumanMigration
 

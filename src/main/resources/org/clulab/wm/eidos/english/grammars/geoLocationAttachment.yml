@@ -7,5 +7,5 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [norm="LOC"] [norm="LOC"]*
+      trigger = [mention=Location]+ # todo: do we need th + to get the mulitiple tokens???
       theme: Entity = <compound? </^nmod/ >nmod_in?

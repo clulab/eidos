@@ -12,7 +12,7 @@ rules:
       trigger = [lemma=arrive & tag=/^VB/]
       group: Entity = >/${agents}/
       moveTo: Location = >nmod_in
-#      moveFrom: Entity = >nmod_from
+      moveFrom: Location = >nmod_from
 # time!
 
 # I think i need to first make the geolocations proper mentions?

@@ -1,0 +1,12 @@
+
+  - name: location-nn
+    priority: ${ rulepriority }
+    example: "reaching record levels in July."
+    label: Location
+    type: token
+    pattern: |
+      [norm="LOC"] [norm="LOC"]*
+
+
+      # todo: same for time
+      # make the other temporal attachment yml rules use the mention=X syntax
