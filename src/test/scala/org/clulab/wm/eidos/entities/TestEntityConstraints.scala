@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.entities
 
+import org.clulab.wm.eidos.extraction.EntityConstraints
 import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.collection.immutable.HashSet

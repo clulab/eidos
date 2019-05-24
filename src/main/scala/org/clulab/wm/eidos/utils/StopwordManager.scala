@@ -107,9 +107,9 @@ object StopwordManager {
   def apply(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) = new StopwordManager(stopwordsPath, transparentPath, corefHandler)
 
   def fromConfig(config: Config) = {
-    val stopwordsPath: String = config[String]("stopWordsPath")
-    val transparentPath: String = config[String]("transparentPath")
-    val corefHandler: CorefHandler = CorefHandler.fromConfig(config)
+    val stopwordsPath: String = config[String]("filtering.stopWordsPath")
+    val transparentPath: String = config[String]("filtering.transparentPath")
+    val corefHandler: CorefHandler = CorefHandler.fromConfig(config[Config]("actions")) // fixme
     apply(stopwordsPath, transparentPath, corefHandler)
   }
 }
