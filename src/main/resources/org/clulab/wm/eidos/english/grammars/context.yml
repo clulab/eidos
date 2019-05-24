@@ -1,12 +1,30 @@
 
   - name: location-nn
     priority: ${ rulepriority }
-    example: "reaching record levels in July."
+    example: "reaching record levels in South Sudan."
     label: Location
     type: token
     pattern: |
-      [norm="LOC"] [norm="LOC"]*
+      [norm="LOC"] [chunk="I-NP"]*
+#      there are some cases with a LOC followed by something labeled ORGANIZATION that should be LOC
 
+  - name: location-backoff
+    priority: ${ rulepriority }
+    example: "was reported through Gangura and Nabiapai"
+    label: Location
+    type: token
+    pattern: |
+      [entity="LOCATION"] [entity="LOCATION"]*
+
+  - name: time-nn
+    priority: ${ rulepriority }
+    example: "reaching record levels in July."
+    label: Time
+    type: token
+    pattern: |
+      [entity="DATE"] [entity="DATE"]*
+#      |
+#      [entity="DURATION"] [entity="DURATION"]*
 
       # todo: same for time
       # make the other temporal attachment yml rules use the mention=X syntax

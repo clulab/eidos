@@ -217,10 +217,16 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
   // We need to remove underspecified EventMentions of near-duplicate groupings
   // (ex. same phospho, but one is missing a site)
-  def argTokenInterval(m: EventMention): Interval = {
+  def argTokenInterval(m: EventMention): Interval =  {
+
+    if (m.arguments.keys.nonEmpty) {
     val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
     val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
     Interval(start = min, end = max)
+    } else {
+      println("WARNING: Event with no arguments.")
+      Interval(start = m.trigger.tokenInterval.start, end = m.trigger.tokenInterval.end)
+    }
   }
 
   def importanceFromLengthAndAttachments(m: EventMention): Int = {

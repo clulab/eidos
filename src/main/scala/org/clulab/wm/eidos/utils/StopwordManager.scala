@@ -104,6 +104,10 @@ object StopwordManager {
   val STOP_POS: Set[String] = Set("CD")
   val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "PERSON", "PLACE", "SET", "TIME")
 
+// maybe use this to get missed Locations/Dates/etc?; not sure if necessary anymore?
+//  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")
+
+
   def apply(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) = new StopwordManager(stopwordsPath, transparentPath, corefHandler)
 
   def fromConfig(config: Config) = {

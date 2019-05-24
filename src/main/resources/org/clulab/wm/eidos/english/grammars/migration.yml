@@ -3,17 +3,49 @@ vars: org/clulab/wm/eidos/english/grammars/vars.yml
 
 rules:
 
-  - name: migration-1
+  - name: migration-verbs1
     priority: ${ rulepriority }
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
     label: ${ label }
     #action: ${ action } # parse out quantity as an attachment
     pattern: |
-      trigger = [lemma=arrive & tag=/^VB/]
-      group: Entity = >/${agents}/
-      moveTo: Location = >nmod_in
-      moveFrom: Location = >nmod_from
-# time!
+      trigger = [lemma=/(arrive|flee|leave|pour|displace|cross)/ & tag=/^VB/]
+      group: Entity? = <xcomp? (>/${agents}/|<acl)
+      moveTo: Location* = (>nmod_in|>nmod_into|>nmod_to|>nmod_for| >nmod_between >conj_and)
+      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)
+      moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through))
+      timeStart: Time? = >advcl_since? (>nmod_since)
+      timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
+      time: Time? = (>nmod_during >nummod|>nmod_in)
+
+  - name: migration-verbs2
+    priority: ${ rulepriority }
+    example: "For many FGD respondents from Greater Equatoria, this was the second or even third time they or their family had been displaced out of South Sudan; many reported leaving during the 2013 displacement crisis and/or in the second Sudanese Civil War (1983-2006)."
+    label: ${ label }
+    #action: ${ action } # parse out quantity as an attachment
+    pattern: |
+      trigger = [lemma=displace & tag=/^VB/]
+      group: Entity* = (>/${agents}/|>advcl_as >nmod_by|>ccomp >/${agents}/)
+      moveTo: Location* = (>nmod_in|>nmod_into|>advcl_as >nmod_by >nmod_in| >ccomp >/${agents}/ >nmod_in)
+      moveFrom: Location? = (>nmod_from|>nmod_out_of)
+      timeStart: Time? = >nmod_since
+      timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
+#      time: Time? = <"acl:relcl" <dep >parataxis >xcomp >nmod_during >nummod
+
+  - name: migration-nouns
+    priority: ${ rulepriority }
+    example: "Additional cross border movement to Ethiopia occurs via Pagak."
+    label: ${ label }
+    #action: ${ action } # parse out quantity as an attachment
+    pattern: |
+      trigger = [lemma=movement & tag=/^NN/]
+      group: Entity? = <xcomp? (>/${agents}/|<acl)
+      moveTo: Location* = (>nmod_in|>nmod_into|>nmod_to|>nmod_for| >nmod_between >conj_and)
+      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)
+      moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through))
+      timeStart: Time? = >advcl_since? (>nmod_since)
+      timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
+      time: Time? = (>nmod_during >nummod|>nmod_in)
 
 # I think i need to first make the geolocations proper mentions?
 # then modify the trigger of the locations
