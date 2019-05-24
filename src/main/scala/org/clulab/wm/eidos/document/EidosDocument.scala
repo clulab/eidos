@@ -34,31 +34,35 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
     val nearContext = (sentText: String, match_start: Int, match_end: Int) => {
       val contextStart = {
-	  val start = max(0, match_start - context_window_size)
-	  sentText.slice(start, match_start).reverse.indexOf("\n\n") match {
+        val start = max(0, match_start - context_window_size)
+        sentText.slice(start, match_start).reverse.indexOf("\n\n") match {
           case -1 => start
           case i => match_start - i
         }
       }
       val contextEnd = {
-	  val end = min(match_end + context_window_size, sentText.length)
-	  sentText.slice(match_end, end).indexOf("\n\n") match {
+        val end = min(match_end + context_window_size, sentText.length)
+        sentText.slice(match_end, end).indexOf("\n\n") match {
           case -1 => end
           case i => match_end + i
         }
       }
       (contextStart, contextEnd)
     }
-    val spansToParse = sentenceMatchesToParse.zipWithIndex.map{ case(sentMatch, sindex) => sentMatch.map(m => nearContext(textToParse(sindex), m.start, m.end))
-    	  .foldLeft(List.empty[(Int, Int, Int)]) { (list, c) =>
-    	     list match {
-               case l if l.isEmpty => List((sindex, c._1, c._2))
-               case l if l.last._3 >= c._1 => l.init :+ (sindex, l.last._2, c._2)
-               case l if l.last._3 < c._1 => l :+ (sindex, c._1, c._2)
-               case l => l :+ (sindex, c._1, c._2)
-    	    }
-    	}
-    }.toList.flatten
+    val spansToParse = sentenceMatchesToParse
+        .zipWithIndex
+        .map { case(sentMatch, sindex) => 
+          sentMatch
+              .map(m => nearContext(textToParse(sindex), m.start, m.end))
+              .foldLeft(List.empty[(Int, Int, Int)]) { (list, c) =>
+                list match {
+                  case l if l.isEmpty => List((sindex, c._1, c._2))
+                  case l if l.last._3 >= c._1 => l.init :+ (sindex, l.last._2, c._2)
+                  case l if l.last._3 < c._1 => l :+ (sindex, c._1, c._2)
+                  case l => l :+ (sindex, c._1, c._2)
+                }
+              }
+        }.toList.flatten
     val contextsToParse = spansToParse.map(span => textToParse(span._1).slice(span._2, span._3))
 
     // This might be turned into a class with variable names for documentation.

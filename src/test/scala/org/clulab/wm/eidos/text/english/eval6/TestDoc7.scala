@@ -171,10 +171,10 @@ class TestDoc7 extends EnglishTest {
   }
   { // Paragraph 6
     val text = """
-	  FFP also partners with Catholic Relief Services to provide families in Jonglei
-	  State with emergency food assistance, expand access to safe drinking water, and
-	  implement livelihoods interventions, including providing agricultural training
-	  for farming households.
+      FFP also partners with Catholic Relief Services to provide families in Jonglei
+      State with emergency food assistance, expand access to safe drinking water, and
+      implement livelihoods interventions, including providing agricultural training
+      for farming households.
       """
   
     val tester = new GraphTester(text)
