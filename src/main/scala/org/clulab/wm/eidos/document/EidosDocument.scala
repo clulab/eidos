@@ -105,7 +105,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
               }
               if (matchIndex >= 0) // word was found inside time expression
                 norms(index) =
-                    if (wordStart == timeExpressions(matchIndex)._1._1) "B-Time" // ff wordStart == timeStart
+                    if (wordStart <= timeExpressions(matchIndex)._1._1 && wordEnd > timeExpressions(matchIndex)._1._1) "B-Time" // ff wordStart == timeStart
                     else "I-Time"
           }
         }
@@ -144,7 +144,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 }
 
 object EidosDocument {
-  protected val CONTEXT_WINDOW_SIZE = 50
+  protected val CONTEXT_WINDOW_SIZE = 20
   protected val BATCH_SIZE = 40
 
   def apply(document: Document, keepText: Boolean = true): EidosDocument = {
