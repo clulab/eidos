@@ -20,7 +20,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   var times: Option[Array[Seq[TimEx]]] = None
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
-  var context_window_size = 50
+  var context_window_size = 20
   var batch_size = 40
   type TimExType = ((Int, Int), List[TimeInterval])
 
@@ -103,7 +103,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
               }
               if (matchIndex >= 0) // word was found inside time expression
                 norms(index) =
-                    if (wordStart == timeExpressions(matchIndex)._1._1) "B-Time" // ff wordStart == timeStart
+                    if (wordStart <= timeExpressions(matchIndex)._1._1 && wordEnd > timeExpressions(matchIndex)._1._1) "B-Time" // ff wordStart == timeStart
                     else "I-Time"
           }
         }
