@@ -22,7 +22,6 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   var dct: Option[DCT] = None
   var context_window_size = 20
   var batch_size = 40
-  type TimExType = ((Int, Int), List[TimeInterval])
 
   protected def parseTime(timenorm: TemporalNeuralParser, regexs: List[Regex], documentCreationTime: Option[String]): Array[Seq[TimEx]] = {
     // Only parse text where a regex detects a time expressions. Get the surrounding context. If the contexts for different tokens overlap, join them.
@@ -47,19 +46,19 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
           case i => match_end + i
         }
       }
-      (contextStart, contextEnd)
+      TextInterval(contextStart, contextEnd)
     }
     val spansToParse = sentenceMatchesToParse.zipWithIndex.map{ case(sentMatch, sindex) => sentMatch.map(m => nearContext(textToParse(sindex), m.start, m.end))
-    	  .foldLeft(List.empty[(Int, Int, Int)]) { (list, c) =>
+    	  .foldLeft(List.empty[TextSpan]) { (list, context) =>
     	     list match {
-               case l if l.isEmpty => List((sindex, c._1, c._2))
-               case l if l.last._3 >= c._1 => l.init :+ (sindex, l.last._2, c._2)
-               case l if l.last._3 < c._1 => l :+ (sindex, c._1, c._2)
-               case l => l :+ (sindex, c._1, c._2)
+               case l if l.isEmpty => List(TextSpan(sindex, context))
+               case l if l.last.span.end >= context.start => l.init :+ TextSpan(sindex, TextInterval(l.last.span.start, context.end))
+               case l if l.last.span.end < context.start => l :+ TextSpan(sindex, context)
+               case l => l :+ TextSpan(sindex, context)
     	    }
     	}
     }.toList.flatten
-    val contextsToParse = spansToParse.map(span => textToParse(span._1).slice(span._2, span._3))
+    val contextsToParse = spansToParse.map(spanToParse => textToParse(spanToParse.sentence_id).slice(spanToParse.span.start, spanToParse.span.end))
 
     // This might be turned into a class with variable names for documentation.
     // The offset might be used in the constructor to adjust it once and for all.
@@ -71,23 +70,25 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
           timenorm.intervals(parsed.tail, Some(dct.get.interval))
       case None => timenorm.intervals(contextsToParse.sliding(batch_size, batch_size).flatMap(timenorm.parse).toList)
     }
-    // Recover the list of intervals for each sentence.
-    val docTimeExpressions = (spansToParse zip contextsTimeExpressions).map({ case(span, timeExpressions) =>
-      (span._1, timeExpressions.map(t => ((t.span.start + span._2, t.span.end + span._2), t.intervals)))
-    }).foldLeft(List.empty[(Int, List[TimExType])]) { (list, n) =>
+    // Recover the list of time expressions for each sentence.
+    val docTimeExpressions = (spansToParse zip contextsTimeExpressions).map({ case(spanToParse, timeExpressions) =>
+      SentenceTimExs(spanToParse.sentence_id, timeExpressions.map(t =>
+        TimExIntervals(TextInterval(t.span.start + spanToParse.span.start, t.span.end + spanToParse.span.start), t.intervals)))
+    }).foldLeft(List.empty[SentenceTimExs]) { (list, sTimExs) =>
       list match {
-        case l if l.isEmpty => List(n)
-        case l if l.last._1 == n._1 => l.init :+ (l.last._1, l.last._2 ::: n._2)
-        case l if l.last._1 != n._1 => l :+ n
+        case l if l.isEmpty => List(sTimExs)
+        case l if l.last.sentence_id == sTimExs.sentence_id => l.init :+ SentenceTimExs(l.last.sentence_id, l.last.timexs ::: sTimExs.timexs)
+        case l if l.last.sentence_id != sTimExs.sentence_id => l :+ sTimExs
       }
-    }.map(_._2)
+    }
     // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
     // Account for this by adding the offset in time values or subtracting it from word values.
     sentences.map { sentence =>
       if (sentencesToParse.contains(sentence)) {
         val indexOfSentence = sentencesToParse.indexOf(sentence)
         val sentenceText = textToParse(indexOfSentence)
-        val timeExpressions: Seq[TimExType] = docTimeExpressions(indexOfSentence)
+        //val timeExpressions: Seq[TimExIntervals] = docTimeExpressions(indexOfSentence)
+        val timeExpressions: SentenceTimExs = docTimeExpressions(indexOfSentence)
         val offset = sentence.startOffsets.head
 
         // Update norms with B-I time expressions
@@ -95,21 +96,18 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
             norms.indices.foreach { index =>
               val wordStart = sentence.startOffsets(index) - offset
               val wordEnd = sentence.endOffsets(index) - offset
-              val matchIndex = timeExpressions.indexWhere { timex =>
-                val timeStart = timex._1._1
-                val timeEnd = timex._1._2
-
-                timeStart <= wordStart && wordEnd <= timeEnd
+              val matchIndex = timeExpressions.timexs.indexWhere { timex =>
+                timex.span.start <= wordStart && wordEnd <= timex.span.end
               }
               if (matchIndex >= 0) // word was found inside time expression
                 norms(index) =
-                    if (wordStart <= timeExpressions(matchIndex)._1._1 && wordEnd > timeExpressions(matchIndex)._1._1) "B-Time" // ff wordStart == timeStart
+                    if (wordStart <= timeExpressions.timexs(matchIndex).span.start && wordEnd > timeExpressions.timexs(matchIndex).span.start) "B-Time" // ff wordStart <= timeStart < wordEnd
                     else "I-Time"
           }
         }
-        timeExpressions.map { timex =>
-          val timeSteps = timex._2.map { interval => TimeStep(Option(interval.start), Option(interval.end), interval.duration) }
-          TimEx(TextInterval(timex._1._1 + offset, timex._1._2 + offset), timeSteps, sentenceText.slice(timex._1._1, timex._1._2))
+        timeExpressions.timexs.map { timex =>
+          val timeSteps = timex.intervals.map { interval => TimeStep(Option(interval.start), Option(interval.end), interval.duration) }
+          TimEx(TextInterval(timex.span.start + offset, timex.span.end + offset), timeSteps, sentenceText.slice(timex.span.start, timex.span.end))
         }
       }
       else
@@ -155,7 +153,13 @@ object EidosDocument {
 }
 
 @SerialVersionUID(1L)
+case class TextSpan(sentence_id: Int, span: TextInterval)
+@SerialVersionUID(1L)
 case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
+@SerialVersionUID(1L)
+case class TimExIntervals(span: TextInterval, intervals: List[TimeInterval])
+@SerialVersionUID(1L)
+case class SentenceTimExs(sentence_id: Int, timexs: List[TimExIntervals])
 @SerialVersionUID(1L)
 case class TimEx(span: TextInterval, intervals: List[TimeStep], text: String)
 @SerialVersionUID(1L)
