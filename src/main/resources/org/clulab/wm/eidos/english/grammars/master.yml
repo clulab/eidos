@@ -2,35 +2,11 @@ taxonomy: org/clulab/wm/eidos/english/grammars/taxonomy.yml
 
 vars: org/clulab/wm/eidos/english/grammars/triggers.yml
 
-  #correlation_triggers: "associat|correlat"
-  #other_triggers: "accept|direct|necess|overexpress|potenti|re-express|rescu|"
-
 rules:
-  #Entities are found with EntityFinder! Not extracted here!
-
-#  #Avoid
-#  - import: org/clulab/wm/eidos/grammars/avoidLocal.yml
-#    vars:
-#      rulepriority: "1"
-
-  #Quantifiers and Properties
-  - import: org/clulab/wm/eidos/english/grammars/lexiconner.yml
-    vars:
-      rulepriority: "1"
-
 
   #Events
-  # TODO: 'with X, Y...' sentences:
-  # example: "With the high cost of production, food imports will further reduce farmers' chances to make a living from agriculture."
-  # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
-  # TODO: rules for 'become' where do modifications live? causality?
-  # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
-  # example: "There will be a small increase in crop diversity due to the need to combat the climate and market risks
-  #            as both of these might become more volatile in the future."
-  # TODO: correlation rules
-  # example: "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income ."
 
-  #Step 1: find the direct attachments of entities (e.g. "small puppies")
+  #Step 1: find the first attachments of entities (e.g., quantification, temporal and geospatial context)
   - import: org/clulab/wm/eidos/english/grammars/entityQuantification.yml
     vars:
       rulepriority: "2"
@@ -71,7 +47,7 @@ rules:
 
 
   #Step 3: Find entity-linking events (e.g. "rainfall causes flooding")
-  #Acts upon entities
+  #Acts upon previously found entities
 
   # ------------ Causal ------------
   - import: org/clulab/wm/eidos/english/grammars/causal.yml
@@ -98,8 +74,6 @@ rules:
       action: pass
       trigger: ${reverse_direction_cause_triggers}
 
-
-
   # ------------ ExplicitLinker ------------
   - import: org/clulab/wm/eidos/english/grammars/explicitLinkers.yml
     vars:
@@ -118,7 +92,22 @@ rules:
       action: pass
       trigger: ${correlation_triggers}
 
+
+
+
+  # -------------- Notes and Future Work ---------------------
+
   # todo: result of, outcome of as triggers -- reverse direction rules
   # relate to as correlation trigger
   # maybe add temporal rules???
-  # import
+
+    # TODO: 'with X, Y...' sentences:
+    # example: "With the high cost of production, food imports will further reduce farmers' chances to make a living from agriculture."
+    # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
+    # TODO: rules for 'become' where do modifications live? causality?
+    # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
+    # example: "There will be a small increase in crop diversity due to the need to combat the climate and market risks
+    #            as both of these might become more volatile in the future."
+    # TODO: correlation rules
+    # example: "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income ."
+

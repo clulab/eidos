@@ -4,12 +4,11 @@ import java.util.IdentityHashMap
 
 import scala.collection.JavaConverters._
 import org.clulab.odin._
-import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-import org.clulab.wm.eidos.actions.ExpansionHandler
+
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils._
@@ -144,8 +143,8 @@ class TestEidosActions extends ExtractionTest {
 //    texts.zipWithIndex.foreach { case (text, index) => test(reader, text, index) }
 //  }
 
-  // fixme: do we want a default here for "english" ???
-  class TestEidosActions extends EidosActions(Some(ExpansionHandler("english")), None) {
+//  // fixme: do we want a default here for "english" ???
+  class TestEidosActions extends EidosActions(None, None) {
     // Relax some protected functions for testing
 
     override def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] =
