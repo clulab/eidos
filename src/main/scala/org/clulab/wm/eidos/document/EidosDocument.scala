@@ -45,15 +45,17 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
       }
       TextInterval(contextStart, contextEnd)
     }
-    val spansToParse = sentenceMatchesToParse.zipWithIndex.map{ case(sentMatch, sindex) => sentMatch.map(m => nearContext(textToParse(sindex), m.start, m.end))
-    	  .foldLeft(List.empty[TextSpan]) { (list, context) =>
-    	     list match {
-               case l if l.isEmpty => List(TextSpan(sindex, context))
-               case l if l.last.span.end >= context.start => l.init :+ TextSpan(sindex, TextInterval(l.last.span.start, context.end))
-               case l if l.last.span.end < context.start => l :+ TextSpan(sindex, context)
-               case l => l :+ TextSpan(sindex, context)
-    	    }
-    	}
+    val spansToParse = sentenceMatchesToParse.zipWithIndex.map { case(sentMatch, sindex) =>
+      sentMatch
+          .map(m => nearContext(textToParse(sindex), m.start, m.end))
+          .foldLeft(List.empty[TextSpan]) { (list, context) =>
+            list match {
+              case l if l.isEmpty => List(TextSpan(sindex, context))
+              case l if l.last.span.end >= context.start => l.init :+ TextSpan(sindex, TextInterval(l.last.span.start, context.end))
+              case l if l.last.span.end < context.start => l :+ TextSpan(sindex, context)
+              case l => l :+ TextSpan(sindex, context)
+            }
+          }
     }.toList.flatten
     val contextsToParse = spansToParse.map(spanToParse => textToParse(spanToParse.sentence_id).slice(spanToParse.span.start, spanToParse.span.end))
 
