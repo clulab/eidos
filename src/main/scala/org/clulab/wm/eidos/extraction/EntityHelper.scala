@@ -1,6 +1,6 @@
-package org.clulab.wm.eidos.entities
+package org.clulab.wm.eidos.extraction
 
-import org.clulab.odin.{Mention, State, TextBoundMention}
+import org.clulab.odin.{Mention, TextBoundMention}
 import org.clulab.struct.Interval
 
 import scala.annotation.tailrec
