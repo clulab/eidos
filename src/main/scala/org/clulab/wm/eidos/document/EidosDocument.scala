@@ -13,50 +13,49 @@ import org.clulab.struct.{ Interval => TextInterval }
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.context.GeoPhraseID
 
-
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
   // At some point these will turn into Array[Option[Seq[...]]].  Each sentences will have its own
   // Option[Seq[...]] as they do other things like tags, entities, and lemmas.
   var times: Option[Array[Seq[TimEx]]] = None
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
-  var context_window_size = 20
-  var batch_size = 40
 
   protected def parseTime(timenorm: TemporalNeuralParser, regexs: List[Regex], documentCreationTime: Option[String]): Array[Seq[TimEx]] = {
     // Only parse text where a regex detects a time expressions. Get the surrounding context. If the contexts for different tokens overlap, join them.
     // Do not include in the context text beyond 2 consecutive newline characters.
     val sentenceText = (sentence: Sentence) => text.map(text => text.slice(sentence.startOffsets.head, sentence.endOffsets.last)).getOrElse(sentence.getSentenceText)
-    val sentenceMatches = sentences.map(sentence => regexs.map(_.findAllMatchIn(sentenceText(sentence)).toList).flatten.sortBy(_.start))
+    val sentenceMatches = sentences.map(sentence => regexs.flatMap(_.findAllMatchIn(sentenceText(sentence))).sortBy(_.start))
     val (sentencesToParse, sentenceMatchesToParse) = (sentences zip sentenceMatches).filter{ case(_, m) => m.nonEmpty }.unzip
     val textToParse = sentencesToParse.map(sentenceText).toList
 
     val nearContext = (sentText: String, match_start: Int, match_end: Int) => {
       val contextStart = {
-	  val start = max(0, match_start - context_window_size)
-	  sentText.slice(start, match_start).reverse.indexOf("\n\n") match {
+        val start = max(0, match_start - EidosDocument.CONTEXT_WINDOW_SIZE)
+        sentText.slice(start, match_start).reverse.indexOf("\n\n") match {
           case -1 => start
           case i => match_start - i
         }
       }
       val contextEnd = {
-	  val end = min(match_end + context_window_size, sentText.length)
-	  sentText.slice(match_end, end).indexOf("\n\n") match {
+        val end = min(match_end + EidosDocument.CONTEXT_WINDOW_SIZE, sentText.length)
+        sentText.slice(match_end, end).indexOf("\n\n") match {
           case -1 => end
           case i => match_end + i
         }
       }
       TextInterval(contextStart, contextEnd)
     }
-    val spansToParse = sentenceMatchesToParse.zipWithIndex.map{ case(sentMatch, sindex) => sentMatch.map(m => nearContext(textToParse(sindex), m.start, m.end))
-    	  .foldLeft(List.empty[TextSpan]) { (list, context) =>
-    	     list match {
-               case l if l.isEmpty => List(TextSpan(sindex, context))
-               case l if l.last.span.end >= context.start => l.init :+ TextSpan(sindex, TextInterval(l.last.span.start, context.end))
-               case l if l.last.span.end < context.start => l :+ TextSpan(sindex, context)
-               case l => l :+ TextSpan(sindex, context)
-    	    }
-    	}
+    val spansToParse = sentenceMatchesToParse.zipWithIndex.map { case(sentMatch, sindex) =>
+      sentMatch
+          .map(m => nearContext(textToParse(sindex), m.start, m.end))
+          .foldLeft(List.empty[TextSpan]) { (list, context) =>
+            list match {
+              case l if l.isEmpty => List(TextSpan(sindex, context))
+              case l if l.last.span.end >= context.start => l.init :+ TextSpan(sindex, TextInterval(l.last.span.start, context.end))
+              case l if l.last.span.end < context.start => l :+ TextSpan(sindex, context)
+              case l => l :+ TextSpan(sindex, context)
+            }
+          }
     }.toList.flatten
     val contextsToParse = spansToParse.map(spanToParse => textToParse(spanToParse.sentence_id).slice(spanToParse.span.start, spanToParse.span.end))
 
@@ -65,10 +64,10 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
     // Parse the contexts in batches of batch_size. The dct goes in the first batch.
     val contextsTimeExpressions = documentCreationTime match {
       case Some(docTime) =>
-          val parsed = (docTime :: contextsToParse).sliding(batch_size, batch_size).flatMap(timenorm.parse).toList
+          val parsed = (docTime :: contextsToParse).sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList
           dct = Some(DCT(timenorm.dct(parsed.head), documentCreationTime.get))
           timenorm.intervals(parsed.tail, Some(dct.get.interval))
-      case None => timenorm.intervals(contextsToParse.sliding(batch_size, batch_size).flatMap(timenorm.parse).toList)
+      case None => timenorm.intervals(contextsToParse.sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList)
     }
     // Recover the list of time expressions for each sentence.
     val docTimeExpressions = (spansToParse zip contextsTimeExpressions).map({ case(spanToParse, timeExpressions) =>
@@ -140,6 +139,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 }
 
 object EidosDocument {
+  protected val CONTEXT_WINDOW_SIZE = 20
+  protected val BATCH_SIZE = 40
 
   def apply(document: Document, keepText: Boolean = true): EidosDocument = {
     val text = document.text // This will be the preprocessed text now.

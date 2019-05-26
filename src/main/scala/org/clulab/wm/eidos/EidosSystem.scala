@@ -111,8 +111,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         }
       }
 
-
-		
       // Geospatial Parsing
       val geonorm: Option[GeoDisambiguateParser] =
           if (useGeoNorm)
