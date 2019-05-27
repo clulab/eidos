@@ -37,6 +37,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
         case i => matchEnd + i
       }
     }
+
     TextInterval(contextStart, contextEnd)
   }
 
@@ -107,9 +108,9 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
         val wordStart = sentence.startOffsets(index)
         val wordEnd = sentence.endOffsets(index)
         // This only finds the first one, but there may be more.
-        val matchIndex = multiTextIntervalAndTimeIntervals.indexWhere { timeIntervalForTextInterval =>
-          timeIntervalForTextInterval.textInterval.start <= wordStart &&
-              wordEnd <= timeIntervalForTextInterval.textInterval.end
+        val matchIndex = multiTextIntervalAndTimeIntervals.indexWhere { textIntervalAndTimeIntervals =>
+          textIntervalAndTimeIntervals.textInterval.start <= wordStart &&
+              wordEnd <= textIntervalAndTimeIntervals.textInterval.end
         }
 
         if (matchIndex >= 0) // word was found inside time expression
