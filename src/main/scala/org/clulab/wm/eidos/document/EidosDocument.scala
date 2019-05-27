@@ -2,14 +2,14 @@ package org.clulab.wm.eidos.document
 
 import java.time.LocalDateTime
 
-import scala.math.{max, min}
 import scala.util.matching.Regex
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeInterval}
-import org.clulab.timenorm.formal.{ Interval => TimExInterval }
-import org.clulab.struct.{ Interval => TextInterval }
+import org.clulab.timenorm.formal.{Interval => TimExInterval}
+import org.clulab.struct.{Interval => TextInterval}
+import org.clulab.timenorm.neural.TimeExpression
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.context.GeoPhraseID
 
@@ -20,104 +20,157 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
   var dct: Option[DCT] = None
 
-  protected def parseTime(timenorm: TemporalNeuralParser, regexs: List[Regex], documentCreationTime: Option[String]): Array[Seq[TimEx]] = {
-    // Only parse text where a regex detects a time expressions. Get the surrounding context. If the contexts for different tokens overlap, join them.
+  protected def mkNearContext(sentenceText: String, matchStart: Int, matchEnd: Int): TextInterval = {
     // Do not include in the context text beyond 2 consecutive newline characters.
-    val sentenceText = (sentence: Sentence) => text.map(text => text.slice(sentence.startOffsets.head, sentence.endOffsets.last)).getOrElse(sentence.getSentenceText)
-    val sentenceMatches = sentences.map(sentence => regexs.flatMap(_.findAllMatchIn(sentenceText(sentence))).sortBy(_.start))
-    val (sentencesToParse, sentenceMatchesToParse) = (sentences zip sentenceMatches).filter{ case(_, m) => m.nonEmpty }.unzip
-    val textToParse = sentencesToParse.map(sentenceText).toList
-
-    val nearContext = (sentText: String, match_start: Int, match_end: Int) => {
-      val contextStart = {
-        val start = max(0, match_start - EidosDocument.CONTEXT_WINDOW_SIZE)
-        sentText.slice(start, match_start).reverse.indexOf("\n\n") match {
-          case -1 => start
-          case i => match_start - i
-        }
+    val separator = "\n\n"
+    val contextStart = {
+      val start = math.max(0, matchStart - EidosDocument.CONTEXT_WINDOW_SIZE)
+      sentenceText.slice(start, matchStart).reverse.indexOf(separator) match {
+        case -1 => start
+        case i => matchStart - i
       }
-      val contextEnd = {
-        val end = min(match_end + EidosDocument.CONTEXT_WINDOW_SIZE, sentText.length)
-        sentText.slice(match_end, end).indexOf("\n\n") match {
-          case -1 => end
-          case i => match_end + i
-        }
+    }
+    val contextEnd = {
+      val end = math.min(matchEnd + EidosDocument.CONTEXT_WINDOW_SIZE, sentenceText.length)
+      sentenceText.slice(matchEnd, end).indexOf(separator) match {
+        case -1 => end
+        case i => matchEnd + i
       }
-      TextInterval(contextStart, contextEnd)
     }
-    val spansToParse = sentenceMatchesToParse.zipWithIndex.map { case(sentMatch, sindex) =>
-      sentMatch
-          .map(m => nearContext(textToParse(sindex), m.start, m.end))
-          .foldLeft(List.empty[TextSpan]) { (list, context) =>
-            list match {
-              case l if l.isEmpty => List(TextSpan(sindex, context))
-              case l if l.last.span.end >= context.start => l.init :+ TextSpan(sindex, TextInterval(l.last.span.start, context.end))
-              case l if l.last.span.end < context.start => l :+ TextSpan(sindex, context)
-              case l => l :+ TextSpan(sindex, context)
-            }
-          }
-    }.toList.flatten
-    val contextsToParse = spansToParse.map(spanToParse => textToParse(spanToParse.sentence_id).slice(spanToParse.span.start, spanToParse.span.end))
 
-    // This might be turned into a class with variable names for documentation.
-    // The offset might be used in the constructor to adjust it once and for all.
-    // Parse the contexts in batches of batch_size. The dct goes in the first batch.
-    val contextsTimeExpressions = documentCreationTime match {
-      case Some(docTime) =>
-          val parsed = (docTime :: contextsToParse).sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList
-          dct = Some(DCT(timenorm.dct(parsed.head), documentCreationTime.get))
-          timenorm.intervals(parsed.tail, Some(dct.get.interval))
-      case None => timenorm.intervals(contextsToParse.sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList)
+    TextInterval(contextStart, contextEnd)
+  }
+
+  protected def getSentenceText(sentence: Sentence): String = {
+    text.map(text => text.slice(sentence.startOffsets.head, sentence.endOffsets.last))
+        .getOrElse(sentence.getSentenceText)
+  }
+
+  protected def mkMultiSentenceIndexAndTextInterval(sentenceIndex: Int, sentenceText: String, matches: Seq[Regex.Match]): Seq[SentenceIndexAndTextInterval] = {
+    val separateContexts: Seq[TextInterval] = matches.map(`match` => mkNearContext(sentenceText, `match`.start, `match`.end))
+    val joinedContexts: Seq[SentenceIndexAndTextInterval] = separateContexts.foldLeft(Seq.empty[SentenceIndexAndTextInterval]) { (list, context) =>
+      list match { // This name change it to keep IntelliJ from complaining
+        case li if li.isEmpty => List(SentenceIndexAndTextInterval(sentenceIndex, context))
+        case li if li.last.textInterval.end >= context.start => li.init :+ SentenceIndexAndTextInterval(sentenceIndex, TextInterval(li.last.textInterval.start, context.end))
+        case li => li :+ SentenceIndexAndTextInterval(sentenceIndex, context)
+      }
     }
-    // Recover the list of time expressions for each sentence.
-    val docTimeExpressions = (spansToParse zip contextsTimeExpressions).map({ case(spanToParse, timeExpressions) =>
-      SentenceTimExs(spanToParse.sentence_id, timeExpressions.map(t =>
-        TimExIntervals(TextInterval(t.span.start + spanToParse.span.start, t.span.end + spanToParse.span.start), t.intervals)))
-    }).foldLeft(List.empty[SentenceTimExs]) { (list, sTimExs) =>
+
+    joinedContexts
+  }
+
+  protected def mkMultiSentenceIndexAndTextIntervalAndTimeIntervals(textIntervalsToParse: List[SentenceIndexAndTextInterval],
+      contextsTimeExpressions: Seq[List[TimeExpression]], sentenceBundles: Seq[SentenceBundle]):
+      Seq[SentenceIndexAndTextIntervalAndTimeIntervals] = {
+    val separateExpressions: Seq[SentenceIndexAndTextIntervalAndTimeIntervals] = (textIntervalsToParse zip contextsTimeExpressions).map { case (textSpanToParse, contextTimeExpressions) =>
+      val sentenceStart = sentenceBundles(textSpanToParse.sentenceIndex).start
+      val intervals: Seq[TextIntervalAndTimeIntervals] = contextTimeExpressions.map { contextTimeExpression =>
+        TextIntervalAndTimeIntervals(
+          TextInterval(
+            // This is now the entire correction for location in the sentence and document.
+            sentenceStart + textSpanToParse.textInterval.start + contextTimeExpression.span.start,
+            sentenceStart + textSpanToParse.textInterval.start + contextTimeExpression.span.end
+          ),
+          contextTimeExpression.intervals
+        )
+      }
+      SentenceIndexAndTextIntervalAndTimeIntervals(textSpanToParse.sentenceIndex, intervals)
+    }
+    val joinedExpressions: Seq[SentenceIndexAndTextIntervalAndTimeIntervals] = separateExpressions.foldLeft(List.empty[SentenceIndexAndTextIntervalAndTimeIntervals]) { (list, sTimExs) =>
       list match {
-        case l if l.isEmpty => List(sTimExs)
-        case l if l.last.sentence_id == sTimExs.sentence_id => l.init :+ SentenceTimExs(l.last.sentence_id, l.last.timexs ::: sTimExs.timexs)
-        case l if l.last.sentence_id != sTimExs.sentence_id => l :+ sTimExs
+        case li if li.isEmpty => List(sTimExs)
+        case li if li.last.sentenceIndex == sTimExs.sentenceIndex => li.init :+ SentenceIndexAndTextIntervalAndTimeIntervals(li.last.sentenceIndex, li.last.multiTextIntervalAndTimeIntervals ++: sTimExs.multiTextIntervalAndTimeIntervals)
+        case li if li.last.sentenceIndex != sTimExs.sentenceIndex => li :+ sTimExs
       }
     }
-    // Sentences use offsets into the document.  Timenorm only knows about the single sentence.
-    // Account for this by adding the offset in time values or subtracting it from word values.
-    sentences.map { sentence =>
-      if (sentencesToParse.contains(sentence)) {
-        val indexOfSentence = sentencesToParse.indexOf(sentence)
-        val sentenceText = textToParse(indexOfSentence)
-        //val timeExpressions: Seq[TimExIntervals] = docTimeExpressions(indexOfSentence)
-        val timeExpressions: SentenceTimExs = docTimeExpressions(indexOfSentence)
-        val offset = sentence.startOffsets.head
 
-        // Update norms with B-I time expressions
-        sentence.norms.foreach { norms =>
-            norms.indices.foreach { index =>
-              val wordStart = sentence.startOffsets(index) - offset
-              val wordEnd = sentence.endOffsets(index) - offset
-              val matchIndex = timeExpressions.timexs.indexWhere { timex =>
-                timex.span.start <= wordStart && wordEnd <= timex.span.end
-              }
-              if (matchIndex >= 0) // word was found inside time expression
-                norms(index) =
-                    if (wordStart <= timeExpressions.timexs(matchIndex).span.start && wordEnd > timeExpressions.timexs(matchIndex).span.start) "B-Time" // ff wordStart <= timeStart < wordEnd
-                    else "I-Time"
-          }
-        }
-        timeExpressions.timexs.map { timex =>
-          val timeSteps = timex.intervals.map { interval => TimeStep(Option(interval.start), Option(interval.end), interval.duration) }
-          TimEx(TextInterval(timex.span.start + offset, timex.span.end + offset), timeSteps, sentenceText.slice(timex.span.start, timex.span.end))
-        }
+    joinedExpressions
+  }
+
+  protected def mkTimExs(sentenceBundle: SentenceBundle, multiTextIntervalAndTimeIntervals: Seq[TextIntervalAndTimeIntervals]): Seq[TimEx] = {
+    multiTextIntervalAndTimeIntervals.map { textIntervalAndTimeIntervals: TextIntervalAndTimeIntervals =>
+      val timeSteps: Seq[TimeStep] = textIntervalAndTimeIntervals.timeIntervals.map { timeInterval: TimeInterval =>
+        TimeStep(Option(timeInterval.start), Option(timeInterval.end), timeInterval.duration)
       }
-      else
-        Seq.empty[TimEx]
+      val text = sentenceBundle.text.slice(textIntervalAndTimeIntervals.textInterval.start - sentenceBundle.start,
+        textIntervalAndTimeIntervals.textInterval.end - sentenceBundle.start)
+
+      TimEx(textIntervalAndTimeIntervals.textInterval, timeSteps, text)
     }
   }
 
-  def parseTime(timenorm: Option[TemporalNeuralParser], regexs: Option[List[Regex]], documentCreationTime: Option[String]): Unit =
-     times = timenorm.map(parseTime(_, regexs.get, documentCreationTime))
+  protected def updateNorms(sentenceBundle: SentenceBundle, multiTextIntervalAndTimeIntervals: Seq[TextIntervalAndTimeIntervals]): Unit = {
+    val sentence = sentenceBundle.sentence
 
-  def parseGeoNorm(geoDisambiguateParser: GeoDisambiguateParser): Array[Seq[GeoPhraseID]] = {
+    // Update norms with B-I time expressions
+    sentence.norms.foreach { norms =>
+      norms.indices.foreach { index =>
+        val wordStart = sentence.startOffsets(index)
+        val wordEnd = sentence.endOffsets(index)
+        // This only finds the first one, but there may be more.
+        val matchIndex = multiTextIntervalAndTimeIntervals.indexWhere { textIntervalAndTimeIntervals =>
+          textIntervalAndTimeIntervals.textInterval.start <= wordStart &&
+              wordEnd <= textIntervalAndTimeIntervals.textInterval.end
+        }
+
+        if (matchIndex >= 0) // word was found inside time expression
+          norms(index) =
+              if (wordStart <= multiTextIntervalAndTimeIntervals(matchIndex).textInterval.start &&
+                  multiTextIntervalAndTimeIntervals(matchIndex).textInterval.start < wordEnd) "B-Time"
+              else "I-Time"
+      }
+    }
+  }
+
+  protected def parseTime(timenorm: TemporalNeuralParser, regexs: List[Regex], docTimeOpt: Option[String]): Array[Seq[TimEx]] = {
+    // Bundle up everything about a sentence that is needed later.
+    val sentenceBundles: Array[SentenceBundle] = sentences.zipWithIndex.map { case (sentence, index) =>
+      val text: String = getSentenceText(sentence)
+      // Only parse text where a regex detects a time expressions. Get the surrounding context.
+      val matches: Seq[Regex.Match] = regexs.flatMap(_.findAllMatchIn(text)).sortBy(_.start)
+      // If the contexts for different tokens overlap, join them.
+      val multiSentenceIndexAndTextInterval: Seq[SentenceIndexAndTextInterval] = mkMultiSentenceIndexAndTextInterval(index, text, matches)
+      val contexts: Seq[String] = multiSentenceIndexAndTextInterval.map { sentenceIndexAndTextInterval =>
+        text.slice(sentenceIndexAndTextInterval.textInterval.start, sentenceIndexAndTextInterval.textInterval.end)
+      }
+
+      SentenceBundle(index, sentence.startOffsets.head, sentence, text, multiSentenceIndexAndTextInterval, contexts)
+    }
+    // These next two lists work in parallel, allowing timeExpressions to be indexed to the sentences.
+    val (multiSentenceIndexAndTextInterval, contexts) = {
+      val listSentenceBundles = sentenceBundles.toList
+
+      (listSentenceBundles.flatMap(_.multiSentenceIndexAndTextInterval), listSentenceBundles.flatMap(_.contexts))
+    }
+    // Parse the contexts in batches of batch_size. The dct goes in the first batch.
+    val timeExpressions: Seq[List[TimeExpression]] = docTimeOpt match {
+      case Some(docTime) =>
+        val parsed = (docTime :: contexts).sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList
+        dct = Some(DCT(timenorm.dct(parsed.head), docTime)) // Note the side effect!
+        timenorm.intervals(parsed.tail, dct.map(_.interval))
+      case None =>
+        val parsed = contexts.sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList
+        timenorm.intervals(parsed)
+    }
+    // Correct offsets and combine them on a per sentence basis.
+    val timExMap = mkMultiSentenceIndexAndTextIntervalAndTimeIntervals(multiSentenceIndexAndTextInterval, timeExpressions, sentenceBundles)
+        // Recover the list of time expressions for each sentence.
+        .groupBy(_.sentenceIndex)
+        .map { case (sentenceIndex, multiSentenceIndexAndTextIntervalAndTimeIntervals) =>
+          val multiTextIntervalAndTimeIntervals = multiSentenceIndexAndTextIntervalAndTimeIntervals.flatMap(_.multiTextIntervalAndTimeIntervals)
+
+          updateNorms(sentenceBundles(sentenceIndex), multiTextIntervalAndTimeIntervals)
+          sentenceIndex -> mkTimExs(sentenceBundles(sentenceIndex), multiTextIntervalAndTimeIntervals)
+        }
+
+    // Make sure there is a Seq[TimEx] for each sentence.
+    sentenceBundles.map { sentenceBundle => timExMap.getOrElse(sentenceBundle.index, Seq.empty) }
+  }
+
+  def parseTime(timenorm: Option[TemporalNeuralParser], regexs: Option[List[Regex]], documentCreationTime: Option[String]): Unit =
+      times = timenorm.map(parseTime(_, regexs.get, documentCreationTime))
+
+  protected def parseGeoNorm(geoDisambiguateParser: GeoDisambiguateParser): Array[Seq[GeoPhraseID]] = {
     sentences.map { sentence =>
       val words = sentence.raw
       val features = geoDisambiguateParser.makeFeatures(words)
@@ -126,8 +179,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
       // Update norms with LOC, no B-LOC or I-LOC used
       sentence.norms.foreach { norms =>
         norms.indices.foreach { index =>
-            if (labelIndexes(index) != GeoDisambiguateParser.O_LOC)
-              norms(index) = "LOC"
+          if (labelIndexes(index) != GeoDisambiguateParser.O_LOC)
+            norms(index) = "LOC"
         }
       }
       geoDisambiguateParser.makeGeoLocations(labelIndexes, words, sentence.startOffsets, sentence.endOffsets)
@@ -135,7 +188,7 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   }
 
   def parseGeoNorm(geoDisambiguateParser: Option[GeoDisambiguateParser]): Unit =
-      geolocs = geoDisambiguateParser.map(parseGeoNorm)
+    geolocs = geoDisambiguateParser.map(parseGeoNorm)
 }
 
 object EidosDocument {
@@ -154,14 +207,18 @@ object EidosDocument {
 }
 
 @SerialVersionUID(1L)
-case class TextSpan(sentence_id: Int, span: TextInterval)
-@SerialVersionUID(1L)
 case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
 @SerialVersionUID(1L)
-case class TimExIntervals(span: TextInterval, intervals: List[TimeInterval])
-@SerialVersionUID(1L)
-case class SentenceTimExs(sentence_id: Int, timexs: List[TimExIntervals])
-@SerialVersionUID(1L)
-case class TimEx(span: TextInterval, intervals: List[TimeStep], text: String)
+case class TimEx(span: TextInterval, intervals: Seq[TimeStep], text: String)
 @SerialVersionUID(1L)
 case class DCT(interval: TimExInterval, text: String)
+
+@SerialVersionUID(1L)
+case class SentenceIndexAndTextInterval(sentenceIndex: Int, textInterval: TextInterval)
+@SerialVersionUID(1L)
+case class TextIntervalAndTimeIntervals(textInterval: TextInterval, timeIntervals: Seq[TimeInterval])
+@SerialVersionUID(1L)
+case class SentenceIndexAndTextIntervalAndTimeIntervals(sentenceIndex: Int, multiTextIntervalAndTimeIntervals: Seq[TextIntervalAndTimeIntervals])
+
+@SerialVersionUID(1L)
+case class SentenceBundle(index: Int, start: Int, sentence: Sentence, text: String, multiSentenceIndexAndTextInterval: Seq[SentenceIndexAndTextInterval], contexts: Seq[String])
