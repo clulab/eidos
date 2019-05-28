@@ -4,10 +4,10 @@ import java.io.File
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.ConfigFactory
+import org.clulab.embeddings.word2vec.CompactWord2Vec
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.utils.Canonicalizer
 
 object CacheOntologies extends App {
 
