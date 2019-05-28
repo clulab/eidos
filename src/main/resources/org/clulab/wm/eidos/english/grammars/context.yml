@@ -5,7 +5,7 @@
     label: Location
     type: token
     pattern: |
-      [norm="LOC"] [chunk="I-NP"]*
+      [norm="LOC" & !word=/KIs?/] [norm="LOC" & !word=/KIs?/]*
 #      there are some cases with a LOC followed by something labeled ORGANIZATION that should be LOC
 
   - name: location-backoff
@@ -15,6 +15,25 @@
     type: token
     pattern: |
       [entity="LOCATION"] [entity="LOCATION"]*
+
+  - name: location-expand
+    # find cases where a location is mislabeld in a conjunction with another location
+    priority: ${ rulepriority }
+    example: "was reported through Gangura and Nabiapai"
+    label: Location
+    type: token
+    pattern: |
+      (?<=[entity="LOCATION"] [word="and"]) [tag=/^NNP/ & !word=/KIs?/]+
+
+  # - name: location-expand-with-lexicon
+  #   # find cases where a location is mislabeld in a conjunction with another location
+  #   priority: ${ rulepriority }
+  #   example: "people returning from Ugandan refugee settlements"
+  #   label: Location
+  #   type: token
+  #   pattern: |
+  #     [chunk=B-NP] [entity=LOCATION]+
+
 
   - name: time-nn
     priority: ${ rulepriority }
