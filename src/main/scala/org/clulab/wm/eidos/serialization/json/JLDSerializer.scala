@@ -4,10 +4,7 @@ import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
 
-import org.clulab.odin.CrossSentenceMention
 import org.clulab.odin.EventMention
-import org.clulab.odin.RelationMention
-import org.clulab.odin.TextBoundMention
 import org.clulab.odin.{Attachment, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
@@ -112,7 +109,7 @@ class JLDSerializer(var adjectiveGrounder: Option[AdjectiveGrounder]) {
 
   def reorder(jldExtractions: Seq[JLDExtraction]): Unit = {
     if (jldExtractions.nonEmpty) {
-      val idsByIdentity = idsByTypenameByIdentity.get(jldExtractions.head.typename).get
+      val idsByIdentity = idsByTypenameByIdentity(jldExtractions.head.typename)
 
       jldExtractions.zipWithIndex.foreach { case (jldExtraction, index) =>
         idsByIdentity.put(jldExtraction.eidosMention, index + 1)
@@ -732,6 +729,9 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
   // use the version with the raw text because when the words are read back in, the conversion
   // is not performed again.
   protected def getSentenceFragmentText(sentence: Sentence, start: Int, end: Int): String = {
+    if (sentence.getSentenceText.startsWith("'' Working with a large number of"))
+      println("Trapped!")
+
     if (end - start == 1) return sentence.raw(start)
 
     val text = new mutable.StringBuilder()
@@ -739,9 +739,10 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
       if(i > start) {
         // add as many white spaces as recorded between tokens
         val numberOfSpaces = math.max(1, sentence.startOffsets(i) - sentence.endOffsets(i - 1))
-        for (j <- 0 until numberOfSpaces) {
-          text.append(" ")
-        }
+//        for (j <- 0 until numberOfSpaces) {
+//          text.append(" ")
+//        }
+        0.until(numberOfSpaces).foreach(text.append(" "))
       }
       text.append(sentence.words(i)) // Changed from raw
     }
@@ -879,6 +880,26 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
     val leftDocumentIndex = mapOfDocuments.get(leftOdinMention.document)
     val rightDocumentIndex = mapOfDocuments.get(rightOdinMention.document)
 
+    def breakTie(): Boolean = {
+      // Really this should visit anything in Mention.equals, but many aren't obvious to the jsonld reader.
+      // Instead, check the canonical text, which might differ because of rule differences and then
+      // the label, which should also be different.  Don't go so far as to check the arguments just yet.
+      val leftCanonicalName = left.eidosMention.canonicalName
+      val rightCanonicalName = right.eidosMention.canonicalName
+
+      if (leftCanonicalName != rightCanonicalName)
+        leftCanonicalName < rightCanonicalName
+      else {
+        val leftLabel = leftOdinMention.label
+        val rightLabel = rightOdinMention.label
+
+        if (leftLabel != rightLabel)
+          leftLabel < rightLabel
+        else
+          true // Tie goes in favor of the left just because it came first.
+      }
+    }
+
     if (leftDocumentIndex != rightDocumentIndex)
       leftDocumentIndex < rightDocumentIndex
     else {
@@ -905,16 +926,15 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
               val rightTrigger = rightOdinMention.asInstanceOf[EventMention].trigger
               val leftProvenance = Provenance(leftTrigger)
               val rightProvenance = Provenance(rightTrigger)
-              val provenanceComparison = compare(leftProvenances, rightProvenances)
+              val provenanceComparison = leftProvenance.compareTo(rightProvenance)
 
               if (provenanceComparison != 0)
                 provenanceComparison < 0
               else
-                // try for attachments?
-                true
+                breakTie()
             }
             else
-              true
+              breakTie()
           }
         }
       }
