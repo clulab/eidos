@@ -102,6 +102,8 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
   protected def updateNorms(sentenceBundle: SentenceBundle, multiTextIntervalAndTimeIntervals: Seq[TextIntervalAndTimeIntervals]): Unit = {
     val sentence = sentenceBundle.sentence
 
+    // TODO: This might need to change to deal with overlapping TextIntervals.  There should be an
+    // issue filed against the problem.
     // Update norms with B-I time expressions
     sentence.norms.foreach { norms =>
       norms.indices.foreach { index =>
