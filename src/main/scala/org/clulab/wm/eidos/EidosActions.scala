@@ -5,13 +5,12 @@ import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.{DisplayUtils, MentionUtils}
+import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.struct.Interval
-import utils.DisplayUtils.{displayMention, shortDisplay}
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.expansion.Expander
 
 import scala.collection.mutable.{Set => MutableSet}
@@ -330,7 +329,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
       trigger = m.asInstanceOf[EventMention].trigger
       theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
       times = m.document.asInstanceOf[EidosDocument].times
-      time: Option[TimeInterval] = if (times.isDefined) times.get(m.sentence).find(_.span.start == trigger.startOffset) else None
+      time: Option[TimEx] = if (times.isDefined) times.get(m.sentence).find(_.span.start == trigger.startOffset) else None
     } yield time match {
       case None => theme
       case Some(t) => theme.withAttachment(new Time(t))
