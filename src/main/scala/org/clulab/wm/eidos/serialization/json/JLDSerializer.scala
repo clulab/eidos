@@ -729,9 +729,6 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
   // use the version with the raw text because when the words are read back in, the conversion
   // is not performed again.
   protected def getSentenceFragmentText(sentence: Sentence, start: Int, end: Int): String = {
-    if (sentence.getSentenceText.startsWith("'' Working with a large number of"))
-      println("Trapped!")
-
     if (end - start == 1) return sentence.raw(start)
 
     val text = new mutable.StringBuilder()
@@ -739,10 +736,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
       if(i > start) {
         // add as many white spaces as recorded between tokens
         val numberOfSpaces = math.max(1, sentence.startOffsets(i) - sentence.endOffsets(i - 1))
-//        for (j <- 0 until numberOfSpaces) {
-//          text.append(" ")
-//        }
-        0.until(numberOfSpaces).foreach(text.append(" "))
+
+        0.until(numberOfSpaces).foreach { _ => text.append(" ") }
       }
       text.append(sentence.words(i)) // Changed from raw
     }
