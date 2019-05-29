@@ -544,7 +544,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val statesValue = parse(json).asInstanceOf[JArray]
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_253" -> 0))
-      val timeIntervel = TimEx(Interval(0, 4), List.empty[TimeStep], "hello there")
+      val timeIntervel = TimEx(Interval(0, 4), Seq.empty[TimeStep], "hello there")
       val timexMap = Map("_:DCT_1" -> timeIntervel)
       val geolocMap: GeolocMap = Map.empty
       val dctMap: DctMap = Map.empty
