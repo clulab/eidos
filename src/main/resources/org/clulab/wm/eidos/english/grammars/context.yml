@@ -8,13 +8,37 @@
       [norm="LOC" & !word=/KIs?/] [norm="LOC" & !word=/KIs?/]*
 #      there are some cases with a LOC followed by something labeled ORGANIZATION that should be LOC
 
+  - name: location-nn-expand-out
+    priority: ${ rulepriority }
+    example: "reaching record levels in South Sudan."
+    label: Location
+    type: token
+    pattern: |
+      [!norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP & !word=and]* [norm="LOC" & chunk=I-NP]+ [!norm="LOC" & chunk=I-NP & !word=and]*
+
+  - name: location-nn-expand-right
+    priority: ${ rulepriority }
+    example: "reaching record levels in South Sudan."
+    label: Location
+    type: token
+    pattern: |
+      [norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP]+
+
   - name: location-backoff
     priority: ${ rulepriority }
     example: "was reported through Gangura and Nabiapai"
     label: Location
     type: token
     pattern: |
-      [entity="LOCATION"] [entity="LOCATION"]*
+      [entity="LOCATION" & !norm="LOC"] [entity="LOCATION" & !norm="LOC"]*
+
+  - name: location-backoff-expand
+    priority: ${ rulepriority }
+    example: "• Demographic data: 133 individuals were recorded transiting through the Juba Port FMP"
+    label: Location
+    type: token
+    pattern: |
+      [entity="LOCATION" & !norm="LOC"] [chunk="I-NP" & tag=/^NNP/ & !norm="LOC" & !word=and]+
 
   - name: location-expand
     # find cases where a location is mislabeld in a conjunction with another location
@@ -23,19 +47,9 @@
     label: Location
     type: token
     pattern: |
-      (?<=[entity="LOCATION"] [word="and"]) [tag=/^NNP/ & !word=/KIs?/]+
+      (?<=[entity="LOCATION"] [word="and"]) [tag=/^NNP/ & !word=/(KIs?)|DRC/ & !norm="LOC" & !entity="LOCATION"]+
 
-  # - name: location-expand-with-lexicon
-  #   # find cases where a location is mislabeld in a conjunction with another location
-  #   priority: ${ rulepriority }
-  #   example: "people returning from Ugandan refugee settlements"
-  #   label: Location
-  #   type: token
-  #   pattern: |
-  #     [chunk=B-NP] [entity=LOCATION]+
-
-
-  - name: time-nn
+  - name: time-stanford
     priority: ${ rulepriority }
     example: "reaching record levels in July."
     label: Time

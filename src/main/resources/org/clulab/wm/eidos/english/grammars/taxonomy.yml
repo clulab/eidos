@@ -10,8 +10,13 @@
     - Quantification
     - Increase
     - Decrease
-    - Time
-    - Location
+    - Time:
+      - Time-NN
+      - Time-Stanford
+    - Location:
+      - Location-NN
+      - Location-Stanford
+      - Location-Expand
   - EntityLinker:
     - DirectedRelation:
       - Causal
