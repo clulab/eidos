@@ -285,7 +285,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       // Check to see if any of the Concepts have state attachments
       val (expandable, notExpandable) = concepts.partition(_.attachments.filter(isIncDecQuant).nonEmpty)
       // Get the already expanded mentions for this document
-      val prevExpandableState = State(relations.filter(rel => EidosSystem.CAG_EDGES.contains(rel.label)))
+      val prevExpandableState = State(relations.filter(rel => EidosSystem.EXPAND.contains(rel.label)))
       // Expand the Concepts if they weren't already part of an expanded Relation
       val expandedConcepts = expandIfNotExpanded(expandable, prevExpandableState)
       expandedConcepts ++ notExpandable ++ relations
@@ -322,7 +322,8 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL, MIGRATION_LABEL)
+  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
+  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 }

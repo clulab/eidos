@@ -3,7 +3,7 @@ vars: org/clulab/wm/eidos/english/grammars/vars.yml
 
 rules:
 
-  - name: migration-verbs1
+  - name: migration-verbs
     priority: ${ rulepriority }
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
     label: ${ label }
@@ -11,31 +11,31 @@ rules:
     pattern: |
       trigger = [lemma=/(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
-      moveTo: Location* = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl >nmod_in)|(>advmod >nmod_towards)
-      moveFrom: Location* = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
-      moveThrough: Location* = </${agents}/? (>nmod_via|>nmod_through)
+      moveTo: Location? = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl >nmod_in)|(>advmod >nmod_towards)
+      moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
+      moveThrough: Location? = </${agents}/? (>nmod_via|>nmod_through)
       timeStart: Time? = >nmod_since|>nmod_after|(>advcl_since >nmod_in)
       timeEnd: Time? = >nmod_as_of|>nmod_until|>nmod_by
       time: Time? = (>nmod_during >nummod)|>nmod_in
 
 
-  - name: migration_arrive
+  - name: migration-arrive
     # arrive behaves differently with nmod_in than other migration verbs
     priority: ${ rulepriority }
-    example: Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November.
+    example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
     label: ${ label }
     pattern: |
       trigger = [lemma=arrive & tag=/^VB/]
       group: Entity? = ((<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?)|(<acl <nmod_with >nsubjpass)) [!entity="LOCATION"]
-      moveTo: Location* = (</${agents}/? >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl? >nmod_in)|(>advmod >nmod_towards)
-      moveFrom: Location* = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
-      moveThrough: Location* = </${agents}/? (>nmod_via|>nmod_through)
+      moveTo: Location? = (</${agents}/? >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl? >nmod_in)|(>advmod >nmod_towards)
+      moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
+      moveThrough: Location? = </${agents}/? (>nmod_via|>nmod_through)
       timeStart: Time? = >nmod_since|>nmod_after|(>advcl_since >nmod_in)
       timeEnd: Time? = >nmod_as_of|>nmod_until|>nmod_by
       time: Time? = (>nmod_during >nummod)|>nmod_in
 
 
-  - name: migration-verbs2
+  - name: migration-displace
     # displace acts differently a lot of the time
     priority: ${ rulepriority }
     example: "For many FGD respondents from Greater Equatoria, this was the second or even third time they or their family had been displaced out of South Sudan; many reported leaving during the 2013 displacement crisis and/or in the second Sudanese Civil War (1983-2006)."
@@ -43,14 +43,14 @@ rules:
     pattern: |
       trigger = [lemma=displace & tag=/^VB/]
       group: Entity? = (<acl|>dobj|(>advcl_as >nmod_by)|(>ccomp? >/${agents}/)|(>/${agents}/ >nmod_of))
-      moveTo: Location* = >nmod_in|>nmod_into|>nmod_to|(>advcl_as >nmod_by >nmod_in)|(>ccomp >/${agents}/ >nmod_in)|(>nmod_between >conj_and)|(>advmod >nmod_towards)
-      moveFrom: Location* = (>nmod_from|>nmod_out_of)
+      moveTo: Location? = >nmod_in|>nmod_into|>nmod_to|(>advcl_as >nmod_by >nmod_in)|(>ccomp >/${agents}/ >nmod_in)|(>nmod_between >conj_and)|(>advmod >nmod_towards)
+      moveFrom: Location? = (>nmod_from|>nmod_out_of)
       timeStart: Time? = >nmod_since
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = >nmod_during|(>nmod_between >conj_and?)
 
 
-  - name: migration_make-way
+  - name: migration-make-way
     # for idiomatic 'make X's way'
     priority: ${ rulepriority }
     example: "IDPs from Uror also made their way to Duk, which hosted 24% of IDPs in March compared to 10% in February."
@@ -58,15 +58,15 @@ rules:
     pattern: |
       trigger = [lemma=make & outgoing=dobj] (?= [word=/.*/]{,5} [lemma=way])
       group: Entity? = <xcomp? (>/${agents}/|<acl)
-      moveTo: Location* = (>nmod_in|>nmod_into|>nmod_to|>nmod_for| >nmod_between >conj_and)
-      moveFrom: Location* = (>nmod_from|>nmod_out_of|>nmod_between|>dobj >conj_or?|>/${agents}/ >nmod_from)
-      moveThrough: Location* = (</${agents}/ (>nmod_via|>nmod_through))
+      moveTo: Location? = (>nmod_in|>nmod_into|>nmod_to|>nmod_for| >nmod_between >conj_and)
+      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_between|>dobj >conj_or?|>/${agents}/ >nmod_from)
+      moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through))
       timeStart: Time? = (>nmod_since|>nmod_after)|(>advcl_since >nmod_in)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = (>nmod_during >nummod|>nmod_in)
 
 
-  - name: migration_receive
+  - name: migration-receive-host
     # receive takes groups as dobj, destination as agents
     priority: ${ rulepriority }
     example: "In March, Bor Town continued to receive IDPs displaced from the Equatorias, in particular Yei and populations returning from refugee settlements in Uganda."
@@ -74,17 +74,17 @@ rules:
     pattern: |
       trigger = [lemma=/receive|host/ & tag=/^VB/]
       group: Entity? = >dobj
-      moveTo: Location+ = (>nmod_to|>nmod_for|(>nmod_between >conj_and)|>/${agents}/)
-      moveFrom: Location* = (>nmod_from|>nmod_out_of|>nmod_between|>dobj >conj_or?|>/${agents}/ >nmod_from)
-      moveThrough: Location* = (</${agents}/ (>nmod_via|>nmod_through))
+      moveTo: Location? = (>nmod_to|>nmod_for|(>nmod_between >conj_and)|>/${agents}/)
+      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_between|>dobj >conj_or?|>/${agents}/ >nmod_from)
+      moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through))
       timeStart: Time? = (>nmod_since|>nmod_after)|(>advcl_since >nmod_in)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = (>nmod_during >nummod|>nmod_in)
 
 
-  - name: migration_settle
+  - name: migration-settle
     priority: ${ rulepriority }
-    example: Based on regular visits by REACH to sites in Bor Town where IDPs have settled, as well as the continuous inflow of new arrivals, a conservative estimate would suggest that the number of IDPs from the Equatorias in Bor Town is likely to have been around 12,000-15,000 individuals at the end of March.
+    example: "Based on regular visits by REACH to sites in Bor Town where IDPs have settled, as well as the continuous inflow of new arrivals, a conservative estimate would suggest that the number of IDPs from the Equatorias in Bor Town is likely to have been around 12,000-15,000 individuals at the end of March."
     label: ${ label }
     pattern: |
       trigger = [lemma=settle & tag=/^VB/]
@@ -92,19 +92,19 @@ rules:
       moveTo: Location? = <"acl:relcl"|>nmod_in
 
 
-  - name: migration_pass
+  - name: migration-pass
   # "pass through"
     priority: ${ rulepriority }
-    example: Interviewed KIs passed through Nimule and Juba before settling in Bor.
+    example: "Interviewed KIs passed through Nimule and Juba before settling in Bor."
     label: ${ label }
     pattern: |
       trigger = [lemma=pass & tag=/^VB/]
       group: Entity? = >/${agents}/
       moveTo: Location? = <"acl:relcl"|>nmod_on >nmod_to
-      moveThrough: Location+ = >nmod_through|>dobj
+      moveThrough: Location? = >nmod_through|>dobj
 
 
-  - name: migration_reach
+  - name: migration-reach
     priority: ${ rulepriority }
     example: "• Departures: 375 individuals were recorded leaving Juba (52%) of which the vast majority intended to reach refugees camps in Uganda (75%)"
     label: ${ label }
@@ -112,30 +112,30 @@ rules:
     pattern: |
       trigger = [lemma=/reach/ & tag=/^VB/]
       group: Entity? = <xcomp? (>/${agents}/|<acl) >nmod_of?
-      moveTo: Location* = >dobj|>nmod_in
-      moveFrom: Location* = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>/${agents}/ >nmod_from)
-      moveThrough: Location* = </${agents}/ (>nmod_via|>nmod_through)
+      moveTo: Location? = >dobj|>nmod_in
+      moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>/${agents}/ >nmod_from)
+      moveThrough: Location? = </${agents}/ (>nmod_via|>nmod_through)
       timeStart: Time? = >nmod_since|>nmod_after|(>advcl_since >nmod_in)
       timeEnd: Time? = >nmod_as_of|>nmod_until|>nmod_by
       time: Time? = (>nmod_during >nummod)|>nmod_in
 
 
-  - name: migration_nouns
+  - name: migration-nouns
     priority: ${ rulepriority }
     example: "Additional cross border movement to Ethiopia occurs via Pagak."
     label: ${ label }
     pattern: |
       trigger = [lemma=/(movement|outflow|inflow|displacement|exodus)/ & tag=/^NN/]
       group: Entity? = <xcomp? (>/${agents}/|<acl)|>nmod_of
-      moveTo: Location* = (<dobj|<nmod_in)? (>nmod_in|>nmod_into|>nmod_to|(>nmod_in [lemma=particular] >nmod_to)|>acl_to|>nmod_for|(>nmod_between >conj_and)|(</${agents}/ >nmod_toward >nmod_in?)) >dobj?
-      moveFrom: Location* = (>nmod_of? >nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)|(<dobj >/${agents}/)|(>nmod_within (?= case [lemma=from]) >conj_and?)
-      moveThrough: Location* = (</${agents}/ (>nmod_via|>nmod_through|>nmod_along))
+      moveTo: Location? = (<dobj|<nmod_in)? (>nmod_in|>nmod_into|>nmod_to|(>nmod_in [lemma=particular] >nmod_to)|>acl_to|>nmod_for|(>nmod_between >conj_and)|(</${agents}/ >nmod_toward >nmod_in?)) >dobj?
+      moveFrom: Location? = (>nmod_of? >nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)|(<dobj >/${agents}/)|(>nmod_within (?= case [lemma=from]) >conj_and?)
+      moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through|>nmod_along))
       timeStart: Time? = >advcl_since? (<dobj? >nmod_since)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = (<dobj? (>nmod_during >nummod|>nmod_in))|(</${agents}/ >nmod_in)
 
 
-  - name: migration_destination-dep
+  - name: migration-destination-dep
     priority: ${ rulepriority }
     example: "• Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
     label: ${ label }
@@ -143,7 +143,7 @@ rules:
       trigger = [lemma=destination & tag=/^NN/]
       moveTo: Location+ = <nsubj >conj_and?
 
-  - name: migration_destination-left
+  - name: migration-destination-left
     priority: ${ rulepriority }
     example: "• Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
     label: ${ label }
@@ -151,7 +151,7 @@ rules:
     pattern: |
       [!word=from] @moveTo:Location+ (and @moveTo:Location+)? []{,5}? (?<trigger> [lemma=destination])
 
-  - name: migration_destination-right
+  - name: migration-destination-right
     priority: ${ rulepriority }
     example: "• Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
     label: ${ label }

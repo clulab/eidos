@@ -79,10 +79,10 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
 
   def releventEdge(m: Mention, state: State): Boolean = {
     m match {
-      case tb: TextBoundMention => EidosSystem.CAG_EDGES.contains(tb.label)
-      case rm: RelationMention => EidosSystem.CAG_EDGES.contains(rm.label)
-      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em, state)
-      case cs: CrossSentenceMention => EidosSystem.CAG_EDGES.contains(cs.label)
+      case tb: TextBoundMention => EidosSystem.EXPAND.contains(tb.label)
+      case rm: RelationMention => EidosSystem.EXPAND.contains(rm.label)
+      case em: EventMention => EidosSystem.EXPAND.contains(em.label) && argumentsHaveContent(em, state)
+      case cs: CrossSentenceMention => EidosSystem.EXPAND.contains(cs.label)
       case _ => throw new UnsupportedClassVersionError()
     }
   }
