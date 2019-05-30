@@ -304,6 +304,7 @@ object EidosSystem {
   val CONCEPT_EXPANDED_LABEL = "Concept-Expanded"
   val CORR_LABEL = "Correlation"
   val COREF_LABEL = "Coreference"
+  val MIGRATION_LABEL = "HumanMigration"
   // Taxonomy relations for other uses
   val RELATION_LABEL = "EntityLinker"
 
@@ -316,7 +317,7 @@ object EidosSystem {
   val SAME_AS_METHOD = "simple-w2v"
 
   // CAG filtering
-  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
+  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL, MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 }
