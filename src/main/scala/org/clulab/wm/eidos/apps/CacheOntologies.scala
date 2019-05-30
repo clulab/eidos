@@ -4,19 +4,19 @@ import java.io.File
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.ConfigFactory
+import org.clulab.embeddings.word2vec.CompactWord2Vec
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.utils.Canonicalizer
 
 object CacheOntologies extends App {
 
   val config = ConfigFactory.load("eidos")
   val reader = new EidosSystem(config)
-  val cacheDir: String = config[String]("cacheDir")
+  val cacheDir: String = config[String]("ontologies.cacheDir")
   // Since here we want to cache the current, we can't load from cached:
   assert(config[Boolean]("ontologies.useCache") == false, "To use CacheOntologies, you must set ontologies.useCache = false")
-  assert(config[Boolean]("useW2V") == true, "To use CacheOntologies, you must set useW2V = true")
+  assert(config[Boolean]("ontologies.useW2V") == true, "To use CacheOntologies, you must set useW2V = true")
   new File(cacheDir).mkdirs()
 
   val ontologyGrounders: Seq[EidosOntologyGrounder] = reader.ontologyHandler.grounders
@@ -40,7 +40,7 @@ object CacheOntologies extends App {
     println(s"Finished serializing ${ontologyGrounders.length} ontologies.")
   }
 
-  val filenameIn = config[String]("wordToVecPath")
+  val filenameIn = config[String]("ontologies.wordToVecPath")
   val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn)
   println(s"Saving vectors to $filenameOut...")
   val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)

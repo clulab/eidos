@@ -4,10 +4,7 @@ import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
 
-import org.clulab.odin.CrossSentenceMention
 import org.clulab.odin.EventMention
-import org.clulab.odin.RelationMention
-import org.clulab.odin.TextBoundMention
 import org.clulab.odin.{Attachment, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
@@ -16,7 +13,7 @@ import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.{AnnotatedDocument, DCT, EidosDocument, TimeInterval}
+import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
@@ -112,7 +109,7 @@ class JLDSerializer(var adjectiveGrounder: Option[AdjectiveGrounder]) {
 
   def reorder(jldExtractions: Seq[JLDExtraction]): Unit = {
     if (jldExtractions.nonEmpty) {
-      val idsByIdentity = idsByTypenameByIdentity.get(jldExtractions.head.typename).get
+      val idsByIdentity = idsByTypenameByIdentity(jldExtractions.head.typename)
 
       jldExtractions.zipWithIndex.foreach { case (jldExtraction, index) =>
         idsByIdentity.put(jldExtraction.eidosMention, index + 1)
@@ -654,19 +651,19 @@ object JLDTimeInterval {
 }
 
 
-class JLDTimex(serializer: JLDSerializer, val interval: TimeInterval)
+class JLDTimex(serializer:JLDSerializer, val timex: TimEx)
     // The document, sentence, index above will be used to recognized words.
-    extends JLDObject(serializer, JLDTimex.typename, interval) {
+    extends JLDObject(serializer, JLDTimex.typename, timex) {
   
   override def toJObject: TidyJObject = {
-    val jldIntervals = interval.intervals.map(timeStep => new JLDTimeInterval(serializer, timeStep.startDateOpt, timeStep.endDateOpt, timeStep.duration).toJObject)
+    val jldIntervals = timex.intervals.map(interval => new JLDTimeInterval(serializer, interval.startDateOpt, interval.endDateOpt, interval.duration).toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      "startOffset" -> interval.span.start,
-      "endOffset" -> interval.span.end,
-      "text" -> interval.text,
+      "startOffset" -> timex.span.start,
+      "endOffset" -> timex.span.end,
+      "text" -> timex.text,
       JLDTimeInterval.plural -> jldIntervals
     ))
   }
@@ -739,9 +736,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
       if(i > start) {
         // add as many white spaces as recorded between tokens
         val numberOfSpaces = math.max(1, sentence.startOffsets(i) - sentence.endOffsets(i - 1))
-        for (j <- 0 until numberOfSpaces) {
-          text.append(" ")
-        }
+
+        0.until(numberOfSpaces).foreach { _ => text.append(" ") }
       }
       text.append(sentence.words(i)) // Changed from raw
     }
@@ -879,6 +875,26 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
     val leftDocumentIndex = mapOfDocuments.get(leftOdinMention.document)
     val rightDocumentIndex = mapOfDocuments.get(rightOdinMention.document)
 
+    def breakTie(): Boolean = {
+      // Really this should visit anything in Mention.equals, but many aren't obvious to the jsonld reader.
+      // Instead, check the canonical text, which might differ because of rule differences and then
+      // the label, which should also be different.  Don't go so far as to check the arguments just yet.
+      val leftCanonicalName = left.eidosMention.canonicalName
+      val rightCanonicalName = right.eidosMention.canonicalName
+
+      if (leftCanonicalName != rightCanonicalName)
+        leftCanonicalName < rightCanonicalName
+      else {
+        val leftLabel = leftOdinMention.label
+        val rightLabel = rightOdinMention.label
+
+        if (leftLabel != rightLabel)
+          leftLabel < rightLabel
+        else
+          true // Tie goes in favor of the left just because it came first.
+      }
+    }
+
     if (leftDocumentIndex != rightDocumentIndex)
       leftDocumentIndex < rightDocumentIndex
     else {
@@ -905,16 +921,15 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
               val rightTrigger = rightOdinMention.asInstanceOf[EventMention].trigger
               val leftProvenance = Provenance(leftTrigger)
               val rightProvenance = Provenance(rightTrigger)
-              val provenanceComparison = compare(leftProvenances, rightProvenances)
+              val provenanceComparison = leftProvenance.compareTo(rightProvenance)
 
               if (provenanceComparison != 0)
                 provenanceComparison < 0
               else
-                // try for attachments?
-                true
+                breakTie()
             }
             else
-              true
+              breakTie()
           }
         }
       }

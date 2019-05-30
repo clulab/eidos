@@ -30,7 +30,7 @@ import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.document.TimeStep
 import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
 import org.clulab.wm.eidos.utils.Canonicalizer
@@ -53,7 +53,7 @@ object IdAndValue {
 
 class IdAndDct(id: String, value: DCT) extends IdAndValue[DCT](id, value)
 
-class IdAndTimex(id: String, value: TimeInterval) extends IdAndValue[TimeInterval](id, value)
+class IdAndTimex(id: String, value: TimEx) extends IdAndValue[TimEx](id, value)
 
 class IdAndGeoPhraseId(id: String, value: GeoPhraseID) extends IdAndValue[GeoPhraseID](id, value)
 
@@ -64,7 +64,7 @@ class IdAndWordSpec(id: String, value: WordSpec) extends IdAndValue[WordSpec](id
 class IdAndSentence(id: String, value: Sentence) extends IdAndValue[Sentence](id, value)
 
 case class SentencesSpec(sentences: Array[Sentence], sentenceMap: Map[String, Int],
-    timexes: Array[Seq[TimeInterval]], timexMap: Map[String, TimeInterval],
+    timexes: Array[Seq[TimEx]], timexMap: Map[String, TimEx],
     geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID])
 
 class IdAndDocument(id: String, value: EidosDocument) extends IdAndValue(id, value)
@@ -83,7 +83,7 @@ object JLDDeserializer {
   type DocumentSentenceMap = Map[String, SentenceMap]
   type MentionMap = Map[String, Mention]
   type GeolocMap = Map[String, GeoPhraseID]
-  type TimexMap = Map[String, TimeInterval]
+  type TimexMap = Map[String, TimEx]
   type DctMap = Map[String, DCT]
 
   type ProvenanceMap = Map[Provenance, String] // Do we really want this document involved?
@@ -159,7 +159,7 @@ class JLDDeserializer {
     val intervals = (timexValue \ "intervals").extract[JArray].arr.map { timeIntervalValue =>
       deserializeTimeInterval(timeIntervalValue)
     }
-    new IdAndTimex(timexId, TimeInterval(Interval(startOffset, endOffset), intervals, text))
+    new IdAndTimex(timexId, TimEx(Interval(startOffset, endOffset), intervals, text))
   }
 
   def deserializeGeoloc(geoIdValue: JValue): IdAndGeoPhraseId = {
@@ -214,8 +214,8 @@ class JLDDeserializer {
 
   def deserializeSentences(sentencesValue: JValue, documentText: Option[String]): SentencesSpec = {
     // Keep global map because references can be used outside of this sentence context.
-    var timexes: List[Seq[TimeInterval]] = List.empty
-    var timexMap: Map[String, TimeInterval] = Map.empty
+    var timexes: List[Seq[TimEx]] = List.empty
+    var timexMap: Map[String, TimEx] = Map.empty
     var geolocs: List[Seq[GeoPhraseID]] = List.empty
     var geolocMap: Map[String, GeoPhraseID] = Map.empty
     var sentencesOpt = sentencesValue.extractOpt[JArray].map(_.arr)

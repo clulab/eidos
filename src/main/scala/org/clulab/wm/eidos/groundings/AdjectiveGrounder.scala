@@ -28,7 +28,7 @@ class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounde
       (Sourcer.sourceFromResource(quantifierKBFile)).autoClose { source =>
       // adjective -> Map(name:value)
         FileUtils.getCommentedLinesFromSource(source)
-            .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
+            .map { line => // "adjective  mu_coefficient  sigma_coefficient  intercept"
               val fields = line.split("\t")
               val adj = fields(0)
               val mu_coeff = fields(1).toDouble

@@ -26,7 +26,9 @@ libraryDependencies ++= {
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
+    "org.deeplearning4j" % "deeplearning4j-modelimport" % "1.0.0-beta2",
+    "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2"
   )
 }
 
@@ -58,7 +60,7 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
 
 libraryDependencies ++= {
   val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
-  val timenorm = "timenorm-0.9.6.15" + (if (minor == 11) "_2.11.11" else "")
+  val timenorm = "timenorm-0.11.1" + (if (minor == 11) "_2.11.11" else "")
 
   Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
 }

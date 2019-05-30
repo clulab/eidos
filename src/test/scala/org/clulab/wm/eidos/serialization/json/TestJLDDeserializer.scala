@@ -15,7 +15,7 @@ import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.document.TimeStep
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
@@ -544,7 +544,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val statesValue = parse(json).asInstanceOf[JArray]
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_253" -> 0))
-      val timeIntervel = TimeInterval(Interval(0, 4), List.empty[TimeStep], "hello there")
+      val timeIntervel = TimEx(Interval(0, 4), Seq.empty[TimeStep], "hello there")
       val timexMap = Map("_:DCT_1" -> timeIntervel)
       val geolocMap: GeolocMap = Map.empty
       val dctMap: DctMap = Map.empty
@@ -618,7 +618,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_481" -> 0))
       val extraction = new JLDDeserializer().deserializeExtraction(extractionValue, documentMap, documentSentenceMap)
-      val timeIntervel = TimeInterval(Interval(0, 4), List.empty[TimeStep], "hello there")
+      val timeIntervel = TimEx(Interval(0, 4), List.empty[TimeStep], "hello there")
       val timexMap = Map("_:DCT_1" -> timeIntervel)
       val geolocMap: GeolocMap = Map.empty
       val mentionMap: MentionMap = Map.empty

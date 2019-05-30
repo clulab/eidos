@@ -147,7 +147,7 @@ class TestDoc5 extends EnglishTest {
 
     val factors = NodeSpec("macroeconomic factors")
     val prices = NodeSpec("exorbitant staple food prices", Inc("exorbitant"))
-    val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("oil revenue since"))
+    val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("since 2014"))
     val reserves = NodeSpec("both foreign currency reserves", Dec("drop", "sharp"))
     val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"))
     val factors2 = NodeSpec("factors")
@@ -310,7 +310,7 @@ class TestDoc5 extends EnglishTest {
     val conflict     = NodeSpec("Conflict")
     val displacement = NodeSpec("new displacement")
     val stress       = NodeSpec("stress on available wild food sources", Inc("additional"))
-    val assistance   = NodeSpec("Little to no food assistance was distributed in these counties from August to November", Quant("Little"), Dec("Little to no"))
+    val assistance   = NodeSpec("Little to no food assistance was distributed in these counties from August to November", Quant("Little"), Dec("Little to no"), TimEx("August"), TimEx("November"))
     val constraints   = NodeSpec("access constraints", Dec("constraints"))
 
     behavior of "TestDoc5 Paragraph 6"
@@ -392,7 +392,7 @@ class TestDoc5 extends EnglishTest {
 
     val action = NodeSpec("Urgent action to end the conflict", Dec("end"))
     val access = NodeSpec("humanitarian access to severely food insecure populations", Inc("improve"))
-    val assistance = NodeSpec("increase size and scope of emergency assistance delivery", Inc("increase"), Quant("critical"))
+    val assistance = NodeSpec("increase size and scope of emergency assistance delivery", Inc("increase"), Quant("critical"), TimEx("coming year"))
     val lives = NodeSpec("lives", Inc("save"))
 
     behavior of "TestDoc5 Paragraph 8"
