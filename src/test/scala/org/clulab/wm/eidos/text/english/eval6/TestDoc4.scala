@@ -20,11 +20,11 @@ as IPC Phase 4: "Emergency".
     val tester = new GraphTester(text)
 
     // Sentence 1
-    val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"))
+    val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"), TimEx("February 2017"), TimEx("June 2017"))
     
     // Sentence 2
     // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
-    val conditions2 = NodeSpec(""""Catastrophe" food security conditions""", Dec("declined"))
+    val conditions2 = NodeSpec(""""Catastrophe" food security conditions""", Dec("declined"), TimEx("February"), TimEx("June"))
     val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
     
     behavior of "TestDoc4 Paragraph 1"

@@ -6,18 +6,21 @@ import org.clulab.odin._
 import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
-import org.clulab.timenorm.TemporalCharbasedParser
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.clulab.wm.eidos.document.{AnnotatedDocument, EidosDocument}
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
+import org.clulab.timenorm.neural.TemporalNeuralParser
+import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
+import scala.reflect.io
+import scala.io.Source
+import scala.util.matching.Regex
 
 /**
   * A system for text processing and information extraction
@@ -59,7 +62,8 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val negationHandler: NegationHandler,
 
     val multiOntologyGrounder: MultiOntologyGrounding,
-    val timenorm: Option[TemporalCharbasedParser],
+    val timenorm: Option[TemporalNeuralParser],
+    val timeregexs: Option[List[Regex]],
     val geonorm: Option[GeoDisambiguateParser],
     val expander: Option[Expander],
     val keepStatefulConcepts: Boolean
@@ -71,7 +75,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val         taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Hedging
     val          hedgingPath: String = eidosConf[String]("hedgingPath")
-    val    timeNormModelPath: String = eidosConf[String]("timeNormModelPath") // todo push to companion obj too
     val          useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     val           useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
@@ -97,14 +100,16 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       if (keepStatefulConcepts && expander.isEmpty) println("NOTICE: You're keeping stateful Concepts but didn't load an expander.")
 
       // Temporal Parsing
-      val timenorm: Option[TemporalCharbasedParser] =
-          if (useTimeNorm)
-            FileUtils.withResourceAsFile(timeNormModelPath) { file =>
-              // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-              Some(new TemporalCharbasedParser(file.getAbsolutePath))
-            }
-          else
-            None
+      val (timenorm: Option[TemporalNeuralParser], timeregexs: Option[List[Regex]]) = {
+        if (!useTimeNorm) (None, None)
+        else {
+          // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
+          val timeNorm = new TemporalNeuralParser()
+          val timeRegexPath: String = eidosConf[String]("timeRegexPath")
+          val regexs = Source.fromInputStream(getClass.getResourceAsStream(timeRegexPath)).getLines.map(_.r).toList
+          (Some(timeNorm), Some(regexs))
+        }
+      }
 
       // Geospatial Parsing
       val geonorm: Option[GeoDisambiguateParser] =
@@ -122,6 +127,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         negationHandler,
         multiOntologyGrounder,  // todo: do we need this and ontologyGrounders?
         timenorm,
+        timeregexs,
         geonorm,
         expander,
         keepStatefulConcepts
@@ -143,8 +149,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
     val doc = EidosDocument(document, keepText)
     // Time and Location
-    doc.parseDCT(loadableAttributes.timenorm, documentCreationTime)
-    doc.parseTime(loadableAttributes.timenorm)
+    doc.parseTime(loadableAttributes.timenorm, loadableAttributes.timeregexs, documentCreationTime)
     doc.parseGeoNorm(loadableAttributes.geonorm)
     // Document ID
     doc.id = filename
@@ -280,7 +285,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       // Check to see if any of the Concepts have state attachments
       val (expandable, notExpandable) = concepts.partition(_.attachments.filter(isIncDecQuant).nonEmpty)
       // Get the already expanded mentions for this document
-      val prevExpandableState = State(relations.filter(rel => EidosSystem.CAG_EDGES.contains(rel.label)))
+      val prevExpandableState = State(relations.filter(rel => EidosSystem.EXPAND.contains(rel.label)))
       // Expand the Concepts if they weren't already part of an expanded Relation
       val expandedConcepts = expandIfNotExpanded(expandable, prevExpandableState)
       expandedConcepts ++ notExpandable ++ relations
@@ -304,6 +309,7 @@ object EidosSystem {
   val CONCEPT_EXPANDED_LABEL = "Concept-Expanded"
   val CORR_LABEL = "Correlation"
   val COREF_LABEL = "Coreference"
+  val MIGRATION_LABEL = "HumanMigration"
   // Taxonomy relations for other uses
   val RELATION_LABEL = "EntityLinker"
 
@@ -317,6 +323,7 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
+  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 }

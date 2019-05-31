@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import org.clulab.embeddings.word2vec.CompactWord2Vec
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Namer

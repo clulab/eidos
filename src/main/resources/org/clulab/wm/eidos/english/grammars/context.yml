@@ -1,5 +1,6 @@
 
   - name: location-nn
+    # locations found by the neural network
     priority: ${ rulepriority }
     example: "reaching record levels in South Sudan."
     label: Location
@@ -9,47 +10,52 @@
 #      there are some cases with a LOC followed by something labeled ORGANIZATION that should be LOC
 
   - name: location-nn-expand-out
+    # if something in the middle of an NP chunk was found as LOC, expand to the whole NP
     priority: ${ rulepriority }
     example: "reaching record levels in South Sudan."
-    label: Location
+    label: Location-Expand
     type: token
     pattern: |
       [!norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP & !word=and]* [norm="LOC" & chunk=I-NP]+ [!norm="LOC" & chunk=I-NP & !word=and]*
 
   - name: location-nn-expand-right
+    # if only the beginning of an NP chunk was found as LOC, expand to the whole NP
     priority: ${ rulepriority }
     example: "reaching record levels in South Sudan."
-    label: Location
+    label: Location-Expand
     type: token
     pattern: |
       [norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP]+
 
   - name: location-backoff
+    # backoff to Stanford location
     priority: ${ rulepriority }
     example: "was reported through Gangura and Nabiapai"
-    label: Location
+    label: Location-Expand
     type: token
     pattern: |
       [entity="LOCATION" & !norm="LOC"] [entity="LOCATION" & !norm="LOC"]*
 
   - name: location-backoff-expand
+    # where the first part of a complex NNP is found, expand to the rest of the NNP chunk
     priority: ${ rulepriority }
     example: "• Demographic data: 133 individuals were recorded transiting through the Juba Port FMP"
-    label: Location
+    label: Location-Expand
     type: token
     pattern: |
       [entity="LOCATION" & !norm="LOC"] [chunk="I-NP" & tag=/^NNP/ & !norm="LOC" & !word=and]+
 
-  - name: location-expand
-    # find cases where a location is mislabeld in a conjunction with another location
+  - name: location-expand-conjunction
+    # where a location is mislabeld in a conjunction with another location
     priority: ${ rulepriority }
     example: "was reported through Gangura and Nabiapai"
-    label: Location
+    label: Location-Expand
     type: token
     pattern: |
       (?<=[entity="LOCATION"] [word="and"]) [tag=/^NNP/ & !word=/(KIs?)|DRC/ & !norm="LOC" & !entity="LOCATION"]+
 
   - name: time-stanford
+    # backoff to Stanford time
     priority: ${ rulepriority }
     example: "reaching record levels in July."
     label: Time
