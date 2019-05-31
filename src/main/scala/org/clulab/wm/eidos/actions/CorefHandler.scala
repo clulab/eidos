@@ -97,9 +97,10 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
   }
 
   def existsDeterminerCause(mention: Mention): Boolean = {
-    CorefHandler.startsWithCorefDeterminer(mention.arguments("cause").head)
+    mention.arguments.get("cause").map { causes =>
+      CorefHandler.startsWithCorefDeterminer(causes.head)
+    }.getOrElse(false)
   }
-
 
   def hasCorefToResolve(m: Mention): Boolean = {
     m match {
