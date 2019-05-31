@@ -16,6 +16,7 @@ import org.clulab.wm.eidos.utils._
 import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.slf4j.{Logger, LoggerFactory}
+import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
 
 import scala.annotation.tailrec
 import scala.reflect.io
@@ -217,7 +218,8 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer((stopwordManager)), loadableAttributes.multiOntologyGrounder)
+    val afterMigraProcessing = processMigrationEvents(afterNegation)
+    val eidosMentions = EidosMention.asEidosMentions(afterMigraProcessing, new Canonicalizer((stopwordManager)), loadableAttributes.multiOntologyGrounder)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }

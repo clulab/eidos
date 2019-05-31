@@ -20,7 +20,7 @@ rules:
 
   - import: org/clulab/wm/eidos/english/grammars/migration.yml
     vars:
-      rulepriority: "2"
+      rulepriority: "7"
       #action: ???
       label: HumanMigration
 
