@@ -1006,7 +1006,7 @@
           - planting season
           - sowing season
           name: crop season
-        polarity: 1.0
+          polarity: 1.0
         - OntologyNode:
           examples:
           - summer
