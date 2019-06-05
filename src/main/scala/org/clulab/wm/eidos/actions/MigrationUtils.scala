@@ -49,20 +49,20 @@ object MigrationUtils {
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
     // partition to get the migration events
     val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
-    val relArgs = Array("moveTo", "movedFrom")
+    val relArgs = Array("moveTo", "moveFrom")
 
     val handled = for {
       m <- migrationEvents
       geolocs = m.document.asInstanceOf[EidosDocument].geolocs
       oldArgs = for {
         arg <- relArgs
-        if m.arguments.get(arg).nonEmpty
+        if m.arguments(arg).nonEmpty
       } yield arg //name of existing arg
 
       //this should give args with attachments
       newArgs = for {
         oldArg <- oldArgs
-        oldArgMention = m.arguments.get(oldArg).head.head
+        oldArgMention = m.arguments(oldArg).head
         location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArgMention.startOffset) else None
         if location.nonEmpty
         newArg = oldArgMention.withAttachment(new Location(location.head))
