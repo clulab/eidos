@@ -49,22 +49,33 @@ object MigrationUtils {
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
     // partition to get the migration events
     val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
+    val relArgs = Array("moveTo", "movedFrom")
 
-    // TODO: do
     val handled = for {
       m <- migrationEvents
-      oldArg = m.arguments("moveTo").head
-
-
       geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArg.startOffset) else None
-//      val newArg = oldArg.withAttachment(new Location(location))if (location.nonEmpty)
-      newArg = if (location.nonEmpty) oldArg.withAttachment(new Location(location.head)) else oldArg
+      oldArgs = for {
+        arg <- relArgs
+        if m.arguments.get(arg).nonEmpty
+      } yield arg //name of existing arg
 
-      args = m.arguments
-      newArgs = m.arguments ++ Map("moveTo" -> Seq(newArg))
-      newMention = copyWithNewArgs(m, newArgs)
-    } yield  newMention
+      //this should give args with attachments
+      newArgs = for {
+        oldArg <- oldArgs
+        oldArgMention = m.arguments.get(oldArg).head.head
+        location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArgMention.startOffset) else None
+        if location.nonEmpty
+        newArg = oldArgMention.withAttachment(new Location(location.head))
+
+      } yield Map(oldArg -> Seq(newArg))//Map(oldArg -> oldArgMention.withAttachment(new Location(location.head)))
+
+      updatedArgs = m.arguments ++ newArgs.flatten.toMap
+
+
+      } yield copyWithNewArgs(m, updatedArgs)
+
+
+    // TODO: do
     // todo: add attachments for Time and Location (start with overlapping already found NN ones, see action)
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)????
@@ -72,23 +83,9 @@ object MigrationUtils {
 
 
 
-//    def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-//      for {
-//        m <- ms
-//        trigger = m.asInstanceOf[EventMention].trigger
-//        theme = m.arguments("theme").head
-//        geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-//        location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
-//      } yield location match {
-//        case None => theme
-//        case Some(l) => theme.withAttachment(new Location(l))
-//      }
-//    }
-
 
     // return all
     handled ++ other
   }
 
-  def djasdklj(): Seq[Mention] = ???
 }
