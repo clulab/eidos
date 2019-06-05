@@ -56,8 +56,8 @@ object MigrationUtils {
       geolocs = m.document.asInstanceOf[EidosDocument].geolocs
       oldArgs = for {
         arg <- relArgs
-        if m.arguments(arg).nonEmpty
-      } yield arg //name of existing arg
+        if m.arguments.get(arg).nonEmpty
+      } yield arg //name of args actually present in the mention
 
       //this should give args with attachments
       newArgs = for {
