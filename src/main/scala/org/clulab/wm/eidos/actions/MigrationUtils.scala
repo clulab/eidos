@@ -1,19 +1,12 @@
 package org.clulab.wm.eidos.actions
 
-import org.clulab.wm.eidos.attachments
-import org.clulab.odin.{EventMention, Mention, State, TextBoundMention}
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.{EidosAttachment, Location}
-import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.EidosActions
-import org.clulab.wm.eidos.serialization.json.{JLDAttachment, JLDSerializer}
-import org.clulab.wm.eidos.utils
-import org.json4s.JValue
-import ai.lum.common.ConfigUtils._
-import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.struct.Interval
+import org.clulab.odin.{EventMention, Mention, State, TextBoundMention}
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.Location
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.document.EidosDocument
 
 
 object MigrationUtils {
@@ -75,13 +68,10 @@ object MigrationUtils {
       } yield copyWithNewArgs(m, updatedArgs)
 
 
-    // TODO: do
-    // todo: add attachments for Time and Location (start with overlapping already found NN ones, see action)
+
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)????
     // todo: aggregation of cross-sentence stuff?????????????
-
-
 
 
     // return all

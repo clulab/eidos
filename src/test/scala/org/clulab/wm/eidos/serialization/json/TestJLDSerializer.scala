@@ -17,9 +17,12 @@ class TestJLDSerializer extends ExtractionTest {
   val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig("adjectiveGrounder"))
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
-  
-  def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
-    val annotatedDocument = ieSystem.extractFromText(text, keepText = true)
+
+  def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument =
+      newTitledAnnotatedDocument(text, title, true)
+
+  def newTitledAnnotatedDocument(text: String, title: String, cagRelevantOnly: Boolean): AnnotatedDocument = {
+    val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly, keepText = true)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
@@ -73,7 +76,18 @@ class TestJLDSerializer extends ExtractionTest {
     inspect(json)
     json should not be empty
   }
-  
+
+  it should "serialize a human migration event" in {
+    val json = serialize(Seq(
+      newTitledAnnotatedDocument("Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November.",
+        "This is the title", false) // This isn't cag-relevant
+    ))
+
+    inspect(json)
+    json should not be empty
+    json.contains("HumanMigration") should be (true)
+  }
+
   it should "be grounded" in {
     val json = serialize(Seq(
         newTitledAnnotatedDocument("Rainfall significantly increases poverty.")

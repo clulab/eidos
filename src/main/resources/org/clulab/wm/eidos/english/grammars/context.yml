@@ -39,7 +39,7 @@
   - name: location-backoff-expand
     # where the first part of a complex NNP is found, expand to the rest of the NNP chunk
     priority: ${ rulepriority }
-    example: "• Demographic data: 133 individuals were recorded transiting through the Juba Port FMP"
+    example: "* Demographic data: 133 individuals were recorded transiting through the Juba Port FMP"
     label: Location-Expand
     type: token
     pattern: |
