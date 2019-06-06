@@ -39,6 +39,7 @@ object Correlation extends EventSpec("Correlation", false)
 object SameAs extends EventSpec("SameAs", false)
 // Not in taxonomy
 object Affect extends EventSpec("Affect", true)
+object HumanMigration extends EventSpec("HumanMigration", true)
 
 abstract class AttachmentSpec extends GraphSpec with QuicklyEqualable {
 
@@ -370,6 +371,90 @@ object AntiNodeSpec {
       new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
+class HumanMigrationEdgeSpec(val event: EventSpec, val group: Option[NodeSpec],
+    val moveTo: Option[NodeSpec], val moveFrom: Option[NodeSpec], val moveThrough: Option[NodeSpec],
+    val timeStart: Option[NodeSpec], val timeEnd: Option[NodeSpec], val time: Option[NodeSpec])
+    extends GraphSpec {
+
+  val nodeSpecsMap: Map[String, NodeSpec] = Seq(
+    ("group", group),
+    ("moveTo", moveTo),
+    ("moveFrom", moveFrom) ,
+    ("moveThrough", moveThrough),
+    ("timeStart", timeStart),
+    ("timeEnd", timeEnd),
+    ("time", time)
+  ).filter { case (key, value) => value.isDefined } // Keep only the ones used
+      .map { case (key, value) => (key, value.get) } // Remove the option
+      .toMap
+
+  protected def testSpec(mentions: Seq[Mention], nodeTestResultsMap: Map[String, TestResult]): Seq[Mention] = {
+    val matches1 = mentions
+    val matches2 = matches1.collect{ case a: EventMention => a }
+    val matches3 = matches2.filter(_.matches(event.label))
+    val matches4 = matches3.filter { mention =>
+      // They are all there.
+      nodeTestResultsMap.forall { case (name, testResult) =>
+        val argument = mention.arguments.get(name)
+
+        argument.isDefined && {
+          val values = argument.get
+
+          // There could be extra stuff hiding in here.
+          values.contains(testResult.mention.get)
+        }
+      } &&
+          // And only they are there.
+          mention.arguments.size == nodeTestResultsMap.size
+    }
+
+    matches4
+  }
+
+  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+    if (!testResults.containsKey(this)) {
+      val nodeTestResultsMap: Map[String, TestResult] = nodeSpecsMap.map { case (key, nodeSpec) =>
+        (key -> nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults))
+      }
+      val nodeComplaints = nodeTestResultsMap.map { case (key, nodeTestResult) =>
+        nodeTestResult.complaints
+      }.flatten
+      val nodeSuccess = nodeComplaints.isEmpty
+      val edgeTestResult =
+        if (nodeSuccess) {
+          val matches = testSpec(mentions, nodeTestResultsMap)
+
+          if (matches.size < 1)
+            new TestResult(None, Seq("Could not find EdgeSpec " + this))
+          else if (matches.size > 1)
+            new TestResult(None, Seq("Found too many (" + matches.size + ") instances of EdgeSpec " + this))
+          else
+            new TestResult(Some(matches.head), Seq.empty)
+        }
+        else new TestResult(None, Seq.empty)
+      val testResult = new TestResult(edgeTestResult.mention, edgeTestResult.complaints ++ nodeComplaints)
+
+      testResults.put(this, testResult)
+    }
+    testResults.get(this)
+  }
+
+  def toString(left: String, right: String): String = {
+    val stringBuilder = new StringBuilder(event.label)
+
+    nodeSpecsMap.foreach { case (key, nodeSpec) =>
+      stringBuilder
+          .append(left)
+          .append(key)
+          .append(": ")
+          .append(nodeSpec.toString)
+          .append(right)
+    }
+    stringBuilder.toString
+  }
+
+  override def toString: String = toString("->(", ")")
+}
 
 class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) extends GraphSpec {
 
@@ -454,8 +539,8 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
 }
 
 object EdgeSpec {
-    def apply(cause: NodeSpec, event: EventSpec, effect: NodeSpec) =
-      new EdgeSpec(cause, event, effect)
+  def apply(cause: NodeSpec, event: EventSpec, effect: NodeSpec) =
+    new EdgeSpec(cause, event, effect)
 }
 
 class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends EdgeSpec(cause, event, effect) {
@@ -493,4 +578,12 @@ class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends 
 object AntiEdgeSpec {
     def apply(cause: NodeSpec, event: EventSpec, effect: NodeSpec) =
       new AntiEdgeSpec(cause, event, effect)
+}
+
+object HumanMigrationEdgeSpec {
+  def apply(group: Option[NodeSpec] = None,
+      moveTo: Option[NodeSpec] = None, moveFrom: Option[NodeSpec] = None, moveThrough: Option[NodeSpec] = None,
+      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None) = {
+    new HumanMigrationEdgeSpec(HumanMigration, group, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time)
+  }
 }

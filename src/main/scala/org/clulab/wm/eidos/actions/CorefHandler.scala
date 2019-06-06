@@ -100,7 +100,6 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
     CorefHandler.startsWithCorefDeterminer(mention.arguments("cause").head)
   }
 
-
   def hasCorefToResolve(m: Mention): Boolean = {
     m match {
       case tb: TextBoundMention => CorefHandler.startsWithCorefDeterminer(tb)

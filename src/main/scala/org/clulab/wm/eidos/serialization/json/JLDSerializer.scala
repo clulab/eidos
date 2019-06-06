@@ -444,12 +444,12 @@ object JLDRelation {
     // If the JSON-LD specification doesn't change, then it is possible for the argument
     // names to be specified in master.yml file and then be taken over verbatim by querying the
     // arguments dictionary.
-    if (JLDRelationCorrelation.taxonomy == mention.odinMention.label)
-      new JLDRelationCorrelation(serializer, mention)
-    else if (JLDRelationCausation.taxonomy == mention.odinMention.label)
-      new JLDRelationCausation(serializer, mention)
-    else
-      throw new IllegalArgumentException("Unknown Mention: " + mention)
+    mention.odinMention.label match {
+      case JLDRelationCorrelation.taxonomy => new JLDRelationCorrelation(serializer, mention)
+      case JLDRelationCausation.taxonomy => new JLDRelationCausation(serializer, mention)
+      case JLDRelationMigration.taxonomy => new JLDRelationMigration(serializer, mention)
+      case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
+    }
   }
 
   def newJLDRelation(serializer: JLDSerializer, mention: EidosCrossSentenceMention): JLDRelation = {
@@ -554,6 +554,50 @@ class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSente
 object JLDRelationCoreference {
   val subtypeString = "coreference"
   val taxonomy = "Coreference"
+}
+
+class JLDRelationMigration(serializer: JLDSerializer, mention: EidosEventMention)
+    extends JLDRelation(serializer, JLDRelationMigration.subtypeString, mention) {
+
+  override def getMentions: Seq[EidosMention] = {
+    val mentions: Seq[EidosMention] = JLDRelationMigration.keys.flatMap { key =>
+      mention.eidosArguments.getOrElse(key, Seq.empty[EidosMention])
+    }
+
+    mentions ++ super.getMentions
+  }
+
+  // The provenance of this mention is just that of anchor and neighbor.
+//  override protected def provenance(): Seq[JValue] = Seq(
+//    new JLDProvenance(serializer, mention.)
+//    new JLDProvenance(serializer, mention.eidosAnchor).toJObject,
+//    new JLDProvenance(serializer, mention.eidosNeighbor).toJObject
+//  )
+
+  override def toJObject: TidyJObject = {
+    val trigger = new JLDTrigger(serializer, mention.eidosTrigger).toJObject
+    val keysAndValues = JLDRelationMigration.keys.flatMap { key =>
+      val values = mention.eidosArguments.getOrElse(key, Seq.empty[EidosMention])
+
+      values.map { value =>
+        (key, value)
+      }
+    }
+    val jldArguments = keysAndValues.map { case (key, value: EidosMention) =>
+      new JLDArgument(serializer, key, value).toJObject
+    }
+
+    super.toJObject + TidyJObject(List(
+      JLDTrigger.singular -> trigger,
+      JLDArgument.plural -> jldArguments
+    ))
+  }
+}
+
+object JLDRelationMigration {
+  val subtypeString = "migration"
+  val taxonomy = "HumanMigration"
+  val keys: Seq[String] = Seq("cause", "moveTo", "moveFrom", "moveThrough", "timeStart", "timeEnd", "time")
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
