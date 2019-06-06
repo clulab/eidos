@@ -106,7 +106,7 @@ rules:
 
   - name: migration-reach
     priority: ${ rulepriority }
-    example: "• Departures: 375 individuals were recorded leaving Juba (52%) of which the vast majority intended to reach refugees camps in Uganda (75%)"
+    example: "* Departures: 375 individuals were recorded leaving Juba (52%) of which the vast majority intended to reach refugees camps in Uganda (75%)"
     label: ${ label }
     #action: ${ action } # parse out quantity as an attachment
     pattern: |
@@ -145,7 +145,7 @@ rules:
 
   - name: migration-destination-dep
     priority: ${ rulepriority }
-    example: "• Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
+    example: "* Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
     label: ${ label }
     pattern: |
       trigger = [lemma=destination & tag=/^NN/]
@@ -153,7 +153,7 @@ rules:
 
   - name: migration-destination-left
     priority: ${ rulepriority }
-    example: "• Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
+    example: "* Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
     label: ${ label }
     type: token
     pattern: |
@@ -161,7 +161,7 @@ rules:
 
   - name: migration-destination-right
     priority: ${ rulepriority }
-    example: "• Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
+    example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
     label: ${ label }
     type: token
     pattern: |
