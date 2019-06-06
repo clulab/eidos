@@ -49,7 +49,7 @@ object MigrationUtils {
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
     // partition to get the migration events
     val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
-    val relArgs = Array("moveTo", "moveFrom")
+    val relArgs = Array("moveTo", "moveFrom", "moveThrough")
 
     val handled = for {
       m <- migrationEvents
