@@ -134,6 +134,14 @@ rules:
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = (<dobj? (>nmod_during >nummod|>nmod_in))|(</${agents}/ >nmod_in)
 
+  - name: migration-originated-from
+    priority: ${ rulepriority }
+    example: " The new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglie State (Uror, Akobo and Ayod Counties)."
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=/(originate)/ & tag=/^VB/]
+      group: Entity? = <nsubj
+      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_within) dep? 
 
   - name: migration-destination-dep
     priority: ${ rulepriority }
@@ -159,6 +167,7 @@ rules:
     pattern: |
       (?<trigger> [lemma=destination]) [!word=from]{,5}? @moveTo:Location+ (and @moveTo:Location+)?
 
+# TODO:
 # I think i need to first make the geolocations proper mentions?
 # then modify the trigger of the locations
 # do the same for the times
