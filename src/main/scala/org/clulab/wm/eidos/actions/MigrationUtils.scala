@@ -11,6 +11,40 @@ import org.clulab.wm.eidos.document.EidosDocument
 
 object MigrationUtils {
 
+  def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
+    // partition to get the migration events
+    val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
+    val relArgs = Array("moveTo", "moveFrom", "moveThrough") //location-related args in migration events
+
+    val handled = for {
+      m <- migrationEvents
+      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
+      oldArgs = for {
+        arg <- relArgs
+        if m.arguments.get(arg).nonEmpty
+      } yield arg //name of args actually present in the mention
+
+      //this should create args with geoloc attachments
+      newArgs = for {
+        oldArg <- oldArgs
+        oldArgMention = m.arguments(oldArg).head
+        location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArgMention.startOffset) else None
+        if location.nonEmpty
+        newArg = oldArgMention.withAttachment(new Location(location.head))
+
+      } yield Map(oldArg -> Seq(newArg))
+
+      updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
+
+      } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
+    //also contain attachments
+    // todo: backoff times and locations -- use the normalization apis
+    // todo: combine times (timeStart/timeEnd)????
+    // todo: aggregation of cross-sentence stuff?????????????
+
+    // return all
+    handled ++ other
+  }
 
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
@@ -37,45 +71,6 @@ object MigrationUtils {
       case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
       case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
     }
-  }
-
-  def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
-    // partition to get the migration events
-    val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
-    val relArgs = Array("moveTo", "moveFrom", "moveThrough")
-
-    val handled = for {
-      m <- migrationEvents
-      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      oldArgs = for {
-        arg <- relArgs
-        if m.arguments.get(arg).nonEmpty
-      } yield arg //name of args actually present in the mention
-
-      //this should give args with attachments
-      newArgs = for {
-        oldArg <- oldArgs
-        oldArgMention = m.arguments(oldArg).head
-        location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArgMention.startOffset) else None
-        if location.nonEmpty
-        newArg = oldArgMention.withAttachment(new Location(location.head))
-
-      } yield Map(oldArg -> Seq(newArg))//Map(oldArg -> oldArgMention.withAttachment(new Location(location.head)))
-
-      updatedArgs = m.arguments ++ newArgs.flatten.toMap
-
-
-      } yield copyWithNewArgs(m, updatedArgs)
-
-
-
-    // todo: backoff times and locations -- use the normalization apis
-    // todo: combine times (timeStart/timeEnd)????
-    // todo: aggregation of cross-sentence stuff?????????????
-
-
-    // return all
-    handled ++ other
   }
 
 }
