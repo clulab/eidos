@@ -357,12 +357,6 @@
                 polarity: 1.0
             - OntologyNode:
               examples:
-              - inflation
-              #- inflation rate #ppt-nov1-#16
-              name: inflation
-              polarity: 1.0
-            - OntologyNode:
-              examples:
               - depreciation
               name: depreciation
               polarity: 1.0
