@@ -460,4 +460,41 @@ class TestMigrationSchema extends EnglishTest {
 //    }
 //  }
 
+  //
+  // new tests by Mihai
+  //
+
+  {
+    val text = "*  Between 1 and 30 March 2017, 16,274 South Sudanese refugees arrived in Gambella, Ethiopia, bringing the total number of new arrivals since September 2016 to 77,874."
+
+    val tester = new GraphTester(text)
+
+    val group1 = NodeSpec("16,274 South Sudanese refugees")
+    val time1 = NodeSpec("Between 1 and 30 March 2017")
+    val moveFrom1 = NodeSpec("South Sudanese")
+    val moveTo1 = NodeSpec("Gambella")
+    val migration1 = HumanMigrationEdgeSpec(
+      group = Some(group1),
+      moveFrom = Some(moveFrom1),
+      moveTo = Some(moveTo1),
+      time = Some(time1))
+
+    behavior of "migration-arrive"
+
+    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+      tester.test(group1) should be (successful)
+    }
+    passingTest should "have correct time1 node" taggedAs (Somebody) in {
+      tester.test(time1) should be (successful)
+    }
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+      tester.test(moveFrom1) should be (successful)
+    }
+    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+      tester.test(moveTo1) should be (successful)
+    }
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+      tester.test(migration1) should be (successful)
+    }
+  }
 }

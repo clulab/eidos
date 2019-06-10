@@ -371,13 +371,15 @@ object AntiNodeSpec {
       new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
-class HumanMigrationEdgeSpec(val event: EventSpec, val group: Option[NodeSpec],
+class HumanMigrationEdgeSpec(val event: EventSpec,
+    val group: Option[NodeSpec], val groupModifier: Option[NodeSpec],
     val moveTo: Option[NodeSpec], val moveFrom: Option[NodeSpec], val moveThrough: Option[NodeSpec],
     val timeStart: Option[NodeSpec], val timeEnd: Option[NodeSpec], val time: Option[NodeSpec])
     extends GraphSpec {
 
   val nodeSpecsMap: Map[String, NodeSpec] = Seq(
     ("group", group),
+    ("groupModifier", groupModifier),
     ("moveTo", moveTo),
     ("moveFrom", moveFrom) ,
     ("moveThrough", moveThrough),
@@ -581,9 +583,10 @@ object AntiEdgeSpec {
 }
 
 object HumanMigrationEdgeSpec {
-  def apply(group: Option[NodeSpec] = None,
+  def apply(
+      group: Option[NodeSpec] = None, groupModifier: Option[NodeSpec] = None,
       moveTo: Option[NodeSpec] = None, moveFrom: Option[NodeSpec] = None, moveThrough: Option[NodeSpec] = None,
       timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None) = {
-    new HumanMigrationEdgeSpec(HumanMigration, group, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time)
+    new HumanMigrationEdgeSpec(HumanMigration, group, groupModifier, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time)
   }
 }
