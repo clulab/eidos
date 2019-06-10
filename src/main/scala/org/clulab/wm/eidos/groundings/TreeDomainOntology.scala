@@ -213,8 +213,14 @@ object TreeDomainOntology {
 
         if (key == TreeDomainOntology.FIELD)
           Seq(parseOntology(parent, map))
-        else
-          parseOntology(new OntologyBranchNode(key, parent), map(key).asScala.toSeq)
+        else {
+          // This is to account for leafless branches.
+          val yamlNodesOpt = Option(map(key).asScala)
+          if (yamlNodesOpt.nonEmpty) // foreach does not work well here.
+            parseOntology(new OntologyBranchNode(key, parent), yamlNodesOpt.get.toSeq)
+          else
+            Seq.empty
+        }
       }
     }
   }
