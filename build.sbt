@@ -13,7 +13,8 @@ libraryDependencies ++= {
   val procVer = "7.5.1"
 
   Seq(
-    "com.github.kwalcock" % "Ontologies" % "master-SNAPSHOT",
+    "com.github.WorldModelers" % "Ontologies" % "master-SNAPSHOT",
+    
     "org.clulab"    %% "processors-main"          % procVer,
     "org.clulab"    %% "processors-corenlp"       % procVer,
     "org.clulab"    %% "processors-odin"          % procVer,
