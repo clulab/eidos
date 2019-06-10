@@ -367,7 +367,7 @@ class TestMigrationSchema extends EnglishTest {
     val timeStart2 = NodeSpec("since September 2016")
     val group2 = NodeSpec("68,858")
     val migration2 = HumanMigrationEdgeSpec(
-      time = Some(time2),
+      time = Some(timeStart2),
       group = Some(group2))
 
     behavior of "migration-az-hack-1a"
@@ -416,7 +416,7 @@ class TestMigrationSchema extends EnglishTest {
     val groupMod2 = NodeSpec("daily")
     val migration2 = HumanMigrationEdgeSpec(
       group = Some(group2),
-      groupMod2 = Some(groupMod2)
+      groupModifier = Some(groupMod2)
     )
 
     behavior of "migration-az-hack-2a"
@@ -490,14 +490,14 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = " The daily arrival rate has significantly jumped from 103 person in February and 199 in February to 660 so far in March."
 
-    val tester = GraphTester(text)
+    val tester = new GraphTester(text)
 
     val group1 = NodeSpec("103 person")
     val groupMod1 = NodeSpec("daily")
     val time1 = NodeSpec("February")
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      groupMod = Some(groupMod1),
+      groupModifier = Some(groupMod1),
       time = Some(time1))
 
     val group2 = NodeSpec("199")
@@ -505,7 +505,7 @@ class TestMigrationSchema extends EnglishTest {
     val time2 = NodeSpec("February")
     val migration2 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      groupMod = Some(groupMod2),
+      groupModifier = Some(groupMod2),
       time = Some(time2))
 
     val group3 = NodeSpec("660")
@@ -513,7 +513,7 @@ class TestMigrationSchema extends EnglishTest {
     val time3 = NodeSpec("March")
     val migration3 = HumanMigrationEdgeSpec(
       group = Some(group3),
-      groupMod = Some(groupMod3),
+      groupModifier = Some(groupMod3),
       time = Some(time3))
 
     behavior of "migration-az-hack-5a"
@@ -598,8 +598,8 @@ class TestMigrationSchema extends EnglishTest {
       moveTo = Some(moveTo4)
     )
     val migration5 = HumanMigrationEdgeSpec(
-      group = Some(group1)
-        moveTo = Some(moveTo5)
+      group = Some(group1),
+      moveTo = Some(moveTo5)
     )
     val migration6 = HumanMigrationEdgeSpec(
       group = Some(group1),
@@ -695,7 +695,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val moveFrom1 = NodeSpec("South Sudan")
-    val migration1 = HumanMigrationEdgespec(
+    val migration1 = HumanMigrationEdgeSpec(
       moveFrom = Some(moveFrom1)
     )
 
@@ -760,7 +760,7 @@ class TestMigrationSchema extends EnglishTest {
       moveThrough = Some(moveThrough1)
     )
 
-    behavior of "migration-az-hack-8"
+    behavior of "migration-az-hack-9"
 
     passingTest should "have correct timeStart1 node" taggedAs (Somebody) in {
       tester.test(timeStart1) should be (successful)
@@ -791,7 +791,7 @@ class TestMigrationSchema extends EnglishTest {
       moveTo = Some(moveTo1)
     )
 
-    behavior of "migration-az-hack-9"
+    behavior of "migration-az-hack-10"
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
@@ -820,7 +820,7 @@ class TestMigrationSchema extends EnglishTest {
       timeStart = Some(timeStart1)
     )
 
-    behavior of "migration-az-hack-10"
+    behavior of "migration-az-hack-11"
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
@@ -1050,7 +1050,7 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "• As of 30 March 2017, Ethiopia hosted around 365,600 South Sudanese refugees."
+    val text = "* As of 30 March 2017, Ethiopia hosted around 365,600 South Sudanese refugees."
 
     val tester = new GraphTester(text)
 
@@ -1133,7 +1133,7 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "• During the past week, 4,608 new arrivals were relocated from Pagak to Nguenyyiel camp, with 246 individuals awaiting relocation as of 30 March 2017."
+    val text = "* During the past week, 4,608 new arrivals were relocated from Pagak to Nguenyyiel camp, with 246 individuals awaiting relocation as of 30 March 2017."
 
     val tester = new GraphTester(text)
 
@@ -1148,7 +1148,7 @@ class TestMigrationSchema extends EnglishTest {
       time = Some(time1)
     )
 
-    behavior of "migration-relocate"
+    behavior of "migration-relocate2"
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
@@ -1168,7 +1168,7 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "• Between 13 and 28 April 2017, 3,604 South Sudanese refugees arrived in Gambella, Ethiopia."
+    val text = "* Between 13 and 28 April 2017, 3,604 South Sudanese refugees arrived in Gambella, Ethiopia."
 
     val tester = new GraphTester(text)
 
@@ -1182,7 +1182,7 @@ class TestMigrationSchema extends EnglishTest {
       moveTo = Some(moveTo1),
       time = Some(time1))
 
-    behavior of "migration-arrive"
+    behavior of "migration-arrive2"
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
@@ -1214,7 +1214,7 @@ class TestMigrationSchema extends EnglishTest {
       groupModifier = Some(groupMod1),
       time = Some(time1))
 
-    behavior of "migration-arrival"
+    behavior of "migration-arrival2"
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
@@ -1255,7 +1255,7 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "• 85% of the new arrivals originated from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties), whilst 14% came from Jonglei State (Uror, Akobo and Ayod Counties)."
+    val text = "* 85% of the new arrivals originated from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties), whilst 14% came from Jonglei State (Uror, Akobo and Ayod Counties)."
 
     val tester = new GraphTester(text)
 
@@ -1283,7 +1283,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group2),
       moveFrom = Some(moveFrom2))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated2"
 
     passingTest should "have correct group2 node" taggedAs (Somebody) in {
       tester.test(group2) should be (successful)
@@ -1301,7 +1301,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group3),
       moveFrom = Some(moveFrom3))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated3"
 
     passingTest should "have correct group3 node" taggedAs (Somebody) in {
       tester.test(group3) should be (successful)
@@ -1319,7 +1319,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group4),
       moveFrom = Some(moveFrom4))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated4"
 
     passingTest should "have correct group4 node" taggedAs (Somebody) in {
       tester.test(group4) should be (successful)
@@ -1337,7 +1337,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group5),
       moveFrom = Some(moveFrom5))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated5"
 
     passingTest should "have correct group5 node" taggedAs (Somebody) in {
       tester.test(group5) should be (successful)
@@ -1355,7 +1355,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group6),
       moveFrom = Some(moveFrom6))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated6"
 
     passingTest should "have correct group6 node" taggedAs (Somebody) in {
       tester.test(group6) should be (successful)
@@ -1377,7 +1377,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group7),
       moveFrom = Some(moveFrom7))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated7"
 
     passingTest should "have correct group7 node" taggedAs (Somebody) in {
       tester.test(group7) should be (successful)
@@ -1395,7 +1395,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group8),
       moveFrom = Some(moveFrom8))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated8"
 
     passingTest should "have correct group8 node" taggedAs (Somebody) in {
       tester.test(group8) should be (successful)
@@ -1413,7 +1413,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group9),
       moveFrom = Some(moveFrom9))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated9"
 
     passingTest should "have correct group9 node" taggedAs (Somebody) in {
       tester.test(group9) should be (successful)
@@ -1431,7 +1431,7 @@ class TestMigrationSchema extends EnglishTest {
       group = Some(group10),
       moveFrom = Some(moveFrom10))
 
-    behavior of "migration-originated"
+    behavior of "migration-originated10"
 
     passingTest should "have correct group10 node" taggedAs (Somebody) in {
       tester.test(group10) should be (successful)
@@ -1445,7 +1445,7 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "• Pagak Reception Centre: As of 28 April 2017, Pagak accommodated around 3,604 new arrivals."
+    val text = "* Pagak Reception Centre: As of 28 April 2017, Pagak accommodated around 3,604 new arrivals."
 
     val tester = new GraphTester(text)
 
