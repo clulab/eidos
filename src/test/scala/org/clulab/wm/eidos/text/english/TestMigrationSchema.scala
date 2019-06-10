@@ -497,4 +497,202 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration1) should be (successful)
     }
   }
+
+  {
+    val text = " In the past week, the daily arrival average stood at 508 individuals."
+
+    val tester = new GraphTester(text)
+
+    val group1 = NodeSpec("508 individuals")
+    val groupMod1 = NodeSpec("daily")
+    val time1 = NodeSpec("the past week")
+    val migration1 = HumanMigrationEdgeSpec(
+      group = Some(group1),
+      groupModifier = Some(groupMod1),
+      time = Some(time1))
+
+    behavior of "migration-arrival"
+
+    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+      tester.test(group1) should be (successful)
+    }
+    passingTest should "have correct groupModifier1 node" taggedAs (Somebody) in {
+      tester.test(groupMod1) should be (successful)
+    }
+    passingTest should "have correct time1 node" taggedAs (Somebody) in {
+      tester.test(time1) should be (successful)
+    }
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+      tester.test(migration1) should be (successful)
+    }
+  }
+
+  {
+    val text = "Except for 246 individuals who are awaiting relocation and 200 others awaiting level 1 registration in Pagak, all new arrivals have been relocated to Nguenyyiel Refugee Camp."
+
+    val tester = new GraphTester(text)
+
+    val group1 = NodeSpec("new arrivals")
+    val moveTo1 = NodeSpec("Nguenyyiel Refugee Camp")
+    val migration1 = HumanMigrationEdgeSpec(
+      group = Some(group1),
+      moveTo = Some(moveTo1)
+    )
+
+    behavior of "migration-relocate"
+
+    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+      tester.test(group1) should be (successful)
+    }
+    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+      tester.test(group1) should be (successful)
+    }
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+      tester.test(migration1) should be (successful)
+    }
+  }
+
+  {
+    val text = "• As of 30 March 2017, Ethiopia hosted around 365,600 South Sudanese refugees."
+
+    val tester = new GraphTester(text)
+
+    val group1 = NodeSpec("365,600 South Sudanese refugees")
+    val moveTo1 = NodeSpec("Ethiopia")
+    val moveFrom1 = NodeSpec("South Sudanese")
+    val time1 = NodeSpec("30 March 2017")
+    val migration1 = HumanMigrationEdgeSpec(
+      group = Some(group1),
+      moveTo = Some(moveTo1),
+      moveFrom = Some(moveFrom1),
+      time = Some(time1)
+    )
+
+    behavior of "migration-hosted"
+
+    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+      tester.test(group1) should be (successful)
+    }
+    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+      tester.test(moveTo1) should be (successful)
+    }
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+      tester.test(moveFrom1) should be (successful)
+    }
+    passingTest should "have correct time1 node" taggedAs (Somebody) in {
+      tester.test(time1) should be (successful)
+    }
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+      tester.test(migration1) should be (successful)
+    }
+  }
+
+  {
+    val text = "They originate mostly from the Upper Nile, Jonglei and Unity states."
+
+    val tester = new GraphTester(text)
+
+    val moveFrom1 = NodeSpec("Upper Nile")
+    val migration1 = HumanMigrationEdgeSpec(
+      group = Some(moveFrom1),
+    )
+
+    behavior of "migration-originate"
+
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+      tester.test(moveFrom1) should be (successful)
+    }
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+      tester.test(migration1) should be (successful)
+    }
+
+    val moveFrom2 = NodeSpec("Jonglei")
+    val migration2 = HumanMigrationEdgeSpec(
+      group = Some(moveFrom2),
+    )
+
+    behavior of "migration-originate"
+
+    passingTest should "have correct moveFrom2 node" taggedAs (Somebody) in {
+      tester.test(moveFrom2) should be (successful)
+    }
+    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
+      tester.test(migration2) should be (successful)
+    }
+
+    val moveFrom3 = NodeSpec("Upper Nile")
+    val migration3 = HumanMigrationEdgeSpec(
+      group = Some(moveFrom3),
+    )
+
+    behavior of "migration-originate"
+
+    passingTest should "have correct moveFrome3 node" taggedAs (Somebody) in {
+      tester.test(moveFrom3) should be (successful)
+    }
+    passingTest should "have correct migration3 event" taggedAs (Somebody) in {
+      tester.test(migration3) should be (successful)
+    }
+  }
+
+  {
+    val text = "• During the past week, 4,608 new arrivals were relocated from Pagak to Nguenyyiel camp, with 246 individuals awaiting relocation as of 30 March 2017."
+
+    val tester = new GraphTester(text)
+
+    val group1 = NodeSpec("4,608 new arrival")
+    val moveFrom1 = NodeSpec("Pagak")
+    val moveTo1 = NodeSpec("Nguenyyiel camp")
+    val time1 = NodeSpec("past week")
+    val migration1 = HumanMigrationEdgeSpec(
+      group = Some(group1),
+      moveFrom = Some(moveFrom1),
+      moveTo = Some(moveTo1),
+      time = Some(time1)
+    )
+
+    behavior of "migration-relocate"
+
+    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+      tester.test(group1) should be (successful)
+    }
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+      tester.test(moveFrom1) should be (successful)
+    }
+    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+      tester.test(moveTo1) should be (successful)
+    }
+    passingTest should "have correct time1 node" taggedAs (Somebody) in {
+      tester.test(time1) should be (successful)
+    }
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+      tester.test(migration1) should be (successful)
+    }
+  }
+
+  /*
+  // template for new tests
+  {
+    val text = ""
+
+    val tester = new GraphTester(text)
+
+    val group1 = NodeSpec("")
+    val migration1 = HumanMigrationEdgeSpec(
+      group = Some(group1),
+    )
+
+    behavior of "migration-TODO"
+
+    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+      tester.test(group1) should be (successful)
+    }
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+      tester.test(migration1) should be (successful)
+    }
+  }
+
+  */
+
+
 }
