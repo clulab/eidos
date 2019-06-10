@@ -344,4 +344,120 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration2) should be (successful)
     }
   }
+
+  //
+  // new tests added by Andrew Z
+  //
+
+//  {
+//    val text = "Since renewed fighting broke out across the country in July 2016, large numbers of refugees have poured into neighbouring countries, enlarging an already significant displacement crisis."
+//
+//    val tester = new GraphTester(text)
+//
+//    val group1 = NodeSpec("large numbers of refugees")
+//    val moveTo1 = NodeSpec("neighbouring countries")
+//    val timeStart1 = NodeSpec("July 2016")
+//    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1), timeStart = Some(timeStart1))
+//
+//    val migration2 = HumanMigrationEdgeSpec()
+//
+//    behavior of "migration-supplemental-1"
+//
+//    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+//      tester.test(group1) should be (successful)
+//    }
+//    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+//      tester.test(moveTo1) should be (successful)
+//    }
+//    passingTest should "have correct timeStart1 node" taggedAs (Somebody) in {
+//      tester.test(timeStart1) should be (successful)
+//    }
+//    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+//      tester.test(migration1) should be (successful)
+//    }
+//
+//    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
+//      tester.test(migration2) should be (successful)
+//    }
+//  }
+
+//  {
+//    val text = "By early-2017, nearly 60,000 people were fleeing the country each month, resulting in mass depopulation of both urban and rural areas."
+//
+//    val tester = new GraphTester(text)
+//
+//    val group1 = NodeSpec("nearly 60,000 people")
+//    val moveFrom1 = NodeSpec("country")
+//    val timeEnd1 = NodeSpec("early-2017")
+//    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveFrom1), timeStart = Some(timeEnd1))
+//
+//    behavior of "migration-supplemental-2"
+//
+//    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+//      tester.test(group1) should be (successful)
+//    }
+//    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+//      tester.test(moveFrom1) should be (successful)
+//    }
+//    passingTest should "have correct timeEnd1 node" taggedAs (Somebody) in {
+//      tester.test(timeEnd1) should be (successful)
+//    }
+//    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+//      tester.test(migration1) should be (successful)
+//    }
+//  }
+
+//  {
+//    val text = "Civilians caught in the fighting between armed actors first displaced into remote areas of the bush, then flee to Uganda, Kenya or the DRC over the course of a few months."
+//
+//    val tester = new GraphTester(text)
+//
+//    val group1 = NodeSpec("Civilians")
+//    val moveTo1 = NodeSpec("remote areas of the bush")
+//    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
+//
+//    val moveTo2 = NodeSpec("Uganda")
+//    val migration2 = HumanMigrationEdgeSpec(moveTo = Some(moveTo2))
+//
+//    val moveTo3 = NodeSpec("Kenya")
+//    val migration3 = HumanMigrationEdgeSpec(moveTo = Some(moveTo3))
+//
+//    val moveTo4 = NodeSpec("DRC")
+//    val migration4 = HumanMigrationEdgeSpec(moveTo = Some(moveTo4))
+//
+//
+//    behavior of "migration-supplemental-3"
+//
+//    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+//      tester.test(group1) should be (successful)
+//    }
+//    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+//      tester.test(moveTo1) should be (successful)
+//    }
+//    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
+//      tester.test(migration1) should be (successful)
+//    }
+//
+//    passingTest should "have correct moveTo2" taggedAs (Somebody) in {
+//      tester.test(moveTo2) should be (successful)
+//    }
+//    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
+//      tester.test(migration2) should be (successful)
+//    }
+//
+//    passingTest should "have correct moveTo3" taggedAs (Somebody) in {
+//      tester.test(moveTo3) should be (successful)
+//    }
+//    passingTest should "have correct migration3 event" taggedAs (Somebody) in {
+//      tester.test(migration3) should be (successful)
+//    }
+//
+//    passingTest should "have correct moveTo4" taggedAs (Somebody) in {
+//      tester.test(moveTo4) should be (successful)
+//    }
+//    passingTest should "have correct migration4 event" taggedAs (Somebody) in {
+//      tester.test(migration4) should be (successful)
+//    }
+//  }
+
 }
