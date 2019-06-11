@@ -124,11 +124,11 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
               if(a.nonEmpty) {
                 Some(Tuple2(Approximate, a.head))
               } else {
-                val min = """(at\s+least)|(more\s+than)""".r.findFirstIn(eventText)
+                val min = """(at\s+least)|(more\s+than)|over""".r.findFirstIn(eventText)
                 if(min.nonEmpty) {
                   Some(Tuple2(Min, min.head))
                 } else {
-                  val max = """(at\s+most)|(less\s+than)|almost""".r.findFirstIn(eventText)
+                  val max = """(at\s+most)|(less\s+than)|almost|under""".r.findFirstIn(eventText)
                   if(max.nonEmpty) {
                     Some(Tuple2(Max, max.head))
                   } else {
@@ -145,7 +145,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
         //
         // TODO: need to normalize time intervals too
-        //   if timeStart and timeEnd are present, reduce them to a single field
+        //   if timeStart and timeEnd are present, reduce them to a single field that stores the interval [timeStart.start, timeEnd.end)
         //
 
         if(countAttachments.nonEmpty) {
