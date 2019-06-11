@@ -81,7 +81,7 @@ object MigrationUtils {
 
       e <- mentions
       e1 <- mentions
-      if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).isEmpty)
+      if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).isEmpty && Math.abs(e.sentence - e1.sentence) < 2 )
       //      argIntersectAll = e.arguments.keys.toList.intersect(e1.arguments.keys.toList)
       //      diffValuesArg = for {
       //        argName <- argIntersectAll
