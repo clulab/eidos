@@ -16,7 +16,7 @@
     label: Location-Expand
     type: token
     pattern: |
-      [!norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP & !word=and]* [norm="LOC" & chunk=I-NP]+ [!norm="LOC" & chunk=I-NP & !word=and]*
+      [!norm="LOC" & chunk=B-NP & !tag=/-[LR]RB-/] [!norm="LOC" & chunk=I-NP & !word=and & !tag=/-[LR]RB-/]* [norm="LOC" & chunk=I-NP & !tag=/-[LR]RB-/]+ [!norm="LOC" & chunk=I-NP & !word=and & !tag=/-[LR]RB-/]*
 
   - name: location-nn-expand-right
     # if only the beginning of an NP chunk was found as LOC, expand to the whole NP
@@ -25,7 +25,7 @@
     label: Location-Expand
     type: token
     pattern: |
-      [norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP]+
+      [norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP & !word=and]+
 
   - name: location-backoff
     # backoff to Stanford location
@@ -34,7 +34,7 @@
     label: Location-Expand
     type: token
     pattern: |
-      [entity="LOCATION" & !norm="LOC"] [entity="LOCATION" & !norm="LOC"]*
+      [entity="LOCATION" & !norm="LOC"] [entity="LOCATION" & !norm="LOC" & !tag=/-[LR]RB-/]*
 
   - name: location-backoff-expand
     # where the first part of a complex NNP is found, expand to the rest of the NNP chunk

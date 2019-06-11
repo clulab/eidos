@@ -1449,7 +1449,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("around 3,604 new arrivals")
+    val group1 = NodeSpec("3,604 new arrivals")
     val time1 = NodeSpec("28 April 2017")
     val moveTo1 = NodeSpec("Pagak Reception Centre") // TODO: or is this the intermediate location?
     val migration1 = HumanMigrationEdgeSpec(
@@ -1480,7 +1480,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("13,225 South Sudanese refugees")
-    val moveTo1 = NodeSpec("Gambella, Ethiopia")
+    val moveTo1 = NodeSpec("Gambella")
     val time1 = NodeSpec("1 and 25 March 2017")
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1), timeStart = Some(time1))
@@ -1527,8 +1527,8 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("626 individuals.")
-    val time1 = NodeSpec("In the past week")
+    val group1 = NodeSpec("626 individuals")
+    val time1 = NodeSpec("the past week")
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), time = Some(time1))
 
@@ -1549,14 +1549,19 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = " In the past week, the daily arrival average stood at 626 individuals."
+    val text = "Except 1,796 individuals who are awaiting relocation in Pagak, all the new arrivals have been relocated to Nguenyyiel refugee camp."
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("626 individuals")
-    val time1 = NodeSpec("In the past week")
+    val group1 = NodeSpec("1,796 individuals")
+    val moveTo1 = NodeSpec("Pagak") //todo: should this be intermediate point?
 
-    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), time = Some(time1))
+    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
+
+
+    val group2 = NodeSpec("all the new arrivals")
+    val moveTo2 = NodeSpec("Nguenyyiel refugee camp")
+    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveTo2))
 
 
     behavior of "migration-ma-3"
@@ -1565,40 +1570,8 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(group1) should be (successful)
     }
 
-    passingTest should "have correct time1 node" taggedAs (Somebody) in {
-      tester.test(time1) should be (successful)
-    }
-
-    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
-      tester.test(migration1) should be (successful)
-    }
-  }
-
-
-  {
-    val text = "Except 1,796 individuals who are awaiting relocation in Pagak, all the new arrivals have been relocated to Nguenyyiel refugee camp."
-
-    val tester = new GraphTester(text)
-
-    val group1 = NodeSpec("1,796 individuals")
-    val moveThrough1 = NodeSpec("Pagak") //todo: should this be intermediate point?
-
-    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveThrough = Some(moveThrough1))
-
-
-    val group2 = NodeSpec("all the new arrivals")
-    val moveTo2 = NodeSpec("Nguenyyiel refugee camp")
-    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveTo2))
-
-
-    behavior of "migration-ma-4"
-
-    passingTest should "have correct group1 node" taggedAs (Somebody) in {
-      tester.test(group1) should be (successful)
-    }
-
-    passingTest should "have correct moveThrough1 node" taggedAs (Somebody) in {
-      tester.test(moveThrough1) should be (successful)
+    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+      tester.test(moveTo1) should be (successful)
     }
 
     passingTest should "have correct migration1 event" taggedAs (Somebody) in {
@@ -1631,11 +1604,11 @@ class TestMigrationSchema extends EnglishTest {
 
 
     val group2 = NodeSpec("14%")
-    val moveTo2 = NodeSpec("Jonglei State")
-    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveTo2))
+    val moveFrom2 = NodeSpec("Jonglei State")
+    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveFrom2))
 
 
-    behavior of "migration-ma-5"
+    behavior of "migration-ma-4"
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
@@ -1654,8 +1627,8 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(group2) should be (successful)
     }
 
-    passingTest should "have correct moveTo2 node" taggedAs (Somebody) in {
-      tester.test(moveTo2) should be (successful)
+    passingTest should "have correct moveFrom2 node" taggedAs (Somebody) in {
+      tester.test(moveFrom2) should be (successful)
     }
 
     passingTest should "have correct migration2 event" taggedAs (Somebody) in {
