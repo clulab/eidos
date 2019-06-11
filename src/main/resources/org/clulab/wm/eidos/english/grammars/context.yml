@@ -62,6 +62,16 @@
     type: token
     pattern: |
       [entity="DATE"] [entity="DATE"]*
+
+
+  - name: number-stanford
+      # backoff to Stanford time
+    priority: ${ rulepriority }
+    example: "bringing the total who arrived to 68,858."
+    label: Concept
+    type: token
+    pattern: |
+        [entity="NUMBER"]
 #      |
 #      [entity="DURATION"] [entity="DURATION"]*
 
