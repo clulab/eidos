@@ -12,6 +12,8 @@ import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.expansion.Expander
+import scala.util.matching.Regex
+import org.clulab.wm.eidos.actions
 
 import scala.collection.mutable.{Set => MutableSet}
 
@@ -50,6 +52,62 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     // I know I'm an unnecessary line of code, but I am useful for debugging and there are a couple of things left to debug...
     afterResolving
   }
+
+
+  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    val pattern = """[0-9]+,?[0-9]+""".r
+    val normalized = for {
+      m <- mentions
+      groupMen = m.arguments("group").head
+      i <- groupMen.tokenInterval
+      if pattern.findFirstIn(groupMen.sentenceObj.words(i)).isDefined
+
+
+    } yield
+
+    //todo: normalize
+
+    normalized
+  }
+//  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
+//    val normalized = for {
+//      m <- mentions
+//      groupMen = m.arguments("group").head
+//      interval = for {
+//
+//        word <- groupMen.words
+//        int = word
+//        if (word matches "[0-9]+,?[0-9]+")
+//
+//      }
+//
+//
+////      groupText = m.arguments("group").head.text
+////      pattern = "[0-9]+,?[0-9]+".r
+////      count1 = pattern.findFirstIn(groupText).getOrElse(None)
+////      interval = m.document.sentences(m.sentence)
+////      countMention = new TextBoundMention(Seq("count"), )
+////      currentArgs = m.arguments
+////      newArgs = currentArgs ++ Map("count" -> count1)
+//
+//    } yield count1
+//    //for (c <- count) println("COUNT " + c)
+//
+//    mentions
+//  }
+
+
+//  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
+//    val count = for {
+//      m <- mentions
+//      groupText = m.arguments("group").head.text
+//      pattern = "[0-9]+,?[0-9]+".r
+//      count1 = pattern.findFirstIn(groupText).getOrElse(None)
+//
+//    } yield count1
+//    for (c <- count) println("COUNT " + c)
+//    mentions
+//  }
 
 
   def createEventChain(causal: Seq[Mention], arg1: String, arg2: String): Seq[Mention] = {
