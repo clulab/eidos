@@ -75,5 +75,14 @@
 #      |
 #      [entity="DURATION"] [entity="DURATION"]*
 
+  - name: time-expand
+      # backoff to Stanford time
+    priority: ${ rulepriority }
+    example: "bringing the total who arrived to 68,858."
+    label: Time
+    type: token
+    pattern: |
+        [norm=/.-Time/]
+
       # todo: same for time
       # make the other temporal attachment yml rules use the mention=X syntax

@@ -188,7 +188,7 @@ class TestMigrationSchema extends EnglishTest {
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1_2), moveTo = Some(moveTo1))
 
     // This is a hack.  Nothing checks that these are from the same mention.
-    val moveThrough2a = NodeSpec("Nimule and")
+    val moveThrough2a = NodeSpec("Nimule")
     val moveThrough2b = NodeSpec("Juba")
     // This one(s) matches the rule.
     val migration2a = HumanMigrationEdgeSpec(group = Some(group1_2), moveThrough = Some(moveThrough2a))
@@ -1235,7 +1235,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("The remaining 1%")
+    val group1 = NodeSpec("remaining 1%")
     val moveFrom1 = NodeSpec("Unity State")
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
@@ -1255,7 +1255,7 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "* 85% of the new arrivals originated from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties), whilst 14% came from Jonglei State (Uror, Akobo and Ayod Counties)."
+    val text = "85% of the new arrivals originated from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties), whilst 14% came from Jonglei State (Uror, Akobo and Ayod Counties)."
 
     val tester = new GraphTester(text)
 
@@ -1350,7 +1350,7 @@ class TestMigrationSchema extends EnglishTest {
     }
 
     val group6 = NodeSpec("85% of the new arrivals")
-    val moveFrom6 = NodeSpec("Maiwut")
+    val moveFrom6 = NodeSpec("Maiwut Counties")
     val migration6 = HumanMigrationEdgeSpec(
       group = Some(group6),
       moveFrom = Some(moveFrom6))
@@ -1426,7 +1426,7 @@ class TestMigrationSchema extends EnglishTest {
     }
 
     val group10 = NodeSpec("14%")
-    val moveFrom10 = NodeSpec("Ayod")
+    val moveFrom10 = NodeSpec("Ayod Counties")
     val migration10 = HumanMigrationEdgeSpec(
       group = Some(group10),
       moveFrom = Some(moveFrom10))
@@ -1445,32 +1445,32 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "* Pagak Reception Centre: As of 28 April 2017, Pagak accommodated around 3,604 new arrivals."
+    val text = "Pagak Reception Centre: As of 28 April 2017, Pagak accommodated around 3,604 new arrivals."
 
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("3,604 new arrivals")
-    val time1 = NodeSpec("28 April 2017")
+    val timeEnd1 = NodeSpec("28 April 2017")
     val moveTo1 = NodeSpec("Pagak Reception Centre") // TODO: or is this the intermediate location?
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      time = Some(time1),
+      timeEnd = Some(timeEnd1),
       moveTo = Some(moveTo1)
     )
 
     behavior of "migration-accommodate"
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
-      tester.test(group1) should be (successful)
+      tester.test(group1) should be(successful)
     }
-    passingTest should "have correct time1 node" taggedAs (Somebody) in {
-      tester.test(time1) should be (successful)
+    passingTest should "have correct timeEnd1 node" taggedAs (Somebody) in {
+      tester.test(timeEnd1) should be(successful)
     }
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
-      tester.test(moveTo1) should be (successful)
+      tester.test(moveTo1) should be(successful)
     }
     passingTest should "have correct migration1 event" taggedAs (Somebody) in {
-      tester.test(migration1) should be (successful)
+      tester.test(migration1) should be(successful)
     }
   }
 
@@ -1523,7 +1523,7 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = " In the past week, the daily arrival average stood at 626 individuals."
+    val text = "In the past week, the daily arrival average stood at 626 individuals."
 
     val tester = new GraphTester(text)
 
@@ -1605,7 +1605,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val group2 = NodeSpec("14%")
     val moveFrom2 = NodeSpec("Jonglei State")
-    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveFrom2))
+    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
 
     behavior of "migration-ma-4"

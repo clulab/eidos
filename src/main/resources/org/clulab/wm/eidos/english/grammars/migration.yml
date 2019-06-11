@@ -170,14 +170,16 @@ rules:
 
   # hackathon rules
 
-  - name: migration-arrival
-    priority: ${ rulepriority }
-    example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
-    label: ${ label }
-    pattern: |
-      trigger = [word=arrival]
-      group: Concept? = <compound nmod_of nummod
-      groupModifier: Entity? = <compound amod
+#  - name: migration-arrival
+#    priority: ${ rulepriority }
+#    example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
+#    label: ${ label }
+#    pattern: |
+#      trigger = [lemma=/(arrival)/ & tag=/^NN/]
+#      group: Concept? = <nmod_of </${agents}/
+#      groupModifier: Time? = <nmod_of amod
+#      time: Time? = <nmod_of </${agents}/ advmod
+
 
 
   - name: migration-relocate
@@ -208,6 +210,21 @@ rules:
       timeStart: Time? = >advcl_since? (<dobj? >nmod_since)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = (<dobj? (>nmod_during >nummod|>nmod_in))|(</${agents}/ >nmod_in)
+
+  - name: migration-rate
+    priority: ${ rulepriority }
+    example: "Additional cross border movement to Ethiopia occurs via Pagak."
+    label: ${ label }
+    pattern: |
+      trigger = [lemma=/(rate)/ & tag=/^NN/]
+      group: Concept? = <nsubj
+      groupModifier: Time = amod
+      moveTo: Location? = (<dobj|<nmod_in)? (>nmod_in|>nmod_into|>nmod_to|(>nmod_in [lemma=particular] >nmod_to)|>acl_to|>nmod_for|(>nmod_between >conj_and)|(</${agents}/ >nmod_toward >nmod_in?)) >dobj?
+      moveFrom: Location? = (>nmod_of? >nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)|(<dobj >/${agents}/)|(>nmod_within (?= case [lemma=from]) >conj_and?)
+      moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through|>nmod_along))
+      timeStart: Time? = >advcl_since? (<dobj? >nmod_since)
+      timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
+      time: Time? = </${agents}/ advmod
 
 
 # TODO:
