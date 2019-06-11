@@ -26,13 +26,13 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [lemma=arrive & tag=/^VB/]
-      group: Entity? = ((<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?)|(<acl <nmod_with >nsubjpass)) [!entity="LOCATION"]
+      group: Entity? = ((<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?)|(<acl <nmod_with >nsubjpass)|nmod_to) [!entity="LOCATION"]
       moveTo: Location? = (</${agents}/? >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl? >nmod_in)|(>advmod >nmod_towards)
       moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
       moveThrough: Location? = </${agents}/? (>nmod_via|>nmod_through)
       timeStart: Time? = >nmod_since|>nmod_after|(>advcl_since >nmod_in)
       timeEnd: Time? = >nmod_as_of|>nmod_until|>nmod_by
-      time: Time? = (>nmod_during >nummod)|>nmod_in
+      time: Time? = (>nmod_during >nummod)|>nmod_in|nmod_between
 
 
   - name: migration-displace
@@ -140,7 +140,7 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [lemma=/(originate)/ & tag=/^VB/]
-      group: Entity? = <nsubj
+      group: Entity? = nsubj nmod_of?
       moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_within) dep? 
 
   - name: migration-destination-dep
@@ -166,6 +166,17 @@ rules:
     type: token
     pattern: |
       (?<trigger> [lemma=destination]) [!word=from]{,5}? @moveTo:Location+ (and @moveTo:Location+)?
+
+
+  - name: migration-arrival
+    priority: ${ rulepriority }
+    example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
+    label: ${ label }
+    pattern: |
+      trigger = [word=arrival]
+      group: Concept? = <compound nmod_of nummod
+      groupModifier: Entity? = <compound amod
+
 
 # TODO:
 # I think i need to first make the geolocations proper mentions?
