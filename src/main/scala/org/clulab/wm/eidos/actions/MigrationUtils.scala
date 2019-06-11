@@ -76,11 +76,11 @@ object MigrationUtils {
   }
 
   def noArgOverlap(mentions: Seq[Mention]): Seq[Mention] = {
-    val groupedMentions = mentions.groupBy(_.sentence)
+//    val groupedMentions = mentions.groupBy(_.sentence)
     val afterAssembly = for  {
-      group <- groupedMentions
-      e <- group._2
-      e1 <- group._2
+
+      e <- mentions
+      e1 <- mentions
       if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).isEmpty)
       //      argIntersectAll = e.arguments.keys.toList.intersect(e1.arguments.keys.toList)
       //      diffValuesArg = for {
