@@ -2,19 +2,19 @@ package org.clulab.wm.eidos.context
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
+import org.apache.commons.io.IOUtils
+import org.tensorflow.{Graph, Session, Tensor}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
-import org.deeplearning4j.nn.graph.ComputationGraph
-import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
-import org.deeplearning4j.util.ModelSerializer
-import org.nd4j.linalg.factory.Nd4j
 
 object GeoDisambiguateParser {
   val I_LOC = 0
   val B_LOC = 1
   val O_LOC = 2
+  val PADDING_TOKEN = "PADDING_TOKEN"
   val UNKNOWN_TOKEN = "UNKNOWN_TOKEN"
-  val TIME_DISTRIBUTED_1 = "time_distributed_1"
+  val TF_INPUT = "words_input"
+  val TF_OUTPUT = "time_distributed_1/Reshape_1"
 
   def fromConfig(config: Config): GeoDisambiguateParser = {
     val   geoNormModelPath: String = config[String]("geoNormModelPath")
@@ -24,34 +24,18 @@ object GeoDisambiguateParser {
   }
 }
 
-/**
-  * An object for Keras to DeepLearning4J conversion. Needed currently because the geonorm model
-  * is built using Keras but loaded into Eidos using DeepLearning4J.
-  */
-object KerasToDL4J {
-
-  /**
-    * Reads a Keras model and converts it to a DeepLearning4J model.
-    * The Keras model file should have the extension .hdf5.
-    * The DeepLearning4J model written out will have the extension .dl4j.zip.
-    *
-    * @param args A single argument, the Keras model path.
-    */
-  def main(args: Array[String]): Unit = {
-    val Array(kerasPath) = args
-    val network = KerasModelImport.importKerasModelAndWeights(kerasPath, false)
-    val dl4jPath = kerasPath.replace(".hdf5", ".dl4j.zip")
-    ModelSerializer.writeModel(network, dl4jPath, false)
-  }
-}
-
 class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
-  val network: ComputationGraph = (GeoDisambiguateParser.getClass.getResourceAsStream(geoNormModelPath)).autoClose { modelStream =>
-    ModelSerializer.restoreComputationGraph(modelStream)
+  val network: Session = GeoDisambiguateParser.getClass.getResourceAsStream(geoNormModelPath).autoClose { modelStream =>
+    val graph = new Graph
+    graph.importGraphDef(IOUtils.toByteArray(modelStream))
+    new org.tensorflow.Session(graph)
   }
-  lazy protected val word2int: Map[String, Int] = readDict(word2IdxPath)
+
+  lazy private val word2int: Map[String, Int] = readDict(word2IdxPath)
+  lazy private val unknownInt = word2int(GeoDisambiguateParser.UNKNOWN_TOKEN)
+  lazy private val paddingInt = word2int(GeoDisambiguateParser.PADDING_TOKEN)
   // provide path of geoname dict file having geonameID with max population
-  lazy protected val loc2geonameID: Map[String, Int] = readDict(loc2geonameIDPath)
+  lazy private val loc2geonameID: Map[String, Int] = readDict(loc2geonameIDPath)
 
   protected def readDict(dictPath: String): Map[String, Int] = {
     (Sourcer.sourceFromResource(dictPath)).autoClose { source =>
@@ -63,68 +47,55 @@ class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2
     }
   }
 
-  def makeFeatures(words: Array[String]): Array[Float] = {
-    val unknown = word2int(GeoDisambiguateParser.UNKNOWN_TOKEN)
-    val features = words.map(word2int.getOrElse(_, unknown).toFloat)
-
-    features
-  }
-
-  def makeLabels(features: Array[Float]): Array[Int] = {
-
-    def argmax(values: Array[Float]): Int = {
-      // This goes through the values twice, but at least it doesn't create extra objects.
-      val max = values.max
-
-      values.indexWhere(_ == max)
+  /**
+    * Finds locations in a document.
+    *
+    * @param sentenceWords A series of sentences, where each sentence is an array of word Strings.
+    * @return For each input sentence, a list of locations, where each location is a begin word,
+    *         and end word (exclusive), and a GeoNames ID (when one was found).
+    */
+  def findLocations(sentenceWords: Array[Array[String]]): Array[Seq[(Int, Int, Option[Int])]] = if (sentenceWords.isEmpty) Array.empty else {
+    // get the word-level features, and pad to the maximum sentence length
+    val maxLength = sentenceWords.map(_.length).max
+    val sentenceFeatures = for (words <- sentenceWords) yield {
+      words.map(word2int.getOrElse(_, this.unknownInt)).padTo(maxLength, this.paddingInt)
     }
 
-    val input = Nd4j.create(features)
-    val results = this.synchronized {
-      network.setInput(0, input)
-      network.feedForward()
+    // feed the word features through the Tensorflow model
+    import GeoDisambiguateParser.{TF_INPUT, TF_OUTPUT}
+    val input = Tensor.create(sentenceFeatures)
+    val Array(output: Tensor[_]) = this.network.runner().feed(TF_INPUT, input).fetch(TF_OUTPUT).run().toArray
+
+    // convert word-level probability distributions to word-level class predictions
+    val Array(nSentences, nWords, nClasses) = output.shape
+    val sentenceWordProbs = Array.ofDim[Float](nSentences.toInt, nWords.toInt, nClasses.toInt)
+    output.copyTo(sentenceWordProbs)
+    val sentenceWordPredictions: Array[Seq[Int]] = sentenceWordProbs.map(_.map{ wordProbs =>
+      val max = wordProbs.max
+      wordProbs.indexWhere(_ == max)
+    }.toSeq)
+
+    // convert word-level class predictions into span-level geoname predictions
+    import GeoDisambiguateParser.{B_LOC, I_LOC, O_LOC}
+    for ((words, wordPredictions) <- sentenceWords zip sentenceWordPredictions) yield {
+      // trim off any predictions on padding words
+      val trimmedWordPredictions = wordPredictions.take(words.length)
+      for {
+        (wordPrediction, wordIndex) <- trimmedWordPredictions.zipWithIndex
+
+        // a start is either a B, or an I that is following an O
+        if wordPrediction == B_LOC || (wordPrediction == I_LOC && wordPredictions(wordIndex - 1) == O_LOC)
+      } yield {
+
+        // the end index is the first B or O (i.e., non-I) following the start
+        val end = wordPredictions.indices.indexWhere(wordPredictions(_) != I_LOC, wordIndex + 1)
+        val endIndex = if (end == -1) words.length else end
+
+        // look up location phrase in GeoName dict (only containing most populous choices)
+        val locationKey = words.slice(wordIndex, endIndex).mkString("_").toLowerCase
+        val geoNameID = loc2geonameID.get(locationKey)
+        (wordIndex, endIndex, geoNameID)
+      }
     }
-    val output = results.get(GeoDisambiguateParser.TIME_DISTRIBUTED_1)
-    val predictions: Array[Array[Float]] =
-        if (output.shape()(0) == 1) Array(output.toFloatVector)
-        else output.toFloatMatrix
-
-    predictions.map(prediction => argmax(prediction))
-  }
-
-  def makeGeoLocations(labelIndexes: Array[Int], words: Array[String],
-      startOffsets: Array[Int], endOffsets: Array[Int]): Seq[GeoPhraseID] = {
-
-    def newGeoPhraseID(startIndex: Int, endIndex: Int): GeoPhraseID = {
-      // The previous version changed a location phrase into which '_' had been
-      // inserted into a prettyLocationPhrase by changing '_' to ' '.  However,
-      // that is incorrect if the location phrase contained its own '_' characters.
-      val prettyLocationPhrase = words.slice(startIndex, endIndex).mkString(" ")
-      val locationPhrase = prettyLocationPhrase.replace(' ', '_').toLowerCase
-      val geoNameId = loc2geonameID.get(locationPhrase)
-
-      // The word at endIndex has ended previously, so use index - 1.
-      GeoPhraseID(prettyLocationPhrase, geoNameId, startOffsets(startIndex), endOffsets(endIndex - 1))
-    }
-
-    val result = for {
-      startIndex <- labelIndexes.indices
-      labelIndex = labelIndexes(startIndex)
-      isStart = labelIndex == GeoDisambiguateParser.B_LOC || ( // beginning of a location
-          labelIndex == GeoDisambiguateParser.I_LOC && ( // inside of a location if
-              startIndex == 0 || // labels start immediately on I_LOC
-                  labelIndexes(startIndex - 1) == GeoDisambiguateParser.O_LOC // or without B_LOC or I_LOC preceeding
-              )
-          )
-      if isStart
-    }
-    yield {
-      // Either B_LOC or O_LOC, so !I_LOC, will start a new location and thus end the old one
-      val endIndex = labelIndexes.indexWhere(_ != GeoDisambiguateParser.I_LOC, startIndex + 1)
-
-      // If not found, endIndex == -1, then use one off the end
-      newGeoPhraseID(startIndex, if (endIndex == -1) labelIndexes.size else endIndex)
-    }
-    result
   }
 }

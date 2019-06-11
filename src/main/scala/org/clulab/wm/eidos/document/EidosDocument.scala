@@ -173,19 +173,27 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
       times = timenorm.map(parseTime(_, regexs.get, documentCreationTime))
 
   protected def parseGeoNorm(geoDisambiguateParser: GeoDisambiguateParser): Array[Seq[GeoPhraseID]] = {
-    sentences.map { sentence =>
-      val words = sentence.raw
-      val features = geoDisambiguateParser.makeFeatures(words)
-      val labelIndexes = geoDisambiguateParser.makeLabels(features)
+    // get the locations found by the parser
+    val sentenceLocations = geoDisambiguateParser.findLocations(sentences.map(_.raw))
 
-      // Update norms with LOC, no B-LOC or I-LOC used
-      sentence.norms.foreach { norms =>
-        norms.indices.foreach { index =>
-          if (labelIndexes(index) != GeoDisambiguateParser.O_LOC)
-            norms(index) = "LOC"
+    // create geonorm objects for each sentence
+    val Some(text) = this.text
+    for ((locations, sentence) <- sentenceLocations zip sentences) yield {
+      for ((wordStartIndex, wordEndIndex, geoNameID) <- locations) yield {
+
+        // extract location text
+        val charStartIndex = sentence.startOffsets(wordStartIndex)
+        val charEndIndex = sentence.endOffsets(wordEndIndex - 1)
+        val locationPhrase = text.substring(charStartIndex, charEndIndex)
+
+        // set norms
+        for (norms <- sentence.norms; index <- wordStartIndex until wordEndIndex) {
+          norms(index) = "LOC"
         }
+
+        // create the geonorm object
+        GeoPhraseID(locationPhrase, geoNameID, charStartIndex, charEndIndex)
       }
-      geoDisambiguateParser.makeGeoLocations(labelIndexes, words, sentence.startOffsets, sentence.endOffsets)
     }
   }
 
