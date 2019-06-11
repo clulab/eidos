@@ -19,6 +19,7 @@ import org.clulab.wm.eidos.attachments.CountModifier._
 import org.clulab.wm.eidos.serialization.json.{JLDAttachment, JLDSerializer}
 import org.json4s.JValue
 
+import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
@@ -76,6 +77,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         var countModifier:Option[(CountModifier.Value, String)] = None
         var countUnit:Option[(CountUnit.Value, String)] = None
 
+        var countAttachments = new mutable.HashSet[EidosAttachment]()
         if(em.arguments.contains("group")) {
           val ga = em.arguments("group").head // there should be a single group; this should be safe
           val na:Option[(Int, Int, Double)] = extractNumber(ga.sentenceObj, ga.start, ga.end)
@@ -137,8 +139,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
             }
             println(s"FOUND MOD: $countModifier")
 
-
-
+            // TODO: add to countAttachments here!
           }
         }
 
@@ -147,7 +148,11 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         //   if timeStart and timeEnd are present, reduce them to a single field
         //
 
-        normalized += em
+        if(countAttachments.nonEmpty) {
+          normalized += em.copy(attachments = em.attachments ++ countAttachments.toSet)
+        } else {
+          normalized += em
+        }
       } else {
         normalized += m
       }
