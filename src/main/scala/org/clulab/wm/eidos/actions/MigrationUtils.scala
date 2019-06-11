@@ -46,6 +46,19 @@ object MigrationUtils {
     handled ++ other
   }
 
+//  def assemble(mentions: Seq[Mention]): Seq[Mention] = {
+//    val groupedMentions = mentions.groupBy(_.sentence)
+//    val afterAssembly = for  {
+//      group <- groupedMentions
+//      e <- group._2
+//      e1 <- group._2
+//      if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).nonEmpty)
+//
+//    } yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
+//
+//    afterAssembly.toSeq
+//  }
+
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)

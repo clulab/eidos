@@ -7,8 +7,8 @@ rules:
     priority: ${ rulepriority }
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
     label: ${ label }
-    action: normalizeGroup
-    #action: ${ action } # parse out quantity as an attachment
+#    action: normalizeGroup
+#    action: ${ action } # parse out quantity as an attachment
     pattern: |
       trigger = [lemma=/(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
@@ -25,7 +25,7 @@ rules:
     priority: ${ rulepriority }
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
     label: ${ label }
-    action: normalizeGroup
+#    action: normalizeGroup
     pattern: |
       trigger = [lemma=arrive & tag=/^VB/]
       group: Entity? = ((<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?)|(<acl <nmod_with >nsubjpass)|nmod_to) [!entity="LOCATION"]
