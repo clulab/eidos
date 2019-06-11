@@ -356,7 +356,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val time1 = NodeSpec("Between 1 and 11 March 2017")
     val group1 = NodeSpec("7,258 South Sudanese refugees")
-    val moveTo1 = NodeSpec("Gambella, Ethiopia")
+    val moveTo1 = NodeSpec("Gambella") //todo: add ", Ethiopia"?
     val moveFrom1 = NodeSpec("South Sudanese")
     val migration1 = HumanMigrationEdgeSpec(
       time = Some(time1),
@@ -364,7 +364,7 @@ class TestMigrationSchema extends EnglishTest {
       moveTo = Some(moveTo1),
       moveFrom = Some(moveFrom1))
 
-    val timeStart2 = NodeSpec("since September 2016")
+    val timeStart2 = NodeSpec("September 2016")
     val group2 = NodeSpec("68,858")
     val migration2 = HumanMigrationEdgeSpec(
       time = Some(timeStart2),
