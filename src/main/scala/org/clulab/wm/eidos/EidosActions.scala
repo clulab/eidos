@@ -82,7 +82,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
           val ga = em.arguments("group").head // there should be a single group; this should be safe
           val na:Option[(Int, Int, Double)] = extractNumber(ga.sentenceObj, ga.start, ga.end)
           if(na.nonEmpty) {
-            val eventText = em.sentenceObj.words.slice(em.start, em.end).mkString(" ")
+            val eventText = em.sentenceObj.words.slice(math.max(0, em.start - 1), math.min(em.end + 1, em.sentenceObj.size)).mkString(" ")
 
             //
             // compute the actual count
@@ -166,6 +166,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     if(sentence.entities.isEmpty)
       return None
 
+    //println("EXTRACTING NUMBER FROM: " + sentence.words.slice(startGroup, endGroup).mkString(" ") + s", $startGroup, $endGroup" )
+
     var start = -1
     var end = -1
     var done = false
@@ -185,13 +187,15 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     if(start == -1) {
       None
     } else {
-      //println("FOUND NUMBER: " + sentence.words.slice(start, end).mkString(" ") + " with value " + sentence.norms.get(start))
-      Some(Tuple3(start, end, toNumber(sentence.norms.get(start))))
+      //println("FOUND NUMBER: " + sentence.words.slice(start, end).mkString(" ") + " with value " + sentence.norms.get(start) + s", $start, $end")
+      //println("WORDS: " + sentence.words.mkString(", "))
+      //println("NORMS: " + sentence.norms.get.mkString(", "))
+      Some(Tuple3(start, end, sentence.words(start).toDouble)) // toNumber(sentence.norms.get(start)))) // TODO: fix me!
     }
   }
 
   protected def toNumber(s:String):Double = {
-    s.replaceAll("[~%,]", "").toDouble
+    s.replaceAll("[~%,<>]", "").toDouble
   }
 
 

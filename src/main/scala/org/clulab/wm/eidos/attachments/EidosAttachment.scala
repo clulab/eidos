@@ -564,5 +564,5 @@ object CountUnit extends Enumeration {
 class CountUnitAttachment(t:String, v:CountUnit.Value) extends ContextAttachment(text = t, value = v) {
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = null // TODO: Keith, needs JSON output
 
-  override def toJson(label: String): JValue = null // TODO: Keith, needs JSON output
+  override def toJson(): JValue = null // TODO: Keith, needs JSON output
 }
