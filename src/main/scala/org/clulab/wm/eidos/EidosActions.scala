@@ -12,10 +12,14 @@ import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.expansion.Expander
-import scala.util.matching.Regex
-import org.clulab.wm.eidos.actions
+import org.clulab.odin.EventMention
+import org.clulab.processors.Sentence
+import org.clulab.wm.eidos.attachments.CountUnit._
+import org.clulab.wm.eidos.attachments.CountModifier._
+import org.clulab.wm.eidos.serialization.json.{JLDAttachment, JLDSerializer}
+import org.json4s.JValue
 
-import scala.collection.mutable.{Set => MutableSet}
+import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
@@ -54,21 +58,138 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   }
 
 
+  /**
+    * Normalizes migration events, e.g., by extracting the actual number of people displaced from the "group" argument
+    * @param mentions Sequence of mentions to be normalized
+    * @param state ?
+    * @return the sequence of normalized mentions
+    */
   def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
     val pattern = """[0-9]+,?[0-9]+""".r
-    val normalized = for {
-      m <- mentions
-      groupMen = m.arguments("group").head
-      i <- groupMen.tokenInterval
-      if pattern.findFirstIn(groupMen.sentenceObj.words(i)).isDefined
+    val normalized = new ArrayBuffer[Mention]()
+
+    for (m <- mentions) {
+      // we only care about migration events here
+      if(m.isInstanceOf[EventMention] && m.label == "HumanMigration") {
+        val em = m.asInstanceOf[EventMention]
+        var count:Option[(Double, String)] = None
+        var countModifier:Option[(CountModifier.Value, String)] = None
+        var countUnit:Option[(CountUnit.Value, String)] = None
+
+        if(em.arguments.contains("group")) {
+          val ga = em.arguments("group").head // there should be a single group; this should be safe
+          val na:Option[(Int, Int, Double)] = extractNumber(ga.sentenceObj, ga.start, ga.end)
+          if(na.nonEmpty) {
+            val eventText = em.sentenceObj.words.slice(em.start, em.end).mkString(" ")
+
+            //
+            // compute the actual count
+            //
+            count = Some(Tuple2(na.get._3, ga.sentenceObj.words.slice(na.get._1, na.get._2).mkString(" ")))
+            println(s"FOUND NUMBER: $count")
+
+            //
+            // search for the measurement unit in the *whole* event span
+            //
+            countUnit =
+              if(ga.sentenceObj.norms.get(na.get._1) == "PERCENT") {
+                Some(Tuple2(Percentage, "percentage"))
+              } else {
+                val d = """daily""".r.findFirstIn(eventText)
+                if(d.nonEmpty) {
+                  Some(Tuple2(Daily, d.head))
+                } else {
+                  val w = """weekly""".r.findFirstIn(eventText)
+                  if(w.nonEmpty) {
+                    Some(Tuple2(Weekly, w.head))
+                  } else {
+                    val m = """monthly""".r.findFirstIn(eventText)
+                    if(m.nonEmpty) {
+                      Some(Tuple2(Monthly, m.head))
+                    } else {
+                      Some(Tuple2(Absolute, "absolute"))
+                    }
+                  }
+                }
+              }
+            println(s"FOUND UNIT: $countUnit")
+
+            //
+            // search for the count modifiers in the *whole* event span
+            //
+            countModifier = {
+              val a = """about|approximately""".r.findFirstIn(eventText)
+              if(a.nonEmpty) {
+                Some(Tuple2(Approximate, a.head))
+              } else {
+                val min = """(at\s+least)|(more\s+than)""".r.findFirstIn(eventText)
+                if(min.nonEmpty) {
+                  Some(Tuple2(Min, min.head))
+                } else {
+                  val max = """(at\s+most)|(less\s+than)|almost""".r.findFirstIn(eventText)
+                  if(max.nonEmpty) {
+                    Some(Tuple2(Max, max.head))
+                  } else {
+                    Some(Tuple2(NoModifier, ""))
+                  }
+                }
+              }
+            }
+            println(s"FOUND MOD: $countModifier")
 
 
-    } yield
 
-    //todo: normalize
+          }
+        }
+
+        //
+        // TODO: need to normalize time intervals too
+        //   if timeStart and timeEnd are present, reduce them to a single field
+        //
+
+        normalized += em
+      } else {
+        normalized += m
+      }
+    }
 
     normalized
   }
+
+  protected def extractNumber(sentence:Sentence, startGroup:Int, endGroup:Int): Option[(Int, Int, Double)] = {
+    // we need the NER tags for number extraction; these are better than regexes!
+    if(sentence.entities.isEmpty)
+      return None
+
+    var start = -1
+    var end = -1
+    var done = false
+
+    for(i <- startGroup until endGroup if ! done) {
+      val ne = sentence.entities.get(i)
+      if(ne == "NUMBER" || ne == "PERCENT") {
+        if(start == -1) {
+          start = i
+        }
+        end = i + 1
+      } else if(start != -1) {
+        done = true
+      }
+    }
+
+    if(start == -1) {
+      None
+    } else {
+      //println("FOUND NUMBER: " + sentence.words.slice(start, end).mkString(" ") + " with value " + sentence.norms.get(start))
+      Some(Tuple3(start, end, toNumber(sentence.norms.get(start))))
+    }
+  }
+
+  protected def toNumber(s:String):Double = {
+    s.replaceAll("[~%,]", "").toDouble
+  }
+
+
 //  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
 //    val normalized = for {
 //      m <- mentions

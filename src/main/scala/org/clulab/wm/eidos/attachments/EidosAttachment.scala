@@ -546,3 +546,23 @@ object Score {
 
   def apply(score: Double) = new Score(score)
 }
+
+//
+// Needed for migration events
+//
+
+object CountModifier extends Enumeration {
+  type CountModifier = Value
+  val NoModifier, Approximate, Min, Max = Value
+}
+
+object CountUnit extends Enumeration {
+  type CountUnit = Value
+  val Absolute, Daily, Weekly, Monthly, Percentage = Value
+}
+
+class CountUnitAttachment(t:String, v:CountUnit.Value) extends ContextAttachment(text = t, value = v) {
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = null // TODO: Keith, needs JSON output
+
+  override def toJson(label: String): JValue = null // TODO: Keith, needs JSON output
+}
