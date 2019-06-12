@@ -65,7 +65,7 @@ object MigrationUtils {
     for (i <- 0 to mentions.length-1) {
       for (j <- i+1 to mentions.length-1) {
 
-        if (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2 && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty || mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).nonEmpty) {
+        if (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2 && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty || mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).nonEmpty) {
         val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
         allCopies += copy
       }
@@ -75,20 +75,26 @@ object MigrationUtils {
 
     var toReturn = ArrayBuffer[Mention]()
     if (allCopies.nonEmpty) {
+      println("was non empty")
 
       val maxNumOfArgs = allCopies.sortBy(_.arguments.toList.length).reverse.head.arguments.toList.length
 
 
       println("-->" + maxNumOfArgs)
 
-      for (c <- allCopies) {
-        if (c.arguments.toList.length == maxNumOfArgs) {
+      for (c <- allCopies ++ mentions) {
+//        toReturn += c
+//        if (c.arguments.toList.length == maxNumOfArgs) {
+//          toReturn += c
+//        }
+        if (!toReturn.contains(c)) {
           toReturn += c
         }
 
       }
 
     } else {
+      println("was empty")
       for (m <- mentions) toReturn += m
 
     }
