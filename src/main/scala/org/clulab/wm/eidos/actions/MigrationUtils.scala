@@ -7,7 +7,15 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
-
+import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
+import org.clulab.odin._
+import org.clulab.odin.impl.Taxonomy
+import org.clulab.wm.eidos.{EidosActions, EidosSystem}
+import org.clulab.wm.eidos.EidosActions.{COREF_DETERMINERS}
+import org.clulab.wm.eidos.utils.FileUtils
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
 
 object MigrationUtils {
 
@@ -44,56 +52,78 @@ object MigrationUtils {
 
     // return all
 //    handled ++ other
-    noArgOverlap(assemble(handled)) ++ other
+    noArgOverlap(assemblyForOverlappingMentions(handled)) ++ other
   }
 
-  def assemble(mentions: Seq[Mention]): Seq[Mention] = {
+  def assemblyForOverlappingMentions(mentions: Seq[Mention]): Seq[Mention] = {
     val groupedMentions = mentions.groupBy(_.sentence)
     val afterAssembly = for  {
       group <- groupedMentions
       e <- group._2
       e1 <- group._2
       if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).nonEmpty)
-      //      argIntersectAll = e.arguments.keys.toList.intersect(e1.arguments.keys.toList)
-      //      diffValuesArg = for {
-      //        argName <- argIntersectAll
-      //        if (e.arguments(argName)!=e1.arguments(argName))
-      //      } yield argName
-      //      overlapArgAsSeq = Map(diffValuesArg.head -> Seq(e.arguments(diffValuesArg.head).head, e1.arguments(diffValuesArg.head).head))
 
     } yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
 
-    val handled = if (afterAssembly.nonEmpty) mostArgs(afterAssembly.toSeq) else mentions
+    val handled = if (afterAssembly.nonEmpty) mostCompleArg(afterAssembly.toSeq) else mentions
     handled
   }
 
 
 
-  def mostArgs(mentions: Seq[Mention]): Seq[Mention] = {
+  def mostCompleArg(mentions: Seq[Mention]): Seq[Mention] = {
     val sorted = mentions.sortBy(_.arguments.toList.length).reverse
     val mostArguments = sorted.head
     Seq(mostArguments)
   }
 
   def noArgOverlap(mentions: Seq[Mention]): Seq[Mention] = {
-//    val groupedMentions = mentions.groupBy(_.sentence)
-    val afterAssembly = for  {
 
+    val afterAssembly = for  {
       e <- mentions
-      e1 <- mentions
-      if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).isEmpty && Math.abs(e.sentence - e1.sentence) < 2 )
-      //      argIntersectAll = e.arguments.keys.toList.intersect(e1.arguments.keys.toList)
-      //      diffValuesArg = for {
-      //        argName <- argIntersectAll
-      //        if (e.arguments(argName)!=e1.arguments(argName))
-      //      } yield argName
-      //      overlapArgAsSeq = Map(diffValuesArg.head -> Seq(e.arguments(diffValuesArg.head).head, e1.arguments(diffValuesArg.head).head))
+      e1 <- mentions if (Math.abs(e.sentence - e1.sentence) < 2)
+      if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).isEmpty) //&& Math.abs(e.sentence - e1.sentence) < 2 )
 
     } yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
 
-    val handled = if (afterAssembly.nonEmpty) mostArgs(afterAssembly.toSeq) else mentions
+    val handled = if (afterAssembly.nonEmpty) mostCompleArg(afterAssembly.toSeq) else mentions
     handled
   }
+
+
+//  def resolve(mentions: Seq[Mention], allMention: Seq[Mention]): Seq[Mention] = {
+//    val allGrouped = allMention.groupBy(_.sentence)
+//    val handled = for {
+//      m <- mentions
+//      newArgs = for {
+//        arg <- m.arguments
+//        if (arg._2.head.foundBy matches "simple-np")
+//
+//      } yield arg
+//
+//
+//      if (newArgs.nonEmpty)
+////      presentcSent = m.document.sentences(m.sentence - 1)
+//
+//      anaphor = newArgs.head._2.head
+//      antecedent = allGrouped(m.sentence - 1).filter(_.foundBy matches "location-nn").head
+//
+//
+////      corefMention = new CrossSentenceMention(
+////        labels = Seq("coref"),
+////        anchor = antecedent,
+////        neighbor = anaphor,
+////        arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(antecedent)), (EidosActions.ANAPHOR, Seq(anaphor))),
+////        document = m.document,
+////        keep = true,
+////        foundBy = s"coref",
+////        attachments = Set.empty[Attachment]
+////      )
+//
+//    } //yield copyWithNewArgs(m, m.arguments ++ Map("coref" -> Seq(corefMention)))
+//
+//    mentions ++ handled
+//  }
 
 
 
