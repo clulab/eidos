@@ -53,22 +53,22 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     afterResolving
   }
 
-//
-//  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
-//    val pattern = """[0-9]+,?[0-9]+""".r
-//    val normalized = for {
-//      m <- mentions
-//      groupMen = m.arguments("group").head
-//      i <- groupMen.tokenInterval
-//      if pattern.findFirstIn(groupMen.sentenceObj.words(i)).isDefined
-//
-//
-//    } yield
-//
-//    //todo: normalize
-//
-//    normalized
-//  }
+
+  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    val pattern = """[0-9]+,?[0-9]+""".r
+    val normalized = for {
+      m <- mentions
+      groupMen = m.arguments("group").head
+      i <- groupMen.tokenInterval
+      if pattern.findFirstIn(groupMen.sentenceObj.words(i)).isDefined
+
+
+    } yield
+
+    //todo: normalize
+
+    normalized
+  }
 //  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
 //    val normalized = for {
 //      m <- mentions
