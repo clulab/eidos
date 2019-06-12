@@ -55,7 +55,9 @@ object MigrationUtils {
     // return all
 //    handled ++ other
     assembleFragments(handled) ++ other
-//    noArgOverlap(assemblyForOverlappingMentions(handled)) ++ other
+//    assembleFragments(assembleFragments(assembleFragments(handled))) ++ other
+
+    //    noArgOverlap(assemblyForOverlappingMentions(handled)) ++ other
   }
 
 
@@ -99,9 +101,24 @@ object MigrationUtils {
 
     }
 
+    var duplicates = List[Mention]()
 
-    toReturn
+    for (e <- toReturn) {
+      for (e2 <- toReturn) {
+        if (e != e2 && e.arguments.toList.forall(e2.arguments.toList.contains)) {
+          duplicates = duplicates :+ e
+        }
+      }
+    }
 
+    var returnThese = List[Mention]()
+    for (e <- toReturn) {
+      if (!(duplicates contains e)) {
+        returnThese = returnThese :+ e
+      }
+    }
+
+    returnThese
   }
 
 
