@@ -63,7 +63,7 @@ object MigrationUtils {
     var allCopies = ArrayBuffer[Mention]()
 
     for (i <- 0 to mentions.length-1) {
-      for (j <- 1 to mentions.length-1) {
+      for (j <- i+1 to mentions.length-1) {
         val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
         allCopies += copy
         }
