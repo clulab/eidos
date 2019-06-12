@@ -54,107 +54,33 @@ object MigrationUtils {
 
     // return all
 //    handled ++ other
-    noArgOverlap(assemblyForOverlappingMentions(handled)) ++ other
-  }
-
-  def assemblyForOverlappingMentions(mentions: Seq[Mention]): Seq[Mention] = {
-    val groupedMentions = mentions.groupBy(_.sentence)
-    val afterAssembly = for  {
-      group <- groupedMentions
-      e <- group._2
-      e1 <- group._2
-      if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).nonEmpty)
-
-    } yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
-
-    val handled = if (afterAssembly.nonEmpty) returnNonOverlapping(afterAssembly.toSeq) else mentions
-    handled
+    assembleFragments(handled) ++ other
+//    noArgOverlap(assemblyForOverlappingMentions(handled)) ++ other
   }
 
 
+  def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
+    var allCopies = ArrayBuffer[Mention]()
 
-  def mostCompleteArg(mentions: Seq[Mention]): Seq[Mention] = {
-    val sorted = mentions.sortBy(_.arguments.toList.length).reverse
-    val mostArguments = sorted.head
-    Seq(mostArguments)
+    for (i <- 0 to mentions.length-1) {
+      for (j <- 1 to mentions.length-1) {
+        val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
+        allCopies += copy
+        }
+      }
+
+    val maxNumOfArgs = allCopies.sortBy(_.arguments.toList.length).reverse.head.arguments.toList.length
+    println("-->" + maxNumOfArgs)
+    var toReturn = ArrayBuffer[Mention]()
+    for (c <- allCopies) {
+      if (c.arguments.toList.length == maxNumOfArgs) {
+        toReturn += c
+      }
+
+    }
+    toReturn
+
   }
-
-  def returnNonOverlapping(mentions: Seq[Mention]): Seq[Mention] = {
-    val groupedByTokenInt = mentions.groupBy(_.arguments.values) //todo this is not finished. how do i sort to group if same args? and also use this on the other methods
-    val toReturn = for {
-      group <- groupedByTokenInt
-
-    } yield group._2.head
-
-    toReturn.toSeq
-
-  }
-
-  def noArgOverlap(mentions: Seq[Mention]): Seq[Mention] = {
-
-    val afterAssembly = for  {
-      e <- mentions
-      e1 <- mentions if (Math.abs(e.sentence - e1.sentence) < 2)
-      if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).isEmpty) //&& Math.abs(e.sentence - e1.sentence) < 2 )
-
-    } yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
-
-    val handled = if (afterAssembly.nonEmpty) returnNonOverlapping(afterAssembly) else mentions
-    handled
-  }
-
-
-//  def resolve(mentions: Seq[Mention], allMention: Seq[Mention]): Seq[Mention] = {
-//    val allGrouped = allMention.groupBy(_.sentence)
-//    val handled = for {
-//      m <- mentions
-//      newArgs = for {
-//        arg <- m.arguments
-//        if (arg._2.head.foundBy matches "simple-np")
-//
-//      } yield arg
-//
-//
-//      if (newArgs.nonEmpty)
-////      presentcSent = m.document.sentences(m.sentence - 1)
-//
-//      anaphor = newArgs.head._2.head
-//      antecedent = allGrouped(m.sentence - 1).filter(_.foundBy matches "location-nn").head
-//
-//
-////      corefMention = new CrossSentenceMention(
-////        labels = Seq("coref"),
-////        anchor = antecedent,
-////        neighbor = anaphor,
-////        arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(antecedent)), (EidosActions.ANAPHOR, Seq(anaphor))),
-////        document = m.document,
-////        keep = true,
-////        foundBy = s"coref",
-////        attachments = Set.empty[Attachment]
-////      )
-//
-//    } //yield copyWithNewArgs(m, m.arguments ++ Map("coref" -> Seq(corefMention)))
-//
-//    mentions ++ handled
-//  }
-
-
-
-//
-//  def mostArgs(mentions: Seq[Mention]): Seq[Mention] = {
-//    val sorted = mentions.sortBy(_.arguments.toList.length).reverse
-//    var handled = List(sorted.head)
-//    for (m <- sorted.tail) {
-//      val mArgs = m.arguments.values.toList
-//      for (m2 <- handled) {
-//        val m2Args = m2.arguments.values.toList
-//        if (m2Args contains mArgs) {
-//          handled :+ m
-//        }
-//      }
-//    }
-//    handled
-//  }
 
 
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
