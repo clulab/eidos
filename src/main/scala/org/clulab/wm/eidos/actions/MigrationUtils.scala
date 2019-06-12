@@ -12,10 +12,12 @@ import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-import org.clulab.wm.eidos.EidosActions.{COREF_DETERMINERS}
+import org.clulab.wm.eidos.EidosActions.COREF_DETERMINERS
 import org.clulab.wm.eidos.utils.FileUtils
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
+
+import scala.collection.mutable.ArrayBuffer
 
 object MigrationUtils {
 
@@ -65,16 +67,27 @@ object MigrationUtils {
 
     } yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
 
-    val handled = if (afterAssembly.nonEmpty) mostCompleArg(afterAssembly.toSeq) else mentions
+    val handled = if (afterAssembly.nonEmpty) returnNonOverlapping(afterAssembly.toSeq) else mentions
     handled
   }
 
 
 
-  def mostCompleArg(mentions: Seq[Mention]): Seq[Mention] = {
+  def mostCompleteArg(mentions: Seq[Mention]): Seq[Mention] = {
     val sorted = mentions.sortBy(_.arguments.toList.length).reverse
     val mostArguments = sorted.head
     Seq(mostArguments)
+  }
+
+  def returnNonOverlapping(mentions: Seq[Mention]): Seq[Mention] = {
+    val groupedByTokenInt = mentions.groupBy(_.arguments.values) //todo this is not finished. how do i sort to group if same args? and also use this on the other methods
+    val toReturn = for {
+      group <- groupedByTokenInt
+
+    } yield group._2.head
+
+    toReturn.toSeq
+
   }
 
   def noArgOverlap(mentions: Seq[Mention]): Seq[Mention] = {
@@ -86,7 +99,7 @@ object MigrationUtils {
 
     } yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
 
-    val handled = if (afterAssembly.nonEmpty) mostCompleArg(afterAssembly.toSeq) else mentions
+    val handled = if (afterAssembly.nonEmpty) returnNonOverlapping(afterAssembly) else mentions
     handled
   }
 
