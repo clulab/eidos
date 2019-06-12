@@ -82,13 +82,14 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
           val ga = em.arguments("group").head // there should be a single group; this should be safe
           val na:Option[(Int, Int, Double)] = extractNumber(ga.sentenceObj, ga.start, ga.end)
           if(na.nonEmpty) {
+            // the event text includes +/- 1 words outside of the event span, to make sure it captures all modifiers
             val eventText = em.sentenceObj.words.slice(math.max(0, em.start - 1), math.min(em.end + 1, em.sentenceObj.size)).mkString(" ")
 
             //
             // compute the actual count
             //
             count = Some(Tuple2(na.get._3, ga.sentenceObj.words.slice(na.get._1, na.get._2).mkString(" ")))
-            println(s"FOUND NUMBER: $count")
+            //println(s"FOUND NUMBER: $count")
 
             //
             // search for the measurement unit in the *whole* event span
@@ -114,7 +115,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
                   }
                 }
               }
-            println(s"FOUND UNIT: $countUnit")
+            //println(s"FOUND UNIT: $countUnit")
 
             //
             // search for the count modifiers in the *whole* event span
@@ -137,15 +138,19 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
                 }
               }
             }
-            println(s"FOUND MOD: $countModifier")
+            //println(s"FOUND MOD: $countModifier")
 
-            // TODO: add to countAttachments here!
+            countAttachments +=
+              new CountAttachment(
+                s"value=${count.get._2}, mod=${countModifier.get._1}, unit=${countUnit.get._1}",
+                MigrationGroupCount(count.get._1, countModifier.get._1, countUnit.get._1))
           }
         }
 
         //
         // TODO: need to normalize time intervals too
         //   if timeStart and timeEnd are present, reduce them to a single field that stores the interval [timeStart.start, timeEnd.end)
+        //   this should be done in a different method?
         //
 
         if(countAttachments.nonEmpty) {
@@ -166,8 +171,6 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     if(sentence.entities.isEmpty)
       return None
 
-    //println("EXTRACTING NUMBER FROM: " + sentence.words.slice(startGroup, endGroup).mkString(" ") + s", $startGroup, $endGroup" )
-
     var start = -1
     var end = -1
     var done = false
@@ -184,18 +187,32 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
       }
     }
 
-    if(start == -1) {
-      None
-    } else {
-      //println("FOUND NUMBER: " + sentence.words.slice(start, end).mkString(" ") + " with value " + sentence.norms.get(start) + s", $start, $end")
-      //println("WORDS: " + sentence.words.mkString(", "))
-      //println("NORMS: " + sentence.norms.get.mkString(", "))
-      Some(Tuple3(start, end, sentence.words(start).toDouble)) // toNumber(sentence.norms.get(start)))) // TODO: fix me!
+    if(start != -1) {
+      // ideally, get the value of this number from .norms
+      // however, this fails sometimes now, because the B/I-TIME tags override this column!
+      // let's try to be robust; fall back to words if needed
+      val n = toNumber(sentence.norms.get(start))
+      if(n.isDefined) {
+        return Some(Tuple3(start, end, n.get))
+      } else if(end == start + 1) {
+        val n = toNumber(sentence.words(start))
+        if(n.isDefined) {
+          return Some(Tuple3(start, end, n.get))
+        }
+      }
     }
+
+    // could find a meaningful number
+    None
   }
 
-  protected def toNumber(s:String):Double = {
-    s.replaceAll("[~%,<>]", "").toDouble
+  protected def toNumber(s:String):Option[Double] = {
+    try {
+      Some(s.replaceAll("[~%,<>]", "").toDouble)
+    } catch {
+      case e:Exception => None
+    }
+
   }
 
 

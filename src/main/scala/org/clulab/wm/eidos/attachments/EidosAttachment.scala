@@ -561,8 +561,11 @@ object CountUnit extends Enumeration {
   val Absolute, Daily, Weekly, Monthly, Percentage = Value
 }
 
-class CountUnitAttachment(t:String, v:CountUnit.Value) extends ContextAttachment(text = t, value = v) {
+case class MigrationGroupCount(value:Double, modifier:CountModifier.Value, unit:CountUnit.Value)
+
+class CountAttachment(t:String, v:MigrationGroupCount) extends ContextAttachment(text = t, value = v) {
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = null // TODO: Keith, needs JSON output
 
   override def toJson(): JValue = null // TODO: Keith, needs JSON output
 }
+
