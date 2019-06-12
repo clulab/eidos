@@ -5,6 +5,7 @@ import org.clulab.processors.Processor
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 import scala.collection.mutable.ArrayBuffer
@@ -144,18 +145,25 @@ object OntologyMapper {
   }
 
   // Mapping the UN_ONT to the indicator ontologies
-  def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
+  def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int, extractions: Option[Seq[EidosMention]] = None): Unit = {
     val grounders = reader.ontologyHandler.grounders
     println(s"number of eidos ontologies - ${grounders.length}")
-    val eidosConceptEmbeddings = grounders.head.conceptEmbeddings
+    // the concepts from the higher level ontology
+    // ConceptEmbedding ("Name", embedding)
+    val baseConceptEmbeddings: Seq[ConceptEmbedding] = grounders.head.conceptEmbeddings
+    // Todo (Zheng): Create top X extracted concepts that go with each concept
+    val extractedConcepts = extractions.get.filter(_.label == EidosSystem.CONCEPT_LABEL)
+    val conceptsByOntNode = extractedConcepts.groupBy(???) // todo something smart
 
-    // Version from master
+    // For each of the indicator ontologies, for each concept, find the most similar
     val indicatorMaps = EidosOntologyGrounder.indicatorNamespaces.toSeq.map{
       namespace =>
         val ontology = grounders.find(_.name == namespace)
         val concepts = ontology.map(_.conceptEmbeddings).getOrElse(Seq())
-        val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
-        mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
+        // todo (Zheng): Currently, this only takes into account the concepts in the ontologies (and their examples)
+        // todo: condition alignment score on the *content words* (canonical name parts) of top X extracted concepts that grounded to the node
+        val mostSimilar = mostSimilarIndicators(baseConceptEmbeddings, concepts, topN, reader).toMap
+        mostSimilar.foreach(mapping => println(s"concept: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
 
         (namespace, mostSimilar)
     }
@@ -164,14 +172,14 @@ object OntologyMapper {
     FileUtils.printWriterFromFile(outputFile).autoClose { pw =>
       FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions").autoClose { pwInterventionSpecific =>
 
-        for (unConcept <- indicatorMaps.head._2.keys) {
-          val mappings = indicatorMaps.flatMap(x => x._2(unConcept).map(p => (p._1, p._2, x._1)))
+        for (baseConcept <- indicatorMaps.head._2.keys) {
+          val mappings = indicatorMaps.flatMap(x => x._2(baseConcept).map(p => (p._1, p._2, x._1)))
           val sorted = mappings.sortBy(-_._2)
           
           for ((indicator, score, label) <- sorted) {
-            pw.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
-            if (!unConcept.startsWith("UN/interventions")) {
-              pwInterventionSpecific.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
+            pw.println(s"concept\t$baseConcept\t$label\t$indicator\t$score")
+            if (!baseConcept.startsWith("UN/interventions") && !baseConcept.startsWith("wm/concept/causal_factor/intervention/")) {
+              pwInterventionSpecific.println(s"concept\t$baseConcept\t$label\t$indicator\t$score")
             }
           }
         }
