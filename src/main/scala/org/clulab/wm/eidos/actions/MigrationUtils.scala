@@ -64,20 +64,36 @@ object MigrationUtils {
 
     for (i <- 0 to mentions.length-1) {
       for (j <- i+1 to mentions.length-1) {
+
+        if (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2 && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty || mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).nonEmpty) {
         val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
         allCopies += copy
+      }
+
         }
       }
 
-    val maxNumOfArgs = allCopies.sortBy(_.arguments.toList.length).reverse.head.arguments.toList.length
-    println("-->" + maxNumOfArgs)
     var toReturn = ArrayBuffer[Mention]()
-    for (c <- allCopies) {
-      if (c.arguments.toList.length == maxNumOfArgs) {
-        toReturn += c
+    if (allCopies.nonEmpty) {
+
+      val maxNumOfArgs = allCopies.sortBy(_.arguments.toList.length).reverse.head.arguments.toList.length
+
+
+      println("-->" + maxNumOfArgs)
+
+      for (c <- allCopies) {
+        if (c.arguments.toList.length == maxNumOfArgs) {
+          toReturn += c
+        }
+
       }
 
+    } else {
+      for (m <- mentions) toReturn += m
+
     }
+
+
     toReturn
 
   }
