@@ -55,54 +55,35 @@ object MigrationUtils {
     // return all
 //    handled ++ other
     assembleFragments(handled) ++ other
-//    assembleFragments(assembleFragments(assembleFragments(handled))) ++ other
-
-    //    noArgOverlap(assemblyForOverlappingMentions(handled)) ++ other
   }
 
 
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
+    // combine events with shared arguments AND combine events in close proximity with complementary arguments
     var allCopies = ArrayBuffer[Mention]()
-
-    for (i <- 0 to mentions.length-1) {
-      for (j <- i+1 to mentions.length-1) {
-
+    for (i <- mentions.indices) {
+      for (j <- i+1 until mentions.length) {
         if (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2 && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty || mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).nonEmpty) {
         val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
         allCopies += copy
-      }
-
         }
       }
-
-    var toReturn = ArrayBuffer[Mention]()
-    if (allCopies.nonEmpty) {
-      println("was non empty")
-
-      val maxNumOfArgs = allCopies.sortBy(_.arguments.toList.length).reverse.head.arguments.toList.length
-
-
-      println("-->" + maxNumOfArgs)
-
-      for (c <- allCopies ++ mentions) {
-//        toReturn += c
-//        if (c.arguments.toList.length == maxNumOfArgs) {
-//          toReturn += c
-//        }
-        if (!toReturn.contains(c) && c.arguments.toList.length > 0 && !toReturn.map(m => m.arguments.toList).contains(c.arguments.toList)) {
-          toReturn += c
-        }
-
-      }
-
-    } else {
-      println("was empty")
-      for (m <- mentions) toReturn += m
-
     }
 
-    var duplicates = List[Mention]()
+    // add copy/merge mentions and original mentions if there is no exact argument overlap
+    var toReturn = ArrayBuffer[Mention]()
+    if (allCopies.nonEmpty) {
+      for (c <- allCopies ++ mentions) {
+        if (!toReturn.contains(c) && c.arguments.toList.nonEmpty && !toReturn.map(m => m.arguments.toList).contains(c.arguments.toList)) {
+          toReturn += c
+        }
+      }
+    } else {
+      for (m <- mentions) toReturn += m
+    }
 
+    // remove duplicate/subset events
+    var duplicates = List[Mention]()
     for (e <- toReturn) {
       for (e2 <- toReturn) {
         if (e != e2 && e.arguments.toList.forall(e2.arguments.toList.contains)) {
@@ -111,13 +92,13 @@ object MigrationUtils {
       }
     }
 
+    // return only non-duplicate/non-subset events
     var returnThese = List[Mention]()
     for (e <- toReturn) {
       if (!(duplicates contains e)) {
         returnThese = returnThese :+ e
       }
     }
-
     returnThese
   }
 
@@ -150,27 +131,3 @@ object MigrationUtils {
   }
 
 }
-
-//attempting to not return one migratio event over the whole paragraph. mainly failed.
-//def assemble(mentions: Seq[Mention]): Seq[Mention] = {
-//  val groupedMentions = mentions.groupBy(_.sentence)
-//  val afterAssembly = for {
-//  group <- groupedMentions
-//  allSentEvents = for {
-//  e <- group._2
-//  e1 <- group._2
-//  if (e != e1 && e.arguments.values.toList.intersect(e1.arguments.values.toList).nonEmpty)
-//  //      argIntersectAll = e.arguments.keys.toList.intersect(e1.arguments.keys.toList)
-//  //      diffValuesArg = for {
-//  //        argName <- argIntersectAll
-//  //        if (e.arguments(argName)!=e1.arguments(argName))
-//  //      } yield argName
-//  //      overlapArgAsSeq = Map(diffValuesArg.head -> Seq(e.arguments(diffValuesArg.head).head, e1.arguments(diffValuesArg.head).head))
-//
-//} yield copyWithNewArgs(e, e1.arguments ++ e.arguments)
-//
-//} yield mostArgs(allSentEvents).head
-//
-//  val handled = if (afterAssembly.nonEmpty) afterAssembly.toSeq else mentions
-//  handled
-//}
