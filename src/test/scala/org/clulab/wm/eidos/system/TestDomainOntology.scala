@@ -174,4 +174,31 @@ class TestDomainOntology extends Test {
     hasDuplicates("props", newOntology) should be (false)
     hasDuplicates("props", newerOntology) should be (false)
   }
+
+  behavior of "wm ontology"
+  it should "load and not have duplicates" in {
+    val path = baseDir + "/wm_metadata.yml"
+
+    val newOntology = Timer.time("Load WM without cache") {
+      DomainOntologies(path, "", proc, canonicalizer, filter, useCache = false)
+    }
+    val newerOntology =
+      if (convert)
+        Timer.time("Convert WM to compact") {
+          new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        }
+      else
+        Timer.time("Load WM from cache") {
+          DomainOntologies(path, "", proc, canonicalizer, filter, useCache = true)
+        }
+
+    //    val newestOntology = Timer.time("Load UN from cache") {
+    //      UNOntology("", cachePath("un"), proc, canonicalizer, filter, useCache = true)
+    //    }
+    //
+    //    show3(newOntology, newerOntology, newestOntology)
+
+    hasDuplicates("wm", newOntology) should be (false)
+    hasDuplicates("wm", newerOntology) should be (false)
+  }
 }
