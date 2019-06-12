@@ -87,7 +87,7 @@ object MigrationUtils {
 //        if (c.arguments.toList.length == maxNumOfArgs) {
 //          toReturn += c
 //        }
-        if (!toReturn.contains(c)) {
+        if (!toReturn.contains(c) && c.arguments.toList.length > 0 && !toReturn.map(m => m.arguments.toList).contains(c.arguments.toList)) {
           toReturn += c
         }
 
