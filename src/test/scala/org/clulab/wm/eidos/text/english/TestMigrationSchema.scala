@@ -17,7 +17,8 @@ class TestMigrationSchema extends EnglishTest {
     val timeEnd = NodeSpec("mid-November")
     val migration = HumanMigrationEdgeSpec(group = Some(group),
       moveTo = Some(moveTo), moveFrom = Some(moveFrom),
-      timeStart = Some(timeStart), timeEnd = Some(timeEnd))
+      timeStart = Some(timeStart), timeEnd = Some(timeEnd),
+      countSpecs = Set(CountSpec("40000.0", "Max", "Absolute")))
 
     behavior of "migration-verbs1"
 

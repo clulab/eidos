@@ -49,6 +49,57 @@ abstract class AttachmentSpec extends GraphSpec with QuicklyEqualable {
       attachment.getClass() == matchingClass
 }
 
+class CountSpec(val value: String, val modifier: String, val unit: String) extends AttachmentSpec {
+  override protected val matchingClass: Class[_] = classOf[CountAttachment]
+
+  override def calculateHashCode: Int = mix(mix(value.##, modifier.##), unit.##)
+
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[CountSpec]
+
+    this.value == that.value &&
+        this.modifier == that.modifier &&
+        this.unit == that.unit
+  }
+
+  override def toString = s"Count($value, $modifier, $unit)"
+}
+
+object CountSpec {
+  def apply(value: String, modifier: String, unit: String) =
+    new CountSpec(value, modifier, unit)
+
+  protected def matchAttachment(attachment: CountAttachment, attachmentSpec: CountSpec): Boolean = {
+    val result = attachmentSpec.matchClass(attachment) &&
+        attachment.v.value.toString == attachmentSpec.value &&
+        attachment.v.modifier.toString == attachmentSpec.modifier &&
+        attachment.v.unit.toString == attachmentSpec.unit
+
+    result
+  }
+
+  @tailrec
+  protected def recMatchAttachments(attachments: Set[CountAttachment], attachmentSpecs: Seq[CountSpec]): Boolean = {
+    if (attachments.isEmpty && attachmentSpecs.isEmpty)
+      true
+    else {
+      val attachmentSpec = attachmentSpecs.head
+      val attachment = attachments.find(matchAttachment(_, attachmentSpec))
+      if (attachment.isEmpty)
+        false
+      else
+        recMatchAttachments(attachments - attachment.get, attachmentSpecs.tail)
+    }
+  }
+
+  def matchAttachments(mention: Mention, attachmentSpecs: Set[CountSpec]): Boolean = {
+    val attachments: Set[CountAttachment] = mention.attachments.collect{
+      case a: CountAttachment => a
+    }
+    attachments.size == attachmentSpecs.size && recMatchAttachments(attachments, attachmentSpecs.toSeq)
+  }
+}
+
 abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[Seq[String]]) extends AttachmentSpec {
   val sortedQuantifiers: Seq[String] =
       if (quantifiers.isEmpty) Seq.empty
@@ -269,6 +320,7 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
 
   protected def matchAttachments(useTimeNorm: Boolean, useGeoNorm: Boolean)(mention: Mention): Boolean =
       TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TriggeredAttachmentSpec => a}) &&
+//        CountSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: CountSpec => a}) &&
         ((useTimeNorm, useGeoNorm) match {
           case (true, true) =>  ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: ContextAttachmentSpec => a})
           case (true, false) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TimEx => a})
@@ -374,7 +426,8 @@ object AntiNodeSpec {
 class HumanMigrationEdgeSpec(val event: EventSpec,
     val group: Option[NodeSpec], val groupModifier: Option[NodeSpec],
     val moveTo: Option[NodeSpec], val moveFrom: Option[NodeSpec], val moveThrough: Option[NodeSpec],
-    val timeStart: Option[NodeSpec], val timeEnd: Option[NodeSpec], val time: Option[NodeSpec])
+    val timeStart: Option[NodeSpec], val timeEnd: Option[NodeSpec], val time: Option[NodeSpec],
+    val countSpecs: Set[CountSpec])
     extends GraphSpec {
 
   val nodeSpecsMap: Map[String, NodeSpec] = Seq(
@@ -409,8 +462,15 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
           // And only they are there.
           mention.arguments.size == nodeTestResultsMap.size
     }
+    val matches5 =
+        if (countSpecs.nonEmpty)
+          matches4.filter { mention =>
+            CountSpec.matchAttachments(mention, countSpecs)
+          }
+        else // We'll let extra countSpecs get by.
+          matches4
 
-    matches4
+    matches5
   }
 
   def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
@@ -452,10 +512,11 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
           .append(nodeSpec.toString)
           .append(right)
     }
+    // TODO add the
     stringBuilder.toString
   }
 
-  override def toString: String = toString("->(", ")")
+  override def toString: String = toString("->(", ")") + countSpecs.toString // TODO improve this
 }
 
 class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) extends GraphSpec {
@@ -586,7 +647,8 @@ object HumanMigrationEdgeSpec {
   def apply(
       group: Option[NodeSpec] = None, groupModifier: Option[NodeSpec] = None,
       moveTo: Option[NodeSpec] = None, moveFrom: Option[NodeSpec] = None, moveThrough: Option[NodeSpec] = None,
-      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None) = {
-    new HumanMigrationEdgeSpec(HumanMigration, group, groupModifier, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time)
+      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None,
+      countSpecs: Set[CountSpec] = Set.empty) = {
+    new HumanMigrationEdgeSpec(HumanMigration, group, groupModifier, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time, countSpecs)
   }
 }
