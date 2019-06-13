@@ -17,7 +17,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 object MigrationUtils {
 
@@ -60,46 +60,50 @@ object MigrationUtils {
 
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
-    var allCopies = ArrayBuffer[Mention]()
+
+    // to keep track of what events we've merged
+    var used = List.fill(mentions.length)(false)
+
+    // the events we will ultimately return
+    var returnedEvents = List[Mention]()
+
+    // loop and merge compatible events, add to mergedEvents
     for (i <- mentions.indices) {
-      for (j <- i+1 until mentions.length) {
-        if (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2 && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty || mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).nonEmpty) {
-        val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
-        allCopies += copy
+      // only merge events if the first of the pair hasn't already been merged (heuristic!)
+      if (!used(i)) {
+        for (j <- i+1 until mentions.length) {
+          if (
+          // the two events are within one sentence of each other
+            (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2
+              // AND if both events have complementary arguments (no overlap)
+              && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty)
+              // OR
+              ||
+              // if both events share an argument
+              (mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).nonEmpty
+                // AND other arguments don't overlap (size of value intersection != size of key intersection)
+                && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).size == mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).size)
+          ) {
+            // merge the two events into one new event, keeping arguments from both
+            val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
+            // return the new event if it isn't identical to an existing event
+            if (!(returnedEvents contains copy)) {
+              returnedEvents = returnedEvents :+ copy
+            }
+            used = used.updated(i,true)
+            used = used.updated(j,true)
+          }
         }
       }
-    }
 
-    // add copy/merge mentions and original mentions if there is no exact argument overlap
-    var toReturn = ArrayBuffer[Mention]()
-    if (allCopies.nonEmpty) {
-      for (c <- allCopies ++ mentions) {
-        if (!toReturn.contains(c) && c.arguments.toList.nonEmpty && !toReturn.map(m => m.arguments.toList).contains(c.arguments.toList)) {
-          toReturn += c
-        }
-      }
-    } else {
-      for (m <- mentions) toReturn += m
     }
-
-    // remove duplicate/subset events
-    var duplicates = List[Mention]()
-    for (e <- toReturn) {
-      for (e2 <- toReturn) {
-        if (e != e2 && e.arguments.toList.forall(e2.arguments.toList.contains)) {
-          duplicates = duplicates :+ e
-        }
+    // add unmerged events ('false' in used list)
+    for (i <- mentions.indices) {
+      if (!used(i)) {
+        returnedEvents = returnedEvents :+ mentions(i)
       }
     }
-
-    // return only non-duplicate/non-subset events
-    var returnThese = List[Mention]()
-    for (e <- toReturn) {
-      if (!(duplicates contains e)) {
-        returnThese = returnThese :+ e
-      }
-    }
-    returnThese
+    returnedEvents
   }
 
 
