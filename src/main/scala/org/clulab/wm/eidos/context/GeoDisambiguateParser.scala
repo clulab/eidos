@@ -77,11 +77,11 @@ class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2
 
     // convert word-level class predictions into span-level geoname predictions
     import GeoDisambiguateParser.{B_LOC, I_LOC, O_LOC}
-    for ((words, wordPredictions) <- sentenceWords zip sentenceWordPredictions) yield {
+    for ((words, paddedWordPredictions) <- sentenceWords zip sentenceWordPredictions) yield {
       // trim off any predictions on padding words
-      val trimmedWordPredictions = wordPredictions.take(words.length)
+      val wordPredictions = paddedWordPredictions.take(words.length)
       for {
-        (wordPrediction, wordIndex) <- trimmedWordPredictions.zipWithIndex
+        (wordPrediction, wordIndex) <- wordPredictions.zipWithIndex
 
         // a start is either a B, or an I that is following an O
         if wordPrediction == B_LOC || (wordPrediction == I_LOC && wordPredictions(wordIndex - 1) == O_LOC)
