@@ -62,41 +62,49 @@ object MigrationUtils {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
 
     // to keep track of what events we've merged
-    var used = List.fill(mentions.length)(false)
+    var used = Array.fill(mentions.length)(false)
 
     // the events we will ultimately return
-    var returnedEvents = List[Mention]()
+    var returnedEvents = Array[Mention]()
+
+    // keep merging events until we have nothing acceptable left to merge
+    var stillMerging = true
 
     // loop and merge compatible events, add to mergedEvents
-    for (i <- mentions.indices) {
-      // only merge events if the first of the pair hasn't already been merged (heuristic!)
-      if (!used(i)) {
-        for (j <- i+1 until mentions.length) {
-          if (
-          // the two events are within one sentence of each other
-            (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2
-              // AND if both events have complementary arguments (no overlap)
-              && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty)
-              // OR
-              ||
-              // if both events share an argument
-              (mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).nonEmpty
-                // AND other arguments don't overlap (size of value intersection != size of key intersection)
-                && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).size == mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).size)
-          ) {
-            // merge the two events into one new event, keeping arguments from both
-            val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
-            // return the new event if it isn't identical to an existing event
-            if (!(returnedEvents contains copy)) {
-              returnedEvents = returnedEvents :+ copy
+    while (stillMerging) {
+      for (i <- mentions.indices) {
+        stillMerging = false
+        // only merge events if the first of the pair hasn't already been merged (heuristic!)
+        if (!used(i)) {
+          for (j <- i+1 until mentions.length) {
+            if (
+            // the two events are within one sentence of each other
+              (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2
+                // AND if both events have complementary arguments (no overlap)
+                && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty)
+                // OR
+                ||
+                // if both events share an argument
+                (mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).nonEmpty
+                  // AND other arguments don't overlap (size of value intersection != size of key intersection)
+                  && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).size == mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).size)
+            ) {
+              // merge the two events into one new event, keeping arguments from both
+              val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
+              stillMerging = true
+              // return the new event if it isn't identical to an existing event
+              if (!(returnedEvents contains copy)) {
+                returnedEvents = returnedEvents :+ copy
+              }
+              used = used.updated(i,true)
+              used = used.updated(j,true)
             }
-            used = used.updated(i,true)
-            used = used.updated(j,true)
           }
         }
-      }
 
+      }
     }
+
     // add unmerged events ('false' in used list)
     for (i <- mentions.indices) {
       if (!used(i)) {
