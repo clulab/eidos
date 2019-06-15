@@ -84,7 +84,10 @@ class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2
         (wordPrediction, wordIndex) <- wordPredictions.zipWithIndex
 
         // a start is either a B, or an I that is following an O
-        if wordPrediction == B_LOC || (wordPrediction == I_LOC && wordPredictions(wordIndex - 1) == O_LOC)
+        if wordPrediction == B_LOC || (wordPrediction == I_LOC &&
+          // an I at the beginning of a sentence is not considered to be a start,
+          // since as of Jun 2019, such tags seemed to be mostly errors (non-locations)
+          wordIndex != 0 && wordPredictions(wordIndex - 1) == O_LOC)
       } yield {
 
         // the end index is the first B or O (i.e., non-I) following the start
