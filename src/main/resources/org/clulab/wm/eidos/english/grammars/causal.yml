@@ -126,7 +126,7 @@ rules:
     pattern: |
       trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
       effect: Entity = nmod_to /(${preps}|${noun_modifiers})/{,4}
-      cause: Entity = <ccomp? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
+      cause: Entity = </advcl|ccomp/? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
 
   - name: contribToSyntax1-${addlabel}
     priority: ${rulepriority}
@@ -202,3 +202,59 @@ rules:
       trigger = [lemma=/be/ & tag=/^V/] [!tag=TO]{,2} [lemma=/(?i)^(${ trigger })/ & tag=/^N|^JJ/]
       cause: Entity = nsubj
       effect: Entity = /${ preps }$/
+
+
+
+# ------------------- Explicitly Causal Migration Documents --------------------------
+
+  - name: reasons-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "Conflict and food insecurity were cited as the main reasons for leaving South Sudan."
+    # example 2: "Food security was mentioned as the main reason for flight."
+    pattern: |
+      trigger = [lemma=/${reasons}/ & tag=/^NN/]
+      effect: Entity = /(acl|nmod)_for/ /(${preps}|${noun_modifiers})/{,4}
+      cause: Entity = </nmod_as/ [lemma=/${report}/ & tag=/^VB/] /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
+
+  - name: reasons-were-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "The primary reasons for moving were insecurity, lack of food, and poor access to services such as healthcare and education."
+    pattern: |
+      trigger = [lemma=/${reasons}/ & tag=/^NN/]
+      effect: Entity = /(acl|nmod)_for/ /(${preps}|${noun_modifiers})/{,4}
+      cause: Entity = <nsubj (?=[outgoing=/cop/]) /^${conjunctions}|${noun_modifiers}|${objects}|${preps}/{,2}
+
+  - name: report-as-reason-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "Refugees continue to report the fear of indiscriminate killings by the government forces as their main reason of flight."
+    pattern: |
+      trigger = [lemma=/cite|give|mention|provide|report/ & tag=/^VB/]
+      effect: Entity = /nmod_as/ [lemma=/${reasons}/] /nmod_(for|of)/ /(${preps}|${noun_modifiers})/{,4}
+      cause: Entity = /${objects}/ /${noun_modifiers}|${objects}|${preps}/{,2}
+
+
+  - name: causes-were-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "The primary causes of moving were insecurity, lack of food, and poor access to services such as healthcare and education."
+    pattern: |
+      trigger = [lemma=/cause/ & tag=/^NN/]
+      effect: Entity = /nmod_of/ /(${preps}|${noun_modifiers})/{,4}
+      cause: Entity = <nsubj (?=[outgoing=/cop/]) /^${conjunctions}|${noun_modifiers}|${objects}|${preps}/{,2}
+
+  - name: attributable-to-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "The gap is mainly attributable to lack of adequate local construction materials."
+    pattern: |
+      trigger = [lemma=/(attributable|attribute)/ & tag=/^(JJ|VB)/]
+      cause: Entity = /nmod_to/ /(${preps}|${noun_modifiers})/{,4}
+      effect: Entity = >/${agents}/ /^${conjunctions}|${noun_modifiers}|${objects}|${preps}/{,2}
