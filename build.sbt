@@ -18,7 +18,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-odin"          % procVer,
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
-    "org.clulab"    % "geonorm-models"            % "0.9.0",
+    "org.clulab"    % "geonorm-models"            % "0.9.5",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",
@@ -27,7 +27,6 @@ libraryDependencies ++= {
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-    "org.deeplearning4j" % "deeplearning4j-modelimport" % "1.0.0-beta2",
     "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2"
   )
 }
