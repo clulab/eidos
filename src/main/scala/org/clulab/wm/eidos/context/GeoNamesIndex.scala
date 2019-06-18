@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.context
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import java.util.regex.Pattern
 
 import scala.collection.JavaConverters._
@@ -19,8 +19,17 @@ import org.apache.lucene.search.grouping.GroupingSearch
 import org.apache.lucene.store.FSDirectory
 import org.clulab.wm.eidos.utils.Sourcer
 
+
+class GeoNamesEntry(document: Document) {
+  lazy val id: String = document.get("id")
+  lazy val name: String = document.get("canonical-name")
+  lazy val population: Long = document.get("population").toLong
+}
+
+
 object GeoNamesIndexConfig {
   val idField: String => Field = new StoredField("id", _)
+  val canonicalNameField: String => Field = new StoredField("canonical-name", _)
   val nameField: String => Field = new TextField("name", _, Field.Store.NO)
   val ngramsField: String => Field = new TextField("ngrams", _, Field.Store.NO)
   val latitudeField: Float => Field = new StoredField("latitude", _)
@@ -36,7 +45,7 @@ object GeoNamesIndexConfig {
   }
   val ngramAnalyzer: Analyzer = (_: String) => {
     val tokenizer = new StandardTokenizer
-    val filter = new NGramTokenFilter(new LowerCaseFilter(tokenizer), 2, 2)
+    val filter = new NGramTokenFilter(new LowerCaseFilter(tokenizer), 3, 3)
     new Analyzer.TokenStreamComponents(tokenizer, filter)
   }
   val analyzer: Analyzer = new PerFieldAnalyzerWrapper(
@@ -54,13 +63,14 @@ object IndexGeoNames {
 
       // walk through each line of the GeoNames file
       for (line <- Sourcer.sourceFromFile(geoNamesPath).getLines) {
-        val Array(geoNameID, name, asciiName, alternateNames, latitude, longitude,
+        val Array(geoNameID, canonicalName, asciiName, alternateNames, latitude, longitude,
         _, _, _, _, _, _, _, _, population, _, _, _, _) = line.split("\t")
 
         // generate a document for each name of this ID
-        val docs = for (name <- Array(name, asciiName) ++ alternateNames.split(",")) yield {
+        val docs = for (name <- Array(canonicalName, asciiName) ++ alternateNames.split(",")) yield {
           val doc = new Document
           doc.add(GeoNamesIndexConfig.idField(geoNameID))
+          doc.add(GeoNamesIndexConfig.canonicalNameField(canonicalName))
           doc.add(GeoNamesIndexConfig.nameField(name))
           doc.add(GeoNamesIndexConfig.ngramsField(name))
           doc.add(GeoNamesIndexConfig.latitudeField(latitude.toFloat))
@@ -80,26 +90,66 @@ object IndexGeoNames {
   }
 }
 
+
+class GeoNamesSearcher(indexPath: Path) {
+  private val reader = DirectoryReader.open(FSDirectory.open(indexPath))
+  private val searcher = new IndexSearcher(reader)
+  private val groupingSearch = new GroupingSearch(GeoNamesIndexConfig.idEndQuery)
+  private val nameQueryParser = new QueryParser("name", GeoNamesIndexConfig.analyzer)
+  private val ngramsQueryParser = new QueryParser("ngrams", GeoNamesIndexConfig.analyzer)
+
+  def apply(queryString: String, maxFuzzyHits: Int): Seq[(GeoNamesEntry, Float)] = {
+    // escape special characters for queries to "name" field
+    val luceneSpecialCharacters = """([-+&|!(){}\[\]^"~*?:\\/\s])"""
+    val escapedQueryString = queryString.replaceAll(luceneSpecialCharacters, """\\$1""")
+
+    // first look for an exact match of the input phrase (the "name" field ignores spaces, punctuation, etc.)
+    var results = scoredEntries(nameQueryParser.parse(escapedQueryString), 100)
+
+    // if there's no exact match, search for fuzzy (1-2 edit-distance) matches
+    if (results.isEmpty) {
+      results = scoredEntries(nameQueryParser.parse(escapedQueryString + "~"), maxFuzzyHits)
+    }
+    // if there's no fuzzy match, search for n-gram matches
+    if (results.isEmpty) {
+      results = scoredEntries(ngramsQueryParser.parse(queryString), maxFuzzyHits)
+    }
+    // sort first by retrieval score, then by population (when retrieval scores are tied)
+    results.sortBy{
+      case (entry, score) => (-score, -entry.population)
+    }
+  }
+
+  def scoredEntries(query: Query, maxHits: Int): Array[(GeoNamesEntry, Float)] = {
+    // perform a group-based search, where each group represents all names for a GeoNames ID
+    val topGroups = groupingSearch.search[String](searcher, query, 0, maxHits)
+
+    // for each of the hits, return an object representing the GeoNames entry, and the retrieval score
+    if (topGroups == null) Array.empty else {
+      for (group <- topGroups.groups) yield {
+        val headDoc = searcher.doc(group.scoreDocs.head.doc)
+        (new GeoNamesEntry(headDoc), group.maxScore)
+      }
+    }
+  }
+
+  def close(): Unit = {
+    reader.close()
+  }
+}
+
+
 object SearchGeoNames {
   def main(args: Array[String]): Unit = args.toList match {
     case indexPath :: queryStrings =>
-      val reader = DirectoryReader.open(FSDirectory.open(Paths.get(indexPath)))
-      val searcher = new IndexSearcher(reader)
-      val groupingSearch = new GroupingSearch(GeoNamesIndexConfig.idEndQuery)
-      val queryParser = new QueryParser("ngrams", GeoNamesIndexConfig.analyzer)
+      val searcher = new GeoNamesSearcher(Paths.get(indexPath))
       for (queryString <- queryStrings) {
-        val escapedQueryString = queryString.replaceAll("\\s", "\\\\ ")
-        val query = queryParser.parse(f"name:$escapedQueryString ngrams:($queryString)")
-        println(query)
-        val results = groupingSearch.search(searcher, query, 0, 5)
-        for (group <- results.groups) {
-          val id = group.scoreDocs.head.doc
-          val doc = searcher.doc(id)
-          val geoNamesID = doc.get("id")
-          println(f"${group.maxScore}%.3f $geoNamesID")
+        println(queryString)
+        for ((entry, score) <- searcher(queryString, 5)) {
+          println(f"${score}%.3f ${entry.id} ${entry.name} ${entry.population}")
         }
       }
-      reader.close()
+      searcher.close()
   }
 }
 
