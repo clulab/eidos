@@ -14,7 +14,6 @@ import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.clulab.timenorm.neural.TemporalNeuralParser
-import org.clulab.wm.eidos.context.GeoDisambiguateParser
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
@@ -64,7 +63,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val multiOntologyGrounder: MultiOntologyGrounding,
     val timenorm: Option[TemporalNeuralParser],
     val timeregexs: Option[List[Regex]],
-    val geonorm: Option[GeoDisambiguateParser],
     val expander: Option[Expander],
     val keepStatefulConcepts: Boolean
   )
@@ -111,14 +109,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         }
       }
 
-      // Geospatial Parsing
-      val geonorm: Option[GeoDisambiguateParser] =
-          if (useGeoNorm)
-            // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-            Some(GeoDisambiguateParser.fromConfig(config[Config]("geoparser")))
-          else
-            None
-
       new LoadableAttributes(
         entityFinders,
         actions,
@@ -128,7 +118,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         multiOntologyGrounder,  // todo: do we need this and ontologyGrounders?
         timenorm,
         timeregexs,
-        geonorm,
         expander,
         keepStatefulConcepts
       )
@@ -150,7 +139,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val doc = EidosDocument(document, keepText)
     // Time and Location
     doc.parseTime(loadableAttributes.timenorm, loadableAttributes.timeregexs, documentCreationTime)
-    doc.parseGeoNorm(loadableAttributes.geonorm)
     // Document ID
     doc.id = filename
     doc

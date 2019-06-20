@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.graph
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
@@ -58,5 +59,5 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   }
 
   def useTimeNorm: Boolean = ieSystem.loadableAttributes.timenorm.isDefined
-  def useGeoNorm: Boolean = ieSystem.loadableAttributes.geonorm.isDefined
+  def useGeoNorm: Boolean = ieSystem.loadableAttributes.entityFinders.collect{ case f: GeoNormFinder => f }.nonEmpty
 }
