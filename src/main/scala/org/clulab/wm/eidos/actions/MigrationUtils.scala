@@ -11,9 +11,10 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
+import org.clulab.processors.Document
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.EidosActions.COREF_DETERMINERS
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -103,6 +104,8 @@ object MigrationUtils {
         }
 
       }
+      for (e <- returnedEvents) println("returned after loop: " + e.text)
+      println("end of loop")
     }
 
     // add unmerged events ('false' in used list)
@@ -114,7 +117,8 @@ object MigrationUtils {
     returnedEvents
   }
 
-
+  //todo: place elsewhere
+  //todo: is it generalizeable enough?
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
@@ -135,11 +139,76 @@ object MigrationUtils {
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
 
-    orig match {
-      case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-      case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
-      case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
+    val newArgsAsList = for {
+      seqMen <- expandedArgs.values
+      men <- seqMen
+    } yield men
+
+    //create a mention to return as either another EventMention but with expanded args (the else part) or a crossSentenceEventMention if the args of the Event are from different sentences
+    val newMention = if (newArgsAsList.exists(_.sentence != orig.sentence) ) {
+//      orig.asInstanceOf[EventMention].copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
+      new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = expandedArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = Set.empty)
+
+    }else {
+
+          orig match {
+            case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+            case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+            case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
+          }
     }
+
+    newMention
+
   }
 
 }
+
+//same as EventMention but with a different foundBy, no paths, sentence == the sent of the trigger, and a different text method
+//todo: place elsewhere
+//todo: change tokenInterval to something informed and usable
+class CrossSentenceEventMention(
+                    override val labels: Seq[String],
+                    override val tokenInterval: Interval,
+                    override val trigger: TextBoundMention,
+                    override val arguments: Map[String, Seq[Mention]],
+                    override val paths: Map[String, Map[Mention, SynPath]],
+                    override val sentence: Int,
+                    override val document: Document,
+                    override val keep: Boolean,
+                    override val foundBy: String,
+                    override val attachments: Set[Attachment] = Set.empty
+                  ) extends EventMention(labels, tokenInterval, trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
+
+  //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
+  //todo: is the text of a mention the arg span or the trigger span should also be included (in cases when all the args are to one side of the trigger)?
+  override def text: String = {
+    val argsBySent = arguments.map(a => a._2.toList).flatten.toList.groupBy(m => m.sentence)
+    val textArray = new ArrayBuffer[String]()
+    val lastSentIndex = argsBySent.keys.toList.length - 1
+
+
+    for (i <- 0 to argsBySent.keys.toList.length - 1) {
+      val sortedMentions = argsBySent(i).sortBy(_.startOffset)
+      val firstArgInd = sortedMentions.head.start
+      val sentTextArr = argsBySent(i).head.sentenceObj.raw
+      i match {
+        case 0 => {
+          val relSubString = sentTextArr.slice(firstArgInd, sentTextArr.length).mkString(" ")
+          textArray.append(relSubString)
+        }
+        case `lastSentIndex` => {
+          val relSubString = sentTextArr.slice(0, sortedMentions.last.end).mkString(" ")
+          textArray.append(relSubString)
+        }
+        case _ => textArray.append(sentTextArr.mkString(" "))
+      }
+    }
+
+    val text = textArray.mkString(" ")
+
+    text
+  }
+
+
+  }
