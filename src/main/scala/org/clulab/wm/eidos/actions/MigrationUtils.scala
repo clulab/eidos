@@ -47,15 +47,15 @@ object MigrationUtils {
 
       updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
 
-      } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
+    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
     //also contain attachments
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)????
     // todo: aggregation of cross-sentence stuff?????????????
 
     // return all
-//    handled ++ other
-    assembleFragments(handled) ++ other
+    //    handled ++ other
+    assembleMoreSpecific(assembleFragments(handled)) ++ other
   }
 
 
@@ -117,6 +117,48 @@ object MigrationUtils {
     returnedEvents
   }
 
+  /*
+  current heuristic: if migration mention has a location (or todo: time), merge it with the previous migration mention (todo: merge only if it has the type of argument that we are missing an attachment for)
+   */
+  def assembleMoreSpecific(mentions: Seq[Mention]): Seq[Mention] = {
+    //all human migration events grouped by sentence
+    val grouped = mentions.groupBy(_.sentence)
+
+    //all hme ordered by sent and by order in the sent
+    var mentionArray = ArrayBuffer[Mention]()
+    //for every sentence (sorted)...
+    for (i <- grouped.keys.toList.sorted) {
+      println("i: " + i)
+      println("len: " + grouped.keys.toList.length)
+      println("keys: " + grouped.keys.toList.sorted.mkString("|"))
+      //...sort the mentions and append them to the mention array
+      val sorted = grouped(i).sortBy(_.tokenInterval)
+      for (m <- sorted) mentionArray.append(m)
+    }
+
+    //todo: keep track of what has already been merged
+
+    var used = Array.fill(mentionArray.length)(false)
+
+    //todo: still doesn't merge everything, e.g. "400 people left Sudan. 300 refugees fled South Sudan. They left the country for Ethiopia. They left in 1997. At the time, they had nowhere to go."
+
+    for (m <- mentionArray) println("--->" + m.text + " " + m.start + " " + m.label)
+    val needAttachment = for {
+      m <- mentionArray //getting human migr events
+      arg <- m.arguments //getting (argname --> Seq(tbms))
+      tbm <- arg._2 //each tbm for each arg
+      if (tbm matches "Location") //todo: do this for time, too
+      if (tbm.attachments.isEmpty)
+      newArgs = m.arguments ++ mentionArray(mentionArray.indexOf(m)-1).arguments //todo: "prev mention" doesn't work bc it can be an overlapping mention---need to filter them somehow
+
+
+    } yield copyWithNewArgs(m, newArgs)
+
+    for (m <- needAttachment) println("NEEDS ATTACHMENT: " + m.text)
+    mentions ++ needAttachment
+
+  }
+
   //todo: place elsewhere
   //todo: is it generalizeable enough?
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
@@ -146,16 +188,16 @@ object MigrationUtils {
 
     //create a mention to return as either another EventMention but with expanded args (the else part) or a crossSentenceEventMention if the args of the Event are from different sentences
     val newMention = if (newArgsAsList.exists(_.sentence != orig.sentence) ) {
-//      orig.asInstanceOf[EventMention].copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
+      //      orig.asInstanceOf[EventMention].copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
       new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = expandedArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = Set.empty)
 
     }else {
 
-          orig match {
-            case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-            case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
-            case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
-          }
+      orig match {
+        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
+      }
     }
 
     newMention
@@ -168,17 +210,17 @@ object MigrationUtils {
 //todo: place elsewhere
 //todo: change tokenInterval to something informed and usable
 class CrossSentenceEventMention(
-                    override val labels: Seq[String],
-                    override val tokenInterval: Interval,
-                    override val trigger: TextBoundMention,
-                    override val arguments: Map[String, Seq[Mention]],
-                    override val paths: Map[String, Map[Mention, SynPath]],
-                    override val sentence: Int,
-                    override val document: Document,
-                    override val keep: Boolean,
-                    override val foundBy: String,
-                    override val attachments: Set[Attachment] = Set.empty
-                  ) extends EventMention(labels, tokenInterval, trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
+                                 override val labels: Seq[String],
+                                 override val tokenInterval: Interval,
+                                 override val trigger: TextBoundMention,
+                                 override val arguments: Map[String, Seq[Mention]],
+                                 override val paths: Map[String, Map[Mention, SynPath]],
+                                 override val sentence: Int,
+                                 override val document: Document,
+                                 override val keep: Boolean,
+                                 override val foundBy: String,
+                                 override val attachments: Set[Attachment] = Set.empty
+                               ) extends EventMention(labels, tokenInterval, trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
 
   //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
   //todo: is the text of a mention the arg span or the trigger span should also be included (in cases when all the args are to one side of the trigger)?
@@ -189,8 +231,8 @@ class CrossSentenceEventMention(
 
 
     for (i <- argsBySent.keys.toList.sorted) {
-//      println("i: " + i)
-//      println("len: " + argsBySent.keys.toList.length)
+      //      println("i: " + i)
+      //      println("len: " + argsBySent.keys.toList.length)
       val sortedMentions = argsBySent(i).sortBy(_.startOffset)
       val firstArgInd = sortedMentions.head.start
       val sentTextArr = argsBySent(i).head.sentenceObj.raw
@@ -213,4 +255,4 @@ class CrossSentenceEventMention(
   }
 
 
-  }
+}
