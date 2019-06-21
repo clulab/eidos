@@ -188,7 +188,9 @@ class CrossSentenceEventMention(
     val lastSentIndex = argsBySent.keys.toList.length - 1
 
 
-    for (i <- 0 to argsBySent.keys.toList.length - 1) {
+    for (i <- argsBySent.keys.toList.sorted) {
+//      println("i: " + i)
+//      println("len: " + argsBySent.keys.toList.length)
       val sortedMentions = argsBySent(i).sortBy(_.startOffset)
       val firstArgInd = sortedMentions.head.start
       val sentTextArr = argsBySent(i).head.sentenceObj.raw
