@@ -93,26 +93,22 @@ object MigrationUtils {
                 (orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).nonEmpty
                   // AND other arguments don't overlap (size of value intersection != size of key intersection)
                   && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).size == orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).size)
-//                ||
-//                //if within one sent of each other
-//                (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
-//
-//              //AND events share the type of argument
-//                 && (orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).nonEmpty
-//
-//              //AND one of the overlapping arguments is less specific (i.e., it's the type of mention that is supposed to take an attachment but does not have one)
-//                  && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty)))))
+                ||
+                //if within one sent of each other
+                (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
+
+              //AND events share the type of argument
+                 && (orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).nonEmpty
+
+              //AND one of the overlapping arguments is less specific (i.e., it's the type of mention that is supposed to take an attachment but does not have one)
+                  && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty)))))
 
 
 
             ) {
-//              println("HERE: " + orderedMentions(j).text + "\n")
-//              for (m <- orderedMentions(j).arguments) {
-//                for (tbh <- m._2) {
-//                  println("here: " + tbh.text + " " + tbh.labels)
-//                }
-//              }
+
               // merge the two events into one new event, keeping arguments from both
+              // adding args from mention(i) to mention(j) and not the other way around bc that way, the non-specific arg from j is overwritten with the more specific one from i (important for one of the merging conditions above)
               val copy = copyWithNewArgs(orderedMentions(i), orderedMentions(j).arguments ++ orderedMentions(i).arguments)
               stillMerging = true
               // return the new event if it isn't identical to an existing event
