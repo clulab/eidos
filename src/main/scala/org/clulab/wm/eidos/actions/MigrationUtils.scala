@@ -63,25 +63,40 @@ object MigrationUtils {
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
 
-    val orderedMentions = orderMentions(mentions)
-
-    // to keep track of what events we've merged
-    var used = Array.fill(orderedMentions.length)(false)
+    var orderedMentions = orderMentions(mentions)
 
     // the events we will ultimately return
     var returnedEvents = Array[Mention]()
 
+
+
     // keep merging events until we have nothing acceptable left to merge
     var stillMerging = true
 
+    //have to define the number of allowable loops bc currently there's no way to continue to the second loop
+    var maxNumOfLoops = 2
+    var numOfLoops = 0
+
     // loop and merge compatible events, add to mergedEvents
-    while (stillMerging) {
+    while (numOfLoops <= maxNumOfLoops) {
+
+      println("\nLOOPING")
+
+      // the events we will ultimately return
+      returnedEvents = Array[Mention]()
+
+      // to keep track of what events we've merged
+      var used = Array.fill(orderedMentions.length)(false)
+
+
       for (i <- orderedMentions.indices) {
         println("i-th mention-->" + i + " " + orderedMentions(i).text)
         stillMerging = false
+//        println("still merging line 91: " + stillMerging.toString())
         // only merge events if the first of the pair hasn't already been merged (heuristic!)
         if (!used(i)) {
           for (j <- i+1 until orderedMentions.length) {
+            println("j-th mention--->" + j + " " + orderedMentions(j).text)
             if (
             // the two events are within one sentence of each other
               (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
@@ -91,8 +106,9 @@ object MigrationUtils {
                 ||
                 // if both events share an argument
                 (orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).nonEmpty
-                  // AND other arguments don't overlap (size of value intersection != size of key intersection)
-                  && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).size == orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).size)
+                  // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: @zupon, there are cases, where these numbers happen to be the same. Any way to modify this? Do we have to have this?
+                  && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).size != orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).size)
+
                 ||
                 //if within one sent of each other
                 (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
@@ -100,20 +116,28 @@ object MigrationUtils {
               //AND events share the type of argument
                  && (orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).nonEmpty
 
-              //AND one of the overlapping arguments is less specific (i.e., it's the type of mention that is supposed to take an attachment but does not have one)
-                  && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty)))))
+              //AND the argument of the overlapping type in the j-th mention is less specific (i.e., it's the type of mention that is supposed to take an attachment but does not have one)
+                  && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty))))
+                  //AND the arg of the overlapping type in the i-th mention is specific
+                  && (!orderedMentions(i).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty))))
+
 
 
 
             ) {
 
-              // merge the two events into one new event, keeping arguments from both
-              // adding args from mention(i) to mention(j) and not the other way around bc that way, the non-specific arg from j is overwritten with the more specific one from i (important for one of the merging conditions above)
-              val copy = copyWithNewArgs(orderedMentions(i), orderedMentions(j).arguments ++ orderedMentions(i).arguments)
+              // merge the two events into one new event, keeping arguments from both but if there's overlap, choose the more specific one
+              val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
+//              val copy = copyWithNewArgs(orderedMentions(i), orderedMentions(j).arguments ++ orderedMentions(i).arguments)
+              println("ORIG MENTION: " + orderedMentions(i).text)
+              val copy = copyWithNewArgs(orderedMentions(i), newArgs)
+
               stillMerging = true
+//              println("still merging line 124: " + stillMerging.toString())
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
                 returnedEvents = returnedEvents :+ copy
+                println("merged: " + orderedMentions(i).text + " AND " + orderedMentions(j).text + "\n" + "Resuling event: " + copy.text + "|")
               }
               used = used.updated(i,true)
               used = used.updated(j,true)
@@ -122,17 +146,25 @@ object MigrationUtils {
         }
 
       }
+
+
+
+      // add unmerged events ('false' in used list)
+      for (i <- orderedMentions.indices) {
+        if (!used(i)) {
+          returnedEvents = returnedEvents :+ orderedMentions(i)
+        }
+      }
+      orderedMentions = returnedEvents
       for (e <- returnedEvents) println("returned after loop: " + e.text)
       println("end of loop")
+      numOfLoops = numOfLoops + 1
+
+
     }
 
-    // add unmerged events ('false' in used list)
-    for (i <- orderedMentions.indices) {
-      if (!used(i)) {
-        returnedEvents = returnedEvents :+ orderedMentions(i)
-      }
-    }
     returnedEvents
+
   }
 
 
@@ -150,6 +182,29 @@ object MigrationUtils {
       for (m <- sorted) mentionArray.append(m)
     }
     mentionArray
+  }
+
+
+  def mergeArgs(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
+    var newArgs = scala.collection.mutable.Map[String, Seq[Mention]]()
+    val overlappingArgs = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
+    for (arg <- mention1.arguments ++ mention2.arguments) {
+      if (overlappingArgs.contains(arg._1)) {
+        //choose more specific
+        val arg1 = mention1.arguments(arg._1)
+        if (arg1.exists(tbm => (tbm.attachments.nonEmpty) || (tbm.text matches "\\d+.*"))) {
+          newArgs = newArgs ++ Map(arg._1 -> arg1)
+        } else {
+          newArgs = newArgs ++ Map(arg._1 -> mention2.arguments(arg._1))
+        }
+
+      } else {
+        newArgs = newArgs ++ Map(arg)
+      }
+    }
+
+    //for (arg <- newArgs) println("new arg: " + arg._1 + " " + arg._2)
+    newArgs.toMap
   }
 
   //todo: place elsewhere
