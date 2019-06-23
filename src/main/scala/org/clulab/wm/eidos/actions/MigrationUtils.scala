@@ -54,16 +54,19 @@ object MigrationUtils {
     // todo: aggregation of cross-sentence stuff?????????????
 
     // return all
-    //    handled ++ other
-    assembleMoreSpecific(assembleFragments(handled)) ++ other
+//        handled ++ other
+    assembleFragments(handled) ++ other
+//    assembleMoreSpecific(assembleFragments(handled)) ++ other
   }
 
 
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
 
+    val orderedMentions = orderMentions(mentions)
+
     // to keep track of what events we've merged
-    var used = Array.fill(mentions.length)(false)
+    var used = Array.fill(orderedMentions.length)(false)
 
     // the events we will ultimately return
     var returnedEvents = Array[Mention]()
@@ -73,25 +76,44 @@ object MigrationUtils {
 
     // loop and merge compatible events, add to mergedEvents
     while (stillMerging) {
-      for (i <- mentions.indices) {
+      for (i <- orderedMentions.indices) {
+        println("i-th mention-->" + i + " " + orderedMentions(i).text)
         stillMerging = false
         // only merge events if the first of the pair hasn't already been merged (heuristic!)
         if (!used(i)) {
-          for (j <- i+1 until mentions.length) {
+          for (j <- i+1 until orderedMentions.length) {
             if (
             // the two events are within one sentence of each other
-              (Math.abs(mentions(i).sentence - mentions(j).sentence) < 2
+              (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
                 // AND if both events have complementary arguments (no overlap)
-                && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).isEmpty)
+                && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).isEmpty)
                 // OR
                 ||
                 // if both events share an argument
-                (mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).nonEmpty
+                (orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).nonEmpty
                   // AND other arguments don't overlap (size of value intersection != size of key intersection)
-                  && mentions(i).arguments.keys.toList.intersect(mentions(j).arguments.keys.toList).size == mentions(i).arguments.values.toList.intersect(mentions(j).arguments.values.toList).size)
+                  && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).size == orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).size)
+//                ||
+//                //if within one sent of each other
+//                (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
+//
+//              //AND events share the type of argument
+//                 && (orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).nonEmpty
+//
+//              //AND one of the overlapping arguments is less specific (i.e., it's the type of mention that is supposed to take an attachment but does not have one)
+//                  && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty)))))
+
+
+
             ) {
+//              println("HERE: " + orderedMentions(j).text + "\n")
+//              for (m <- orderedMentions(j).arguments) {
+//                for (tbh <- m._2) {
+//                  println("here: " + tbh.text + " " + tbh.labels)
+//                }
+//              }
               // merge the two events into one new event, keeping arguments from both
-              val copy = copyWithNewArgs(mentions(i), mentions(i).arguments ++ mentions(j).arguments)
+              val copy = copyWithNewArgs(orderedMentions(i), orderedMentions(j).arguments ++ orderedMentions(i).arguments)
               stillMerging = true
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
@@ -109,54 +131,29 @@ object MigrationUtils {
     }
 
     // add unmerged events ('false' in used list)
-    for (i <- mentions.indices) {
+    for (i <- orderedMentions.indices) {
       if (!used(i)) {
-        returnedEvents = returnedEvents :+ mentions(i)
+        returnedEvents = returnedEvents :+ orderedMentions(i)
       }
     }
     returnedEvents
   }
 
-  /*
-  current heuristic: if migration mention has a location (or todo: time), merge it with the previous migration mention (todo: merge only if it has the type of argument that we are missing an attachment for)
-   */
-  def assembleMoreSpecific(mentions: Seq[Mention]): Seq[Mention] = {
-    //all human migration events grouped by sentence
+
+
+  def orderMentions(mentions: Seq[Mention]): Seq[Mention] = {
     val grouped = mentions.groupBy(_.sentence)
 
-    //all hme ordered by sent and by order in the sent
+    //contains all mentions ordered by sent and by order in the sent
     var mentionArray = ArrayBuffer[Mention]()
+
     //for every sentence (sorted)...
     for (i <- grouped.keys.toList.sorted) {
-      println("i: " + i)
-      println("len: " + grouped.keys.toList.length)
-      println("keys: " + grouped.keys.toList.sorted.mkString("|"))
       //...sort the mentions and append them to the mention array
       val sorted = grouped(i).sortBy(_.tokenInterval)
       for (m <- sorted) mentionArray.append(m)
     }
-
-    //todo: keep track of what has already been merged
-
-    var used = Array.fill(mentionArray.length)(false)
-
-    //todo: still doesn't merge everything, e.g. "400 people left Sudan. 300 refugees fled South Sudan. They left the country for Ethiopia. They left in 1997. At the time, they had nowhere to go."
-
-    for (m <- mentionArray) println("--->" + m.text + " " + m.start + " " + m.label)
-    val needAttachment = for {
-      m <- mentionArray //getting human migr events
-      arg <- m.arguments //getting (argname --> Seq(tbms))
-      tbm <- arg._2 //each tbm for each arg
-      if (tbm matches "Location") //todo: do this for time, too
-      if (tbm.attachments.isEmpty)
-      newArgs = m.arguments ++ mentionArray(mentionArray.indexOf(m)-1).arguments //todo: "prev mention" doesn't work bc it can be an overlapping mention---need to filter them somehow
-
-
-    } yield copyWithNewArgs(m, newArgs)
-
-    for (m <- needAttachment) println("NEEDS ATTACHMENT: " + m.text)
-    mentions ++ needAttachment
-
+    mentionArray
   }
 
   //todo: place elsewhere
@@ -224,6 +221,7 @@ class CrossSentenceEventMention(
 
   //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
   //todo: is the text of a mention the arg span or the trigger span should also be included (in cases when all the args are to one side of the trigger)?
+  //todo: now, the sent/clause in between is not returned, e.g., in 440 people left France for Romania. 300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997.
   override def text: String = {
     val argsBySent = arguments.map(a => a._2.toList).flatten.toList.groupBy(m => m.sentence)
     val textArray = new ArrayBuffer[String]()
