@@ -117,9 +117,11 @@ object MigrationUtils {
                  && (orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).nonEmpty
 
               //AND the argument of the overlapping type in the j-th mention is less specific (i.e., it's the type of mention that is supposed to take an attachment but does not have one)
+                  //todo: does not work if the label is "Location-Expand"
+                  //todo: do this for time, too
                   && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty))))
                   //AND the arg of the overlapping type in the i-th mention is specific
-                  && (!orderedMentions(i).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty))))
+                  && (orderedMentions(i).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.nonEmpty))))
 
 
 
