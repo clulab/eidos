@@ -38,8 +38,8 @@ object SemEval2019Task12 {
   def readPhraseGeoIDs(annFile: Path): (Seq[(Int, Int)], Seq[String]) = {
     val annIdToSpan = scala.collection.mutable.Map.empty[String, (Int, Int)]
     val spanToGeoID = scala.collection.mutable.Map.empty[(Int, Int), String]
-    val text = new String(Files.readAllBytes(annFile)).replaceAll("\n ", "  ")
-    for (line <- text.split("\r?\n")) line.split("\t") match {
+    val text = new String(Files.readAllBytes(annFile)).trim().replaceAll("\n([^T#])", " $1")
+    for (line <- text.split("\r?\n")) line.split("\t", 3) match {
       case Array(annId, name, details) => annId.head match {
         case 'T' => name.split("""\s+""", 2) match {
           case Array(entityType, span) => entityType match {
