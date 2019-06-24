@@ -4,9 +4,9 @@ import org.clulab.odin._
 import org.clulab.struct.Interval
 import org.clulab.odin.{EventMention, Mention, State, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.Location
+import org.clulab.wm.eidos.attachments.{Location, Time}
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.document.{EidosDocument, TimEx}
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
@@ -55,8 +55,57 @@ object MigrationUtils {
 
     // return all
 //        handled ++ other
-    assembleFragments(handled) ++ other
+//    assembleFragments(handled) ++ other
 //    assembleMoreSpecific(assembleFragments(handled)) ++ other
+    assembleTime(assembleFragments(handled)) ++ other
+
+  }
+
+
+  def assembleTime(mentions: Seq[Mention]): Seq[Mention] = {
+    //find attachments for each time mention (rel args = "time", "timeStart", "timeEnd"  in the hme
+    //make interval from timeStart/timeEnd
+    val (mentionsWithTime, other) = mentions.partition(_.arguments.exists(arg => arg._2.exists(tbm => tbm.label matches "Time")))
+
+    for (m <- mentionsWithTime) println("need time attachments: " + m.text)
+
+    val relArgs = Array("timeStart", "time", "timeEnd") //time-related args in migration events
+
+    val mentionsWithTimeAttachments = attachTime(mentionsWithTime, relArgs)
+
+
+    mentionsWithTimeAttachments ++ other
+
+  }
+
+  def attachTime(mentions: Seq[Mention], relArgs: Array[String]): Seq[Mention] = {
+
+
+    val handled = for {
+      m <- mentions
+      times = m.document.asInstanceOf[EidosDocument].times
+      oldArgs = for {
+        arg <- relArgs
+        if m.arguments.get(arg).nonEmpty
+      } yield arg //name of args actually present in the mention
+
+      //this should create args with time attachments
+      newArgs = for {
+        oldArg <- oldArgs //argName
+        oldArgMention = m.arguments(oldArg).head
+        time: Option[TimEx] = if (times.isDefined) times.get(m.sentence).find(_.span.end == oldArgMention.endOffset) else None //need to check for an overlap and not start/end; same for loc
+        if time.nonEmpty
+        newArg = oldArgMention.withAttachment(new Time(time.head))
+
+      } yield Map(oldArg -> Seq(newArg))
+
+      updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
+
+    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
+    //also contain attachments
+    handled
+
+
   }
 
 
@@ -67,8 +116,6 @@ object MigrationUtils {
 
     // the events we will ultimately return
     var returnedEvents = Array[Mention]()
-
-
 
     // keep merging events until we have nothing acceptable left to merge
     var stillMerging = true
@@ -170,7 +217,9 @@ object MigrationUtils {
   }
 
 
-
+  /*
+  returns mentions in the order they appear in the document (based on sent index and tokenInterval of the mention)
+   */
   def orderMentions(mentions: Seq[Mention]): Seq[Mention] = {
     val grouped = mentions.groupBy(_.sentence)
 
@@ -187,6 +236,9 @@ object MigrationUtils {
   }
 
 
+  /*
+  merges args of two mentions in such a way as to hopefully return the more specific arg in case of an overlap
+   */
   def mergeArgs(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
     var newArgs = scala.collection.mutable.Map[String, Seq[Mention]]()
     val overlappingArgs = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
@@ -236,7 +288,7 @@ object MigrationUtils {
       men <- seqMen
     } yield men
 
-    //create a mention to return as either another EventMention but with expanded args (the else part) or a crossSentenceEventMention if the args of the Event are from different sentences
+    //create a mention to return as either another EventMention but with expanded args (the 'else' part) or a crossSentenceEventMention if the args of the Event are from different sentences
     val newMention = if (newArgsAsList.exists(_.sentence != orig.sentence) ) {
       //      orig.asInstanceOf[EventMention].copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
       new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = expandedArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = Set.empty)
