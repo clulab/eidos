@@ -25,30 +25,7 @@ object MigrationUtils {
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
     // partition to get the migration events
     val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
-    val relArgs = Array("moveTo", "moveFrom", "moveThrough") //location-related args in migration events
-
-    val handled = for {
-      m <- migrationEvents
-      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      oldArgs = for {
-        arg <- relArgs
-        if m.arguments.get(arg).nonEmpty
-      } yield arg //name of args actually present in the mention
-
-      //this should create args with geoloc attachments
-      newArgs = for {
-        oldArg <- oldArgs
-        oldArgMention = m.arguments(oldArg).head
-        location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArgMention.startOffset) else None
-        if location.nonEmpty
-        newArg = oldArgMention.withAttachment(new Location(location.head))
-
-      } yield Map(oldArg -> Seq(newArg))
-
-      updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
-
-    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
-    //also contain attachments
+    val handled = attachGeoLoc(migrationEvents)
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)????
     // todo: aggregation of cross-sentence stuff?????????????
@@ -78,8 +55,16 @@ object MigrationUtils {
 
   }
 
-  def attachTime(mentions: Seq[Mention], relArgs: Array[String]): Seq[Mention] = {
 
+  def combineStartEndTimes(mentions: Seq[Mention]): Seq[Mention] = {
+    //assume the mentions do have time attachments
+    ???
+
+  }
+
+  def attachTime(mentions: Seq[Mention], relArgs: Array[String]): Seq[Mention] = {
+    //attaching TIMEX to time-related mentions witht the overlapping span
+    //assume the mentions have time-related arguments
 
     val handled = for {
       m <- mentions
@@ -93,9 +78,37 @@ object MigrationUtils {
       newArgs = for {
         oldArg <- oldArgs //argName
         oldArgMention = m.arguments(oldArg).head
-        time: Option[TimEx] = if (times.isDefined) times.get(m.sentence).find(_.span.end == oldArgMention.endOffset) else None //need to check for an overlap and not start/end; same for loc
+        time: Option[TimEx] = if (times.isDefined) times.get(m.sentence).find(_.span.end == oldArgMention.endOffset) else None //todo:need to check for an overlap and not start/end; same for loc
         if time.nonEmpty
         newArg = oldArgMention.withAttachment(new Time(time.head))
+
+      } yield Map(oldArg -> Seq(newArg))
+
+      updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
+
+    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that also contain attachments
+    handled
+  }
+
+
+  def attachGeoLoc(mentions: Seq[Mention]): Seq[Mention] = {
+    val relArgs = Array("moveTo", "moveFrom", "moveThrough") //location-related args in migration events
+
+    val handled = for {
+      m <- mentions
+      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
+      oldArgs = for {
+        arg <- relArgs
+        if m.arguments.get(arg).nonEmpty
+      } yield arg //name of args actually present in the mention
+
+      //this should create args with geoloc attachments
+      newArgs = for {
+        oldArg <- oldArgs
+        oldArgMention = m.arguments(oldArg).head
+        location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArgMention.startOffset) else None
+        if location.nonEmpty
+        newArg = oldArgMention.withAttachment(new Location(location.head))
 
       } yield Map(oldArg -> Seq(newArg))
 
@@ -104,10 +117,7 @@ object MigrationUtils {
     } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
     //also contain attachments
     handled
-
-
   }
-
 
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
@@ -246,7 +256,7 @@ object MigrationUtils {
       if (overlappingArgs.contains(arg._1)) {
         //choose more specific
         val arg1 = mention1.arguments(arg._1)
-        if (arg1.exists(tbm => (tbm.attachments.nonEmpty) || (tbm.text matches "\\d+.*"))) {
+        if (arg1.exists(tbm => tbm.attachments.nonEmpty || (tbm.text matches "\\d+.*"))) {
           newArgs = newArgs ++ Map(arg._1 -> arg1)
         } else {
           newArgs = newArgs ++ Map(arg._1 -> mention2.arguments(arg._1))
