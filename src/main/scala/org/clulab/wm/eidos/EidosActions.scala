@@ -336,19 +336,6 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     }
   }
 
-  def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-      trigger = m.asInstanceOf[EventMention].trigger
-      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
-    } yield location match {
-      case None => theme
-      case Some(l) => theme.withAttachment(new Location(l))
-    }
-  }
-
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     println("DEBUG ACTION")
     ms

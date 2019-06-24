@@ -120,7 +120,7 @@ class TestDoc2 extends EnglishTest {
 
     val foodInsecurity = NodeSpec("Food insecurity")
     val conflict = NodeSpec("conflict")
-    val fams = NodeSpec("many families to leave South Sudan for neighbouring countries", Quant("many"))
+    val fams = NodeSpec("many families to leave South Sudan for neighbouring countries", Quant("many"), GeoLoc("South Sudan"))
 
     behavior of "TestDoc2 Paragraph 5"
 
