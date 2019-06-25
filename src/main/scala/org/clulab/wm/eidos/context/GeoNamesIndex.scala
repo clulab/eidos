@@ -140,13 +140,13 @@ class GeoNamesSearcher(indexPath: Path) {
 
 
 object SearchGeoNames {
-  def main(args: Array[String]): Unit = args.toList match {
-    case indexPath :: queryStrings =>
+  def main(args: Array[String]): Unit = args match {
+    case Array(indexPath, queryStrings @ _*) =>
       val searcher = new GeoNamesSearcher(Paths.get(indexPath))
       for (queryString <- queryStrings) {
         println(queryString)
         for ((entry, score) <- searcher(queryString, 5)) {
-          println(f"${score}%.3f ${entry.id} ${entry.name} ${entry.population}")
+          println(f"$score%.3f ${entry.id} ${entry.name} ${entry.population}")
         }
       }
       searcher.close()
