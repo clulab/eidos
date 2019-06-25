@@ -140,14 +140,14 @@ object MigrationUtils {
     // keep merging events until we have nothing acceptable left to merge
     var stillMerging = true
 
-    //have to define the number of allowable loops bc currently there's no way to continue to the second loop
+    //have to define the number of allowable loops bc currently there's no way to continue to the second loop if the last event in the first loop happens to not need merging
     var maxNumOfLoops = 2
     var numOfLoops = 0
 
     // loop and merge compatible events, add to mergedEvents
     while (numOfLoops <= maxNumOfLoops) {
 
-      println("\nLOOPING")
+//      println("\nLOOPING")
 
       // the events we will ultimately return
       returnedEvents = Array[Mention]()
@@ -157,13 +157,13 @@ object MigrationUtils {
 
 
       for (i <- orderedMentions.indices) {
-        println("i-th mention-->" + i + " " + orderedMentions(i).text)
+//        println("i-th mention-->" + i + " " + orderedMentions(i).text)
         stillMerging = false
-//        println("still merging line 91: " + stillMerging.toString())
+
         // only merge events if the first of the pair hasn't already been merged (heuristic!)
         if (!used(i)) {
           for (j <- i+1 until orderedMentions.length) {
-            println("j-th mention--->" + j + " " + orderedMentions(j).text)
+//            println("j-th mention--->" + j + " " + orderedMentions(j).text)
             if (
             // the two events are within one sentence of each other
               (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
@@ -173,44 +173,36 @@ object MigrationUtils {
                 ||
                 // if both events share an argument
                 (orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).nonEmpty
-                  // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: @zupon, there are cases, where these numbers happen to be the same. Any way to modify this? Do we have to have this?
+                  // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: it does not look like we need this condition (it results in false negs at least in some cases), but keeping it here for now for potential future use
 //                  && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).size != orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).size
                   //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some key information with the same argName---merging will delete one of them)
                   && !bothSpecific(orderedMentions(i), orderedMentions(j))
                   )
-
+                //OR
                 ||
                 //if within one sent of each other
                 (Math.abs(orderedMentions(i).sentence - orderedMentions(j).sentence) < 2
 
-              //AND events share the type of argument
+                //AND events share the type of argument
                  && (orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).nonEmpty
 
-              //AND the argument of the overlapping type in the j-th mention is less specific (i.e., it's the type of mention that is supposed to take an attachment but does not have one)
-                  //todo: does not work if the label is "Location-Expand"
-                  //todo: do this for time, too
-                  && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty))))
-                  //AND the arg of the overlapping type in the i-th mention is specific
-                  && (orderedMentions(i).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.nonEmpty))))
+                  //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some key information with the same argName---merging will delete one of them)
+                  && !bothSpecific(orderedMentions(i), orderedMentions(j)))
 
-
-
-
+                  )
 
             ) {
 
               // merge the two events into one new event, keeping arguments from both but if there's overlap, choose the more specific one
               val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
-//              val copy = copyWithNewArgs(orderedMentions(i), orderedMentions(j).arguments ++ orderedMentions(i).arguments)
-              println("ORIG MENTION: " + orderedMentions(i).text)
+//              println("ORIG MENTION: " + orderedMentions(i).text)
               val copy = copyWithNewArgs(orderedMentions(i), newArgs)
 
               stillMerging = true
-//              println("still merging line 124: " + stillMerging.toString())
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
                 returnedEvents = returnedEvents :+ copy
-                println("merged: " + orderedMentions(i).text + " AND " + orderedMentions(j).text + "\n" + "Resuling event: " + copy.text + "|")
+//                println("merged: " + orderedMentions(i).text + " AND " + orderedMentions(j).text + "\n" + "Resuling event: " + copy.text + "|")
               }
               used = used.updated(i,true)
               used = used.updated(j,true)
@@ -229,8 +221,8 @@ object MigrationUtils {
         }
       }
       orderedMentions = returnedEvents
-      for (e <- returnedEvents) println("returned after loop: " + e.text)
-      println("end of loop")
+//      for (e <- returnedEvents) println("returned after loop: " + e.text)
+//      println("end of loop")
       numOfLoops = numOfLoops + 1
 
 
