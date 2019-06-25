@@ -14,6 +14,7 @@ import org.clulab.odin.impl.Taxonomy
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.EidosActions.COREF_DETERMINERS
+import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -38,7 +39,7 @@ object MigrationUtils {
 
   }
 
-
+  //
   def assembleTime(mentions: Seq[Mention]): Seq[Mention] = {
     //find attachments for each time mention (rel args = "time", "timeStart", "timeEnd"  in the hme
     //make interval from timeStart/timeEnd
@@ -61,6 +62,15 @@ object MigrationUtils {
     ???
 
   }
+
+  //Becky's stub for merging times
+  def mergeTimes(ms: Seq[Mention], state: State): Mention = {
+    val m = ms.head
+    // get the overlapping
+    val overlapping = state.mentionsFor(m.sentence, m.tokenInterval)
+    ???
+  }
+
 
   def attachTime(mentions: Seq[Mention], relArgs: Array[String]): Seq[Mention] = {
     //attaching TIMEX to time-related mentions witht the overlapping span
@@ -90,7 +100,7 @@ object MigrationUtils {
     handled
   }
 
-
+  //todo: move to mention utils (eventually) or possible remove altogether
   def attachGeoLoc(mentions: Seq[Mention]): Seq[Mention] = {
     val relArgs = Array("moveTo", "moveFrom", "moveThrough") //location-related args in migration events
 
@@ -230,6 +240,7 @@ object MigrationUtils {
   /*
   returns mentions in the order they appear in the document (based on sent index and tokenInterval of the mention)
    */
+  //todo: may go to mention utils
   def orderMentions(mentions: Seq[Mention]): Seq[Mention] = {
     val grouped = mentions.groupBy(_.sentence)
 
@@ -249,12 +260,17 @@ object MigrationUtils {
   /*
   merges args of two mentions in such a way as to hopefully return the more specific arg in case of an overlap
    */
+  //keep in migr utils
+
   def mergeArgs(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
     var newArgs = scala.collection.mutable.Map[String, Seq[Mention]]()
+    //overlapping argument names
     val overlappingArgs = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
+    //for every argument in the two mentions...
     for (arg <- mention1.arguments ++ mention2.arguments) {
+      //if the argumentName is present in both of the mentions...
       if (overlappingArgs.contains(arg._1)) {
-        //choose more specific
+        //choose the more specific argument by checking if one of them contains an attachment or contains numbers
         val arg1 = mention1.arguments(arg._1)
         if (arg1.exists(tbm => tbm.attachments.nonEmpty || (tbm.text matches "\\d+.*"))) {
           newArgs = newArgs ++ Map(arg._1 -> arg1)
@@ -268,11 +284,13 @@ object MigrationUtils {
     }
 
     //for (arg <- newArgs) println("new arg: " + arg._1 + " " + arg._2)
+    //return the new set of arguments
     newArgs.toMap
   }
 
-  //todo: place elsewhere
+  //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
+
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
@@ -318,54 +336,3 @@ object MigrationUtils {
 
 }
 
-//same as EventMention but with a different foundBy, no paths, sentence == the sent of the trigger, and a different text method
-//todo: place elsewhere
-//todo: change tokenInterval to something informed and usable
-class CrossSentenceEventMention(
-                                 override val labels: Seq[String],
-                                 override val tokenInterval: Interval,
-                                 override val trigger: TextBoundMention,
-                                 override val arguments: Map[String, Seq[Mention]],
-                                 override val paths: Map[String, Map[Mention, SynPath]],
-                                 override val sentence: Int,
-                                 override val document: Document,
-                                 override val keep: Boolean,
-                                 override val foundBy: String,
-                                 override val attachments: Set[Attachment] = Set.empty
-                               ) extends EventMention(labels, tokenInterval, trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
-
-  //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
-  //todo: is the text of a mention the arg span or the trigger span should also be included (in cases when all the args are to one side of the trigger)?
-  //todo: now, the sent/clause in between is not returned, e.g., in 440 people left France for Romania. 300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997.
-  override def text: String = {
-    val argsBySent = arguments.map(a => a._2.toList).flatten.toList.groupBy(m => m.sentence)
-    val textArray = new ArrayBuffer[String]()
-    val lastSentIndex = argsBySent.keys.toList.length - 1
-
-
-    for (i <- argsBySent.keys.toList.sorted) {
-      //      println("i: " + i)
-      //      println("len: " + argsBySent.keys.toList.length)
-      val sortedMentions = argsBySent(i).sortBy(_.startOffset)
-      val firstArgInd = sortedMentions.head.start
-      val sentTextArr = argsBySent(i).head.sentenceObj.raw
-      i match {
-        case 0 => {
-          val relSubString = sentTextArr.slice(firstArgInd, sentTextArr.length).mkString(" ")
-          textArray.append(relSubString)
-        }
-        case `lastSentIndex` => {
-          val relSubString = sentTextArr.slice(0, sortedMentions.last.end).mkString(" ")
-          textArray.append(relSubString)
-        }
-        case _ => textArray.append(sentTextArr.mkString(" "))
-      }
-    }
-
-    val text = textArray.mkString(" ")
-
-    text
-  }
-
-
-}
