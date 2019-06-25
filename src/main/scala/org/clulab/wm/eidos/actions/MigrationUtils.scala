@@ -174,7 +174,10 @@ object MigrationUtils {
                 // if both events share an argument
                 (orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).nonEmpty
                   // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: @zupon, there are cases, where these numbers happen to be the same. Any way to modify this? Do we have to have this?
-                  && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).size != orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).size)
+//                  && orderedMentions(i).arguments.keys.toList.intersect(orderedMentions(j).arguments.keys.toList).size != orderedMentions(i).arguments.values.toList.intersect(orderedMentions(j).arguments.values.toList).size
+                  //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some key information with the same argName---merging will delete one of them)
+                  && !bothSpecific(orderedMentions(i), orderedMentions(j))
+                  )
 
                 ||
                 //if within one sent of each other
@@ -189,6 +192,7 @@ object MigrationUtils {
                   && (orderedMentions(j).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.isEmpty))))
                   //AND the arg of the overlapping type in the i-th mention is specific
                   && (orderedMentions(i).arguments.exists(arg => arg._2.exists(tbh => (tbh.label matches "Location") && tbh.attachments.nonEmpty))))
+
 
 
 
@@ -236,6 +240,19 @@ object MigrationUtils {
 
   }
 
+  /*
+  checks if both of the overlapping args are specific (AND are not the same arg because if they are the same argument, their...`specificity status` will be the same)
+   */
+  def bothSpecific(m1: Mention, m2: Mention): Boolean = {
+    val overlappingArgNames = m1.arguments.keys.toList.intersect(m2.arguments.keys.toList)
+    for (argName <- overlappingArgNames) {
+      val relArg1 = m1.arguments(argName).head
+      val relArg2 = m2.arguments(argName).head
+      if ((relArg1.attachments.nonEmpty || (relArg1.text matches "\\d+.*")) && (relArg2.attachments.nonEmpty || (relArg2.text matches "\\d+.*")) && relArg1 != relArg2  ) return true
+    }
+
+    false
+  }
 
   /*
   returns mentions in the order they appear in the document (based on sent index and tokenInterval of the mention)
