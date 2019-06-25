@@ -104,7 +104,7 @@ class GeoNamesSearcher(indexPath: Path) {
     val escapedQueryString = queryString.replaceAll(luceneSpecialCharacters, """\\$1""")
 
     // first look for an exact match of the input phrase (the "name" field ignores spaces, punctuation, etc.)
-    var results = scoredEntries(nameQueryParser.parse(escapedQueryString), 100)
+    var results = scoredEntries(nameQueryParser.parse(escapedQueryString), 1000)
 
     // if there's no exact match, search for fuzzy (1-2 edit-distance) matches
     if (results.isEmpty) {
@@ -145,7 +145,7 @@ object SearchGeoNames {
       val searcher = new GeoNamesSearcher(Paths.get(indexPath))
       for (queryString <- queryStrings) {
         println(queryString)
-        for ((entry, score) <- searcher(queryString, 5)) {
+        for ((entry, score) <- searcher(queryString, 20)) {
           println(f"$score%.3f ${entry.id} ${entry.name} ${entry.population}")
         }
       }

@@ -9,9 +9,9 @@ import scala.collection.JavaConverters._
 class SemEval2019Task12(geoNamesIndexDir: Path) {
   val searcher = new GeoNamesSearcher(geoNamesIndexDir)
 
-  def apply(text: String, spans: Seq[(Int, Int)]): Seq[Seq[String]] = {
+  def apply(text: String, spans: Seq[(Int, Int)]): Seq[Seq[GeoNamesEntry]] = {
     for ((start, end) <- spans) yield {
-      searcher(text.substring(start, end), 5).map(_._1.id)
+      searcher(text.substring(start, end), 5).map(_._1)
     }
   }
 }
@@ -20,15 +20,24 @@ object SemEval2019Task12 {
 
   def main(args: Array[String]): Unit = args match {
     case Array(geoNamesIndexDir, annDir) =>
-      val k = 1
+      val k = 20
       val model = new SemEval2019Task12(Paths.get(geoNamesIndexDir))
       val results =
         for {
           annPath <- Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
           (text, spans, geoIDs) = readTextAndGeoIdSpans(annPath)
-          (predictedIDs, geoID) <- model(text, spans) zip geoIDs
+          (predictedEntries, geoID, (start, end)) <- (model(text, spans), geoIDs, spans).zipped
         } yield {
-          predictedIDs.take(k).contains(geoID)
+          val result = predictedEntries.map(_.id).take(k).contains(geoID)
+          if (!result && geoID != "NA") {
+            println(annPath)
+            println(s"$geoID ${text.substring(start, end)}")
+            for (entry <- predictedEntries) {
+              println(s"${entry.id} ${entry.name}")
+            }
+            println()
+          }
+          result
         }
       val resultsList = results.toList
       val recallAtK = resultsList.count(x => x).toDouble / resultsList.size
