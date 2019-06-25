@@ -2,6 +2,8 @@ package org.clulab.wm.eidos.context
 
 import java.nio.file.{Files, Path, Paths}
 
+import org.apache.commons.text.StringEscapeUtils
+
 import scala.collection.JavaConverters._
 
 class SemEval2019Task12(geoNamesIndexDir: Path) {
@@ -23,9 +25,7 @@ object SemEval2019Task12 {
       val results =
         for {
           annPath <- Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
-          (spans, geoIDs) = readPhraseGeoIDs(annPath)
-          txtPath = Paths.get(annPath.toString.replace(".ann", ".txt"))
-          text = new String(Files.readAllBytes(txtPath))
+          (text, spans, geoIDs) = readTextAndGeoIdSpans(annPath)
           (predictedIDs, geoID) <- model(text, spans) zip geoIDs
         } yield {
           predictedIDs.take(k).contains(geoID)
@@ -35,18 +35,28 @@ object SemEval2019Task12 {
       println(f"Recall@$k: ${100*recallAtK}%.2f%%")
   }
 
-  def readPhraseGeoIDs(annFile: Path): (Seq[(Int, Int)], Seq[String]) = {
+  def readTextAndGeoIdSpans(annFile: Path): (String, Seq[(Int, Int)], Seq[String]) = {
+    val txtPath = Paths.get(annFile.toString.replace(".ann", ".txt"))
+    val text = new String(Files.readAllBytes(txtPath))
     val annIdToSpan = scala.collection.mutable.Map.empty[String, (Int, Int)]
     val spanToGeoID = scala.collection.mutable.Map.empty[(Int, Int), String]
-    val text = new String(Files.readAllBytes(annFile)).trim().replaceAll("\n([^T#])", " $1")
-    for (line <- text.split("\r?\n")) line.split("\t", 3) match {
+    val annText = new String(Files.readAllBytes(annFile)).trim().replaceAll("\n([^T#])", " $1")
+    for (line <- annText.split("\r?\n")) line.split("\t", 3) match {
       case Array(annId, name, details) => annId.head match {
         case 'T' => name.split("""\s+""", 2) match {
           case Array(entityType, span) => entityType match {
-            case "Location" => span.split("""[;\s]""") match {
-              case Array(start, end) => annIdToSpan(annId) = (start.toInt, end.toInt)
-              case Array(start, _, _, end) => annIdToSpan(annId) = (start.toInt, end.toInt)
-            }
+            case "Location" =>
+              val (start, end) = span.split("""[;\s]""") match {
+                case Array(start, end) => (start.toInt, end.toInt)
+                case Array(start, _, _, end) => (start.toInt, end.toInt)
+              }
+              val locationText = text.substring(start, end)
+              if (locationText.noWhitespace != details.noWhitespace) {
+                val phraseInTxt = StringEscapeUtils.escapeJava(locationText)
+                val phraseInAnn = StringEscapeUtils.escapeJava(details)
+                println(s"""WARNING: "$phraseInTxt" from .txt != "$phraseInAnn" from .ann""")
+              }
+              annIdToSpan(annId) = (start, end)
             case "Protein" => // do nothing
           }
         }
@@ -61,7 +71,13 @@ object SemEval2019Task12 {
       }
     }
     val spans = annIdToSpan.values.toSeq.sorted
-    (spans, spans.map(spanToGeoID))
+    (text, spans, spans.map(spanToGeoID))
+  }
+
+  private implicit class X(val string: String) {
+    def noWhitespace: String = {
+      string.replaceAll("""\s+""", "")
+    }
   }
 
   private val GeoIdMatch = """.*<geoID>\s*(\S+)\s*</geoID>.*""".r
