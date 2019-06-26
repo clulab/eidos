@@ -23,6 +23,7 @@ import org.clulab.wm.eidos.utils.Sourcer
 class GeoNamesEntry(document: Document) {
   lazy val id: String = document.get("id")
   lazy val name: String = document.get("canonical-name")
+  lazy val featureCode: String = document.get("feature-code")
   lazy val population: Long = document.get("population").toLong
 }
 
@@ -34,6 +35,7 @@ object GeoNamesIndexConfig {
   val ngramsField: String => Field = new TextField("ngrams", _, Field.Store.NO)
   val latitudeField: Float => Field = new StoredField("latitude", _)
   val longitudeField: Float => Field = new StoredField("longitude", _)
+  val featureCodeField: String => Field = new StoredField("feature-code", _)
   val populationField: Long => Field = new StoredField("population", _)
   val idEndField: Field = new StringField("idEnd", "x", Field.Store.NO)
 
@@ -64,7 +66,7 @@ object IndexGeoNames {
       // walk through each line of the GeoNames file
       for (line <- Sourcer.sourceFromFile(geoNamesPath).getLines) {
         val Array(geoNameID, canonicalName, asciiName, alternateNames, latitude, longitude,
-        _, _, _, _, _, _, _, _, population, _, _, _, _) = line.split("\t")
+        _, featureCode, _, _, _, _, _, _, population, _, _, _, _) = line.split("\t")
 
         // generate a document for each name of this ID
         val docs = for (name <- Array(canonicalName, asciiName) ++ alternateNames.split(",")) yield {
@@ -75,6 +77,7 @@ object IndexGeoNames {
           doc.add(GeoNamesIndexConfig.ngramsField(name))
           doc.add(GeoNamesIndexConfig.latitudeField(latitude.toFloat))
           doc.add(GeoNamesIndexConfig.longitudeField(longitude.toFloat))
+          doc.add(GeoNamesIndexConfig.featureCodeField(featureCode))
           doc.add(GeoNamesIndexConfig.populationField(population.toLong))
           doc
         }
@@ -114,9 +117,9 @@ class GeoNamesSearcher(indexPath: Path) {
     if (results.isEmpty) {
       results = scoredEntries(ngramsQueryParser.parse(queryString), maxFuzzyHits)
     }
-    // sort first by retrieval score, then by population (when retrieval scores are tied)
+    // sort first by retrieval score, then by population, then by feature code (e.g., ADM1 before ADM3 and PPL)
     results.sortBy{
-      case (entry, score) => (-score, -entry.population)
+      case (entry, score) => (-score, -math.log10(entry.population + 1).round, entry.featureCode)
     }
   }
 
@@ -146,7 +149,7 @@ object SearchGeoNames {
       for (queryString <- queryStrings) {
         println(queryString)
         for ((entry, score) <- searcher(queryString, 20)) {
-          println(f"$score%.3f ${entry.id} ${entry.name} ${entry.population}")
+          println(f"$score%.3f ${entry.id} ${entry.name} ${entry.featureCode} ${entry.population}")
         }
       }
       searcher.close()
