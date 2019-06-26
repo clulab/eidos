@@ -1,10 +1,11 @@
 package org.clulab.wm.eidos.context
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Files, Path, Paths}
 import java.util.regex.Pattern
 
-import scala.collection.JavaConverters._
+import de.bwaldvogel.liblinear.{Feature, FeatureNode, Linear, Model, Parameter, Problem, SolverType}
 
+import scala.collection.JavaConverters._
 import org.apache.lucene.analysis.{Analyzer, LowerCaseFilter}
 import org.apache.lucene.analysis.core.{KeywordAnalyzer, KeywordTokenizer}
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper
@@ -156,3 +157,92 @@ object SearchGeoNames {
   }
 }
 
+
+class GeoNamesReranker(searcher: GeoNamesSearcher, linearModel: Option[Model] = None) {
+
+  private def searchEachSpan(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Float)]] = {
+    for ((start, end) <- spans) yield searcher(text.substring(start, end), 5)
+  }
+
+  def entryFeatures(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Array[Feature])]] = {
+    for (entryScores <- this.searchEachSpan(text, spans)) yield {
+      val scores = entryScores.map(_._2).distinct.sorted.reverse
+      val scoreRanks = scores.zipWithIndex.toMap
+      for ((entry, score) <- entryScores) yield {
+        val logPopulation = math.log10(entry.population + 1)
+        val features = Array[Feature](
+          new FeatureNode(1, scoreRanks(score)),
+          new FeatureNode(2, logPopulation),
+        ) ++ GeoNamesReranker.featureCodeToIndex.get(entry.featureCode).map(new FeatureNode(_, logPopulation))
+        (entry, features)
+      }
+    }
+  }
+
+  def apply(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Float)]] = {
+    linearModel match {
+      // if there is no model, rely on the searcher's order
+      case None => this.searchEachSpan(text, spans)
+      // if there is a model, rerank the search results
+      case Some(model) =>
+        val indexOf1 = model.getLabels.indexOf(1)
+        this.entryFeatures(text, spans).map(_.map {
+          case (entry, features) =>
+            (entry, Linear.predict(model, features).toFloat)
+            // Below uses probabilities as scores, but results in worse performance
+            // val probs = Array(0.0, 0.0)
+            // Linear.predictProbability(model, features, probs)
+            // (entry, probs(indexOf1).toFloat)
+        }.sortBy(-_._2))
+    }
+  }
+
+  def save(modelPath: Path): Unit = {
+    for (model <- linearModel) {
+      val writer = Files.newBufferedWriter(modelPath)
+      model.save(writer)
+      writer.close()
+    }
+  }
+}
+
+
+object GeoNamesReranker {
+
+  // country, state, region, ... and city, village, ... from http://www.geonames.org/export/codes.html
+  private val featureCodeToIndex: Map[String, Int] =
+    """
+    ADM1 ADM1H ADM2 ADM2H ADM3 ADM3H ADM4 ADM4H ADM5 ADMD ADMDH LTER PCL PCLD PCLF PCLH PCLI PCLIX PCLS PRSH TERR ZN ZNB
+    PPL PPLA PPLA2 PPLA3 PPLA4 PPLC PPLCH PPLF PPLG PPLH PPLL PPLQ PPLR PPLS PPLW PPLX STLMT
+    """.split("""\s+""").zipWithIndex.map{ case (code, i) => (code, i + 3) }.toMap
+
+  def load(geoNamesIndexPath: Path, modelPath: Path): GeoNamesReranker = {
+    val searcher = new GeoNamesSearcher(geoNamesIndexPath)
+    val reader = Files.newBufferedReader(modelPath)
+    val model = Model.load(reader)
+    new GeoNamesReranker(searcher, Some(model))
+  }
+
+  def train(geoNamesIndexPath: Path,
+            trainingData: Iterator[(String, Seq[(Int, Int)], Seq[String])]): GeoNamesReranker = {
+    val searcher = new GeoNamesSearcher(geoNamesIndexPath)
+    val reranker = new GeoNamesReranker(searcher)
+    val featureLabels: Iterator[(Array[Feature], Double)] = for {
+      (text, spans, geoIDs) <- trainingData
+      (entryFeatures, geoID) <- reranker.entryFeatures(text, spans) zip geoIDs
+      (entry, features) <- entryFeatures
+    } yield {
+      (features, if (entry.id == geoID) 1.0 else 0.0)
+    }
+    val (features, labels) = featureLabels.toArray.unzip
+    val problem = new Problem
+    problem.x = features
+    problem.y = labels
+    problem.l = labels.length
+    problem.n = featureCodeToIndex.values.max + 2
+    problem.bias = 1
+    val param = new Parameter(SolverType.L1R_LR, 1.0, 0.01)
+    val model = Linear.train(problem, param)
+    new GeoNamesReranker(searcher, Some(model))
+  }
+}

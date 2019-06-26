@@ -6,65 +6,30 @@ import org.apache.commons.text.StringEscapeUtils
 
 import scala.collection.JavaConverters._
 
-class SemEval2019Task12(geoNamesIndexDir: Path) {
-  val searcher = new GeoNamesSearcher(geoNamesIndexDir)
-
-  def features(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Array[String])]] = {
-    for ((start, end) <- spans) yield {
-      val results = searcher(text.substring(start, end), 5)
-      val scores = results.map(_._2).distinct.sorted.reverse
-      val scoreRanks = scores.zipWithIndex.toMap
-      for ((entry, score) <- results) yield {
-        val scoreRank = scoreRanks(score)
-        val logPopulation = math.log10(entry.population + 1)
-        (entry, Array(scoreRank.toString, f"$logPopulation%.2f", entry.featureCode))
-      }
-    }
-  }
-
-  def apply(text: String, spans: Seq[(Int, Int)]): Seq[Seq[GeoNamesEntry]] = {
-    for ((start, end) <- spans) yield {
-      searcher(text.substring(start, end), 5).map(_._1)
-    }
-  }
-}
 
 object SemEval2019Task12 {
 
   def main(args: Array[String]): Unit = args match {
-    case Array("train", geoNamesIndexDir, annDir) =>
-      val model = new SemEval2019Task12(Paths.get(geoNamesIndexDir))
-      for {
-        annPath <- Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
-        x = println(annPath)
-        (text, spans, geoIDs) = readTextAndGeoIdSpans(annPath)
-        (entryFeatures: Seq[(GeoNamesEntry, Array[String])], geoID, (start, end)) <- (model.features(text, spans), geoIDs, spans).zipped
-        if entryFeatures.head._1.id != geoID && entryFeatures.exists(_._1.id == geoID)
-      } {
-        println(text.substring(start, end))
-        for ((entry, features) <- entryFeatures) {
-          val label = if (entry.id == geoID) 1 else 0
-          println(s"""$label ${features.mkString(" ")}""")
-        }
-        println()
-      }
+    case Array("train", geoNamesIndexDir, modelFile, annDir) =>
+      val annFiles = Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
+      val reranker = GeoNamesReranker.train(Paths.get(geoNamesIndexDir), annFiles.map(readTextAndGeoIdSpans))
+      reranker.save(Paths.get(modelFile))
 
-
-    case Array("test", geoNamesIndexDir, annDir) =>
+    case Array("test", geoNamesIndexDir, modelFile, annDir) =>
       val k = 1
-      val model = new SemEval2019Task12(Paths.get(geoNamesIndexDir))
+      val reranker = GeoNamesReranker.load(Paths.get(geoNamesIndexDir), Paths.get(modelFile))
       val results =
         for {
           annPath <- Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
           (text, spans, geoIDs) = readTextAndGeoIdSpans(annPath)
-          (predictedEntries, geoID, (start, end)) <- (model(text, spans), geoIDs, spans).zipped
+          (predictedEntries, geoID, (start, end)) <- (reranker(text, spans), geoIDs, spans).zipped
         } yield {
-          val result = predictedEntries.map(_.id).take(k).contains(geoID)
-          if (!result && geoID != "NA") {
+          val result = predictedEntries.map(_._1.id).take(k).contains(geoID)
+          if (!result) {
             println(annPath)
             println(s"$geoID ${text.substring(start, end)}")
-            for (entry <- predictedEntries) {
-              println(s"${entry.id} ${entry.name}")
+            for ((entry, score) <- predictedEntries) {
+              println(s"${entry.id} ${entry.name} $score")
             }
             println()
           }
