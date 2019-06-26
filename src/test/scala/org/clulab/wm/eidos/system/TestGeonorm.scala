@@ -6,7 +6,7 @@ import org.clulab.wm.eidos.test.TestUtils._
 
 class TestGeonorm extends ExtractionTest {
 
-  def locations(text: String): Seq[Location] = extractMentions(text).flatMap(m => m.attachments.collect{
+  def locations(text: String): Seq[Location] = extractMentions(text).filter(_.label == "Location").flatMap(m => m.attachments.collect{
     case loc: Location => loc
   })
 

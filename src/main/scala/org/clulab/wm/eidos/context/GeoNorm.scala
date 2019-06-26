@@ -3,11 +3,59 @@ package org.clulab.wm.eidos.context
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.apache.commons.io.IOUtils
+import org.clulab.odin.{Mention, State, TextBoundMention}
+import org.clulab.processors.Document
+import org.clulab.struct.Interval
+import org.clulab.wm.eidos.attachments.Location
+import org.clulab.wm.eidos.document.EidosDocument
+import org.clulab.wm.eidos.extraction.Finder
 import org.tensorflow.{Graph, Session, Tensor}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 
-object GeoDisambiguateParser {
+import scala.collection.mutable
+
+object GeoNormFinder {
+  def fromConfig(config: Config): GeoNormFinder = {
+    val   geoNormModelPath: String = config[String]("geoNormModelPath")
+    val    geoWord2IdxPath: String = config[String]("geoWord2IdxPath")
+    val      geoLoc2IdPath: String = config[String]("geoLoc2IdPath")
+    new GeoNormFinder(new GeoNorm(geoNormModelPath, geoWord2IdxPath, geoLoc2IdPath))
+  }
+}
+
+class GeoNormFinder(geonorm: GeoNorm) extends Finder {
+  override def extract(doc: Document, initialState: State): Seq[Mention] = doc match {
+    case eidosDoc: EidosDocument =>
+      val sentenceBuffers = eidosDoc.sentences.map(_ => mutable.Buffer.empty[GeoPhraseID])
+      eidosDoc.geolocs = Some(sentenceBuffers.map(_.toSeq))
+      val sentenceLocations = geonorm.findLocations(eidosDoc.sentences.map(_.raw))
+      val Some(text) = eidosDoc.text
+      for {
+        sentenceIndex <- eidosDoc.sentences.indices
+        sentence = eidosDoc.sentences(sentenceIndex)
+        locations = sentenceLocations(sentenceIndex)
+        (wordStartIndex, wordEndIndex, geoNameID) <- locations
+      } yield {
+        val charStartIndex = sentence.startOffsets(wordStartIndex)
+        val charEndIndex = sentence.endOffsets(wordEndIndex - 1)
+        val locationPhrase = text.substring(charStartIndex, charEndIndex)
+        val geoPhraseID = GeoPhraseID(locationPhrase, geoNameID, charStartIndex, charEndIndex)
+        sentenceBuffers(sentenceIndex) += geoPhraseID
+        new TextBoundMention(
+          Seq("Location"),
+          Interval(wordStartIndex, wordEndIndex),
+          sentenceIndex,
+          eidosDoc,
+          true,
+          getClass.getSimpleName(),
+          Set(Location(geoPhraseID))
+        )
+      }
+  }
+}
+
+object GeoNorm {
   val I_LOC = 0
   val B_LOC = 1
   val O_LOC = 2
@@ -15,25 +63,18 @@ object GeoDisambiguateParser {
   val UNKNOWN_TOKEN = "UNKNOWN_TOKEN"
   val TF_INPUT = "words_input"
   val TF_OUTPUT = "time_distributed_1/Reshape_1"
-
-  def fromConfig(config: Config): GeoDisambiguateParser = {
-    val   geoNormModelPath: String = config[String]("geoNormModelPath")
-    val    geoWord2IdxPath: String = config[String]("geoWord2IdxPath")
-    val      geoLoc2IdPath: String = config[String]("geoLoc2IdPath")
-    new GeoDisambiguateParser(geoNormModelPath, geoWord2IdxPath, geoLoc2IdPath)
-  }
 }
 
-class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
-  val network: Session = GeoDisambiguateParser.getClass.getResourceAsStream(geoNormModelPath).autoClose { modelStream =>
+class GeoNorm(geoNormModelPath: String, word2IdxPath: String, loc2geonameIDPath: String) {
+  val network: Session = GeoNorm.getClass.getResourceAsStream(geoNormModelPath).autoClose { modelStream =>
     val graph = new Graph
     graph.importGraphDef(IOUtils.toByteArray(modelStream))
     new org.tensorflow.Session(graph)
   }
 
   lazy private val word2int: Map[String, Int] = readDict(word2IdxPath)
-  lazy private val unknownInt = word2int(GeoDisambiguateParser.UNKNOWN_TOKEN)
-  lazy private val paddingInt = word2int(GeoDisambiguateParser.PADDING_TOKEN)
+  lazy private val unknownInt = word2int(GeoNorm.UNKNOWN_TOKEN)
+  lazy private val paddingInt = word2int(GeoNorm.PADDING_TOKEN)
   // provide path of geoname dict file having geonameID with max population
   lazy private val loc2geonameID: Map[String, Int] = readDict(loc2geonameIDPath)
 
@@ -62,7 +103,7 @@ class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2
     }
 
     // feed the word features through the Tensorflow model
-    import GeoDisambiguateParser.{TF_INPUT, TF_OUTPUT}
+    import GeoNorm.{TF_INPUT, TF_OUTPUT}
     val input = Tensor.create(sentenceFeatures)
     val Array(output: Tensor[_]) = this.network.runner().feed(TF_INPUT, input).fetch(TF_OUTPUT).run().toArray
 
@@ -76,7 +117,7 @@ class GeoDisambiguateParser(geoNormModelPath: String, word2IdxPath: String, loc2
     }.toSeq)
 
     // convert word-level class predictions into span-level geoname predictions
-    import GeoDisambiguateParser.{B_LOC, I_LOC, O_LOC}
+    import GeoNorm.{B_LOC, I_LOC, O_LOC}
     for ((words, paddedWordPredictions) <- sentenceWords zip sentenceWordPredictions) yield {
       // trim off any predictions on padding words
       val wordPredictions = paddedWordPredictions.take(words.length)

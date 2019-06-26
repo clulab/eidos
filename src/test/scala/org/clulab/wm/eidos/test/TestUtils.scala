@@ -4,6 +4,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest._
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.graph
 import org.clulab.wm.eidos.rule
 
@@ -82,8 +83,8 @@ object TestUtils {
 
     class RuleTester(text: String) extends rule.RuleTester(ieSystem, text)
 
-    def useTimeNorm = ieSystem.loadableAttributes.timenorm.isDefined
-    def useGeoNorm = ieSystem.loadableAttributes.geonorm.isDefined
+    def useTimeNorm = ieSystem.useTimeNorm
+    def useGeoNorm = ieSystem.useGeoNorm
 
     def extractMentions(text: String): Seq[Mention] = TestUtils.extractMentions(ieSystem, text)
   }

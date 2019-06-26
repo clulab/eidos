@@ -10,7 +10,7 @@ import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeInterval}
 import org.clulab.timenorm.formal.{Interval => TimExInterval}
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.timenorm.neural.TimeExpression
-import org.clulab.wm.eidos.context.GeoDisambiguateParser
+import org.clulab.wm.eidos.context.GeoNorm
 import org.clulab.wm.eidos.context.GeoPhraseID
 
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
@@ -171,34 +171,6 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
 
   def parseTime(timenorm: Option[TemporalNeuralParser], regexs: Option[List[Regex]], documentCreationTime: Option[String]): Unit =
       times = timenorm.map(parseTime(_, regexs.get, documentCreationTime))
-
-  protected def parseGeoNorm(geoDisambiguateParser: GeoDisambiguateParser): Array[Seq[GeoPhraseID]] = {
-    // get the locations found by the parser
-    val sentenceLocations = geoDisambiguateParser.findLocations(sentences.map(_.raw))
-
-    // create geonorm objects for each sentence
-    val Some(text) = this.text
-    for ((locations, sentence) <- sentenceLocations zip sentences) yield {
-      for ((wordStartIndex, wordEndIndex, geoNameID) <- locations) yield {
-
-        // extract location text
-        val charStartIndex = sentence.startOffsets(wordStartIndex)
-        val charEndIndex = sentence.endOffsets(wordEndIndex - 1)
-        val locationPhrase = text.substring(charStartIndex, charEndIndex)
-
-        // set norms
-        for (norms <- sentence.norms; index <- wordStartIndex until wordEndIndex) {
-          norms(index) = "LOC"
-        }
-
-        // create the geonorm object
-        GeoPhraseID(locationPhrase, geoNameID, charStartIndex, charEndIndex)
-      }
-    }
-  }
-
-  def parseGeoNorm(geoDisambiguateParser: Option[GeoDisambiguateParser]): Unit =
-    geolocs = geoDisambiguateParser.map(parseGeoNorm)
 }
 
 object EidosDocument {

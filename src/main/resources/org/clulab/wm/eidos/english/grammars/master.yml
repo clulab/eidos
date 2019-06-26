@@ -19,12 +19,6 @@ rules:
       action: applyTimeAttachment #Should add quantifier to state of entity
       label: Time
 
-  - import: org/clulab/wm/eidos/english/grammars/geoLocationAttachment.yml
-    vars:
-      rulepriority: "2"
-      action: applyLocationAttachment #Should add quantifier to state of entity
-      label: Location
-
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
   - import: org/clulab/wm/eidos/english/grammars/modifiersTemplate.yml
     vars:
