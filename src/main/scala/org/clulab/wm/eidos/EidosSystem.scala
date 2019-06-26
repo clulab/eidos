@@ -14,6 +14,7 @@ import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.clulab.timenorm.neural.TemporalNeuralParser
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
@@ -74,7 +75,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     // Hedging
     val          hedgingPath: String = eidosConf[String]("hedgingPath")
     val          useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    val           useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
 
     val hypothesisHandler = HypothesisHandler(hedgingPath)
@@ -128,6 +128,9 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     EidosSystem.logger.info("Loading loadableAttributes...")
     LoadableAttributes()
   }
+
+  def useGeoNorm: Boolean = loadableAttributes.entityFinders.collectFirst{ case f: GeoNormFinder => f }.isDefined
+  def useTimeNorm: Boolean = loadableAttributes.timenorm.isDefined
 
   def reload(): Unit = loadableAttributes = LoadableAttributes()
 

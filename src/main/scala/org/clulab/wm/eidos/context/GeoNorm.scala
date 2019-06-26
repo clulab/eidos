@@ -48,7 +48,7 @@ class GeoNormFinder(geonorm: GeoNorm) extends Finder {
           sentenceIndex,
           eidosDoc,
           true,
-          getClass.getName,
+          getClass.getSimpleName(),
           Set(Location(geoPhraseID))
         )
       }

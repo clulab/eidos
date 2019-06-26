@@ -83,8 +83,8 @@ object TestUtils {
 
     class RuleTester(text: String) extends rule.RuleTester(ieSystem, text)
 
-    def useTimeNorm = ieSystem.loadableAttributes.timenorm.isDefined
-    def useGeoNorm = ieSystem.loadableAttributes.entityFinders.collect{ case f: GeoNormFinder => f }.nonEmpty
+    def useTimeNorm = ieSystem.useTimeNorm
+    def useGeoNorm = ieSystem.useGeoNorm
 
     def extractMentions(text: String): Seq[Mention] = TestUtils.extractMentions(ieSystem, text)
   }

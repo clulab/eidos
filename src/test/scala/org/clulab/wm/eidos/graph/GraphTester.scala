@@ -58,6 +58,6 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
     annotateTest(testResult.complaints)
   }
 
-  def useTimeNorm: Boolean = ieSystem.loadableAttributes.timenorm.isDefined
-  def useGeoNorm: Boolean = ieSystem.loadableAttributes.entityFinders.collect{ case f: GeoNormFinder => f }.nonEmpty
+  def useTimeNorm: Boolean = ieSystem.useTimeNorm
+  def useGeoNorm: Boolean = ieSystem.useGeoNorm
 }
