@@ -160,40 +160,49 @@ object SearchGeoNames {
 
 class GeoNamesReranker(searcher: GeoNamesSearcher, linearModel: Option[Model] = None) {
 
-  private def searchEachSpan(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Float)]] = {
+  def scoredEntries(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Float)]] = {
     for ((start, end) <- spans) yield searcher(text.substring(start, end), 5)
   }
 
-  def entryFeatures(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Array[Feature])]] = {
-    for (entryScores <- this.searchEachSpan(text, spans)) yield {
-      val scores = entryScores.map(_._2).distinct.sorted.reverse
-      val scoreRanks = scores.zipWithIndex.toMap
-      for ((entry, score) <- entryScores) yield {
-        val logPopulation = math.log10(entry.population + 1)
-        val features = Array[Feature](
-          new FeatureNode(1, scoreRanks(score)),
-          new FeatureNode(2, logPopulation),
-        ) ++ GeoNamesReranker.featureCodeToIndex.get(entry.featureCode).map(new FeatureNode(_, logPopulation))
-        (entry, features)
-      }
-    }
+  private def pairFeatures(entryScore1: (GeoNamesEntry, Float), entryScore2: (GeoNamesEntry, Float)): Array[Feature] = {
+    val (entry1, score1) = entryScore1
+    val (entry2, score2) = entryScore2
+    val featureCodePair = (GeoNamesReranker.featureCode(entry1), GeoNamesReranker.featureCode(entry2))
+    Array[Feature](
+      // difference in retrieval scores
+      new FeatureNode(1, score1 - score2),
+      // difference in log-populations
+      new FeatureNode(2, math.log10(entry1.population + 1) - math.log10(entry2.population + 1)),
+      // the pair of feature types, e.g., (ADM1, ADM2)
+      new FeatureNode(3 + GeoNamesReranker.featureCodePairIndex(featureCodePair), 1))
   }
 
   def apply(text: String, spans: Seq[(Int, Int)]): Seq[Seq[(GeoNamesEntry, Float)]] = {
     linearModel match {
       // if there is no model, rely on the searcher's order
-      case None => this.searchEachSpan(text, spans)
+      case None => this.scoredEntries(text, spans)
       // if there is a model, rerank the search results
       case Some(model) =>
-        val indexOf1 = model.getLabels.indexOf(1)
-        this.entryFeatures(text, spans).map(_.map {
-          case (entry, features) =>
-            (entry, Linear.predict(model, features).toFloat)
-            // Below uses probabilities as scores, but results in worse performance
-            // val probs = Array(0.0, 0.0)
-            // Linear.predictProbability(model, features, probs)
-            // (entry, probs(indexOf1).toFloat)
-        }.sortBy(-_._2))
+        // determine which index liblinear is using for the positive class
+        val index1 = model.getLabels.indexOf(1)
+        for (scoredEntries <- scoredEntries(text, spans)) yield {
+
+          // count the number of times an entry "wins" according to the pair-wise classifier
+          val wins = Array.fill(scoredEntries.length)(0f)
+          for (i <- scoredEntries.indices; j <- scoredEntries.indices; if i != j) {
+            val probabilities = Array(0.0, 0.0)
+            Linear.predictProbability(model, pairFeatures(scoredEntries(i), scoredEntries(j)), probabilities)
+
+            // only count a "win" if the model is confident (threshold set manually using train/dev set)
+            if (probabilities(index1) > 0.8)
+              wins(i) += 1
+          }
+
+          // sort entries by the number of wins
+          scoredEntries.zipWithIndex.map{
+            case ((entry, _), i) => (entry, wins(i))
+          }.sortBy(-_._2)
+        }
     }
   }
 
@@ -209,40 +218,68 @@ class GeoNamesReranker(searcher: GeoNamesSearcher, linearModel: Option[Model] = 
 
 object GeoNamesReranker {
 
-  // country, state, region, ... and city, village, ... from http://www.geonames.org/export/codes.html
-  private val featureCodeToIndex: Map[String, Int] =
-    """
-    ADM1 ADM1H ADM2 ADM2H ADM3 ADM3H ADM4 ADM4H ADM5 ADMD ADMDH LTER PCL PCLD PCLF PCLH PCLI PCLIX PCLS PRSH TERR ZN ZNB
-    PPL PPLA PPLA2 PPLA3 PPLA4 PPLC PPLCH PPLF PPLG PPLH PPLL PPLQ PPLR PPLS PPLW PPLX STLMT
-    """.split("""\s+""").zipWithIndex.map{ case (code, i) => (code, i + 3) }.toMap
-
-  def load(geoNamesIndexPath: Path, modelPath: Path): GeoNamesReranker = {
-    val searcher = new GeoNamesSearcher(geoNamesIndexPath)
+  def load(searcher: GeoNamesSearcher, modelPath: Path): GeoNamesReranker = {
     val reader = Files.newBufferedReader(modelPath)
     val model = Model.load(reader)
     new GeoNamesReranker(searcher, Some(model))
   }
 
-  def train(geoNamesIndexPath: Path,
+  def train(searcher: GeoNamesSearcher,
             trainingData: Iterator[(String, Seq[(Int, Int)], Seq[String])]): GeoNamesReranker = {
-    val searcher = new GeoNamesSearcher(geoNamesIndexPath)
     val reranker = new GeoNamesReranker(searcher)
+
+    // convert training data into features and labels
     val featureLabels: Iterator[(Array[Feature], Double)] = for {
       (text, spans, geoIDs) <- trainingData
-      (entryFeatures, geoID) <- reranker.entryFeatures(text, spans) zip geoIDs
-      (entry, features) <- entryFeatures
+      (scoredEntries, geoID) <- reranker.scoredEntries(text, spans) zip geoIDs
+
+      // pair each correct entry with all incorrect ones
+      correctIndices = scoredEntries.indices.filter(i => scoredEntries(i)._1.id == geoID).toSet
+      correctIndex <- correctIndices
+      incorrectIndex <- scoredEntries.indices
+      if !correctIndices.contains(incorrectIndex)
+
+      // include the pair in both orders (correct first, and correct second)
+      labeledFeatures <- Seq(
+        (reranker.pairFeatures(scoredEntries(correctIndex), scoredEntries(incorrectIndex)), 1.0),
+        (reranker.pairFeatures(scoredEntries(incorrectIndex), scoredEntries(correctIndex)), 0.0)
+      )
     } yield {
-      (features, if (entry.id == geoID) 1.0 else 0.0)
+      labeledFeatures
     }
+
+    // feed the features and labels into liblinear
     val (features, labels) = featureLabels.toArray.unzip
     val problem = new Problem
     problem.x = features
     problem.y = labels
     problem.l = labels.length
-    problem.n = featureCodeToIndex.values.max + 2
+    problem.n = 2 + featureCodePairIndex.size + 1
     problem.bias = 1
+
+    // use a logistic regression model since we need probabilities
     val param = new Parameter(SolverType.L1R_LR, 1.0, 0.01)
     val model = Linear.train(problem, param)
+
+    // return the trained reranking model
     new GeoNamesReranker(searcher, Some(model))
   }
+
+  // country, state, region, ... and city, village, ... from http://www.geonames.org/export/codes.html
+  private val featureCodes = """
+    ADM1 ADM1H ADM2 ADM2H ADM3 ADM3H ADM4 ADM4H ADM5 ADMD ADMDH LTER PCL PCLD PCLF PCLH PCLI PCLIX PCLS PRSH TERR ZN ZNB
+    PPL PPLA PPLA2 PPLA3 PPLA4 PPLC PPLCH PPLF PPLG PPLH PPLL PPLQ PPLR PPLS PPLW PPLX STLMT
+    """.split("""\s+""")
+
+  private val featureCodeSet = featureCodes.toSet
+
+  private def featureCode(entry: GeoNamesEntry): String = {
+    if (featureCodeSet.contains(entry.featureCode)) entry.featureCode else "UNK"
+  }
+
+  private val featureCodePairIndex: Map[(String, String), Int] = {
+    val pairs = for (x <- featureCodes ++ Array("UNK"); y <- featureCodes ++ Array("UNK")) yield (x, y)
+    pairs.zipWithIndex.toMap
+  }
+
 }

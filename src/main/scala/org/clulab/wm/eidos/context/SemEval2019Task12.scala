@@ -12,12 +12,14 @@ object SemEval2019Task12 {
   def main(args: Array[String]): Unit = args match {
     case Array("train", geoNamesIndexDir, modelFile, annDir) =>
       val annFiles = Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
-      val reranker = GeoNamesReranker.train(Paths.get(geoNamesIndexDir), annFiles.map(readTextAndGeoIdSpans))
+      val searcher = new GeoNamesSearcher(Paths.get(geoNamesIndexDir))
+      val reranker = GeoNamesReranker.train(searcher, annFiles.map(readTextAndGeoIdSpans))
       reranker.save(Paths.get(modelFile))
 
     case Array("test", geoNamesIndexDir, modelFile, annDir) =>
       val k = 1
-      val reranker = GeoNamesReranker.load(Paths.get(geoNamesIndexDir), Paths.get(modelFile))
+      val searcher = new GeoNamesSearcher(Paths.get(geoNamesIndexDir))
+      val reranker = GeoNamesReranker.load(searcher, Paths.get(modelFile))
       val results =
         for {
           annPath <- Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
@@ -52,8 +54,8 @@ object SemEval2019Task12 {
           case Array(entityType, span) => entityType match {
             case "Location" =>
               val (start, end) = span.split("""[;\s]""") match {
-                case Array(start, end) => (start.toInt, end.toInt)
-                case Array(start, _, _, end) => (start.toInt, end.toInt)
+                case Array(startString, endString) => (startString.toInt, endString.toInt)
+                case Array(startString, _, _, endString) => (startString.toInt, endString.toInt)
               }
               val locationText = text.substring(start, end)
               if (locationText.noWhitespace != details.noWhitespace) {
