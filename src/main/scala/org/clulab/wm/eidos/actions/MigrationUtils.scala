@@ -163,10 +163,15 @@ object MigrationUtils {
             //check if the two events can be merged
             if (isMergeable(orderedMentions(i), orderedMentions(j))) {
 
-              // create the set of arguments to include in the new merged event (preference to the more specific args in case of argName overlap)
+              // create the set of arguments to include in the new merged event (preference to the more specific args
+              // in case of argName overlap)
               val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
 //              println("ORIG MENTION: " + orderedMentions(i).text)
-              //create a new event with the new args by copying the rightmost mention of the two with the new set of args; copy the rightmost event and not the first one because this way we keep the possibility of this newly-merged event being merged with a fragment from the next sentence in the next merging loop (currently, we only merge fragments from adjacent sentences)
+
+              //create a new event with the new args by copying the rightmost mention of the two with the new set of args;
+              // copy the rightmost event and not the first one because this way we keep the possibility of this newly-merged
+              // event being merged with a fragment from the next sentence in the next merging loop (currently, we only
+              // merge fragments from adjacent sentences)
               val copy = copyWithNewArgs(orderedMentions(j), newArgs)
 
               // return the new event if it isn't identical to an existing event
@@ -182,8 +187,6 @@ object MigrationUtils {
 
       }
 
-
-
       // add unmerged events ('false' in used list)
       for (i <- orderedMentions.indices) {
         if (!used(i)) {
@@ -191,14 +194,14 @@ object MigrationUtils {
         }
       }
 
-      //check if there are any mergeable events among the newly-created set of mentions; if not, set stillMerging to false, which will break the loop
+      //check if there are any mergeable events among the newly-created set of mentions; if not, set stillMerging to false,
+      // which will break the loop
       if (!returnedEvents.exists(mention => returnedEvents.exists(mention2 => isMergeable(mention, mention2) && mention!= mention2 ))) {
         stillMerging = false
       }
       orderedMentions = returnedEvents
 //      for (e <- returnedEvents) println("returned after loop: " + e.text)
 //      println("end of loop")
-
     }
 
     returnedEvents
@@ -210,17 +213,19 @@ object MigrationUtils {
    */
   def isMergeable(m1: Mention, m2: Mention): Boolean = {
 
-    // the two events are within one sentence of each other
+    // if the two events are within one sentence of each other
     if ((Math.abs(m1.sentence - m2.sentence) < 2
-      // AND if both events have complementary arguments (no overlap)
+      // AND both events have complementary arguments (no overlap)
       && m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).isEmpty)
     // OR
     ||
     // if both events share an argument
     (m1.arguments.values.toList.intersect(m2.arguments.values.toList).nonEmpty
       // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: it does not look like we need this condition (it results in false negs at least in some cases), but keeping it here for now for potential future use
-      //                  && m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).size != m1.arguments.values.toList.intersect(m2.arguments.values.toList).size
-      //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some key information with the same argName---merging will delete one of them)
+      // && m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).size != m1.arguments.values.toList.intersect(m2.arguments.values.toList).size
+
+      //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
+      //information with the same argName---merging will delete one of them); we want these to be separate events
       && !bothSpecific(m1, m2)
       )
     //OR
@@ -228,10 +233,11 @@ object MigrationUtils {
     //if within one sent of each other
     (Math.abs(m1.sentence - m2.sentence) < 2
 
-      //AND events share the type of argument
+      //AND events share the type of argument (argName)
       && (m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).nonEmpty
 
-      //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some key information with the same argName---merging will delete one of them)
+      //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
+      //information with the same argName---merging will delete one of them); we want these to be separate events
       && !bothSpecific(m1, m2))
 
       )) return true
@@ -240,13 +246,17 @@ object MigrationUtils {
   }
 
   /*
-  checks if both of the overlapping args are specific (AND are not the same arg because if they are the same argument, their...`specificity status` will be the same)
+  checks if both of the overlapping args are specific (AND are not the same arg because if they are the same argument,
+  their...`specificity status` will be the same)
    */
   def bothSpecific(m1: Mention, m2: Mention): Boolean = {
     val overlappingArgNames = m1.arguments.keys.toList.intersect(m2.arguments.keys.toList)
     for (argName <- overlappingArgNames) {
       val relArg1 = m1.arguments(argName).head
       val relArg2 = m2.arguments(argName).head
+
+      //specific events either have attachements or have some numeric information in them (e.g., 300 refugees)
+      //AND are not the same mention
       if ((relArg1.attachments.nonEmpty || (relArg1.text matches ".*\\d+.*")) && (relArg2.attachments.nonEmpty || (relArg2.text matches ".*\\d+.*")) && relArg1 != relArg2  ) return true
     }
 
@@ -288,7 +298,7 @@ object MigrationUtils {
       if (overlappingArgs.contains(arg._1)) {
         //choose the more specific argument by checking if one of them contains an attachment or contains numbers
         val arg1 = mention1.arguments(arg._1)
-        if (arg1.exists(tbm => tbm.attachments.nonEmpty || (tbm.text matches "\\d+.*"))) {
+        if (arg1.exists(tbm => tbm.attachments.nonEmpty || (tbm.text matches ".*\\d+.*"))) {
           newArgs = newArgs ++ Map(arg._1 -> arg1)
         } else {
           newArgs = newArgs ++ Map(arg._1 -> mention2.arguments(arg._1))
@@ -307,13 +317,13 @@ object MigrationUtils {
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
 
-  def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
+  def copyWithNewArgs(orig: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
 
     val newTokenInterval = if (mkNewInterval) {
       // All involved token intervals, both for the original event and the expanded arguments
-      val allIntervals = Seq(orig.tokenInterval) ++ expandedArgs.values.flatten.map(arg => arg.tokenInterval)
+      val allIntervals = Seq(orig.tokenInterval) ++ newArgs.values.flatten.map(arg => arg.tokenInterval)
       // Find the largest span from these intervals
       getNewTokenInterval(allIntervals)
     }
@@ -322,27 +332,27 @@ object MigrationUtils {
     val paths = for {
       (argName, argPathsMap) <- orig.paths
       origPath = argPathsMap(orig.arguments(argName).head)
-    } yield (argName, Map(expandedArgs(argName).head -> origPath))
+    } yield (argName, Map(newArgs(argName).head -> origPath))
 
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
 
     val newArgsAsList = for {
-      seqMen <- expandedArgs.values
+      seqMen <- newArgs.values
       men <- seqMen
     } yield men
 
     //create a mention to return as either another EventMention but with expanded args (the 'else' part) or a crossSentenceEventMention if the args of the Event are from different sentences
     val newMention = if (newArgsAsList.exists(_.sentence != orig.sentence) ) {
-      //      orig.asInstanceOf[EventMention].copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
-      new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = expandedArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = Set.empty)
+      //      orig.asInstanceOf[EventMention].copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
+      new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = newArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = Set.empty)
 
     }else {
 
       orig match {
         case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-        case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
-        case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
+        case rm: RelationMention => rm.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+        case em: EventMention => em.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
       }
     }
 
