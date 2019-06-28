@@ -141,7 +141,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
     val doc = EidosDocument(document, keepText)
     // Time and Location
-    doc.parseTime(loadableAttributes.timenorm, loadableAttributes.timeregexs, documentCreationTime)
+    doc.dctString = documentCreationTime
     // Document ID
     doc.id = filename
     doc
