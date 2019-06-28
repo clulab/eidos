@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.actions
 
 import org.clulab.odin._
-import org.clulab.struct.Interval
+import org.clulab.struct.{CorefMention, Interval}
 import org.clulab.odin.{EventMention, Mention, State, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Location, Time}
@@ -35,7 +35,9 @@ object MigrationUtils {
 //        handled ++ other
 //    assembleFragments(handled) ++ other
 //    assembleMoreSpecific(assembleFragments(handled)) ++ other
-    assembleTime(assembleFragments(handled)) ++ other
+//    assembleTime(assembleFragments(handled)) ++ other
+
+    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
 
   }
 
@@ -309,14 +311,149 @@ object MigrationUtils {
       }
     }
 
-    //for (arg <- newArgs) println("new arg: " + arg._1 + " " + arg._2)
-    //return the new set of arguments
     newArgs.toMap
   }
 
+
+
+  /*
+  if there is a generic location mention in the migration event, try to resolve it to the nearest previous specific location
+   */
+  def resolveGenericLocation(mentions: Seq[Mention]): Seq[Mention] = {
+    val orderedMentions = orderMentions(mentions)
+    val handled = ArrayBuffer[Mention]()
+    for (m <- orderedMentions) {
+      //check if the mention has a generic location argument
+      if (containsGenericLocation(m)) {
+
+        //get the name of the argument that contains the generic location
+        val argName = getGenericLocArgName(m)
+        //find the index of the current mention (used to look for specific locations only in the previous events)
+        val indexInOrderedMentions = orderedMentions.indexOf(m)
+        //check if there exists a previous event with a specific location
+        if (hasPrevGeoloc(orderedMentions, argName, indexInOrderedMentions)) {
+          //find previous specific location
+          val geoLocMention = findPrevGeoloc(orderedMentions, argName, indexInOrderedMentions)
+          //create a corefMention between the current generic location (neighbor) and the specific one (anchor)
+          val corefMention = new CrossSentenceMention(
+            labels = Seq("corefMention"),
+            anchor = geoLocMention,
+            neighbor = m.arguments(argName).head,
+            arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(geoLocMention)), (EidosActions.ANAPHOR, Seq(m.arguments(argName).head))),
+            document = m.document,
+            keep = true,
+            foundBy = s"resolveGenericLocationAction",
+            attachments = Set.empty[Attachment]
+          )
+
+          //the new mention added to `handled` will be the copy of the current mention with the arguments including the newly-created
+          //corefMention instead of the original generic location (the name of the arg is the same the generic location had)
+          handled += copyWithNewArgs(m, m.arguments ++ Map(argName -> Seq(corefMention)))
+
+
+        } else {
+          handled += m
+        }
+
+      } else {
+        handled += m
+      }
+    }
+
+      handled
+
+    }
+
+
+
+
+  /*
+  Given an ordered seq of mentions, the relevant argName, and the index of the current mention in the ordered seq,
+  checks if there exists a previous event that contains a specific location as the argument with the same argName
+   */
+  def hasPrevGeoloc(mentions: Seq[Mention], argName: String, order: Int): Boolean = {
+      if (mentions.slice(0, order + 1).exists(m => m.arguments(argName).head.attachments.nonEmpty)) {
+        return true
+    }
+    false
+
+
+
+  }
+
+  /*
+  Given an ordered seq of mentions, the relevant argName, and the index of the current mention in the ordered seq,
+  finds the nearest previous event that contains a specific location as the argument with the same argName
+   */
+  def findPrevGeoloc(mentions: Seq[Mention], argName: String, order: Int): Mention = {
+
+    var relevantMentions = ArrayBuffer[Mention]()
+    while (relevantMentions.isEmpty) {
+      for (m <- mentions.slice(0, order + 1).reverse) {
+        if (m.arguments.keys.toList.contains(argName)) {
+          if (m.arguments(argName).head.attachments.nonEmpty) {
+            relevantMentions += m.arguments(argName).head
+          }
+        }
+      }
+    }
+
+    relevantMentions.head
+
+
+
+  }
+
+
+
+  /*
+  given a mention, returns the argName of the argument that contains a generic location
+   */
+  def getGenericLocArgName(m: Mention): String = {
+    //look through the args; if arg contains a generic location, return the name of that arg
+    var stringArray = ArrayBuffer[String]()
+
+    while (stringArray.isEmpty) {
+      for (arg <- m.arguments) {
+        if (containsGenericLocation(arg)) {
+          stringArray += arg._1
+      }
+
+      }
+
+    }
+    stringArray.head
+
+
+  }
+
+
+  /*
+  given a mention, checks if it has an argument that is a generic location
+   */
+  def containsGenericLocation(m: Mention): Boolean = {
+    val genericLocations = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
+    if (m.arguments.exists(arg => arg._2.exists(tbm => genericLocations.contains(tbm.text)))) {
+      return true
+    }
+  false
+  }
+
+
+  /*
+  given a complete argument (argName -> Mention), checks if it has an argument that is a generic location
+   */
+  def containsGenericLocation(arg: (String, Seq[Mention])): Boolean = {
+    val genericLocations = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
+    if (arg._2.exists(m =>  genericLocations.contains(m.text))) {
+      return true
+    }
+    false
+  }
+
+
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
-
   def copyWithNewArgs(orig: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
