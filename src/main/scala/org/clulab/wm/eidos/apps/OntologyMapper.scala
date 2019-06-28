@@ -145,19 +145,18 @@ object OntologyMapper {
 
   // Mapping the UN_ONT to the indicator ontologies
   def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
-    val grounders = reader.ontologyHandler.grounders
+    val grounders: Seq[EidosOntologyGrounder] = reader.ontologyHandler.grounders
     println(s"number of eidos ontologies - ${grounders.length}")
     val eidosConceptEmbeddings = grounders.head.conceptEmbeddings
 
     // Version from master
-    val indicatorMaps = EidosOntologyGrounder.indicatorNamespaces.toSeq.map{
-      namespace =>
-        val ontology = grounders.find(_.name == namespace)
-        val concepts = ontology.map(_.conceptEmbeddings).getOrElse(Seq())
-        val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
-        mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
-
-        (namespace, mostSimilar)
+    // Rather than cycle through
+    val indicatorMaps = grounders.map { ontology: EidosOntologyGrounder =>
+      val namespace = ontology.name
+      val concepts = ontology.conceptEmbeddings
+      val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
+      mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
+      (namespace, mostSimilar)
     }
 
     // Write the mapping file
@@ -247,4 +246,3 @@ object OntologyMapper {
     sb.mkString("\n")
   }
 }
-
