@@ -135,7 +135,7 @@ object MigrationUtils {
     var orderedMentions = orderMentions(mentions)
 
     // the events we will ultimately return
-    var returnedEvents = Array[Mention]()
+    var returnedEvents = ArrayBuffer[Mention]()
 
     // keep merging events until we have nothing acceptable left to merge
     var stillMerging = true
@@ -145,8 +145,8 @@ object MigrationUtils {
     while (stillMerging) {
 //      println("\nLOOPING")
 
-      // the events we will ultimately return
-      returnedEvents = Array[Mention]()
+      // empty the array at the beginning of each loop
+      returnedEvents = ArrayBuffer[Mention]()
 
       // to keep track of what events we've merged
       var used = Array.fill(orderedMentions.length)(false)
@@ -176,7 +176,7 @@ object MigrationUtils {
 
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
-                returnedEvents = returnedEvents :+ copy
+                returnedEvents += copy
 //                println("merged: " + orderedMentions(i).text + " AND " + orderedMentions(j).text + "\n" + "Resuling event: " + copy.text + "|")
               }
               used = used.updated(i,true)
@@ -190,7 +190,7 @@ object MigrationUtils {
       // add unmerged events ('false' in used list)
       for (i <- orderedMentions.indices) {
         if (!used(i)) {
-          returnedEvents = returnedEvents :+ orderedMentions(i)
+          returnedEvents += orderedMentions(i)
         }
       }
 
