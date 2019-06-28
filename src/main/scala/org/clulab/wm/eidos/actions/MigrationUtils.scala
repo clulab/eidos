@@ -102,6 +102,7 @@ object MigrationUtils {
     handled
   }
 
+
   //todo: move to mention utils (eventually) or possible remove altogether
   def attachGeoLoc(mentions: Seq[Mention]): Seq[Mention] = {
     val relArgs = Array("moveTo", "moveFrom", "moveThrough") //location-related args in migration events
@@ -130,6 +131,7 @@ object MigrationUtils {
     //also contain attachments
     handled
   }
+
 
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
@@ -210,6 +212,7 @@ object MigrationUtils {
 
   }
 
+
   /*
   given two event mentions, checks if they can be merged
    */
@@ -247,6 +250,7 @@ object MigrationUtils {
     false
   }
 
+
   /*
   checks if both of the overlapping args are specific (AND are not the same arg because if they are the same argument,
   their...`specificity status` will be the same)
@@ -264,6 +268,7 @@ object MigrationUtils {
 
     false
   }
+
 
   /*
   returns mentions in the order they appear in the document (based on sent index and tokenInterval of the mention)
@@ -315,7 +320,6 @@ object MigrationUtils {
   }
 
 
-
   /*
   if there is a generic location mention in the migration event, try to resolve it to the nearest previous specific location
    */
@@ -350,7 +354,6 @@ object MigrationUtils {
           //corefMention instead of the original generic location (the name of the arg is the same the generic location had)
           handled += copyWithNewArgs(m, m.arguments ++ Map(argName -> Seq(corefMention)))
 
-
         } else {
           handled += m
         }
@@ -359,12 +362,8 @@ object MigrationUtils {
         handled += m
       }
     }
-
       handled
-
     }
-
-
 
 
   /*
@@ -376,10 +375,8 @@ object MigrationUtils {
         return true
     }
     false
-
-
-
   }
+
 
   /*
   Given an ordered seq of mentions, the relevant argName, and the index of the current mention in the ordered seq,
@@ -400,10 +397,7 @@ object MigrationUtils {
 
     relevantMentions.head
 
-
-
   }
-
 
 
   /*
@@ -417,13 +411,11 @@ object MigrationUtils {
       for (arg <- m.arguments) {
         if (containsGenericLocation(arg)) {
           stringArray += arg._1
-      }
+        }
 
       }
-
     }
     stringArray.head
-
 
   }
 
