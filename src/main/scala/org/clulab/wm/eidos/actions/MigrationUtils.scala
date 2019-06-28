@@ -322,6 +322,7 @@ object MigrationUtils {
 
   /*
   if there is a generic location mention in the migration event, try to resolve it to the nearest previous specific location
+  (for now, specific == has an attachment)
    */
   def resolveGenericLocation(mentions: Seq[Mention]): Seq[Mention] = {
     val orderedMentions = orderMentions(mentions)
@@ -368,7 +369,8 @@ object MigrationUtils {
 
   /*
   Given an ordered seq of mentions, the relevant argName, and the index of the current mention in the ordered seq,
-  checks if there exists a previous event that contains a specific location as the argument with the same argName
+  checks if there exists a previous event that contains a specific location argument with the same argName (for now, specific ==
+  has an attachment)
    */
   def hasPrevGeoloc(mentions: Seq[Mention], argName: String, order: Int): Boolean = {
       if (mentions.slice(0, order + 1).exists(m => m.arguments(argName).head.attachments.nonEmpty)) {
@@ -380,13 +382,14 @@ object MigrationUtils {
 
   /*
   Given an ordered seq of mentions, the relevant argName, and the index of the current mention in the ordered seq,
-  finds the nearest previous event that contains a specific location as the argument with the same argName
+  finds the nearest previous event that contains a specific location argument with the same argName (for now, specific ==
+  has an attachment)
    */
-  def findPrevGeoloc(mentions: Seq[Mention], argName: String, order: Int): Mention = {
+  def findPrevGeoloc(orderedMentions: Seq[Mention], argName: String, order: Int): Mention = {
 
     var relevantMentions = ArrayBuffer[Mention]()
     while (relevantMentions.isEmpty) {
-      for (m <- mentions.slice(0, order + 1).reverse) {
+      for (m <- orderedMentions.slice(0, order + 1).reverse) {
         if (m.arguments.keys.toList.contains(argName)) {
           if (m.arguments(argName).head.attachments.nonEmpty) {
             relevantMentions += m.arguments(argName).head
@@ -421,7 +424,7 @@ object MigrationUtils {
 
 
   /*
-  given a mention, checks if it has an argument that is a generic location
+  given a mention, checks if it has an argument that is a generic location; todo: revise the list
    */
   def containsGenericLocation(m: Mention): Boolean = {
     val genericLocations = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
@@ -433,7 +436,7 @@ object MigrationUtils {
 
 
   /*
-  given a complete argument (argName -> Mention), checks if it has an argument that is a generic location
+  given a complete argument (argName -> Mention), checks if it has an argument that is a generic location; todo: revise the list
    */
   def containsGenericLocation(arg: (String, Seq[Mention])): Boolean = {
     val genericLocations = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
