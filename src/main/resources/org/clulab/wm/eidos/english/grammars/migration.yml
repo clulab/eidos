@@ -7,8 +7,7 @@ rules:
     priority: ${ rulepriority }
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
     label: ${ label }
-    action: normalizeGroup
-    #action: ${ action } # parse out quantity as an attachment
+    action: ${ action } # parse out quantity as an attachment
     pattern: |
       trigger = [lemma=/(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
@@ -25,7 +24,7 @@ rules:
     priority: ${ rulepriority }
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
     label: ${ label }
-    action: normalizeGroup
+    action: ${ action }
     pattern: |
       trigger = [lemma=arrive & tag=/^VB/]
       group: Entity? = ((<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?)|(<acl <nmod_with >nsubjpass)|nmod_to) [!entity="LOCATION"]
@@ -42,6 +41,7 @@ rules:
     priority: ${ rulepriority }
     example: "For many FGD respondents from Greater Equatoria, this was the second or even third time they or their family had been displaced out of South Sudan; many reported leaving during the 2013 displacement crisis and/or in the second Sudanese Civil War (1983-2006)."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=displace & tag=/^VB/]
       group: Entity? = (<acl|>dobj|(>advcl_as >nmod_by)|(>ccomp? >/${agents}/)|(>/${agents}/ >nmod_of))
@@ -57,6 +57,7 @@ rules:
     priority: ${ rulepriority }
     example: "IDPs from Uror also made their way to Duk, which hosted 24% of IDPs in March compared to 10% in February."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=make & outgoing=dobj] (?= [word=/.*/]{,5} [lemma=way])
       group: Entity? = <xcomp? (>/${agents}/|<acl)
@@ -73,6 +74,7 @@ rules:
     priority: ${ rulepriority }
     example: "In March, Bor Town continued to receive IDPs displaced from the Equatorias, in particular Yei and populations returning from refugee settlements in Uganda."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=/receive|host|accommodate/ & tag=/^VB/]
       group: Entity? = >dobj
@@ -88,6 +90,7 @@ rules:
     priority: ${ rulepriority }
     example: "Based on regular visits by REACH to sites in Bor Town where IDPs have settled, as well as the continuous inflow of new arrivals, a conservative estimate would suggest that the number of IDPs from the Equatorias in Bor Town is likely to have been around 12,000-15,000 individuals at the end of March."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=settle & tag=/^VB/]
       group: Entity? = <advcl_before? >/${agents}/
@@ -99,6 +102,7 @@ rules:
     priority: ${ rulepriority }
     example: "Interviewed KIs passed through Nimule and Juba before settling in Bor."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=pass & tag=/^VB/]
       group: Entity? = >/${agents}/
@@ -110,7 +114,7 @@ rules:
     priority: ${ rulepriority }
     example: "* Departures: 375 individuals were recorded leaving Juba (52%) of which the vast majority intended to reach refugees camps in Uganda (75%)"
     label: ${ label }
-    #action: ${ action } # parse out quantity as an attachment
+    action: ${ action }
     pattern: |
       trigger = [lemma=/reach/ & tag=/^VB/]
       group: Entity? = <xcomp? (>/${agents}/|<acl) >nmod_of?
@@ -126,6 +130,7 @@ rules:
     priority: ${ rulepriority }
     example: "Additional cross border movement to Ethiopia occurs via Pagak."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=/(movement|outflow|inflow|displacement|exodus)/ & tag=/^NN/]
       group: Entity? = <xcomp? (>/${agents}/|<acl)|>nmod_of
@@ -140,6 +145,7 @@ rules:
     priority: ${ rulepriority }
     example: " The new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglie State (Uror, Akobo and Ayod Counties)."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=/(originate)/ & tag=/^VB/]
       group: Entity? = nsubj nmod_of?
@@ -149,6 +155,7 @@ rules:
     priority: ${ rulepriority }
     example: "* Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=destination & tag=/^NN/]
       moveTo: Location+ = <nsubj >conj_and?
@@ -158,6 +165,7 @@ rules:
     example: "* Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
     label: ${ label }
     type: token
+    action: ${ action }
     pattern: |
       [!word=from] @moveTo:Location+ (and @moveTo:Location+)? []{,5}? (?<trigger> [lemma=destination])
 
@@ -166,6 +174,7 @@ rules:
     example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
     label: ${ label }
     type: token
+    action: ${ action }
     pattern: |
       (?<trigger> [lemma=destination]) [!word=from]{,5}? @moveTo:Location+ (and @moveTo:Location+)?
 
@@ -188,7 +197,7 @@ rules:
     priority: ${ rulepriority }
     example: "Except 1,796 individuals who are awaiting relocation in Pagak, all the new arrivals have been relocated to Nguenyyiel refugee camp."
     label: ${ label }
-    #action: ${ action } # parse out quantity as an attachment
+    action: ${ action }
     pattern: |
       trigger = [lemma=/relocate/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
@@ -203,6 +212,7 @@ rules:
     priority: ${ rulepriority }
     example: "Additional cross border movement to Ethiopia occurs via Pagak."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=/(relocation)/ & tag=/^NN/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl)|>nmod_of)|(<dobj >/${agents}/)
@@ -217,6 +227,7 @@ rules:
     priority: ${ rulepriority }
     example: "Additional cross border movement to Ethiopia occurs via Pagak."
     label: ${ label }
+    action: ${ action }
     pattern: |
       trigger = [lemma=/(rate)/ & tag=/^NN/]
       group: Concept? = <nsubj

@@ -21,7 +21,7 @@ rules:
   - import: org/clulab/wm/eidos/english/grammars/migration.yml
     vars:
       rulepriority: "2"
-      #action: ???
+      action: normalizeGroup
       label: HumanMigration
 
 
