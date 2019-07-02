@@ -140,11 +140,13 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
   override val isPrimary = false
 
   override def groundable(mention: EidosMention, previousGrounding: Option[Aliases.Groundings]): Boolean = {
-    previousGrounding match {
+    val groundable = previousGrounding match {
       case Some(prev) =>
         prev.get(EidosOntologyGrounder.PRIMARY_NAMESPACE).exists(_.headName.map(_ contains pluginGroundingTrigger).getOrElse(false))
       case _ => false
     }
+
+    groundable
   }
 
   override def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
@@ -187,7 +189,8 @@ object EidosOntologyGrounder {
   val PRIMARY_NAMESPACE = WM_NAMESPACE // Assign the primary namespace here, publically.
 
   // Used for plugin ontologies
-  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
+//  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
+  protected val INTERVENTION_PLUGIN_TRIGGER = "wm/concept/causal_factor/intervention/"
 
   protected val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
