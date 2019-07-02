@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.apps
 
+import ai.lum.common.ConfigUtils._
+import com.typesafe.config.ConfigFactory
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.processors.Processor
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, PassThruNamer, Sourcer}
@@ -10,6 +12,16 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import scala.collection.mutable.ArrayBuffer
 
 object OntologyMapper {
+
+  // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
+  def main(args: Array[String]): Unit = {
+    val config = ConfigFactory.load("eidos")
+    val outputFile = config[String]("apps.ontologymapper.outfile")
+    val topN = config[Int]("apps.groundTopN")
+    val reader = new EidosSystem(config)
+
+    mapIndicators(reader, outputFile, topN)
+  }
 
   def loadOtherOntology(file: String, w2v: EidosWordToVec): Seq[ConceptEmbedding] = {
     val ces = Sourcer.sourceFromFile(file).autoClose { source =>
@@ -143,38 +155,40 @@ object OntologyMapper {
     }
   }
 
-  // Mapping the UN_ONT to the indicator ontologies
+  // Mapping the primary ontology to the indicator ontologies
   def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
     val grounders: Seq[EidosOntologyGrounder] = reader.ontologyHandler.grounders
     println(s"number of eidos ontologies - ${grounders.length}")
-    val eidosConceptEmbeddings = grounders.head.conceptEmbeddings
-
-    // Version from master
-    // Rather than cycle through
+    // For purposes of this app, it is assumed that the primary grounder exists.
+    val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
+    val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
     val indicatorMaps = grounders.map { ontology: EidosOntologyGrounder =>
       val namespace = ontology.name
       val concepts = ontology.conceptEmbeddings
-      val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
-      mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
+      val mostSimilar: Map[String, Seq[(String, Float)]] = mostSimilarIndicators(primaryConceptEmbeddings, concepts, topN, reader).toMap
+
+      mostSimilar.foreach(mapping => println(s"primary: ${mapping._1} --> most similar $namespace: ${mapping._2.mkString(",")}"))
       (namespace, mostSimilar)
     }
+    val primaryIndicatorMap = indicatorMaps.find { indicatorMap => indicatorMap._1 == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
 
     // Write the mapping file
     FileUtils.printWriterFromFile(outputFile).autoClose { pw =>
       FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions").autoClose { pwInterventionSpecific =>
 
-        for (unConcept <- indicatorMaps.head._2.keys) {
-          val mappings = indicatorMaps.flatMap(x => x._2(unConcept).map(p => (p._1, p._2, x._1)))
+        for (primaryConcept <- primaryIndicatorMap._2.keys) {
+          val mappings = indicatorMaps.flatMap(x => x._2(primaryConcept).map(p => (p._1, p._2, x._1)))
           val sorted = mappings.sortBy(-_._2)
           
           for ((indicator, score, label) <- sorted) {
-            pw.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
-            if (!unConcept.startsWith("UN/interventions")) {
-              pwInterventionSpecific.println(s"unConcept\t$unConcept\t$label\t$indicator\t$score")
+            pw.println(s"primaryConcept\t$primaryConcept\t$label\t$indicator\t$score")
+            if (!primaryConcept.startsWith("wm/intervention")) { // Check the file for how this is named!
+              pwInterventionSpecific.println(s"primaryConcept\t$primaryConcept\t$label\t$indicator\t$score")
             }
           }
         }
 
+        // These would probably need to be changed from un to primary.
         // Back when we were doing an exhaustive mapping...
         //  for {
         //    (unConcept, indicatorMappings) <- un2fao
@@ -205,7 +219,7 @@ object OntologyMapper {
     // EidosSystem stuff
     val proc = reader.proc
     val w2v = reader.ontologyHandler.wordToVec
-    val config = reader.config
+//    val config = reader.config
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
@@ -215,6 +229,8 @@ object OntologyMapper {
         case _ => throw new RuntimeException("Custom ontology Grounder must be an EidosOntologyGrounder")
       }
     } else {
+
+      // TODO.  How do we know what the head is?
       reader.ontologyHandler.grounders.head.conceptEmbeddings
     }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
@@ -231,12 +247,12 @@ object OntologyMapper {
     for {
       (eidosConcept, sofiaMappings) <- eidos2Sofia
       (sofiaConcept, score) <- sofiaMappings
-    } sb += s"UN\t$eidosConcept\tSOFIA\t$sofiaConcept\t$score"
+    } sb += s"primary\t$eidosConcept\tSOFIA\t$sofiaConcept\t$score"
 
     for {
       (eidosConcept, bbnMappings) <- eidos2BBN
       (bbnConcept, score) <- bbnMappings
-    } sb += s"UN\t$eidosConcept\tHUME\t$bbnConcept\t$score"
+    } sb += s"primary\t$eidosConcept\tHUME\t$bbnConcept\t$score"
 
     for {
       (sofiaConcept, bbnMappings) <- sofia2BBN
