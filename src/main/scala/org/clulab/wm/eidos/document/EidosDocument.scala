@@ -10,7 +10,7 @@ import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeInterval}
 import org.clulab.timenorm.formal.{Interval => TimExInterval}
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.timenorm.neural.TimeExpression
-import org.clulab.wm.eidos.context.GeoNorm
+import org.clulab.wm.eidos.context.GeoLocationExtractor
 import org.clulab.wm.eidos.context.GeoPhraseID
 
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {

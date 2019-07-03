@@ -13,22 +13,25 @@ object SemEval2019Task12 {
     case Array("train", geoNamesIndexDir, modelFile, annDir) =>
       val annFiles = Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
       val searcher = new GeoNamesSearcher(Paths.get(geoNamesIndexDir))
-      val reranker = GeoNamesReranker.train(searcher, annFiles.map(readTextAndGeoIdSpans))
-      reranker.save(Paths.get(modelFile))
+      val normalizer = GeoLocationNormalizer.train(searcher, annFiles.map(readTextAndGeoIdSpans))
+      normalizer.save(Paths.get(modelFile))
 
     case Array("test", geoNamesIndexDir, modelFile, annDir) =>
       val k = 1
       val searcher = new GeoNamesSearcher(Paths.get(geoNamesIndexDir))
-      val reranker = GeoNamesReranker.load(searcher, Paths.get(modelFile))
+      val model = GeoLocationNormalizer.loadModel(Paths.get(modelFile))
+      val normalizer = new GeoLocationNormalizer(searcher, Some(model))
       val results =
         for {
           annPath <- Files.newDirectoryStream(Paths.get(annDir), "*.ann").iterator.asScala
           (text, spans, geoIDs) = readTextAndGeoIdSpans(annPath)
-          (predictedEntries, geoID, (start, end)) <- (reranker(text, spans), geoIDs, spans).zipped
+          (span, geoID) <- spans zip geoIDs
         } yield {
+          val predictedEntries = normalizer(text, span)
           val result = predictedEntries.map(_._1.id).take(k).contains(geoID)
           if (!result) {
             println(annPath)
+            val (start, end) = span
             println(s"$geoID ${text.substring(start, end)}")
             for ((entry, score) <- predictedEntries) {
               println(s"${entry.id} ${entry.name} $score")
