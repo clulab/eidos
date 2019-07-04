@@ -155,12 +155,11 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
         if(countAttachments.nonEmpty) {
 //          normalized += em.copy(attachments = em.attachments ++ countAttachments.toSet)
-          val oldGroupArg = em.arguments("group").head
-          val newGroupArg = oldGroupArg.withAttachment(countAttachments.head)
-          val newEventMention = em.copy(arguments = em.arguments ++ Map("group" -> Seq(newGroupArg)))
-          val newArgs = em.arguments ++ Map("group" -> Seq(newGroupArg))
+          val oldGroupArg = em.arguments("group").head //getting the group arg from the original event
+          val newGroupArg = oldGroupArg.withAttachment(countAttachments.head) //copying the old one but with the newly-found attachments
+          val newArgs = em.arguments ++ Map("group" -> Seq(newGroupArg)) //creating the new set of args by taking the original event arguments and adding the new group argument
 //          normalized += newEventMention
-          val withNewArg = em.copy(arguments = newArgs)
+          val withNewArg = em.copy(arguments = newArgs) //creating the new event argument with the new set of arguments
 //          normalized += newGroupArg
 //          normalized += em
           normalized += withNewArg
