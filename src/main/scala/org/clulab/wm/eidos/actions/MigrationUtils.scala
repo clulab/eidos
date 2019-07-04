@@ -98,7 +98,7 @@ object MigrationUtils {
 
       updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
 
-    } yield copyWithNewArgs(m, m, updatedArgs) //create a copy of the original event mention, but with the arguments that also contain attachments
+    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that also contain attachments
     handled
   }
 
@@ -127,7 +127,7 @@ object MigrationUtils {
 
       updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
 
-    } yield copyWithNewArgs(m, m, updatedArgs) //create a copy of the original event mention, but with the arguments that
+    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
     //also contain attachments
     handled
   }
@@ -176,7 +176,7 @@ object MigrationUtils {
               // copy the rightmost event and not the first one because this way we keep the possibility of this newly-merged
               // event being merged with a fragment from the next sentence in the next merging loop (currently, we only
               // merge fragments from adjacent sentences)
-              val copy = copyWithNewArgs(orderedMentions(j), orderedMentions(i), newArgs)
+              val copy = copyWithNewArgs(orderedMentions(j), newArgs)
 
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
@@ -353,7 +353,7 @@ object MigrationUtils {
 
           //the new mention added to `handled` will be the copy of the current mention with the arguments including the newly-created
           //corefMention instead of the original generic location (the name of the arg is the same the generic location had)
-          handled += copyWithNewArgs(m, geoLocMention, m.arguments ++ Map(argName -> Seq(corefMention)))
+          handled += copyWithNewArgs(m, m.arguments ++ Map(argName -> Seq(corefMention)))
 
         } else {
           handled += m
@@ -449,7 +449,7 @@ object MigrationUtils {
 
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
-  def copyWithNewArgs(orig: Mention, orig2: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
+  def copyWithNewArgs(orig: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
 
@@ -477,7 +477,7 @@ object MigrationUtils {
     //create a mention to return as either another EventMention but with expanded args (the 'else' part) or a crossSentenceEventMention if the args of the Event are from different sentences
     val newMention = if (newArgsAsList.exists(_.sentence != orig.sentence) ) {
       //      orig.asInstanceOf[EventMention].copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
-      new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = newArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = orig.attachments ++ orig2.attachments)
+      new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = newArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = orig.attachments)
 
     }else {
 
