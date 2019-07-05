@@ -99,10 +99,12 @@ class GeoNamesSearcher(indexPath: Path) {
   private val reader = DirectoryReader.open(FSDirectory.open(indexPath))
   private val searcher = new IndexSearcher(reader)
   private val groupingSearch = new GroupingSearch(GeoNamesIndexConfig.idEndQuery)
-  private val nameQueryParser = new QueryParser("name", GeoNamesIndexConfig.analyzer)
-  private val ngramsQueryParser = new QueryParser("ngrams", GeoNamesIndexConfig.analyzer)
 
   def apply(queryString: String, maxFuzzyHits: Int): Seq[(GeoNamesEntry, Float)] = {
+    // create these locally, since they are not thread-safe
+    val nameQueryParser = new QueryParser("name", GeoNamesIndexConfig.analyzer)
+    val ngramsQueryParser = new QueryParser("ngrams", GeoNamesIndexConfig.analyzer)
+
     // escape special characters for queries to "name" field
     val luceneSpecialCharacters = """([-+&|!(){}\[\]^"~*?:\\/\s])"""
     val escapedQueryString = queryString.replaceAll(luceneSpecialCharacters, """\\$1""")
