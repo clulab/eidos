@@ -1,8 +1,7 @@
 package org.clulab.wm.eidos.context
 
-import java.io.{BufferedReader, FileOutputStream, InputStream, InputStreamReader}
+import java.io.{BufferedReader, InputStream, InputStreamReader}
 import java.net.URL
-import java.nio.channels.Channels
 import java.nio.file.{Files, Path, Paths}
 
 import scala.collection.JavaConverters._
@@ -10,7 +9,6 @@ import ai.lum.common.ConfigUtils._
 import com.google.common.io.ByteStreams
 import com.typesafe.config.Config
 import de.bwaldvogel.liblinear.{Feature, FeatureNode, Linear, Model, Parameter, Problem, SolverType}
-import net.lingala.zip4j.ZipFile
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
@@ -18,6 +16,7 @@ import org.clulab.utils.Closer._
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.extraction.Finder
+import org.clulab.wm.eidos.utils.FileUtils
 import org.slf4j.LoggerFactory
 import org.tensorflow.{Graph, Session, Tensor}
 
@@ -38,16 +37,11 @@ object GeoNormFinder {
       // copy the zip file to the local machine
       logger.info(s"Downloading the GeoNames index from $geoNamesIndexURL.")
       val zipPath = geoNamesIndexPath.resolve("geonames-index.zip")
-      Files.createDirectories(geoNamesIndexPath)
-      Channels.newChannel(geoNamesIndexURL.openStream()).autoClose { rbc =>
-        new FileOutputStream(zipPath.toFile).autoClose {
-          _.getChannel.transferFrom(rbc, 0, Long.MaxValue)
-        }
-      }
+      FileUtils.download(geoNamesIndexURL, zipPath)
 
       // unzip the zip file
       logger.info(s"Extracting the GeoNames index to $geoNamesIndexPath.")
-      new ZipFile(zipPath.toFile).extractAll(geoNamesIndexPath.toString)
+      FileUtils.unzip(zipPath, geoNamesIndexPath)
 
       // remove the downloaded zip file
       Files.delete(zipPath)

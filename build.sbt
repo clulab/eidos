@@ -32,8 +32,7 @@ libraryDependencies ++= {
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
-    "org.apache.lucene" % "lucene-grouping"         % luceneVer,
-    "net.lingala.zip4j" % "zip4j" % "2.0.3",
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer
   )
 }
 
