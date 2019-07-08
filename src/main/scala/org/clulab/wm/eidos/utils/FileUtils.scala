@@ -183,15 +183,6 @@ object FileUtils {
   def newObjectInputStream(filename: String): ObjectInputStream =
       new ObjectInputStream(newBufferedInputStream(filename))
 
-  def download(url: URL, outputPath: Path): Unit = {
-    Files.createDirectories(outputPath.getParent)
-    Channels.newChannel(url.openStream).autoClose { rbc =>
-      new FileOutputStream(outputPath.toFile).autoClose {
-        _.getChannel.transferFrom(rbc, 0, Long.MaxValue)
-      }
-    }
-  }
-
   def unzip(zipPath: Path, outputPath: Path): Unit = {
     new ZipFile(zipPath.toFile).autoClose { zipFile =>
       for (entry <- zipFile.entries.asScala) {

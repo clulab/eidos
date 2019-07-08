@@ -37,7 +37,8 @@ object GeoNormFinder {
       // copy the zip file to the local machine
       logger.info(s"Downloading the GeoNames index from $geoNamesIndexURL.")
       val zipPath = geoNamesIndexPath.resolve("geonames-index.zip")
-      FileUtils.download(geoNamesIndexURL, zipPath)
+      Files.createDirectories(geoNamesIndexPath)
+      Files.copy(geoNamesIndexURL.openStream, zipPath)
 
       // unzip the zip file
       logger.info(s"Extracting the GeoNames index to $geoNamesIndexPath.")
