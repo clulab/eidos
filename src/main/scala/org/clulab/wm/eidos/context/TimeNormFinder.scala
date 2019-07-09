@@ -111,12 +111,21 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         val timeTextInterval = Interval(timeTextStart, timeTextEnd)
         val timeText = text.substring(timeTextStart, timeTextEnd)
 
-        // find the words covered by the time expression (only needed because TextBoundMention requires is)
-        val wordIndices = for {
-          i <- sentence.words.indices
-          if sentence.startOffsets(i) < timeTextEnd && timeTextStart < sentence.endOffsets(i)
-        } yield i
-        val wordInterval = Interval(wordIndices.head, wordIndices.last + 1)
+        // find the words covered by the time expression (only needed because TextBoundMention requires it)
+        val wordIndices = sentence.words.indices.filter {
+          i => sentence.startOffsets(i) < timeTextEnd && timeTextStart < sentence.endOffsets(i)
+        }
+
+        // construct a word interval from the word indices
+        val wordInterval = if (wordIndices.nonEmpty) {
+          Interval(wordIndices.head, wordIndices.last + 1)
+        } else {
+
+          // the time expression does not overlap with any words, so arbitrarily take the word before it
+          val wordIndicesBefore = sentence.words.indices.takeWhile(sentence.startOffsets(_) < timeTextEnd)
+          val wordIndexBefore = wordIndicesBefore.lastOption.getOrElse(0)
+          Interval(wordIndexBefore, wordIndexBefore + 1)
+        }
 
         // construct the attachment with the detailed time information
         val timeSteps = for (timeInterval <- timeExpression.intervals) yield {
