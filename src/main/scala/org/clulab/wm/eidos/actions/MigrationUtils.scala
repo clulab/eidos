@@ -467,7 +467,7 @@ object MigrationUtils {
     } yield (argName, Map(newArgs(argName).head -> origPath))
 
     // Make the copy based on the type of the Mention
-    val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
+    val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_${foundByAffix.get}" else orig.foundBy
 
     val newArgsAsList = for {
       seqMen <- newArgs.values

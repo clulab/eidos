@@ -7,7 +7,7 @@ import org.clulab.odin._
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.actions.CorefHandler
+import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimEx
@@ -154,16 +154,11 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         //
 
         if(countAttachments.nonEmpty) {
-//          normalized += em.copy(attachments = em.attachments ++ countAttachments.toSet)
           val oldGroupArg = em.arguments("group").head //getting the group arg from the original event
           val newGroupArg = oldGroupArg.withAttachment(countAttachments.head) //copying the old one but with the newly-found attachments
           val newArgs = em.arguments ++ Map("group" -> Seq(newGroupArg)) //creating the new set of args by taking the original event arguments and adding the new group argument
-//          normalized += newEventMention
-          val withNewArg = em.copy(arguments = newArgs) //creating the new event argument with the new set of arguments
-//          normalized += newGroupArg
-//          normalized += em
+          val withNewArg = MigrationUtils.copyWithNewArgs(em, newArgs, Some("withGroupNormalized")) //creating the new event argument with the new set of arguments
           normalized += withNewArg
-
         } else {
           normalized += em
         }
