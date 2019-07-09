@@ -63,8 +63,9 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
           }
 
           // expand to word boundaries
-          start = sentence.startOffsets.map(_ - sentenceStart).iterator.dropWhile(_ < start).next
-          end = sentence.endOffsets.map(_ - sentenceStart).iterator.dropWhile(_ < end).next
+          def nextOrElse(iterator: Iterator[Int], x: =>Int): Int = if (iterator.hasNext) iterator.next else x
+          start = nextOrElse(sentence.startOffsets.reverseIterator.map(_ - sentenceStart).dropWhile(_ > start), 0)
+          end = nextOrElse(sentence.endOffsets.iterator.map(_ - sentenceStart).dropWhile(_ < end), sentenceText.length)
 
           // yield the context interval
           Interval(start, end)
