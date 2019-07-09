@@ -55,7 +55,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
           val separator = "\n\n"
           start = sentenceText.slice(start, m.start).lastIndexOf(separator) match {
             case -1 => start
-            case i => m.start - i
+            case i => start + i + separator.length
           }
           end = sentenceText.slice(m.end, end).indexOf(separator) match {
             case -1 => end
