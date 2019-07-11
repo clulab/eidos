@@ -1,9 +1,13 @@
 package org.clulab.wm.eidos.document
 
+import java.io.ObjectOutputStream
 import java.time.LocalDateTime
 
 import scala.util.matching.Regex
 import org.clulab.processors.Document
+import org.clulab.processors.DocumentAttachment
+import org.clulab.processors.DocumentAttachmentBuilderFromJson
+import org.clulab.processors.DocumentAttachmentBuilderFromText
 import org.clulab.processors.Sentence
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeInterval}
@@ -12,13 +16,18 @@ import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.timenorm.neural.TimeExpression
 import org.clulab.wm.eidos.context.GeoNorm
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.json4s.JString
+import org.json4s.JsonDSL._
+import org.json4s.JValue
+import org.json4s.jackson.prettyJson
 
-class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
+
+class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Document(sentences) {
   // At some point these will turn into Array[Option[Seq[...]]].  Each sentences will have its own
   // Option[Seq[...]] as they do other things like tags, entities, and lemmas.
   var times: Option[Array[Seq[TimEx]]] = None
   var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
-  var dct: Option[DCT] = None
+//  var dct: Option[DCT] = None
 
   protected def mkNearContext(sentenceText: String, matchStart: Int, matchEnd: Int): TextInterval = {
     // Do not include in the context text beyond 2 consecutive newline characters.
@@ -148,8 +157,9 @@ class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Co
     val timeExpressions: Seq[List[TimeExpression]] = docTimeOpt match {
       case Some(docTime) =>
         val parsed = (docTime :: contexts).sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList
-        dct = Some(DCT(timenorm.dct(parsed.head), docTime)) // Note the side effect!
-        timenorm.intervals(parsed.tail, dct.map(_.interval))
+        val dct = DCT(timenorm.dct(parsed.head), docTime) // Note the side effect!
+        this.addAttachment("dct", new DctDocumentAttachment(dct))
+        timenorm.intervals(parsed.tail, Option(dct.interval))
       case None =>
         val parsed = contexts.sliding(EidosDocument.BATCH_SIZE, EidosDocument.BATCH_SIZE).flatMap(timenorm.parse).toList
         timenorm.intervals(parsed)
@@ -194,6 +204,54 @@ case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[Loca
 case class TimEx(span: TextInterval, intervals: Seq[TimeStep], text: String)
 @SerialVersionUID(1L)
 case class DCT(interval: TimExInterval, text: String)
+
+
+@SerialVersionUID(100L)
+class DctDocumentAttachmentBuilderFromText extends DocumentAttachmentBuilderFromText {
+
+  def mkDocumentAttachment(text: String): DctDocumentAttachment = {
+    val Array(string, start, end) = text.split('\t')
+    val startLocalTime =
+    val dct = DCT(TimExInterval(), text)
+    // Convert these strings to dates
+    new DctDocumentAttachment(null)
+  }
+}
+
+@SerialVersionUID(100L)
+class DctDocumentAttachmentBuilderFromJson extends DocumentAttachmentBuilderFromJson {
+
+  def mkDocumentAttachment(json: JValue): DctDocumentAttachment = {
+    json match {
+      case JString(text) => null
+      case _ =>
+        val text = prettyJson(json)
+        throw new RuntimeException(s"ERROR: While deserializing TextNameDocumentAttachment expected JString but found this: $text")
+    }
+  }
+}
+
+class DctDocumentAttachment(val dct: DCT) extends DocumentAttachment { // Maybe with EidosAttachment for jsonld?
+
+  override def documentAttachmentBuilderFromTextClassName: String = classOf[DctDocumentAttachmentBuilderFromText].getName
+  override def documentAttachmentBuilderFromJsonClassName: String = classOf[DctDocumentAttachmentBuilderFromJson].getName
+
+  override def equals(other: Any): Boolean = {
+    val that = other.asInstanceOf[DctDocumentAttachment]
+
+    this.dct == that.dct
+  }
+
+  override def toDocumentSerializer: String = {
+    dct.text + "\t" + dct.interval.start.toString + "\t" + dct.interval.end.toString
+  }
+
+  override def toJsonSerializer: JValue = {
+    ("text" -> dct.text) ~
+        ("start" -> dct.interval.start.toString) ~
+        ("end" -> dct.interval.end.toString)
+  }
+}
 
 @SerialVersionUID(1L)
 case class SentenceIndexAndTextInterval(sentenceIndex: Int, textInterval: TextInterval)
