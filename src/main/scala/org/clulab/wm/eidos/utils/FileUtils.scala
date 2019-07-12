@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.utils
 import java.io._
 import java.net.URL
 import java.nio.channels.Channels
+import java.nio.file.StandardCopyOption
 import java.nio.file.{Files, Path, Paths}
 import java.util.Collection
 import java.util.zip.ZipFile
@@ -183,7 +184,7 @@ object FileUtils {
   def newObjectInputStream(filename: String): ObjectInputStream =
       new ObjectInputStream(newBufferedInputStream(filename))
 
-  def unzip(zipPath: Path, outputPath: Path): Unit = {
+  def unzip(zipPath: Path, outputPath: Path, replace: Boolean = false): Unit = {
     new ZipFile(zipPath.toFile).autoClose { zipFile =>
       for (entry <- zipFile.entries.asScala) {
         val path = outputPath.resolve(entry.getName)
@@ -191,7 +192,10 @@ object FileUtils {
           Files.createDirectories(path)
         } else {
           Files.createDirectories(path.getParent)
-          Files.copy(zipFile.getInputStream(entry), path)
+          if (replace)
+            Files.copy(zipFile.getInputStream(entry), path, StandardCopyOption.REPLACE_EXISTING)
+          else
+            Files.copy(zipFile.getInputStream(entry), path)
         }
       }
     }
