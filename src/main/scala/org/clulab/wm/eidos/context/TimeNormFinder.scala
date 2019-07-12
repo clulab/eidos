@@ -9,6 +9,7 @@ import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeExpression}
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.{DCT, EidosDocument, TimEx, TimeStep}
 import org.clulab.wm.eidos.extraction.Finder
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.mutable
@@ -17,7 +18,12 @@ import scala.util.matching.Regex
 object TimeNormFinder {
   def fromConfig(config: Config): TimeNormFinder = {
     val timeRegexPath: String = config[String]("timeRegexPath")
-    val regexes = Sourcer.sourceFromResource(timeRegexPath).getLines.map(_.r).toSeq
+    val regexes = Sourcer.sourceFromResource(timeRegexPath).autoClose { source =>
+      source
+          .getLines
+          .map(_.r)
+          .toList // rather than toSeq so that source can be closed sooner rather than later
+    }
     new TimeNormFinder(new TemporalNeuralParser, regexes)
   }
 }
@@ -48,27 +54,34 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         val singleIntervals = for (m <- matches) yield {
 
           // expand to the specified context window size
-          var start = math.max(0, m.start - CONTEXT_WINDOW_SIZE)
-          var end = math.min(sentenceText.length, m.end + CONTEXT_WINDOW_SIZE)
+          val start1 = math.max(0, m.start - CONTEXT_WINDOW_SIZE)
+          val end1 = math.min(sentenceText.length, m.end + CONTEXT_WINDOW_SIZE)
+          //assert(0 <= start1 && start1 <= m.start)
+          //assert(m.end <= end1 && end1 <= sentenceText.length)
 
           // do not include context beyond 2 consecutive newline characters
           val separator = "\n\n"
-          start = sentenceText.slice(start, m.start).lastIndexOf(separator) match {
-            case -1 => start
-            case i => start + i + separator.length
+          val start2 = sentenceText.slice(start1, m.start).lastIndexOf(separator) match {
+            case -1 => start1
+            case i => start1 + i + separator.length
           }
-          end = sentenceText.slice(m.end, end).indexOf(separator) match {
-            case -1 => end
+          val end2 = sentenceText.slice(m.end, end1).indexOf(separator) match {
+            case -1 => end1
             case i => m.end + i
           }
+          //assert(start1 <= start2 && start2 <= m.start)
+          //assert(m.end <= end2 && end2 <= end1)
 
           // expand to word boundaries
-          def nextOrElse(iterator: Iterator[Int], x: =>Int): Int = if (iterator.hasNext) iterator.next else x
-          start = nextOrElse(sentence.startOffsets.reverseIterator.map(_ - sentenceStart).dropWhile(_ > start), 0)
-          end = nextOrElse(sentence.endOffsets.iterator.map(_ - sentenceStart).dropWhile(_ < end), sentenceText.length)
+          def nextOrElse(iterator: Iterator[Int], x: => Int): Int = if (iterator.hasNext) iterator.next else x
+          val start3 = nextOrElse(sentence.startOffsets.reverseIterator.map(_ - sentenceStart).dropWhile(_ > start2), 0)
+          val end3 = nextOrElse(sentence.endOffsets.iterator.map(_ - sentenceStart).dropWhile(_ < end2), sentenceText.length)
+          //assert(0 <= start3 && start3 <= start2)
+          //assert(end2 <= end3 && end3 <= sentenceText.length)
 
+          //assert(start3 <= end3)
           // yield the context interval
-          Interval(start, end)
+          Interval(start3, end3)
         }
 
         // merge overlapping contexts
@@ -112,8 +125,8 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         val timeText = text.substring(timeTextStart, timeTextEnd)
 
         // find the words covered by the time expression (only needed because TextBoundMention requires it)
-        val wordIndices = sentence.words.indices.filter {
-          i => sentence.startOffsets(i) < timeTextEnd && timeTextStart < sentence.endOffsets(i)
+        val wordIndices = sentence.words.indices.filter { i =>
+          sentence.startOffsets(i) < timeTextEnd && timeTextStart < sentence.endOffsets(i)
         }
 
         // construct a word interval from the word indices
@@ -122,8 +135,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         } else {
 
           // the time expression does not overlap with any words, so arbitrarily take the word before it
-          val wordIndicesBefore = sentence.words.indices.takeWhile(sentence.startOffsets(_) < timeTextEnd)
-          val wordIndexBefore = wordIndicesBefore.lastOption.getOrElse(0)
+          val wordIndexBefore = math.max(0, sentence.words.indices.lastIndexWhere(sentence.startOffsets(_) < timeTextEnd))
           Interval(wordIndexBefore, wordIndexBefore + 1)
         }
 
