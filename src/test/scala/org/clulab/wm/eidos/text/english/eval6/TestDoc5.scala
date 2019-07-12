@@ -310,7 +310,7 @@ class TestDoc5 extends EnglishTest {
     val conflict     = NodeSpec("Conflict")
     val displacement = NodeSpec("new displacement")
     val stress       = NodeSpec("stress on available wild food sources", Inc("additional"))
-    val assistance   = NodeSpec("Little to no food assistance was distributed in these counties from August to November", Quant("Little"), Dec("Little to no"), TimEx("August"), TimEx("November"))
+    val assistance   = NodeSpec("Little to no food assistance was distributed in these counties from August to November", Quant("Little"), Dec("Little to no"), TimEx("August"), TimEx("August to"), TimEx("November"))
     val constraints   = NodeSpec("access constraints", Dec("constraints"))
 
     behavior of "TestDoc5 Paragraph 6"
