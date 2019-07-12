@@ -3,20 +3,30 @@ package org.clulab.wm.eidos.apps
 import java.io.File
 
 import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.embeddings.word2vec.CompactWord2Vec
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
 
 object CacheOntologies extends App {
 
   val config = ConfigFactory.load("eidos")
-  val reader = new EidosSystem(config)
-  val cacheDir: String = config[String]("ontologies.cacheDir")
   // Since here we want to cache the current, we can't load from cached:
   assert(config[Boolean]("ontologies.useCache") == false, "To use CacheOntologies, you must set ontologies.useCache = false")
   assert(config[Boolean]("ontologies.useW2V") == true, "To use CacheOntologies, you must set useW2V = true")
+
+  {
+    val cacheManager = new GeoNormFinder.CacheManager(config[Config]("geonorm"))
+
+    cacheManager.rmCache()
+    cacheManager.mkCache(replaceOnUnzip = true)
+  }
+
+  val reader = new EidosSystem(config)
+  val cacheDir: String = config[String]("ontologies.cacheDir")
   new File(cacheDir).mkdirs()
 
   val ontologyGrounders: Seq[EidosOntologyGrounder] = reader.ontologyHandler.grounders

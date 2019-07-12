@@ -26,27 +26,49 @@ object GeoNormFinder {
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
-  def fromConfig(config: Config): GeoNormFinder = {
-    val geoNamesIndexPath = Paths.get(config[String]("geoNamesIndexPath"))
-    val geoNamesIndexURL: URL = config[URL]("geoNamesIndexURL")
+  class CacheManager(config: Config) {
+    lazy val geoNamesIndexPath: Path = Paths.get(config[String]("geoNamesIndexPath"))
+    protected lazy val segmentsPath = geoNamesIndexPath.resolve("segments_1")
+    protected lazy val zipPath = geoNamesIndexPath.resolve("geonames-index.zip")
 
-    // if the index is not yet local, download it
-    if (!Files.exists(geoNamesIndexPath.resolve("segments_1"))) {
-      logger.info(s"No GeoNames index at $geoNamesIndexPath.")
-
+    // The default is not to replace any files on a machine that is simply running Eidos.
+    // This can be overruled by programs that are managing the cache.
+    def mkCache(replaceOnUnzip: Boolean = false): Unit = {
       // copy the zip file to the local machine
+      val geoNamesIndexURL: URL = config[URL]("geoNamesIndexURL")
       logger.info(s"Downloading the GeoNames index from $geoNamesIndexURL.")
-      val zipPath = geoNamesIndexPath.resolve("geonames-index.zip")
       Files.createDirectories(geoNamesIndexPath)
       Files.copy(geoNamesIndexURL.openStream, zipPath)
 
       // unzip the zip file
       logger.info(s"Extracting the GeoNames index to $geoNamesIndexPath.")
-      FileUtils.unzip(zipPath, geoNamesIndexPath)
-
-      // remove the downloaded zip file
+      FileUtils.unzip(zipPath, geoNamesIndexPath, replace = replaceOnUnzip)
       Files.delete(zipPath)
+
+      if (!isCached)
+        throw new RuntimeException(s"The caching operation was apparently unsuccessful.")
     }
+
+    def rmCache(): Unit = {
+      Files.deleteIfExists(segmentsPath)
+      Files.deleteIfExists(zipPath)
+    }
+
+    def isCached: Boolean = {
+      val cached = Files.exists(segmentsPath)
+
+      if (cached)
+        logger.info(s"No GeoNames index at $geoNamesIndexPath.")
+      else
+        logger.info(s"GeoNames index found at $geoNamesIndexPath.")
+      cached
+    }
+  }
+
+  def fromConfig(config: Config): GeoNormFinder = {
+    val cacheManager = new CacheManager(config)
+    if (!cacheManager.isCached)
+      cacheManager.mkCache()
 
     def getStream(path: String) = getClass.getResourceAsStream(config[String](path))
 
@@ -55,7 +77,7 @@ object GeoNormFinder {
         GeoLocationExtractor.loadNetwork(getStream("taggerModelPath")),
         GeoLocationExtractor.loadVocabulary(getStream("taggerWordToIndexPath"))),
       new GeoLocationNormalizer(
-        new GeoNamesSearcher(geoNamesIndexPath),
+        new GeoNamesSearcher(cacheManager.geoNamesIndexPath),
         Some(GeoLocationNormalizer.loadModel(getStream("normalizerModelPath")))))
   }
 }
@@ -87,7 +109,7 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
           sentenceIndex,
           eidosDoc,
           true,
-          getClass.getSimpleName(),
+          getClass.getSimpleName,
           Set(Location(geoPhraseID))
         )
       }
