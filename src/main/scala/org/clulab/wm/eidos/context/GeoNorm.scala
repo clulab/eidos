@@ -58,9 +58,9 @@ object GeoNormFinder {
       val cached = Files.exists(segmentsPath)
 
       if (cached)
-        logger.info(s"No GeoNames index at $geoNamesIndexPath.")
-      else
         logger.info(s"GeoNames index found at $geoNamesIndexPath.")
+      else
+        logger.info(s"No GeoNames index at $geoNamesIndexPath.")
       cached
     }
   }
