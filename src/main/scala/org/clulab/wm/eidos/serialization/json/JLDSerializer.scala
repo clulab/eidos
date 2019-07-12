@@ -782,8 +782,11 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
   override def toJObject: TidyJObject = {
     val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _).toJObject).toSeq
     val jldText = annotatedDocument.document.text.map(text => text)
-    val dct = annotatedDocument.document.asInstanceOf[EidosDocument].dct
-    val jldDCT = dct.map(new JLDDCT(serializer, _).toJObject)
+    val documentAttachmentOpt = annotatedDocument.document.getAttachment("dct")
+    val jldDCT = documentAttachmentOpt.map { documentAttachment =>
+      val dctDocumentAttachment = documentAttachment.asInstanceOf[DctDocumentAttachment]
+      new JLDDCT(serializer, dctDocumentAttachment.dct).toJObject
+    }
 
     TidyJObject(List(
       serializer.mkType(this),

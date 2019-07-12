@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.document
 
-import java.io.ObjectOutputStream
 import java.time.LocalDateTime
 
 import scala.util.matching.Regex
@@ -9,18 +8,15 @@ import org.clulab.processors.DocumentAttachment
 import org.clulab.processors.DocumentAttachmentBuilderFromJson
 import org.clulab.processors.DocumentAttachmentBuilderFromText
 import org.clulab.processors.Sentence
-import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeInterval}
 import org.clulab.timenorm.formal.{Interval => TimExInterval}
 import org.clulab.struct.{Interval => TextInterval}
+import org.clulab.timenorm.formal.SimpleInterval
+import org.clulab.timenorm.formal.UnknownInterval
 import org.clulab.timenorm.neural.TimeExpression
-import org.clulab.wm.eidos.context.GeoNorm
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.json4s.JString
+import org.json4s._
 import org.json4s.JsonDSL._
-import org.json4s.JValue
-import org.json4s.jackson.prettyJson
-
 
 class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends Document(sentences) {
   // At some point these will turn into Array[Option[Seq[...]]].  Each sentences will have its own
@@ -209,25 +205,41 @@ case class DCT(interval: TimExInterval, text: String)
 @SerialVersionUID(100L)
 class DctDocumentAttachmentBuilderFromText extends DocumentAttachmentBuilderFromText {
 
-  def mkDocumentAttachment(text: String): DctDocumentAttachment = {
-    val Array(string, start, end) = text.split('\t')
-    val startLocalTime =
-    val dct = DCT(TimExInterval(), text)
-    // Convert these strings to dates
-    new DctDocumentAttachment(null)
+  def mkDocumentAttachment(serializedText: String): DctDocumentAttachment = {
+    // See also the version in JLDDeserializer.
+    val Array(text, start, end) = serializedText.split('\t')
+    val startDateTime = LocalDateTime.parse(start)
+    val endDateTime = LocalDateTime.parse(end)
+    val interval = SimpleInterval(startDateTime, endDateTime)
+    val dct = DCT(interval, text)
+
+    new DctDocumentAttachment(dct)
   }
 }
 
 @SerialVersionUID(100L)
 class DctDocumentAttachmentBuilderFromJson extends DocumentAttachmentBuilderFromJson {
 
-  def mkDocumentAttachment(json: JValue): DctDocumentAttachment = {
-    json match {
-      case JString(text) => null
-      case _ =>
-        val text = prettyJson(json)
-        throw new RuntimeException(s"ERROR: While deserializing TextNameDocumentAttachment expected JString but found this: $text")
-    }
+  def mkDocumentAttachment(dctValue: JValue): DctDocumentAttachment = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val text = (dctValue \ "text").extract[String]
+    val startOpt = (dctValue \ "start").extractOpt[String]
+    val endOpt = (dctValue \ "end").extractOpt[String]
+    val dct =
+        if (startOpt.isEmpty && endOpt.isEmpty) DCT(UnknownInterval, text)
+        else {
+          val start = startOpt.getOrElse(endOpt.get)
+          val end = endOpt.getOrElse(startOpt.get)
+          val startDateTime = LocalDateTime.parse(start)
+          val endDateTime = LocalDateTime.parse(end)
+          val interval = SimpleInterval(startDateTime, endDateTime)
+          val dct = DCT(interval, text)
+
+          dct
+        }
+
+    new DctDocumentAttachment(dct)
   }
 }
 
@@ -243,13 +255,19 @@ class DctDocumentAttachment(val dct: DCT) extends DocumentAttachment { // Maybe 
   }
 
   override def toDocumentSerializer: String = {
-    dct.text + "\t" + dct.interval.start.toString + "\t" + dct.interval.end.toString
+    val start = dct.interval.start
+    val end = dct.interval.end
+
+    dct.text + "\t" + start.toString + "\t" + end.toString
   }
 
   override def toJsonSerializer: JValue = {
+    val start = dct.interval.start
+    val end = dct.interval.end
+
     ("text" -> dct.text) ~
-        ("start" -> dct.interval.start.toString) ~
-        ("end" -> dct.interval.end.toString)
+        ("start" -> start.toString) ~
+        ("end" -> end.toString)
   }
 }
 

@@ -30,6 +30,7 @@ import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.document.TimeStep
 import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
@@ -118,14 +119,14 @@ class JLDDeserializer {
       requireType(dctValue, JLDDCT.typename)
       val dctId = id(dctValue)
       val text = (dctValue \ "text").extract[String]
-      val optStart = (dctValue \ "start").extractOpt[String]
-      val optEnd = (dctValue \ "end").extractOpt[String]
+      val startOpt = (dctValue \ "start").extractOpt[String]
+      val endOpt = (dctValue \ "end").extractOpt[String]
 
       val dct =
-        if (optStart.isEmpty && optEnd.isEmpty) DCT(UnknownInterval, text)
+        if (startOpt.isEmpty && endOpt.isEmpty) DCT(UnknownInterval, text)
         else {
-          val start = optStart.getOrElse(optEnd.get)
-          val end = optEnd.getOrElse(optStart.get)
+          val start = startOpt.getOrElse(endOpt.get)
+          val end = endOpt.getOrElse(startOpt.get)
           val startDateTime = LocalDateTime.parse(start)
           val endDateTime = LocalDateTime.parse(end)
           val interval = SimpleInterval(startDateTime, endDateTime)
@@ -334,7 +335,9 @@ class JLDDeserializer {
     // at all, then assume they were off and use None rather than Some(List.empty).
     eidosDocument.times = if (timexCount == 0) None else Some(sentencesSpec.timexes)
     eidosDocument.geolocs = if (geolocsCount == 0) None else Some(sentencesSpec.geolocs)
-    eidosDocument.dct = idAndDctOpt.map(_.value)
+    idAndDctOpt.map(_.value).foreach { dct =>
+      eidosDocument.addAttachment("dct", new DctDocumentAttachment(dct))
+    }
 
     val idAndDocument = new IdAndDocument(documentId, eidosDocument)
     DocumentSpec(idAndDocument, idAndDctOpt, sentencesSpec)
