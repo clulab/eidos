@@ -106,19 +106,20 @@ class GeoNamesSearcher(indexPath: Path) {
     val ngramsQueryParser = new QueryParser("ngrams", GeoNamesIndexConfig.analyzer)
 
     // escape special characters for queries to "name" field
-    val luceneSpecialCharacters = """([-+&|!(){}\[\]^"~*?:\\/\s])"""
+    val luceneSpecialCharacters = """([-+&|!(){}\[\]^"~*?:\\/])"""
     val escapedQueryString = queryString.replaceAll(luceneSpecialCharacters, """\\$1""")
+    val whitespaceEscapedQueryString = escapedQueryString.replaceAll("""\s""", """\\ """)
 
     // first look for an exact match of the input phrase (the "name" field ignores spaces, punctuation, etc.)
-    var results = scoredEntries(nameQueryParser.parse(escapedQueryString), 1000)
+    var results = scoredEntries(nameQueryParser.parse(whitespaceEscapedQueryString), 1000)
 
     // if there's no exact match, search for fuzzy (1-2 edit-distance) matches
     if (results.isEmpty) {
-      results = scoredEntries(nameQueryParser.parse(escapedQueryString + "~"), maxFuzzyHits)
+      results = scoredEntries(nameQueryParser.parse(whitespaceEscapedQueryString + "~"), maxFuzzyHits)
     }
     // if there's no fuzzy match, search for n-gram matches
     if (results.isEmpty) {
-      results = scoredEntries(ngramsQueryParser.parse(queryString), maxFuzzyHits)
+      results = scoredEntries(ngramsQueryParser.parse(escapedQueryString), maxFuzzyHits)
     }
     // sort first by retrieval score, then by population, then by feature code (e.g., ADM1 before ADM3 and PPL)
     results.sortBy{
