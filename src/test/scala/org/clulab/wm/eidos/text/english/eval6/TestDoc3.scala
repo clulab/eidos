@@ -604,7 +604,7 @@ class TestDoc3 extends EnglishTest {
     val rainfall2 = NodeSpec("expected heavy rains", Quant("heavy"), Inc("heavy"))
     val maize = NodeSpec("ongoing maize harvesting", Quant("ongoing"), Dec("hamper"))
     val drying = NodeSpec("drying activities", Dec("hamper"))
-    val losses = NodeSpec("post-harvest losses", Dec("losses"))
+    val losses = NodeSpec("post-harvest losses", Dec("losses"), TimEx("post"))
     val dry = NodeSpec("dry days", Quant("significant")) // todo: this is a part of the hyper edge, should handle one day
 
     behavior of "TestDoc3 Paragraph 15"
