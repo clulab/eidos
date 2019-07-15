@@ -46,7 +46,7 @@ abstract class AttachmentSpec extends GraphSpec with QuicklyEqualable {
   protected val matchingClass: Class[_]
 
   protected def matchClass(attachment: Attachment): Boolean =
-      attachment.getClass() == matchingClass
+      attachment.getClass == matchingClass
 }
 
 class CountSpec(val value: String, val modifier: String, val unit: String) extends AttachmentSpec {
@@ -288,7 +288,7 @@ class GeoLoc(text: String) extends ContextAttachmentSpec(text) {
 
   override protected val matchingClass: Class[_] = GeoLoc.targetClass
 
-  override def toString = toString(GeoLoc.abbrev)
+  override def toString: String = toString(GeoLoc.abbrev)
 }
 
 object GeoLoc {
@@ -377,14 +377,14 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
 }
 
 object NodeSpec {
-  type NodeFilter = (TextBoundMention, Int, Int) => Boolean
+  type NodeFilter = (TextBoundMention, Int, Int) => Boolean // mention, index, count
   
-  def trueFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => true
-  def firstFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => index == 0
-  def lastFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => index == count - 1
+  def trueFilter: NodeFilter = (_: TextBoundMention, _: Int, _: Int) => true
+  def firstFilter: NodeFilter = (_: TextBoundMention, index: Int, _: Int) => index == 0
+  def lastFilter: NodeFilter = (_: TextBoundMention, index: Int, count: Int) => index == count - 1
 
   def indexOfCount(outerIndex: Int, outerCount: Int): NodeFilter =
-      (mention: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
+      (_: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
     
   def apply(nodeText: String, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(), nodeFilter)
@@ -426,8 +426,7 @@ object AntiNodeSpec {
 class HumanMigrationEdgeSpec(val event: EventSpec,
     val group: Option[NodeSpec], val groupModifier: Option[NodeSpec],
     val moveTo: Option[NodeSpec], val moveFrom: Option[NodeSpec], val moveThrough: Option[NodeSpec],
-    val timeStart: Option[NodeSpec], val timeEnd: Option[NodeSpec], val time: Option[NodeSpec],
-    val countSpecs: Set[CountSpec])
+    val timeStart: Option[NodeSpec], val timeEnd: Option[NodeSpec], val time: Option[NodeSpec])
     extends GraphSpec {
 
   val nodeSpecsMap: Map[String, NodeSpec] = Seq(
@@ -439,7 +438,7 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
     ("timeStart", timeStart),
     ("timeEnd", timeEnd),
     ("time", time)
-  ).filter { case (key, value) => value.isDefined } // Keep only the ones used
+  ).filter { case (_, value) => value.isDefined } // Keep only the ones used
       .map { case (key, value) => (key, value.get) } // Remove the option
       .toMap
 
@@ -462,21 +461,13 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
           // And only they are there.
           mention.arguments.size == nodeTestResultsMap.size
     }
-    val matches5 =
-        if (countSpecs.nonEmpty)
-          matches4.filter { mention =>
-            CountSpec.matchAttachments(mention, countSpecs)
-          }
-        else // We'll let extra countSpecs get by.
-          matches4
-
-    matches5
+    matches4
   }
 
   def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
     if (!testResults.containsKey(this)) {
       val nodeTestResultsMap: Map[String, TestResult] = nodeSpecsMap.map { case (key, nodeSpec) =>
-        (key -> nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults))
+        key -> nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
       }
       val nodeComplaints = nodeTestResultsMap.map { case (key, nodeTestResult) =>
         nodeTestResult.complaints
@@ -512,11 +503,10 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
           .append(nodeSpec.toString)
           .append(right)
     }
-    // TODO add the
     stringBuilder.toString
   }
 
-  override def toString: String = toString("->(", ")") + countSpecs.toString // TODO improve this
+  override def toString: String = toString("->(", ")")
 }
 
 class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) extends GraphSpec {
@@ -647,8 +637,7 @@ object HumanMigrationEdgeSpec {
   def apply(
       group: Option[NodeSpec] = None, groupModifier: Option[NodeSpec] = None,
       moveTo: Option[NodeSpec] = None, moveFrom: Option[NodeSpec] = None, moveThrough: Option[NodeSpec] = None,
-      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None,
-      countSpecs: Set[CountSpec] = Set.empty) = {
-    new HumanMigrationEdgeSpec(HumanMigration, group, groupModifier, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time, countSpecs)
+      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None): HumanMigrationEdgeSpec = {
+    new HumanMigrationEdgeSpec(HumanMigration, group, groupModifier, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time)
   }
 }

@@ -10,15 +10,14 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group = NodeSpec("almost 40,000 refugees")
+    val group = NodeSpec("almost 40,000 refugees", CountSpec("40000.0", "Max", "Absolute"))
     val moveTo = NodeSpec("Ethiopia")
     val moveFrom = NodeSpec("South Sudan")
     val timeStart = NodeSpec("the beginning of September 2016")
     val timeEnd = NodeSpec("mid-November")
     val migration = HumanMigrationEdgeSpec(group = Some(group),
       moveTo = Some(moveTo), moveFrom = Some(moveFrom),
-      timeStart = Some(timeStart), timeEnd = Some(timeEnd),
-      countSpecs = Set(CountSpec("40000.0", "Max", "Absolute")))
+      timeStart = Some(timeStart), timeEnd = Some(timeEnd))
 
     behavior of "migration-verbs1"
 
