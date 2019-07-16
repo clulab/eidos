@@ -226,7 +226,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("vast majority")
-    val moveTo1 = NodeSpec("Uganda (75%")
+    val moveTo1 = NodeSpec("Uganda")
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
