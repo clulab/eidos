@@ -11,6 +11,7 @@ resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
   val procVer = "7.5.1"
+  val luceneVer = "6.6.6"
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
@@ -27,7 +28,11 @@ libraryDependencies ++= {
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-    "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2"
+    "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2",
+    "org.apache.lucene" % "lucene-core"             % luceneVer,
+    "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
+    "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer
   )
 }
 
