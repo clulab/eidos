@@ -7,6 +7,8 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.attachments.CountModifier.CountModifier
+import org.clulab.wm.eidos.attachments.CountUnit.CountUnit
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.QuicklyEqualable
 
@@ -248,7 +250,7 @@ object GeoLoc {
   def apply(text: String) =  new GeoLoc(text)
 }
 
-class CountSpec(val value: String, val modifier: String, val unit: String) extends ContextAttachmentSpec(value) {
+class CountSpec(val value: Double, val modifier: CountModifier, val unit: CountUnit) extends ContextAttachmentSpec("") {
   override protected val matchingClass: Class[_] = classOf[CountAttachment]
 
   override def calculateHashCode: Int = mix(mix(value.##, modifier.##), unit.##)
@@ -269,16 +271,16 @@ class CountSpec(val value: String, val modifier: String, val unit: String) exten
     val result = matchClass(attachment) && {
       val countAttachment = attachment.asInstanceOf[CountAttachment]
 
-      countAttachment.v.value.toString == value &&
-          countAttachment.v.modifier.toString == modifier &&
-          countAttachment.v.unit.toString == unit
+      countAttachment.v.value == value &&
+          countAttachment.v.modifier == modifier &&
+          countAttachment.v.unit == unit
     }
     result
   }
 }
 
 object CountSpec {
-  def apply(value: String, modifier: String, unit: String) =
+  def apply(value: Double, modifier: CountModifier = CountModifier.NoModifier, unit: CountUnit = CountUnit.Absolute) =
     new CountSpec(value, modifier, unit)
 }
 

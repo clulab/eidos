@@ -142,7 +142,10 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
             countAttachments +=
               new CountAttachment(
-                s"value=${count.get._2}, mod=${countModifier.get._1}, unit=${countUnit.get._1}",
+                // Include quotes around the "value" to indicate it is the text version and include after ->
+                // the Double that is used in MigrationGroupCount to show how it was converted.
+                // A CountSpec should match the double version.
+                s"""value="${count.get._2}" -> ${count.get._1}, mod=${countModifier.get._1}, unit=${countUnit.get._1}""",
                 MigrationGroupCount(count.get._1, countModifier.get._1, countUnit.get._1))
           }
         }

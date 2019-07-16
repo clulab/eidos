@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.text.english
 
+import org.clulab.wm.eidos.attachments.CountModifier
+import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 
@@ -10,7 +12,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group = NodeSpec("almost 40,000 refugees", CountSpec("40000.0", "Max", "Absolute"))
+    val group = NodeSpec("almost 40,000 refugees", CountSpec(40000, CountModifier.Max))
     val moveTo = NodeSpec("Ethiopia")
     val moveFrom = NodeSpec("South Sudan")
     val timeStart = NodeSpec("the beginning of September 2016")
@@ -1137,7 +1139,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("4,608 new arrival")
+    val group1 = NodeSpec("4,608 new arrivals", CountSpec(4608))
     val moveFrom1 = NodeSpec("Pagak")
     val moveTo1 = NodeSpec("Nguenyyiel camp")
     val time1 = NodeSpec("past week")
@@ -1603,7 +1605,7 @@ class TestMigrationSchema extends EnglishTest {
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveFrom = Some(moveFrom1))
 
 
-    val group2 = NodeSpec("14%")
+    val group2 = NodeSpec("14%", CountSpec(14))
     val moveFrom2 = NodeSpec("Jonglei State")
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
@@ -1658,8 +1660,5 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration1) should be (successful)
     }
   }
-
   */
-
-
 }
