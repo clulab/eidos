@@ -6,7 +6,10 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.{DCT, TimEx}
-import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
+import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment,
+    JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment,
+    JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
+    JLDCountAttachment => JLDEidosCountAttachment}
 import org.clulab.wm.eidos.utils.QuicklyEqualable
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -563,8 +566,11 @@ object CountUnit extends Enumeration {
 
 case class MigrationGroupCount(value:Double, modifier:CountModifier.Value, unit:CountUnit.Value)
 
-class CountAttachment(t:String, v:MigrationGroupCount) extends ContextAttachment(text = t, value = v) {
-  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = null // TODO: Keith, needs JSON output
+class CountAttachment(t:String, val v:MigrationGroupCount) extends ContextAttachment(text = t, value = v) {
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+  // TODO, this "count" should be recorded somewhere else
+      new JLDEidosCountAttachment(serializer, "count", this)
 
   override def toJson(): JValue = null // TODO: Keith, needs JSON output
 }
