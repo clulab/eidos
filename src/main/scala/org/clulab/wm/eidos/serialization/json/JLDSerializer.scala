@@ -234,6 +234,21 @@ object JLDAttachment {
   val kind = "State"
 }
 
+class JLDCountAttachment(serializer: JLDSerializer, kind: String, countAttachment: CountAttachment)
+    extends JLDAttachment(serializer, kind) {
+
+  override def toJObject: TidyJObject = {
+    TidyJObject(List(
+      serializer.mkType(this),
+      "type" -> kind,
+      "text" -> countAttachment.text,
+      "value" -> countAttachment.v.value,
+      "modifier" -> countAttachment.v.modifier.toString,
+      "unit" -> countAttachment.v.unit.toString
+    ))
+  }
+}
+
 class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredAttachment: TriggeredAttachment)
     extends JLDAttachment(serializer, JLDAttachment.kind) {
 
@@ -385,12 +400,16 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         .collect{ case a: DCTime => a }
         .sortWith(DCTime.lessThan)
         .map(attachment => newJLDAttachment(attachment))
+    val jldCountAttachments = eidosMention.odinMention.attachments.toSeq
+        .collect{ case a: CountAttachment => a }
+        //.sortWith(Time.lessThan) TODO How should these be sorted w/o provenance?
+        .map(attachment => newJLDAttachment(attachment))
 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
     val jldGroundings = eidosMention.grounding.map(pair => new JLDOntologyGroundings(serializer, pair._1, pair._2).toJObject).toSeq
-    val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
+    val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments ++ jldCountAttachments).map(_.toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),

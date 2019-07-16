@@ -46,7 +46,7 @@ abstract class AttachmentSpec extends GraphSpec with QuicklyEqualable {
   protected val matchingClass: Class[_]
 
   protected def matchClass(attachment: Attachment): Boolean =
-      attachment.getClass() == matchingClass
+      attachment.getClass == matchingClass
 }
 
 abstract class TriggeredAttachmentSpec(val trigger: String, quantifiers: Option[Seq[String]]) extends AttachmentSpec {
@@ -134,15 +134,15 @@ abstract class ContextAttachmentSpec(val text: String) extends AttachmentSpec {
 
     this.text == that.text
   }
+
+  def matchAttachment(attachment: ContextAttachment): Boolean = {
+    val result = attachment.text == text &&
+        matchClass(attachment)
+    result
+  }
 }
 
 object ContextAttachmentSpec {
-
-  protected def matchAttachment(attachment: ContextAttachment, attachmentSpec: ContextAttachmentSpec): Boolean = {
-    val result = attachment.text == attachmentSpec.text &&
-      attachmentSpec.matchClass(attachment)
-    result
-  }
 
   @tailrec
   protected def recMatchAttachments(attachments: Set[ContextAttachment], attachmentSpecs: Seq[ContextAttachmentSpec]): Boolean = {
@@ -150,7 +150,8 @@ object ContextAttachmentSpec {
       true
     else {
       val attachmentSpec = attachmentSpecs.head
-      val attachment = attachments.find(matchAttachment(_, attachmentSpec))
+      val attachment = attachments.find { attachment => attachmentSpec.matchAttachment(attachment) }
+
       if (attachment.isEmpty)
         false
       else
@@ -237,7 +238,7 @@ class GeoLoc(text: String) extends ContextAttachmentSpec(text) {
 
   override protected val matchingClass: Class[_] = GeoLoc.targetClass
 
-  override def toString = toString(GeoLoc.abbrev)
+  override def toString: String = toString(GeoLoc.abbrev)
 }
 
 object GeoLoc {
@@ -245,6 +246,40 @@ object GeoLoc {
   val targetClass: Class[_] = classOf[Location]
 
   def apply(text: String) =  new GeoLoc(text)
+}
+
+class CountSpec(val value: String, val modifier: String, val unit: String) extends ContextAttachmentSpec(value) {
+  override protected val matchingClass: Class[_] = classOf[CountAttachment]
+
+  override def calculateHashCode: Int = mix(mix(value.##, modifier.##), unit.##)
+
+  override def biEquals(other: Any): Boolean = {
+    val that = other.asInstanceOf[CountSpec]
+
+    this.value == that.value &&
+        this.modifier == that.modifier &&
+        this.unit == that.unit
+  }
+
+  override def toString = s"Count($value, $modifier, $unit)"
+
+  // The superclass just compares text, but these texts don't match.
+  // They have more complicated structure which much be compared.
+  override def matchAttachment(attachment: ContextAttachment): Boolean = {
+    val result = matchClass(attachment) && {
+      val countAttachment = attachment.asInstanceOf[CountAttachment]
+
+      countAttachment.v.value.toString == value &&
+          countAttachment.v.modifier.toString == modifier &&
+          countAttachment.v.unit.toString == unit
+    }
+    result
+  }
+}
+
+object CountSpec {
+  def apply(value: String, modifier: String, unit: String) =
+    new CountSpec(value, modifier, unit)
 }
 
 class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
@@ -268,13 +303,19 @@ object Unmarked {
 class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
 
   protected def matchAttachments(useTimeNorm: Boolean, useGeoNorm: Boolean)(mention: Mention): Boolean =
-      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TriggeredAttachmentSpec => a}) &&
+      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TriggeredAttachmentSpec => a}) && {
+        val timeSpecs = attachmentSpecs.collect { case a: TimEx => a }
+        val geoSpecs = attachmentSpecs.collect { case a: GeoLoc => a }
+        val contextSpecs =  attachmentSpecs.collect { case a: ContextAttachmentSpec => a }
+        // See if this works, then take out time and geo during the apply
+
         ((useTimeNorm, useGeoNorm) match {
-          case (true, true) =>  ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: ContextAttachmentSpec => a})
-          case (true, false) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TimEx => a})
-          case (false, true) => ContextAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: GeoLoc => a})
-          case _ => true
+          case (true, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs)
+          case (true, false) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs)
+          case (false, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- timeSpecs)
+          case _ => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs -- timeSpecs)
         })
+      }
 
   protected def matchText(mention: TextBoundMention): Boolean = {
     val text = mention.text
@@ -284,12 +325,12 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
   }
     
   protected def testSpec(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[Mention] = {
-    val matches1 = mentions
-        .collect{ case m: TextBoundMention => m }
-        .filter(matchText)
-        .filter(matchAttachments(useTimeNorm, useGeoNorm))
-
-    val matches = matches1.zipWithIndex.filter { case (mention, index) => nodeFilter(mention, index, matches1.size) }.map(pair => pair._1)
+    val matches1 = mentions.collect{ case m: TextBoundMention => m }
+    val matches2 = matches1.filter(matchText)
+    val matches3 = matches2.filter(matchAttachments(useTimeNorm, useGeoNorm))
+    val matches = matches3.zipWithIndex.filter { case (mention, index) =>
+      nodeFilter(mention, index, matches3.size)
+    }.map(pair => pair._1)
     
     matches
   }
@@ -325,14 +366,14 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
 }
 
 object NodeSpec {
-  type NodeFilter = (TextBoundMention, Int, Int) => Boolean
+  type NodeFilter = (TextBoundMention, Int, Int) => Boolean // mention, index, count
   
-  def trueFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => true
-  def firstFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => index == 0
-  def lastFilter: NodeFilter = (mention: TextBoundMention, index: Int, count: Int) => index == count - 1
+  def trueFilter: NodeFilter = (_: TextBoundMention, _: Int, _: Int) => true
+  def firstFilter: NodeFilter = (_: TextBoundMention, index: Int, _: Int) => index == 0
+  def lastFilter: NodeFilter = (_: TextBoundMention, index: Int, count: Int) => index == count - 1
 
   def indexOfCount(outerIndex: Int, outerCount: Int): NodeFilter =
-      (mention: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
+      (_: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
     
   def apply(nodeText: String, nodeFilter: NodeFilter) =
       new NodeSpec(nodeText, Set(), nodeFilter)
@@ -386,7 +427,7 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
     ("timeStart", timeStart),
     ("timeEnd", timeEnd),
     ("time", time)
-  ).filter { case (key, value) => value.isDefined } // Keep only the ones used
+  ).filter { case (_, value) => value.isDefined } // Keep only the ones used
       .map { case (key, value) => (key, value.get) } // Remove the option
       .toMap
 
@@ -409,14 +450,13 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
           // And only they are there.
           mention.arguments.size == nodeTestResultsMap.size
     }
-
     matches4
   }
 
   def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
     if (!testResults.containsKey(this)) {
       val nodeTestResultsMap: Map[String, TestResult] = nodeSpecsMap.map { case (key, nodeSpec) =>
-        (key -> nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults))
+        key -> nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
       }
       val nodeComplaints = nodeTestResultsMap.map { case (key, nodeTestResult) =>
         nodeTestResult.complaints
@@ -586,7 +626,7 @@ object HumanMigrationEdgeSpec {
   def apply(
       group: Option[NodeSpec] = None, groupModifier: Option[NodeSpec] = None,
       moveTo: Option[NodeSpec] = None, moveFrom: Option[NodeSpec] = None, moveThrough: Option[NodeSpec] = None,
-      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None) = {
+      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None): HumanMigrationEdgeSpec = {
     new HumanMigrationEdgeSpec(HumanMigration, group, groupModifier, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time)
   }
 }

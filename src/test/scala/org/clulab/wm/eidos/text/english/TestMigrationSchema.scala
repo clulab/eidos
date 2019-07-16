@@ -10,7 +10,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group = NodeSpec("almost 40,000 refugees")
+    val group = NodeSpec("almost 40,000 refugees", CountSpec("40000.0", "Max", "Absolute"))
     val moveTo = NodeSpec("Ethiopia")
     val moveFrom = NodeSpec("South Sudan")
     val timeStart = NodeSpec("the beginning of September 2016")
