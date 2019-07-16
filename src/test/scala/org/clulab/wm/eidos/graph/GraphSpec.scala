@@ -383,7 +383,7 @@ object NodeSpec {
   def apply(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) =
       new NodeSpec(nodeText, attachmentSpecs)
   def apply(nodeText: String, attachmentSpecs: AttachmentSpec*) =
-      new NodeSpec(nodeText, attachmentSpecs.toSet)  
+      new NodeSpec(nodeText, attachmentSpecs.toSet, NodeSpec.firstFilter)
 }
 
 class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
