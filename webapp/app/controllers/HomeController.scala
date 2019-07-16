@@ -324,18 +324,24 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       objectToReturn += ""
 
     // TimeExpressions
-    objectToReturn += "<h2>Found TimeExpressions:</h2>"
-    if (time.isDefined)
-      time.get.foreach { t =>
-        objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
+    val timeMentions = mentions.filter(_.odinMention matches "Time")
+    if (timeMentions.nonEmpty) {
+      objectToReturn += "<h2>Found TimeExpressions:</h2>"
+      val times = timeMentions.flatMap(_.odinMention.attachments).collect{
+        case time: Time => time.interval
       }
+      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(times)}"
+    }
 
     // GeoLocations
-    objectToReturn += "<h2>Found GeoLocations:</h2>"
-    if (location.isDefined)
-      location.get.foreach { l =>
-        objectToReturn += s"${DisplayUtils.webAppGeoLocations(l)}"
+    val locationMentions = mentions.filter(_.odinMention matches "Location")
+    if (locationMentions.nonEmpty) {
+      objectToReturn += "<h2>Found GeoLocations:</h2>"
+      val locations = locationMentions.flatMap(_.odinMention.attachments).collect{
+        case location: Location => location.geoPhraseID
       }
+      objectToReturn += s"${DisplayUtils.webAppGeoLocations(locations)}"
+    }
 
 
     // Concepts

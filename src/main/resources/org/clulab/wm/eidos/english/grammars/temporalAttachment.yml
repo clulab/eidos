@@ -8,8 +8,8 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [norm="B-Time"] [norm="I-Time"]*
-      theme: Entity = </^nmod/ >nmod_in?
+      time: Time
+      entity: Entity = </^nmod/ >nmod_in?
 
 
 
@@ -19,6 +19,6 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [norm="B-Time"] [norm="I-Time"]*
-      theme: Entity = </^nmod/ >/^nsubj/
+      time: Time
+      entity: Entity = </^nmod/ >/^nsubj/
 

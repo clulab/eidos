@@ -43,6 +43,7 @@ geonamesDict_noUnicode.txt
 glove.840B.300d.txt
 cache/*.serialized
 cache/english/*.serialized
+cache/geonames/
 
 # Python binary files
 *.pyc
