@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.graph
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
@@ -62,7 +63,11 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
     annotateTest(testResult.complaints)
   }
+// from migration_schema-zupon branch
+// todo: check which one to keep
+//  def useTimeNorm: Boolean = ieSystem.loadableAttributes.timenorm.isDefined
+//  def useGeoNorm: Boolean = ieSystem.loadableAttributes.geonorm.isDefined
 
-  def useTimeNorm: Boolean = ieSystem.loadableAttributes.timenorm.isDefined
-  def useGeoNorm: Boolean = ieSystem.loadableAttributes.geonorm.isDefined
+  def useTimeNorm: Boolean = ieSystem.useTimeNorm
+  def useGeoNorm: Boolean = ieSystem.useGeoNorm
 }

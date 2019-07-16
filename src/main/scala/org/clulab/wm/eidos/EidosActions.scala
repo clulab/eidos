@@ -8,9 +8,11 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
+// todo: check dependencies for the following three imports
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimEx
+
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.odin.EventMention
 import org.clulab.processors.Sentence
@@ -539,28 +541,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   }
 
   def applyTimeAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-      trigger = m.asInstanceOf[EventMention].trigger
-      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      times = m.document.asInstanceOf[EidosDocument].times
-      time: Option[TimEx] = if (times.isDefined) times.get(m.sentence).find(_.span.start == trigger.startOffset) else None
-    } yield time match {
-      case None => theme
-      case Some(t) => theme.withAttachment(new Time(t))
-    }
-  }
-
-  def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
-    for {
-      m <- ms
-      trigger = m.asInstanceOf[EventMention].trigger
-      theme = tieBreaker(m.arguments("theme")).asInstanceOf[TextBoundMention]
-      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == trigger.startOffset) else None
-    } yield location match {
-      case None => theme
-      case Some(l) => theme.withAttachment(new Location(l))
+    for (m <- ms; entity <- m.arguments("entity"); time <- m.arguments("time")) yield {
+      MentionUtils.withMoreAttachments(entity, time.attachments.toSeq)
     }
   }
 

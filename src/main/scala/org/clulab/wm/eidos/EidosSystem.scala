@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.clulab.wm.eidos.actions.MigrationUtils._
 import org.clulab.timenorm.neural.TemporalNeuralParser
-import org.clulab.wm.eidos.context.GeoDisambiguateParser
+import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
 
@@ -64,9 +64,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val negationHandler: NegationHandler,
 
     val multiOntologyGrounder: MultiOntologyGrounding,
-    val timenorm: Option[TemporalNeuralParser],
-    val timeregexs: Option[List[Regex]],
-    val geonorm: Option[GeoDisambiguateParser],
     val expander: Option[Expander],
     val keepStatefulConcepts: Boolean
   )
@@ -78,7 +75,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     // Hedging
     val          hedgingPath: String = eidosConf[String]("hedgingPath")
     val          useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
-    val           useGeoNorm: Boolean = eidosConf[Boolean]("useGeoNorm")
     val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
 
     val hypothesisHandler = HypothesisHandler(hedgingPath)
@@ -101,26 +97,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       val expander = eidosConf.get[Config]("conceptExpander").map(Expander.fromConfig)
       if (keepStatefulConcepts && expander.isEmpty) println("NOTICE: You're keeping stateful Concepts but didn't load an expander.")
 
-      // Temporal Parsing
-      val (timenorm: Option[TemporalNeuralParser], timeregexs: Option[List[Regex]]) = {
-        if (!useTimeNorm) (None, None)
-        else {
-          // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-          val timeNorm = new TemporalNeuralParser()
-          val timeRegexPath: String = eidosConf[String]("timeRegexPath")
-          val regexs = Source.fromInputStream(getClass.getResourceAsStream(timeRegexPath)).getLines.map(_.r).toList
-          (Some(timeNorm), Some(regexs))
-        }
-      }
-
-      // Geospatial Parsing
-      val geonorm: Option[GeoDisambiguateParser] =
-          if (useGeoNorm)
-            // Be sure to use fork := true in build.sbt when doing this so that the dll is not loaded twice.
-            Some(GeoDisambiguateParser.fromConfig(config[Config]("geoparser")))
-          else
-            None
-
       new LoadableAttributes(
         entityFinders,
         actions,
@@ -128,9 +104,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
         hypothesisHandler,
         negationHandler,
         multiOntologyGrounder,  // todo: do we need this and ontologyGrounders?
-        timenorm,
-        timeregexs,
-        geonorm,
         expander,
         keepStatefulConcepts
       )
@@ -142,6 +115,9 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     LoadableAttributes()
   }
 
+  def useGeoNorm: Boolean = loadableAttributes.entityFinders.collectFirst{ case f: GeoNormFinder => f }.isDefined
+  def useTimeNorm: Boolean = loadableAttributes.entityFinders.collectFirst{ case f: TimeNormFinder => f }.isDefined
+
   def reload(): Unit = loadableAttributes = LoadableAttributes()
 
   // ---------------------------------------------------------------------------------------------
@@ -151,8 +127,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
     val doc = EidosDocument(document, keepText)
     // Time and Location
-    doc.parseTime(loadableAttributes.timenorm, loadableAttributes.timeregexs, documentCreationTime)
-    doc.parseGeoNorm(loadableAttributes.geonorm)
+    doc.dctString = documentCreationTime
     // Document ID
     doc.id = filename
     doc
