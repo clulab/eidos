@@ -26,7 +26,7 @@ object MigrationUtils {
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
     // partition to get the migration events
     val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
-    val handled = attachGeoLoc(migrationEvents)
+//    val handled = attachGeoLoc(migrationEvents)
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)????
     // todo: aggregation of cross-sentence stuff?????????????
@@ -37,7 +37,8 @@ object MigrationUtils {
 //    assembleMoreSpecific(assembleFragments(handled)) ++ other
 //    assembleTime(assembleFragments(handled)) ++ other
 
-    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
+//    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
+    resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
 
   }
 
