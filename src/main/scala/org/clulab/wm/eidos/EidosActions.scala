@@ -97,7 +97,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
             // search for the measurement unit in the *whole* event span
             //
             countUnit =
-              if(ga.sentenceObj.norms.get(na.get._1) == "PERCENT") {
+              if(ga.sentenceObj.entities.get(na.get._1) == "PERCENT") {
                 Some(Tuple2(Percentage, "percentage"))
               } else {
                 val d = """daily""".r.findFirstIn(eventText)
@@ -123,7 +123,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
             // search for the count modifiers in the *whole* event span
             //
             countModifier = {
-              val a = """about|approximately""".r.findFirstIn(eventText)
+              val a = """about|approximately|around""".r.findFirstIn(eventText)
               if(a.nonEmpty) {
                 Some(Tuple2(Approximate, a.head))
               } else {
@@ -144,7 +144,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
             countAttachments +=
               new CountAttachment(
-                s"value=${count.get._2}, mod=${countModifier.get._1}, unit=${countUnit.get._1}",
+                s"value=${count.get._1}, mod=${countModifier.get._1}, unit=${countUnit.get._1}",
                 MigrationGroupCount(count.get._1, countModifier.get._1, countUnit.get._1))
           }
         }

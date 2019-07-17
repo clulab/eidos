@@ -230,7 +230,7 @@ class TestMigrationSchema extends EnglishTest {
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
-    val group2 = NodeSpec("375 individuals")
+    val group2 = NodeSpec("375 individuals", CountSpec("375.0", "NoModifier", "Absolute"))
     val moveFrom2 = NodeSpec("Juba")
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
@@ -284,7 +284,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("358 individuals")
+    val group1 = NodeSpec("358 individuals", CountSpec("358.0", "NoModifier", "Absolute"))
     val moveFrom1 = NodeSpec("Uganda")
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveFrom = Some(moveFrom1))
 
@@ -321,7 +321,7 @@ class TestMigrationSchema extends EnglishTest {
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(moveTo = Some(moveTo1))
 
-    val group2 = NodeSpec("36 individuals")
+    val group2 = NodeSpec("36 individuals", CountSpec("36.0", "NoModifier", "Absolute"))
     val moveFrom2 = NodeSpec("Juba")
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
@@ -355,7 +355,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val time1 = NodeSpec("Between 1 and 11 March 2017")
-    val group1 = NodeSpec("7,258 South Sudanese refugees")
+    val group1 = NodeSpec("7,258 South Sudanese refugees", CountSpec("7258.0", "NoModifier", "Absolute"))
     val moveTo1 = NodeSpec("Gambella") //todo: add ", Ethiopia"?
     val moveFrom1 = NodeSpec("South Sudanese")
     val migration1 = HumanMigrationEdgeSpec(
@@ -365,7 +365,7 @@ class TestMigrationSchema extends EnglishTest {
       moveFrom = Some(moveFrom1))
 
     val timeStart2 = NodeSpec("September 2016")
-    val group2 = NodeSpec("68,858")
+    val group2 = NodeSpec("68,858", CountSpec("68858.0", "NoModifier", "Absolute"))
     val migration2 = HumanMigrationEdgeSpec(
       time = Some(timeStart2),
       group = Some(group2))
@@ -406,17 +406,17 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("3,967")
+    val group1 = NodeSpec("3,967", CountSpec("3967.0", "NoModifier", "Absolute"))
     val time1 = NodeSpec("6 to 11 March")
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       time = Some(time1))
 
-    val group2 = NodeSpec("660 people")
-    val groupMod2 = NodeSpec("daily")
+    val group2 = NodeSpec("660 people", CountSpec("660.0", "NoModifier", "Daily"))
+//    val groupMod2 = NodeSpec("daily")
     val migration2 = HumanMigrationEdgeSpec(
       group = Some(group2),
-      groupModifier = Some(groupMod2)
+//      groupModifier = Some(groupMod2)
     )
 
     behavior of "migration-az-hack-2a"
@@ -436,9 +436,9 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group2 node" taggedAs (Somebody) in {
       tester.test(group2) should be(successful)
     }
-    passingTest should "have correct groupMod2 node" taggedAs (Somebody) in {
-      tester.test(groupMod2) should be(successful)
-    }
+//    passingTest should "have correct groupMod2 node" taggedAs (Somebody) in {
+//      tester.test(groupMod2) should be(successful)
+//    }
     passingTest should "have correct migration2 node" taggedAs (Somebody) in {
       tester.test(migration2) should be(successful)
     }
@@ -468,7 +468,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("192 level1 registered new arrivals")
+    val group1 = NodeSpec("192 level1 registered new arrivals", CountSpec("192.0", "NoModifier", "Absolute"))
     val moveTo1 = NodeSpec("Pagak") // should this be moveThrough ?
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
@@ -492,28 +492,28 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("103 person")
-    val groupMod1 = NodeSpec("daily")
+    val group1 = NodeSpec("103 person", CountSpec("103.0", "NoModifier", "Daily"))
+//    val groupMod1 = NodeSpec("daily")
     val time1 = NodeSpec("February")
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      groupModifier = Some(groupMod1),
+//      groupModifier = Some(groupMod1),
       time = Some(time1))
 
-    val group2 = NodeSpec("199")
-    val groupMod2 = NodeSpec("daily")
+    val group2 = NodeSpec("199", CountSpec("199.0", "NoModifier", "Daily"))
+//    val groupMod2 = NodeSpec("daily")
     val time2 = NodeSpec("February")
     val migration2 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      groupModifier = Some(groupMod2),
+//      groupModifier = Some(groupMod2),
       time = Some(time2))
 
-    val group3 = NodeSpec("660")
-    val groupMod3 = NodeSpec("daily")
+    val group3 = NodeSpec("660", CountSpec("660.0", "NoModifier", "Daily"))
+//    val groupMod3 = NodeSpec("daily")
     val time3 = NodeSpec("March")
     val migration3 = HumanMigrationEdgeSpec(
       group = Some(group3),
-      groupModifier = Some(groupMod3),
+//      groupModifier = Some(groupMod3),
       time = Some(time3))
 
     behavior of "migration-az-hack-5a"
@@ -521,9 +521,9 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    passingTest should "have correct groupMod1 node" taggedAs (Somebody) in {
-      tester.test(groupMod1) should be (successful)
-    }
+//    passingTest should "have correct groupMod1 node" taggedAs (Somebody) in {
+//      tester.test(groupMod1) should be (successful)
+//    }
     passingTest should "have correct time1 node" taggedAs (Somebody) in {
       tester.test(time1) should be (successful)
     }
@@ -536,9 +536,9 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group2 node" taggedAs (Somebody) in {
       tester.test(group2) should be (successful)
     }
-    passingTest should "have correct groupMod2 node" taggedAs (Somebody) in {
-      tester.test(groupMod2) should be (successful)
-    }
+//    passingTest should "have correct groupMod2 node" taggedAs (Somebody) in {
+//      tester.test(groupMod2) should be (successful)
+//    }
     passingTest should "have correct time2 node" taggedAs (Somebody) in {
       tester.test(time2) should be (successful)
     }
@@ -551,9 +551,9 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group3 node" taggedAs (Somebody) in {
       tester.test(group3) should be (successful)
     }
-    passingTest should "have correct groupMod3 node" taggedAs (Somebody) in {
-      tester.test(groupMod3) should be (successful)
-    }
+//    passingTest should "have correct groupMod3 node" taggedAs (Somebody) in {
+//      tester.test(groupMod3) should be (successful)
+//    }
     passingTest should "have correct time3 node" taggedAs (Somebody) in {
       tester.test(time3) should be (successful)
     }
@@ -567,7 +567,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("the new arrivals")
+    val group1 = NodeSpec("new arrivals") //leave of "the" ?
 
     val moveTo1 = NodeSpec("Upper Nile State")
     val moveTo2 = NodeSpec("Nasir")
@@ -716,7 +716,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val timeEnd1 = NodeSpec("15 March")
     val moveTo1 = NodeSpec("Ethiopia")
-    val group1 = NodeSpec("more than 356,000 South Sudanese refugees")
+    val group1 = NodeSpec("more than 356,000 South Sudanese refugees", CountSpec("356000.0", "Min", "Absolute"))
     val moveFrom1 = NodeSpec("South Sudanese")
     val migration1 = HumanMigrationEdgeSpec(
       timeEnd = Some(timeEnd1),
@@ -966,7 +966,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("16,274 South Sudanese refugees")
+    val group1 = NodeSpec("16,274 South Sudanese refugees", CountSpec("16274.0", "NoModifier", "Absolute"))
     val time1 = NodeSpec("Between 1 and 30 March 2017")
     val moveFrom1 = NodeSpec("South Sudanese")
     val moveTo1 = NodeSpec("Gambella")
@@ -1000,12 +1000,12 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("508 individuals")
-    val groupMod1 = NodeSpec("daily")
+    val group1 = NodeSpec("508 individuals", CountSpec("508.0", "NoModifier", "Daily"))
+//    val groupMod1 = NodeSpec("daily")
     val time1 = NodeSpec("the past week")
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      groupModifier = Some(groupMod1),
+//      groupModifier = Some(groupMod1),
       time = Some(time1))
 
     behavior of "migration-arrival"
@@ -1013,9 +1013,9 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    passingTest should "have correct groupModifier1 node" taggedAs (Somebody) in {
-      tester.test(groupMod1) should be (successful)
-    }
+//    passingTest should "have correct groupModifier1 node" taggedAs (Somebody) in {
+//      tester.test(groupMod1) should be (successful)
+//    }
     passingTest should "have correct time1 node" taggedAs (Somebody) in {
       tester.test(time1) should be (successful)
     }
@@ -1054,7 +1054,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("365,600 South Sudanese refugees")
+    val group1 = NodeSpec("365,600 South Sudanese refugees", CountSpec("365600.0", "Approximate", "Absolute"))
     val moveTo1 = NodeSpec("Ethiopia")
     val moveFrom1 = NodeSpec("South Sudanese")
     val time1 = NodeSpec("30 March 2017")
@@ -1137,7 +1137,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("4,608 new arrival")
+    val group1 = NodeSpec("4,608 new arrivals", CountSpec("4608.0", "NoModifier", "Absolute"))
     val moveFrom1 = NodeSpec("Pagak")
     val moveTo1 = NodeSpec("Nguenyyiel camp")
     val time1 = NodeSpec("past week")
@@ -1172,7 +1172,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("3,604 South Sudanese refugees")
+    val group1 = NodeSpec("3,604 South Sudanese refugees", CountSpec("3604.0", "NoModifier", "Absolute"))
     val time1 = NodeSpec("Between 13 and 28 April 2017")
     val moveFrom1 = NodeSpec("South Sudanese")
     val moveTo1 = NodeSpec("Gambella")
@@ -1206,12 +1206,12 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("350 individuals")
-    val groupMod1 = NodeSpec("daily")
+    val group1 = NodeSpec("350 individuals", CountSpec("350.0", "NoModifier", "Daily"))
+//    val groupMod1 = NodeSpec("daily")
     val time1 = NodeSpec("Currently") // this may be overkill?
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      groupModifier = Some(groupMod1),
+//      groupModifier = Some(groupMod1),
       time = Some(time1))
 
     behavior of "migration-arrival2"
@@ -1219,9 +1219,9 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    passingTest should "have correct groupModifier1 node" taggedAs (Somebody) in {
-      tester.test(groupMod1) should be (successful)
-    }
+//    passingTest should "have correct groupModifier1 node" taggedAs (Somebody) in {
+//      tester.test(groupMod1) should be (successful)
+//    }
     passingTest should "have correct time1 node" taggedAs (Somebody) in {
       tester.test(time1) should be (successful)
     }
@@ -1235,7 +1235,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("remaining 1%")
+    val group1 = NodeSpec("remaining 1%", CountSpec("1.0", "NoModifier", "Percentage"))
     val moveFrom1 = NodeSpec("Unity State")
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
@@ -1371,7 +1371,7 @@ class TestMigrationSchema extends EnglishTest {
     // the other clause
     //
 
-    val group7 = NodeSpec("14%")
+    val group7 = NodeSpec("14%", CountSpec("14.0", "NoModifier", "Percentage"))
     val moveFrom7 = NodeSpec("Jonglei State")
     val migration7 = HumanMigrationEdgeSpec(
       group = Some(group7),
@@ -1389,7 +1389,7 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration7) should be (successful)
     }
 
-    val group8 = NodeSpec("14%")
+    val group8 = NodeSpec("14%", CountSpec("14.0", "NoModifier", "Percentage"))
     val moveFrom8 = NodeSpec("Uror")
     val migration8 = HumanMigrationEdgeSpec(
       group = Some(group8),
@@ -1407,7 +1407,7 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration8) should be (successful)
     }
 
-    val group9 = NodeSpec("14%")
+    val group9 = NodeSpec("14%", CountSpec("14.0", "NoModifier", "Percentage"))
     val moveFrom9 = NodeSpec("Akobo")
     val migration9 = HumanMigrationEdgeSpec(
       group = Some(group9),
@@ -1425,7 +1425,7 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration9) should be (successful)
     }
 
-    val group10 = NodeSpec("14%")
+    val group10 = NodeSpec("14%", CountSpec("14.0", "NoModifier", "Percentage"))
     val moveFrom10 = NodeSpec("Ayod Counties")
     val migration10 = HumanMigrationEdgeSpec(
       group = Some(group10),
@@ -1449,7 +1449,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("3,604 new arrivals")
+    val group1 = NodeSpec("3,604 new arrivals", CountSpec("3604.0", "Approximate", "Absolute"))
     val timeEnd1 = NodeSpec("28 April 2017")
     val moveTo1 = NodeSpec("Pagak Reception Centre") // TODO: or is this the intermediate location?
     val migration1 = HumanMigrationEdgeSpec(
@@ -1479,15 +1479,15 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("13,225 South Sudanese refugees")
+    val group1 = NodeSpec("13,225 South Sudanese refugees", CountSpec("13225.0", "NoModifier", "Absolute"))
     val moveTo1 = NodeSpec("Gambella")
     val time1 = NodeSpec("1 and 25 March 2017")
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1), timeStart = Some(time1))
 
 
-    val group2 = NodeSpec("74,825")
-    val timeStart2 = NodeSpec("September 2016")
+    val group2 = NodeSpec("74,825", CountSpec("74,825", "NoModifier", "Absolute"))
+    val timeStart2 = NodeSpec("since September 2016", TimEx("since September 2016)"))
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), timeStart = Some(timeStart2))
 
     behavior of "migration-ma-1"
@@ -1553,7 +1553,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("1,796 individuals")
+    val group1 = NodeSpec("1,796 individuals", CountSpec("1796.0", "NoModifier", "Absolute"))
     val moveTo1 = NodeSpec("Pagak") //todo: should this be intermediate point?
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
@@ -1603,7 +1603,7 @@ class TestMigrationSchema extends EnglishTest {
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveFrom = Some(moveFrom1))
 
 
-    val group2 = NodeSpec("14%")
+    val group2 = NodeSpec("14%", CountSpec("14.0", "NoModifier", "Percentage"))
     val moveFrom2 = NodeSpec("Jonglei State")
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
