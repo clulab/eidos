@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/clulab/eidos.svg?branch=master)](https://travis-ci.org/clulab/eidos)
-
+[![Build Status](http://jenkins.cs.arizona.edu:8090/buildStatus/icon?job=eidos%2Fmaster)](http://jenkins.cs.arizona.edu:8090/job/eidos)
 
 # Eidos
 
@@ -349,7 +348,7 @@ object YourClassName extends App {
   val annotatedDocument = reader.extractFromText(text)
 
   // Export to JSON-LD
-  val corpus = new JLDCorpus(Seq(annotatedDocument), reader)
+  val corpus = new JLDCorpus(Seq(annotatedDocument), reader.loadableAttributes.adjectiveGrounder)
   val mentionsJSONLD = corpus.serialize()
   println(stringify(mentionsJSONLD, pretty = true))
 }
@@ -376,7 +375,7 @@ Follow their links for details.
 
 Eidos reading output (JSON-LD) can be visualized using [INDRA](https://github.com/sorgerlab/indra)
 and Jupyter notebooks. Here is an example:
-![Link to Delphi](/doc/delphi_example.png?raw=True")
+![Link to Delphi](/doc/indra_example.png?raw=True")
 
 
 ## Delphi

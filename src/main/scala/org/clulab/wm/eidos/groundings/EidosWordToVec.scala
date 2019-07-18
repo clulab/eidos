@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import org.clulab.embeddings.word2vec.CompactWord2Vec
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Namer
@@ -75,9 +76,11 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)
+
 }
 
 object EidosWordToVec {
+
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def makeCachedFilename(path: String, file: String): String =

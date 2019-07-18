@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import com.typesafe.config.Config
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
@@ -27,7 +28,7 @@ class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounde
       (Sourcer.sourceFromResource(quantifierKBFile)).autoClose { source =>
       // adjective -> Map(name:value)
         FileUtils.getCommentedLinesFromSource(source)
-            .map { line => // "adjective	mu_coefficient	sigma_coefficient	intercept"
+            .map { line => // "adjective  mu_coefficient  sigma_coefficient  intercept"
               val fields = line.split("\t")
               val adj = fields(0)
               val mu_coeff = fields(1).toDouble
@@ -71,5 +72,7 @@ object EidosAdjectiveGrounder {
   val MU_COEFF: String = "mu_coeff"
   val SIGMA_COEFF: String = "sigma_coeff"
 
-  def apply(quantifierKBFile: String) = new EidosAdjectiveGrounder(quantifierKBFile)
+  def apply(quantifierKBFile: String): EidosAdjectiveGrounder = new EidosAdjectiveGrounder(quantifierKBFile)
+
+  def fromConfig(config: Config): EidosAdjectiveGrounder = apply(config.getString("quantifierKBPath"))
 }

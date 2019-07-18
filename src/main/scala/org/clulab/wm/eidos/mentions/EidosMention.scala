@@ -92,12 +92,6 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   // Access to new and improved Eidos arguments
   val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, canonicalizer, ontologyGrounder, mentionMapper)
 
-  val eidosMentionsFromAttachments: Seq[EidosMention] = {
-    val attachmentMentions = odinMention.attachments.toSeq.flatMap(_.asInstanceOf[EidosAttachment].attachmentMentions)
-
-    EidosMention.asEidosMentions(attachmentMentions, canonicalizer, ontologyGrounder, mentionMapper)
-  }
-
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]], canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
       mentionMapper: MentionMapper): Map[String, Seq[EidosMention]] = {
     odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, canonicalizer, ontologyGrounder, mentionMapper))
@@ -166,8 +160,6 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
-
-
 }
 
 object EidosMention {
@@ -208,7 +200,6 @@ object EidosMention {
       mentionBagger.putIfNew(odinMention, {
         odinMention.arguments.flatMap(_._2).foreach(addMention)
         // Skipping paths
-        odinMention.attachments.asInstanceOf[Set[EidosAttachment]].flatMap(_.attachmentMentions).foreach(addMention)
         if (odinMention.isInstanceOf[EventMention])
           addMention(odinMention.asInstanceOf[EventMention].trigger)
         if (odinMention.isInstanceOf[CrossSentenceMention]) {
@@ -234,6 +225,30 @@ object EidosMention {
   }
 
   def hasUnderlyingMentions(surfaceMentions: Seq[Mention]): Boolean = findUnderlyingMentions(surfaceMentions).nonEmpty
+
+  def before(left: EidosMention, right: EidosMention): Boolean = {
+    val leftSentence = left.odinMention.sentence
+    val rightSentence = right.odinMention.sentence
+
+    if (leftSentence != rightSentence)
+      leftSentence < rightSentence
+    else {
+      val leftStart = left.odinMention.start
+      val rightStart = right.odinMention.start
+
+      if (leftStart != rightStart)
+        leftStart < rightStart
+      else {
+        val leftEnd = left.odinMention.end
+        val rightEnd = right.odinMention.end
+
+        if (leftEnd != rightEnd)
+          leftEnd < rightEnd
+        else
+          true
+      }
+    }
+  }
 }
 
 class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,

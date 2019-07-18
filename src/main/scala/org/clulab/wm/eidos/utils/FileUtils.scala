@@ -2,8 +2,11 @@ package org.clulab.wm.eidos.utils
 
 import java.io._
 import java.net.URL
-import java.nio.file.Paths
+import java.nio.channels.Channels
+import java.nio.file.StandardCopyOption
+import java.nio.file.{Files, Path, Paths}
 import java.util.Collection
+import java.util.zip.ZipFile
 
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.ClassLoaderObjectInputStream
@@ -14,6 +17,7 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
+import scala.collection.JavaConverters._
 import scala.io.Source
 
 object FileUtils {
@@ -76,9 +80,9 @@ object FileUtils {
     yaml.load(input).asInstanceOf[Collection[Any]]
   }
 
-  def writeToJSONLD(annotatedDocuments: Seq[AnnotatedDocument], pw: PrintWriter, reader: EidosSystem): Unit = {
+  def writeToJSONLD(annotatedDocument: AnnotatedDocument, pw: PrintWriter, reader: EidosSystem): Unit = {
     // 4. Convert to JSON
-    val corpus = new JLDCorpus(annotatedDocuments, reader.loadableAttributes.adjectiveGrounder)
+    val corpus = new JLDCorpus(annotatedDocument)
     val mentionsJSONLD = corpus.serialize()
     // 5. Write to output file
     pw.println(stringify(mentionsJSONLD, pretty = true))
@@ -157,6 +161,43 @@ object FileUtils {
     finally {
       if (temporary)
         file.delete()
+    }
+  }
+
+  // Output
+  def newBufferedOutputStream(file: File): BufferedOutputStream =
+    new BufferedOutputStream(new FileOutputStream(file))
+
+  def newBufferedOutputStream(filename: String): BufferedOutputStream =
+      newBufferedOutputStream(new File(filename))
+
+  def newObjectOutputStream(filename: String): ObjectOutputStream =
+      new ObjectOutputStream(newBufferedOutputStream(filename))
+
+  // Input
+  def newBufferedInputStream(file: File): BufferedInputStream =
+    new BufferedInputStream(new FileInputStream(file))
+
+  def newBufferedInputStream(filename: String): BufferedInputStream =
+      newBufferedInputStream(new File(filename))
+
+  def newObjectInputStream(filename: String): ObjectInputStream =
+      new ObjectInputStream(newBufferedInputStream(filename))
+
+  def unzip(zipPath: Path, outputPath: Path, replace: Boolean = false): Unit = {
+    new ZipFile(zipPath.toFile).autoClose { zipFile =>
+      for (entry <- zipFile.entries.asScala) {
+        val path = outputPath.resolve(entry.getName)
+        if (entry.isDirectory) {
+          Files.createDirectories(path)
+        } else {
+          Files.createDirectories(path.getParent)
+          if (replace)
+            Files.copy(zipFile.getInputStream(entry), path, StandardCopyOption.REPLACE_EXISTING)
+          else
+            Files.copy(zipFile.getInputStream(entry), path)
+        }
+      }
     }
   }
 }

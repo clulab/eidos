@@ -2,11 +2,11 @@ package org.clulab.wm.eidos.apps
 
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.processors.Processor
-import org.clulab.wm.eidos.utils.{PassThruNamer, Sourcer}
+import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, EidosOntologyGrounder, EidosWordToVec}
+import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+
 import scala.collection.mutable.ArrayBuffer
 
 object OntologyMapper {
@@ -64,7 +64,7 @@ object OntologyMapper {
 
   def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
     val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
-    reader.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.proc))
+    reader.ontologyHandler.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.proc))
   }
 
   def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Float = {
@@ -145,13 +145,14 @@ object OntologyMapper {
 
   // Mapping the UN_ONT to the indicator ontologies
   def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
-    println(s"number of eidos ontologies - ${reader.loadableAttributes.ontologyGrounders.length}")
-    val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
+    val grounders = reader.ontologyHandler.grounders
+    println(s"number of eidos ontologies - ${grounders.length}")
+    val eidosConceptEmbeddings = grounders.head.conceptEmbeddings
 
     // Version from master
     val indicatorMaps = EidosOntologyGrounder.indicatorNamespaces.toSeq.map{
       namespace =>
-        val ontology = reader.loadableAttributes.ontologyGrounders.find(_.name == namespace)
+        val ontology = grounders.find(_.name == namespace)
         val concepts = ontology.map(_.conceptEmbeddings).getOrElse(Seq())
         val mostSimilar = mostSimilarIndicators(eidosConceptEmbeddings, concepts, topN, reader).toMap
         mostSimilar.foreach(mapping => println(s"un: ${mapping._1} --> most similar ${namespace}: ${mapping._2.mkString(",")}"))
@@ -200,14 +201,23 @@ object OntologyMapper {
     * @param topN the number of similarity scores to return, when set to 0, return them all (default = 0)
     * @return String version of the mapping, akin to a file, newlines separate the "rows"
     */
-  def mapOntologies(reader: EidosSystem, bbnPath: String, sofiaPath: String, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
+  def mapOntologies(reader: EidosSystem, bbnPath: String, sofiaPath: String, providedOntology: Option[String], providedOntName: String = "ProvidedOntology",
+                    exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
     // EidosSystem stuff
     val proc = reader.proc
-    val w2v = reader.wordToVec
+    val w2v = reader.ontologyHandler.wordToVec
     val config = reader.config
 
     // Load
-    val eidosConceptEmbeddings = reader.loadableAttributes.ontologyGrounders.head.conceptEmbeddings
+    val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
+      val grounder = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.stopwordManager))
+      grounder match {
+        case g: EidosOntologyGrounder => g.conceptEmbeddings
+        case _ => throw new RuntimeException("Custom ontology Grounder must be an EidosOntologyGrounder")
+      }
+    } else {
+      reader.ontologyHandler.grounders.head.conceptEmbeddings
+    }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
     val bbnConceptEmbeddings = loadOtherOntology(bbnPath, w2v)
     println("Finished loading other ontologies")

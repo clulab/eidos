@@ -1,6 +1,9 @@
 package org.clulab.wm.eidos.utils
 
 import org.clulab.odin._
+import org.clulab.struct.Interval
+import org.clulab.wm.eidos.attachments.{EidosAttachment, TriggeredAttachment}
+import scala.collection.mutable.{Set => MutableSet}
 
 object MentionUtils {
 
@@ -20,4 +23,25 @@ object MentionUtils {
 
   def withMoreAttachments(mention: Mention, attachments: Seq[Attachment]): Mention =
       withOnlyAttachments(mention, mention.attachments ++ attachments)
+
+  def withLabel(mention: Mention, label: String): Mention = {
+    val newLabels = label +: mention.labels
+    mention match {
+      // Unfortunately, Mention itself does not have a copy(WithLabels) method.
+      case m: TextBoundMention => m.copy(newLabels)
+      case m:  RelationMention => m.copy(newLabels)
+      case m:     EventMention => m.copy(newLabels)
+      case _ => ??? // not done for cross-sentence or anything else
+    }
+  }
+
+  def withFoundBy(mention: Mention, foundBy: String): Mention = {
+    mention match {
+      case tb: TextBoundMention => tb.copy(foundBy=foundBy)
+      case rm: RelationMention => rm.copy(foundBy=foundBy)
+      case em: EventMention => em.copy(foundBy=foundBy)
+    }
+  }
+
+
 }

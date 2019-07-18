@@ -7,7 +7,7 @@ import org.clulab.processors.{Document, Sentence}
 
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.{EidosDocument, TimeInterval}
+import org.clulab.wm.eidos.document.{EidosDocument, TimEx}
 
 object DisplayUtils {
   protected val nl = "\n"
@@ -49,17 +49,17 @@ object DisplayUtils {
     sb.toString
   }
 
-  def displayTimeExpressions(intervals: Seq[TimeInterval]): String = {
+  def displayTimeExpressions(timexes: Seq[TimEx]): String = {
     val sb = new StringBuffer()
-    for (interval <- intervals) {
-      sb.append(s"$tab span: ${interval.span._1},${interval.span._2} $nl")
-      for (i <- interval.intervals) {
-        val start = Option(i._1).map(_.toString).getOrElse("Undef")
-        val end = Option(i._2).map(_.toString).getOrElse("Undef")
+    for (timex <- timexes) {
+      sb.append(s"$tab span: ${timex.span.start},${timex.span.end} $nl")
+      for (i <- timex.intervals) {
+        val start = i.startDateOpt.map(_.toString).getOrElse("Undef")
+        val end = i.endDateOpt.map(_.toString).getOrElse("Undef")
 
         sb.append(s"$tab start: $start $nl")
         sb.append(s"$tab end: $end $nl")
-        sb.append(s"$tab duration: ${i._3} $nl")
+        sb.append(s"$tab duration: ${i.duration} $nl")
       }
       sb.append(nl)
     }
@@ -173,7 +173,7 @@ object DisplayUtils {
 
   def htmlTab: String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 
-  def webAppTimeExpressions(intervals: Seq[TimeInterval]): String =
+  def webAppTimeExpressions(intervals: Seq[TimEx]): String =
       xml.Utility.escape(displayTimeExpressions(intervals))
           .replaceAll(nl, "<br>")
           .replaceAll(tab, "&nbsp;&nbsp;&nbsp;&nbsp;")

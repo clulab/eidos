@@ -3,6 +3,8 @@ package org.clulab.wm.eidos.system
 import java.io.File
 
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.io.Source
 
@@ -14,21 +16,21 @@ class TestResources extends Test {
     val path = file.getCanonicalPath()
 
     it should "not have any Unicode characters in " + path in {
-      val stream = Source.fromFile(file, "utf8")
-      val count = stream.getLines().zipWithIndex.foldRight(0) { (lineAndLineNo, sum) =>
-        val line = lineAndLineNo._1
-        val lineNo = lineAndLineNo._2
-        val badCharAndIndex = line.zipWithIndex.filter { case (c: Char, index: Int) =>
-          (c < 32 || 127 < c) && c != '\r' && c != '\n' && c != '\t'
-        }
-        val complaints = badCharAndIndex.map { case (c: Char, index: Int) =>
-          "'" + c + "' found at index " + index + "."
-        }
+      val count = Sourcer.sourceFromFile(file).autoClose { source =>
+        source.getLines().zipWithIndex.foldRight(0) { (lineAndLineNo, sum) =>
+          val line = lineAndLineNo._1
+          val lineNo = lineAndLineNo._2
+          val badCharAndIndex = line.zipWithIndex.filter { case (c: Char, index: Int) =>
+            (c < 32 || 127 < c) && c != '\r' && c != '\n' && c != '\t'
+          }
+          val complaints = badCharAndIndex.map { case (c: Char, index: Int) =>
+            "'" + c + "' found at index " + index + "."
+          }
 
-        complaints.foreach(complaint => println("Line " + (lineNo + 1) + ": " + complaint))
-        sum + complaints.size
+          complaints.foreach(complaint => println("Line " + (lineNo + 1) + ": " + complaint))
+          sum + complaints.size
+        }
       }
-
       count should be (0)
     }
   }
@@ -37,8 +39,8 @@ class TestResources extends Test {
   type Operation = (File) => Unit
 
   val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
-  val unwantedSuffixes = Seq("vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
-                              "geo_dict_with_population_SOUTH_SUDAN.txt", "word2idx_file.txt")
+  val unwantedSuffixes = Seq("300d.txt", "vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
+                              "word2idx_file.txt")
 
   def fileMatches(file: File): Boolean = {
     val canonicalPath = file.getCanonicalPath().replace('\\', '/')

@@ -72,7 +72,7 @@ trait Exporter {
 // Helper classes for facilitating the different export formats
 case class JSONLDExporter(pw: PrintWriter, reader: EidosSystem) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
-    val corpus = new JLDCorpus(annotatedDocuments, reader.loadableAttributes.adjectiveGrounder)
+    val corpus = new JLDCorpus(annotatedDocuments)
     val mentionsJSONLD = corpus.serialize()
     pw.println(stringify(mentionsJSONLD, pretty = true))
   }
@@ -100,7 +100,7 @@ case class MitreExporter(pw: PrintWriter, reader: EidosSystem, filename: String,
 
   def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
     val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.releventEdge(m.odinMention, State(allOdinMentions)))
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
 
     for {
       mention <- mentionsToPrint

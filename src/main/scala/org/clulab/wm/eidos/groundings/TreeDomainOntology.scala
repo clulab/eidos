@@ -115,12 +115,12 @@ object TreeDomainOntology {
   }
 
   // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class TreeDomainOntologyBuilder(ontologyPath: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean) {
+  class TreeDomainOntologyBuilder(proc: Processor, canonicalizer: Canonicalizer, filter: Boolean) {
 
-    def build(): TreeDomainOntology = {
-      val text = getTextFromResource(ontologyPath)
+    def buildFromPath(ontologyPath: String): TreeDomainOntology = buildFromYaml(getTextFromResource(ontologyPath))
+    def buildFromYaml(yamlText: String): TreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
-      val yamlNodes = yaml.load(text).asInstanceOf[JCollection[Any]].asScala.toSeq
+      val yamlNodes = yaml.load(yamlText).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(new OntologyRootNode, yamlNodes)
 
       new TreeDomainOntology(ontologyNodes.toArray)
@@ -213,8 +213,14 @@ object TreeDomainOntology {
 
         if (key == TreeDomainOntology.FIELD)
           Seq(parseOntology(parent, map))
-        else
-          parseOntology(new OntologyBranchNode(key, parent), map(key).asScala.toSeq)
+        else {
+          // This is to account for leafless branches.
+          val yamlNodesOpt = Option(map(key).asScala)
+          if (yamlNodesOpt.nonEmpty) // foreach does not work well here.
+            parseOntology(new OntologyBranchNode(key, parent), yamlNodesOpt.get.toSeq)
+          else
+            Seq.empty
+        }
       }
     }
   }

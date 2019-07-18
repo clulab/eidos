@@ -11,16 +11,17 @@ RUN apt-get update && apt-get install -y \
     vim
 
 # Install Java
-RUN add-apt-repository -y ppa:webupd8team/java
-RUN echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
-RUN apt-get update && apt-get install -y \
-    oracle-java8-installer 
-RUN export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
-RUN export PATH="$JAVA_HOME/bin:$PATH"    
+RUN apt-get -y install software-properties-common
+RUN add-apt-repository -y ppa:openjdk-r/ppa
+RUN apt-get update
+RUN apt-get -y install openjdk-8-jdk
+RUN export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+RUN export PATH="$JAVA_HOME/bin:$PATH"
 
 # Install Scala
 WORKDIR /
 RUN apt-get remove scala-library scala
+RUN apt-get install wget
 RUN wget http://scala-lang.org/files/archive/scala-2.12.7.deb
 RUN dpkg -i scala-2.12.7.deb
 RUN apt-get update && apt-get install scala

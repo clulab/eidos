@@ -10,7 +10,8 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-  val procVer = "7.4.2"
+  val procVer = "7.5.1"
+  val luceneVer = "6.6.6"
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
@@ -18,7 +19,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-odin"          % procVer,
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
-    "org.clulab"    % "geonorm-models"            % "0.9.0",
+    "org.clulab"    % "geonorm-models"            % "0.9.5",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",
@@ -26,7 +27,12 @@ libraryDependencies ++= {
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
+    "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2",
+    "org.apache.lucene" % "lucene-core"             % luceneVer,
+    "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
+    "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer
   )
 }
 
@@ -58,7 +64,7 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
 
 libraryDependencies ++= {
   val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
-  val timenorm = "timenorm-0.9.6.15" + (if (minor == 11) "_2.11.11" else "")
+  val timenorm = "timenorm-0.11.1" + (if (minor == 11) "_2.11.11" else "")
 
   Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
 }
@@ -89,6 +95,35 @@ publishTo := {
 // let’s remove any repositories for optional dependencies in our artifact
 pomIncludeRepository := { _ => false }
 
+
+// These values in scmInfo replace the <scm/> section previously recorded in
+// pomExtra so that default values aren't used which then double up in the
+// XML and cause a validation error.  This problem was first noted with
+// sbt.version=1.1.6
+// addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.8")
+// addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
+// This produced
+// <scm>
+//     <url>https://github.com/clulab/eidos</url>
+//     <connection>scm:git:https://github.com/clulab/eidos.git</connection>
+//     <developerConnection>scm:git:git@github.com:clulab/eidos.git</developerConnection>
+// </scm>
+// that must be automatically generated and a duplicate
+// <scm>
+//     <url>https://github.com/clulab/eidos</url>
+//     <connection>https://github.com/clulab/eidos</connection>
+// </scm>
+// Judging from this, the scmInfo is collected automatically, perhaps by
+// addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.9.3")
+// However, the developerConnection is undesired, so this is used:
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/clulab/eidos"),
+    "scm:git:https://github.com/clulab/eidos.git"
+  )
+)
+
+
 // mandatory stuff to add to the pom for publishing
 pomExtra :=
   <url>https://github.com/clulab/eidos</url>
@@ -99,10 +134,10 @@ pomExtra :=
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <scm>
+  <!--scm>
     <url>https://github.com/clulab/eidos</url>
     <connection>https://github.com/clulab/eidos</connection>
-  </scm>
+  </scm-->
   <developers>
     <developer>
       <id>mihai.surdeanu</id>
@@ -162,3 +197,4 @@ releaseProcess := Seq[ReleaseStep](
 enablePlugins(SiteScaladocPlugin)
 enablePlugins(GhpagesPlugin)
 git.remoteRepo := "git@github.com:clulab/eidos.git"
+

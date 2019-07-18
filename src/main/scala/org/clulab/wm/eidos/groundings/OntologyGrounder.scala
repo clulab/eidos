@@ -40,14 +40,14 @@ trait MultiOntologyGrounding {
 }
 
 
-class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
   // Is not dependent on the output of other grounders
   val isPrimary = true
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),
-          wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
@@ -57,20 +57,6 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
     }
 
   def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
-    def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
-      patterns match {
-        case None => false
-        case Some(rxs) =>
-          for (r <- rxs) {
-            if (r.findFirstIn(s).nonEmpty) return true
-          }
-          false
-      }
-    }
-
-    def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[(Namer, Float)] = {
-      nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => (node.namer, 1.0f))
-    }
 
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
@@ -90,6 +76,34 @@ class EidosOntologyGrounder(val name: String, domainOntology: DomainOntology, wo
   }
 
   def groundable(mention: EidosMention, primaryGrounding: Option[Aliases.Groundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
+
+  // For Regex Matching
+  def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[(Namer, Float)] = {
+    nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => (node.namer, 1.0f))
+  }
+
+  def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
+    patterns match {
+      case None => false
+      case Some(rxs) =>
+        for (r <- rxs) {
+          if (r.findFirstIn(s).nonEmpty) return true
+        }
+        false
+    }
+  }
+
+  // For API to reground strings
+  def groundText(text: String): OntologyGrounding = {
+    val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
+    if (matchedPatterns.nonEmpty) {
+      OntologyGrounding(matchedPatterns)
+    }
+    // Otherwise, back-off to the w2v-based approach
+    else {
+      OntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
+    }
+  }
 
 }
 
@@ -167,10 +181,11 @@ object EidosOntologyGrounder {
   val MITRE12_NAMESPACE = "mitre12"
   val     WHO_NAMESPACE = "who"
   val     INT_NAMESPACE = "interventions"
+  val   ICASA_NAMESPACE = "icasa"
   // Used for plugin ontologies
   val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
 
-  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE)
+  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 

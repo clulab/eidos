@@ -40,9 +40,9 @@ class TestDoc2 extends EnglishTest {
     val tester = new GraphTester(text)
 
     val situation = NodeSpec("deteriorating situation", Dec("deteriorating"))
-    val leanSeason = NodeSpec("unusually long and harsh annual lean season", Quant("harsh"))
+    val leanSeason = NodeSpec("unusually long and harsh annual lean season", Quant("harsh"), TimEx("annual"))
     val foodStocks = NodeSpec("food stocks", Dec("depleted"))
-    val foodInsecurity = NodeSpec("level of food insecurity this year", Quant("unprecedented"))
+    val foodInsecurity = NodeSpec("level of food insecurity this year", Quant("unprecedented"), TimEx("this year"))
 
     behavior of "TestDoc2 Paragraph 2"
 
@@ -120,7 +120,7 @@ class TestDoc2 extends EnglishTest {
 
     val foodInsecurity = NodeSpec("Food insecurity")
     val conflict = NodeSpec("conflict")
-    val fams = NodeSpec("many families to leave South Sudan for neighbouring countries", Quant("many"))
+    val fams = NodeSpec("many families to leave South Sudan for neighbouring countries", Quant("many"), GeoLoc("South Sudan"))
 
     behavior of "TestDoc2 Paragraph 5"
 

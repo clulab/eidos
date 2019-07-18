@@ -16,9 +16,10 @@ def represent_none(self, _):
 yaml.add_representer(type(None), represent_none)
 
 
-def ont_node(name, examples, keywords):
-    # Make sure the node name is added to the examples to be used for grounding
-    examples.append(name)
+def ont_node(name, examples, keywords, add_name = True):
+    # If selected, make sure the node name is added to the examples to be used for grounding
+    if add_name:
+        examples.append(name)
     d = {'OntologyNode': None, "name": name, 'examples': examples, 'polarity': 1.0}
     if keywords is not None:
         d['keywords'] = keywords
@@ -36,8 +37,7 @@ def main():
     ont_file = sys.argv[2]
     ont_name = sys.argv[3]
     with open(flat_file, "r") as f:
-        lines = [line.rstrip() for line in f.readlines()]
-    nodes = [ont_node(line, [], None) for line in lines]
+        nodes = [ont_node(line.rstrip(), [], None) for line in f]
     dump_yaml(nodes, ont_file, ont_name)
 
 if __name__ == "__main__":

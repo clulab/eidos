@@ -1,30 +1,25 @@
 package controllers
 
 import javax.inject._
-
 import com.typesafe.config.ConfigRenderOptions
-
 import org.clulab.odin._
+import org.clulab.processors.Processor
 import org.clulab.processors.{Document, Sentence}
-import org.clulab.serialization.DocumentSerializer
-
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimeInterval
+import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
-
 import play.api.mvc._
 import play.api.libs.json._
-
-import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
+import play.api.mvc.Action
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
@@ -36,8 +31,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // Initialize the EidosSystem
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
-  val ieSystem = new EidosSystem()
-  val proc = ieSystem.proc
+  val ieSystem: EidosSystem = new EidosSystem()
+  val proc: Processor = ieSystem.proc
+  val stanza = "adjectiveGrounder"
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig(stanza))
+  val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.config.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -48,22 +46,22 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
    * will be called when the application receives a `GET` request with
    * a path of `/`.
    */
-  def index() = Action { implicit request: Request[AnyContent] =>
+  def index(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
   }
 
-  def buildInfo = Action {
+  def buildInfo: Action[AnyContent] = Action {
     Ok(jsonBuildInfo)
   }
 
-  def config = Action {
+  def config: Action[AnyContent] = Action {
     val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
     val jsonString = ieSystem.config.root.render(options)
     Ok(jsonString).as(JSON)
   }
 
   // Entry method
-  def parseText(text: String, cagRelevantOnly: Boolean) = Action {
+  def parseText(text: String, cagRelevantOnly: Boolean): Action[AnyContent] = Action {
     val (doc, eidosMentions, groundedEntities) = processPlaySentence(ieSystem, text, cagRelevantOnly)
     println(s"Sentence returned from processPlaySentence : ${doc.sentences.head.getSentenceText}")
     val json = mkJson(text, doc, eidosMentions, groundedEntities)
@@ -79,11 +77,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     def mentionOrder(m: Mention): Int = 10000 * m.sentence + m.start
 
     // preprocessing
-    println(s"Processing sentence : ${text}" )
+    println(s"Processing sentence : $text" )
     val doc = ieSystem.annotate(text)
 
     // Debug
-    println(s"DOC : ${doc}")
+    println(s"DOC : $doc")
     // extract mentions from annotated document
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
     val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
@@ -102,10 +100,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
 // Webservice functions
-  def process_text = Action(parse.json) { request =>
+  def process_text: Action[JsValue] = Action(parse.json) { request =>
     (request.body \ "text").asOpt[String].map { text =>
-      val (mentionsJSONLD) = processPlaytext(ieSystem, text)
-      val (parsed_output) = PlayUtils.toPlayJson(mentionsJSONLD)
+      val mentionsJSONLD = processPlaytext(ieSystem, text)
+      val parsed_output = PlayUtils.toPlayJson(mentionsJSONLD)
       Ok(parsed_output)
     }.getOrElse {
       BadRequest("Missing parameter [text]")
@@ -115,16 +113,16 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // Method where eidos processing for webservice happens
   def processPlaytext(
     ieSystem: EidosSystem,
-    text: String): (org.json4s.JsonAST.JValue) = {
+    text: String): org.json4s.JsonAST.JValue = {
 
     // preprocessing
-    println(s"Processing sentence : ${text}" )
+    println(s"Processing sentence : $text" )
     val annotatedDocument = ieSystem.extractFromText(text)
 
     // Export to JSON-LD
-    val corpus = new JLDCorpus(Seq(annotatedDocument), ieSystem.loadableAttributes.adjectiveGrounder)
-    val mentionsJSONLD = corpus.serialize()
-    (mentionsJSONLD)
+    val corpus = new JLDCorpus(annotatedDocument)
+    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+    mentionsJSONLD
   }
 
   case class GroundedEntity(sentence: String,
@@ -146,21 +144,18 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   
   def groundEntity(mention: Mention, quantifier: String, ieSystem: EidosSystem): GroundedEntity = {
     // add the calculation
-    val domainParams = ieSystem.loadableAttributes.domainParams
-
     println("loaded domain params:" + domainParams.toString())
     println(s"\tkeys: ${domainParams.keys.mkString(", ")}")
     println(s"getting details for: ${mention.text}")
 
-    val paramDetails = domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
-    val paramMean = paramDetails.get(DomainParams.PARAM_MEAN).get
-    val paramStdev = paramDetails.get(DomainParams.PARAM_STDEV).get
-    val grounding = ieSystem.loadableAttributes.adjectiveGrounder.groundAdjective(quantifier)
+    val paramDetails: Map[String, Double] = domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
+    val paramMean = paramDetails(DomainParams.PARAM_MEAN)
+    val paramStdev = paramDetails(DomainParams.PARAM_STDEV)
+    val grounding = adjectiveGrounder.groundAdjective(quantifier)
     val predictedDelta = grounding.predictDelta(paramMean, paramStdev)
 
     GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText, quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)
   }
-
 
   def groundEntities(ieSystem: EidosSystem, mentions: Seq[EidosMention]): Vector[GroundedEntity] = {
     val gms = for {
@@ -297,11 +292,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Option[Array[Seq[TimeInterval]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
+  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
 
     var objectToReturn = ""
 
-    if(groundedEntities.size > 0){
+    if (groundedEntities.nonEmpty) {
       objectToReturn += "<h2>Grounded Concepts:</h2>"
 
       // Make the string for each grounded entity
@@ -312,10 +307,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         val predictedDelta = grounding.predictedDelta
         val mean = grounding.mean
         val stdev = grounding.stdev
-        var stringToYield = s"${tab}Sentence: ${sentence}"
+        var stringToYield = s"${tab}Sentence: $sentence"
 
-        stringToYield += s"<br>${tab}Entity: ${groundedEntity}"
-        stringToYield += s"<br>${tab}Quantifier: ${quantifier}"
+        stringToYield += s"<br>${tab}Entity: $groundedEntity"
+        stringToYield += s"<br>${tab}Quantifier: $quantifier"
         if (predictedDelta.isDefined && mean.isDefined && stdev.isDefined)
           stringToYield += s"<br>${tab}Predicted delta = ${"%3.3f".format(predictedDelta.get)} (with typical mean=${mean.get} and stdev=${stdev.get})"
         stringToYield += "<br>"
@@ -329,18 +324,24 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       objectToReturn += ""
 
     // TimeExpressions
-    objectToReturn += "<h2>Found TimeExpressions:</h2>"
-    if (time.isDefined)
-      time.get.foreach { t =>
-        objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
+    val timeMentions = mentions.filter(_.odinMention matches "Time")
+    if (timeMentions.nonEmpty) {
+      objectToReturn += "<h2>Found TimeExpressions:</h2>"
+      val times = timeMentions.flatMap(_.odinMention.attachments).collect{
+        case time: Time => time.interval
       }
+      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(times)}"
+    }
 
     // GeoLocations
-    objectToReturn += "<h2>Found GeoLocations:</h2>"
-    if (location.isDefined)
-      location.get.foreach { l =>
-        objectToReturn += s"${DisplayUtils.webAppGeoLocations(l)}"
+    val locationMentions = mentions.filter(_.odinMention matches "Location")
+    if (locationMentions.nonEmpty) {
+      objectToReturn += "<h2>Found GeoLocations:</h2>"
+      val locations = locationMentions.flatMap(_.odinMention.attachments).collect{
+        case location: Location => location.geoPhraseID
       }
+      objectToReturn += s"${DisplayUtils.webAppGeoLocations(locations)}"
+    }
 
 
     // Concepts
@@ -382,7 +383,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     objectToReturn
   }
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Option[Array[Seq[TimeInterval]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
 
     // collect event mentions for display
@@ -482,7 +483,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def mkJsonFromTimeExpressions(time: Option[Array[Seq[TimeInterval]]]): Json.JsValueWrapper = {
+  def mkJsonFromTimeExpressions(time: Option[Array[Seq[TimEx]]]): Json.JsValueWrapper = {
     val result = time.map { time =>
       var x = 0
       val timexs = for (t <- time; i <- t) yield {
@@ -490,11 +491,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         Json.arr(
           s"X$x",
           "TimeExpression",
-          Json.arr(Json.arr(i.span._1, i.span._2)),
-          Json.toJson(for (d <- i.intervals) yield ((
-              Option(d._1).map(_.toString).getOrElse("Undef"),
-              Option(d._2).map(_.toString).getOrElse("Undef"),
-              d._3)))
+          Json.arr(Json.arr(i.span.start, i.span.end)),
+          Json.toJson(for (d <- i.intervals) yield (
+              d.startDateOpt.map(_.toString).getOrElse("Undef"),
+              d.endDateOpt.map(_.toString).getOrElse("Undef"),
+              d.duration))
         )
       }
       Json.toJson(timexs)
@@ -544,7 +545,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     val tokens = doc.sentences.flatMap { sent =>
       val tokens = sent.words.indices.map(i => mkJsonFromToken(sent, offset, i))
-      offset += sent.words.size
+      offset += sent.words.length
       tokens
     }
     Json.arr(tokens: _*)
@@ -572,7 +573,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         relId += 1
         json
       }
-      offset += sent.words.size
+      offset += sent.words.length
       rels
     }
     Json.arr(rels: _*)
@@ -589,7 +590,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     )
   }
 
-  def tab():String = "&nbsp;&nbsp;&nbsp;&nbsp;"
+  def tab:String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 }
 
 object HomeController {
@@ -607,8 +608,8 @@ object HomeController {
     if (stateAffix.nonEmpty) {
       val modifiedLabels = Seq(m.label ++ stateAffix) ++ m.labels
       val out = m match {
-        case tb: TextBoundMention => m.asInstanceOf[TextBoundMention].copy(labels = modifiedLabels)
-        case rm: RelationMention => m.asInstanceOf[RelationMention].copy(labels = modifiedLabels)
+        case tb: TextBoundMention => tb.copy(labels = modifiedLabels)
+        case rm: RelationMention => rm.copy(labels = modifiedLabels)
         case em: EventMention => em.copy(labels = modifiedLabels)
       }
 

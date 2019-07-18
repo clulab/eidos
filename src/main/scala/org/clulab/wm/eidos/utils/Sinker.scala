@@ -1,11 +1,11 @@
 package org.clulab.wm.eidos.utils
 
-import java.io.{File, FileOutputStream, OutputStreamWriter, PrintWriter}
+import java.io.{File, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
 
 import org.slf4j.{Logger, LoggerFactory}
 
-class Sink(file: File, charsetName: String) extends OutputStreamWriter(new FileOutputStream(file), charsetName)
+class Sink(file: File, charsetName: String) extends OutputStreamWriter(FileUtils.newBufferedOutputStream(file), charsetName)
 
 object Sinker {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
