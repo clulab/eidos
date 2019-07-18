@@ -48,7 +48,7 @@ object GeoNamesIndexConfig {
   }
   val ngramAnalyzer: Analyzer = (_: String) => {
     val tokenizer = new StandardTokenizer
-    val filter = new NGramTokenFilter(new LowerCaseFilter(tokenizer), 3, 3)
+    val filter = new NGramTokenFilter(new LowerCaseFilter(tokenizer), 3, 3, true) // kwa
     new Analyzer.TokenStreamComponents(tokenizer, filter)
   }
   val analyzer: Analyzer = new PerFieldAnalyzerWrapper(
