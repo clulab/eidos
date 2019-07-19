@@ -26,6 +26,7 @@ object ExtractMetaFromDirectoryWithId extends App {
   val outputDir = args(2)
   val timeFile = args(3)
   val mapFile = args(4)
+  val threads = args(5).toInt
 
   val fileToIdMap = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
@@ -45,7 +46,7 @@ object ExtractMetaFromDirectoryWithId extends App {
   val converter = MetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files // .par
+  val parFiles = files.par
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
@@ -61,9 +62,9 @@ object ExtractMetaFromDirectoryWithId extends App {
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
-    val forkJoinPool = new ForkJoinPool(8)
+    val forkJoinPool = new ForkJoinPool(threads)
     val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-//    parFiles.tasksupport = forkJoinTaskSupport
+    parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
       try {
@@ -110,7 +111,7 @@ object ExtractMetaFromDirectoryWithId extends App {
           }
           // Now move the file to directory done
           val newPath = doneDir + "/" + file.getName
-//          file.renameTo(new File(newPath))
+          file.renameTo(new File(newPath))
 
           text.size
         }
