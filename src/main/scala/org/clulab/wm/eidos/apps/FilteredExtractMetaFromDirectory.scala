@@ -103,7 +103,7 @@ object FilteredExtractMetaFromDirectory extends App {
         val annotatedDocuments = Seq(reader.extractFromText(text, documentCreationTime = documentCreationTime))
         annotatedDocuments.head.document.id = documentTitle
         // 4. Convert to JSON
-        val corpus = new JLDCorpus(annotatedDocuments, reader.loadableAttributes.adjectiveGrounder)
+        val corpus = new JLDCorpus(annotatedDocuments)
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
         val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)

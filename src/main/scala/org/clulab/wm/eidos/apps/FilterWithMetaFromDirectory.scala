@@ -24,7 +24,8 @@ object FilterWithMetaFromDirectory extends App {
   val cutoff = LocalDateTime.of(2017, 4, 1, 0, 0) // April 1, 2017
   val files = FileUtils.findFiles(inputDir, "txt")
   val reader = new EidosSystem()
-  val timenorm = reader.loadableAttributes.timenorm.get
+  // TODO: KWA Some of this was to filter out documents, but it is long obsolete
+//  val timenorm = reader.loadableAttributes.timenorm.get
 
   println("Good\t\t\tBad")
   println("txt\tmeta\ttime\tdct\ttxt\tmeta\ttime\tdct")
@@ -34,22 +35,22 @@ object FilterWithMetaFromDirectory extends App {
       val meta = converter(metaDir, file)
       val json = MetaUtils.getMetaData(converter, metaDir, file) // May not be there.
       val documentCreationTime = MetaUtils.getDocumentCreationTime(json)
-      val dct = documentCreationTime.map { documentCreationTime =>
-        new DCT(timenorm.dct(timenorm.parse(documentCreationTime)), documentCreationTime)
-      }
-      val keep =
-        if (dct.isEmpty)
-          false
-        else {
-          val interval = dct.get.interval
-
-          interval.isDefined && dct.get.interval.start.isBefore(cutoff) && dct.get.interval.end.isBefore(cutoff)
-        }
+//      val dct = documentCreationTime.map { documentCreationTime =>
+//        new DCT(timenorm.dct(timenorm.parse(documentCreationTime)), documentCreationTime)
+//      }
+//      val keep =
+//        if (dct.isEmpty)
+//          false
+//        else {
+//          val interval = dct.get.interval
+//
+//          interval.isDefined && dct.get.interval.start.isBefore(cutoff) && dct.get.interval.end.isBefore(cutoff)
+//        }
 
       // So, exception defaults to do not keep.
-      if (!keep)
-        print("\t\t\t\t")
-      println(file.getName() + "\t" + meta.getName() + "\t" + documentCreationTime + "\t" + dctToString(dct))
+//      if (!keep)
+//        print("\t\t\t\t")
+//      println(file.getName() + "\t" + meta.getName() + "\t" + documentCreationTime + "\t" + dctToString(dct))
     }
     catch {
       case exception: Exception =>
