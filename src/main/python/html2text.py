@@ -1,1 +1,1 @@
-# See https://github.com/aaronsw/html2text for the source.
+# See https://github.com/aaronsw/html2text for the source code.
