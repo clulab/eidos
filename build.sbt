@@ -51,7 +51,7 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
     val languageNames = englishTests.map(_.name) ++ portugueseTests.map(_.name)
     val otherTests = tests.filter(test => !languageNames.contains(test.name))
     val allNames = otherTests.map(_.name) ++ languageNames
-//    val otherAndEnglishGroup = new Group("otherAndEnglish", otherTests ++ englishTests, newWubProcess)
+//    val otherAndEnglishGroup = new Group("otherAndEnglish", otherTests ++ englishTests, newWubProcess) 
     val englishGroup = new Group("english", englishTests, newRunPolicy)
     val portugueseGroup = new Group("portuguese", portugueseTests, newRunPolicy)
     val otherGroup = new Group("other", otherTests, newRunPolicy)
