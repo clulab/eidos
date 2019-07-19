@@ -17,7 +17,7 @@ object AnnotationTSV extends App with Configured {
 
   // Methods for Sheet 1
   def header(time: Date): String = {
-    s"EIDOS Rule Annotation -- generated ${time}\nSource\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
+    s"EIDOS Rule Annotation -- generated $time\nSource\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
       "Factor A Modifiers\tFactor A Polarity\tRelation Text\tRelation Normalization\t" +
       "Relation Modifiers\tFactor B Text\tFactor B Normalization\tFactor B Modifiers\t" +
       "Factor B Polarity\tLocation\tTime\tEvidence\tExtraction Correct\tAnnotator\tRule"
@@ -41,7 +41,7 @@ object AnnotationTSV extends App with Configured {
       if mention.isInstanceOf[EidosEventMention]
 
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
-      factor_a_info = EntityInfo(cause)
+      factor_a_info = EntityInfo(cause, groundAs)
 
       trigger = mention.odinMention.asInstanceOf[EventMention].trigger
       relation_txt = trigger.text.normalizeSpace
@@ -49,7 +49,7 @@ object AnnotationTSV extends App with Configured {
       relation_modifier = ExporterUtils.getModifier(mention) // prob none
 
       effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
-      factor_b_info = EntityInfo(effect)
+      factor_b_info = EntityInfo(effect, groundAs)
 
       location = "" // I could try here..?
       time = ""
@@ -58,9 +58,9 @@ object AnnotationTSV extends App with Configured {
       _ = ruleCounter.incrementCount(foundby) // a hack
 
       row = source + "\t" + sentence_id + "\t" +
-        factor_a_info.toTSV() + "\t" +
+        factor_a_info.toTSV + "\t" +
         relation_txt + "\t" + relation_norm + "\t" + relation_modifier + "\t" +
-        factor_b_info.toTSV() + "\t" +
+        factor_b_info.toTSV + "\t" +
         location + "\t" + time + "\t" + evidence + "\t" + " " + "\t" + " " + "\t" + foundby
 
     } yield row
@@ -96,6 +96,7 @@ object AnnotationTSV extends App with Configured {
   val outputDir = getArgString("apps.outputDirectory", None)
   val inputExtension = getArgString("apps.inputFileExtension", None)
   val exportAs = getArgStrings("apps.exportAs", None)
+  val groundAs = getArgStrings("apps.groundAs", None)
   val topN = getArgInt("apps.groundTopN", Some(5))
 
   val files = FileUtils.findFiles(inputDir, inputExtension)
@@ -122,8 +123,8 @@ object AnnotationTSV extends App with Configured {
 
   val timestamp = Calendar.getInstance.getTime
 
-  (FileUtils.printWriterFromFile(s"$outputDir/rule_annotation.tsv")).autoClose { sheet1 =>
-    (FileUtils.printWriterFromFile(s"$outputDir/rule_summary.tsv")).autoClose { sheet2 =>
+  FileUtils.printWriterFromFile(s"$outputDir/rule_annotation.tsv").autoClose { sheet1 =>
+    FileUtils.printWriterFromFile(s"$outputDir/rule_summary.tsv").autoClose { sheet2 =>
 
       // Sheet 1 -- Extraction Data
       sheet1.println(header(timestamp))

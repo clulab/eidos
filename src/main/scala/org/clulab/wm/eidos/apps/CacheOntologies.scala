@@ -27,6 +27,7 @@ object CacheOntologies extends App {
 
   val reader = new EidosSystem(config)
   val cacheDir: String = config[String]("ontologies.cacheDir")
+
   new File(cacheDir).mkdirs()
 
   val ontologyGrounders: Seq[EidosOntologyGrounder] = reader.ontologyHandler.grounders
@@ -34,8 +35,6 @@ object CacheOntologies extends App {
   if (ontologyGrounders.isEmpty)
     throw new RuntimeException("No ontologies were specified, please check the config file.")
   else {
-    val proc = reader.proc
-
     println(s"Saving ontologies to $cacheDir...")
     ontologyGrounders.foreach { grounder =>
       val ontologyName = grounder.name
