@@ -32,6 +32,7 @@ import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.script.mustache.SearchTemplateRequest
+import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 
@@ -80,7 +81,11 @@ object ElasticSearch extends App {
   protected def newSearchTemplateRequest(script: String) = {
     val searchTemplateRequest = new SearchTemplateRequest()
     val searchRequest = new SearchRequest(indexName)
-    val timeValue = new TimeValue(120000) // 1200 seconds
+    val timeValue = TimeValue.timeValueSeconds(120)
+
+//    val searchSourceBuilder = new SearchSourceBuilder()
+//    searchSourceBuilder.size(5)
+//    searchRequest.source(searchSourceBuilder)
 
     searchRequest.scroll(timeValue)
     searchTemplateRequest.setRequest(searchRequest)
@@ -115,7 +120,7 @@ object ElasticSearch extends App {
       val script =
         s"""
           |{
-          |  "size" : 15,
+          |  "size" : 5,
           |  "query" : {
           |    "term" : {
           |      "category.keyword" : {
@@ -156,10 +161,16 @@ object ElasticSearch extends App {
           }
 
           continue = scrollIdOpt.exists { scrollId =>
+            // See https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high-search-scroll.html
             val searchScrollRequest = new SearchScrollRequest(scrollId)
-            val searchResponse: SearchResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
 
-            scrollIdOpt = Option(searchResponse.getScrollId)
+            searchScrollRequest.scroll(TimeValue.timeValueSeconds(30)) // This is important!
+
+            val searchResponse: SearchResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
+            val newScrollIdOpt = Option(searchResponse.getScrollId)
+
+            if (newScrollIdOpt.isDefined)
+              scrollIdOpt = newScrollIdOpt
             hits = searchResponse.getHits
             hits.getHits.length > 0
           }
