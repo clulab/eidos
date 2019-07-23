@@ -119,7 +119,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
           val dctSimpleInterval = SimpleInterval(dct.start, dct.end)
           eidosDocument.dct = Some(DCT(dctSimpleInterval, dctString))
           contextSpans.sliding(BATCH_SIZE, BATCH_SIZE).
-            flatMap(batch => parseBatch(text, batch, textCreationTime = eidosDocument.dct.get.interval)).toArray
+            flatMap(batch => parseBatch(text, batch, textCreationTime = dctSimpleInterval)).toArray
         case None =>
           contextSpans.sliding(BATCH_SIZE, BATCH_SIZE).
             flatMap(batch => parseBatch(text, batch)).toArray
@@ -131,7 +131,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         timeExpression <- timeExpressions
       } yield {
         val sentence = eidosDocument.sentences(sentenceIndex)
-        val (timeTextStart, timeTextEnd) = timeExpression.charSpan.get
+        val Some((timeTextStart, timeTextEnd)) = timeExpression.charSpan
         val timeTextInterval = Interval(timeTextStart, timeTextEnd)
         val timeText = text.substring(timeTextStart, timeTextEnd)
 
@@ -153,10 +153,10 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         // get the Seq of Intervals for each TimeExpression and construct the attachment with the detailed time information
         val timeSteps: Seq[TimeStep] = timeExpression match {
           case timeInterval: TimExInterval if timeInterval.isDefined =>
-            Seq(TimeStep(Option(timeInterval.start), Option(timeInterval.end)))
+            Seq(TimeStep(timeInterval.start, timeInterval.end))
           case timeIntervals: TimExIntervals if timeIntervals.isDefined =>
-            timeIntervals.iterator.toSeq.map(interval => TimeStep(Option(interval.start), Option(interval.end)))
-          case _ => Seq(TimeStep(None, None))
+            timeIntervals.iterator.toSeq.map(interval => TimeStep(interval.start, interval.end))
+          case _ => Seq()
         }
         val attachment = TimEx(timeTextInterval, timeSteps, timeText)
 

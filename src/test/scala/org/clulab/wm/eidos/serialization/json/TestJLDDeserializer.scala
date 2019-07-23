@@ -91,8 +91,8 @@ class TestJLDDeserializer extends ExtractionTest {
       val timeIntervalValue = parse(json)
       val timeStep = new JLDDeserializer().deserializeTimeInterval(timeIntervalValue)
 
-      timeStep.startDateOpt.get should be(LocalDateTime.parse("2017-01-01T00:00"))
-      timeStep.endDateOpt.get should be(LocalDateTime.parse("2017-02-01T00:00"))
+      timeStep.startDate should be(LocalDateTime.parse("2017-01-01T00:00"))
+      timeStep.endDate should be(LocalDateTime.parse("2017-02-01T00:00"))
     }
 
     it should "deserialize TimexExpression from jsonld" in {

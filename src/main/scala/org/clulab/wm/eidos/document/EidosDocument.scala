@@ -32,7 +32,7 @@ object EidosDocument {
 }
 
 @SerialVersionUID(1L)
-case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime])
+case class TimeStep(startDate: LocalDateTime, endDate: LocalDateTime)
 @SerialVersionUID(1L)
 case class TimEx(span: TextInterval, intervals: Seq[TimeStep], text: String)
 @SerialVersionUID(1L)
