@@ -32,12 +32,13 @@ import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.script.mustache.SearchTemplateRequest
-import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 
 object ElasticSearch extends App {
   val indexName = "wm-dev"
+  val resultsPerQuery = 50
+  val timeout = resultsPerQuery * 2 // seconds
 
   // See https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-request-signing.html#es-request-signing-java
   // and https://github.com/WorldModelers/Document-Schema/blob/master/Document-Retrieval.ipynb
@@ -81,11 +82,7 @@ object ElasticSearch extends App {
   protected def newSearchTemplateRequest(script: String) = {
     val searchTemplateRequest = new SearchTemplateRequest()
     val searchRequest = new SearchRequest(indexName)
-    val timeValue = TimeValue.timeValueSeconds(120)
-
-//    val searchSourceBuilder = new SearchSourceBuilder()
-//    searchSourceBuilder.size(5)
-//    searchRequest.source(searchSourceBuilder)
+    val timeValue = TimeValue.timeValueSeconds(timeout)
 
     searchRequest.scroll(timeValue)
     searchTemplateRequest.setRequest(searchRequest)
@@ -115,12 +112,11 @@ object ElasticSearch extends App {
   def downloadCategory(category: String, metaDir: String, rawDir: String): Unit = {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
       val jsonCategory = JsonMethods.pretty(new JString(category))
-      // Note that size of less than 10 doesn't seem to work properly!
       // Use "term" for exact matches, "match" for fuzzy matches.
       val script =
         s"""
           |{
-          |  "size" : 5,
+          |  "size" : $resultsPerQuery,
           |  "query" : {
           |    "term" : {
           |      "category.keyword" : {
@@ -164,13 +160,11 @@ object ElasticSearch extends App {
             // See https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high-search-scroll.html
             val searchScrollRequest = new SearchScrollRequest(scrollId)
 
-            searchScrollRequest.scroll(TimeValue.timeValueSeconds(30)) // This is important!
+            searchScrollRequest.scroll(TimeValue.timeValueSeconds(timeout)) // It is important to rescroll the scroll!
 
             val searchResponse: SearchResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
-            val newScrollIdOpt = Option(searchResponse.getScrollId)
 
-            if (newScrollIdOpt.isDefined)
-              scrollIdOpt = newScrollIdOpt
+            scrollIdOpt = Option(searchResponse.getScrollId)
             hits = searchResponse.getHits
             hits.getHits.length > 0
           }
