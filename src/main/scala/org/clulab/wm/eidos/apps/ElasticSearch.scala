@@ -111,13 +111,16 @@ object ElasticSearch extends App {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
       val jsonCategory = JsonMethods.pretty(new JString(category))
       // Note that size of less than 10 doesn't seem to work properly!
+      // Use "term" for exact matches, "match" for fuzzy matches.
       val script =
         s"""
           |{
           |  "size" : 15,
           |  "query" : {
-          |    "match" : {
-          |      "category" : $jsonCategory
+          |    "term" : {
+          |      "category.keyword" : {
+          |        "value" : $jsonCategory
+          |      }
           |    }
           |  }
           |}
@@ -133,7 +136,7 @@ object ElasticSearch extends App {
       var hits = searchTemplateResponse.getResponse.getHits
 
       if (hits.totalHits > 0) {
-        val scrollIdOpt = Option(searchTemplateResponse.getResponse.getScrollId)
+        var scrollIdOpt = Option(searchTemplateResponse.getResponse.getScrollId)
         val s3Client = newS3Client()
         var continue = true
 
@@ -154,9 +157,10 @@ object ElasticSearch extends App {
 
           continue = scrollIdOpt.exists { scrollId =>
             val searchScrollRequest = new SearchScrollRequest(scrollId)
-            val scrollResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
+            val searchResponse: SearchResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
 
-            hits = scrollResponse.getHits
+            scrollIdOpt = Option(searchResponse.getScrollId)
+            hits = searchResponse.getHits
             hits.getHits.length > 0
           }
         } while(continue)
