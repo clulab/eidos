@@ -1,57 +1,40 @@
 package org.clulab.wm.eidos.apps
 
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util
 
 import com.amazonaws.auth.AWS4Signer
-import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.http.AWSRequestSigningApacheInterceptor
-import com.amazonaws.services.elasticsearch.AWSElasticsearchClient
-import com.amazonaws.services.elasticsearch.AWSElasticsearchClientBuilder
-import com.amazonaws.services.elasticsearch.model.ListTagsRequest
 import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.GetObjectRequest
-import com.amazonaws.services.s3.model.S3ObjectInputStream
 import org.apache.http.HttpHost
 import org.apache.http.HttpRequestInterceptor
 import org.clulab.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StringUtils
+import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.client.Request
-import org.elasticsearch.client.Response
+import org.elasticsearch.action.search.SearchScrollRequest
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.RequestOptions
-import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.rest.RestStatus
 import org.elasticsearch.script.ScriptType
 import org.elasticsearch.script.mustache.SearchTemplateRequest
 import org.elasticsearch.search.SearchHit
-import org.elasticsearch.search.aggregations.Aggregation
-import org.elasticsearch.search.aggregations.Aggregations
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms
-import org.elasticsearch.search.aggregations.bucket.terms.StringTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
-import org.elasticsearch.search.builder.SearchSourceBuilder
-import org.json4s.JsonDSL._
+//import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods
-
-import scala.collection.mutable
-
-
 
 object ElasticSearch extends App {
   val indexName = "wm-dev"
@@ -73,7 +56,7 @@ object ElasticSearch extends App {
       signer
     }
     val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
-    val interceptor: HttpRequestInterceptor = new AWSRequestSigningApacheInterceptor(serviceName, aws4signer, awsCredentialsProvider);
+    val interceptor: HttpRequestInterceptor = new AWSRequestSigningApacheInterceptor(serviceName, aws4signer, awsCredentialsProvider)
     val httpHost = new HttpHost(serviceEndpoint, port, scheme)
     val restClientBuilder = RestClient
         .builder(httpHost)
@@ -97,8 +80,11 @@ object ElasticSearch extends App {
 
   protected def newSearchTemplateRequest(script: String) = {
     val searchTemplateRequest = new SearchTemplateRequest()
+    val searchRequest = new SearchRequest(indexName)
+    val timeValue = new TimeValue(60000) // 60 seconds
 
-    searchTemplateRequest.setRequest(new SearchRequest(indexName))
+    searchRequest.scroll(timeValue)
+    searchTemplateRequest.setRequest(searchRequest)
     searchTemplateRequest.setScriptType(ScriptType.INLINE)
     searchTemplateRequest.setScript(script)
     searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
@@ -117,7 +103,6 @@ object ElasticSearch extends App {
     val filename = rawDir + File.separatorChar + id + fileType
     val bucketName = "world-modelers"
     val key = StringUtils.afterFirst(new URL(storedUrl).getFile, '/')
-    val s3Object = s3Client.getObject(bucketName, key)
     val getObjectRequest = new GetObjectRequest(bucketName, key)
 
     s3Client.getObject(getObjectRequest, new File(filename))
@@ -125,13 +110,14 @@ object ElasticSearch extends App {
 
   def downloadCategory(category: String, metaDir: String, rawDir: String): Unit = {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
-      // TODO: This assumes that $category does not need to be escaped to be valid JSON!
+      val jsonCategory = JsonMethods.pretty(new JString(category))
       val script =
         s"""
           |{
+          |  "size" : 100,
           |  "query" : {
           |    "match" : {
-          |      "category" : "$category"
+          |      "category" : $jsonCategory
           |    }
           |  }
           |}
@@ -144,23 +130,42 @@ object ElasticSearch extends App {
       if (status != RestStatus.OK)
         throw new RuntimeException(s"Bad status in searchTemplateResponse: $searchTemplateResponse")
 
-      val hits = searchTemplateResponse.getResponse.getHits
+      var hits = searchTemplateResponse.getResponse.getHits
 
       if (hits.totalHits > 0) {
+        val scrollIdOpt = Option(searchTemplateResponse.getResponse.getScrollId)
         val s3Client = newS3Client()
+        var continue = true
 
-        hits.forEach { hit: SearchHit =>
-          implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+        do {
+          hits.forEach { hit: SearchHit =>
+            implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-          val id = hit.getId
-          val text = hit.toString
-          val json = hit.getSourceAsString()
-          val jValue = JsonMethods.parse(json)
-          val fileType = (jValue \ "file_type").extract[String]
-          val storedUrl = (jValue \ "stored_url").extract[String]
+            val id = hit.getId
+            val text = hit.toString
+            val json = hit.getSourceAsString
+            val jValue = JsonMethods.parse(json)
+            val fileType = (jValue \ "file_type").extract[String]
+            val storedUrl = (jValue \ "stored_url").extract[String]
 
-          writeMeta(text, metaDir, id, ".json")
-          writeRaw(s3Client, storedUrl, rawDir, id, fileType)
+            writeMeta(text, metaDir, id, ".json")
+            writeRaw(s3Client, storedUrl, rawDir, id, fileType)
+          }
+
+          continue = scrollIdOpt.map { scrollId =>
+            val searchScrollRequest = new SearchScrollRequest(scrollIdOpt.get)
+            val scrollResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
+
+            hits = scrollResponse.getHits
+            hits.getHits.length > 0
+          }.getOrElse(false)
+        } while(continue)
+
+        scrollIdOpt.foreach { scrollId =>
+          val clearScrollRequest = new ClearScrollRequest()
+
+          clearScrollRequest.addScrollId(scrollId)
+          restHighLevelClient.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
         }
       }
     }
@@ -175,7 +180,7 @@ object ElasticSearch extends App {
         s"""
           |{
           |  "aggs" : {
-          |    "${categories}" : {
+          |    "$categories" : {
           |      "terms" : { "field" : "category.keyword" }
           |    }
           |  }
@@ -183,14 +188,16 @@ object ElasticSearch extends App {
         """.stripMargin
 
       val searchTemplateRequest = newSearchTemplateRequest(script)
+//      val searchRequest = newSearchRequest(script)
       val requestOptions = RequestOptions.DEFAULT
       val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
+//      val searchResponse: SearchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT)
       val status = searchTemplateResponse.status
 
       if (status != RestStatus.OK)
         throw new RuntimeException(s"Bad status in searchTemplateResponse: $searchTemplateResponse")
 
-      val searchResponse: SearchResponse = searchTemplateResponse.getResponse()
+      val searchResponse: SearchResponse = searchTemplateResponse.getResponse
       val stringTerms: ParsedStringTerms = searchResponse.getAggregations.get[ParsedStringTerms](categories)
       val buckets: util.List[_ <: Terms.Bucket] = stringTerms.getBuckets
 
