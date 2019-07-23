@@ -15,7 +15,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.http.HttpHost
 import org.apache.http.HttpRequestInterceptor
-import org.clulab.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StringUtils
 import org.elasticsearch.action.search.ClearScrollRequest
@@ -28,11 +28,10 @@ import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.rest.RestStatus
 import org.elasticsearch.script.ScriptType
-import org.elasticsearch.script.mustache.SearchTemplateRequest
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
-//import org.json4s.JsonDSL._
+import org.elasticsearch.script.mustache.SearchTemplateRequest
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 
@@ -81,7 +80,7 @@ object ElasticSearch extends App {
   protected def newSearchTemplateRequest(script: String) = {
     val searchTemplateRequest = new SearchTemplateRequest()
     val searchRequest = new SearchRequest(indexName)
-    val timeValue = new TimeValue(60000) // 60 seconds
+    val timeValue = new TimeValue(120000) // 1200 seconds
 
     searchRequest.scroll(timeValue)
     searchTemplateRequest.setRequest(searchRequest)
@@ -114,7 +113,7 @@ object ElasticSearch extends App {
       val script =
         s"""
           |{
-          |  "size" : 100,
+          |  "size" : 5,
           |  "query" : {
           |    "match" : {
           |      "category" : $jsonCategory
@@ -152,13 +151,13 @@ object ElasticSearch extends App {
             writeRaw(s3Client, storedUrl, rawDir, id, fileType)
           }
 
-          continue = scrollIdOpt.map { scrollId =>
-            val searchScrollRequest = new SearchScrollRequest(scrollIdOpt.get)
+          continue = scrollIdOpt.exists { scrollId =>
+            val searchScrollRequest = new SearchScrollRequest(scrollId)
             val scrollResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
 
             hits = scrollResponse.getHits
             hits.getHits.length > 0
-          }.getOrElse(false)
+          }
         } while(continue)
 
         scrollIdOpt.foreach { scrollId =>
@@ -175,7 +174,6 @@ object ElasticSearch extends App {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
       // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
       val categories = "categories"
-      // TODO: This probably needs some kind of scroller for all results
       val script =
         s"""
           |{
@@ -188,10 +186,8 @@ object ElasticSearch extends App {
         """.stripMargin
 
       val searchTemplateRequest = newSearchTemplateRequest(script)
-//      val searchRequest = newSearchRequest(script)
       val requestOptions = RequestOptions.DEFAULT
       val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
-//      val searchResponse: SearchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT)
       val status = searchTemplateResponse.status
 
       if (status != RestStatus.OK)
