@@ -19,151 +19,223 @@ import org.apache.http.HttpHost
 import org.apache.http.HttpRequestInterceptor
 import org.clulab.utils.Closer.AutoCloser
 import org.elasticsearch.action.search.SearchRequest
+import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.Request
 import org.elasticsearch.client.Response
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.rest.RestStatus
 import org.elasticsearch.script.ScriptType
 import org.elasticsearch.script.mustache.SearchTemplateRequest
+import org.elasticsearch.search.SearchHit
+import org.elasticsearch.search.aggregations.Aggregation
+import org.elasticsearch.search.aggregations.Aggregations
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms
+import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.builder.SearchSourceBuilder
+import org.json4s.JsonDSL._
+import org.json4s._
+import org.json4s.jackson.JsonMethods
+
+import scala.collection.mutable
+
+
 
 object ElasticSearch extends App {
-  def test1(): Unit = {
-    val profileName = "elasticsearch"
-    val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
+
+  // See https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-request-signing.html#es-request-signing-java
+  // and https://github.com/WorldModelers/Document-Schema/blob/master/Document-Retrieval.ipynb
+  def newRestHighLevelClient(): RestHighLevelClient = {
     val serviceEndpoint = "search-world-modelers-dev-gjvcliqvo44h4dgby7tn3psw74.us-east-1.es.amazonaws.com"
-    val region = "us-east-1"
-    val endpointConfiguration = new EndpointConfiguration(serviceEndpoint, region)
-    val elasticsearchClientBuilder = AWSElasticsearchClientBuilder.standard()
-        .withEndpointConfiguration(endpointConfiguration)
+    val serviceName = "es"
+    val regionName = "us-east-1"
+    val profileName = "wmuser"
+    val port = 443
+    val scheme = "https"
+
+    val aws4signer = {
+      val signer = new AWS4Signer()
+      signer.setServiceName(serviceName)
+      signer.setRegionName(regionName)
+      signer
+    }
+    val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
+    val interceptor: HttpRequestInterceptor = new AWSRequestSigningApacheInterceptor(serviceName, aws4signer, awsCredentialsProvider);
+    val httpHost = new HttpHost(serviceEndpoint, port, scheme)
+    val restClientBuilder = RestClient
+        .builder(httpHost)
+        .setHttpClientConfigCallback(_.addInterceptorLast(interceptor))
+
+    new RestHighLevelClient(restClientBuilder)
+  }
+
+  def newS3Client(): AmazonS3 = {
+    val profileName = "wmuser"
+    val regionName = "us-east-1"
+
+    val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
+    val amazonS3 = AmazonS3ClientBuilder.standard()
         .withCredentials(awsCredentialsProvider)
-    val awsElasticsearch = elasticsearchClientBuilder.build
-    val awsElasticsearchClient = awsElasticsearch.asInstanceOf[AWSElasticsearchClient]
-    val listTagsResult = awsElasticsearchClient.listTags(new ListTagsRequest())
+        .withRegion(regionName)
+        .build()
+
+    amazonS3
   }
 
-  def test2(): Unit = {
-    // See https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-request-signing.html#es-request-signing-java
-    // and https://github.com/WorldModelers/Document-Schema/blob/master/Document-Retrieval.ipynb
-    def newRestHighLevelClient(): RestHighLevelClient = {
-      val serviceEndpoint = "search-world-modelers-dev-gjvcliqvo44h4dgby7tn3psw74.us-east-1.es.amazonaws.com"
-      val serviceName = "es"
-      val regionName = "us-east-1"
-      val profileName = "wmuser"
-      val port = 443
-      val scheme = "https"
+  def downloadCategory(category: String): Unit = {
 
-      val aws4signer = {
-        val signer = new AWS4Signer()
-        signer.setServiceName(serviceName)
-        signer.setRegionName(regionName)
-        signer
-      }
-      val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
-      val interceptor: HttpRequestInterceptor = new AWSRequestSigningApacheInterceptor(serviceName, aws4signer, awsCredentialsProvider);
-      val httpHost = new HttpHost(serviceEndpoint, port, scheme)
-      val restClientBuilder = RestClient
-          .builder(httpHost)
-          .setHttpClientConfigCallback(_.addInterceptorLast(interceptor))
-
-      new RestHighLevelClient(restClientBuilder)
-    }
-
-    def newS3Client(): AmazonS3 = {
-      val profileName = "wmuser"
-      val regionName = "us-east-1"
-
-      val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
-      val amazonS3 = AmazonS3ClientBuilder.standard()
-          .withCredentials(awsCredentialsProvider)
-          .withRegion(regionName)
-          .build()
-
-      amazonS3
-    }
-
-    def runSearchSource(): Unit = {
-      newRestHighLevelClient().autoClose { restHighLevelClient =>
-        // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
-        val indexName = "wm-dev"
-
-        val searchSourceBuilder = new SearchSourceBuilder()
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery())
-        val searchRequest = new SearchRequest(indexName)
-        searchRequest.source(searchSourceBuilder)
-
-        val requestOptions = RequestOptions.DEFAULT
-        val searchResponse = restHighLevelClient.search(searchRequest, requestOptions)
-        val status = searchResponse.status
-        val hits = searchResponse.getHits()
-
-        println(hits)
-      }
-    }
-
-    def runSearchTemplate(): Unit = {
-      newRestHighLevelClient().autoClose { restHighLevelClient =>
-        // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
-        val indexName = "wm-dev"
-
-        val searchTemplateRequest = new SearchTemplateRequest()
-        searchTemplateRequest.setRequest(new SearchRequest(indexName))
-        searchTemplateRequest.setScriptType(ScriptType.INLINE)
-        searchTemplateRequest.setScript(
-          """{
-            |    "aggs" : {
-            |        "categories" : {
-            |            "terms" : { "field" : "category.keyword" }
-            |        }
-            |    }
-            |}
-          """.stripMargin)
-        searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
-
-        val requestOptions = RequestOptions.DEFAULT
-        val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
-        val status = searchTemplateResponse.status
-        val searchResponse = searchTemplateResponse.getResponse
-
-        val hits = searchResponse.getHits()
-        println(hits)
-      }
-    }
-
-    def runS3(): Unit = {
-      val amazonS3 = newS3Client()
-//      val buckets = amazonS3.listBuckets()
-      val bucketName = "world-modelers"
-//      val key = "migration/tmp/DEV/MONTHLY20PRICE20WATCHANDANNEX08312015.pdf"
-      val key = "documents/migration/South_Sudan_army,_rebels_trade_control_over_Pagak_town_Aug-17.html"
-      val s3Object = amazonS3.getObject(bucketName, key)
-      val s3ObjectInputStream = s3Object.getObjectContent()
-
-      val contents = new ByteArrayOutputStream().autoClose { byteArrayOutputStream =>
-        val readBuf = new Array[Byte](1024)
-        var readLen = 0
-
-        def read(): Boolean = {
-          readLen =  s3ObjectInputStream.read(readBuf)
-          readLen > 0
-        }
-
-        while (read())
-          byteArrayOutputStream.write(readBuf, 0, readLen)
-
-        new String(byteArrayOutputStream.toByteArray)
-      }
-
-      println(contents) // Would want to put this into file, the bytearray already
-//      println(buckets)
-    }
-
-//    runSearchSource()
-//    runSearchTemplate()
-    runS3()
   }
 
-  test2()
+  def listCategories(): Unit = {
+    newRestHighLevelClient().autoClose { restHighLevelClient =>
+      // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
+      val indexName = "wm-dev"
+      val categories = "categories"
+      val script =
+        s"""{
+          |    "aggs" : {
+          |        "${categories}" : {
+          |            "terms" : { "field" : "category.keyword" }
+          |        }
+          |    }
+          |}
+        """.stripMargin
+
+      val searchTemplateRequest = new SearchTemplateRequest()
+      searchTemplateRequest.setRequest(new SearchRequest(indexName))
+      searchTemplateRequest.setScriptType(ScriptType.INLINE)
+      searchTemplateRequest.setScript(script)
+      searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
+
+      val requestOptions = RequestOptions.DEFAULT
+      val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
+      val status = searchTemplateResponse.status
+
+      if (status != RestStatus.OK)
+        throw new RuntimeException(s"Bad status in searchTemplateResponse: $searchTemplateResponse")
+
+      val searchResponse: SearchResponse = searchTemplateResponse.getResponse()
+      val stringTerms: ParsedStringTerms = searchResponse.getAggregations.get[ParsedStringTerms](categories)
+      val buckets: util.List[_ <: Terms.Bucket] = stringTerms.getBuckets
+
+      println("key\tcount")
+      buckets.forEach { bucket: Terms.Bucket =>
+        implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+        val key = bucket.getKey
+        val docCount = bucket.getDocCount
+
+        println(s"$key\t$docCount")
+      }
+    }
+  }
+
+  val categoryOpt = args.lift(0)
+
+  if (categoryOpt.isDefined)
+    downloadCategory(categoryOpt.get)
+  else
+    listCategories()
+
+//
+//  def test1(): Unit = {
+//    val profileName = "elasticsearch"
+//    val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
+//    val serviceEndpoint = "search-world-modelers-dev-gjvcliqvo44h4dgby7tn3psw74.us-east-1.es.amazonaws.com"
+//    val region = "us-east-1"
+//    val endpointConfiguration = new EndpointConfiguration(serviceEndpoint, region)
+//    val elasticsearchClientBuilder = AWSElasticsearchClientBuilder.standard()
+//        .withEndpointConfiguration(endpointConfiguration)
+//        .withCredentials(awsCredentialsProvider)
+//    val awsElasticsearch = elasticsearchClientBuilder.build
+//    val awsElasticsearchClient = awsElasticsearch.asInstanceOf[AWSElasticsearchClient]
+//    val listTagsResult = awsElasticsearchClient.listTags(new ListTagsRequest())
+//  }
+//
+//  def test2(): Unit = {
+//
+//
+//    def runSearchSource(): Unit = {
+//      newRestHighLevelClient().autoClose { restHighLevelClient =>
+//        // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
+//        val indexName = "wm-dev"
+//
+//        val searchSourceBuilder = new SearchSourceBuilder()
+//        searchSourceBuilder.query(QueryBuilders.matchAllQuery())
+//        val searchRequest = new SearchRequest(indexName)
+//        searchRequest.source(searchSourceBuilder)
+//
+//        val requestOptions = RequestOptions.DEFAULT
+//        val searchResponse = restHighLevelClient.search(searchRequest, requestOptions)
+//        val status = searchResponse.status
+//        val hits = searchResponse.getHits()
+//
+//        println(hits)
+//      }
+//    }
+//
+//    def runSearchTemplate(): Unit = {
+//      newRestHighLevelClient().autoClose { restHighLevelClient =>
+//        // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
+//        val indexName = "wm-dev"
+//
+//        val searchTemplateRequest = new SearchTemplateRequest()
+//        searchTemplateRequest.setRequest(new SearchRequest(indexName))
+//        searchTemplateRequest.setScriptType(ScriptType.INLINE)
+//        searchTemplateRequest.setScript(
+//          """{
+//            |    "aggs" : {
+//            |        "categories" : {
+//            |            "terms" : { "field" : "category.keyword" }
+//            |        }
+//            |    }
+//            |}
+//          """.stripMargin)
+//        searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
+//
+//        val requestOptions = RequestOptions.DEFAULT
+//        val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
+//        val status = searchTemplateResponse.status
+//        val searchResponse = searchTemplateResponse.getResponse
+//        val hits = searchResponse.getHits()
+//        println(hits)
+//      }
+//    }
+//
+//    def runS3(): Unit = {
+//      val amazonS3 = newS3Client()
+////      val buckets = amazonS3.listBuckets()
+//      val bucketName = "world-modelers"
+////      val key = "migration/tmp/DEV/MONTHLY20PRICE20WATCHANDANNEX08312015.pdf"
+//      val key = "documents/migration/South_Sudan_army,_rebels_trade_control_over_Pagak_town_Aug-17.html"
+//      val s3Object = amazonS3.getObject(bucketName, key)
+//      val s3ObjectInputStream = s3Object.getObjectContent()
+//
+//      val contents = new ByteArrayOutputStream().autoClose { byteArrayOutputStream =>
+//        val readBuf = new Array[Byte](1024)
+//        var readLen = 0
+//
+//        def read(): Boolean = {
+//          readLen =  s3ObjectInputStream.read(readBuf)
+//          readLen > 0
+//        }
+//
+//        while (read())
+//          byteArrayOutputStream.write(readBuf, 0, readLen)
+//
+//        new String(byteArrayOutputStream.toByteArray)
+//      }
+//
+//      println(contents) // Would want to put this into file, the bytearray already
+////      println(buckets)
+//    }
+//
+////    runSearchSource()
+////    runSearchTemplate()
+////    runS3()
+//  }
+//
+////  test2()
 }
