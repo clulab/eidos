@@ -1,6 +1,11 @@
 package org.clulab.wm.eidos.apps
 
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util
 
 import com.amazonaws.auth.AWS4Signer
@@ -15,9 +20,13 @@ import com.amazonaws.services.elasticsearch.model.ListTagsRequest
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.s3.model.GetObjectRequest
+import com.amazonaws.services.s3.model.S3ObjectInputStream
 import org.apache.http.HttpHost
 import org.apache.http.HttpRequestInterceptor
 import org.clulab.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.StringUtils
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.Request
@@ -45,6 +54,7 @@ import scala.collection.mutable
 
 
 object ElasticSearch extends App {
+  val indexName = "wm-dev"
 
   // See https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-request-signing.html#es-request-signing-java
   // and https://github.com/WorldModelers/Document-Schema/blob/master/Document-Retrieval.ipynb
@@ -85,31 +95,94 @@ object ElasticSearch extends App {
     amazonS3
   }
 
-  def downloadCategory(category: String): Unit = {
+  protected def newSearchTemplateRequest(script: String) = {
+    val searchTemplateRequest = new SearchTemplateRequest()
 
+    searchTemplateRequest.setRequest(new SearchRequest(indexName))
+    searchTemplateRequest.setScriptType(ScriptType.INLINE)
+    searchTemplateRequest.setScript(script)
+    searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
+    searchTemplateRequest
+  }
+
+  protected def writeMeta(text: String, metaDir: String, id: String, fileType: String): Unit = {
+    val filename = metaDir + File.separatorChar + id + fileType
+
+    FileUtils.printWriterFromFile(filename).autoClose { printWriter =>
+      printWriter.println(text)
+    }
+  }
+
+  protected def writeRaw(s3Client: AmazonS3, storedUrl: String, rawDir: String, id: String, fileType: String): Unit = {
+    val filename = rawDir + File.separatorChar + id + fileType
+    val bucketName = "world-modelers"
+    val key = StringUtils.afterFirst(new URL(storedUrl).getFile, '/')
+    val s3Object = s3Client.getObject(bucketName, key)
+    val getObjectRequest = new GetObjectRequest(bucketName, key)
+
+    s3Client.getObject(getObjectRequest, new File(filename))
+  }
+
+  def downloadCategory(category: String, metaDir: String, rawDir: String): Unit = {
+    newRestHighLevelClient().autoClose { restHighLevelClient =>
+      // TODO: This assumes that $category does not need to be escaped to be valid JSON!
+      val script =
+        s"""
+          |{
+          |  "query" : {
+          |    "match" : {
+          |      "category" : "$category"
+          |    }
+          |  }
+          |}
+        """.stripMargin
+      val searchTemplateRequest = newSearchTemplateRequest(script)
+      val requestOptions = RequestOptions.DEFAULT
+      val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
+      val status = searchTemplateResponse.status
+
+      if (status != RestStatus.OK)
+        throw new RuntimeException(s"Bad status in searchTemplateResponse: $searchTemplateResponse")
+
+      val hits = searchTemplateResponse.getResponse.getHits
+
+      if (hits.totalHits > 0) {
+        val s3Client = newS3Client()
+
+        hits.forEach { hit: SearchHit =>
+          implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+          val id = hit.getId
+          val text = hit.toString
+          val json = hit.getSourceAsString()
+          val jValue = JsonMethods.parse(json)
+          val fileType = (jValue \ "file_type").extract[String]
+          val storedUrl = (jValue \ "stored_url").extract[String]
+
+          writeMeta(text, metaDir, id, ".json")
+          writeRaw(s3Client, storedUrl, rawDir, id, fileType)
+        }
+      }
+    }
   }
 
   def listCategories(): Unit = {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
       // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
-      val indexName = "wm-dev"
       val categories = "categories"
+      // TODO: This probably needs some kind of scroller for all results
       val script =
-        s"""{
-          |    "aggs" : {
-          |        "${categories}" : {
-          |            "terms" : { "field" : "category.keyword" }
-          |        }
+        s"""
+          |{
+          |  "aggs" : {
+          |    "${categories}" : {
+          |      "terms" : { "field" : "category.keyword" }
           |    }
+          |  }
           |}
         """.stripMargin
 
-      val searchTemplateRequest = new SearchTemplateRequest()
-      searchTemplateRequest.setRequest(new SearchRequest(indexName))
-      searchTemplateRequest.setScriptType(ScriptType.INLINE)
-      searchTemplateRequest.setScript(script)
-      searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
-
+      val searchTemplateRequest = newSearchTemplateRequest(script)
       val requestOptions = RequestOptions.DEFAULT
       val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
       val status = searchTemplateResponse.status
@@ -123,7 +196,6 @@ object ElasticSearch extends App {
 
       println("key\tcount")
       buckets.forEach { bucket: Terms.Bucket =>
-        implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
         val key = bucket.getKey
         val docCount = bucket.getDocCount
 
@@ -133,109 +205,19 @@ object ElasticSearch extends App {
   }
 
   val categoryOpt = args.lift(0)
+  val metaDirOpt = args.lift(1)
+  val rawDirOpt = args.lift(2)
 
-  if (categoryOpt.isDefined)
-    downloadCategory(categoryOpt.get)
-  else
+  if (categoryOpt.isEmpty)
     listCategories()
+  else if (metaDirOpt.isDefined && rawDirOpt.isDefined) {
+    val metaDir = metaDirOpt.get
+    val rawDir = rawDirOpt.get
 
-//
-//  def test1(): Unit = {
-//    val profileName = "elasticsearch"
-//    val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
-//    val serviceEndpoint = "search-world-modelers-dev-gjvcliqvo44h4dgby7tn3psw74.us-east-1.es.amazonaws.com"
-//    val region = "us-east-1"
-//    val endpointConfiguration = new EndpointConfiguration(serviceEndpoint, region)
-//    val elasticsearchClientBuilder = AWSElasticsearchClientBuilder.standard()
-//        .withEndpointConfiguration(endpointConfiguration)
-//        .withCredentials(awsCredentialsProvider)
-//    val awsElasticsearch = elasticsearchClientBuilder.build
-//    val awsElasticsearchClient = awsElasticsearch.asInstanceOf[AWSElasticsearchClient]
-//    val listTagsResult = awsElasticsearchClient.listTags(new ListTagsRequest())
-//  }
-//
-//  def test2(): Unit = {
-//
-//
-//    def runSearchSource(): Unit = {
-//      newRestHighLevelClient().autoClose { restHighLevelClient =>
-//        // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
-//        val indexName = "wm-dev"
-//
-//        val searchSourceBuilder = new SearchSourceBuilder()
-//        searchSourceBuilder.query(QueryBuilders.matchAllQuery())
-//        val searchRequest = new SearchRequest(indexName)
-//        searchRequest.source(searchSourceBuilder)
-//
-//        val requestOptions = RequestOptions.DEFAULT
-//        val searchResponse = restHighLevelClient.search(searchRequest, requestOptions)
-//        val status = searchResponse.status
-//        val hits = searchResponse.getHits()
-//
-//        println(hits)
-//      }
-//    }
-//
-//    def runSearchTemplate(): Unit = {
-//      newRestHighLevelClient().autoClose { restHighLevelClient =>
-//        // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
-//        val indexName = "wm-dev"
-//
-//        val searchTemplateRequest = new SearchTemplateRequest()
-//        searchTemplateRequest.setRequest(new SearchRequest(indexName))
-//        searchTemplateRequest.setScriptType(ScriptType.INLINE)
-//        searchTemplateRequest.setScript(
-//          """{
-//            |    "aggs" : {
-//            |        "categories" : {
-//            |            "terms" : { "field" : "category.keyword" }
-//            |        }
-//            |    }
-//            |}
-//          """.stripMargin)
-//        searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
-//
-//        val requestOptions = RequestOptions.DEFAULT
-//        val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
-//        val status = searchTemplateResponse.status
-//        val searchResponse = searchTemplateResponse.getResponse
-//        val hits = searchResponse.getHits()
-//        println(hits)
-//      }
-//    }
-//
-//    def runS3(): Unit = {
-//      val amazonS3 = newS3Client()
-////      val buckets = amazonS3.listBuckets()
-//      val bucketName = "world-modelers"
-////      val key = "migration/tmp/DEV/MONTHLY20PRICE20WATCHANDANNEX08312015.pdf"
-//      val key = "documents/migration/South_Sudan_army,_rebels_trade_control_over_Pagak_town_Aug-17.html"
-//      val s3Object = amazonS3.getObject(bucketName, key)
-//      val s3ObjectInputStream = s3Object.getObjectContent()
-//
-//      val contents = new ByteArrayOutputStream().autoClose { byteArrayOutputStream =>
-//        val readBuf = new Array[Byte](1024)
-//        var readLen = 0
-//
-//        def read(): Boolean = {
-//          readLen =  s3ObjectInputStream.read(readBuf)
-//          readLen > 0
-//        }
-//
-//        while (read())
-//          byteArrayOutputStream.write(readBuf, 0, readLen)
-//
-//        new String(byteArrayOutputStream.toByteArray)
-//      }
-//
-//      println(contents) // Would want to put this into file, the bytearray already
-////      println(buckets)
-//    }
-//
-////    runSearchSource()
-////    runSearchTemplate()
-////    runS3()
-//  }
-//
-////  test2()
+    Files.createDirectories(Paths.get(metaDir))
+    Files.createDirectories(Paths.get(rawDir))
+    downloadCategory(categoryOpt.get, metaDir, rawDir)
+  }
+  else
+    println("argumets: [category metaDir rawDir]")
 }
