@@ -122,7 +122,7 @@ class JLDDeserializer {
       val optEnd = (dctValue \ "end").extractOpt[String]
 
       val dct =
-        if (optStart.isEmpty && optEnd.isEmpty) DCT(UnknownInterval, text)
+        if (optStart.isEmpty && optEnd.isEmpty) DCT(UnknownInterval(), text)
         else {
           val start = optStart.getOrElse(optEnd.get)
           val end = optEnd.getOrElse(optStart.get)
@@ -144,9 +144,8 @@ class JLDDeserializer {
     val endOpt = (timeIntervalValue \ "end").extractOpt[String]
     val startDateOpt = startOpt.map(LocalDateTime.parse)
     val endDateOpt = endOpt.map(LocalDateTime.parse)
-    val duration = (timeIntervalValue \ "duration").extract[Long]
 
-    TimeStep(startDateOpt, endDateOpt, duration)
+    TimeStep(startDateOpt, endDateOpt)
   }
 
   def deserializeTimex(timexValue: JValue): IdAndTimex = {

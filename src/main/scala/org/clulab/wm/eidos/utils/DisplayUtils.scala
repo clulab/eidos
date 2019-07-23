@@ -59,7 +59,6 @@ object DisplayUtils {
 
         sb.append(s"$tab start: $start $nl")
         sb.append(s"$tab end: $end $nl")
-        sb.append(s"$tab duration: ${i.duration} $nl")
       }
       sb.append(nl)
     }
