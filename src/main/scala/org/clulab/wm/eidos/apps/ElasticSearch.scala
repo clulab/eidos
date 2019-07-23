@@ -110,10 +110,11 @@ object ElasticSearch extends App {
   def downloadCategory(category: String, metaDir: String, rawDir: String): Unit = {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
       val jsonCategory = JsonMethods.pretty(new JString(category))
+      // Note that size of less than 10 doesn't seem to work properly!
       val script =
         s"""
           |{
-          |  "size" : 5,
+          |  "size" : 15,
           |  "query" : {
           |    "match" : {
           |      "category" : $jsonCategory
