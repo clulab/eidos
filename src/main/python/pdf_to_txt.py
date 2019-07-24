@@ -1,16 +1,16 @@
 """
 This script takes a folder containing PDF files and converts them into TXT.
-It works with python3 in a Unix or Linux system.
+It works with python3 in a Unix or Linux or (without alarms) Windows system.
 
 Requirements:
     pdfminer.six
-    chardet
 
 Usage:
     python pdf_to_txt.py input_pdf_folder output_txt_folder
 """
 
 import os
+import platform
 import sys
 import signal
 from io import StringIO
@@ -18,6 +18,9 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
+
+def isWindows():
+    return platform.system() == "Windows"
 
 
 def signal_handler(signum, frame):
@@ -35,8 +38,9 @@ def convert_to_txt(infile, pages=None):
     converter = TextConverter(manager, output, laparams=LAParams())
     interpreter = PDFPageInterpreter(manager, converter)
 
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(1800)
+    if not isWindows():
+        signal.signal(signal.SIGALRM, signal_handler)
+        signal.alarm(1800)
 
     for page in PDFPage.get_pages(infile, pagenums):
         interpreter.process_page(page)
@@ -44,7 +48,8 @@ def convert_to_txt(infile, pages=None):
     text = output.getvalue()
     output.close
 
-    signal.alarm(0)
+    if not isWindows():
+        signal.alarm(0)
     
     return text
 
@@ -63,7 +68,7 @@ if __name__ == "__main__":
             try:
                 with open(filedirin, 'rb') as filein:
                     text = convert_to_txt(filein)
-                    with open(filedirout, 'w') as outfile:
+                    with open(filedirout, 'w', encoding="utf-8") as outfile:
                         outfile.write(text)
                 print("Success.")
             except Exception as e:
