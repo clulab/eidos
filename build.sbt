@@ -33,7 +33,9 @@ libraryDependencies ++= {
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
-    "org.apache.lucene" % "lucene-grouping"         % luceneVer
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer,
+    "com.amazonaws" % "aws-java-sdk" % "1.11.592",
+    "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.7.1" // to match AWS version
   )
 }
 
