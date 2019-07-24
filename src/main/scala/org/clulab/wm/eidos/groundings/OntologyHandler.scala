@@ -37,9 +37,6 @@ class OntologyHandler(
     }
     groundings.map(reformat)
   }
-
-
-
 }
 
 object OntologyHandler {
@@ -101,6 +98,4 @@ object OntologyHandler {
   }
 
   def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
-
 }
-

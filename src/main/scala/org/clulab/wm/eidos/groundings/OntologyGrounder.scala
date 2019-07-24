@@ -140,11 +140,13 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
   override val isPrimary = false
 
   override def groundable(mention: EidosMention, previousGrounding: Option[Aliases.Groundings]): Boolean = {
-    previousGrounding match {
+    val groundable = previousGrounding match {
       case Some(prev) =>
-        prev.get(EidosOntologyGrounder.UN_NAMESPACE).exists(_.headName.map(_ contains pluginGroundingTrigger).getOrElse(false))
+        prev.get(EidosOntologyGrounder.PRIMARY_NAMESPACE).exists(_.headName.map(_ contains pluginGroundingTrigger).getOrElse(false))
       case _ => false
     }
+
+    groundable
   }
 
   override def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
@@ -171,21 +173,26 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
 }
 
 object EidosOntologyGrounder {
-  val        GROUNDABLE = "Entity"
+  protected val        GROUNDABLE = "Entity"
+  protected val      WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   // Namespace strings for the different in-house ontologies we typically use
-  val      UN_NAMESPACE = "un"
-  val     WDI_NAMESPACE = "wdi"
-  val     FAO_NAMESPACE = "fao"
-  val    MESH_NAMESPACE = "mesh"
-  val   PROPS_NAMESPACE = "props"
-  val MITRE12_NAMESPACE = "mitre12"
-  val     WHO_NAMESPACE = "who"
-  val     INT_NAMESPACE = "interventions"
-  val   ICASA_NAMESPACE = "icasa"
-  // Used for plugin ontologies
-  val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
+  protected val      UN_NAMESPACE = "un"
+  protected val     WDI_NAMESPACE = "wdi"
+  protected val     FAO_NAMESPACE = "fao"
+  protected val    MESH_NAMESPACE = "mesh"
+  protected val   PROPS_NAMESPACE = "props"
+  protected val MITRE12_NAMESPACE = "mitre12"
+  protected val     WHO_NAMESPACE = "who"
+  protected val     INT_NAMESPACE = "interventions"
+  protected val   ICASA_NAMESPACE = "icasa"
 
-  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  val PRIMARY_NAMESPACE = WM_NAMESPACE // Assign the primary namespace here, publically.
+
+  // Used for plugin ontologies
+//  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
+  protected val INTERVENTION_PLUGIN_TRIGGER = "wm/concept/causal_factor/intervention/"
+
+  protected val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
