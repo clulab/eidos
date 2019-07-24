@@ -1,15 +1,21 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.eidos.apps.batch
 
-import java.io._
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
+import java.io.SyncFailedException
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.MetaUtils
 
 import scala.collection.parallel.ForkJoinTaskSupport
 

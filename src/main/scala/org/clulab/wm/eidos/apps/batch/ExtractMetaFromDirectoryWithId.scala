@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.eidos.apps.batch
 
 import java.io.File
 import java.util.concurrent.ForkJoinPool
@@ -6,17 +6,39 @@ import java.util.concurrent.ForkJoinPool
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils, Timer}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.MetaUtils
+import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidos.utils.Timer
+import org.json4s.DefaultFormats
+import org.json4s.jackson.JsonMethods
 
+import scala.collection.mutable
 import scala.collection.parallel.ForkJoinTaskSupport
 
-object ExtractMetaFromDirectory extends App {
+object ExtractMetaFromDirectoryWithId extends App {
   val inputDir = args(0)
   val metaDir = args(1)
   val outputDir = args(2)
   val timeFile = args(3)
+  val mapFile = args(4)
+  val threads = args(5).toInt
+
+  val fileToIdMap = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val fileToIdMap = new mutable.HashMap[String, String]()
+    val bufferedSource = Sourcer.sourceFromFile(mapFile)
+    bufferedSource.getLines().foreach { line =>
+      val json = JsonMethods.parse(line)
+      val filename = (json \ "file_name").extract[String]
+      val id = (json \ "_id").extract[String]
+      fileToIdMap += (filename -> id)
+    }
+    fileToIdMap
+  }
 
   val doneDir = inputDir + "/done"
   val converter = MetaUtils.convertTextToMeta _
@@ -38,7 +60,7 @@ object ExtractMetaFromDirectory extends App {
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
-    val forkJoinPool = new ForkJoinPool(8)
+    val forkJoinPool = new ForkJoinPool(threads)
     val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
     parFiles.tasksupport = forkJoinTaskSupport
 
@@ -48,6 +70,27 @@ object ExtractMetaFromDirectory extends App {
         println(s"Extracting from ${file.getName}")
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
+          val id = {
+            // These all and with .txt
+            val baseFilename = StringUtils.beforeLast(file.getName(), '.', true)
+            val extensions = Array(".html", ".htm", ".pdf")
+
+            def getId(extension: String): Option[String] =
+              fileToIdMap.get(baseFilename + extension)
+
+            val extensionIndex = extensions.indexWhere { extension: String =>
+              getId(extension).isDefined
+            }
+            val id = if (extensionIndex >= 0)
+              getId(extensions(extensionIndex))
+            else
+              fileToIdMap.get(baseFilename)
+
+            if (!id.isDefined)
+              println("This shouldn't happen!")
+            id.get
+          }
+
           // 2. Get the input file contents
           val text = FileUtils.getTextFromFile(file)
           val json = MetaUtils.getMetaData(converter, metaDir, file)
@@ -55,7 +98,7 @@ object ExtractMetaFromDirectory extends App {
           val documentTitle = MetaUtils.getDocumentTitle(json)
           // 3. Extract causal mentions from the text
           val annotatedDocuments = Seq(reader.extractFromText(text, documentCreationTime = documentCreationTime))
-          annotatedDocuments.head.document.id = documentTitle
+          annotatedDocuments.head.document.id = Some(id)
           // 4. Convert to JSON
           val corpus = new JLDCorpus(annotatedDocuments)
           val mentionsJSONLD = corpus.serialize()

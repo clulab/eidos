@@ -1,16 +1,13 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.eidos.apps.batch
 
-import java.io.{File, PrintWriter}
+import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.json4s.JValue
 import org.json4s.jackson.JsonMethods.parse
-import org.json4s.{JField, JObject, JString, JValue}
 
 object FindMissingFiles extends App {
   val inputDir = args(0)

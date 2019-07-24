@@ -1,10 +1,11 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.eidos.apps.batch
 
 import java.time.LocalDateTime
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.DCT
-import org.clulab.wm.eidos.utils.{FileUtils, MetaUtils}
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.MetaUtils
 
 object FilterWithMetaFromDirectory extends App {
   val inputDir = args(0)

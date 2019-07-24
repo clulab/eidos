@@ -1,8 +1,4 @@
-package org.clulab.wm.eidos.apps
-
-import java.nio.file.{Files, Paths}
-
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
+package org.clulab.wm.eidos.apps.batch
 
 object RenameMetaFiles extends App {
   val textDir = args(0)

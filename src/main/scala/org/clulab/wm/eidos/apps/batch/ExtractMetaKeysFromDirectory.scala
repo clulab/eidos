@@ -1,12 +1,8 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.eidos.apps.batch
 
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.MetaUtils
-
-import org.json4s.JsonDSL._
-import org.json4s._
-import org.json4s.DefaultFormats
-import org.json4s.jackson.JsonMethods._
+import org.json4s.JValue
 
 import scala.collection.mutable
 
