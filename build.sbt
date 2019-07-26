@@ -67,7 +67,7 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
 
 libraryDependencies ++= {
   val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
-  val timenorm = "timenorm-0.11.1" + (if (minor == 11) "_2.11.11" else "")
+  val timenorm = "timenorm-0.12.1" + (if (minor == 11) "_2.11.11" else "")
 
   Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
 }

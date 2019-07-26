@@ -2,10 +2,13 @@ package org.clulab.wm.eidos.context
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
+import org.clulab.anafora.Data
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeExpression}
+import org.clulab.timenorm.formal._
+import org.clulab.timenorm.formal.{Interval => TimExInterval, Intervals => TimExIntervals}
+import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.{DCT, EidosDocument, TimEx, TimeStep}
 import org.clulab.wm.eidos.extraction.Finder
@@ -13,6 +16,7 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.mutable
+import scala.util.Try
 import scala.util.matching.Regex
 
 object TimeNormFinder {
@@ -32,6 +36,15 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
 
   private val CONTEXT_WINDOW_SIZE = 20
   private val BATCH_SIZE = 40
+
+  def parseBatch(text: String, spans: Array[(Int, Int)],
+                 textCreationTime: TimExInterval = UnknownInterval()): Array[Array[TimeExpression]] = {
+    for (xml <- parser.parseBatchToXML(text, spans)) yield {
+      implicit val data: Data = new Data(xml, Some(text))
+      val reader = new AnaforaReader(textCreationTime)
+      data.topEntities.map(e => Try(reader.temporal(e)).getOrElse(UnknownInterval(Some(e.expandedSpan)))).toArray
+    }
+  }
 
   override def extract(doc: Document, initialState: State): Seq[Mention] = doc match {
     case eidosDocument: EidosDocument =>
@@ -80,8 +93,8 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
           //assert(end2 <= end3 && end3 <= sentenceText.length)
 
           //assert(start3 <= end3)
-          // yield the context interval
-          Interval(start3, end3)
+          // yield the context interval adjusting the span to full-text character offsets
+          Interval(sentenceStart + start3, sentenceStart + end3)
         }
 
         // merge overlapping contexts
@@ -93,34 +106,32 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
 
         // get the text for each context
         for (interval <- mergedIntervals) yield {
-          ((sentenceIndex, interval.start), sentenceText.substring(interval.start, interval.end))
+          (sentenceIndex,(interval.start, interval.end))
         }
       }
-
-      // TODO: TemporalNeuralParser should take Array arguments, not List arguments, so the .toList here can be removed
-      val (contextLocations: List[(Int, Int)], contextTexts: List[String]) = sentenceContexts.flatten.toList.unzip
+      val (contextSentenceIndexes: Array[Int], contextSpans: Array[(Int, Int)]) = sentenceContexts.flatten.unzip
 
       // run the timenorm parser over batches of contexts to find and normalize time expressions
-      val contextTimeExpressions: Seq[List[TimeExpression]] = eidosDocument.dctString match {
+      val contextTimeExpressions: Array[Array[TimeExpression]] = eidosDocument.dctString match {
         case Some(dctString) =>
-          val parsed = (dctString :: contextTexts).sliding(BATCH_SIZE, BATCH_SIZE).flatMap(parser.parse).toList
-          eidosDocument.dct = Some(DCT(parser.dct(parsed.head), dctString)) // Note the side effect!
-          parser.intervals(parsed.tail, eidosDocument.dct.map(_.interval))
+          val Array(dct: TimExInterval) = parser.parse(dctString)
+          // use a SimpleInterval (character span = None) so it doesn't interfere with character span of TimeExpressions
+          val dctSimpleInterval = SimpleInterval(dct.start, dct.end)
+          eidosDocument.dct = Some(DCT(dctSimpleInterval, dctString))
+          contextSpans.sliding(BATCH_SIZE, BATCH_SIZE).
+            flatMap(batch => parseBatch(text, batch, textCreationTime = dctSimpleInterval)).toArray
         case None =>
-          val parsed = contextTexts.sliding(BATCH_SIZE, BATCH_SIZE).flatMap(parser.parse).toList
-          parser.intervals(parsed)
+          contextSpans.sliding(BATCH_SIZE, BATCH_SIZE).
+            flatMap(batch => parseBatch(text, batch)).toArray
       }
 
       // create mentions for each of the time expressions that were found
       for {
-        ((sentenceIndex, contextSentenceStart), timeExpressions) <- contextLocations zip contextTimeExpressions
+        (sentenceIndex, timeExpressions) <- contextSentenceIndexes zip contextTimeExpressions
         timeExpression <- timeExpressions
       } yield {
-        // reconstruct full-text character offsets from sentence-level character offsets
         val sentence = eidosDocument.sentences(sentenceIndex)
-        val contextStart = sentence.startOffsets.head + contextSentenceStart
-        val timeTextStart = contextStart + timeExpression.span.start
-        val timeTextEnd = contextStart + timeExpression.span.end
+        val Some((timeTextStart, timeTextEnd)) = timeExpression.charSpan
         val timeTextInterval = Interval(timeTextStart, timeTextEnd)
         val timeText = text.substring(timeTextStart, timeTextEnd)
 
@@ -139,9 +150,13 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
           Interval(wordIndexBefore, wordIndexBefore + 1)
         }
 
-        // construct the attachment with the detailed time information
-        val timeSteps = for (timeInterval <- timeExpression.intervals) yield {
-          TimeStep(Option(timeInterval.start), Option(timeInterval.end), timeInterval.duration)
+        // get the Seq of Intervals for each TimeExpression and construct the attachment with the detailed time information
+        val timeSteps: Seq[TimeStep] = timeExpression match {
+          case timeInterval: TimExInterval if timeInterval.isDefined =>
+            Seq(TimeStep(timeInterval.start, timeInterval.end))
+          case timeIntervals: TimExIntervals if timeIntervals.isDefined =>
+            timeIntervals.iterator.toSeq.map(interval => TimeStep(interval.start, interval.end))
+          case _ => Seq()
         }
         val attachment = TimEx(timeTextInterval, timeSteps, timeText)
 
