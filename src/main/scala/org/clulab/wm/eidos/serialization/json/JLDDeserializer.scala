@@ -320,7 +320,7 @@ class JLDDeserializer {
     val documentId = id(documentValue)
     val title = (documentValue \ "title").extractOpt[String]
     val text = (documentValue \ "text").extractOpt[String]
-    val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ "dct").extractOpt[JValue]))
+    val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ JLDDCT.singular).extractOpt[JValue]))
     // Text is required here!  Can't otherwise make raw for sentences.
     val sentencesSpec = deserializeSentences(documentValue \ "sentences", text)
     val timexCount = sentencesSpec.timexes.map(_.size).sum
@@ -331,7 +331,7 @@ class JLDDeserializer {
     eidosDocument.text = text
 
     idAndDctOpt.map(_.value).foreach { dct =>
-      eidosDocument.addAttachment("dct", new DctDocumentAttachment(dct))
+      eidosDocument.addAttachment(DctDocumentAttachment.dctKey, new DctDocumentAttachment(dct))
     }
 
     val idAndDocument = new IdAndDocument(documentId, eidosDocument)

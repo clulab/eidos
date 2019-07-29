@@ -32,7 +32,7 @@ object ExpansionUtils {
   // Add the document creation time (dct) attachment if there is no temporal attachment
   // i.e., a backoff
   def attachDCT(m: Mention, state: State): Mention = {
-    val documentAttachmentOpt = m.document.getAttachment("dct")
+    val documentAttachmentOpt = m.document.getAttachment(DctDocumentAttachment.dctKey)
     if (documentAttachmentOpt.isDefined && m.attachments.filter(_.isInstanceOf[Time]).isEmpty) {
       val dctDocumentAttachment = documentAttachmentOpt.get.asInstanceOf[DctDocumentAttachment]
       m.withAttachment(DCTime(dctDocumentAttachment.dct))

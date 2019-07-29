@@ -143,7 +143,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         val dctOpt = Some(DCT(parser.dct(parsed.head), dctString)) // Note the side effect!
 
         if (dctOpt.isDefined)
-          eidosDocument.addAttachment(new DctDocumentAttachment(dctOpt.get))
+          eidosDocument.addAttachment(DctDocumentAttachment.dctKey, new DctDocumentAttachment(dctOpt.get))
         parser.intervals(parsed.tail, dctOpt.map(_.interval))
       case None =>
         val parsed = contextTexts.sliding(BATCH_SIZE, BATCH_SIZE).flatMap(parser.parse).toList

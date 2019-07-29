@@ -71,13 +71,13 @@ class TestDocumentAttachment extends Test {
     val dct = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "now")
     val oldDocumentAttachment = new DctDocumentAttachment(dct)
     val oldDocument = new Document(Array.empty[Sentence])
-    oldDocument.addAttachment("dct", oldDocumentAttachment)
+    oldDocument.addAttachment(DctDocumentAttachment.dctKey, oldDocumentAttachment)
 
     val documentSerializer = new DocumentSerializer()
     val documentString = documentSerializer.save(oldDocument)
 
     val newDocument = documentSerializer.load(documentString)
-    val newDocumentAttachment = newDocument.getAttachment("dct").get.asInstanceOf[DctDocumentAttachment]
+    val newDocumentAttachment = newDocument.getAttachment(DctDocumentAttachment.dctKey).get.asInstanceOf[DctDocumentAttachment]
     newDocumentAttachment should be (oldDocumentAttachment)
 
     val dct2 = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "then")
@@ -89,12 +89,12 @@ class TestDocumentAttachment extends Test {
     val dct = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "now")
     val oldDocumentAttachment = new DctDocumentAttachment(dct)
     val oldDocument = new Document(Array.empty[Sentence])
-    oldDocument.addAttachment("dct", oldDocumentAttachment)
+    oldDocument.addAttachment(DctDocumentAttachment.dctKey, oldDocumentAttachment)
 
     val documentString = prettyJson(renderJValue(oldDocument.jsonAST))
 
     val newDocument: Document = JSONSerializer.toDocument(parseJson(documentString))
-    val newDocumentAttachment = newDocument.getAttachment("dct").get.asInstanceOf[DctDocumentAttachment]
+    val newDocumentAttachment = newDocument.getAttachment(DctDocumentAttachment.dctKey).get.asInstanceOf[DctDocumentAttachment]
     newDocumentAttachment should be (oldDocumentAttachment)
 
     val dct2 = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "then")

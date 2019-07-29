@@ -791,7 +791,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
       new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index)).toJObject
     }.toSeq
     val jldText = annotatedDocument.document.text.map(text => text)
-    val documentAttachmentOpt = annotatedDocument.document.getAttachment("dct")
+    val documentAttachmentOpt = annotatedDocument.document.getAttachment(DctDocumentAttachment.dctKey)
     val jldDCT = documentAttachmentOpt.map { documentAttachment =>
       val dctDocumentAttachment = documentAttachment.asInstanceOf[DctDocumentAttachment]
       new JLDDCT(serializer, dctDocumentAttachment.dct).toJObject
@@ -802,7 +802,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
       serializer.mkId(this),
       "title" -> annotatedDocument.document.id,
       "text" -> jldText,
-      "dct" -> jldDCT,
+      JLDDCT.singular -> jldDCT,
       JLDSentence.plural -> jldSentences
     ))
   }

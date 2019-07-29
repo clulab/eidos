@@ -74,3 +74,7 @@ class DctDocumentAttachment(val dct: DCT) extends DocumentAttachment { // Maybe 
         ("end" -> end.toString)
   }
 }
+
+object DctDocumentAttachment {
+  val dctKey = "dct"
+}

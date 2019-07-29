@@ -122,7 +122,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   //                                 Annotation Methods
   // ---------------------------------------------------------------------------------------------
 
-  def annotateDoc(document: Document, keepText: Boolean = true, dctString: Option[String] = None, filename: Option[String]= None): Document = {
+  def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
     require(document.text.isDefined)
     require(keepText == true)
     document.id = filename
@@ -130,12 +130,12 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   }
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, dctString: Option[String] = None, filename: Option[String]= None): Document = {
+  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
     // Syntactic pre-processing
     val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
     val filtered = documentFilter.filter(tokenized)         // Filter noise from document
     val annotated = proc.annotate(filtered)
-    val document = annotateDoc(annotated, keepText, dctString, filename)
+    val document = annotateDoc(annotated, keepText, documentCreationTime, filename)
 
     document
   }
@@ -195,12 +195,12 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
-  def extractFrom(doc: Document, dctString: Option[String] = None): Vector[Mention] = {
+  def extractFrom(doc: Document, documentCreationTime: Option[String] = None): Vector[Mention] = {
     // Prepare the initial state -- if you are using the entity finder then it contains the found entities,
     // else it is empty
     var initialState = new State()
     for (ef <- loadableAttributes.entityFinders) {
-      val mentions = ef.extract(doc, initialState, dctString)
+      val mentions = ef.extract(doc, initialState, documentCreationTime)
       initialState = initialState.updated(mentions)
     }
 
