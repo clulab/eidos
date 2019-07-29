@@ -56,12 +56,11 @@ object DisplayUtils {
     for (timex <- timexes) {
       sb.append(s"$tab span: ${timex.span.start},${timex.span.end} $nl")
       for (i <- timex.intervals) {
-        val start = i.startDateOpt.map(_.toString).getOrElse("Undef")
-        val end = i.endDateOpt.map(_.toString).getOrElse("Undef")
+        val start = i.startDate.toString
+        val end = i.endDate.toString
 
         sb.append(s"$tab start: $start $nl")
         sb.append(s"$tab end: $end $nl")
-        sb.append(s"$tab duration: ${i.duration} $nl")
       }
       sb.append(nl)
     }

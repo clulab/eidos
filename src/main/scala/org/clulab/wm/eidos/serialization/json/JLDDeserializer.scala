@@ -140,13 +140,12 @@ class JLDDeserializer {
   def deserializeTimeInterval(timeIntervalValue: JValue): TimeStep = {
     requireType(timeIntervalValue, JLDTimeInterval.typename)
     val _ = id(timeIntervalValue) // This is never used, so why do we have it?
-    val startOpt = (timeIntervalValue \ "start").extractOpt[String]
-    val endOpt = (timeIntervalValue \ "end").extractOpt[String]
-    val startDateOpt = startOpt.map(LocalDateTime.parse)
-    val endDateOpt = endOpt.map(LocalDateTime.parse)
-    val duration = (timeIntervalValue \ "duration").extract[Long]
+    val start = (timeIntervalValue \ "start").extract[String]
+    val end = (timeIntervalValue \ "end").extract[String]
+    val startDate = LocalDateTime.parse(start)
+    val endDate = LocalDateTime.parse(end)
 
-    TimeStep(startDateOpt, endDateOpt, duration)
+    TimeStep(startDate, endDate)
   }
 
   def deserializeTimex(timexValue: JValue): IdAndTimex = {
@@ -155,9 +154,11 @@ class JLDDeserializer {
     val text = (timexValue \ "text").extract[String]
     val startOffset = (timexValue \ "startOffset").extract[Int]
     val endOffset = (timexValue \ "endOffset").extract[Int]
-    // A TimeExpression, if it exists at all, must have intervals; therefore, no extractOpt here.
-    val intervals = (timexValue \ "intervals").extract[JArray].arr.map { timeIntervalValue =>
-      deserializeTimeInterval(timeIntervalValue)
+    val intervals = (timexValue \ "intervals").extractOpt[JArray] match {
+      case Some(timeIntervalsValue: JArray) => timeIntervalsValue.arr.map { timeIntervalValue: JValue =>
+        deserializeTimeInterval(timeIntervalValue)
+      }
+      case _ => Seq()
     }
     new IdAndTimex(timexId, TimEx(Interval(startOffset, endOffset), intervals, text))
   }

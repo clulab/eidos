@@ -501,9 +501,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
           "TimeExpression",
           Json.arr(Json.arr(i.span.start, i.span.end)),
           Json.toJson(for (d <- i.intervals) yield (
-              d.startDateOpt.map(_.toString).getOrElse("Undef"),
-              d.endDateOpt.map(_.toString).getOrElse("Undef"),
-              d.duration))
+              d.startDate.toString,
+              d.endDate.toString))
         )
       }
       Json.toJson(timexs)

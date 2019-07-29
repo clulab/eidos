@@ -85,15 +85,13 @@ class TestJLDDeserializer extends ExtractionTest {
         |  "@type" : "TimeInterval",
         |  "@id" : "_:TimeInterval_5",
         |  "start" : "2017-01-01T00:00",
-        |  "end" : "2017-02-01T00:00",
-        |  "duration" : 2678400
+        |  "end" : "2017-02-01T00:00"
         |}""".stripMargin
       val timeIntervalValue = parse(json)
       val timeStep = new JLDDeserializer().deserializeTimeInterval(timeIntervalValue)
 
-      timeStep.startDateOpt.get should be(LocalDateTime.parse("2017-01-01T00:00"))
-      timeStep.endDateOpt.get should be(LocalDateTime.parse("2017-02-01T00:00"))
-      timeStep.duration should be(2678400)
+      timeStep.startDate should be(LocalDateTime.parse("2017-01-01T00:00"))
+      timeStep.endDate should be(LocalDateTime.parse("2017-02-01T00:00"))
     }
 
     it should "deserialize TimexExpression from jsonld" in {
@@ -108,8 +106,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |    "@type" : "TimeInterval",
         |    "@id" : "_:TimeInterval_5",
         |    "start" : "2017-01-01T00:00",
-        |    "end" : "2017-02-01T00:00",
-        |    "duration" : 2678400
+        |    "end" : "2017-02-01T00:00"
         |  } ]
         |}""".stripMargin
       val timexValue = parse(json)
