@@ -332,8 +332,6 @@ class JLDDeserializer {
     eidosDocument.text = text
     // We really don't know whether time and geo were on or not.  If none were found
     // at all, then assume they were off and use None rather than Some(List.empty).
-    eidosDocument.times = if (timexCount == 0) None else Some(sentencesSpec.timexes)
-    eidosDocument.geolocs = if (geolocsCount == 0) None else Some(sentencesSpec.geolocs)
     eidosDocument.dct = idAndDctOpt.map(_.value)
 
     val idAndDocument = new IdAndDocument(documentId, eidosDocument)

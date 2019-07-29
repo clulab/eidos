@@ -15,7 +15,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     * For filtering, see filterEntities.
     * @param doc an org.clulab.processors.Document
     */
-  def extract(doc: Document, initialState: State = new State()): Seq[Mention] = {
+  def extract(doc: Document, initialState: State = new State(), dctString: Option[String] = None): Seq[Mention] = {
     // avoid refs, etc.
     val avoid = avoidEngine.extractFrom(doc)
     val stateFromAvoid = initialState.updated(avoid)

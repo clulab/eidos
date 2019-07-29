@@ -24,7 +24,8 @@ object ExtractFromDirectory extends App {
       // 2. Get the input file contents
       val text = FileUtils.getTextFromFile(file)
       // 3. Extract causal mentions from the text
-      val annotatedDocuments = Seq(reader.extractFromText(text))
+      // kwa TODO remove
+      val annotatedDocuments = Seq(reader.extractFromText(text, true, false)) // See how many we get now
       // 4. Convert to JSON
       val corpus = new JLDCorpus(annotatedDocuments)
       val mentionsJSONLD = corpus.serialize(adjectiveGrounder)

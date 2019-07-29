@@ -5,17 +5,16 @@ import java.nio.file.{Files, Path, Paths}
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.geonorm.{GeoNamesIndex,GeoLocationExtractor,GeoLocationNormalizer}
+import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
+import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Location
-import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.extraction.Finder
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.FileUtils
 import org.slf4j.LoggerFactory
-
-import scala.collection.mutable
 
 object GeoNormFinder {
 
@@ -69,39 +68,55 @@ object GeoNormFinder {
       new GeoLocationExtractor(),
       new GeoLocationNormalizer(new GeoNamesIndex(cacheManager.geoNamesIndexPath)))
   }
+
+  def getGeoPhraseIDs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[GeoPhraseID]]= {
+    val reachableMentions = EidosMention.findReachableMentions(odinMentions)
+    val geoPhraseIDs: Seq[GeoPhraseID] = reachableMentions.flatMap { odinMention =>
+      odinMention.attachments.collect {
+        case attachment: Location => attachment.geoPhraseID
+      }
+    }
+    val alignedGeoPhraseIDs: Array[Seq[GeoPhraseID]] = sentences.map { sentence =>
+      val sentenceStart = sentence.startOffsets.head
+      val sentenceEnd = sentence.endOffsets.last
+
+      geoPhraseIDs.filter { geoPhraseID =>
+        sentenceStart <= geoPhraseID.startOffset && geoPhraseID.endOffset <= sentenceEnd
+      }
+    }
+    alignedGeoPhraseIDs
+  }
 }
 
 class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNormalizer) extends Finder {
-  override def extract(doc: Document, initialState: State): Seq[Mention] = doc match {
-    case eidosDoc: EidosDocument =>
-      val sentenceBuffers = eidosDoc.sentences.map(_ => mutable.Buffer.empty[GeoPhraseID])
-      eidosDoc.geolocs = Some(sentenceBuffers.map(_.toSeq))
-      val sentenceLocations = extractor(eidosDoc.sentences.map(_.raw))
-      val Some(text) = eidosDoc.text
-      for {
-        sentenceIndex <- eidosDoc.sentences.indices
-        sentence = eidosDoc.sentences(sentenceIndex)
-        locations = sentenceLocations(sentenceIndex)
-        (wordStartIndex, wordEndIndex) <- locations
-      } yield {
-        val charStartIndex = sentence.startOffsets(wordStartIndex)
-        val charEndIndex = sentence.endOffsets(wordEndIndex - 1)
-        val locationPhrase = text.substring(charStartIndex, charEndIndex)
-        val geoID = normalizer(text, (charStartIndex, charEndIndex)).headOption.map {
-          case (entry, _) => entry.id.toInt
-        }
-        val geoPhraseID = GeoPhraseID(locationPhrase, geoID, charStartIndex, charEndIndex)
-        sentenceBuffers(sentenceIndex) += geoPhraseID
-        new TextBoundMention(
-          Seq("Location"),
-          Interval(wordStartIndex, wordEndIndex),
-          sentenceIndex,
-          eidosDoc,
-          true,
-          getClass.getSimpleName,
-          Set(Location(geoPhraseID))
-        )
+
+  override def extract(doc: Document, initialState: State, dctString: Option[String] = None): Seq[Mention] = {
+    val sentenceLocations = extractor(doc.sentences.map(_.raw))
+    val Some(text) = doc.text
+    for {
+      sentenceIndex <- doc.sentences.indices
+      sentence = doc.sentences(sentenceIndex)
+      locations = sentenceLocations(sentenceIndex)
+      (wordStartIndex, wordEndIndex) <- locations
+    } yield {
+      val charStartIndex = sentence.startOffsets(wordStartIndex)
+      val charEndIndex = sentence.endOffsets(wordEndIndex - 1)
+      val locationPhrase = text.substring(charStartIndex, charEndIndex)
+      val geoID = normalizer(text, (charStartIndex, charEndIndex)).headOption.map {
+        case (entry, _) => entry.id.toInt
       }
+      val geoPhraseID = GeoPhraseID(locationPhrase, geoID, charStartIndex, charEndIndex)
+
+      new TextBoundMention(
+        Seq("Location"),
+        Interval(wordStartIndex, wordEndIndex),
+        sentenceIndex,
+        doc,
+        true,
+        getClass.getSimpleName,
+        Set(Location(geoPhraseID))
+      )
+    }
   }
 }
 

@@ -9,7 +9,9 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
@@ -271,14 +273,21 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println("Found mentions (in mkJson):")
     eidosMentions.foreach(eidosMention => DisplayUtils.displayMention(eidosMention.odinMention))
 
+    val odinMentions = eidosMentions.map(_.odinMention)
+    val timExs = // None
+        if (ieSystem.useTimeNorm) Some(TimeNormFinder.getTimExs(odinMentions, doc.sentences))
+        else None
+    val geoPhraseIDs = // None
+        if (ieSystem.useGeoNorm) Some(GeoNormFinder.getGeoPhraseIDs(odinMentions, doc.sentences))
+        else None
     val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
         "text" -> text,
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
+    val eidosJsonObj = mkJsonForEidos(text, sent, odinMentions, timExs, geoPhraseIDs)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, timExs, geoPhraseIDs)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...

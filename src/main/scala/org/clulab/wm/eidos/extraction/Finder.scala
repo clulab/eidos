@@ -7,7 +7,7 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
 
 trait Finder {
-  def extract(doc: Document, initialState: State = new State()): Seq[Mention]
+  def extract(doc: Document, initialState: State = new State(), dctString: Option[String] = None): Seq[Mention]
 }
 
 object Finder {

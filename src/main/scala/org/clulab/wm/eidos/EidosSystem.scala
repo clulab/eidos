@@ -122,25 +122,23 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   //                                 Annotation Methods
   // ---------------------------------------------------------------------------------------------
 
-  def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
-    val doc = EidosDocument(document, keepText)
-    // Time and Location
-    doc.dctString = documentCreationTime
-    // Document ID
-    doc.id = filename
-    doc
+  def annotateDoc(document: Document, keepText: Boolean = true, dctString: Option[String] = None, filename: Option[String]= None): Document = {
+    require(document.text.isDefined)
+    require(keepText == true)
+    document.id = filename
+    document
   }
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): EidosDocument = {
+  def annotate(text: String, keepText: Boolean = true, dctString: Option[String] = None, filename: Option[String]= None): Document = {
     // Syntactic pre-processing
     val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
     val filtered = documentFilter.filter(tokenized)         // Filter noise from document
     val annotated = proc.annotate(filtered)
-    val doc = annotateDoc(annotated, keepText, documentCreationTime, filename)
-    doc
-  }
+    val document = annotateDoc(annotated, keepText, dctString, filename)
 
+    document
+  }
 
   // ---------------------------------------------------------------------------------------------
   //                                 Extraction Methods
@@ -154,20 +152,20 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     documentCreationTime: Option[String] = None,
     filename: Option[String] = None): AnnotatedDocument = {
 
-    val eidosDoc = annotate(text, keepText, documentCreationTime, filename)
-    extractFromDoc(eidosDoc, keepText, cagRelevantOnly, documentCreationTime, filename)
+    val document = annotate(text, keepText, documentCreationTime, filename)
+    extractFromDoc(document, keepText, cagRelevantOnly, documentCreationTime, filename)
   }
 
   // MAIN PIPELINE METHOD if given doc
   def extractFromDoc(
-      doc: EidosDocument,
+      doc: Document,
       keepText: Boolean = true,
       cagRelevantOnly: Boolean = true,
       documentCreationTime: Option[String] = None,
       filename: Option[String] = None): AnnotatedDocument = {
 
     // Extract Mentions
-    val odinMentions = extractFrom(doc)
+    val odinMentions = extractFrom(doc, documentCreationTime)
 
     // Expand the Concepts that have a modified state if they are not part of a causal event
     val afterExpandingConcepts = maybeExpandConcepts(odinMentions, loadableAttributes.keepStatefulConcepts)
@@ -197,12 +195,12 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
-  def extractFrom(doc: Document): Vector[Mention] = {
+  def extractFrom(doc: Document, dctString: Option[String] = None): Vector[Mention] = {
     // Prepare the initial state -- if you are using the entity finder then it contains the found entities,
     // else it is empty
     var initialState = new State()
     for (ef <- loadableAttributes.entityFinders) {
-      val mentions = ef.extract(doc, initialState)
+      val mentions = ef.extract(doc, initialState, dctString)
       initialState = initialState.updated(mentions)
     }
 
@@ -266,8 +264,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       expandedConcepts ++ notExpandable ++ relations
       }
     }
-
-
 }
 
 object EidosSystem {
