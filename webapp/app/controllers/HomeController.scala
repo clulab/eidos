@@ -350,10 +350,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       objectToReturn += "<h2>Found Concepts:</h2>"
       for (entity <- entities) {
         objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
-        // If the UN groundings are available, let's print them too...
-        if (entity.grounding.contains(EidosOntologyGrounder.UN_NAMESPACE)) {
+        // If the primary groundings are available, let's print them too...
+        if (entity.grounding.contains(EidosOntologyGrounder.PRIMARY_NAMESPACE)) {
           objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
-          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.UN_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
+          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
           objectToReturn +=  groundings
           objectToReturn += "<br><br>"
         }
@@ -493,9 +493,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
           "TimeExpression",
           Json.arr(Json.arr(i.span.start, i.span.end)),
           Json.toJson(for (d <- i.intervals) yield (
-              d.startDateOpt.map(_.toString).getOrElse("Undef"),
-              d.endDateOpt.map(_.toString).getOrElse("Undef"),
-              d.duration))
+              d.startDate.toString,
+              d.endDate.toString))
         )
       }
       Json.toJson(timexs)

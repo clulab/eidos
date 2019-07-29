@@ -689,20 +689,19 @@ object JLDWord {
   val typename = "Word"
 }
 
-class JLDTimeInterval(serializer:JLDSerializer, val start: Option[LocalDateTime], val end: Option[LocalDateTime], val duration: Long)
+class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val end: LocalDateTime)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimeInterval.typename) {
   
   override def toJObject: TidyJObject = {
-    val startDateTime = start.map(_.toString)
-    val endDateTime = end.map(_.toString)
+    val startDateTime = start.toString
+    val endDateTime = end.toString
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
       "start" -> startDateTime,
-      "end" -> endDateTime,
-      "duration" -> duration
+      "end" -> endDateTime
     ))
   }
 }
@@ -719,7 +718,7 @@ class JLDTimex(serializer:JLDSerializer, val timex: TimEx)
     extends JLDObject(serializer, JLDTimex.typename, timex) {
   
   override def toJObject: TidyJObject = {
-    val jldIntervals = timex.intervals.map(interval => new JLDTimeInterval(serializer, interval.startDateOpt, interval.endDateOpt, interval.duration).toJObject)
+    val jldIntervals = timex.intervals.map(interval => new JLDTimeInterval(serializer, interval.startDate, interval.endDate).toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),

@@ -5,9 +5,9 @@ import org.clulab.wm.eidos.mentions.EidosMention
 
 object GroundingUtils {
 
-  // Get the top UN ontology grounding.
+  // Get the top primary (formerly UN) ontology grounding.
   def getBaseGrounding(mention: EidosMention): String = {
-    val namespace = EidosOntologyGrounder.UN_NAMESPACE
+    val namespace = EidosOntologyGrounder.PRIMARY_NAMESPACE
     mention.grounding(namespace)
       .headName
       .getOrElse("(unavailable)")

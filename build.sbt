@@ -19,7 +19,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-odin"          % procVer,
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
-    "org.clulab"    % "geonorm-models"            % "0.9.5",
+    "org.clulab"    %% "geonorm"                  % "0.9.5",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",
@@ -27,12 +27,15 @@ libraryDependencies ++= {
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
+    "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
     "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2",
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
-    "org.apache.lucene" % "lucene-grouping"         % luceneVer
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer,
+    "com.amazonaws" % "aws-java-sdk" % "1.11.592",
+    "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.7.1" // to match AWS version
   )
 }
 
@@ -50,7 +53,7 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
     val languageNames = englishTests.map(_.name) ++ portugueseTests.map(_.name)
     val otherTests = tests.filter(test => !languageNames.contains(test.name))
     val allNames = otherTests.map(_.name) ++ languageNames
-//    val otherAndEnglishGroup = new Group("otherAndEnglish", otherTests ++ englishTests, newWubProcess)
+//    val otherAndEnglishGroup = new Group("otherAndEnglish", otherTests ++ englishTests, newWubProcess) 
     val englishGroup = new Group("english", englishTests, newRunPolicy)
     val portugueseGroup = new Group("portuguese", portugueseTests, newRunPolicy)
     val otherGroup = new Group("other", otherTests, newRunPolicy)
@@ -64,7 +67,7 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
 
 libraryDependencies ++= {
   val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
-  val timenorm = "timenorm-0.11.1" + (if (minor == 11) "_2.11.11" else "")
+  val timenorm = "timenorm-0.12.1" + (if (minor == 11) "_2.11.11" else "")
 
   Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
 }
