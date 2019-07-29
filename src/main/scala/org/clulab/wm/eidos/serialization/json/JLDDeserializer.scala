@@ -8,6 +8,7 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.SynPath
 import org.clulab.odin.TextBoundMention
+import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Edge
@@ -25,17 +26,15 @@ import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.attachments.{Property, Quantification}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.document.DCT
-import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
+import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.DctDocumentAttachment
-import org.clulab.wm.eidos.document.TimEx
-import org.clulab.wm.eidos.document.TimeStep
 import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
 import org.clulab.wm.eidos.utils.Canonicalizer
-import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
@@ -68,7 +67,7 @@ case class SentencesSpec(sentences: Array[Sentence], sentenceMap: Map[String, In
     timexes: Array[Seq[TimEx]], timexMap: Map[String, TimEx],
     geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID])
 
-class IdAndDocument(id: String, value: EidosDocument) extends IdAndValue(id, value)
+class IdAndDocument(id: String, value: Document) extends IdAndValue(id, value)
 
 case class DocumentSpec(idAndDocument: IdAndDocument, idAndDctOpt: Option[IdAndDct], sentencesSpec: SentencesSpec)
 
@@ -78,7 +77,7 @@ case class Extraction(id: String, extractionType: String, extractionSubtype: Str
     triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
 
 object JLDDeserializer {
-  type DocumentMap = Map[String, EidosDocument]
+  type DocumentMap = Map[String, Document]
   type SentenceMap = Map[String, Int]
   // So do documentSentenceMap(documentId)(sentenceId) to get the Int
   type DocumentSentenceMap = Map[String, SentenceMap]
@@ -327,14 +326,10 @@ class JLDDeserializer {
     val timexCount = sentencesSpec.timexes.map(_.size).sum
     val geolocsCount = sentencesSpec.geolocs.map(_.size).sum
     val sentences = sentencesSpec.sentences
-    val eidosDocument = new EidosDocument(sentences, text)
-
+    val eidosDocument = new Document(sentences)
     eidosDocument.id = title
     eidosDocument.text = text
-    // We really don't know whether time and geo were on or not.  If none were found
-    // at all, then assume they were off and use None rather than Some(List.empty).
-    eidosDocument.times = if (timexCount == 0) None else Some(sentencesSpec.timexes)
-    eidosDocument.geolocs = if (geolocsCount == 0) None else Some(sentencesSpec.geolocs)
+
     idAndDctOpt.map(_.value).foreach { dct =>
       eidosDocument.addAttachment("dct", new DctDocumentAttachment(dct))
     }

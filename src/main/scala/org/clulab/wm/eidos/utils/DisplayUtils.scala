@@ -8,9 +8,8 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
-import org.clulab.wm.eidos.document.{EidosDocument, TimEx}
-import org.clulab.wm.eidos.mentions.EidosMention
 
 object DisplayUtils {
   protected val nl = "\n"

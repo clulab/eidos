@@ -11,9 +11,8 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimEx
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}

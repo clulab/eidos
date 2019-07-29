@@ -2,21 +2,13 @@ package org.clulab.wm.eidos.document
 
 import java.time.LocalDateTime
 
-import org.clulab.processors.Document
-import org.clulab.processors.Sentence
-import org.clulab.timenorm.formal.{Interval => TimExInterval}
-import org.clulab.struct.{Interval => TextInterval}
-import org.clulab.timenorm.neural.TimeExpression
+import org.clulab.processors.DocumentAttachment
+import org.clulab.processors.DocumentAttachmentBuilderFromJson
+import org.clulab.processors.DocumentAttachmentBuilderFromText
+import org.clulab.timenorm.formal.SimpleInterval
+import org.clulab.wm.eidos.context.DCT
 import org.json4s._
 import org.json4s.JsonDSL._
-
-
-@SerialVersionUID(1L)
-case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
-@SerialVersionUID(1L)
-case class TimEx(span: TextInterval, intervals: Seq[TimeStep], text: String)
-@SerialVersionUID(1L)
-case class DCT(interval: TimExInterval, text: String)
 
 @SerialVersionUID(100L)
 class DctDocumentAttachmentBuilderFromText extends DocumentAttachmentBuilderFromText {
@@ -40,20 +32,16 @@ class DctDocumentAttachmentBuilderFromJson extends DocumentAttachmentBuilderFrom
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val text = (dctValue \ "text").extract[String]
-    val startOpt = (dctValue \ "start").extractOpt[String]
-    val endOpt = (dctValue \ "end").extractOpt[String]
-    val dct =
-        if (startOpt.isEmpty && endOpt.isEmpty) DCT(UnknownInterval, text)
-        else {
-          val start = startOpt.getOrElse(endOpt.get)
-          val end = endOpt.getOrElse(startOpt.get)
-          val startDateTime = LocalDateTime.parse(start)
-          val endDateTime = LocalDateTime.parse(end)
-          val interval = SimpleInterval(startDateTime, endDateTime)
-          val dct = DCT(interval, text)
+    val start = (dctValue \ "start").extract[String]
+    val end = (dctValue \ "end").extract[String]
+    val dct = {
+      val startDateTime = LocalDateTime.parse(start)
+      val endDateTime = LocalDateTime.parse(end)
+      val interval = SimpleInterval(startDateTime, endDateTime)
+      val dct = DCT(interval, text)
 
-          dct
-        }
+      dct
+    }
 
     new DctDocumentAttachment(dct)
   }
@@ -86,4 +74,3 @@ class DctDocumentAttachment(val dct: DCT) extends DocumentAttachment { // Maybe 
         ("end" -> end.toString)
   }
 }
-

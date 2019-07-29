@@ -7,7 +7,7 @@ import org.clulab.processors.clu._
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.{Document, Processor}
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.document.{AnnotatedDocument, EidosDocument}
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings._

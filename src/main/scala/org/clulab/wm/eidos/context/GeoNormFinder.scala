@@ -16,6 +16,9 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.FileUtils
 import org.slf4j.LoggerFactory
 
+@SerialVersionUID(1L)
+case class GeoPhraseID(text: String, geonameID: Option[Int], startOffset: Int, endOffset: Int)
+
 object GeoNormFinder {
 
   private lazy val logger = LoggerFactory.getLogger(getClass)

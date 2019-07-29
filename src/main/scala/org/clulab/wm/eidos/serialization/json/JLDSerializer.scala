@@ -12,8 +12,10 @@ import org.clulab.struct.DirectedGraph
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
@@ -753,7 +755,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val sent_id = document.sentences.indexOf(sentence)
     val timexes: Seq[JObject] = timExs.map { timEx =>
       new JLDTimex(serializer, timEx).toJObject
-    } // TODO: is it automatically deleted? if Empty? kwa
+    }
     val geoExps: Seq[JObject] = geoPhraseIDs.map { geoPhraseID =>
       new JLDGeoID(serializer, geoPhraseID).toJObject
     }

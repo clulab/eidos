@@ -1,22 +1,31 @@
 package org.clulab.wm.eidos.context
 
+import java.time.LocalDateTime
+
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
-import org.clulab.struct.Interval
+import org.clulab.struct.{Interval => TextInterval}
+import org.clulab.timenorm.formal.{Interval => TimExInterval}
 import org.clulab.timenorm.neural.{TemporalNeuralParser, TimeExpression}
 import org.clulab.wm.eidos.attachments.Time
-import org.clulab.wm.eidos.document.{DCT, EidosDocument, TimEx, TimeStep}
+import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.mutable
-import scala.collection.mutable
 import scala.util.matching.Regex
+
+@SerialVersionUID(1L)
+case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
+@SerialVersionUID(1L)
+case class TimEx(span: TextInterval, intervals: Seq[TimeStep], text: String)
+@SerialVersionUID(1L)
+case class DCT(interval: TimExInterval, text: String)
 
 object TimeNormFinder {
 
@@ -108,13 +117,13 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
 
         //assert(start3 <= end3)
         // yield the context interval
-        Interval(start3, end3)
+        TextInterval(start3, end3)
       }
 
       // merge overlapping contexts
-      val mergedIntervals = singleIntervals.sorted.foldLeft(Seq.empty[Interval]) {
+      val mergedIntervals = singleIntervals.sorted.foldLeft(Seq.empty[TextInterval]) {
         case (Seq(), context) => Seq(context)
-        case (init :+ last, context) if last.end > context.start => init :+ Interval(last.start, context.end)
+        case (init :+ last, context) if last.end > context.start => init :+ TextInterval(last.start, context.end)
         case (contexts, context) => contexts :+ context
       }
 
@@ -131,13 +140,11 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
     val contextTimeExpressions: Seq[List[TimeExpression]] = dctString match {
       case Some(dctString) =>
         val parsed = (dctString :: contextTexts).sliding(BATCH_SIZE, BATCH_SIZE).flatMap(parser.parse).toList
-        val dct = Some(DCT(parser.dct(parsed.head), dctString)) // Note the side effect!
+        val dctOpt = Some(DCT(parser.dct(parsed.head), dctString)) // Note the side effect!
 
-        // kwa TODO
-//        if (dct.isDefined)
-//          eidosDocument.addDocumentAttachment() // kwa TODO
-
-        parser.intervals(parsed.tail, dct.map(_.interval))
+        if (dctOpt.isDefined)
+          eidosDocument.addAttachment(new DctDocumentAttachment(dctOpt.get))
+        parser.intervals(parsed.tail, dctOpt.map(_.interval))
       case None =>
         val parsed = contextTexts.sliding(BATCH_SIZE, BATCH_SIZE).flatMap(parser.parse).toList
         parser.intervals(parsed)
@@ -154,7 +161,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
       val contextStart = sentence.startOffsets.head + contextSentenceStart
       val timeTextStart = contextStart + timeExpression.span.start
       val timeTextEnd = contextStart + timeExpression.span.end
-      val timeTextInterval = Interval(timeTextStart, timeTextEnd)
+      val timeTextInterval = TextInterval(timeTextStart, timeTextEnd)
       val timeText = text.substring(timeTextStart, timeTextEnd)
 
       // find the words covered by the time expression (only needed because TextBoundMention requires it)
@@ -164,12 +171,12 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
 
       // construct a word interval from the word indices
       val wordInterval = if (wordIndices.nonEmpty) {
-        Interval(wordIndices.head, wordIndices.last + 1)
+        TextInterval(wordIndices.head, wordIndices.last + 1)
       } else {
 
         // the time expression does not overlap with any words, so arbitrarily take the word before it
         val wordIndexBefore = math.max(0, sentence.words.indices.lastIndexWhere(sentence.startOffsets(_) < timeTextEnd))
-        Interval(wordIndexBefore, wordIndexBefore + 1)
+        TextInterval(wordIndexBefore, wordIndexBefore + 1)
       }
 
       // construct the attachment with the detailed time information
