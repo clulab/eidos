@@ -15,7 +15,6 @@ import org.clulab.struct.Edge
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.timenorm.formal.SimpleInterval
-import org.clulab.timenorm.formal.UnknownInterval
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
@@ -118,14 +117,10 @@ class JLDDeserializer {
       requireType(dctValue, JLDDCT.typename)
       val dctId = id(dctValue)
       val text = (dctValue \ "text").extract[String]
-      val startOpt = (dctValue \ "start").extractOpt[String]
-      val endOpt = (dctValue \ "end").extractOpt[String]
+      val start = (dctValue \ "start").extract[String]
+      val end = (dctValue \ "end").extract[String]
 
-      val dct =
-        if (startOpt.isEmpty && endOpt.isEmpty) DCT(UnknownInterval, text)
-        else {
-          val start = startOpt.getOrElse(endOpt.get)
-          val end = endOpt.getOrElse(startOpt.get)
+      val dct = {
           val startDateTime = LocalDateTime.parse(start)
           val endDateTime = LocalDateTime.parse(end)
           val interval = SimpleInterval(startDateTime, endDateTime)
@@ -305,7 +300,7 @@ class JLDDeserializer {
   protected def deserializePluralProvenance(provenanceValue: JValue, documentMap: DocumentMap,
       documentSentenceMap: DocumentSentenceMap): Provenance = {
     val provenanceValues: JArray = provenanceValue.asInstanceOf[JArray]
-    require(provenanceValues.arr.size >= 1)
+    require(provenanceValues.arr.nonEmpty)
     // In all cases, the additional provenance is thrown away.  It is recorded for a
     // relation/coreference, but the value is taken directly from the arguments and
     // it is superfluous.
