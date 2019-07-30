@@ -12,9 +12,9 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group = NodeSpec("almost 40,000 refugees", CountSpec(40000, CountModifier.Max))
-    val moveTo = NodeSpec("Ethiopia")
-    val moveFrom = NodeSpec("South Sudan")
-    val timeStart = NodeSpec("the beginning of September 2016")
+    val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
+    val moveFrom = NodeSpec("South Sudan", GeoLoc("South Sudan"))
+    val timeStart = NodeSpec("September 2016", TimEx("September 2016"))
     val timeEnd = NodeSpec("mid-November", TimEx("mid-November"))
     val migration = HumanMigrationEdgeSpec(group = Some(group),
       moveTo = Some(moveTo), moveFrom = Some(moveFrom),
@@ -51,7 +51,7 @@ class TestMigrationSchema extends EnglishTest {
     val migration1 = HumanMigrationEdgeSpec(time = Some(time1))
 
     val group2 = NodeSpec("family")
-    val moveFrom2 = NodeSpec("South Sudan")
+    val moveFrom2 = NodeSpec("South Sudan", GeoLoc("South Sudan"))
     // This one matches the rule.
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
@@ -87,7 +87,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group = NodeSpec("IDPs", NodeSpec.lastFilter) // There are two of these, so just pick the first one.
-  val moveFrom = NodeSpec("Uror")
+  val moveFrom = NodeSpec("Uror", GeoLoc("Uror"))
     val migration = HumanMigrationEdgeSpec(group = Some(group), moveFrom = Some(moveFrom))
 
     behavior of "migration_make-way"
@@ -152,7 +152,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("IDPs", NodeSpec.lastFilter) // Last in the list of mentions, not necessarily last in text.
-  val moveTo1 = NodeSpec("Bor Town", NodeSpec.firstFilter)
+  val moveTo1 = NodeSpec("Bor Town", GeoLoc("Bor Town"), NodeSpec.firstFilter)
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
@@ -185,12 +185,12 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1_2 = NodeSpec("Interviewed KIs")
-    val moveTo1 = NodeSpec("Bor")
+    val moveTo1 = NodeSpec("Bor", GeoLoc("Bor"))
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1_2), moveTo = Some(moveTo1))
 
     // This is a hack.  Nothing checks that these are from the same mention.
-    val moveThrough2a = NodeSpec("Nimule")
-    val moveThrough2b = NodeSpec("Juba")
+    val moveThrough2a = NodeSpec("Nimule", GeoLoc("Nimule"))
+    val moveThrough2b = NodeSpec("Juba", GeoLoc("Juba"))
     // This one(s) matches the rule.
     val migration2a = HumanMigrationEdgeSpec(group = Some(group1_2), moveThrough = Some(moveThrough2a))
     val migration2b = HumanMigrationEdgeSpec(group = Some(group1_2), moveThrough = Some(moveThrough2b))
@@ -227,12 +227,12 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("vast majority")
-    val moveTo1 = NodeSpec("Uganda")
+    val moveTo1 = NodeSpec("Uganda", GeoLoc("Uganda"))
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
     val group2 = NodeSpec("375 individuals", CountSpec(375))
-    val moveFrom2 = NodeSpec("Juba")
+    val moveFrom2 = NodeSpec("Juba", GeoLoc("Juba"))
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
     behavior of "migration_reach"
@@ -263,8 +263,8 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val moveTo = NodeSpec("Ethiopia")
-    val moveThrough = NodeSpec("Pagak")
+    val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
+    val moveThrough = NodeSpec("Pagak", GeoLoc("Pagak"))
     val migration = HumanMigrationEdgeSpec(moveTo = Some(moveTo), moveThrough = Some(moveThrough))
 
     behavior of "migration_nouns"
@@ -286,10 +286,10 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("358 individuals", CountSpec(358))
-    val moveFrom1 = NodeSpec("Uganda")
+    val moveFrom1 = NodeSpec("Uganda", GeoLoc("Uganda"))
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveFrom = Some(moveFrom1))
 
-    val moveTo2 = NodeSpec("Juba")
+    val moveTo2 = NodeSpec("Juba", GeoLoc("Juba"))
     // This one matches the rule.
     val migration2 = HumanMigrationEdgeSpec(moveTo = Some(moveTo2))
 
@@ -318,12 +318,12 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val moveTo1 = NodeSpec("Bor South")
+    val moveTo1 = NodeSpec("Bor South", GeoLoc("Bor South"))
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(moveTo = Some(moveTo1))
 
     val group2 = NodeSpec("36 individuals", CountSpec(36))
-    val moveFrom2 = NodeSpec("Juba")
+    val moveFrom2 = NodeSpec("Juba", GeoLoc("Juba"))
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
     behavior of "migration_destination-right"
@@ -357,8 +357,8 @@ class TestMigrationSchema extends EnglishTest {
 
     val time1 = NodeSpec("Between 1 and 11 March 2017")
     val group1 = NodeSpec("7,258 South Sudanese refugees", CountSpec(7258))
-    val moveTo1 = NodeSpec("Gambella") //todo: add ", Ethiopia"?
-    val moveFrom1 = NodeSpec("South Sudanese")
+    val moveTo1 = NodeSpec("Gambella", GeoLoc("Gambella")) //todo: add ", Ethiopia"?
+    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
     val migration1 = HumanMigrationEdgeSpec(
       time = Some(time1),
       group = Some(group1),
