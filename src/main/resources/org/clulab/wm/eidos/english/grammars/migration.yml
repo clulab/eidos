@@ -149,7 +149,7 @@ rules:
     pattern: |
       trigger = [lemma=/(originate)/ & tag=/^VB/]
       group: Entity? = nsubj nmod_of?
-      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_within) dep? 
+      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_within) dep?
 
   - name: migration-destination-dep
     priority: ${ rulepriority }
@@ -181,15 +181,15 @@ rules:
 
   # hackathon rules
 
-#  - name: migration-arrival
-#    priority: ${ rulepriority }
-#    example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
-#    label: ${ label }
-#    pattern: |
-#      trigger = [lemma=/(arrival)/ & tag=/^NN/]
-#      group: Concept? = <nmod_of </${agents}/
-#      groupModifier: Time? = <nmod_of amod
-#      time: Time? = <nmod_of </${agents}/ advmod
+  - name: migration-arrival
+    priority: ${ rulepriority }
+    example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State. Between 1 and 25 March 2017, 13,225 South Sudanese refugees arrived in Gambella, Ethiopia, bringing the total number of new arrivals since September 2016 to 74,825."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=/(arrival)/ & tag=/^NN/]
+      group: Concept? = (<nmod_of <dobj >nmod_to)
+      timeStart: Time? = <nmod_of <dobj >nmod_since
 
 
 

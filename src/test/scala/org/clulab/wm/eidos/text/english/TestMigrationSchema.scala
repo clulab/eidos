@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.text.english
 
-import org.clulab.wm.eidos.attachments.CountModifier
-import org.clulab.wm.eidos.attachments.CountUnit
+import org.clulab.wm.eidos.attachments.{CountModifier, CountUnit}
 import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 
@@ -1605,7 +1604,7 @@ class TestMigrationSchema extends EnglishTest {
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveFrom = Some(moveFrom1))
 
 
-    val group2 = NodeSpec("14%", CountSpec(14))
+    val group2 = NodeSpec("14%", CountSpec(14, CountModifier.NoModifier, CountUnit.Percentage))
     val moveFrom2 = NodeSpec("Jonglei State")
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2))
 
