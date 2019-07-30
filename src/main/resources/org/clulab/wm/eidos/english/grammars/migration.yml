@@ -31,9 +31,10 @@ rules:
       moveTo: Location? = (</${agents}/? >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl? >nmod_in)|(>advmod >nmod_towards)
       moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
       moveThrough: Location? = </${agents}/? (>nmod_via|>nmod_through)
-      timeStart: Time? = >nmod_since|>nmod_after|(>advcl_since >nmod_in)
+      timeStart: Time? = >nmod_since nmod_of?|>nmod_after|(>advcl_since >nmod_in)
       timeEnd: Time? = >nmod_as_of|>nmod_until|>nmod_by
       time: Time? = (>nmod_during >nummod)|>nmod_in|nmod_between
+      #having nmod_of? in time start results in two overlapping migration events, but with slightly different times. todo: The second event needs to be filtered out.
 
 
   - name: migration-displace
