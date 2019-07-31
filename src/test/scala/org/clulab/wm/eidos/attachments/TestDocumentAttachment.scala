@@ -70,33 +70,33 @@ class TestDocumentAttachment extends Test {
   "Document with DctDocumentAttachment" should "serialize as text" in {
     val dct = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "now")
     val oldDocument = new Document(Array.empty[Sentence])
-    val oldDocumentAttachment = DctDocumentAttachment.setDct(oldDocument, dct)
+
+    DctDocumentAttachment.setDct(oldDocument, dct)
 
     val documentSerializer = new DocumentSerializer()
     val documentString = documentSerializer.save(oldDocument)
 
     val newDocument = documentSerializer.load(documentString)
-    val newDocumentAttachment = DctDocumentAttachment.getDctDocumentAttachment(newDocument)
-    newDocumentAttachment should be (oldDocumentAttachment)
+    val newDctOpt = DctDocumentAttachment.getDct(newDocument)
+    newDctOpt.get should be (dct)
 
     val dct2 = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "then")
-    val oldDocumentAttachment2 = new DctDocumentAttachment(dct2)
-    newDocumentAttachment should not be (oldDocumentAttachment2)
+    newDctOpt.get should not be (dct2)
   }
 
   "Document with DctDocumentAttachments" should "serialize as json" in {
     val dct = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "now")
     val oldDocument = new Document(Array.empty[Sentence])
-    val oldDocumentAttachment = DctDocumentAttachment.setDct(oldDocument, dct)
+
+    DctDocumentAttachment.setDct(oldDocument, dct)
 
     val documentString = prettyJson(renderJValue(oldDocument.jsonAST))
 
     val newDocument: Document = JSONSerializer.toDocument(parseJson(documentString))
-    val newDocumentAttachment = DctDocumentAttachment.getDctDocumentAttachment(newDocument)
-    newDocumentAttachment should be (oldDocumentAttachment)
+    val newDctOpt = DctDocumentAttachment.getDct(newDocument)
+    newDctOpt.get should be (dct)
 
     val dct2 = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "then")
-    val oldDocumentAttachment2 = new DctDocumentAttachment(dct2)
-    newDocumentAttachment should not be (oldDocumentAttachment2)
+    newDctOpt.get should not be (dct2)
   }
 }
