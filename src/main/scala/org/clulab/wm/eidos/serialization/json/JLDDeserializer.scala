@@ -322,15 +322,14 @@ class JLDDeserializer {
     val timexCount = sentencesSpec.timexes.map(_.size).sum
     val geolocsCount = sentencesSpec.geolocs.map(_.size).sum
     val sentences = sentencesSpec.sentences
-    val eidosDocument = new Document(sentences)
-    eidosDocument.id = title
-    eidosDocument.text = text
-
+    val document = new Document(sentences)
+    document.id = title
+    document.text = text
     idAndDctOpt.map(_.value).foreach { dct =>
-      eidosDocument.addAttachment(DctDocumentAttachment.dctKey, new DctDocumentAttachment(dct))
+      DctDocumentAttachment.setDct(document, dct)
     }
 
-    val idAndDocument = new IdAndDocument(documentId, eidosDocument)
+    val idAndDocument = new IdAndDocument(documentId, document)
     DocumentSpec(idAndDocument, idAndDctOpt, sentencesSpec)
   }
 

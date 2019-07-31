@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.document
 
 import java.time.LocalDateTime
 
+import org.clulab.processors.Document
 import org.clulab.processors.DocumentAttachment
 import org.clulab.processors.DocumentAttachmentBuilderFromJson
 import org.clulab.processors.DocumentAttachmentBuilderFromText
@@ -76,5 +77,30 @@ class DctDocumentAttachment(val dct: DCT) extends DocumentAttachment { // Maybe 
 }
 
 object DctDocumentAttachment {
-  val dctKey = "dct"
+  protected val DctKey = "dct"
+
+  def getDctDocumentAttachment(doc: Document): Option[DctDocumentAttachment] = {
+    val documentAttachmentOpt = doc.getAttachment(DctKey)
+    val dctDocumentAttachmentOpt = documentAttachmentOpt.map { documentAttachment =>
+      documentAttachment.asInstanceOf[DctDocumentAttachment]
+    }
+
+    dctDocumentAttachmentOpt
+  }
+
+  def getDct(doc: Document): Option[DCT] = {
+    val dctDocumentAttachmentOpt = getDctDocumentAttachment(doc)
+    val dctOpt = dctDocumentAttachmentOpt.map { dctDocumentAttachment =>
+      dctDocumentAttachment.dct
+    }
+
+    dctOpt
+  }
+
+  def setDct(doc: Document, dct: DCT): DctDocumentAttachment = {
+    val dctDocumentAttachment = new DctDocumentAttachment(dct)
+
+    doc.addAttachment(DctKey, dctDocumentAttachment)
+    dctDocumentAttachment
+  }
 }

@@ -13,14 +13,11 @@ import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
-import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
+import org.clulab.wm.eidos.extraction.FinderArguments
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
-import scala.reflect.io
-import scala.io.Source
-import scala.util.matching.Regex
 
 /**
   * A system for text processing and information extraction
@@ -122,20 +119,19 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   //                                 Annotation Methods
   // ---------------------------------------------------------------------------------------------
 
-  def annotateDoc(document: Document, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
+  def annotateDoc(document: Document, filename: Option[String]= None): Document = {
     require(document.text.isDefined)
-    require(keepText == true)
     document.id = filename
     document
   }
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, keepText: Boolean = true, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
+  def annotate(text: String, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
     // Syntactic pre-processing
     val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
     val filtered = documentFilter.filter(tokenized)         // Filter noise from document
     val annotated = proc.annotate(filtered)
-    val document = annotateDoc(annotated, keepText, documentCreationTime, filename)
+    val document = annotateDoc(annotated, filename)
 
     document
   }
@@ -147,26 +143,24 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   // MAIN PIPELINE METHOD if given text
   def extractFromText(
     text: String,
-    keepText: Boolean = true,
     cagRelevantOnly: Boolean = true,
     documentCreationTime: Option[String] = None,
     filename: Option[String] = None): AnnotatedDocument = {
 
-    val document = annotate(text, keepText, documentCreationTime, filename)
-    extractFromDoc(document, keepText, cagRelevantOnly, documentCreationTime, filename)
+    val document = annotate(text, documentCreationTime, filename)
+    extractFromDoc(document, cagRelevantOnly, documentCreationTime, filename)
   }
 
   // MAIN PIPELINE METHOD if given doc
   def extractFromDoc(
       doc: Document,
-      keepText: Boolean = true,
       cagRelevantOnly: Boolean = true,
       documentCreationTime: Option[String] = None,
       filename: Option[String] = None): AnnotatedDocument = {
+    require(doc.text.isDefined)
 
     // Extract Mentions
     val odinMentions = extractFrom(doc, documentCreationTime)
-
     // Expand the Concepts that have a modified state if they are not part of a causal event
     val afterExpandingConcepts = maybeExpandConcepts(odinMentions, loadableAttributes.keepStatefulConcepts)
 
@@ -186,7 +180,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val mentionsAndNestedArgs = traverse(afterExpandingConcepts, Seq.empty, Set.empty)
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant = if (cagRelevantOnly) stopwordManager.keepCAGRelevant(mentionsAndNestedArgs) else mentionsAndNestedArgs
-
     // TODO: handle hedging and negation...
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
@@ -196,12 +189,13 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   }
 
   def extractFrom(doc: Document, documentCreationTime: Option[String] = None): Vector[Mention] = {
+    require(doc.text.isDefined)
     // Prepare the initial state -- if you are using the entity finder then it contains the found entities,
     // else it is empty
-    var initialState = new State()
-    for (ef <- loadableAttributes.entityFinders) {
-      val mentions = ef.extract(doc, initialState, documentCreationTime)
-      initialState = initialState.updated(mentions)
+    val finderArgumentsOpt = Some(FinderArguments(documentCreationTime, doc.text.get))
+    val initialState = loadableAttributes.entityFinders.foldLeft(new State()) { (state, entityFinder) =>
+      val mentions = entityFinder.find(doc, state, finderArgumentsOpt)
+      state.updated(mentions)
     }
 
     // Run the main extraction engine, pre-populated with the initial state
@@ -214,8 +208,10 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   }
 
   def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
-    val res = loadableAttributes.engine.extractFrom(doc, state).toVector
-    loadableAttributes.actions.keepMostCompleteEvents(res, State(res)).toVector
+    val extractedEvents = loadableAttributes.engine.extractFrom(doc, state).toVector
+    val mostCompleteEvents = loadableAttributes.actions.keepMostCompleteEvents(extractedEvents, State(extractedEvents)).toVector
+
+    mostCompleteEvents
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -256,7 +252,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       // Split the mentions into Cpncepts and Relations by the label
       val (concepts, relations) = mentions.partition(_ matches EidosSystem.CONCEPT_LABEL)
       // Check to see if any of the Concepts have state attachments
-      val (expandable, notExpandable) = concepts.partition(_.attachments.filter(isIncDecQuant).nonEmpty)
+      val (expandable, notExpandable) = concepts.partition(_.attachments.exists(isIncDecQuant))
       // Get the already expanded mentions for this document
       val prevExpandableState = State(relations.filter(rel => EidosSystem.CAG_EDGES.contains(rel.label)))
       // Expand the Concepts if they weren't already part of an expanded Relation

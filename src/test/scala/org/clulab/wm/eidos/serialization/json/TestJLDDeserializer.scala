@@ -33,8 +33,9 @@ class TestJLDDeserializer extends ExtractionTest {
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
+//    val documentCreationTime: Option[String] = Some("This is a test")
     val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
-    val annotatedDocument = ieSystem.extractFromText(text, keepText = true, cagRelevantOnly = true,
+    val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
       documentCreationTime, filename = None)
 
     annotatedDocument.document.id = Some(title)

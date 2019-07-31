@@ -6,8 +6,14 @@ import org.clulab.odin.{Mention, State}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
 
+case class FinderArguments(
+  val dctStringOpt: Option[String], // needed by TimeNormFinder
+  val documentText: String          // needed by TimeNormFinder, supposedly provided by Document, but documented here as not optional
+)
+
 trait Finder {
-  def extract(doc: Document, initialState: State = new State(), dctString: Option[String] = None): Seq[Mention]
+  // This last argument is optional because not all finders need it and that way a simple default value can be provided.
+  def find(doc: Document, initialState: State = new State(), finderArguments: Option[FinderArguments] = None): Seq[Mention]
 }
 
 object Finder {
