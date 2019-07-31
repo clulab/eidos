@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.context
 
 import java.net.URL
 import java.nio.file.{Files, Path, Paths}
+import java.util.IdentityHashMap
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
@@ -12,9 +13,12 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.extraction.Finder
+import org.clulab.wm.eidos.extraction.FinderArguments
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.FileUtils
 import org.slf4j.LoggerFactory
+
+import scala.collection.JavaConverters._
 
 @SerialVersionUID(1L)
 case class GeoPhraseID(text: String, geonameID: Option[Int], startOffset: Int, endOffset: Int)
@@ -72,13 +76,35 @@ object GeoNormFinder {
       new GeoLocationNormalizer(new GeoNamesIndex(cacheManager.geoNamesIndexPath)))
   }
 
-  def getGeoPhraseIDs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[GeoPhraseID]]= {
+  def getGeoPhraseIDs(odinMentions: Seq[Mention]): Array[GeoPhraseID]= {
     val reachableMentions = EidosMention.findReachableMentions(odinMentions)
-    val geoPhraseIDs: Seq[GeoPhraseID] = reachableMentions.flatMap { odinMention =>
+    val geoPhraseIDSeq: Seq[GeoPhraseID] = reachableMentions.flatMap { odinMention =>
       odinMention.attachments.collect {
         case attachment: Location => attachment.geoPhraseID
       }
     }
+    val geoPhraseIDMap: IdentityHashMap[GeoPhraseID, Int] = geoPhraseIDSeq.foldLeft(new IdentityHashMap[GeoPhraseID, Int]()) { (identityHashMap, geoPhraseID) =>
+      identityHashMap.put(geoPhraseID, 0)
+      identityHashMap
+    }
+    val geoPhraseIDArray = geoPhraseIDMap
+        .keySet
+        .asScala
+        .toArray
+        .sortWith { (left: GeoPhraseID, right: GeoPhraseID) =>
+          if (left.startOffset != right.startOffset)
+            left.startOffset < right.startOffset
+          else if (left.endOffset != right.endOffset)
+            left.endOffset < right.endOffset
+          else
+            true
+        }
+
+    geoPhraseIDArray
+  }
+
+  def getGeoPhraseIDs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[GeoPhraseID]]= {
+    val geoPhraseIDs: Seq[GeoPhraseID] = getGeoPhraseIDs(odinMentions)
     val alignedGeoPhraseIDs: Array[Seq[GeoPhraseID]] = sentences.map { sentence =>
       val sentenceStart = sentence.startOffsets.head
       val sentenceEnd = sentence.endOffsets.last
@@ -93,10 +119,10 @@ object GeoNormFinder {
 
 class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNormalizer) extends Finder {
 
-  override def extract(doc: Document, initialState: State, dctString: Option[String] = None): Seq[Mention] = {
+  def find(doc: Document, initialState: State, finderArguments: Option[FinderArguments] = None): Seq[Mention] = {
     val sentenceLocations = extractor(doc.sentences.map(_.raw))
     val Some(text) = doc.text
-    for {
+    val mentions = for {
       sentenceIndex <- doc.sentences.indices
       sentence = doc.sentences(sentenceIndex)
       locations = sentenceLocations(sentenceIndex)
@@ -120,6 +146,7 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
         Set(Location(geoPhraseID))
       )
     }
+    mentions
   }
 }
 

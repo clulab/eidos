@@ -19,7 +19,7 @@ class TestJLDSerializer extends ExtractionTest {
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
-    val annotatedDocument = ieSystem.extractFromText(text, keepText = true)
+    val annotatedDocument = ieSystem.extractFromText(text)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
@@ -170,16 +170,79 @@ class TestJLDSerializer extends ExtractionTest {
   }
 
   if (useTimeNorm) {
-    it should "serialize time expression" in {
+    it should "not serialize unused time expressions" in {
       val json = serialize(Seq(
-        newTitledAnnotatedDocument("2018-10-04", "This is a time expression")
+        newTitledAnnotatedDocument("2018-10-04", "This is an unused time expression")
+      ))
+
+      inspect(json)
+      // Time expressions must now be involved in a mention.  These aren't.
+      json.contains("timexes") should be(false)
+      json.contains("intervals") should be(false)
+      json.contains("TIMEX") should be(false)
+    }
+  }
+  else
+    println("It did not test unused time expressions")
+
+  if (useTimeNorm) {
+    it should "serialize used time expressions" in {
+      val json = serialize(Seq(
+        newTitledAnnotatedDocument("The drought of 2018-10-04 caused the famine of 2018-10-05.", "This is a used time expression")
       ))
 
       inspect(json)
       json.contains("timexes") should be(true)
       json.contains("intervals") should be(true)
+      json.contains("TIMEX") should be(true)
     }
   }
   else
-    println("It didn't do it")
+    println("It did not test used time expressions")
+
+  if (useTimeNorm) {
+    it should "serialize DCTs" in {
+      val json = serialize(Seq( {
+        val annotatedDocument = ieSystem.extractFromText("There's not much text here", documentCreationTime = Some("2018-10-04"))
+
+        annotatedDocument.document.id = Some("This is a test of DCT")
+        annotatedDocument
+      }))
+
+      inspect(json)
+      json.contains("dct") should be(true)
+      json.contains("intervals") should be(false)
+    }
+  }
+  else
+    println("It did not test DCTs")
+
+  if (useGeoNorm) {
+    it should "not serialize unused geo expressions" in {
+      val json = serialize(Seq(
+        newTitledAnnotatedDocument("Ethiopia!", "This is an unused geo expression")
+      ))
+
+      inspect(json)
+      // Time expressions must now be involved in a mention.  These aren't.
+      json.contains("geolocs") should be(false)
+      json.contains("LocationExp") should be(false)
+    }
+  }
+  else
+    println("It did not test unused geo expressions")
+
+  if (useGeoNorm) {
+    it should "serialize used geo expressions" in {
+      val json = serialize(Seq(
+        newTitledAnnotatedDocument("The drought caused the famine in Ethiopia.", "This is a used geo expression")
+      ))
+
+      inspect(json)
+      json.contains("geolocs") should be(true)
+      json.contains("LocationExp") should be(true)
+    }
+  }
+  else
+    println("It did not test used geo expressions")
 }

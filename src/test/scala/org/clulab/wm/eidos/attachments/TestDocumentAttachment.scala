@@ -69,15 +69,14 @@ class TestDocumentAttachment extends Test {
 
   "Document with DctDocumentAttachment" should "serialize as text" in {
     val dct = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "now")
-    val oldDocumentAttachment = new DctDocumentAttachment(dct)
     val oldDocument = new Document(Array.empty[Sentence])
-    oldDocument.addAttachment(DctDocumentAttachment.dctKey, oldDocumentAttachment)
+    val oldDocumentAttachment = DctDocumentAttachment.setDct(oldDocument, dct)
 
     val documentSerializer = new DocumentSerializer()
     val documentString = documentSerializer.save(oldDocument)
 
     val newDocument = documentSerializer.load(documentString)
-    val newDocumentAttachment = newDocument.getAttachment(DctDocumentAttachment.dctKey).get.asInstanceOf[DctDocumentAttachment]
+    val newDocumentAttachment = DctDocumentAttachment.getDctDocumentAttachment(newDocument)
     newDocumentAttachment should be (oldDocumentAttachment)
 
     val dct2 = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "then")
@@ -87,14 +86,13 @@ class TestDocumentAttachment extends Test {
 
   "Document with DctDocumentAttachments" should "serialize as json" in {
     val dct = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "now")
-    val oldDocumentAttachment = new DctDocumentAttachment(dct)
     val oldDocument = new Document(Array.empty[Sentence])
-    oldDocument.addAttachment(DctDocumentAttachment.dctKey, oldDocumentAttachment)
+    val oldDocumentAttachment = DctDocumentAttachment.setDct(oldDocument, dct)
 
     val documentString = prettyJson(renderJValue(oldDocument.jsonAST))
 
     val newDocument: Document = JSONSerializer.toDocument(parseJson(documentString))
-    val newDocumentAttachment = newDocument.getAttachment(DctDocumentAttachment.dctKey).get.asInstanceOf[DctDocumentAttachment]
+    val newDocumentAttachment = DctDocumentAttachment.getDctDocumentAttachment(newDocument)
     newDocumentAttachment should be (oldDocumentAttachment)
 
     val dct2 = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "then")

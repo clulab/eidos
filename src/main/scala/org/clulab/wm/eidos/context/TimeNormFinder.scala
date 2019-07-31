@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.context
 
 import java.time.LocalDateTime
+import java.util.IdentityHashMap
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
@@ -15,10 +16,12 @@ import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
+import org.clulab.wm.eidos.extraction.FinderArguments
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
 
+import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -42,14 +45,28 @@ object TimeNormFinder {
     new TimeNormFinder(new TemporalNeuralParser, regexes)
   }
 
-  def getTimExs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[TimEx]] = {
+  def getTimExs(odinMentions: Seq[Mention]): Seq[TimEx] = {
     val reachableMentions = EidosMention.findReachableMentions(odinMentions)
-    val timExs: Seq[TimEx] = reachableMentions.flatMap { odinMention =>
+    val timExSeq: Seq[TimEx] = reachableMentions.flatMap { odinMention =>
       odinMention.attachments.collect {
         case attachment: Time => attachment.interval
       }
     }
+    val timExMap: IdentityHashMap[TimEx, Int] = timExSeq.foldLeft(new IdentityHashMap[TimEx, Int]()) { (identityHashMap, timEx) =>
+      identityHashMap.put(timEx, 0)
+      identityHashMap
+    }
+    val timExArray = timExMap
+        .keySet
+        .asScala
+        .toArray
+        .sortBy { timEx: TimEx => timEx.span }
 
+    timExArray
+  }
+
+  def getTimExs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[TimEx]] = {
+    val timExs: Seq[TimEx] = getTimExs(odinMentions)
     val alignedTimExs: Array[Seq[TimEx]] = sentences.map { sentence =>
       val sentenceStart = sentence.startOffsets.head
       val sentenceEnd = sentence.endOffsets.last
@@ -75,12 +92,14 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
     }
   }
 
-  override def extract(eidosDocument: Document, initialState: State, dctString: Option[String] = None): Seq[Mention] = {
-    // Document must have a text.  There is no other way.
-    val Some(text) = eidosDocument.text
+  def find(doc: Document, initialState: State, finderArguments: Option[FinderArguments] = None): Seq[Mention] = {
+    // Document must have a text.  There is no other way.  Document might possibly not have it.
+    require(finderArguments.isDefined)
+    val text = finderArguments.get.documentText
+    val dctString = finderArguments.get.dctStringOpt
 
     // extract the pieces of each sentence where we should look for times
-    val sentenceContexts = for ((sentence, sentenceIndex) <- eidosDocument.sentences.zipWithIndex) yield {
+    val sentenceContexts = for ((sentence, sentenceIndex) <- doc.sentences.zipWithIndex) yield {
       val sentenceStart = sentence.startOffsets.head
       val sentenceText = text.substring(sentenceStart, sentence.endOffsets.last)
 
@@ -143,7 +162,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         val simpleInterval = SimpleInterval(timExInterval.start, timExInterval.end)
         val dct = DCT(simpleInterval, dctString)
 
-        eidosDocument.addAttachment(DctDocumentAttachment.dctKey, new DctDocumentAttachment(dct))
+        DctDocumentAttachment.setDct(doc, dct)
         contextSpans
             .sliding(BATCH_SIZE, BATCH_SIZE)
             .flatMap(batch => parseBatch(text, batch, textCreationTime = simpleInterval))
@@ -154,11 +173,11 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
     }
 
     // create mentions for each of the time expressions that were found
-    val result = for {
+    val mentions = for {
       (sentenceIndex, timeExpressions) <- contextSentenceIndexes zip contextTimeExpressions
       timeExpression <- timeExpressions
     } yield {
-      val sentence = eidosDocument.sentences(sentenceIndex)
+      val sentence = doc.sentences(sentenceIndex)
       val Some((timeTextStart, timeTextEnd)) = timeExpression.charSpan
       val timeTextInterval = TextInterval(timeTextStart, timeTextEnd)
       val timeText = text.substring(timeTextStart, timeTextEnd)
@@ -193,15 +212,12 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
         Seq("Time"),
         wordInterval,
         sentenceIndex,
-        eidosDocument,
+        doc,
         true,
         getClass.getSimpleName,
         Set(Time(attachment))
       )
     }
-    // kwa TODO remove debugging output
-    println(s"Subtotal attachments found was ${result.size}")
-    println(s"Subtotal attachments found was ${result.toArray.toSet.size} in the set")
-    result
+    mentions
   }
 }

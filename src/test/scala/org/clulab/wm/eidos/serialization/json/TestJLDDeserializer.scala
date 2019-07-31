@@ -33,8 +33,8 @@ class TestJLDDeserializer extends ExtractionTest {
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
-    val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
-    val annotatedDocument = ieSystem.extractFromText(text, keepText = true, cagRelevantOnly = true,
+    val documentCreationTime: Option[String] = Some("This is a test") // Some(LocalDateTime.now().toString.take(10))
+    val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
       documentCreationTime, filename = None)
 
     annotatedDocument.document.id = Some(title)
@@ -701,11 +701,11 @@ class TestJLDDeserializer extends ExtractionTest {
     testCorpus(fullText, "fullText")
   }
 
-  testParts()
-  testSentences()
-  testParagraphs()
-  testDocuments()
+//  testParts()
+//  testSentences()
+//  testParagraphs()
+//  testDocuments()
   // Do not run this last test on Travis, but instead periodically on a real corpus
   // with all options enabled (useW2V, useTimeNorm, useGeoNorm, etc.)
-//  testFiles("../corpora/Doc52/txt")
+  testFiles("../corpora/Doc52/txt")
 }
