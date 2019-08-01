@@ -16,7 +16,6 @@ import org.clulab.timenorm.neural.TemporalNeuralParser
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.extraction.FinderArguments
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
@@ -92,12 +91,21 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
     }
   }
 
-  def find(doc: Document, initialState: State, finderArguments: Option[FinderArguments] = None): Seq[Mention] = {
-    // Document must have a text.  There is no other way.  Document might possibly not have it.
-    require(finderArguments.isDefined)
-    val text = finderArguments.get.documentText
-    val dctString = finderArguments.get.dctStringOpt
+  def parseDctString(dctString: String): Option[DCT] = {
+    val timeExpressions: Array[TimeExpression] = parser.parse(dctString)
+    val dctOpt = timeExpressions.headOption.map { timeExpression =>
+      // use a SimpleInterval (character span = None) so it doesn't interfere with character span of TimeExpressions
+      val timeExInterval = timeExpression.asInstanceOf[TimExInterval] // Is this a leap of faith?
+      val simpleInterval = SimpleInterval(timeExInterval.start, timeExInterval.end)
 
+      DCT(simpleInterval, dctString)
+    }
+
+    dctOpt
+  }
+
+  def find(doc: Document, initialState: State): Seq[Mention] = {
+    val Some(text) = doc.text // Document must have a text.
     // extract the pieces of each sentence where we should look for times
     val sentenceContexts = for ((sentence, sentenceIndex) <- doc.sentences.zipWithIndex) yield {
       val sentenceStart = sentence.startOffsets.head
@@ -155,21 +163,19 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
     val (contextSentenceIndexes: Array[Int], contextSpans: Array[(Int, Int)]) = sentenceContexts.flatten.unzip
 
     // run the timenorm parser over batches of contexts to find and normalize time expressions
-    val contextTimeExpressions: Array[Array[TimeExpression]] = dctString match {
-      case Some(dctString) =>
-        val Array(timExInterval: TimExInterval) = parser.parse(dctString)
-        // use a SimpleInterval (character span = None) so it doesn't interfere with character span of TimeExpressions
-        val simpleInterval = SimpleInterval(timExInterval.start, timExInterval.end)
-        val dct = DCT(simpleInterval, dctString)
-
-        DctDocumentAttachment.setDct(doc, dct)
+    val dctOpt = DctDocumentAttachment.getDct(doc)
+    val contextTimeExpressions: Array[Array[TimeExpression]] = dctOpt match {
+      case Some(dct: DCT) =>
+        val simpleInterval = dct.interval.asInstanceOf[SimpleInterval]
         contextSpans
             .sliding(BATCH_SIZE, BATCH_SIZE)
             .flatMap(batch => parseBatch(text, batch, textCreationTime = simpleInterval))
             .toArray
       case None =>
-        contextSpans.sliding(BATCH_SIZE, BATCH_SIZE).
-          flatMap(batch => parseBatch(text, batch)).toArray
+        contextSpans
+            .sliding(BATCH_SIZE, BATCH_SIZE)
+            .flatMap(batch => parseBatch(text, batch))
+            .toArray
     }
 
     // create mentions for each of the time expressions that were found

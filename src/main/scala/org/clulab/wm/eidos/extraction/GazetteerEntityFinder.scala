@@ -54,7 +54,7 @@ class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) e
     * @param doc Processors Document, already annotated.  The named entities field does not need to be populated.
     * @return the mentions corresponding to the gazetteer items
     */
-  def find(doc: Document, initialState: State = new State(), finderArguments: Option[FinderArguments] = None): Seq[Mention] = {
+  def find(doc: Document, initialState: State = new State()): Seq[Mention] = {
     // Annotate the document for gazetteer elements
     doc.sentences.map(annotateSentence)
     // Find them and convert them to mentions

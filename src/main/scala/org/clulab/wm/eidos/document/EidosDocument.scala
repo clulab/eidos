@@ -11,6 +11,9 @@ import org.clulab.wm.eidos.context.DCT
 import org.json4s._
 import org.json4s.JsonDSL._
 
+/**
+ * In case anyone is wondering, DCT stands for Document Creation Time.
+ */
 @SerialVersionUID(100L)
 class DctDocumentAttachmentBuilderFromText extends DocumentAttachmentBuilderFromText {
 

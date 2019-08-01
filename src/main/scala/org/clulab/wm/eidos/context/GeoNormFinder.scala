@@ -13,7 +13,6 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.extraction.FinderArguments
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.FileUtils
 import org.slf4j.LoggerFactory
@@ -119,7 +118,7 @@ object GeoNormFinder {
 
 class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNormalizer) extends Finder {
 
-  def find(doc: Document, initialState: State, finderArguments: Option[FinderArguments] = None): Seq[Mention] = {
+  def find(doc: Document, initialState: State): Seq[Mention] = {
     val sentenceLocations = extractor(doc.sentences.map(_.raw))
     val Some(text) = doc.text
     val mentions = for {

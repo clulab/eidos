@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
-import org.clulab.wm.eidos.extraction.FinderArguments
+import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
@@ -110,8 +110,9 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     LoadableAttributes()
   }
 
+  protected def timeNormFinderOpt: Option[TimeNormFinder] = loadableAttributes.entityFinders.collectFirst{ case f: TimeNormFinder => f }
   def useGeoNorm: Boolean = loadableAttributes.entityFinders.collectFirst{ case f: GeoNormFinder => f }.isDefined
-  def useTimeNorm: Boolean = loadableAttributes.entityFinders.collectFirst{ case f: TimeNormFinder => f }.isDefined
+  def useTimeNorm: Boolean = timeNormFinderOpt.isDefined
 
   def reload(): Unit = loadableAttributes = LoadableAttributes()
 
@@ -119,21 +120,20 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   //                                 Annotation Methods
   // ---------------------------------------------------------------------------------------------
 
-  def annotateDoc(document: Document, filename: Option[String]= None): Document = {
-    require(document.text.isDefined)
-    document.id = filename
-    document
+  def annotateDoc(doc: Document): Document = {
+    // It is assumed and not verified that the document _has_not_ already been annotated.
+    proc.annotate(doc)
+    doc
   }
 
   // Annotate the text using a Processor and then populate lexicon labels
-  def annotate(text: String, documentCreationTime: Option[String] = None, filename: Option[String]= None): Document = {
+  def annotate(text: String): Document = {
     // Syntactic pre-processing
     val tokenized = proc.mkDocument(text, keepText = true)  // Formerly keepText, must now be true
     val filtered = documentFilter.filter(tokenized)         // Filter noise from document
-    val annotated = proc.annotate(filtered)
-    val document = annotateDoc(annotated, filename)
+    val annotated = annotateDoc(filtered)
 
-    document
+    annotated
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -144,23 +144,34 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def extractFromText(
     text: String,
     cagRelevantOnly: Boolean = true,
-    documentCreationTime: Option[String] = None,
+    dctString: Option[String] = None,
     filename: Option[String] = None): AnnotatedDocument = {
 
-    val document = annotate(text, documentCreationTime, filename)
-    extractFromDoc(document, cagRelevantOnly, documentCreationTime, filename)
+    val document = annotate(text)
+    extractFromDoc(document, cagRelevantOnly, dctString, filename)
   }
 
   // MAIN PIPELINE METHOD if given doc
   def extractFromDoc(
       doc: Document,
       cagRelevantOnly: Boolean = true,
-      documentCreationTime: Option[String] = None,
+      dctStringOpt: Option[String] = None,
       filename: Option[String] = None): AnnotatedDocument = {
+    // It is assumed and not verified that the document _has_ already been annotated.
     require(doc.text.isDefined)
 
+    doc.id = filename
+    if (dctStringOpt.isDefined && timeNormFinderOpt.isDefined) {
+      val dctOpt = timeNormFinderOpt.get.parseDctString(dctStringOpt.get)
+
+      if (dctOpt.isEmpty)
+        EidosSystem.logger.warn(s"""The document creation time, "${dctStringOpt.get}", could not be parsed.  Proceeding without...""")
+      else
+        DctDocumentAttachment.setDct(doc, dctOpt.get)
+    }
+
     // Extract Mentions
-    val odinMentions = extractFrom(doc, documentCreationTime)
+    val odinMentions = extractFrom(doc)
     // Expand the Concepts that have a modified state if they are not part of a causal event
     val afterExpandingConcepts = maybeExpandConcepts(odinMentions, loadableAttributes.keepStatefulConcepts)
 
@@ -188,13 +199,12 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
-  def extractFrom(doc: Document, documentCreationTime: Option[String] = None): Vector[Mention] = {
+  def extractFrom(doc: Document): Vector[Mention] = {
     require(doc.text.isDefined)
     // Prepare the initial state -- if you are using the entity finder then it contains the found entities,
     // else it is empty
-    val finderArgumentsOpt = Some(FinderArguments(documentCreationTime, doc.text.get))
     val initialState = loadableAttributes.entityFinders.foldLeft(new State()) { (state, entityFinder) =>
-      val mentions = entityFinder.find(doc, state, finderArgumentsOpt)
+      val mentions = entityFinder.find(doc, state)
       state.updated(mentions)
     }
 
