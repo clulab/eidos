@@ -162,7 +162,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
 
     doc.id = filename
     for (dctString <- dctStringOpt; timeNormFinder <- timeNormFinderOpt) {
-      val dctOpt = timeNormFinderOpt.get.parseDctString(dctString)
+      val dctOpt = timeNormFinder.parseDctString(dctString)
 
       dctOpt match {
         case Some(dct) =>
