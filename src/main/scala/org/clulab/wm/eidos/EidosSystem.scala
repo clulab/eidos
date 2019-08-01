@@ -162,12 +162,15 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
 
     doc.id = filename
     if (dctStringOpt.isDefined && timeNormFinderOpt.isDefined) {
-      val dctOpt = timeNormFinderOpt.get.parseDctString(dctStringOpt.get)
+      val dctString = dctStringOpt.get
+      val dctOpt = timeNormFinderOpt.get.parseDctString(dctString)
 
-      if (dctOpt.isEmpty)
-        EidosSystem.logger.warn(s"""The document creation time, "${dctStringOpt.get}", could not be parsed.  Proceeding without...""")
-      else
-        DctDocumentAttachment.setDct(doc, dctOpt.get)
+      dctOpt match {
+        case Some(dct) =>
+          DctDocumentAttachment.setDct(doc, dct)
+        case None =>
+          EidosSystem.logger.warn(s"""The document creation time, "${dctString}", could not be parsed.  Proceeding without...""")
+      }
     }
 
     // Extract Mentions
