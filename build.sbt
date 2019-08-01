@@ -10,7 +10,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-  val procVer = "7.5.3-SNAPSHOT"
+  val procVer = "7.5.3"
   val luceneVer = "6.6.6"
 
   Seq(
