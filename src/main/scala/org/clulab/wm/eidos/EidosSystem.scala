@@ -161,8 +161,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     require(doc.text.isDefined)
 
     doc.id = filename
-    if (dctStringOpt.isDefined && timeNormFinderOpt.isDefined) {
-      val dctString = dctStringOpt.get
+    for (dctString <- dctStringOpt; timeNormFinder <- timeNormFinderOpt) {
       val dctOpt = timeNormFinderOpt.get.parseDctString(dctString)
 
       dctOpt match {

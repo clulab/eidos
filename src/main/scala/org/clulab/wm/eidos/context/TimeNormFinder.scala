@@ -22,6 +22,7 @@ import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.JavaConverters._
 import scala.util.Try
+import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 @SerialVersionUID(1L)
@@ -83,7 +84,7 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
   private val BATCH_SIZE = 40
 
   def parseBatch(text: String, spans: Array[(Int, Int)],
-    textCreationTime: TimExInterval = UnknownInterval()): Array[Array[TimeExpression]] = {
+                 textCreationTime: TimExInterval = UnknownInterval()): Array[Array[TimeExpression]] = {
     for (xml <- parser.parseBatchToXML(text, spans)) yield {
       implicit val data: Data = new Data(xml, Some(text))
       val reader = new AnaforaReader(textCreationTime)
@@ -92,16 +93,12 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
   }
 
   def parseDctString(dctString: String): Option[DCT] = {
-    val timeExpressions: Array[TimeExpression] = parser.parse(dctString)
-    val dctOpt = timeExpressions.headOption.map { timeExpression =>
-      // use a SimpleInterval (character span = None) so it doesn't interfere with character span of TimeExpressions
-      val timeExInterval = timeExpression.asInstanceOf[TimExInterval] // Is this a leap of faith?
-      val simpleInterval = SimpleInterval(timeExInterval.start, timeExInterval.end)
-
-      DCT(simpleInterval, dctString)
-    }
-
-    dctOpt
+    Try { // We may be parsing in Javaland and nothing in Eidos seems to be catching, so just in case...
+      val dctOpt = parser.parse(dctString).collectFirst { case timExInterval: TimExInterval =>
+        DCT(SimpleInterval(timExInterval.start, timExInterval.end), dctString)
+      }
+      dctOpt
+    }.getOrElse(None)
   }
 
   def find(doc: Document, initialState: State): Seq[Mention] = {
@@ -166,10 +163,9 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
     val dctOpt = DctDocumentAttachment.getDct(doc)
     val contextTimeExpressions: Array[Array[TimeExpression]] = dctOpt match {
       case Some(dct: DCT) =>
-        val simpleInterval = dct.interval.asInstanceOf[SimpleInterval]
         contextSpans
             .sliding(BATCH_SIZE, BATCH_SIZE)
-            .flatMap(batch => parseBatch(text, batch, textCreationTime = simpleInterval))
+            .flatMap(batch => parseBatch(text, batch, textCreationTime = dct.interval))
             .toArray
       case None =>
         contextSpans

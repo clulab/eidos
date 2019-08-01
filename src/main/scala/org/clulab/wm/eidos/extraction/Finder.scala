@@ -7,7 +7,6 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
 
 trait Finder {
-  // This last argument is optional because not all finders need it and that way a simple default value can be provided.
   def find(doc: Document, initialState: State = new State()): Seq[Mention]
 }
 
