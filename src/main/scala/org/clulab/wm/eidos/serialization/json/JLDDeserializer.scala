@@ -8,13 +8,13 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.SynPath
 import org.clulab.odin.TextBoundMention
+import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Edge
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.timenorm.formal.SimpleInterval
-import org.clulab.timenorm.formal.UnknownInterval
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
@@ -25,16 +25,15 @@ import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.attachments.{Property, Quantification}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.document.DCT
-import org.clulab.wm.eidos.document.EidosDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
+import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.TimEx
-import org.clulab.wm.eidos.document.TimeStep
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
 import org.clulab.wm.eidos.utils.Canonicalizer
-import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
@@ -67,7 +66,7 @@ case class SentencesSpec(sentences: Array[Sentence], sentenceMap: Map[String, In
     timexes: Array[Seq[TimEx]], timexMap: Map[String, TimEx],
     geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID])
 
-class IdAndDocument(id: String, value: EidosDocument) extends IdAndValue(id, value)
+class IdAndDocument(id: String, value: Document) extends IdAndValue(id, value)
 
 case class DocumentSpec(idAndDocument: IdAndDocument, idAndDctOpt: Option[IdAndDct], sentencesSpec: SentencesSpec)
 
@@ -77,7 +76,7 @@ case class Extraction(id: String, extractionType: String, extractionSubtype: Str
     triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
 
 object JLDDeserializer {
-  type DocumentMap = Map[String, EidosDocument]
+  type DocumentMap = Map[String, Document]
   type SentenceMap = Map[String, Int]
   // So do documentSentenceMap(documentId)(sentenceId) to get the Int
   type DocumentSentenceMap = Map[String, SentenceMap]
@@ -118,14 +117,10 @@ class JLDDeserializer {
       requireType(dctValue, JLDDCT.typename)
       val dctId = id(dctValue)
       val text = (dctValue \ "text").extract[String]
-      val optStart = (dctValue \ "start").extractOpt[String]
-      val optEnd = (dctValue \ "end").extractOpt[String]
+      val start = (dctValue \ "start").extract[String]
+      val end = (dctValue \ "end").extract[String]
 
-      val dct =
-        if (optStart.isEmpty && optEnd.isEmpty) DCT(UnknownInterval(), text)
-        else {
-          val start = optStart.getOrElse(optEnd.get)
-          val end = optEnd.getOrElse(optStart.get)
+      val dct = {
           val startDateTime = LocalDateTime.parse(start)
           val endDateTime = LocalDateTime.parse(end)
           val interval = SimpleInterval(startDateTime, endDateTime)
@@ -305,7 +300,7 @@ class JLDDeserializer {
   protected def deserializePluralProvenance(provenanceValue: JValue, documentMap: DocumentMap,
       documentSentenceMap: DocumentSentenceMap): Provenance = {
     val provenanceValues: JArray = provenanceValue.asInstanceOf[JArray]
-    require(provenanceValues.arr.size >= 1)
+    require(provenanceValues.arr.nonEmpty)
     // In all cases, the additional provenance is thrown away.  It is recorded for a
     // relation/coreference, but the value is taken directly from the arguments and
     // it is superfluous.
@@ -321,23 +316,20 @@ class JLDDeserializer {
     val documentId = id(documentValue)
     val title = (documentValue \ "title").extractOpt[String]
     val text = (documentValue \ "text").extractOpt[String]
-    val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ "dct").extractOpt[JValue]))
+    val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ JLDDCT.singular).extractOpt[JValue]))
     // Text is required here!  Can't otherwise make raw for sentences.
     val sentencesSpec = deserializeSentences(documentValue \ "sentences", text)
     val timexCount = sentencesSpec.timexes.map(_.size).sum
     val geolocsCount = sentencesSpec.geolocs.map(_.size).sum
     val sentences = sentencesSpec.sentences
-    val eidosDocument = new EidosDocument(sentences, text)
+    val document = new Document(sentences)
+    document.id = title
+    document.text = text
+    idAndDctOpt.map(_.value).foreach { dct =>
+      DctDocumentAttachment.setDct(document, dct)
+    }
 
-    eidosDocument.id = title
-    eidosDocument.text = text
-    // We really don't know whether time and geo were on or not.  If none were found
-    // at all, then assume they were off and use None rather than Some(List.empty).
-    eidosDocument.times = if (timexCount == 0) None else Some(sentencesSpec.timexes)
-    eidosDocument.geolocs = if (geolocsCount == 0) None else Some(sentencesSpec.geolocs)
-    eidosDocument.dct = idAndDctOpt.map(_.value)
-
-    val idAndDocument = new IdAndDocument(documentId, eidosDocument)
+    val idAndDocument = new IdAndDocument(documentId, document)
     DocumentSpec(idAndDocument, idAndDctOpt, sentencesSpec)
   }
 

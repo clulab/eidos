@@ -58,8 +58,8 @@ class TestJSONFormat extends Test {
     val sloppyString = stringify(sloppyJObject, pretty = true)
     val tidyString = stringify(tidyJObject, pretty = true)
 
-    println("pretty sloppy = " + sloppyString)
-    println("pretty tidy = " + tidyString)
+//    println("pretty sloppy = " + sloppyString)
+//    println("pretty tidy = " + tidyString)
 
     hasDirtyField(sloppyString) should be (true)
     hasDirtyField(tidyString) should be (false)
@@ -71,8 +71,8 @@ class TestJSONFormat extends Test {
     val sloppyString = stringify(sloppyJObject, pretty = false)
     val tidyString = stringify(tidyJObject, pretty = false)
 
-    println("ugly sloppy = " + sloppyString)
-    println("ugly tidy = " + tidyString)
+//    println("ugly sloppy = " + sloppyString)
+//    println("ugly tidy = " + tidyString)
 
     hasDirtyField(sloppyString) should be (true)
     hasDirtyField(tidyString) should be (false)
@@ -84,8 +84,8 @@ class TestJSONFormat extends Test {
     val sloppyString = PlayUtils.toPlayJson(sloppyJObject).toString
     val tidyString = PlayUtils.toPlayJson(tidyJObject).toString
 
-    println("webapp sloppy = " + sloppyString)
-    println("webapp tidy = " + tidyString)
+//    println("webapp sloppy = " + sloppyString)
+//    println("webapp tidy = " + tidyString)
 
     hasDirtyField(sloppyString) should be (true)
     hasDirtyField(tidyString) should be (false)

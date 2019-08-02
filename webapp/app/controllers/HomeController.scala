@@ -9,9 +9,10 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimEx
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
@@ -271,14 +272,21 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println("Found mentions (in mkJson):")
     eidosMentions.foreach(eidosMention => DisplayUtils.displayMention(eidosMention.odinMention))
 
+    val odinMentions = eidosMentions.map(_.odinMention)
+    val timExs = // None
+        if (ieSystem.useTimeNorm) Some(TimeNormFinder.getTimExs(odinMentions, doc.sentences))
+        else None
+    val geoPhraseIDs = // None
+        if (ieSystem.useGeoNorm) Some(GeoNormFinder.getGeoPhraseIDs(odinMentions, doc.sentences))
+        else None
     val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
         "text" -> text,
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
+    val eidosJsonObj = mkJsonForEidos(text, sent, odinMentions, timExs, geoPhraseIDs)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, timExs, geoPhraseIDs)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
@@ -324,25 +332,18 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       objectToReturn += ""
 
     // TimeExpressions
-    val timeMentions = mentions.filter(_.odinMention matches "Time")
+    val timeMentions = TimeNormFinder.getTimExs(mentions.map(_.odinMention))
     if (timeMentions.nonEmpty) {
       objectToReturn += "<h2>Found TimeExpressions:</h2>"
-      val times = timeMentions.flatMap(_.odinMention.attachments).collect{
-        case time: Time => time.interval
-      }
-      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(times)}"
+      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(timeMentions)}"
     }
 
     // GeoLocations
-    val locationMentions = mentions.filter(_.odinMention matches "Location")
+    val locationMentions = GeoNormFinder.getGeoPhraseIDs(mentions.map(_.odinMention))
     if (locationMentions.nonEmpty) {
       objectToReturn += "<h2>Found GeoLocations:</h2>"
-      val locations = locationMentions.flatMap(_.odinMention.attachments).collect{
-        case location: Location => location.geoPhraseID
-      }
-      objectToReturn += s"${DisplayUtils.webAppGeoLocations(locations)}"
+      objectToReturn += s"${DisplayUtils.webAppGeoLocations(locationMentions)}"
     }
-
 
     // Concepts
     val entities = mentions.filter(_.odinMention matches "Entity")
