@@ -26,7 +26,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       .replace('\t', ' ')
       .replaceAll("  +", " ")
 
-    if (ieSystem.config.language == "english") {
+    if (ieSystem.components.language == "english") {
       val specialChars = getSpecialChars(cleanText)
       if (!specialChars.isEmpty)
         throw new IllegalArgumentException("Text contained a special chars: " + specialChars)

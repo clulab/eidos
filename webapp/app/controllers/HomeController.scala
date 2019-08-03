@@ -33,10 +33,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem: EidosSystem = new EidosSystem()
-  val proc: Processor = ieSystem.config.proc
+  val proc: Processor = ieSystem.components.proc
   val stanza = "adjectiveGrounder"
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig(stanza))
-  val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.config.getConfig(stanza))
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.components.getConfig(stanza))
+  val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.components.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -57,7 +57,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   def config: Action[AnyContent] = Action {
     val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
-    val jsonString = ieSystem.config.root.render(options)
+    val jsonString = ieSystem.components.root.render(options)
     Ok(jsonString).as(JSON)
   }
 
