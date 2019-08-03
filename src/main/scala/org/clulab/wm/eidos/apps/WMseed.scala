@@ -28,7 +28,7 @@ object WMseed extends App with LazyLogging {
   val extractor = new EidosSystem(config.getConfig("WMseed.EidosSystem"))
 
   // create the processor
-  val proc: Processor = extractor.proc
+  val proc: Processor = extractor.config.proc
 
   // List of files to be processed
   val fileList = getListOfFiles(documentPath)

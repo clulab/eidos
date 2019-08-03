@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.odin.CrossSentenceMention
 import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
@@ -131,7 +132,7 @@ class TestJLDSerializer extends ExtractionTest {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.stopwordManager), ieSystem.loadableAttributes.multiOntologyGrounder)
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.config.stopwordManager), ieSystem.config.multiOntologyGrounder)
       val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
 
       nextAnnotatedDocument

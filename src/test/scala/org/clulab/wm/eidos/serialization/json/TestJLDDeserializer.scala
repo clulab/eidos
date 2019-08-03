@@ -13,6 +13,7 @@ import org.json4s.jackson.JsonMethods._
 import JLDDeserializer.DocumentMap
 import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
@@ -628,12 +629,12 @@ class TestJLDDeserializer extends ExtractionTest {
 
   def testCorpus(text: String, name: String) = {
     it should "deserialize corpus " + name + " from jsonld" in {
-      val canonicalizer = new Canonicalizer(ieSystem.stopwordManager)
+      val canonicalizer = new Canonicalizer(ieSystem.config.stopwordManager)
 
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.config.multiOntologyGrounder)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')

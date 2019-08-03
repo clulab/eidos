@@ -33,7 +33,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
   val ieSystem: EidosSystem = new EidosSystem()
-  val proc: Processor = ieSystem.proc
+  val proc: Processor = ieSystem.config.proc
   val stanza = "adjectiveGrounder"
   val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig(stanza))
   val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.config.getConfig(stanza))
