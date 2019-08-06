@@ -11,7 +11,7 @@ resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
   val procVer = "7.5.3"
-  val luceneVer = "6.6.6"
+  val luceneVer = "6.6.6" // Actually uses 7.7.0 because of Elasticsearch dependency
 
   Seq(
     "org.clulab"    %% "processors-main"          % procVer,
@@ -35,7 +35,11 @@ libraryDependencies ++= {
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
     "org.apache.lucene" % "lucene-grouping"         % luceneVer,
     "com.amazonaws" % "aws-java-sdk" % "1.11.592",
-    "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.7.1" // to match AWS version
+    // Elasticsearch is versioned to match the installation on the AWS server, but this
+    // version of Elasticsearch requires Lucene 7.7.0, which overrides 6.6.6 configured above.
+    // Therefore, the ElasticSearch app may need to be moved to a separate project.  Backing
+    // off to elasticsearch 5.6.16, which needs only lucene 6.6.1, results in compilation problems.
+    "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.7.1"
   )
 }
 
