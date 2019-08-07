@@ -6,7 +6,7 @@ import org.clulab.processors.Document
 import org.clulab.processors.DocumentAttachment
 import org.clulab.processors.DocumentAttachmentBuilderFromJson
 import org.clulab.processors.DocumentAttachmentBuilderFromText
-import org.clulab.timenorm.formal.SimpleInterval
+import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
 import org.json4s._
 import org.json4s.JsonDSL._
