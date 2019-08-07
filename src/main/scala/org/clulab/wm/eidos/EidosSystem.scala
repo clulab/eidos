@@ -69,7 +69,6 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val         taxonomyPath: String = eidosConf[String]("taxonomyPath")
     // Hedging
     val          hedgingPath: String = eidosConf[String]("hedgingPath")
-    val          useTimeNorm: Boolean = eidosConf[Boolean]("useTimeNorm")
     val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
 
     val hypothesisHandler = HypothesisHandler(hedgingPath)
