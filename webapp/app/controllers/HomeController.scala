@@ -38,6 +38,15 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig(stanza))
   val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.config.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
+
+  {
+    println("[EidosSystem] Priming the EidosSystem ...")
+    val annotatedDocument = 
+        ieSystem.extractFromText("In 2014 drought caused a famine in Ethopia.", cagRelevantOnly = true, Some("2019-08-09"))
+    val corpus = new JLDCorpus(annotatedDocument)
+    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+    println("[EidosSystem] Completed Priming ...")
+  }
   // -------------------------------------------------
 
   /**
