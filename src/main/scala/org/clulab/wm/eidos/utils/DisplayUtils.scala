@@ -4,10 +4,12 @@ import java.io.PrintWriter
 
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
+import org.clulab.wm.eidos.context.GeoNormFinder
 
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.{EidosDocument, TimEx}
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeNormFinder
 
 object DisplayUtils {
   protected val nl = "\n"
@@ -19,8 +21,8 @@ object DisplayUtils {
     printDeps: Boolean = false): String = {
 
     val sb = new StringBuffer()
-    val time = doc.asInstanceOf[EidosDocument].times
-    val location = doc.asInstanceOf[EidosDocument].geolocs
+    val times = TimeNormFinder.getTimExs(mentions, doc.sentences)
+    val locations = GeoNormFinder.getGeoPhraseIDs(mentions, doc.sentences)
     val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
     for ((s, i) <- doc.sentences.zipWithIndex) {
       sb.append(s"sentence #$i $nl")
@@ -29,10 +31,10 @@ object DisplayUtils {
       if (printDeps) sb.append(syntacticDependenciesToString(s) + nl)
       sb.append(nl)
 
-      if (time.isDefined)
-        sb.append("timeExpressions:" + nl + displayTimeExpressions(time.get(i)) + nl)
-      if (location.isDefined)
-        sb.append("locationExpressions:" + nl + displayLocationExpressions(location.get(i)) + nl)
+      if (times(i).nonEmpty)
+        sb.append("timeExpressions:" + nl + displayTimeExpressions(times(i)) + nl)
+      if (locations(i).nonEmpty)
+        sb.append("locationExpressions:" + nl + displayLocationExpressions(locations(i)) + nl)
 
       val sortedMentions = mentionsBySentence(i).sortBy(_.label)
       val (events, entities) = sortedMentions.partition(_ matches "Event")

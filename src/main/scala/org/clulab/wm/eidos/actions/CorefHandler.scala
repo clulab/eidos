@@ -128,6 +128,4 @@ object CausalBasicCorefHandler {
     val data = yaml.load(input).asInstanceOf[java.util.Collection[Any]]
     Taxonomy(data)
   }
-
-
 }

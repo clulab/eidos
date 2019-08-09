@@ -10,7 +10,7 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-  val procVer = "7.5.1"
+  val procVer = "7.5.3"
   val luceneVer = "6.6.6"
 
   Seq(
@@ -33,9 +33,7 @@ libraryDependencies ++= {
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
-    "org.apache.lucene" % "lucene-grouping"         % luceneVer,
-    "com.amazonaws" % "aws-java-sdk" % "1.11.592",
-    "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.7.1" // to match AWS version
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer
   )
 }
 
@@ -171,6 +169,7 @@ lazy val webapp = project
   .aggregate(core)
   .dependsOn(core)
 
+lazy val elasticsearch = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {

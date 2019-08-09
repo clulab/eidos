@@ -24,7 +24,7 @@ package object json {
   }
 
   private def attachmentsAST(attachments: Set[Attachment]): Set[JValue] =
-    attachments.map(EidosAttachment.asEidosAttachment(_).toJson())
+    attachments.map(EidosAttachment.asEidosAttachment(_).toJson)
 
   /** Hash representing the [[Mention.arguments]] */
   private def argsHash(args: Map[String, Seq[Mention]]): Int = {

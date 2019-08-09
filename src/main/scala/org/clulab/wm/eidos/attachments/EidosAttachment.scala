@@ -4,12 +4,10 @@ import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.{DCT, TimEx}
-import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment,
-    JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment,
-    JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
-    JLDCountAttachment => JLDEidosCountAttachment}
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
 import org.clulab.wm.eidos.utils.QuicklyEqualable
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -29,7 +27,7 @@ abstract class EidosAttachment extends Attachment with Serializable with Quickly
   def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment
 
   // Support for JSON serialization
-  def toJson(): JValue
+  def toJson: JValue
 }
 
 object EidosAttachment {
@@ -381,8 +379,8 @@ object Negation {
 @SerialVersionUID(1L)
 abstract class ContextAttachment(val text: String, val value: Object) extends EidosAttachment {
 
-  override def toString() = {
-    getClass().getSimpleName() + "(" + text + ")"
+  override def toString = {
+    getClass.getSimpleName + "(" + text + ")"
   }
 
   def newJLDContextAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosContextAttachment =
@@ -404,7 +402,7 @@ abstract class ContextAttachment(val text: String, val value: Object) extends Ei
 object ContextAttachment {
 
   def compare(left: ContextAttachment, right: ContextAttachment): Int =
-      left.getClass().getName().compareTo(right.getClass().getName())
+      left.getClass.getName.compareTo(right.getClass.getName)
 }
 
 @SerialVersionUID(1L)
