@@ -45,6 +45,15 @@
     pattern: |
       [entity="LOCATION" & !norm="LOC"] [chunk="I-NP" & tag=/^NNP/ & !norm="LOC" & !word=and]+
 
+  - name: location-backoff-expand-common
+      # where the first part of a complex NNP is found, expand to the rest of the NNP chunk
+    priority: ${ rulepriority }
+    example: "* Demographic data: 133 individuals were recorded transiting through the Juba Port FMP"
+    label: Location-Expand
+    type: token
+    pattern: |
+        [entity="LOCATION" & !norm="LOC"] [chunk="I-NP" & !norm="LOC" & !word=and]+
+
   - name: location-expand-conjunction
     # where a location is mislabeld in a conjunction with another location
     priority: ${ rulepriority }

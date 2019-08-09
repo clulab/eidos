@@ -79,8 +79,8 @@ rules:
     pattern: |
       trigger = [lemma=/receive|host|accommodate/ & tag=/^VB/]
       group: Entity? = >dobj
-      moveTo: Location? = (>nmod_to|>nmod_for|(>nmod_between >conj_and)|>/${agents}/)
-      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_between|>dobj >conj_or?|>/${agents}/ >nmod_from)
+      moveTo: Location? = <xcomp? (>nmod_to|>nmod_for|(>nmod_between >conj_and)|>/${agents}/)
+      moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_between|>dobj >conj_or?|>/${agents}/ >nmod_from)|(>dobj >acl >nmod_from)
       moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through))
       timeStart: Time? = (>nmod_since|>nmod_after)|(>advcl_since >nmod_in)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
@@ -144,7 +144,7 @@ rules:
 
   - name: migration-originated-from
     priority: ${ rulepriority }
-    example: " The new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglie State (Uror, Akobo and Ayod Counties)."
+    example: " The new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
     label: ${ label }
     action: ${ action }
     pattern: |
@@ -202,7 +202,7 @@ rules:
     pattern: |
       trigger = [lemma=/relocate/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
-      moveTo: Location? = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound*)|(<acl >nmod_in)|(>advmod >nmod_towards)
+      moveTo: Location? = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound*)|(<acl >nmod_in)|(>advmod >nmod_towards)|(>nmod_to >compound)
       moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
       moveThrough: Location? = </${agents}/? (>nmod_via|>nmod_through)
       timeStart: Time? = >nmod_since|>nmod_after|(>advcl_since >nmod_in)
