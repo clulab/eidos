@@ -91,7 +91,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val doc = ieSystem.annotate(text)
 
     // Debug
-    println(s"DOC : $doc")
+//    println(s"DOC : $doc")
     // extract mentions from annotated document
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
     val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
