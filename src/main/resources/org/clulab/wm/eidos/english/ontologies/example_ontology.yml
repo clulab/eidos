@@ -1,0 +1,990 @@
+- Example:
+  - interventions:
+    # Generic
+    - OntologyNode:
+      pattern:
+      - (intervention)
+      - (humanitarian)(\s|\w)+(aid|assistance)
+      examples:
+      - access
+      - humanitarian response
+      - humanitarian aid
+      - assistance
+      - humanitarian support
+      - intervention
+      - rehabilitation
+      - poverty alleviation
+      name: humanitarian assistance
+      polarity: 1.0
+    # Four main types (categories) of interventions provided by Kimetrica
+    - OntologyNode:
+      pattern:
+      - ((provision\s+of)|(distribution\s+of)|providing|provided?|distributed?)\s+(?!.*(rain|rainfall))
+      - (\w)+(?<!rain|rainfall)\s+(provision|distribution|assistance)
+      name: provision of goods and services
+      polarity: 1.0
+    - OntologyNode:
+      pattern:
+      - (((rehabilitation|restoration|construction|repair)\s+of)|(build|restoring|constructing|repairing))
+      - (disaster\s+relief|field\s+hospital|classrooms)
+      - (improvement\s+of|improved)(\s|\w)+(school|infrastructure|education|facilit)
+      - (temporary|relief|deployment)(\s|\w)+(camp|building|facilit|shelter|settlement)
+      - (borehole\s+drilling)
+      name: infrastructure
+      polarity: 1.0
+    - OntologyNode:
+      pattern:
+      - (peacekeeping|peacekeepers|peace\s+(talk|treaty)|political\s+mediation)
+      - (conflict)(\s|\w)+(resolution|mediation|intervention)
+      - (formal\s+mediation)
+      - (ceasefire|cease\s+fire)
+      - (disarm|demobiliz|reintegrat)
+      name: peacekeeping and security
+      polarity: 1.0
+    - OntologyNode:
+      pattern:
+      - ((engag|interact|cooperation)(\s|\w)+with|support)(authorit|institution)
+      - (support|develop|strengthen)(\s|\w)+(capacity|framework)
+      - (integrat)(\s|\w)+into(\s|\w)+(policy|policies|program)
+      - (capacity\s+building)
+      - (public\s+sector\s+support)
+      - (invest)(\s|\w)+(in)
+      name: institutional support
+      polarity: 1.0
+  - events:
+    - nature_impact:
+      - OntologyNode:
+        examples:
+        - climate change mitigation
+        - climate change adaptation
+        name: climate_change_mitigation
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - conservation
+        - sustainable use
+        - biodiversity conservation
+        - forest management
+        - water management
+        - management forest
+        name: resource_management
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - afforestation
+        - agroforestry
+        - forest management
+        - reforestation
+        name: forestry
+        polarity: 1.0
+      - pollution:
+        - OntologyNode:
+          examples:
+          - pollution
+          - greenhouse gas emission
+          - ghg emission
+          name: air_pollution
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - contaminant
+          - contamination
+          - soil pollution
+          - soil erosion
+          name: land_pollution
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - deforestation
+          - desertification
+          name: climate_change
+          polarity: 1.0
+    - OntologyNode:
+      examples:
+      - crisis
+      - emergency
+      - catastrophe #ppt-#10
+      name: crisis
+      polarity: 1.0
+    - natural_disaster:
+      - OntologyNode:
+        examples:
+        - flood
+        - flash flood
+        name: flooding
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - drought
+        name: drought
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - hurricane
+        - extreme winds
+        - cyclone
+        - tornado
+        - storm
+        - storm winds #ppt-#5
+        - rainstorms #ppt-#5
+        name: storm
+        polarity: 1.0
+    - weather:
+      - OntologyNode:
+        examples:
+        - climate
+        - tropical
+        - equatorial
+        name: climate #ppt-#5
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - precipitation
+        - rain
+        - rainfall
+        - snow
+        name: precipitation
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - temperature
+        name: temperature #ppt-nov1-#10
+        polarity: 1.0
+    - human:
+      - political:
+        - OntologyNode:
+          examples:
+          - political instability
+          - power struggle
+          - regime breakdown #doc-#pg1
+          - political violence #doc-pg1
+          name: political_instability #ppt-#3
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - independence
+          - self-rule
+          - political independence
+          name: independence #ppt-#3
+          polarity: 1.0
+      - agriculture:
+        - OntologyNode:
+          examples:
+          - rice production
+          - food production
+          - staple crop production
+          - crop yield
+          - crop production #ppt-nov1-#13
+          - livestock production #ppt-nov1-#13
+          - cereal production #ppt-nov1-#13
+          - milk production #ppt-nov1-#13
+          name: food_production
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - farming
+          - cultivation
+          - harvesting
+          - harvest
+          - tillage
+          - soil fertility
+          - fertility
+          name: farming
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - planting
+          - horticulture
+          name: planting
+          polarity: 1.0
+      - OntologyNode:
+        examples:
+        - insecurity
+        - instability
+        - physical insecurity
+        name: physical_insecurity
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - conflict
+        - war
+        - fighting
+        - infighting
+        - civil unrest
+        - genocide
+        - clash
+        - armed clash #ppt-#8
+        - raid
+        name: conflict
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - economic crisis
+        - financial crisis
+        name: economic_crisis #ppt-#4
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - disarmament
+        name: disarmament
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - migration
+        - immigration
+        - displacement
+        - refugee migration
+        - emigration
+        - flee        
+        name: human_migration
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - vaccine
+        - vaccination
+        name: health_intervention
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - famine
+        - hunger
+        - starvation
+        name: famine
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - death
+        - mortality
+        - morbidity
+        - decease
+        - loss of life #ppt-#3
+        - life loss #ppt-#3
+        - fatalitiy #ppt-#8
+        name: death
+        polarity: 1.0
+  - entities:
+    - OntologyNode:
+      examples:
+      - rice
+      - meat
+      - food availability
+      - access to food
+      - cereal
+      - food
+      name: food_availability
+      polarity: 1.0
+    - OntologyNode:
+      examples:
+      - village
+      - world
+      - district
+      - province
+      - zone
+      - territory
+      - city
+      - capital
+      - States
+      - nation
+      - regional
+      - republic
+      - town
+      - headquarters
+      - settlement
+      - subregion
+      - continent
+      - several countries
+      - municipality
+      - county
+      - urban
+      - most countries
+      - developed countries
+      - sub-region
+      - nation
+      - country
+      - state
+      - geopolitical entity
+      - nation-state
+      name: GPE
+      polarity: 1.0
+    - natural:
+      - OntologyNode:
+        examples:
+        - oxygen
+        - nitrogen
+        name: chemical
+        polarity: 1.0
+      - biology:
+        - OntologyNode:
+          examples:
+          - species
+          - forest
+          - environment
+          - habitat
+          - life
+          - ecology
+          - ecosystem service
+          name: ecosystem
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - flora
+          - mangrove
+          - tree species
+          - plant forest
+          - shrub
+          - tree
+          - plant
+          - vegetation
+          - fuelwood
+          name: flora
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - animal
+          - bird
+          - insect
+          - turtle
+          - oyster
+          - elephant
+          - mammal
+          - chick
+          - duck
+          - crustacean
+          - buffalo
+          - tsetse
+          - shark
+          name: fauna
+          polarity: 1.0
+      - natural_resources:
+        - OntologyNode:
+          examples:
+          - solar radiation
+          - sunlight
+          - solar energy
+          name: solar_radiation
+          polarity: 1.0
+        - biotic_resources:
+          - OntologyNode:
+            examples:
+            - biodiversity
+            - Convention Biological diversity
+            - ecosystem
+            - food
+            - forest area
+            - area forest
+            - forest land
+            - forestry sector
+            - plant resource food
+            - wildlife
+            - rainforest #ppt-#5
+            name: biotic_resources
+            polarity: 1.0
+        - abiotic_resources:
+          - OntologyNode:
+            examples:
+            - area
+            - land
+            - mountain
+            - mt
+            - wetland
+            - sand
+            - flood plains #ppt-#6
+            - cropland #ppt-#6
+            - greenbelt #ppt-#6
+            - agricultural land #ppt-#7
+            - arable land #ppt-#7
+            - cultivated area #ppt-#7
+            name: land
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - water
+            - sea
+            - river
+            - pond
+            - rain
+            - water resource
+            - lake
+            - freshwater
+            - surface water
+            - groundwater
+            - water body
+            name: water
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - charcoal
+            - iron
+            - mineral
+            name: material
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - resource
+            - nAtuRAl ReSouRceS
+            name: resource
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - air
+            name: air
+            polarity: 1.0
+      - soil:
+        - OntologyNode:
+          examples:
+          - phosphorous
+          - organic matter
+          - soil
+          name: soil_contents
+          polarity: 1.0
+      - OntologyNode:
+        examples:
+        - watershed
+        name: watershed
+        polarity: 1.0
+      - crop_technology:
+        - OntologyNode:
+          examples:
+          - store crops
+          - granary
+          name: crop_storage
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - nitrogen fertilizer
+          - inorganic fertilizers
+          - potting composts
+          - nitrogen potassium fertilizers
+          - superphosphate
+          - magnesium fertilizers
+          - nitrate fertilizers
+          - biofertilizers
+          - potash fertilizers
+          - fish manure
+          - guano
+          - nitrophosphates
+          - composts
+          - fertilizer
+          name: fertilizer
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - localized irrigation
+          - capillary irrigation
+          - sprinkler irrigation
+          - furrow irrigation
+          - drip fertigation
+          - surface irrigation
+          - runoff irrigation
+          - fertigation
+          - wastewater irrigation
+          - watering
+          - rotation irrigation
+          - flood irrigation
+          - trickle irrigation
+          - centre pivot irrigation
+          - subsurface irrigation
+          - irrigation system
+          - irrigation
+          name: irrigation
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - pesticide
+          name: pesticide
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - farmer organization
+          - department agriculture
+          - aquaculture sector
+          - farming system
+          - agriculture organization
+          - investment agriculture
+          - food system
+          - Peoples food system
+          name: management
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - post-harvest
+          - food product
+          name: product
+          polarity: 1.0
+      - OntologyNode:
+        examples:
+        - wheat
+        - corn
+        - maize
+        - rice
+        - sorghum
+        - white sorghum #doc-#pg2
+        - red sorghum #doc-#pg2
+        - brown sorghum #doc-#pg2
+        - oats #doc-#pg2
+        - white maize #doc-#pg2
+        - millet #doc-#pg2
+        - barley
+        - flax
+        - grain
+        - beans
+        - sesame #doc-#pg4
+        - sugar
+        - flour
+        - tea
+        - leaf vegetables
+        - groundnuts
+        - cultivar
+        - potato
+        - bean
+        - cassava
+        - banana
+        - coffee
+        - soybean
+        - groundnut
+        - oilseed
+        - bamboo
+        - tomato
+        - mango
+        - cereal
+        - cocoa
+        - coconut
+        - rubber
+        - onion
+        - tea
+        - tobacco
+        - crop
+        - vegetable
+        - rice
+        - feed
+        - food crop
+        - legume
+        - grain
+        - tuber
+        name: crop
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - livestock
+        - cattle
+        - poultry
+        - domestic animals
+        name: livestock #ppt-#3
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - infestation
+        - armyworm
+        - fall armyworm #ppt-nov1-#13
+        - insect
+        - swarm
+        - locust
+        - fungus
+        - plant nematodes
+        - weeds
+        - volunteer plants
+        - pests
+        - mice
+        - midges
+        - slugs
+        - pest
+        name: pest
+        polarity: 1.0
+    - human:
+      - health:
+        - OntologyNode:
+          examples:
+          - diet
+          - vitamin
+          - nutrition
+          - nutritive
+          name: nutrient
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - HIV
+          - malaria
+          - diabetes
+          - anemia
+          - hiv
+          - anaemia
+          - hiv/aids
+          - outbreak
+          - virus
+          - bacteria
+          name: disease
+          polarity: 1.0
+      - infrastructure:
+        - transportation:
+          - OntologyNode:
+            examples:
+            - trucking
+            - shipping
+            - courier
+            - transportation
+            - driving
+            - bus
+            - air travel
+            - delivery
+            name: transportation_methods
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - road
+            - highways
+            - road network #ppt-#4
+            name: road
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - bridge
+            name: bridge
+            polarity: 1.0
+        - OntologyNode:
+          examples:
+          - water treatment facility
+          - dam
+          - sewage plant
+          - drainage ditch
+          - desalination
+          - sanitation
+          - reservoir
+          - border
+          name: water_management
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - canal
+          - seaport
+          - marina
+          - harbour
+          name: shipping_facilities_water
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - airport
+          name: shipping_facilities_air
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - energy
+          - electric plant
+          - utilities
+          name: electrical
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - building
+          - monument
+          - infrastructure
+          - reservoir
+          - dam
+          - sewage plant
+          - drainage ditch
+          - seaport
+          - marina
+          - harbour
+          - airport
+          - electric plant
+          name: building
+          polarity: 1.0
+      - OntologyNode:
+        examples:
+        - livelihood
+        - food production
+        - agriculture
+        - industry
+        - commerce
+        - workplace
+        - trade
+        - work
+        - job
+        - career
+        - opportunity
+        - employment
+        - agribusiness
+        - pastoralist livelihood #ppt-#8
+        name: livelihood
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - farming
+        name: farming
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - fishery
+        name: fishery
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - literacy
+        - education
+        - school
+        name: education
+        polarity: 1.0
+      - financial:
+        - economic:
+          - OntologyNode:
+            examples:
+            - export
+            name: export #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - import
+            name: import #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - currency
+            - dollar
+            - pound
+            - cash
+            - hard currency
+            name: currency #ppt-nov1-#14
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - budget
+            - budget deficit
+            name: budget #ppt-#4
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - market
+            - domestic markets
+            - capital market
+            - street markets
+            name: market
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - interest rate
+            - investment
+            - stipend
+            - government spending
+            - subsidy
+            - finance
+            - GDP
+            - gross domestic product #ppt-nov1-#16
+            - economy
+            name: economy
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - inflation
+            #- inflation rate #ppt-nov1-#16
+            name: inflation
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - depreciation
+            name: depreciation
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - fuel
+            - biofuel
+            - petroleum
+            - gas
+            - oil
+            - crude
+            - petrol #doc-#pg3
+            - diesel #doc-#pg3
+            name: fuel
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - livelihood
+            - income
+            - household income
+            - take home pay
+            - net profit
+            - profit
+            - earning
+            - revenue
+            - investment
+            name: revenue
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - assets
+            - property
+            - land assets
+            name: assets #ppt-#3
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - poverty
+            name: poverty
+            polarity: 1.0
+      - government:
+        - OntologyNode:
+          examples:
+          - ngo
+          - agriculture organization UNITED NATIONS
+          - agency
+          - secretariat
+          - industry
+          - world bank
+          - council
+          - representative
+          - organisation
+          - association
+          - institution
+          - participant
+          - Governing body
+          - party
+          - un agency
+          - member States
+          - executive committee
+          - establishment
+          - agriculture organization UNITED NATIONS rome
+          - development agency
+          - constitution
+          - foundation
+          - development partner
+          - codex Alimentarius commission
+          - Member Nations
+          - iotc secretariat
+          - fao Regional office
+          - finance committee
+          - fao headquarters
+          - government agency
+          - agriculture sector
+          - committee
+          - ministry
+          - board
+          - working GROUP
+          - contract party
+          - department
+          - government
+          - transitional government #ppt-#8
+          name: government_entity
+          polarity: 1.0
+        - government_actions:
+          - OntologyNode:
+            examples:
+            - regulation
+            - governance
+            - surveillance
+            - enforcement
+            - law
+            - policy
+            - legislation
+            name: regulation
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - census
+            - survey
+            name: census
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - commission
+            - workshop
+            - conference
+            - partnership
+            - management
+            - organization
+            - programme
+            - Programme Work
+            - convention
+            name: organization
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - security
+            - tax
+            - action plan
+            - development programme
+            - Development Goals
+            - management plan
+            - welfare
+            name: duty
+            polarity: 1.0
+      - OntologyNode:
+        examples:
+        - communities
+        - people group
+        - households
+        - families
+        - villages
+        - people
+        - community
+        - family
+        - ethnic group
+        - population
+        - rural #ppt-#3
+        name: population
+        polarity: 1.0
+      - food:
+        - OntologyNode:
+          examples:
+          - food price
+          - crop price
+          - food cost
+          - staple food price #ppt-#9
+          name: food_price #ppt-#3
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - food security
+          - food access
+          - food availability
+          - nutrition
+          - nutrition security
+          name: food_security
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - food insecurity
+          - food gap
+          - malnutrition
+          - undernutrition
+          - undernourishment
+          - stunting
+          - wasting
+          - food riots #ppt-#3
+          - food inflation #ppt-nov1-#16
+          name: food_insecurity
+          polarity: 1.0
+  - temporal:
+    - seasons:
+      - OntologyNode:
+        examples:
+        - harvest
+        - lean season
+        - planting season
+        - sowing season
+        name: crop_season
+        polarity: 1.0
+      - OntologyNode:
+        examples:
+        - summer
+        - winter
+        - fall
+        - spring
+        - dry season
+        - rainy season
+        - monsoon season
+        name: season
+        polarity: 1.0
+    - OntologyNode:
+      examples:
+      - January
+      - February
+      - March
+      - April
+      - May
+      - June
+      - July
+      - August
+      - September
+      - October
+      - November
+      - December
+      name: month
+      polarity: 1.0
