@@ -36,7 +36,7 @@ object EidosShell extends App {
       else {
         line match {
           case ":help" => printCommands()
-          case ":reload" => ieSystem = new EidosSystem(ieSystem)
+          case ":reload" => ieSystem = new EidosSystem(EidosSystem.defaultConfig, Some(ieSystem))
           case text => extractFrom(text)
         }
         true

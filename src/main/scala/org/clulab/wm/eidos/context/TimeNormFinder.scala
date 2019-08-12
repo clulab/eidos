@@ -83,6 +83,9 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
   private val CONTEXT_WINDOW_SIZE = 20
   private val BATCH_SIZE = 40
 
+  def getTimExs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[TimEx]] =
+      TimeNormFinder.getTimExs(odinMentions, sentences)
+
   def parseBatch(text: String, spans: Array[(Int, Int)],
                  textCreationTime: TimExInterval = UnknownInterval()): Array[Array[TimeExpression]] = {
     for (xml <- parser.parseBatchToXML(text, spans)) yield {

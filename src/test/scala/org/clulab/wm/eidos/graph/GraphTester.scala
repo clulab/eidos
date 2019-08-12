@@ -35,9 +35,9 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   }
 
   protected def toString(mentions: Seq[Mention]): String = {
-    mentions.zipWithIndex.map{case (mention, index) => {
+    mentions.zipWithIndex.map { case (mention, index) =>
       s"$index: ${mention.text} ${mention.attachments.mkString(", ")}"
-    }}.mkString("\n")
+    }.mkString("\n")
   }
 
   protected def annotateTest(result: Seq[String]): Seq[String] =
@@ -58,6 +58,6 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
     annotateTest(testResult.complaints)
   }
 
-  def useTimeNorm: Boolean = ieSystem.useTimeNorm
-  def useGeoNorm: Boolean = ieSystem.useGeoNorm
+  def useTimeNorm: Boolean = ieSystem.components.useTimeNorm
+  def useGeoNorm: Boolean = ieSystem.components.useGeoNorm
 }

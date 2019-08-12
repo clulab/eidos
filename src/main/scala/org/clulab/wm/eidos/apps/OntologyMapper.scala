@@ -18,7 +18,7 @@ object OntologyMapper {
     val config = ConfigFactory.load("eidos")
     val outputFile = config[String]("apps.ontologymapper.outfile")
     val topN = config[Int]("apps.groundTopN")
-    val reader = new EidosSystem(config)
+    val reader = new EidosSystem(config, None)
 
     mapIndicators(reader, outputFile, topN)
   }

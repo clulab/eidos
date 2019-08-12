@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.odin.CrossSentenceMention
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
@@ -15,7 +14,7 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import scala.collection.Seq
 
 class TestJLDSerializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.components.getConfig("adjectiveGrounder"))
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   

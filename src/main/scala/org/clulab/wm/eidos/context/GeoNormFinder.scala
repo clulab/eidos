@@ -118,6 +118,9 @@ object GeoNormFinder {
 
 class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNormalizer) extends Finder {
 
+  def getGeoPhraseIDs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[GeoPhraseID]] =
+      GeoNormFinder.getGeoPhraseIDs(odinMentions, sentences)
+
   def find(doc: Document, initialState: State): Seq[Mention] = {
     val sentenceLocations = extractor(doc.sentences.map(_.raw))
     val Some(text) = doc.text

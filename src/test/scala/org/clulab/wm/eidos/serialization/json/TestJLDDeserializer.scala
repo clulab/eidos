@@ -13,7 +13,6 @@ import org.json4s.jackson.JsonMethods._
 import JLDDeserializer.DocumentMap
 import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
@@ -29,7 +28,7 @@ import org.json4s.JArray
 import scala.collection.Seq
 
 class TestJLDDeserializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.components.getConfig("adjectiveGrounder"))
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   

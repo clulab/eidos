@@ -16,19 +16,17 @@ import scala.annotation.tailrec
   * A system for text processing and information extraction
   */
 class EidosSystem(val components: EidosComponents) {
+  // This constructor does not have a default second value because when it does, the
+  // this(x: Object) version is favored over it, despite the better first argument match.
+  // There should be no scala code that calls the one-argument constructor.
   // This constructor will take cheap to update values from the config, but expensive values
   // from eidosSystem.components.  It is the new reload().
-  def this(config: Config = EidosSystem.defaultConfig, eidosSystemOpt: Option[EidosSystem] = None) =
-      this(new EidosComponents(config, eidosSystemOpt.map(_.components)))
+  def this(config: Config, eidosSystemOpt: Option[EidosSystem]) =
+      this(new EidosComponentsBuilder().add(config, eidosSystemOpt.map(_.components)).build)
+  def this() = this(EidosSystem.defaultConfig, None)
   def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   protected val debug = true
-
-  protected val geoNormFinderOpt: Option[GeoNormFinder] = components.entityFinders.collectFirst { case f: GeoNormFinder => f }
-  val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
-
-  protected val timeNormFinderOpt: Option[TimeNormFinder] = components.entityFinders.collectFirst { case f: TimeNormFinder => f }
-  val useTimeNorm: Boolean = timeNormFinderOpt.isDefined
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
@@ -90,7 +88,7 @@ class EidosSystem(val components: EidosComponents) {
     // Prepare the document here for further extraction.
     require(doc.text.isDefined)
     doc.id = filename
-    for (dctString <- dctStringOpt; timeNormFinder <- timeNormFinderOpt) {
+    for (dctString <- dctStringOpt; timeNormFinder <- components.timeNormFinderOpt) {
       val dctOpt = timeNormFinder.parseDctString(dctString)
       dctOpt match {
         case Some(dct) =>
