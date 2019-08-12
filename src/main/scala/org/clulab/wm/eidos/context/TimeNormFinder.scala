@@ -10,9 +10,9 @@ import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.{Interval => TextInterval}
-import org.clulab.timenorm.formal._
-import org.clulab.timenorm.formal.{Interval => TimExInterval, Intervals => TimExIntervals}
-import org.clulab.timenorm.neural.TemporalNeuralParser
+import org.clulab.timenorm.scate._
+import org.clulab.timenorm.scate.{Interval => TimExInterval, Intervals => TimExIntervals}
+import org.clulab.timenorm.scate.TemporalNeuralParser
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder

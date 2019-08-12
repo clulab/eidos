@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.elasticsearch.apps
 
 import java.io.File
 import java.net.URL
@@ -15,9 +15,9 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.http.HttpHost
 import org.apache.http.HttpRequestInterceptor
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.elasticsearch.utils.Closer.AutoCloser
+import org.clulab.wm.elasticsearch.utils.Sinker
+import org.clulab.wm.elasticsearch.utils.StringUtils
 import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
@@ -34,8 +34,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.script.mustache.SearchTemplateRequest
 import org.json4s._
 import org.json4s.jackson.JsonMethods
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 object ElasticSearch extends App {
+  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
   val indexName = "wm-dev"
   val resultsPerQuery = 50
   val timeout = resultsPerQuery * 2 // seconds
@@ -95,7 +99,7 @@ object ElasticSearch extends App {
   protected def writeMeta(text: String, metaDir: String, id: String, fileType: String): Unit = {
     val filename = metaDir + File.separatorChar + id + fileType
 
-    FileUtils.printWriterFromFile(filename).autoClose { printWriter =>
+    Sinker.printWriterFromFile(filename).autoClose { printWriter =>
       printWriter.println(text)
     }
   }

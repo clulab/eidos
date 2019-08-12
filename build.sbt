@@ -20,6 +20,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
     "org.clulab"    %% "geonorm"                  % "0.9.5",
+    "org.clulab"    %% "timenorm"                 % "1.0.1",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",
@@ -29,13 +30,10 @@ libraryDependencies ++= {
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
     "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-    "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2",
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
-    "org.apache.lucene" % "lucene-grouping"         % luceneVer,
-    "com.amazonaws" % "aws-java-sdk" % "1.11.592",
-    "org.elasticsearch.client" % "elasticsearch-rest-high-level-client" % "6.7.1" // to match AWS version
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer
   )
 }
 
@@ -64,13 +62,6 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
   testGrouping in Test := groupByLanguage((definedTests in Test).value)
 }
 
-
-libraryDependencies ++= {
-  val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
-  val timenorm = "timenorm-0.12.1" + (if (minor == 11) "_2.11.11" else "")
-
-  Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
-}
 
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test can seemingly only be run once before it will fail with
@@ -171,6 +162,7 @@ lazy val webapp = project
   .aggregate(core)
   .dependsOn(core)
 
+lazy val elasticsearch = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {

@@ -11,7 +11,7 @@ import org.clulab.processors.Sentence
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json._
 import org.clulab.serialization.json.JSONSerializer
-import org.clulab.timenorm.formal.SimpleInterval
+import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.DctDocumentAttachment
