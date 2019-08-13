@@ -18,15 +18,8 @@ class TestJLDSerializer extends ExtractionTest {
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
 
-//  def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument =
-//      newTitledAnnotatedDocument(text, title, true)
-//
-//  def newTitledAnnotatedDocument(text: String, title: String, cagRelevantOnly: Boolean): AnnotatedDocument = {
-//    val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly, keepText = true)
-  
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val annotatedDocument = ieSystem.extractFromText(text)
-
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
@@ -84,7 +77,7 @@ class TestJLDSerializer extends ExtractionTest {
   it should "serialize a human migration event" in {
     val json = serialize(Seq(
       newTitledAnnotatedDocument("Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November.",
-        "This is the title", false) // This isn't cag-relevant
+        "This is the title") // This isn't cag-relevant
     ))
 
     inspect(json)
@@ -262,7 +255,7 @@ class TestJLDSerializer extends ExtractionTest {
     }
   }
   else
-<<<<<<< HEAD
+
     println("It didn't do it")
 
   it should "serialize a count attachment" in {
@@ -282,7 +275,7 @@ class TestJLDSerializer extends ExtractionTest {
     json.contains("Max") should be (true)
     json.contains("Daily") should be (true)
   }
-=======
+
     println("It did not test used geo expressions")
->>>>>>> master
+
 }

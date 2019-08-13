@@ -7,7 +7,10 @@ import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
-import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
+import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment,
+  JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment,
+  JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment,
+  JLDCountAttachment => JLDEidosCountAttachment}
 import org.clulab.wm.eidos.utils.QuicklyEqualable
 import org.json4s._
 import org.json4s.JsonDSL._
