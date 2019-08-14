@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos
 
+import java.time.LocalDateTime
+
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
@@ -144,7 +146,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def extractFromText(
     text: String,
     cagRelevantOnly: Boolean = true,
-    dctString: Option[String] = None,
+    dctString: Option[String] = EidosSystem.defaultDctStringOpt,
     filename: Option[String] = None): AnnotatedDocument = {
 
     val document = annotate(text)
@@ -155,7 +157,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
   def extractFromDoc(
       doc: Document,
       cagRelevantOnly: Boolean = true,
-      dctStringOpt: Option[String] = None,
+      dctStringOpt: Option[String] = EidosSystem.defaultDctStringOpt,
       filename: Option[String] = None): AnnotatedDocument = {
     // It is assumed and not verified that the document _has_ already been annotated.
     require(doc.text.isDefined)
@@ -307,4 +309,6 @@ object EidosSystem {
   val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
+
+  def defaultDctStringOpt: Option[String] = Some(LocalDateTime.now.toString.substring(0, 10) + ".") // None
 }
