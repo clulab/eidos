@@ -80,10 +80,11 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
       // Odin rules and actions:
       // Reread these values from their files/resources each time based on paths in the config file.
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
-      val actions = EidosActions.fromConfig(config[Config]("actions"))
 
       // Entity Finders can be used to preload entities into the odin state, their use is optional.
       val entityFinders = Finder.fromConfig("EidosSystem.entityFinders", config)
+      val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
+      val actions = EidosActions.fromConfig(config[Config]("actions"), geoNormFinderOpt)
 
       // Ontologies
       val multiOntologyGrounder = ontologyHandler.ontologyGrounders

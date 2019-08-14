@@ -29,7 +29,7 @@ import scala.collection.mutable.{ArrayBuffer, Set => MutableSet}
 
 //TODO: need to add polarity flipping
 
-class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler]) extends Actions with LazyLogging {
+class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler], val geoNormFinderOpt: Option[GeoNormFinder] = None) extends Actions with LazyLogging {
 
   /*
       Global Action -- performed after each round in Odin
@@ -662,14 +662,14 @@ object EidosActions extends Actions {
   val ANTECEDENT: String = "antecedent"
   val ANAPHOR: String = "anaphor"
 
-  def fromConfig(config: Config): EidosActions = {
+  def fromConfig(config: Config, geoNormFinderOpt: Option[GeoNormFinder]): EidosActions = {
     val useCoref: Boolean = config[Boolean]("useCoref")
     val corefHandler = if (useCoref) Some(CorefHandler.fromConfig(config)) else None
 
     val useExpansion: Boolean = config[Boolean]("useExpansion")
     val expansionHandler = if (useExpansion) Some(Expander.fromConfig(config[Config]("expander"))) else None
 
-    new EidosActions(expansionHandler, corefHandler)
+    new EidosActions(expansionHandler, corefHandler, geoNormFinderOpt)
   }
 
 
