@@ -64,7 +64,11 @@ object MigrationUtils {
   def combineStartEndTimes(mentions: Seq[Mention]): Seq[Mention] = {
     //assume the mentions do have time attachments
 
-    val (relevant, other) = mentions.partition(_.arguments.exists(arg => arg._1 matches "timeStart"))
+    val (startTimes, other) = mentions.partition(_.arguments.exists(arg => arg._1 matches "timeStart"))
+    val (endTimes, other2) = mentions.partition(_.arguments.exists(arg => arg._1 matches "timeEnd"))
+    val relevant = startTimes.union(endTimes) // events with either timeStart or timeEnd
+    val irrelevant = other.intersect(other2)  // events with neither timeStart nor timeEnd
+
     for (m <- relevant) {
       for (arg <- m.arguments) {
         println("ARG " + arg._1 + " mention " + arg._2)
@@ -73,8 +77,12 @@ object MigrationUtils {
 
     var toReturn = ArrayBuffer[Mention]()
     for (m <- relevant) {
-      val timeArg = m.arguments("timeStart").head
-      println("timeArg:\t" + timeArg.text + "\t" + timeArg.attachments)
+//      val timeStartArg = match{
+//        case m.arguments("timeStart").nonEmpty => m.arguments("timeStart").head
+//      }
+      val timeStartArg = m.arguments("timeStart").head
+//      val timeEndArg = Option(m.arguments("timeEnd").head)
+      println("timeStartArg:\t" + timeStartArg.text + "\t" + timeStartArg.attachments)
       val timexs = TimeNormFinder.getTimExs(Seq(m))
       println("TIMEXES: " + timexs)
       var mentionStartDate = ArrayBuffer[LocalDateTime]()
@@ -85,7 +93,8 @@ object MigrationUtils {
         }
       }
       println("mentionStartDate:\t" + mentionStartDate)
-      val newTimeStep = TimeStep(mentionStartDate.head, LocalDateTime.now())
+      // todo: right now this returns current time if the arraybuffer is empty, should do something else
+      val newTimeStep = if (mentionStartDate.nonEmpty) TimeStep(mentionStartDate.head, LocalDateTime.now()) else TimeStep(LocalDateTime.now(), LocalDateTime.now())
       println("newTimeStep:\t" + newTimeStep)
       // todo: why does TimEx take a sequence of TimeSteps and not just one?
       val newTimEx = new TimEx(m.tokenInterval, Seq(newTimeStep), m.arguments("timeStart").head.text)
@@ -94,12 +103,12 @@ object MigrationUtils {
       val newAttachment = new Time(newTimEx)
 
       val newTextBoundMention = new TextBoundMention(
-        timeArg.labels,
-        timeArg.tokenInterval,
-        timeArg.sentence,
-        timeArg.document,
-        timeArg.keep,
-        timeArg.foundBy,
+        timeStartArg.labels,
+        timeStartArg.tokenInterval,
+        timeStartArg.sentence,
+        timeStartArg.document,
+        timeStartArg.keep,
+        timeStartArg.foundBy,
         Set(newAttachment)
       )
       println("newTBM:\t" + newTextBoundMention.text + "\t" + newTextBoundMention.attachments)
