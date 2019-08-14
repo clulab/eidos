@@ -60,6 +60,19 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   }
 
 
+  def normalizeGeoLoc(mentions: Seq[Mention], state: State): Seq[Mention] = {
+
+    val stubOutput = Seq[Mention]()
+    // get location mentions
+
+    // get GeoPhraseIDs for mentions
+
+    // make attachment
+
+    stubOutput
+  }
+
+
   /**
     * Normalizes migration events, e.g., by extracting the actual number of people displaced from the "group" argument
     * @param mentions Sequence of mentions to be normalized
