@@ -62,12 +62,15 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
 
   def normalizeGeoLoc(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    // how to access GeoNormFinder object in EidosActions?
+
     // get location mentions
 
     // get GeoPhraseIDs for mentions
     val geoIDs = GeoNormFinder.getGeoPhraseIDs(mentions)
 
     // make attachment
+//    GeoNormFinder lines 133-
 
     ???
   }
