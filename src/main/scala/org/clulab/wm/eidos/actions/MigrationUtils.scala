@@ -39,7 +39,9 @@ object MigrationUtils {
 //    assembleTime(assembleFragments(handled)) ++ other
 
 //    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
-    resolveGenericLocation(assembleFragments(combineStartEndTimes(migrationEvents))) ++ other
+    resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
+
+//    resolveGenericLocation(assembleFragments(combineStartEndTimes(migrationEvents))) ++ other
 
   }
 
@@ -77,9 +79,6 @@ object MigrationUtils {
 
     var toReturn = ArrayBuffer[Mention]()
     for (m <- relevant) {
-//      val timeStartArg = match{
-//        case m.arguments("timeStart").nonEmpty => m.arguments("timeStart").head
-//      }
       val timeStartArg = m.arguments("timeStart").head
 //      val timeEndArg = Option(m.arguments("timeEnd").head)
       println("timeStartArg:\t" + timeStartArg.text + "\t" + timeStartArg.attachments)
@@ -118,10 +117,8 @@ object MigrationUtils {
       println("newMention:\t" + newMention.text)
 
       toReturn.append(newMention)
-
     }
     mentions ++ toReturn
-
   }
 
   //Becky's stub for merging times
