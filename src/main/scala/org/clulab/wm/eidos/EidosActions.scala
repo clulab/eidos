@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
+import org.clulab.wm.eidos.context.GeoNormFinder
 // todo: check dependencies for the following three imports
 import org.clulab.wm.eidos.context.GeoPhraseID
 
@@ -61,15 +62,14 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
 
   def normalizeGeoLoc(mentions: Seq[Mention], state: State): Seq[Mention] = {
-
-    val stubOutput = Seq[Mention]()
     // get location mentions
 
     // get GeoPhraseIDs for mentions
+    val geoIDs = GeoNormFinder.getGeoPhraseIDs(mentions)
 
     // make attachment
 
-    stubOutput
+    ???
   }
 
 
