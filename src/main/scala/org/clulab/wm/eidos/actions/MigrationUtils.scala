@@ -6,7 +6,6 @@ import org.clulab.odin.{EventMention, Mention, State, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Location, Time}
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.{EidosDocument, TimEx}
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
@@ -40,97 +39,6 @@ object MigrationUtils {
 //    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
     resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
 
-  }
-
-  //
-  def assembleTime(mentions: Seq[Mention]): Seq[Mention] = {
-    //find attachments for each time mention (rel args = "time", "timeStart", "timeEnd"  in the hme
-    //make interval from timeStart/timeEnd
-    val (mentionsWithTime, other) = mentions.partition(_.arguments.exists(arg => arg._2.exists(tbm => tbm.label matches "Time")))
-
-    for (m <- mentionsWithTime) println("need time attachments: " + m.text)
-
-    val relArgs = Array("timeStart", "time", "timeEnd") //time-related args in migration events
-
-    val mentionsWithTimeAttachments = attachTime(mentionsWithTime, relArgs)
-
-
-    mentionsWithTimeAttachments ++ other
-
-  }
-
-
-  def combineStartEndTimes(mentions: Seq[Mention]): Seq[Mention] = {
-    //assume the mentions do have time attachments
-    ???
-
-  }
-
-  //Becky's stub for merging times
-  def mergeTimes(ms: Seq[Mention], state: State): Mention = {
-    val m = ms.head
-    // get the overlapping
-    val overlapping = state.mentionsFor(m.sentence, m.tokenInterval)
-    ???
-  }
-
-
-  def attachTime(mentions: Seq[Mention], relArgs: Array[String]): Seq[Mention] = {
-    //attaching TIMEX to time-related mentions witht the overlapping span
-    //assume the mentions have time-related arguments
-
-    val handled = for {
-      m <- mentions
-      times = m.document.asInstanceOf[EidosDocument].times
-      oldArgs = for {
-        arg <- relArgs
-        if m.arguments.get(arg).nonEmpty
-      } yield arg //name of args actually present in the mention
-
-      //this should create args with time attachments
-      newArgs = for {
-        oldArg <- oldArgs //argName
-        oldArgMention = m.arguments(oldArg).head
-        time: Option[TimEx] = if (times.isDefined) times.get(m.sentence).find(_.span.end == oldArgMention.endOffset) else None //todo:need to check for an overlap and not start/end; same for loc
-        if time.nonEmpty
-        newArg = oldArgMention.withAttachment(new Time(time.head))
-
-      } yield Map(oldArg -> Seq(newArg))
-
-      updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
-
-    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that also contain attachments
-    handled
-  }
-
-
-  //todo: move to mention utils (eventually) or possible remove altogether
-  def attachGeoLoc(mentions: Seq[Mention]): Seq[Mention] = {
-    val relArgs = Array("moveTo", "moveFrom", "moveThrough") //location-related args in migration events
-
-    val handled = for {
-      m <- mentions
-      geolocs = m.document.asInstanceOf[EidosDocument].geolocs
-      oldArgs = for {
-        arg <- relArgs
-        if m.arguments.get(arg).nonEmpty
-      } yield arg //name of args actually present in the mention
-
-      //this should create args with geoloc attachments
-      newArgs = for {
-        oldArg <- oldArgs
-        oldArgMention = m.arguments(oldArg).head
-        location: Option[GeoPhraseID] = if (geolocs.isDefined) geolocs.get(m.sentence).find(_.startOffset == oldArgMention.startOffset) else None
-        if location.nonEmpty
-        newArg = oldArgMention.withAttachment(new Location(location.head))
-
-      } yield Map(oldArg -> Seq(newArg))
-
-      updatedArgs = m.arguments ++ newArgs.flatten.toMap //old arguments ++ the newly created args with attachments.
-
-    } yield copyWithNewArgs(m, updatedArgs) //create a copy of the original event mention, but with the arguments that
-    //also contain attachments
-    handled
   }
 
 

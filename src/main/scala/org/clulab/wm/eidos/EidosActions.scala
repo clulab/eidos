@@ -10,8 +10,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
 // todo: check dependencies for the following three imports
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimEx
+
 
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.odin.EventMention
