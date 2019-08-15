@@ -166,13 +166,20 @@ lazy val elasticsearch = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
-    case "META-INF/services/org.nd4j.linalg.factory.Nd4jBackend" => MergeStrategy.first
-    case "META-INF/services/org.nd4j.linalg.compression.NDArrayCompressor" => MergeStrategy.first
-    case "META-INF/services/org.apache.lucene.codecs.Codec" => MergeStrategy.first
-    case "META-INF/services/org.apache.lucene.codecs.DocValuesFormat" => MergeStrategy.first
-    case "META-INF/services/org.apache.lucene.codecs.PostingsFormat" => MergeStrategy.first
-    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-    case x => MergeStrategy.first
+  // See https://github.com/sbt/sbt-assembly.
+  case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
+  case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
+  case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyones licenses and notices.
+  case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
+  case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
+  case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
+  // These all have different contents and cannot be automatically deduplicated.
+  case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat") => MergeStrategy.filterDistinctLines
+  case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")   => MergeStrategy.filterDistinctLines
+  case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")  => MergeStrategy.first // or last
+  case PathList("reference.conf") => MergeStrategy.concat // Scala configuration files--important!
+  // Otherwise just keep one copy if the contents are the same and complain if not.
+  case _ => MergeStrategy.deduplicate
 }
 
 // release steps
