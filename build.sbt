@@ -170,7 +170,7 @@ assemblyMergeStrategy in assembly := {
     case "META-INF/services/org.nd4j.linalg.compression.NDArrayCompressor" => MergeStrategy.first
     case "META-INF/services/org.apache.lucene.codecs.Codec" => MergeStrategy.first
     case "META-INF/services/org.apache.lucene.codecs.DocValuesFormat" => MergeStrategy.first
-    case "META-INF/services/org.apache.lucene.codecs.PostingsFormat" => MergeStrategy.first      
+    case "META-INF/services/org.apache.lucene.codecs.PostingsFormat" => MergeStrategy.first
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
     case x => MergeStrategy.first
 }
