@@ -167,6 +167,9 @@ lazy val elasticsearch = project
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
   // See https://github.com/sbt/sbt-assembly.
+  // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference
+  // being that any problem noticed by deduplicate will halt the process.  The is presently/temporarily
+  // preferred over a version that will silently handle new conflicts without alerting us to the potential problem.
   case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
   case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
   case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyones licenses and notices.
@@ -176,7 +179,7 @@ assemblyMergeStrategy in assembly := {
   // These all have different contents and cannot be automatically deduplicated.
   case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat") => MergeStrategy.filterDistinctLines
   case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")   => MergeStrategy.filterDistinctLines
-  case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")  => MergeStrategy.first // or last
+  case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")  => MergeStrategy.first // or last or both?
   case PathList("reference.conf") => MergeStrategy.concat // Scala configuration files--important!
   // Otherwise just keep one copy if the contents are the same and complain if not.
   case _ => MergeStrategy.deduplicate
