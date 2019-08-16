@@ -13,7 +13,7 @@ object ExtractFromDirectory extends App {
   val outputDir = args(1)
   val files = findFiles(inputDir, "txt")
   val config = EidosSystem.defaultConfig
-  val reader = new EidosSystem(config, None)
+  val reader = new EidosSystem(config)
   // 0. Optionally include adjective grounding
   val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 

@@ -25,7 +25,7 @@ object CacheOntologies extends App {
     cacheManager.mkCache(replaceOnUnzip = true)
   }
 
-  val reader = new EidosSystem(config, None)
+  val reader = new EidosSystem(config)
   val cacheDir: String = config[String]("ontologies.cacheDir")
 
   new File(cacheDir).mkdirs()

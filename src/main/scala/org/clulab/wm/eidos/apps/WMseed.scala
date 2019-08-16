@@ -26,7 +26,7 @@ object WMseed extends App with LazyLogging {
   logger.info(s"Document Path : $documentPath")
 
   // creates an extractor engine using the rules and the default actions
-  val extractor = new EidosSystem(config[Config]("WMseed.EidosSystem"), None)
+  val extractor = new EidosSystem(config[Config]("WMseed.EidosSystem"))
 
   // create the processor
   val proc: Processor = extractor.components.proc

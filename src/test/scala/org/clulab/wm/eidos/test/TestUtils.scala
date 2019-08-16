@@ -54,7 +54,7 @@ object TestUtils {
   def newEidosSystem(config: Config): EidosSystem = this.synchronized {
     val eidosSystem =
         if (mostRecentEidosSystemAndConfig.isEmpty || mostRecentEidosSystemAndConfig.get._2 != config)
-          new EidosSystem(config, None)
+          new EidosSystem(config)
         else
           mostRecentEidosSystemAndConfig.get._1
 

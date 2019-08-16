@@ -16,15 +16,13 @@ import scala.annotation.tailrec
   * A system for text processing and information extraction
   */
 class EidosSystem(val components: EidosComponents) {
-  // This constructor does not have a default second value because when it does, the
-  // this(x: Object) version is favored over it, despite the better first argument match.
-  // There should be no scala code that calls the one-argument constructor.
-  // This constructor will take cheap to update values from the config, but expensive values
-  // from eidosSystem.components.  It is the new reload().
-  def this(config: Config, eidosSystemOpt: Option[EidosSystem]) =
+  // The constructor below will take cheap to update values from the config, but expensive
+  // values from eidosSystem.components, if present  It is the new reload().
+  def this(config: Config, eidosSystemOpt: Option[EidosSystem] = None) =
       this(new EidosComponentsBuilder().add(config, eidosSystemOpt.map(_.components)).build)
-  def this() = this(EidosSystem.defaultConfig, None)
-  def this(x: Object) = this() // Dummy constructor crucial for Python integration
+  def this() = this(EidosSystem.defaultConfig)
+  // Python now uses the default, empty constructor above, but the line below remains for documentation purposes.
+  // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   protected val debug = true
 
