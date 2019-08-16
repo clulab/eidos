@@ -41,6 +41,8 @@ RUN sed -i 's/useW2V = false/useW2V = true/' src/main/resources/reference.conf
 RUN sed -i 's/glove.840B.300d.txt/vectors.txt/' src/main/resources/eidos.conf
 # This command is for the development version, but this file is for production
 # RUN sbt assembly
+# Here is the production version
+RUN sbt compile
 
 # Install the geoname index so that it needn't be repeatedly downloaded at runtime
 RUN wget http://clulab.cs.arizona.edu/models/geonames-index.zip
