@@ -20,6 +20,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
     "org.clulab"    %% "geonorm"                  % "0.9.5",
+    "org.clulab"    %% "timenorm"                 % "1.0.1",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",
@@ -29,7 +30,6 @@ libraryDependencies ++= {
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
     "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-    "org.nd4j" % "nd4j-native-platform" % "1.0.0-beta2",
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
@@ -62,13 +62,6 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
   testGrouping in Test := groupByLanguage((definedTests in Test).value)
 }
 
-
-libraryDependencies ++= {
-  val (major, minor) = CrossVersion.partialVersion(scalaVersion.value).get
-  val timenorm = "timenorm-0.12.1" + (if (minor == 11) "_2.11.11" else "")
-
-  Seq("com.github.clulab" % "timenorm" % timenorm exclude("org.slf4j", "slf4j-log4j12"))
-}
 
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test can seemingly only be run once before it will fail with
@@ -173,10 +166,23 @@ lazy val elasticsearch = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
-    case "META-INF/services/org.nd4j.linalg.factory.Nd4jBackend" => MergeStrategy.first
-    case "META-INF/services/org.nd4j.linalg.compression.NDArrayCompressor" => MergeStrategy.first
-    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-    case x => MergeStrategy.first
+  // See https://github.com/sbt/sbt-assembly.
+  // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference
+  // being that any problem noticed by deduplicate will halt the process.  The is presently/temporarily
+  // preferred over a version that will silently handle new conflicts without alerting us to the potential problem.
+  case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
+  case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
+  case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyones licenses and notices.
+  case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
+  case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
+  case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
+  // These all have different contents and cannot be automatically deduplicated.
+  case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat") => MergeStrategy.filterDistinctLines
+  case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")   => MergeStrategy.filterDistinctLines
+  case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")  => MergeStrategy.first // or last or both?
+  case PathList("reference.conf") => MergeStrategy.concat // Scala configuration files--important!
+  // Otherwise just keep one copy if the contents are the same and complain if not.
+  case _ => MergeStrategy.deduplicate
 }
 
 // release steps

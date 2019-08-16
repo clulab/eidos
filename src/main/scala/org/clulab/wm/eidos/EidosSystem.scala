@@ -22,8 +22,8 @@ import scala.annotation.tailrec
 /**
   * A system for text processing and information extraction
   */
-class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
-  def this(x: Object) = this() // Dummy constructor crucial for Python integration
+class EidosSystem(val config: Config) {
+  def this() = this(EidosSystem.defaultConfig)
 
   val eidosConf: Config = config[Config]("EidosSystem")
   val language: String = eidosConf[String]("language")
