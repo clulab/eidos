@@ -48,11 +48,6 @@ RUN sed -i 's/useW2V = false/useW2V = true/' src/main/resources/eidos.conf
 RUN sed -i 's/useW2V = false/useW2V = true/' src/main/resources/reference.conf
 RUN sed -i 's/glove.840B.300d.txt/vectors.txt/' src/main/resources/eidos.conf
 
-# Install the geoname index so that it needn't be repeatedly downloaded at runtime
-RUN wget http://clulab.cs.arizona.edu/models/geonames-index.zip
-RUN mkdir -p ./webapp/target/universal/scripts/cache/geonames/index
-RUN unzip -d ./webapp/target/universal/scripts/cache/geonames/index geonames-index.zip
-
 # Change this value for security reasons, preferably to a secret value not recorded here
 RUN sed -i 's/changeme/IHaveBeenChanged/' ./webapp/conf/application.conf
 
@@ -60,12 +55,15 @@ RUN sed -i 's/changeme/IHaveBeenChanged/' ./webapp/conf/application.conf
 # RUN sbt assembly
 # Here is the production version
 RUN sbt webapp/stage
-# Correct a bug in the generated script
-RUN sed -i 's/\/\.\.\/lib/\/\.\.\/\.\.\/stage\/lib/' ./webapp/target/universal/scripts/scripts/webapp
+
+# Install the geoname index so that it needn't be repeatedly downloaded at runtime
+RUN wget http://clulab.cs.arizona.edu/models/geonames-index.zip
+RUN mkdir -p ./webapp/target/universal/stage/cache/geonames/index
+RUN unzip -d ./webapp/target/universal/stage/cache/geonames/index geonames-index.zip
 
 # Run Web Service
 EXPOSE 9000
 # This command is for the development version, but this file is for production
 # ENTRYPOINT ["sbt", "webapp/run"]
 # Here is the production version
-ENTRYPOINT ["./webapp/target/universal/scripts/scripts/webapp"]
+ENTRYPOINT ["./webapp/target/universal/stage/bin/webapp"]
