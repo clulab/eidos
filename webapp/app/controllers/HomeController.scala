@@ -1,9 +1,9 @@
 package controllers
 
+import com.typesafe.config.Config
 import javax.inject._
 import com.typesafe.config.ConfigRenderOptions
 import org.clulab.odin._
-import org.clulab.processors.Processor
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
@@ -32,11 +32,11 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // Initialize the EidosSystem
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
-  val ieSystem: EidosSystem = new EidosSystem()
-  val proc: Processor = ieSystem.proc
+  val eidosConfig: Config = EidosSystem.defaultConfig
+  val ieSystem: EidosSystem = new EidosSystem(eidosConfig)
   val stanza = "adjectiveGrounder"
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig(stanza))
-  val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.config.getConfig(stanza))
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(eidosConfig.getConfig(stanza))
+  val domainParams: DomainParams = DomainParams.fromConfig(eidosConfig.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
   // -------------------------------------------------
 
@@ -56,8 +56,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def config: Action[AnyContent] = Action {
-    val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
-    val jsonString = ieSystem.config.root.render(options)
+    val options: ConfigRenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
+    val jsonString = eidosConfig.root.render(options)
     Ok(jsonString).as(JSON)
   }
 
@@ -273,12 +273,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     eidosMentions.foreach(eidosMention => DisplayUtils.displayMention(eidosMention.odinMention))
 
     val odinMentions = eidosMentions.map(_.odinMention)
-    val timExs = // None
-        if (ieSystem.useTimeNorm) Some(TimeNormFinder.getTimExs(odinMentions, doc.sentences))
-        else None
-    val geoPhraseIDs = // None
-        if (ieSystem.useGeoNorm) Some(GeoNormFinder.getGeoPhraseIDs(odinMentions, doc.sentences))
-        else None
+    val timExs = ieSystem.components.timeNormFinderOpt.map(_.getTimExs(odinMentions, doc.sentences))
+    val geoPhraseIDs = ieSystem.components.geoNormFinderOpt.map(_.getGeoPhraseIDs(odinMentions, doc.sentences))
     val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
         "text" -> text,

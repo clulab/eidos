@@ -76,7 +76,7 @@ object OntologyMapper {
 
   def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
     val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
-    reader.ontologyHandler.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.proc))
+    reader.components.ontologyHandler.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.components.proc))
   }
 
   def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Float = {
@@ -157,7 +157,7 @@ object OntologyMapper {
 
   // Mapping the primary ontology to the indicator ontologies
   def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
-    val grounders: Seq[EidosOntologyGrounder] = reader.ontologyHandler.grounders
+    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.grounders
     println(s"number of eidos ontologies - ${grounders.length}")
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
@@ -217,13 +217,13 @@ object OntologyMapper {
   def mapOntologies(reader: EidosSystem, bbnPath: String, sofiaPath: String, providedOntology: Option[String], providedOntName: String = "ProvidedOntology",
                     exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
     // EidosSystem stuff
-    val proc = reader.proc
-    val w2v = reader.ontologyHandler.wordToVec
+    val proc = reader.components.proc
+    val w2v = reader.components.ontologyHandler.wordToVec
 //    val config = reader.config
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
-      val grounder = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.stopwordManager))
+      val grounder = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager))
       grounder match {
         case g: EidosOntologyGrounder => g.conceptEmbeddings
         case _ => throw new RuntimeException("Custom ontology Grounder must be an EidosOntologyGrounder")
@@ -231,7 +231,7 @@ object OntologyMapper {
     } else {
 
       // TODO.  How do we know what the head is?
-      reader.ontologyHandler.grounders.head.conceptEmbeddings
+      reader.components.ontologyHandler.grounders.head.conceptEmbeddings
     }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
     val bbnConceptEmbeddings = loadOtherOntology(bbnPath, w2v)

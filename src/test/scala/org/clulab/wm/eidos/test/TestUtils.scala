@@ -46,18 +46,19 @@ object TestUtils {
 
   val successful = Seq()
 
-  protected var mostRecentEidosSystem: Option[EidosSystem] = None
+  protected var mostRecentEidosSystemAndConfig: Option[(EidosSystem, Config)] = None
 
   // This is the standard way to extract mentions for testing
   def extractMentions(ieSystem: EidosSystem, text: String): Seq[Mention] = ieSystem.extractFromText(text, cagRelevantOnly = false).odinMentions
 
   def newEidosSystem(config: Config): EidosSystem = this.synchronized {
     val eidosSystem =
-        if (mostRecentEidosSystem.isEmpty) new EidosSystem(config)
-        else if (mostRecentEidosSystem.get.config == config) mostRecentEidosSystem.get
-        else new EidosSystem(config)
+        if (mostRecentEidosSystemAndConfig.isEmpty || mostRecentEidosSystemAndConfig.get._2 != config)
+          new EidosSystem(config)
+        else
+          mostRecentEidosSystemAndConfig.get._1
 
-    mostRecentEidosSystem = Some(eidosSystem)
+    mostRecentEidosSystemAndConfig = Some(eidosSystem, config)
     eidosSystem
   }
 
@@ -76,24 +77,26 @@ object TestUtils {
 
   class ContraptionTest extends Test
 
-  class ExtractionTest(val ieSystem: EidosSystem) extends ContraptionTest {
-    def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config))
+  class ExtractionTest(val ieSystem: EidosSystem, val config: Config) extends ContraptionTest {
+    // These multiple configs are to ensure that the same config that was used to initialize the EidosSystem
+    // is available to the test framework without EidosSystem needing to record it in some way.
+    def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config), config)
 
     class GraphTester(text: String) extends graph.GraphTester(ieSystem, text)
 
     class RuleTester(text: String) extends rule.RuleTester(ieSystem, text)
 
-    def useTimeNorm = ieSystem.useTimeNorm
-    def useGeoNorm = ieSystem.useGeoNorm
+    def useTimeNorm = ieSystem.components.useTimeNorm
+    def useGeoNorm = ieSystem.components.useGeoNorm
 
     def extractMentions(text: String): Seq[Mention] = TestUtils.extractMentions(ieSystem, text)
   }
 
-  class EnglishTest(ieSystem: EidosSystem) extends ExtractionTest(ieSystem) {
-    def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config))
+  class EnglishTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {
+    def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config), config)
   }
 
-  class PortugueseTest(ieSystem: EidosSystem) extends ExtractionTest(ieSystem) {
-    def this(config: Config = ConfigFactory.load("portugueseTest")) = this(newEidosSystem(config))
+  class PortugueseTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {
+    def this(config: Config = ConfigFactory.load("portugueseTest")) = this(newEidosSystem(config), config)
   }
 }

@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.text.english.cag
 
+import ai.lum.common.ConfigUtils._
 import org.clulab.wm.eidos.test.TestUtils._
-
 import org.clulab.utils.Configured
 import com.typesafe.config.{Config, ConfigFactory}
 
@@ -32,8 +32,8 @@ class TestConfig extends Test with Configured {
     val testNotInt = getArgInt("EidosSystem.testNotInt", Option(3))
     testNotInt should be (3)
     
-    val innerConfig = config.getConfig("EidosSystem.InnerConfig")
-    val innerTestInt = innerConfig.getInt("innerTestInt")
+    val innerConfig: Config = config[Config]("EidosSystem.InnerConfig")
+    val innerTestInt: Int = innerConfig[Int]("innerTestInt")
     innerTestInt should be (6)
   }
 }

@@ -28,7 +28,7 @@ import org.json4s.JArray
 import scala.collection.Seq
 
 class TestJLDDeserializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig("adjectiveGrounder"))
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
@@ -628,12 +628,12 @@ class TestJLDDeserializer extends ExtractionTest {
 
   def testCorpus(text: String, name: String) = {
     it should "deserialize corpus " + name + " from jsonld" in {
-      val canonicalizer = new Canonicalizer(ieSystem.stopwordManager)
+      val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
 
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.components.multiOntologyGrounder)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')
