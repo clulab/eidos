@@ -38,6 +38,15 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(eidosConfig.getConfig(stanza))
   val domainParams: DomainParams = DomainParams.fromConfig(eidosConfig.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
+
+  {
+    println("[EidosSystem] Priming the EidosSystem ...")
+    val annotatedDocument = 
+        ieSystem.extractFromText("In 2014 drought caused a famine in Ethopia.", cagRelevantOnly = true, Some("2019-08-09"))
+    val corpus = new JLDCorpus(annotatedDocument)
+    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+    println("[EidosSystem] Completed Priming ...")
+  }
   // -------------------------------------------------
 
   /**
@@ -82,7 +91,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val doc = ieSystem.annotate(text)
 
     // Debug
-    println(s"DOC : $doc")
+//    println(s"DOC : $doc")
     // extract mentions from annotated document
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
     val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
