@@ -28,7 +28,6 @@ object MigrationUtils {
 //    val handled = attachGeoLoc(migrationEvents)
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)????
-    // todo: aggregation of cross-sentence stuff?????????????
 
     // return all
 //        handled ++ other
@@ -38,7 +37,7 @@ object MigrationUtils {
 
 //    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
     resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
-
+//    migrationEvents ++ other
   }
 
 

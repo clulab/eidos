@@ -230,8 +230,8 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [lemma=/(rate)/ & tag=/^NN/]
-      group: Concept? = <nsubj
+      trigger = [lemma=/rate/ & tag=/^NN/]
+      group: Concept? = <nsubj | nmod_of nummod
       groupModifier: Time = amod
       moveTo: Location? = (<dobj|<nmod_in)? (>nmod_in|>nmod_into|>nmod_to|(>nmod_in [lemma=particular] >nmod_to)|>acl_to|>nmod_for|(>nmod_between >conj_and)|(</${agents}/ >nmod_toward >nmod_in?)) >dobj?
       moveFrom: Location? = (>nmod_of? >nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)|(<dobj >/${agents}/)|(>nmod_within (?= case [lemma=from]) >conj_and?)
@@ -239,6 +239,17 @@ rules:
       timeStart: Time? = >advcl_since? (<dobj? >nmod_since)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = </${agents}/ advmod
+
+  - name: migration-remain
+    priority: ${ rulepriority }
+    example: "192 level1 registered new arrivals remain in Pagak, awaiting relocation."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=/remain/]
+      group: Concept? = <ccomp nsubj nummod
+      moveTo: Location? = nmod_in
+      #todo: this rule is likely not complete
 
 
 # TODO:
