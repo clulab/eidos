@@ -230,15 +230,15 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [lemma=/rate/ & tag=/^NN/]
-      group: Concept? = <nsubj | nmod_of nummod
+      trigger = [lemma=/rate|average/ & tag=/^NN|JJ/]
+      group: Concept? = <nsubj | nmod_of nummod | <nsubj nmod_at nummod
       groupModifier: Time = amod
       moveTo: Location? = (<dobj|<nmod_in)? (>nmod_in|>nmod_into|>nmod_to|(>nmod_in [lemma=particular] >nmod_to)|>acl_to|>nmod_for|(>nmod_between >conj_and)|(</${agents}/ >nmod_toward >nmod_in?)) >dobj?
       moveFrom: Location? = (>nmod_of? >nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)|(<dobj >/${agents}/)|(>nmod_within (?= case [lemma=from]) >conj_and?)
       moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through|>nmod_along))
       timeStart: Time? = >advcl_since? (<dobj? >nmod_since)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
-      time: Time? = </${agents}/ advmod
+      time: Time? = </${agents}/ /advmod|nmod_in/
 
   - name: migration-remain
     priority: ${ rulepriority }
