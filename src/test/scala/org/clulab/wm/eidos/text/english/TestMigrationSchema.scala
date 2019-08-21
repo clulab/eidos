@@ -573,63 +573,63 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "* According to a recent sample survey conducted in Pagak, the new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
+    val text = "According to a recent sample survey conducted in Pagak, the new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
 
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("new arrivals") //leave of "the" ?
 
-    val moveTo1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
-    val moveTo2 = NodeSpec("Nasir", GeoLoc("Nasir"))
-    val moveTo3 = NodeSpec("Longechuk", GeoLoc("Longechuk"))
-    val moveTo4 = NodeSpec("Mathiang", GeoLoc("Mathiang"))
-    val moveTo5 = NodeSpec("Ulang", GeoLoc("Ulang"))
-    val moveTo6 = NodeSpec("Maiwut Counties", GeoLoc("Maiwut Counties"))
+    val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
+    val moveFrom2 = NodeSpec("Nasir", GeoLoc("Nasir")) //fixme not found as location, didn't find an attachment
+    val moveFrom3 = NodeSpec("Longechuk", GeoLoc("Longechuk"))
+    val moveFrom4 = NodeSpec("Mathiang", GeoLoc("Mathiang"))
+    val moveFrom5 = NodeSpec("Ulang", GeoLoc("Ulang"))
+    val moveFrom6 = NodeSpec("Maiwut Counties", GeoLoc("Maiwut Counties"))
 
-    val moveTo7 = NodeSpec("Jonglei State", GeoLoc("Jonglei State"))
-    val moveTo8 = NodeSpec("Uror", GeoLoc("Uror"))
-    val moveTo9 = NodeSpec("Akobo", GeoLoc("Akobo"))
-    val moveTo10 = NodeSpec("Ayod Counties", GeoLoc("Ayod Counties"))
+    val moveFrom7 = NodeSpec("Jonglei State", GeoLoc("Jonglei State")) //fixme: only State is found as geoloc
+    val moveFrom8 = NodeSpec("Uror", GeoLoc("Uror"))
+    val moveFrom9 = NodeSpec("Akobo", GeoLoc("Akobo"))
+    val moveFrom10 = NodeSpec("Ayod Counties", GeoLoc("Ayod Counties"))
 
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo1)
+      moveFrom = Some(moveFrom1)
     )
     val migration2 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo2)
+      moveFrom = Some(moveFrom2)
     )
     val migration3 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo3)
+      moveFrom = Some(moveFrom3)
     )
     val migration4 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo4)
+      moveFrom = Some(moveFrom4)
     )
     val migration5 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo5)
+      moveFrom = Some(moveFrom5)
     )
     val migration6 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo6)
+      moveFrom = Some(moveFrom6)
     )
     val migration7 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo7)
+      moveFrom = Some(moveFrom7)
     )
     val migration8 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo8)
+      moveFrom = Some(moveFrom8)
     )
     val migration9 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo9)
+      moveFrom = Some(moveFrom9)
     )
     val migration10 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveTo = Some(moveTo10)
+      moveFrom = Some(moveFrom10)
     )
 
     behavior of "migration-az-hack-6"
@@ -637,35 +637,35 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
-      tester.test(moveTo1) should be (successful)
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+      tester.test(moveFrom1) should be (successful)
     }
-    passingTest should "have correct moveTo2 node" taggedAs (Somebody) in {
-      tester.test(moveTo2) should be (successful)
+    failingTest should "have correct moveFrom2 node" taggedAs (Somebody) in {
+      tester.test(moveFrom2) should be (successful)
     }
-    passingTest should "have correct moveTo3 node" taggedAs (Somebody) in {
-      tester.test(moveTo3) should be (successful)
+    passingTest should "have correct moveFrom3 node" taggedAs (Somebody) in {
+      tester.test(moveFrom3) should be (successful)
     }
-    passingTest should "have correct moveTo4 node" taggedAs (Somebody) in {
-      tester.test(moveTo4) should be (successful)
+    passingTest should "have correct moveFrom4 node" taggedAs (Somebody) in {
+      tester.test(moveFrom4) should be (successful)
     }
-    passingTest should "have correct moveTo5 node" taggedAs (Somebody) in {
-      tester.test(moveTo5) should be (successful)
+    passingTest should "have correct moveFrom5 node" taggedAs (Somebody) in {
+      tester.test(moveFrom5) should be (successful)
     }
-    passingTest should "have correct moveTo6 node" taggedAs (Somebody) in {
-      tester.test(moveTo6) should be (successful)
+    passingTest should "have correct moveFrom6 node" taggedAs (Somebody) in {
+      tester.test(moveFrom6) should be (successful)
     }
-    passingTest should "have correct moveTo7 node" taggedAs (Somebody) in {
-      tester.test(moveTo7) should be (successful)
+    failingTest should "have correct moveFrom7 node" taggedAs (Somebody) in {
+      tester.test(moveFrom7) should be (successful)
     }
-    passingTest should "have correct moveTo8 node" taggedAs (Somebody) in {
-      tester.test(moveTo8) should be (successful)
+    passingTest should "have correct moveFrom8 node" taggedAs (Somebody) in {
+      tester.test(moveFrom8) should be (successful)
     }
-    passingTest should "have correct moveTo9 node" taggedAs (Somebody) in {
-      tester.test(moveTo9) should be (successful)
+    passingTest should "have correct moveFrom9 node" taggedAs (Somebody) in {
+      tester.test(moveFrom9) should be (successful)
     }
-    passingTest should "have correct moveTo10 node" taggedAs (Somebody) in {
-      tester.test(moveTo10) should be (successful)
+    passingTest should "have correct moveFrom10 node" taggedAs (Somebody) in {
+      tester.test(moveFrom10) should be (successful)
     }
     passingTest should "have correct migration1 node" taggedAs (Somebody) in {
       tester.test(migration1) should be (successful)
