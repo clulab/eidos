@@ -968,7 +968,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("16,274 South Sudanese refugees", CountSpec(16274)) //fixme: location attachment found but probably shouldn't be
+    val group1 = NodeSpec("16,274 South Sudanese refugees", CountSpec(16274))
     val time1 = NodeSpec("Between 1 and 30 March 2017", TimEx("Between 1 and 30 March 2017"))
     val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
     val moveTo1 = NodeSpec("Gambella", GeoLoc("Gambella"))
@@ -1198,7 +1198,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
       tester.test(moveTo1) should be (successful)
     }
-    failingTest should "have correct migration1 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
       tester.test(migration1) should be (successful)
     }
   }
@@ -1238,7 +1238,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("remaining 1%", CountSpec(1, CountModifier.NoModifier, CountUnit.Percentage))
-    val moveFrom1 = NodeSpec("Unity State", GeoLoc("Unity State")) //fixme: attachment not found
+    val moveFrom1 = NodeSpec("Unity State", GeoLoc("Unity State"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       moveFrom = Some(moveFrom1))
@@ -1248,18 +1248,17 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
       tester.test(moveFrom1) should be (successful)
     }
-    failingTest should "have correct migration1 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
       tester.test(migration1) should be (successful)
     }
   }
 
   {
     val text = "85% of the new arrivals originated from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties), whilst 14% came from Jonglei State (Uror, Akobo and Ayod Counties)."
-    //fixme: refine the originate rule to include multiple locations?
-    //fixme: need to decide on ideal extraction (e.g., Nasir is part of Upper Nile State => one event or two events?
+
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("85% of the new arrivals", CountSpec(85, CountModifier.NoModifier, CountUnit.Percentage))
@@ -1273,10 +1272,10 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
       tester.test(moveFrom1) should be (successful)
     }
-    failingTest should "have correct migration1 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
       tester.test(migration1) should be (successful)
     }
 
@@ -1288,13 +1287,13 @@ class TestMigrationSchema extends EnglishTest {
 
     behavior of "migration-originated2"
 
-    failingTest should "have correct group2 node" taggedAs (Somebody) in {
+    passingTest should "have correct group2 node" taggedAs (Somebody) in {
       tester.test(group2) should be (successful)
     }
-    failingTest should "have correct moveFrom2 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom2 node" taggedAs (Somebody) in {
       tester.test(moveFrom2) should be (successful)
     }
-    failingTest should "have correct migration2 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be (successful)
     }
 
@@ -1306,13 +1305,13 @@ class TestMigrationSchema extends EnglishTest {
 
     behavior of "migration-originated3"
 
-    failingTest should "have correct group3 node" taggedAs (Somebody) in {
+    passingTest should "have correct group3 node" taggedAs (Somebody) in {
       tester.test(group3) should be (successful)
     }
-    failingTest should "have correct moveFrom3 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom3 node" taggedAs (Somebody) in {
       tester.test(moveFrom3) should be (successful)
     }
-    failingTest should "have correct migration3 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration3 event" taggedAs (Somebody) in {
       tester.test(migration3) should be (successful)
     }
 
@@ -1324,13 +1323,13 @@ class TestMigrationSchema extends EnglishTest {
 
     behavior of "migration-originated4"
 
-    failingTest should "have correct group4 node" taggedAs (Somebody) in {
+    passingTest should "have correct group4 node" taggedAs (Somebody) in {
       tester.test(group4) should be (successful)
     }
-    failingTest should "have correct moveFrom4 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom4 node" taggedAs (Somebody) in {
       tester.test(moveFrom4) should be (successful)
     }
-    failingTest should "have correct migration4 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration4 event" taggedAs (Somebody) in {
       tester.test(migration4) should be (successful)
     }
 
@@ -1342,13 +1341,13 @@ class TestMigrationSchema extends EnglishTest {
 
     behavior of "migration-originated5"
 
-    failingTest should "have correct group5 node" taggedAs (Somebody) in {
+    passingTest should "have correct group5 node" taggedAs (Somebody) in {
       tester.test(group5) should be (successful)
     }
-    failingTest should "have correct moveFrom5 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom5 node" taggedAs (Somebody) in {
       tester.test(moveFrom5) should be (successful)
     }
-    failingTest should "have correct migration5 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration5 event" taggedAs (Somebody) in {
       tester.test(migration5) should be (successful)
     }
 
@@ -1360,13 +1359,13 @@ class TestMigrationSchema extends EnglishTest {
 
     behavior of "migration-originated6"
 
-    failingTest should "have correct group6 node" taggedAs (Somebody) in {
+    passingTest should "have correct group6 node" taggedAs (Somebody) in {
       tester.test(group6) should be (successful)
     }
-    failingTest should "have correct moveFrom6 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom6 node" taggedAs (Somebody) in {
       tester.test(moveFrom6) should be (successful)
     }
-    failingTest should "have correct migration6 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration6 event" taggedAs (Somebody) in {
       tester.test(migration6) should be (successful)
     }
 
@@ -1375,7 +1374,7 @@ class TestMigrationSchema extends EnglishTest {
     //
 
     val group7 = NodeSpec("14%", CountSpec(14, CountModifier.NoModifier, CountUnit.Percentage))
-    val moveFrom7 = NodeSpec("Jonglei State", GeoLoc("Jonglei State")) //fixme: attachment not found
+    val moveFrom7 = NodeSpec("Jonglei State", GeoLoc("Jonglei State"))
     val migration7 = HumanMigrationEdgeSpec(
       group = Some(group7),
       moveFrom = Some(moveFrom7))
@@ -1385,10 +1384,10 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct group7 node" taggedAs (Somebody) in {
       tester.test(group7) should be (successful)
     }
-    failingTest should "have correct moveFrom7 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom7 node" taggedAs (Somebody) in {
       tester.test(moveFrom7) should be (successful)
     }
-    failingTest should "have correct migration7 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration7 event" taggedAs (Somebody) in {
       tester.test(migration7) should be (successful)
     }
 
@@ -1406,7 +1405,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveFrom8 node" taggedAs (Somebody) in {
       tester.test(moveFrom8) should be (successful)
     }
-    failingTest should "have correct migration8 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration8 event" taggedAs (Somebody) in {
       tester.test(migration8) should be (successful)
     }
 
@@ -1424,7 +1423,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveFrom9 node" taggedAs (Somebody) in {
       tester.test(moveFrom9) should be (successful)
     }
-    failingTest should "have correct migration9 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration9 event" taggedAs (Somebody) in {
       tester.test(migration9) should be (successful)
     }
 
@@ -1442,7 +1441,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveFrom10 node" taggedAs (Somebody) in {
       tester.test(moveFrom10) should be (successful)
     }
-    failingTest should "have correct migration10 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration10 event" taggedAs (Somebody) in {
       tester.test(migration10) should be (successful)
     }
   }
@@ -1454,7 +1453,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val group1 = NodeSpec("3,604 new arrivals", CountSpec(3604, CountModifier.Approximate))
     val timeEnd1 = NodeSpec("28 April 2017", TimEx("28 April 2017"))
-    val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak")) // TODO: or is this the intermediate location? //fixme: location not found
+    val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak")) // TODO: or is this the intermediate location?
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       timeEnd = Some(timeEnd1),
@@ -1469,10 +1468,10 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct timeEnd1 node" taggedAs (Somebody) in {
       tester.test(timeEnd1) should be(successful)
     }
-    failingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
       tester.test(moveTo1) should be(successful)
     }
-    failingTest should "have correct migration1 event" taggedAs (Somebody) in {
+    passingTest should "have correct migration1 event" taggedAs (Somebody) in {
       tester.test(migration1) should be(successful)
     }
   }
