@@ -37,7 +37,7 @@ import org.json4s.jackson.JsonMethods
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object ElasticSearch extends App {
+object ElasticSearch4Jata extends App {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val indexName = "wm-dev"
@@ -236,5 +236,5 @@ object ElasticSearch extends App {
     downloadCategory(categoryOpt.get, metaDir, rawDir)
   }
   else
-    println("argumets: [category metaDir rawDir]")
+    println("argumets: category | (metaDir rawDir)")
 }
