@@ -9,7 +9,7 @@ rules:
     label: ${ label }
     action: ${ action } # parse out quantity as an attachment
     pattern: |
-      trigger = [lemma=/(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
+      trigger = [lemma=/^(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
       moveTo: Location? = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl >nmod_in)|(>advmod >nmod_towards)
       moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)|(>nsubj >compound)
