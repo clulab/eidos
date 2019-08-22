@@ -174,6 +174,21 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     normalized
   }
 
+  def migrationActionFlow(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    return withArgs(normalizeGroup(mentions, state), state)
+  }
+
+
+  def withArgs(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    val toReturn = new ArrayBuffer[Mention]()
+    for (m <- mentions) {
+      if (m.arguments.nonEmpty) {
+        toReturn.append(m)
+      }
+    }
+    toReturn
+  }
+
   protected def extractNumber(sentence:Sentence, startGroup:Int, endGroup:Int): Option[(Int, Int, Double)] = {
     // we need the NER tags for number extraction; these are better than regexes!
     if(sentence.entities.isEmpty)
