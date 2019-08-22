@@ -55,7 +55,7 @@
 #    action: backoffGeonorm
     type: token
     pattern: |
-        [entity="LOCATION" & !norm="LOC"] [chunk="I-NP" & !norm="LOC" & !word=and]+
+        [entity="LOCATION" & !norm="LOC"] [chunk="I-NP" & !norm="LOC" & !word=/and|\(/ & !entity = "PERCENT"]+
 
   - name: location-expand-conjunction
     # where a location is mislabeld in a conjunction with another location

@@ -28,7 +28,6 @@ object MigrationUtils {
 //    val handled = attachGeoLoc(migrationEvents)
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)????
-    // todo: aggregation of cross-sentence stuff?????????????
 
     // return all
 //        handled ++ other
@@ -38,9 +37,8 @@ object MigrationUtils {
 
 //    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
     resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
-
+//    migrationEvents ++ other
   }
-
 
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
@@ -282,10 +280,15 @@ object MigrationUtils {
   has an attachment)
    */
   def hasPrevGeoloc(mentions: Seq[Mention], argName: String, order: Int): Boolean = {
-      if (mentions.slice(0, order + 1).exists(m => m.arguments(argName).head.attachments.nonEmpty)) {
-        return true
+    for (m <- mentions.slice(0, order + 1)) {
+      if (m.arguments.keys.toList.contains(argName)) {
+        if (m.arguments(argName).head.attachments.nonEmpty) {
+          return true
+        }
+      }
     }
     false
+
   }
 
 

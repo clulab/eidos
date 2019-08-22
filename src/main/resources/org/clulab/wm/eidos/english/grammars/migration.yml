@@ -9,7 +9,7 @@ rules:
     label: ${ label }
     action: ${ action } # parse out quantity as an attachment
     pattern: |
-      trigger = [lemma=/(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
+      trigger = [lemma=/^(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
       moveTo: Location? = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl >nmod_in)|(>advmod >nmod_towards)
       moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)|(>nsubj >compound)
@@ -230,15 +230,26 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [lemma=/(rate)/ & tag=/^NN/]
-      group: Concept? = <nsubj
+      trigger = [lemma=/rate|average/ & tag=/^NN|JJ/]
+      group: Concept? = <nsubj | nmod_of nummod | <nsubj nmod_at nummod
       groupModifier: Time = amod
       moveTo: Location? = (<dobj|<nmod_in)? (>nmod_in|>nmod_into|>nmod_to|(>nmod_in [lemma=particular] >nmod_to)|>acl_to|>nmod_for|(>nmod_between >conj_and)|(</${agents}/ >nmod_toward >nmod_in?)) >dobj?
       moveFrom: Location? = (>nmod_of? >nmod_from|>nmod_out_of|>nmod_between|>dobj|>/${agents}/ >nmod_from)|(<dobj >/${agents}/)|(>nmod_within (?= case [lemma=from]) >conj_and?)
       moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through|>nmod_along))
       timeStart: Time? = >advcl_since? (<dobj? >nmod_since)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
-      time: Time? = </${agents}/ advmod
+      time: Time? = </${agents}/ /advmod|nmod_in/
+
+  - name: migration-remain
+    priority: ${ rulepriority }
+    example: "192 level1 registered new arrivals remain in Pagak, awaiting relocation."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=/remain/]
+      group: Concept? = <ccomp nsubj nummod
+      moveTo: Location? = nmod_in
+      #todo: this rule is likely not complete
 
 
 # TODO:
