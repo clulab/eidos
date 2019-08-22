@@ -69,16 +69,8 @@ object ElasticSearch4Dart extends App {
     searchTemplateRequest
   }
 
-  protected def writeMeta(text: String, metaDir: String, id: String, fileType: String): Unit = {
-    val filename = metaDir + File.separatorChar + id + fileType
-
-    Sinker.printWriterFromFile(filename).autoClose { printWriter =>
-      printWriter.println(text)
-    }
-  }
-
-  protected def writeText(text: String, textDir: String, id: String, fileType: String): Unit = {
-    val filename = textDir + File.separatorChar + id + fileType
+  protected def writeFile(text: String, fileDir: String, id: String, fileType: String): Unit = {
+    val filename = fileDir + File.separatorChar + id + fileType
 
     Sinker.printWriterFromFile(filename).autoClose { printWriter =>
       printWriter.println(text)
@@ -133,8 +125,8 @@ object ElasticSearch4Dart extends App {
             val jValue = JsonMethods.parse(json)
             val extractedText = (jValue \ "extracted_text").extract[String]
 
-            writeMeta(metaText, metaDir, id, ".json")
-            writeMeta(extractedText, textDir, id, ".txt")
+            writeFile(metaText, metaDir, id, ".json")
+            writeFile(extractedText, textDir, id, ".txt")
           }
 
           continue = scrollIdOpt.exists { scrollId =>
