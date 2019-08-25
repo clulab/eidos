@@ -40,8 +40,9 @@ class EidosSystem(val components: EidosComponents) {
   def annotate(text: String): Document = {
     // Syntactic pre-processing
     val tokenized = components.proc.mkDocument(text, keepText = true) // Formerly keepText, must now be true
-    val filtered = components.documentFilter.filter(tokenized) // Filter noise from document
-    val annotated = annotateDoc(filtered)
+    val annotated = components.documentFilter.whileFiltered(tokenized) { doc =>
+      annotateDoc(doc)
+    }
 
     annotated
   }
