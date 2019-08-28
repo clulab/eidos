@@ -6,7 +6,6 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
-import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
 import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -19,7 +18,7 @@ class EidosSystem(val components: EidosComponents) {
   // The constructor below will take cheap to update values from the config, but expensive
   // values from eidosSystem.components, if present  It is the new reload().
   def this(config: Config, eidosSystemOpt: Option[EidosSystem] = None) =
-      this(new EidosComponentsBuilder().add(config, eidosSystemOpt.map(_.components)).build)
+      this(new EidosComponentsBuilder().add(config, eidosSystemOpt.map(_.components)).build())
   def this() = this(EidosSystem.defaultConfig)
   // Python now uses the default, empty constructor above, but the line below remains for documentation purposes.
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
@@ -38,11 +37,8 @@ class EidosSystem(val components: EidosComponents) {
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String): Document = {
-    // Syntactic pre-processing
     val tokenized = components.proc.mkDocument(text, keepText = true) // Formerly keepText, must now be true
-    val annotated = components.documentFilter.whileFiltered(tokenized) { doc =>
-      annotateDoc(doc)
-    }
+    val annotated = annotateDoc(tokenized)
 
     annotated
   }
