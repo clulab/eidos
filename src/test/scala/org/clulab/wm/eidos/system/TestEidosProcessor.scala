@@ -7,27 +7,27 @@ class TestEidosProcessor extends ExtractionTest {
   behavior of "document filter"
 
   it should "not change text with newlines" in {
-    val oldtext = "This is a sentence\n\nwith newlines."
-    val document = ieSystem.annotate(oldtext)
+    val oldText = "This is a sentence\n\nwith newlines."
+    val document = ieSystem.annotate(oldText)
     val newText = document.text.get
 
-    newText should be (oldtext)
+    newText should be (oldText)
   }
 
   it should "not change text with form feeds" in {
-    val oldtext = "This is a sentence\fwith a form feed."
-    val document = ieSystem.annotate(oldtext)
+    val oldText = "This is a sentence\fwith a form feed."
+    val document = ieSystem.annotate(oldText)
     val newText = document.text.get
 
-    newText should be (oldtext)
+    newText should be (oldText)
   }
 
   it should "not change end of sentence punctuation" in {
-    val oldtext = "This is one sentence. "
-    val document = ieSystem.annotate(oldtext)
+    val oldText = "This is one sentence. "
+    val document = ieSystem.annotate(oldText)
     val newText = document.text.get
 
-    newText should be (oldtext)
+    newText should be (oldText)
   }
 
   behavior of "filter headings"
@@ -72,8 +72,8 @@ class TestEidosProcessor extends ExtractionTest {
 
     it should "not change the text globally" in {
       io.zipWithIndex.foreach { case ((inputText, outputText), index) =>
-        val oldtext = inputText
-        val document = ieSystem.annotate(oldtext)
+        val oldText = inputText
+        val document = ieSystem.annotate(oldText)
         val newText = document.text.get
         val periodSentenceOpt = document.sentences.find { sentence =>
           val periodOpt = sentence.words.find { word =>
@@ -84,7 +84,7 @@ class TestEidosProcessor extends ExtractionTest {
         }
 
         periodSentenceOpt.isDefined should be(true)
-        newText should be(oldtext)
+        newText should be(oldText)
       }
     }
   }
@@ -92,9 +92,37 @@ class TestEidosProcessor extends ExtractionTest {
   behavior of "a heading"
 
   it should "be its own sentence" in {
-    val oldtext = "Once upon a time\n\nthere were three bears."
-    val document = ieSystem.annotate(oldtext)
+    val oldText = "Once upon a time\n\nthere were three bears."
+    val document = ieSystem.annotate(oldText)
 
     document.sentences.length should be (2)
+  }
+
+  behavior of "raw text"
+
+  it should "match original text even though words don't" in {
+    val oldText = "The \u03b1 and \u03a9"
+    val document = ieSystem.annotate(oldText)
+    val newText = document.text.get
+    val rawText = document.sentences(0).raw.mkString(" ")
+    val alpha = document.sentences(0).words(1)
+    val omega = document.sentences(0).words(3)
+
+    alpha should be ("alpha")
+    omega should be ("Omega")
+    newText should be (oldText)
+    newText should be (rawText)
+  }
+
+  it should "match original punctuation even though words don't" in {
+    val oldText = "Header\n\nParagraph"
+    val document = ieSystem.annotate(oldText)
+    val newText = document.text.get
+    val rawText = document.sentences.flatMap(_.raw).mkString(" ")
+    val period = document.sentences(0).words(1)
+
+    period should be (".")
+    rawText.indexOf(".") should be (-1) // This will fail
+    newText should be (oldText)
   }
 }
