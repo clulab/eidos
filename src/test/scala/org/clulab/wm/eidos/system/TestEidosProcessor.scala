@@ -34,30 +34,30 @@ class TestEidosProcessor extends ExtractionTest {
 
   {
     val io = Seq(
-      (". \n \n ", ".\n\n   "),
-      (".\n \n ",  ".\n\n  "),
-      (". \n\n ",  ".\n\n  "),
-      (". \n \n",  ".\n\n  "),
-      (".\t\n\n",  ".\n\n "),
-      (".\n\f\n",  ".\n\n "),
-      (".\n\n\r",  ".\n\n "),
-      (".\n\n",    ".\n\n"),
-      (".\n.\n.",  ".\n.\n."),
+      (". \n \n ", ".\n\n   "), //  0
+      (".\n \n ",  ".\n\n  "),  //  1
+      (". \n\n ",  ".\n\n  "),  //  2
+      (". \n \n",  ".\n\n  "),  //  3
+      (".\t\n\n",  ".\n\n "),   //  4
+      (".\n\f\n",  ".\n\n "),   //  5
+      (".\n\n\r",  ".\n\n "),   //  6
+      (".\n\n",    ".\n\n"),    //  7
+      (".\n.\n.",  ".\n.\n."),  //  8
 
-      (" \n \n ",  " .\n\n "),
-      ("\n \n ",   " .\n\n"),
-      (" \n\n ",   " .\n\n"),
-      (" \n \n",   " .\n\n"),
-      ("\t\n\n",   " .\n"),
-      ("\n\f\n",   " .\n"),
-      ("\n\n\r",   " .\n"),
-      ("\n\n",     ". "), // Which side should be space be on?
+      (" \n \n ",  " .\n\n "),  //  9
+      ("\n \n ",   " .\n\n"),   // 10
+      (" \n\n ",   " .\n\n"),   // 11
+      (" \n \n",   " .\n\n"),   // 12
+      ("\t\n\n",   " .\n"),     // 13
+      ("\n\f\n",   " .\n"),     // 14
+      ("\n\n\r",   " .\n"),     // 15
+      ("\n\n",     ". "),       // 16 // Which side should be space be on?
 
-      ("\n\n   ",  " .\n\n "), // The last \s* needs to be greedy!
+      ("\n\n   ",  " .\n\n "),  // 17
 
-      ("abc. \n \n def", "abc.\n\n   def"),
-      (". \n \n . \n \n ", ".\n\n   .\n\n   "),
-      (". \n \n . abc\n \n ", ".\n\n   . abc .\n\n")
+      ("abc. \n \n def", "abc.\n\n   def"), // 18
+      (". \n \n . \n \n ", ".\n\n   .\n\n   "), // 19
+      (". \n \n . abc\n \n ", ".\n\n   . abc .\n\n") // 20
     )
     val proc = ieSystem.components.proc
 

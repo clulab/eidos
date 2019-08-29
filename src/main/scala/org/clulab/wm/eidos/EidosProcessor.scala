@@ -19,7 +19,7 @@ trait SentencesExtractor {
 }
 
 class EidosProcessor(protected val processor: Processor, val language: String, cutoff: Int) extends Processor with SentencesExtractor {
-  protected val regex: Regex = """(\.?)(\s)*\n(\s)*\n(\s)*""".r
+  protected val regex: Regex = """(\.?)(\s*)\n(\s*)\n(\s*)""".r
 
   // This code originated in TreeDomainOntology which needs to partially process sentences through the NER stage.
   // It is slightly convoluted so that the type of processor need only be checked once and not on every call.
@@ -84,9 +84,7 @@ class EidosProcessor(protected val processor: Processor, val language: String, c
         .replace('\n', ' ')
         .replace('\f', ' ')
 
-    if (text.length != newerText.length)
-      println("What happened?")
-//    assert(text.length == newerText.length)
+    assert(text.length == newerText.length)
     newerText
   }
 
@@ -113,10 +111,12 @@ class EidosProcessor(protected val processor: Processor, val language: String, c
     require(keepText)
 
     val filteredText = filterText(text)
-    val document = processor.mkDocument(filteredText, keepText = false)
+    // Even if the text is being replaced right away and we'd like to use keepText = false,
+    // some processors assert that keepText is true, so the shortcut is not taken.
+    val document = processor.mkDocument(filteredText, keepText = true)
     val filteredDocument = filterSentences(document)
 
-    filteredDocument.text = Some(text) // Use the original text here.
+    filteredDocument.text = Some(text) // Use the original text here, even if it is empty.
     document
   }
 
