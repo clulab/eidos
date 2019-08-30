@@ -1,24 +1,55 @@
 package org.clulab.wm.eidos
 
+import java.util.regex.Pattern
+
+import org.antlr.v4.runtime.CommonTokenStream
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.clu.PortugueseCluProcessor
 import org.clulab.processors.clu.SpanishCluProcessor
+import org.clulab.processors.clu.tokenizer.EnglishSentenceSplitter
+import org.clulab.processors.clu.tokenizer.OpenDomainEnglishLexer
+import org.clulab.processors.clu.tokenizer.OpenDomainEnglishTokenizer
+import org.clulab.processors.clu.tokenizer.OpenDomainPortugueseTokenizer
+import org.clulab.processors.clu.tokenizer.OpenDomainPortugueseTokenizerLexer
+import org.clulab.processors.clu.tokenizer.OpenDomainSpanishTokenizer
+import org.clulab.processors.clu.tokenizer.OpenDomainSpanishTokenizerLexer
+import org.clulab.processors.clu.tokenizer.PortugueseSentenceSplitter
+import org.clulab.processors.clu.tokenizer.RawToken
+import org.clulab.processors.clu.tokenizer.SentenceSplitter
+import org.clulab.processors.clu.tokenizer.SpanishSentenceSplitter
+import org.clulab.processors.clu.tokenizer.Tokenizer
+import org.clulab.processors.clu.tokenizer.TokenizerLexer
+import org.clulab.processors.clu.tokenizer.TokenizerStep
+import org.clulab.processors.clu.tokenizer.TokenizerStepAccentedNormalization
+import org.clulab.processors.clu.tokenizer.TokenizerStepContractions
+import org.clulab.processors.clu.tokenizer.TokenizerStepNormalization
+import org.clulab.processors.clu.tokenizer.TokenizerStepPortugueseContractions
+import org.clulab.processors.clu.tokenizer.TokenizerStepSpanishContractions
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
 
 trait SentencesExtractor {
   def extractSentences(text: String): Array[Sentence]
 }
 
-class EidosProcessor(protected val processor: Processor, val language: String, cutoff: Int) extends Processor with SentencesExtractor {
+class EidosTokenizerStep extends TokenizerStep {
+
+  def process(inputs: Array[RawToken]): Array[RawToken] = {
+    inputs
+  }
+}
+
+class EidosProcessor(protected val processor: Processor, val tokenizer: Tokenizer, val language: String, cutoff: Int) extends Processor
+    with SentencesExtractor {
   protected val regex: Regex = """(\.?)(\s*)\n(\s*)\n(\s*)""".r
 
   // This code originated in TreeDomainOntology which needs to partially process sentences through the NER stage.
@@ -107,7 +138,9 @@ class EidosProcessor(protected val processor: Processor, val language: String, c
       document
   }
 
-  override def mkDocument(text: String, keepText: Boolean): Document = {
+  protected def mkDocumentOriginal(text: String, keepText: Boolean): Document = processor.mkDocument(text, keepText)
+
+  protected def mkDocumentFilter(text: String, keepText: Boolean): Document = {
     require(keepText)
 
     val filteredText = filterText(text)
@@ -118,6 +151,26 @@ class EidosProcessor(protected val processor: Processor, val language: String, c
 
     filteredDocument.text = Some(text) // Use the original text here, even if it is empty.
     document
+  }
+
+  protected def mkDocumentParagraph(text: String, keepText: Boolean): Document = {
+    require(keepText)
+
+    // Each of the possible processor types ends up calling this in the end.
+    val preDocument = CluProcessor.mkDocument(tokenizer, text, keepText)
+    val document = if (processor.isInstanceOf[ShallowNLPProcessor])
+      ShallowNLPProcessor.cluDocToCoreDoc(preDocument, keepText)
+    else
+      preDocument
+    val filteredDocument = filterSentences(document)
+
+    filteredDocument
+  }
+
+  override def mkDocument(text: String, keepText: Boolean): Document = {
+//    mkDocumentOriginal(text, keepText)
+//    mkDocumentFilter(text, keepText)
+    mkDocumentParagraph(text, keepText)
   }
 
   override def mkDocumentFromSentences(sentences: Iterable[String], keepText: Boolean, charactersBetweenSentences: Int): Document =
@@ -151,15 +204,162 @@ class EidosProcessor(protected val processor: Processor, val language: String, c
       processor.relationExtraction(doc)
 }
 
+class LanguagePack(val lexer: TokenizerLexer, val contractionStep: TokenizerStep,
+    val normalizationStep: TokenizerStepNormalization, val sentenceSplitter: SentenceSplitter)
+
+class EnglishLanguagePack extends LanguagePack(
+  new OpenDomainEnglishLexer,
+  new TokenizerStepContractions,
+  new TokenizerStepNormalization,
+  new EnglishSentenceSplitter
+)
+
+class PortugueseLanguagePack extends LanguagePack(
+  new OpenDomainPortugueseTokenizerLexer,
+  new TokenizerStepPortugueseContractions,
+  new TokenizerStepAccentedNormalization,
+  new PortugueseSentenceSplitter
+)
+
+class SpanishLanguagePack extends LanguagePack(
+  new OpenDomainSpanishTokenizerLexer,
+  new TokenizerStepSpanishContractions,
+  new TokenizerStepAccentedNormalization,
+  new SpanishSentenceSplitter
+)
+
+class EidosTokenizerLexer(val tokenizerLexer: TokenizerLexer) extends TokenizerLexer {
+
+  override def mkLexer(text: String): CommonTokenStream = {
+    val commonTokenStream = tokenizerLexer.mkLexer(text)
+    // Now do something more with text and common token stream, like add periods appropriately for whitespace
+    commonTokenStream
+  }
+}
+
+class ParagraphSplitter {
+  // The idea here is to make sure that a paragraph ends with a complete sentence.
+  // A paragraph is demarcated by two linefeeds (eopPattern below) between two other tokens.
+  // Neither of the other tokens should be end of sentence (eosPattern) characters themselves.
+  // At this stage periods have not been combined with their abbreviations, so they are separate.
+  def split(text: String, tokens: Array[RawToken]): Array[RawToken] = {
+    val hasEoses = tokens.map { token => ParagraphSplitter.eosPattern.matcher(token.word).matches }
+    val newTokens = new ArrayBuffer[RawToken]()
+
+    tokens.indices.foreach { index =>
+      val prevToken = tokens(index)
+      val nextTokenOpt = if (index + 1 < tokens.length) Some(tokens(index + 1)) else None
+      val hasEos = hasEoses(index) || (nextTokenOpt.isDefined && hasEoses(index + 1))
+
+      newTokens += prevToken
+      if (!hasEos) {
+        val beginPosition = prevToken.endPosition
+        val endPosition =
+            if (nextTokenOpt.isDefined) nextTokenOpt.get.beginPosition
+            else text.length
+        val whitespace = text.slice(beginPosition, endPosition)
+        val hasEop = ParagraphSplitter.eopPattern.matcher(whitespace).matches
+
+        if (hasEop) {
+          // The sentenceSplitter could refrain from using this period in an abbreviation
+          // by noticing that the raw text does not make sense in that context.
+          val newToken = new RawToken(whitespace, beginPosition, endPosition, ".")
+          newTokens += newToken
+        }
+      }
+    }
+    newTokens.toArray
+  }
+}
+
+object ParagraphSplitter {
+  val eosPattern: Pattern = SentenceSplitter.EOS.pattern // End of sentence, that is.
+  val eopPattern: Pattern = """^(\.?)(\s*)\n(\s*)\n(\s*)$""".r.pattern // End of paragraph
+}
+
+class EidosTokenizer(languagePack: LanguagePack) extends Tokenizer(
+  new EidosTokenizerLexer(languagePack.lexer),
+  Seq(languagePack.contractionStep, languagePack.normalizationStep),
+  languagePack.sentenceSplitter
+) {
+  protected val lexer: EidosTokenizerLexer = new EidosTokenizerLexer(languagePack.lexer) // Now we have two of them
+  protected val steps: Seq[TokenizerStep] = Seq(languagePack.contractionStep, languagePack.normalizationStep)
+  protected val sentenceSplitter: SentenceSplitter = languagePack.sentenceSplitter
+  protected val paragraphSplitter: ParagraphSplitter = new ParagraphSplitter
+
+  /** Tokenization and sentence splitting */
+  override def tokenize(text:String, sentenceSplit:Boolean = true):Array[Sentence] = {
+    val tokens: CommonTokenStream = lexer.mkLexer(text)
+    var done = false
+
+    val rawTokens = new ArrayBuffer[RawToken]()
+
+    //
+    // raw tokenization, using the antlr grammar
+    //
+    while(! done) {
+      val t = tokens.LT(1)
+      if(t.getType == -1) {
+        // EOF
+        done = true
+      } else {
+        // info on the current token
+        val word = t.getText
+        val beginPosition = t.getStartIndex
+        val endPosition = t.getStopIndex + 1 // antlr is inclusive on end position, we are exclusive
+
+        // make sure character positions are legit
+        assert(beginPosition + word.length == endPosition)
+
+        // add to raw stream
+        rawTokens += RawToken(word, beginPosition)
+
+        // advance to next token in stream
+        tokens.consume()
+      }
+    }
+
+    //
+    // now apply all the additional non-Antlr steps such as solving contractions, normalization, post-processing
+    //
+    var postProcessedTokens = rawTokens.toArray
+    for(step <- steps) {
+      postProcessedTokens = step.process(postProcessedTokens)
+    }
+
+    // The major change is here!
+    postProcessedTokens = paragraphSplitter.split(text, postProcessedTokens)
+    //
+    // sentence splitting, including detection of abbreviations
+    //
+    sentenceSplitter.split(postProcessedTokens, sentenceSplit)
+  }
+}
+
 object EidosProcessor {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def apply(language: String, cutoff: Int = 200): EidosProcessor = {
-    val processor = language match {
-      case "english" => new FastNLPProcessor
-      case "spanish" => new SpanishCluProcessor
-      case "portuguese" => new PortugueseCluProcessor
+    val (processor, tokenizer) = language match {
+      case "english" =>
+        val processor = new FastNLPProcessor
+        val standardTokenizer = processor.tokenizer
+        assert(standardTokenizer.isInstanceOf[OpenDomainEnglishTokenizer])
+        val customTokenizer = new EidosTokenizer(new EnglishLanguagePack)
+        (processor, customTokenizer)
+      case "spanish" =>
+        val processor = new SpanishCluProcessor
+        val standardTokenizer = processor.tokenizer
+        assert(standardTokenizer.isInstanceOf[OpenDomainSpanishTokenizer])
+        val customTokenizer = new EidosTokenizer(new SpanishLanguagePack)
+        (processor, customTokenizer)
+      case "portuguese" =>
+        val processor = new PortugueseCluProcessor
+        val standardTokenizer = processor.tokenizer
+        assert(standardTokenizer.isInstanceOf[OpenDomainPortugueseTokenizer])
+        val customTokenizer = new EidosTokenizer(new PortugueseLanguagePack)
+        (processor, customTokenizer)
     }
-    new EidosProcessor(processor, language, cutoff)
+    new EidosProcessor(processor, tokenizer, language, cutoff)
   }
 }
