@@ -3,6 +3,7 @@ package org.clulab.wm.eidos
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
+import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
