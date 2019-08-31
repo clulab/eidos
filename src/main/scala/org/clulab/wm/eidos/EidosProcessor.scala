@@ -3,9 +3,9 @@ package org.clulab.wm.eidos
 import java.util.regex.Pattern
 
 import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.Token
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
-import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.clu.PortugueseCluProcessor
 import org.clulab.processors.clu.SpanishCluProcessor
 import org.clulab.processors.clu.tokenizer.RawToken
@@ -30,9 +30,27 @@ trait LanguageSpecific {
 
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
     with SentencesExtractor with LanguageSpecific {
-  // TODO This does not work and it can't really.
-  override lazy val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
+  override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
 
+  // TODO: Move this to processors.
+  def extractSentences(text: String): Array[Sentence] = {
+    // This mkDocument will now be subject to all of the EidosProcessor changes.
+    val document = mkDocument(text, keepText = false)
+
+    if (document.sentences.nonEmpty) {
+      tagPartsOfSpeech(document)
+      lemmatize(document)
+      recognizeNamedEntities(document)
+    }
+    document.sentences
+  }
+}
+
+class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
+    with SentencesExtractor with LanguageSpecific {
+  override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
+
+  // TODO: Move this to processors.
   def extractSentences(text: String): Array[Sentence] = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = mkDocument(text, keepText = false)
@@ -46,33 +64,22 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
   }
 }
 
-trait CluSentenceExtractor {
+class EidosPortugueseProcessor(val language: String, cutoff: Int) extends PortugueseCluProcessor
+    with SentencesExtractor with LanguageSpecific {
+  override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
 
-  def cluExtractSentences(processor: CluProcessor, text: String): Array[Sentence] = {
+  // TODO: Move this to processors.
+  def extractSentences(text: String): Array[Sentence] = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
-    val document = processor.mkDocument(text, keepText = false)
+    val document = mkDocument(text, keepText = false)
 
     if (document.sentences.nonEmpty) {
-      processor.tagPartsOfSpeech(document)
-      processor.lemmatize(document)
-      processor.recognizeNamedEntities(document)
+      cheapLemmatize(document)
+      tagPartsOfSpeech(document)
+      recognizeNamedEntities(document)
     }
     document.sentences
   }
-}
-
-class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
-    with SentencesExtractor with LanguageSpecific with CluSentenceExtractor {
-  override lazy val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
-
-  def extractSentences(text: String): Array[Sentence] = cluExtractSentences(this, text)
-}
-
-class EidosPortugueseProcessor(val language: String, cutoff: Int) extends PortugueseCluProcessor
-    with SentencesExtractor with LanguageSpecific with CluSentenceExtractor {
-  override lazy val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
-
-  def extractSentences(text: String): Array[Sentence] = cluExtractSentences(this, text)
 }
 
 class ParagraphSplitter {
@@ -116,41 +123,48 @@ object ParagraphSplitter {
 }
 
 class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
-    tokenizer.lexer, tokenizer.steps, tokenizer.sentenceSplitter
+  tokenizer.lexer, tokenizer.steps, tokenizer.sentenceSplitter
 ) {
   val paragraphSplitter = new ParagraphSplitter()
 
-  // See Tokenizer for this method's template.
-  override def tokenize(text: String, sentenceSplit: Boolean = true): Array[Sentence] = {
+  // TODO This should be inherited from a method in Tokenizer
+  protected def readTokens(text: String): Array[RawToken] = {
+
+    def newRawToken(token: Token): RawToken = {
+      val word = token.getText
+      val beginPosition = token.getStartIndex
+      val endPosition = token.getStopIndex + 1 // antlr is inclusive on end position, we are exclusive
+
+      assert(beginPosition + word.length == endPosition)
+      RawToken(word, beginPosition)
+    }
+
     val tokens: CommonTokenStream = lexer.mkLexer(text)
     val rawTokenBuffer = new ArrayBuffer[RawToken]()
-    var done = false
 
-    while (!done) {
-      val token = tokens.LT(1)
-
+    def processToken(token: Token): Boolean = {
       if (token.getType == -1)
-        done = true // EOF
+        false
       else {
-        val word = token.getText
-        val beginPosition = token.getStartIndex
-        val endPosition = token.getStopIndex + 1 // antlr is inclusive on end position, we are exclusive
-
-        assert(beginPosition + word.length == endPosition)
-        rawTokenBuffer += RawToken(word, beginPosition)
-        tokens.consume()
+        rawTokenBuffer += newRawToken(token)
+        true
       }
     }
 
-    var rawTokens = rawTokenBuffer.toArray
-    for(step <- steps) {
-      rawTokens = step.process(rawTokens)
+    while (processToken(tokens.LT(1)))
+      tokens.consume()
+    rawTokenBuffer.toArray
+  }
+
+  // See Tokenizer for this method's template.
+  override def tokenize(text: String, sentenceSplit: Boolean = true): Array[Sentence] = {
+    val tokens = readTokens(text)
+    val rawTokens = steps.foldLeft(tokens) { (tokens, step) =>
+      step.process(tokens)
     }
-
     // The first major change is with the added paragraphSplitter.
-    rawTokens = paragraphSplitter.split(text, rawTokens)
-
-    val sentences = sentenceSplitter.split(rawTokens, sentenceSplit)
+    val paragraphTokens = paragraphSplitter.split(text, rawTokens)
+    val sentences = sentenceSplitter.split(paragraphTokens, sentenceSplit)
     // The second change is to filter by sentence length.
     val shortSentences = sentences.filter { sentence => sentence.words.length < cutoff }
     val skipLength = sentences.length - shortSentences.length
