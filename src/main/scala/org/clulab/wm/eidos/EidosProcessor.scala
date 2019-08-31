@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
 
-// TODO This interface is needed for the ontology builder that wants sentences
+// This interface is needed by the TreeDomainOntologyBuilder that wants sentences
 // that are not quite as complete as the processors normally provide.
 trait SentencesExtractor {
   def extractSentences(text: String): Array[Sentence]
@@ -30,9 +30,11 @@ trait LanguageSpecific {
 
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
     with SentencesExtractor with LanguageSpecific {
-  override val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
+  // TODO This does not work and it can't really.
+  override lazy val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
 
   def extractSentences(text: String): Array[Sentence] = {
+    // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = mkDocument(text, keepText = false)
 
     if (document.sentences.nonEmpty) {
@@ -47,6 +49,7 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
 trait CluSentenceExtractor {
 
   def cluExtractSentences(processor: CluProcessor, text: String): Array[Sentence] = {
+    // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = processor.mkDocument(text, keepText = false)
 
     if (document.sentences.nonEmpty) {
@@ -60,14 +63,14 @@ trait CluSentenceExtractor {
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
     with SentencesExtractor with LanguageSpecific with CluSentenceExtractor {
-  override val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
+  override lazy val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
 
   def extractSentences(text: String): Array[Sentence] = cluExtractSentences(this, text)
 }
 
 class EidosPortugueseProcessor(val language: String, cutoff: Int) extends PortugueseCluProcessor
     with SentencesExtractor with LanguageSpecific with CluSentenceExtractor {
-  override val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
+  override lazy val tokenizer = new EidosTokenizer(super.tokenizer, cutoff)
 
   def extractSentences(text: String): Array[Sentence] = cluExtractSentences(this, text)
 }

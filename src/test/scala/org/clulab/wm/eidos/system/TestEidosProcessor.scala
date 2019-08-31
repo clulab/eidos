@@ -61,14 +61,14 @@ class TestEidosProcessor extends ExtractionTest {
     )
     val proc = ieSystem.components.proc
 
-    it should "change the text locally" in {
-      io.zipWithIndex.foreach { case ((inputText, outputText), index) =>
-        val filteredText = proc.filterText(inputText)
-        val cleanText = outputText.replace('\n', ' ') // This has been added recently.
-
-        (index, filteredText) should be((index, cleanText))
-      }
-    }
+//    it should "change the text locally" in {
+//      io.zipWithIndex.foreach { case ((inputText, outputText), index) =>
+//        val filteredText = proc.filterText(inputText)
+//        val cleanText = outputText.replace('\n', ' ') // This has been added recently.
+//
+//        (index, filteredText) should be((index, cleanText))
+//      }
+//    }
 
     it should "not change the text globally" in {
       io.zipWithIndex.foreach { case ((inputText, outputText), index) =>
