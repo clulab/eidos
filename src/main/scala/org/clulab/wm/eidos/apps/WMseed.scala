@@ -8,6 +8,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.processors.{Document, Processor}
 import ai.lum.common.ConfigUtils._
+import com.typesafe.config.Config
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
@@ -25,10 +26,10 @@ object WMseed extends App with LazyLogging {
   logger.info(s"Document Path : $documentPath")
 
   // creates an extractor engine using the rules and the default actions
-  val extractor = new EidosSystem(config.getConfig("WMseed.EidosSystem"))
+  val extractor = new EidosSystem(config[Config]("WMseed.EidosSystem"))
 
   // create the processor
-  val proc: Processor = extractor.proc
+  val proc: Processor = extractor.components.proc
 
   // List of files to be processed
   val fileList = getListOfFiles(documentPath)

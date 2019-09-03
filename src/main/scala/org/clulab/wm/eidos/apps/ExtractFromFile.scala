@@ -29,7 +29,7 @@ object ExtractFromFile extends App {
       // keep the EidosMentions that are relevant to the CAG
       val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
       val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
-      val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.stopwordManager.isCAGRelevant(em.odinMention, cagEdgeMentions, cagEdgeArguments))
+      val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.components.stopwordManager.isCAGRelevant(em.odinMention, cagEdgeMentions, cagEdgeArguments))
 
       val mentionsBySentence = eidosMentions.groupBy(_.odinMention.sentence).toSeq.sortBy(_._1)
       for ((sentence, sentenceMentions) <- mentionsBySentence) {

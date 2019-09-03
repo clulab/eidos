@@ -14,9 +14,8 @@ import JLDDeserializer.DocumentMap
 import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Provenance
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimEx
-import org.clulab.wm.eidos.document.TimeStep
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
@@ -29,16 +28,17 @@ import org.json4s.JArray
 import scala.collection.Seq
 
 class TestJLDDeserializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig("adjectiveGrounder"))
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
+//    val documentCreationTime: Option[String] = Some("This is a test")
     val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
-    val annotatedDocument = ieSystem.extractFromText(text, keepText = true, cagRelevantOnly = true,
+    val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
       documentCreationTime, filename = None)
 
-    annotatedDocument.document.asInstanceOf[EidosDocument].id = Some(title)
+    annotatedDocument.document.id = Some(title)
     annotatedDocument
   }
 
@@ -86,15 +86,13 @@ class TestJLDDeserializer extends ExtractionTest {
         |  "@type" : "TimeInterval",
         |  "@id" : "_:TimeInterval_5",
         |  "start" : "2017-01-01T00:00",
-        |  "end" : "2017-02-01T00:00",
-        |  "duration" : 2678400
+        |  "end" : "2017-02-01T00:00"
         |}""".stripMargin
       val timeIntervalValue = parse(json)
       val timeStep = new JLDDeserializer().deserializeTimeInterval(timeIntervalValue)
 
-      timeStep.startDateOpt.get should be(LocalDateTime.parse("2017-01-01T00:00"))
-      timeStep.endDateOpt.get should be(LocalDateTime.parse("2017-02-01T00:00"))
-      timeStep.duration should be(2678400)
+      timeStep.startDate should be(LocalDateTime.parse("2017-01-01T00:00"))
+      timeStep.endDate should be(LocalDateTime.parse("2017-02-01T00:00"))
     }
 
     it should "deserialize TimexExpression from jsonld" in {
@@ -109,8 +107,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |    "@type" : "TimeInterval",
         |    "@id" : "_:TimeInterval_5",
         |    "start" : "2017-01-01T00:00",
-        |    "end" : "2017-02-01T00:00",
-        |    "duration" : 2678400
+        |    "end" : "2017-02-01T00:00"
         |  } ]
         |}""".stripMargin
       val timexValue = parse(json)
@@ -631,12 +628,12 @@ class TestJLDDeserializer extends ExtractionTest {
 
   def testCorpus(text: String, name: String) = {
     it should "deserialize corpus " + name + " from jsonld" in {
-      val canonicalizer = new Canonicalizer(ieSystem.stopwordManager)
+      val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
 
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.components.multiOntologyGrounder)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')

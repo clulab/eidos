@@ -33,11 +33,10 @@ class TestDomainOntology extends Test {
   val config = ConfigFactory.load("eidos")
       .withValue("EidosSystem.useW2V", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
   val reader = new EidosSystem(config)
-  val proc = reader.proc
-  val canonicalizer = new Canonicalizer(reader.stopwordManager)
+  val proc = reader.components.proc
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
   val convert = true
   val filter = true
-
 
   def show1(ontology: DomainOntology): Unit = {
     0.until(ontology.size).foreach { i =>

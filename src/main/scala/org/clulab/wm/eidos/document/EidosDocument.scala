@@ -3,48 +3,107 @@ package org.clulab.wm.eidos.document
 import java.time.LocalDateTime
 
 import org.clulab.processors.Document
-import org.clulab.processors.Sentence
-import org.clulab.processors.corenlp.CoreNLPDocument
-import org.clulab.timenorm.neural.TimeInterval
-import org.clulab.timenorm.formal.{Interval => TimExInterval}
-import org.clulab.struct.{Interval => TextInterval}
-import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.processors.DocumentAttachment
+import org.clulab.processors.DocumentAttachmentBuilderFromJson
+import org.clulab.processors.DocumentAttachmentBuilderFromText
+import org.clulab.timenorm.scate.SimpleInterval
+import org.clulab.wm.eidos.context.DCT
+import org.json4s._
+import org.json4s.JsonDSL._
 
-class EidosDocument(sentences: Array[Sentence], text: Option[String]) extends CoreNLPDocument(sentences) {
-  // At some point these will turn into Array[Option[Seq[...]]].  Each sentences will have its own
-  // Option[Seq[...]] as they do other things like tags, entities, and lemmas.
-  var times: Option[Array[Seq[TimEx]]] = None
-  var geolocs: Option[Array[Seq[GeoPhraseID]]] = None
-  var dct: Option[DCT] = None
-  var dctString: Option[String] = None
-}
+/**
+ * In case anyone is wondering, DCT stands for Document Creation Time.
+ */
+@SerialVersionUID(100L)
+class DctDocumentAttachmentBuilderFromText extends DocumentAttachmentBuilderFromText {
 
-object EidosDocument {
+  def mkDocumentAttachment(serializedText: String): DctDocumentAttachment = {
+    // See also the version in JLDDeserializer.
+    val Array(text, start, end) = serializedText.split('\t')
+    val startDateTime = LocalDateTime.parse(start)
+    val endDateTime = LocalDateTime.parse(end)
+    val interval = SimpleInterval(startDateTime, endDateTime)
+    val dct = DCT(interval, text)
 
-  def apply(document: Document, keepText: Boolean = true): EidosDocument = {
-    val text = document.text // This will be the preprocessed text now.
-    // This constructor does not make use of the text,
-    val eidosDocument = new EidosDocument(document.sentences, text)
-    // so it must be set afterwards, if specified.
-    if (keepText)
-      eidosDocument.text = text
-    eidosDocument
+    new DctDocumentAttachment(dct)
   }
 }
 
-@SerialVersionUID(1L)
-case class TimeStep(startDateOpt: Option[LocalDateTime], endDateOpt: Option[LocalDateTime], duration: Long)
-@SerialVersionUID(1L)
-case class TimEx(span: TextInterval, intervals: Seq[TimeStep], text: String)
-@SerialVersionUID(1L)
-case class DCT(interval: TimExInterval, text: String)
+@SerialVersionUID(100L)
+class DctDocumentAttachmentBuilderFromJson extends DocumentAttachmentBuilderFromJson {
 
-@SerialVersionUID(1L)
-case class SentenceIndexAndTextInterval(sentenceIndex: Int, textInterval: TextInterval)
-@SerialVersionUID(1L)
-case class TextIntervalAndTimeIntervals(textInterval: TextInterval, timeIntervals: Seq[TimeInterval])
-@SerialVersionUID(1L)
-case class SentenceIndexAndTextIntervalAndTimeIntervals(sentenceIndex: Int, multiTextIntervalAndTimeIntervals: Seq[TextIntervalAndTimeIntervals])
+  def mkDocumentAttachment(dctValue: JValue): DctDocumentAttachment = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-@SerialVersionUID(1L)
-case class SentenceBundle(index: Int, start: Int, sentence: Sentence, text: String, multiSentenceIndexAndTextInterval: Seq[SentenceIndexAndTextInterval], contexts: Seq[String])
+    val text = (dctValue \ "text").extract[String]
+    val start = (dctValue \ "start").extract[String]
+    val end = (dctValue \ "end").extract[String]
+    val dct = {
+      val startDateTime = LocalDateTime.parse(start)
+      val endDateTime = LocalDateTime.parse(end)
+      val interval = SimpleInterval(startDateTime, endDateTime)
+      val dct = DCT(interval, text)
+
+      dct
+    }
+
+    new DctDocumentAttachment(dct)
+  }
+}
+
+class DctDocumentAttachment(val dct: DCT) extends DocumentAttachment { // Maybe with EidosAttachment for jsonld?
+
+  override def documentAttachmentBuilderFromTextClassName: String = classOf[DctDocumentAttachmentBuilderFromText].getName
+  override def documentAttachmentBuilderFromJsonClassName: String = classOf[DctDocumentAttachmentBuilderFromJson].getName
+
+  override def equals(other: Any): Boolean = {
+    val that = other.asInstanceOf[DctDocumentAttachment]
+
+    this.dct == that.dct
+  }
+
+  override def toDocumentSerializer: String = {
+    val start = dct.interval.start
+    val end = dct.interval.end
+
+    dct.text + "\t" + start.toString + "\t" + end.toString
+  }
+
+  override def toJsonSerializer: JValue = {
+    val start = dct.interval.start
+    val end = dct.interval.end
+
+    ("text" -> dct.text) ~
+        ("start" -> start.toString) ~
+        ("end" -> end.toString)
+  }
+}
+
+object DctDocumentAttachment {
+  protected val DctKey = "dct"
+
+  def getDctDocumentAttachment(doc: Document): Option[DctDocumentAttachment] = {
+    val documentAttachmentOpt = doc.getAttachment(DctKey)
+    val dctDocumentAttachmentOpt = documentAttachmentOpt.map { documentAttachment =>
+      documentAttachment.asInstanceOf[DctDocumentAttachment]
+    }
+
+    dctDocumentAttachmentOpt
+  }
+
+  def getDct(doc: Document): Option[DCT] = {
+    val dctDocumentAttachmentOpt = getDctDocumentAttachment(doc)
+    val dctOpt = dctDocumentAttachmentOpt.map { dctDocumentAttachment =>
+      dctDocumentAttachment.dct
+    }
+
+    dctOpt
+  }
+
+  def setDct(doc: Document, dct: DCT): DctDocumentAttachment = {
+    val dctDocumentAttachment = new DctDocumentAttachment(dct)
+
+    doc.addAttachment(DctKey, dctDocumentAttachment)
+    dctDocumentAttachment
+  }
+}

@@ -104,7 +104,7 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
 
   def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
     val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.components.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
 
     for {
       mention <- mentionsToPrint

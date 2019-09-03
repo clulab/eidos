@@ -12,15 +12,16 @@ object ExtractFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val files = findFiles(inputDir, "txt")
-  val reader = new EidosSystem()
+  val config = EidosSystem.defaultConfig
+  val reader = new EidosSystem(config)
   // 0. Optionally include adjective grounding
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(reader.config.getConfig("adjectiveGrounder"))
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   // For each file in the input directory:
   files.par.foreach { file =>
     // 1. Open corresponding output file
     println(s"Extracting from ${file.getName}")
-    (FileUtils.printWriterFromFile(s"$outputDir/${file.getName}.jsonld")).autoClose { pw =>
+    FileUtils.printWriterFromFile(s"$outputDir/${file.getName}.jsonld").autoClose { pw =>
       // 2. Get the input file contents
       val text = FileUtils.getTextFromFile(file)
       // 3. Extract causal mentions from the text
