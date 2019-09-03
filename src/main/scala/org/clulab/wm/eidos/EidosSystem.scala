@@ -177,4 +177,7 @@ object EidosSystem {
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
+
+  // Turn off warnings from this class.
+  edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
 }
