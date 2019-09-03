@@ -123,8 +123,9 @@ object ParagraphSplitter {
   val eosPattern: Pattern = SentenceSplitter.EOS.pattern // End of sentence, that is.
   // Since \n is a subset of \s, the greediness can lead to backtracking.
   // It will be more efficient to use (\s - \n)\n.
-  //  val eopPattern: Pattern = """^(\.?)(\s*)\n(\s*)\n(\s*)$""".r.pattern // End of paragraph
-  val eopPattern: Pattern = """^(\.?)([ \t\x0B\f\r]*)\n([ \t\x0B\f\r]*)\n(\s*)$""".r.pattern // End of paragraph
+  val eopPattern: Pattern = """^(\.?)(\s*)\n(\s*)\n(\s*)$""".r.pattern // End of paragraph
+  // However, timing tests showed that the efficiency claim above is untrue or at least not true enough.
+  //val eopPattern: Pattern = """^(\.?)([ \t\x0B\f\r]*)\n([ \t\x0B\f\r]*)\n(\s*)$""".r.pattern // End of paragraph
 }
 
 class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
