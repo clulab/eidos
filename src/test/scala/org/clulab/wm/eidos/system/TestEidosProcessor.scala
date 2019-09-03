@@ -57,35 +57,20 @@ class TestEidosProcessor extends ExtractionTest {
 
       ("abc. \n \n def", "abc.\n\n   def"), // 18
       (". \n \n . \n \n ", ".\n\n   .\n\n   "), // 19
-      (". \n \n . abc\n \n ", ".\n\n   . abc .\n\n") // 20
+      (". \n \n . abc\n \n ", ".\n\n   . abc .\n\n"), // 20
+      ("sentence", "sentence") // 21
     )
-    val proc = ieSystem.components.proc
 
-//    it should "change the text locally" in {
-//      io.zipWithIndex.foreach { case ((inputText, outputText), index) =>
-//        val filteredText = proc.filterText(inputText)
-//        val cleanText = outputText.replace('\n', ' ') // This has been added recently.
-//
-//        (index, filteredText) should be((index, cleanText))
-//      }
-//    }
-
-    it should "not change the text globally" in {
-      io.zipWithIndex.foreach { case ((inputText, outputText), index) =>
+    it should "change the text locally" in {
+      io.zipWithIndex.foreach { case ((inputText, _), _) =>
         val oldText = inputText
         val document = ieSystem.annotate(oldText)
         val newText = document.text.get
-        val periodSentenceOpt = document.sentences.find { sentence =>
-          val periodOpt = sentence.words.find { word =>
-            word == "."
-          }
 
-          periodOpt.isDefined
+        oldText should be (newText)
+        document.sentences.foreach { sentence =>
+          sentence.words.last should be (".")
         }
-
-        if (document.sentences.nonEmpty)
-          periodSentenceOpt.isDefined should be(true)
-        newText should be(oldText)
       }
     }
   }
@@ -102,7 +87,7 @@ class TestEidosProcessor extends ExtractionTest {
   behavior of "raw text"
 
   it should "match original text even though words don't" in {
-    val oldText = "The \u03b1 and \u03c9"
+    val oldText = "The \u03b1 and \u03c9 ."
     val document = ieSystem.annotate(oldText)
     val newText = document.text.get
     val rawText = document.sentences(0).raw.mkString(" ")
@@ -119,11 +104,9 @@ class TestEidosProcessor extends ExtractionTest {
     val oldText = "Header\n\nParagraph"
     val document = ieSystem.annotate(oldText)
     val newText = document.text.get
-    val rawText = document.sentences.flatMap(_.raw).mkString(" ")
     val period = document.sentences(0).words(1)
 
     period should be (".")
-//    rawText.indexOf(".") should be (-1) // This will fail for DocumentFilter version
     newText should be (oldText)
   }
 }

@@ -10,7 +10,6 @@ import org.clulab.processors.clu.tokenizer.RawToken
 import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.processors.fastnlp.FastNLPProcessor
-import org.clulab.wm.eidos.utils.Timer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -105,7 +104,8 @@ class ParagraphSplitter {
             if (nextTokenOpt.isDefined) nextTokenOpt.get.beginPosition
             else text.length
         val whitespace = text.slice(beginPosition, endPosition)
-        val hasEop = eopMatcher.reset(whitespace).matches
+        // Always end the document with EOP, especially since sentenceSplitter does add a period.
+        val hasEop = eopMatcher.reset(whitespace).matches || nextTokenOpt.isEmpty
 
         if (hasEop) {
           // The sentenceSplitter could refrain from using this period in an abbreviation
@@ -139,7 +139,7 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
       step.process(rawTokens)
     }
     // The first major change is with the added paragraphSplitter.
-    val paragraphTokens = Timer.time("paragraph splitting") { paragraphSplitter.split(text, stepTokens) }
+    val paragraphTokens = paragraphSplitter.split(text, stepTokens)
     val sentences = sentenceSplitter.split(paragraphTokens, sentenceSplit)
     // The second change is to filter by sentence length.
     val shortSentences = sentences.filter { sentence => sentence.words.length < cutoff }
