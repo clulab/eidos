@@ -19,6 +19,9 @@ import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.json4s._
@@ -796,7 +799,9 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      "title" -> annotatedDocument.document.id,
+      "id" -> annotatedDocument.document.id,
+      "title" -> TitleDocumentAttachment.getTitle(annotatedDocument.document),
+      "location" -> LocationDocumentAttachment.getLocation(annotatedDocument.document),
       "text" -> jldText,
       JLDDCT.singular -> jldDCT,
       JLDSentence.plural -> jldSentences

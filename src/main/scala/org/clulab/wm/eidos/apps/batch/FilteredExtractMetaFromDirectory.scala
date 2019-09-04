@@ -16,7 +16,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.MetaUtils
+import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
 import scala.collection.parallel.ForkJoinTaskSupport
 
@@ -27,7 +27,7 @@ object FilteredExtractMetaFromDirectory extends App {
   val threads = args(3).toInt
 
   val doneDir = inputDir + "/done"
-  val converter = MetaUtils.convertTextToMeta _ // 17k _
+  val converter = EidosMetaUtils.convertTextToMeta _ // 17k _
   val intervals = Seq(
     (0,     0),
     (1,   999),
@@ -103,9 +103,9 @@ object FilteredExtractMetaFromDirectory extends App {
         println(s"Extracting from ${file.getName}")
         // 2. Get the input file contents
         val text = FileUtils.getTextFromFile(file)
-        val json = MetaUtils.getMetaData(converter, metaDir, file)
-        val documentCreationTime = MetaUtils.getDocumentCreationTime(json)
-        val documentTitle = MetaUtils.getDocumentTitle(json)
+        val json = EidosMetaUtils.getMetaData(converter, metaDir, file)
+        val documentCreationTime = EidosMetaUtils.getDocumentCreationTime(json)
+        val documentTitle = EidosMetaUtils.getDocumentTitle(json)
         // 3. Extract causal mentions from the text
         val annotatedDocuments = Seq(reader.extractFromText(text, dctString = documentCreationTime))
         annotatedDocuments.head.document.id = documentTitle
@@ -113,7 +113,7 @@ object FilteredExtractMetaFromDirectory extends App {
         val corpus = new JLDCorpus(annotatedDocuments)
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
-        val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)
+        val path = EidosMetaUtils.convertTextToJsonld(filterOutputDir, file)
 
         // This is done pedantically so that the FileOutputStream is accessible.
         val fos = new FileOutputStream(path)

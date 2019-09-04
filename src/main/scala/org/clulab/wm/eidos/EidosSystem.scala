@@ -5,9 +5,9 @@ import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
-import org.clulab.wm.eidos.document.DctDocumentAttachment
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
@@ -79,11 +79,11 @@ class EidosSystem(val components: EidosComponents) {
       doc: Document,
       cagRelevantOnly: Boolean = true,
       dctOpt: Option[DCT] = None,
-      filename: Option[String] = None): AnnotatedDocument = {
+      id: Option[String] = None): AnnotatedDocument = {
     // It is assumed and not verified that the document _has_ already been annotated.
     // Prepare the document here for further extraction.
     require(doc.text.isDefined)
-    doc.id = filename
+    doc.id = id
     dctOpt.foreach { dct =>
       DctDocumentAttachment.setDct(doc, dct)
     }
@@ -134,17 +134,17 @@ class EidosSystem(val components: EidosComponents) {
       text: String,
       cagRelevantOnly: Boolean = true,
       dctString: Option[String] = None,
-      filename: Option[String] = None): AnnotatedDocument = {
-    extractFromTextWithDct(text, cagRelevantOnly, newDct(dctString), filename)
+      id: Option[String] = None): AnnotatedDocument = {
+    extractFromTextWithDct(text, cagRelevantOnly, newDct(dctString), id)
   }
 
   def extractFromTextWithDct(
       text: String,
       cagRelevantOnly: Boolean = true,
       dct: Option[DCT] = None,
-      filename: Option[String] = None): AnnotatedDocument = {
+      id: Option[String] = None): AnnotatedDocument = {
     val document = annotate(text)
-    extractFromDoc(document, cagRelevantOnly, dct, filename)
+    extractFromDoc(document, cagRelevantOnly, dct, id)
   }
 
   // ---------------------------------------------------------------------------------------------

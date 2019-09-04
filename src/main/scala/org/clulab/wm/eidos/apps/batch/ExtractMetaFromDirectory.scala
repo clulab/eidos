@@ -9,8 +9,8 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.MetaUtils
 import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
 import scala.collection.parallel.ForkJoinTaskSupport
 
@@ -21,7 +21,7 @@ object ExtractMetaFromDirectory extends App {
   val timeFile = args(3)
 
   val doneDir = inputDir + "/done"
-  val converter = MetaUtils.convertTextToMeta _
+  val converter = EidosMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
   val parFiles = files.par
@@ -52,9 +52,9 @@ object ExtractMetaFromDirectory extends App {
         val size = timer.time {
           // 2. Get the input file contents
           val text = FileUtils.getTextFromFile(file)
-          val json = MetaUtils.getMetaData(converter, metaDir, file)
-          val documentCreationTime = MetaUtils.getDocumentCreationTime(json)
-          val documentTitle = MetaUtils.getDocumentTitle(json)
+          val json = EidosMetaUtils.getMetaData(converter, metaDir, file)
+          val documentCreationTime = EidosMetaUtils.getDocumentCreationTime(json)
+          val documentTitle = EidosMetaUtils.getDocumentTitle(json)
           // 3. Extract causal mentions from the text
           val annotatedDocuments = Seq(reader.extractFromText(text, dctString = documentCreationTime))
           annotatedDocuments.head.document.id = documentTitle
@@ -62,7 +62,7 @@ object ExtractMetaFromDirectory extends App {
           val corpus = new JLDCorpus(annotatedDocuments)
           val mentionsJSONLD = corpus.serialize()
           // 5. Write to output file
-          val path = MetaUtils.convertTextToJsonld(outputDir, file)
+          val path = EidosMetaUtils.convertTextToJsonld(outputDir, file)
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(stringify(mentionsJSONLD, pretty = true))
           }

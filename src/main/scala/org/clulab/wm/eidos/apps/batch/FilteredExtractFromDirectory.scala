@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.MetaUtils
+import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
 object FilteredExtractFromDirectory extends App {
   val inputDir = args(0)
@@ -86,7 +86,7 @@ object FilteredExtractFromDirectory extends App {
         val corpus = new JLDCorpus(annotatedDocuments)
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
-        val path = MetaUtils.convertTextToJsonld(filterOutputDir, file)
+        val path = EidosMetaUtils.convertTextToJsonld(filterOutputDir, file)
         FileUtils.printWriterFromFile(path).autoClose { pw =>
           pw.println(stringify(mentionsJSONLD, pretty = true))
         }

@@ -5,13 +5,13 @@ import java.time.LocalDateTime
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.MetaUtils
+import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
 object FilterWithMetaFromDirectory extends App {
   val inputDir = args(0)
   val metaDir = args(1)
 
-  val converter = MetaUtils.convertTextToMeta17k _
+  val converter = EidosMetaUtils.convertTextToMeta17k _
 
   def dctToString(dct: Option[DCT]): String = {
     dct.map { dct =>
@@ -34,8 +34,8 @@ object FilterWithMetaFromDirectory extends App {
   files.foreach { file =>
     try {
       val meta = converter(metaDir, file)
-      val json = MetaUtils.getMetaData(converter, metaDir, file) // May not be there.
-      val documentCreationTime = MetaUtils.getDocumentCreationTime(json)
+      val json = EidosMetaUtils.getMetaData(converter, metaDir, file) // May not be there.
+      val documentCreationTime = EidosMetaUtils.getDocumentCreationTime(json)
 //      val dct = documentCreationTime.map { documentCreationTime =>
 //        new DCT(timenorm.dct(timenorm.parse(documentCreationTime)), documentCreationTime)
 //      }

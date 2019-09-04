@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.apps.batch
 
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.MetaUtils
+import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 import org.json4s.JValue
 import org.json4s.JsonAST.JField
 import org.json4s.JsonAST.JObject
@@ -17,7 +17,7 @@ object ExtractMetaKeysFromDirectory extends App {
   files.foreach { file =>
     try {
       println(s"Extracting from ${file.getName}")
-      val jValueOpt = MetaUtils.getMetaData(file)
+      val jValueOpt = EidosMetaUtils.getMetaData(file)
 
       jValueOpt.foreach { jValue: JValue =>
         val newKeys = for {

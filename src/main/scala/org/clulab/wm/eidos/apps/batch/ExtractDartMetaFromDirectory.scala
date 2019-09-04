@@ -5,12 +5,14 @@ import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.MetaUtils
 import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidos.utils.meta.DartMetaUtils
 
 import scala.collection.parallel.ForkJoinTaskSupport
 
@@ -22,7 +24,7 @@ object ExtractDartMetaFromDirectory extends App {
   val threads = args(4).toInt
 
   val doneDir = inputDir + "/done"
-  val converter = MetaUtils.convertTextToMeta _
+  val converter = DartMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
   val parFiles = files.par
@@ -53,18 +55,20 @@ object ExtractDartMetaFromDirectory extends App {
         val size = timer.time {
           // 2. Get the input file contents
           val text = FileUtils.getTextFromFile(file)
-          val json = MetaUtils.getMetaData(converter, metaDir, file)
-          val documentCreationTime = MetaUtils.getDartDocumentCreationTime(json)
-          val documentTitle = MetaUtils.getDartDocumentTitle(json)
-          val documentId = MetaUtils.getDartDocumentId(json)
+          val json = DartMetaUtils.getMetaData(converter, metaDir, file)
+          val documentCreationTime = DartMetaUtils.getDocumentCreationTime(json)
+          val documentId = DartMetaUtils.getDartDocumentId(json)
+          val documentTitle = DartMetaUtils.getDartDocumentTitle(json)
+          val documentLocation = DartMetaUtils.getDartDocumentLocation(json)
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dct = documentCreationTime))
-          annotatedDocuments.head.document.id = documentId
+          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dct = documentCreationTime, id = documentId))
+          documentTitle.foreach { documentTitle => TitleDocumentAttachment.setTitle(annotatedDocuments.head.document, documentTitle) }
+          documentLocation.foreach { documentLocation => LocationDocumentAttachment.setLocation(annotatedDocuments.head.document, documentLocation) }
           // 4. Convert to JSON
           val corpus = new JLDCorpus(annotatedDocuments)
           val mentionsJSONLD = corpus.serialize()
           // 5. Write to output file
-          val path = MetaUtils.convertTextToJsonld(outputDir, file)
+          val path = DartMetaUtils.convertTextToJsonld(outputDir, file)
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(stringify(mentionsJSONLD, pretty = true))
           }

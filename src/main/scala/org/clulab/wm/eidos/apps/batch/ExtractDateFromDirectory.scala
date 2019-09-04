@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.apps.batch
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.MetaUtils
+import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
 object ExtractDateFromDirectory extends App {
   val inputDir = args(0)
@@ -14,8 +14,8 @@ object ExtractDateFromDirectory extends App {
 
     files.foreach { file =>
       try {
-        val json = MetaUtils.getMetaData(file)
-        val documentCreationTimes = MetaUtils.getDocumentCreationTimes(json)
+        val json = EidosMetaUtils.getMetaData(file)
+        val documentCreationTimes = EidosMetaUtils.getDocumentCreationTimes(json)
 
         // Best date
 //        if (documentCreationTimes.nonEmpty)

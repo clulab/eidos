@@ -31,7 +31,7 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
-import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s._
