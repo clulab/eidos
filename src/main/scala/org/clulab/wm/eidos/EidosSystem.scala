@@ -3,6 +3,7 @@ package org.clulab.wm.eidos
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.Document
+import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
@@ -77,22 +78,15 @@ class EidosSystem(val components: EidosComponents) {
   def extractFromDoc(
       doc: Document,
       cagRelevantOnly: Boolean = true,
-      dctStringOpt: Option[String] = None,
+      dctOpt: Option[DCT] = None,
       filename: Option[String] = None): AnnotatedDocument = {
     // It is assumed and not verified that the document _has_ already been annotated.
     // Prepare the document here for further extraction.
     require(doc.text.isDefined)
     doc.id = filename
-    for (dctString <- dctStringOpt; timeNormFinder <- components.timeNormFinderOpt) {
-      val dctOpt = timeNormFinder.parseDctString(dctString)
-      dctOpt match {
-        case Some(dct) =>
-          DctDocumentAttachment.setDct(doc, dct)
-        case None =>
-          EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
-      }
+    dctOpt.foreach { dct =>
+      DctDocumentAttachment.setDct(doc, dct)
     }
-
     // Extract Mentions
     val odinMentions = extractFrom(doc)
     // Expand the Concepts that have a modified state if they are not part of a causal event
@@ -125,14 +119,32 @@ class EidosSystem(val components: EidosComponents) {
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
+  def newDct(dctStringOpt: Option[String]): Option[DCT] = {
+    val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- components.timeNormFinderOpt) yield {
+      val dctOpt = timeNormFinder.parseDctString(dctString)
+      if (dctOpt.isEmpty)
+        EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
+      dctOpt
+    }
+    dctOpt.flatten
+  }
+
   // MAIN PIPELINE METHOD if given text
   def extractFromText(
       text: String,
       cagRelevantOnly: Boolean = true,
       dctString: Option[String] = None,
       filename: Option[String] = None): AnnotatedDocument = {
+    extractFromTextWithDct(text, cagRelevantOnly, newDct(dctString), filename)
+  }
+
+  def extractFromTextWithDct(
+      text: String,
+      cagRelevantOnly: Boolean = true,
+      dct: Option[DCT] = None,
+      filename: Option[String] = None): AnnotatedDocument = {
     val document = annotate(text)
-    extractFromDoc(document, cagRelevantOnly, dctString, filename)
+    extractFromDoc(document, cagRelevantOnly, dct, filename)
   }
 
   // ---------------------------------------------------------------------------------------------

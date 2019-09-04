@@ -3,11 +3,17 @@ package org.clulab.wm.eidos.utils
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 
+import org.clulab.timenorm.scate.SimpleInterval
+import org.clulab.wm.eidos.context.DCT
+import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.{JField, JObject, JString, JValue}
 
 object MetaUtils {
+  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
   def sanitize(documentCreationTime: Option[String]): Option[String] = {
     if (documentCreationTime.isDefined)
@@ -47,6 +53,24 @@ object MetaUtils {
     documentTitle
   }
 
+  def getDartDocumentTitle(json: Option[JValue]): Option[String] = {
+    val documentTitle: Option[String] = json.flatMap { json =>
+      val documentTitle: String = (json \ "_source" \ "extracted_metadata" \ "Title").extract[String]
+
+      Option(documentTitle)
+    }
+    documentTitle
+  }
+
+  def getDartDocumentId(json: Option[JValue]): Option[String] = {
+    val documentId: Option[String] = json.flatMap { json =>
+      val documentId: String = (json \ "_source" \ "document_id").extract[String]
+
+      Option(documentId)
+    }
+    documentId
+  }
+
   def getDocumentCreationTimes(json: Option[JValue]): Seq[String] = {
     json.map { json =>
       val okDate: Option[String] = getMetaValue(json, "spreadsheet date")
@@ -80,6 +104,32 @@ object MetaUtils {
       bestDate
     }
     documentCreationTime.map(_ + ".")
+  }
+
+  def getDartDocumentCreationTime(json: Option[JValue]): Option[DCT] = {
+
+    val documentCreationTime = json.flatMap { json =>
+      val okDateOpt: Option[String] = Option {
+        val date: String = (json \ "_source" \ "CreationDate").extract[String]
+        date
+      }
+      val goodDateOpt: Option[String] = okDateOpt.orElse {
+        val date: String = (json \ "_source" \ "ModificationDate").extract[String]
+        Option(date)
+      }
+      val dctOpt = goodDateOpt.map { dateString =>
+        val milliseconds = dateString.toLong
+        val calendar = Calendar.getInstance
+        calendar.setTimeInMillis(milliseconds)
+        val simpleInterval = SimpleInterval.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+        val dct = DCT(simpleInterval, dateString)
+
+        dct
+      }
+
+      dctOpt
+    }
+    documentCreationTime
   }
 
   def getMetaData(metaFile: File): Option[JValue] = {
