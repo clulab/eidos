@@ -14,7 +14,7 @@ class OntologyHandler(
   val proc: Processor,
   val canonicalizer: Canonicalizer) {
 
-  def ontologyGrounders(): MultiOntologyGrounder = {
+  def ontologyGrounders: MultiOntologyGrounder = {
     wordToVec match {
       case real: RealWordToVec => new MultiOntologyGrounder(grounders)
       case fake: FakeWordToVec => new MultiOntologyGrounder(Seq.empty)
@@ -37,9 +37,6 @@ class OntologyHandler(
     }
     groundings.map(reformat)
   }
-
-
-
 }
 
 object OntologyHandler {
@@ -101,6 +98,4 @@ object OntologyHandler {
   }
 
   def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
-
 }
-

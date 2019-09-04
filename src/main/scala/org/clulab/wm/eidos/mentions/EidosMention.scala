@@ -1,14 +1,14 @@
 package org.clulab.wm.eidos.mentions
 
-import java.util.IdentityHashMap
+import java.util
 
 import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{ContextAttachment, EidosAttachment, TriggeredAttachment}
+import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.utils.Canonicalizer
 
-import scala.collection.mutable.HashMap
+import scala.collection.mutable
 
 abstract class MentionMapper {
   def put(odinMention: Mention, eidosMention: EidosMention): Unit
@@ -16,7 +16,7 @@ abstract class MentionMapper {
 }
 
 class HashCodeMapper extends MentionMapper {
-  protected val mapOfMentions = new HashMap[Mention, EidosMention]()
+  protected val mapOfMentions = new mutable.HashMap[Mention, EidosMention]()
 
   def put(odinMention: Mention, eidosMention: EidosMention): Unit = mapOfMentions.put(odinMention, eidosMention)
 
@@ -24,7 +24,7 @@ class HashCodeMapper extends MentionMapper {
 }
 
 class IdentityMapper extends MentionMapper {
-  protected val mapOfMentions = new IdentityHashMap[Mention, EidosMention]()
+  protected val mapOfMentions = new util.IdentityHashMap[Mention, EidosMention]()
 
   def put(odinMention: Mention, eidosMention: EidosMention): Unit = mapOfMentions.put(odinMention, eidosMention)
 
@@ -41,7 +41,7 @@ abstract class Bagger[T] {
 }
 
 class HashCodeBagger[T] extends Bagger[T] {
-  protected val map = new HashMap[T, Int]()
+  protected val map = new mutable.HashMap[T, Int]()
 
   def put(values: Seq[T]): HashCodeBagger[T] = { values.foreach(putIfNew(_, ())); this }
 
@@ -59,7 +59,7 @@ class HashCodeBagger[T] extends Bagger[T] {
 }
 
 class IdentityBagger[T] extends Bagger[T] {
-  protected val map = new IdentityHashMap[T, Int]()
+  protected val map = new util.IdentityHashMap[T, Int]()
 
   def put(values: Seq[T]): IdentityBagger[T] = { values.foreach(putIfNew(_, ())); this }
 
@@ -84,7 +84,7 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   mentionMapper.put(odinMention, this)
 
   // Accessor method to facilitate cleaner code downstream
-  val label = odinMention.label
+  val label: String = odinMention.label
 
   // Convenience function for parallel construction
   val odinArguments: Map[String, Seq[Mention]] = odinMention.arguments
@@ -98,7 +98,7 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   }
 
   protected def remapOdinMention(odinMention: Mention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding, mentionMapper: MentionMapper): EidosMention =
-      EidosMention.asEidosMentions(Seq(odinMention), canonicalizer, ontologyGrounder, mentionMapper)(0)
+      EidosMention.asEidosMentions(Seq(odinMention), canonicalizer, ontologyGrounder, mentionMapper).head
 
   /* Methods for canonicalForms of Mentions */
 
@@ -262,9 +262,9 @@ class EidosEventMention(val odinEventMention: EventMention, canonicalizer: Canon
     mentionMapper: MentionMapper)
     extends EidosMention(odinEventMention, canonicalizer, ontologyGrounder, mentionMapper) {
 
-  val odinTrigger = odinEventMention.trigger
+  val odinTrigger: TextBoundMention = odinEventMention.trigger
 
-  val eidosTrigger = remapOdinMention(odinTrigger, canonicalizer, ontologyGrounder, mentionMapper)
+  val eidosTrigger: EidosMention = remapOdinMention(odinTrigger, canonicalizer, ontologyGrounder, mentionMapper)
 
   protected override def canonicalMentions: Seq[Mention] =
       super.canonicalMentions ++ Seq(odinTrigger)
@@ -279,13 +279,13 @@ class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMenti
     mentionMapper: MentionMapper)
     extends EidosMention(odinCrossSentenceMention, canonicalizer, ontologyGrounder, mentionMapper) {
 
-  val odinAnchor = odinCrossSentenceMention.anchor
+  val odinAnchor: Mention = odinCrossSentenceMention.anchor
 
-  val eidosAnchor = remapOdinMention(odinAnchor, canonicalizer, ontologyGrounder, mentionMapper)
+  val eidosAnchor: EidosMention = remapOdinMention(odinAnchor, canonicalizer, ontologyGrounder, mentionMapper)
 
-  val odinNeighbor = odinCrossSentenceMention.neighbor
+  val odinNeighbor: Mention = odinCrossSentenceMention.neighbor
 
-  val eidosNeighbor = remapOdinMention(odinNeighbor, canonicalizer, ontologyGrounder, mentionMapper)
+  val eidosNeighbor: EidosMention = remapOdinMention(odinNeighbor, canonicalizer, ontologyGrounder, mentionMapper)
 
   protected override def canonicalMentions: Seq[Mention] =
     Seq(odinAnchor, odinNeighbor)

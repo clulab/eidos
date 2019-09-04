@@ -33,11 +33,10 @@ class TestDomainOntology extends Test {
   val config = ConfigFactory.load("eidos")
       .withValue("EidosSystem.useW2V", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
   val reader = new EidosSystem(config)
-  val proc = reader.proc
-  val canonicalizer = new Canonicalizer(reader.stopwordManager)
+  val proc = reader.components.proc
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
   val convert = true
   val filter = true
-
 
   def show1(ontology: DomainOntology): Unit = {
     0.until(ontology.size).foreach { i =>
@@ -73,7 +72,7 @@ class TestDomainOntology extends Test {
         }
 
 //    val newestOntology = Timer.time("Load UN from cache") {
-//      UNOntology("", cachePath("un"), proc, canonicalizer, filter, useCache = true)
+//      DomainOntologies("", cachePath("un"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -100,7 +99,7 @@ class TestDomainOntology extends Test {
         }
 
 //    val newestOntology = Timer.time("Load MITRE12 with cache") {
-//      FAOOntology("", cachePath("mitre12"), proc, canonicalizer, filter, useCache = true)
+//      DomainOntologies("", cachePath("mitre12"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -139,7 +138,7 @@ class TestDomainOntology extends Test {
         }
 
 //    val newestOntology = Timer.time("Load MeSH with cache") {
-//      MeshOntology("", cachePath("mesh"), proc, canonicalizer, filter, useCache = true)
+//      DomainOntologies("", cachePath("mesh"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -166,7 +165,7 @@ class TestDomainOntology extends Test {
         }
 
 //    val newestOntology = Timer.time("Load UN properties from cache") {
-//      PropertiesOntology("", cachePath("props"), proc, canonicalizer, filter, useCache = true)
+//      DomainOntologies("", cachePath("props"), proc, canonicalizer, filter, useCache = true)
 //    }
 //
 //    show3(newOntology, newerOntology, newestOntology)
@@ -192,11 +191,11 @@ class TestDomainOntology extends Test {
           DomainOntologies(path, "", proc, canonicalizer, filter, useCache = true)
         }
 
-    //    val newestOntology = Timer.time("Load UN from cache") {
-    //      UNOntology("", cachePath("un"), proc, canonicalizer, filter, useCache = true)
-    //    }
-    //
-    //    show3(newOntology, newerOntology, newestOntology)
+//    val newestOntology = Timer.time("Load WM from cache") {
+//      DomainOntologies("", cachePath("wm"), proc, canonicalizer, filter, useCache = true)
+//    }
+//
+//    show3(newOntology, newerOntology, newestOntology)
 
     hasDuplicates("wm", newOntology) should be (false)
     hasDuplicates("wm", newerOntology) should be (false)

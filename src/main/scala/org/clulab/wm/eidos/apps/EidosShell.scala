@@ -25,7 +25,7 @@ object EidosShell extends App {
     ":exit" -> "exit system"
   )
 
-  val ieSystem = new EidosSystem()
+  var ieSystem = new EidosSystem()
 
   println("\nWelcome to the Eidos Shell!")
   printCommands()
@@ -36,7 +36,7 @@ object EidosShell extends App {
       else {
         line match {
           case ":help" => printCommands()
-          case ":reload" => ieSystem.reload()
+          case ":reload" => ieSystem = new EidosSystem(EidosSystem.defaultConfig, Some(ieSystem))
           case text => extractFrom(text)
         }
         true

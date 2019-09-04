@@ -24,4 +24,7 @@ passive_mark_verbs: "marked|defined|indicated|characterized"
 
 transparent_nouns: "level|amount|quantit" # do we need these in general?
 
+reasons: "cause|factor|motivation|reason"
+report: "cite|give|mention|provide|report"
+
 # Todo: nmod_from "X will follow from Y"

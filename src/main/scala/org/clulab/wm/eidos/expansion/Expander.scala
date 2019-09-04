@@ -20,7 +20,6 @@ object Expander {
       case "textbound" => TextBoundExpander.fromConfig(config) // todo: check about scoping with these nested configs
       case "argument" => ArgumentExpander.fromConfig(config)
       case _ => ???
-
     }
   }
 }

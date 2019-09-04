@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Properties>
+		<Property name="pattern">%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Property>
+	</Properties>
+	
+	<Appenders>
+		<Console name="Stdout" target="SYSTEM_OUT">
+			<PatternLayout pattern="${pattern}"/>
+		</Console>
+
+		<Console name="Stderr" target="SYSTEM_ERR">
+			<PatternLayout pattern="${pattern}"/>
+		</Console>
+	</Appenders>
+	
+	<!-- For explanation of levels, see https://logging.apache.org/log4j/2.0/manual/architecture.html -->
+	<!-- Values are OFF, ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL -->
+	
+	<Loggers>
+		<Root level="ALL">
+			<AppenderRef ref="Stderr"/>
+		</Root>
+	</Loggers>
+</Configuration>

@@ -2,8 +2,8 @@ package org.clulab.wm.eidos.expansion
 
 import org.clulab.odin._
 import org.clulab.wm.eidos.attachments.{DCTime, Property, Time}
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.utils.{DisplayUtils, MentionUtils}
+import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.utils.MentionUtils
 
 object ExpansionUtils {
 
@@ -32,9 +32,10 @@ object ExpansionUtils {
   // Add the document creation time (dct) attachment if there is no temporal attachment
   // i.e., a backoff
   def attachDCT(m: Mention, state: State): Mention = {
-    val dct = m.document.asInstanceOf[EidosDocument].dct
-    if (dct.isDefined && m.attachments.filter(_.isInstanceOf[Time]).isEmpty)
-      m.withAttachment(DCTime(dct.get))
+    val dctOpt = DctDocumentAttachment.getDct(m.document)
+    if (dctOpt.isDefined && m.attachments.filter(_.isInstanceOf[Time]).isEmpty) {
+      m.withAttachment(DCTime(dctOpt.get))
+    }
     else
       m
   }

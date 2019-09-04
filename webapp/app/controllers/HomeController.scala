@@ -1,17 +1,18 @@
 package controllers
 
+import com.typesafe.config.Config
 import javax.inject._
 import com.typesafe.config.ConfigRenderOptions
 import org.clulab.odin._
-import org.clulab.processors.Processor
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.document.EidosDocument
-import org.clulab.wm.eidos.document.TimEx
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
@@ -31,12 +32,21 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // Initialize the EidosSystem
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
-  val ieSystem: EidosSystem = new EidosSystem()
-  val proc: Processor = ieSystem.proc
+  val eidosConfig: Config = EidosSystem.defaultConfig
+  val ieSystem: EidosSystem = new EidosSystem(eidosConfig)
   val stanza = "adjectiveGrounder"
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig(stanza))
-  val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.config.getConfig(stanza))
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(eidosConfig.getConfig(stanza))
+  val domainParams: DomainParams = DomainParams.fromConfig(eidosConfig.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
+
+  {
+    println("[EidosSystem] Priming the EidosSystem ...")
+    val annotatedDocument = 
+        ieSystem.extractFromText("In 2014 drought caused a famine in Ethopia.", cagRelevantOnly = true, Some("2019-08-09"))
+    val corpus = new JLDCorpus(annotatedDocument)
+    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+    println("[EidosSystem] Completed Priming ...")
+  }
   // -------------------------------------------------
 
   /**
@@ -55,8 +65,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def config: Action[AnyContent] = Action {
-    val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
-    val jsonString = ieSystem.config.root.render(options)
+    val options: ConfigRenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
+    val jsonString = eidosConfig.root.render(options)
     Ok(jsonString).as(JSON)
   }
 
@@ -81,7 +91,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val doc = ieSystem.annotate(text)
 
     // Debug
-    println(s"DOC : $doc")
+//    println(s"DOC : $doc")
     // extract mentions from annotated document
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
     val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
@@ -271,14 +281,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println("Found mentions (in mkJson):")
     eidosMentions.foreach(eidosMention => DisplayUtils.displayMention(eidosMention.odinMention))
 
+    val odinMentions = eidosMentions.map(_.odinMention)
+    val timExs = ieSystem.components.timeNormFinderOpt.map(_.getTimExs(odinMentions, doc.sentences))
+    val geoPhraseIDs = ieSystem.components.geoNormFinderOpt.map(_.getGeoPhraseIDs(odinMentions, doc.sentences))
     val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
         "text" -> text,
         "entities" -> mkJsonFromTokens(doc),
         "relations" -> mkJsonFromDependencies(doc)
       )
-    val eidosJsonObj = mkJsonForEidos(text, sent, eidosMentions.map(_.odinMention), doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
-    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, doc.asInstanceOf[EidosDocument].times, doc.asInstanceOf[EidosDocument].geolocs)
+    val eidosJsonObj = mkJsonForEidos(text, sent, odinMentions, timExs, geoPhraseIDs)
+    val groundedAdjObj = mkGroundedObj(groundedEntities, eidosMentions, timExs, geoPhraseIDs)
     val parseObj = mkParseObj(doc)
 
     // These print the html and it's a mess to look at...
@@ -324,19 +337,18 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       objectToReturn += ""
 
     // TimeExpressions
-    objectToReturn += "<h2>Found TimeExpressions:</h2>"
-    if (time.isDefined)
-      time.get.foreach { t =>
-        objectToReturn += s"${DisplayUtils.webAppTimeExpressions(t)}"
-      }
+    val timeMentions = TimeNormFinder.getTimExs(mentions.map(_.odinMention))
+    if (timeMentions.nonEmpty) {
+      objectToReturn += "<h2>Found TimeExpressions:</h2>"
+      objectToReturn += s"${DisplayUtils.webAppTimeExpressions(timeMentions)}"
+    }
 
     // GeoLocations
-    objectToReturn += "<h2>Found GeoLocations:</h2>"
-    if (location.isDefined)
-      location.get.foreach { l =>
-        objectToReturn += s"${DisplayUtils.webAppGeoLocations(l)}"
-      }
-
+    val locationMentions = GeoNormFinder.getGeoPhraseIDs(mentions.map(_.odinMention))
+    if (locationMentions.nonEmpty) {
+      objectToReturn += "<h2>Found GeoLocations:</h2>"
+      objectToReturn += s"${DisplayUtils.webAppGeoLocations(locationMentions)}"
+    }
 
     // Concepts
     val entities = mentions.filter(_.odinMention matches "Entity")
@@ -344,10 +356,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       objectToReturn += "<h2>Found Concepts:</h2>"
       for (entity <- entities) {
         objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
-        // If the UN groundings are available, let's print them too...
-        if (entity.grounding.contains(EidosOntologyGrounder.UN_NAMESPACE)) {
+        // If the primary groundings are available, let's print them too...
+        if (entity.grounding.contains(EidosOntologyGrounder.PRIMARY_NAMESPACE)) {
           objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
-          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.UN_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
+          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
           objectToReturn +=  groundings
           objectToReturn += "<br><br>"
         }
@@ -487,9 +499,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
           "TimeExpression",
           Json.arr(Json.arr(i.span.start, i.span.end)),
           Json.toJson(for (d <- i.intervals) yield (
-              d.startDateOpt.map(_.toString).getOrElse("Undef"),
-              d.endDateOpt.map(_.toString).getOrElse("Undef"),
-              d.duration))
+              d.startDate.toString,
+              d.endDate.toString))
         )
       }
       Json.toJson(timexs)

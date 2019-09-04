@@ -12,7 +12,11 @@ import org.clulab.struct.DirectedGraph
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.context.DCT
+import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
@@ -626,20 +630,19 @@ object JLDWord {
   val typename = "Word"
 }
 
-class JLDTimeInterval(serializer:JLDSerializer, val start: Option[LocalDateTime], val end: Option[LocalDateTime], val duration: Long)
+class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val end: LocalDateTime)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimeInterval.typename) {
   
   override def toJObject: TidyJObject = {
-    val startDateTime = start.map(_.toString)
-    val endDateTime = end.map(_.toString)
+    val startDateTime = start.toString
+    val endDateTime = end.toString
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
       "start" -> startDateTime,
-      "end" -> endDateTime,
-      "duration" -> duration
+      "end" -> endDateTime
     ))
   }
 }
@@ -656,7 +659,7 @@ class JLDTimex(serializer:JLDSerializer, val timex: TimEx)
     extends JLDObject(serializer, JLDTimex.typename, timex) {
   
   override def toJObject: TidyJObject = {
-    val jldIntervals = timex.intervals.map(interval => new JLDTimeInterval(serializer, interval.startDateOpt, interval.endDateOpt, interval.duration).toJObject)
+    val jldIntervals = timex.intervals.map(interval => new JLDTimeInterval(serializer, interval.startDate, interval.endDate).toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),
@@ -720,7 +723,7 @@ object JLDDCT {
   val typename = "DCT"
 }
 
-class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence)
+class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence, timExs: Seq[TimEx], geoPhraseIDs: Seq[GeoPhraseID])
     extends JLDObject(serializer, JLDSentence.typename, sentence) {
 
   protected def getSentenceText(sentence: Sentence): String = getSentenceFragmentText(sentence, 0, sentence.words.length)
@@ -749,11 +752,11 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
     val sent_id = document.sentences.indexOf(sentence)
-    val timexes: Option[Seq[JObject]] = document.asInstanceOf[EidosDocument].times.map {
-      times => times(sent_id).map { time => new JLDTimex(serializer, time).toJObject }
+    val timexes: Seq[JObject] = timExs.map { timEx =>
+      new JLDTimex(serializer, timEx).toJObject
     }
-    val geoExps: Option[Seq[JObject]] = document.asInstanceOf[EidosDocument].geolocs.map {
-      geolocs => geolocs(sent_id).map { geoloc => new JLDGeoID(serializer, geoloc).toJObject }
+    val geoExps: Seq[JObject] = geoPhraseIDs.map { geoPhraseID =>
+      new JLDGeoID(serializer, geoPhraseID).toJObject
     }
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue)
@@ -780,17 +783,22 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     extends JLDObject(serializer, JLDDocument.typename, annotatedDocument.document) {
 
   override def toJObject: TidyJObject = {
-    val jldSentences = annotatedDocument.document.sentences.map(new JLDSentence(serializer, annotatedDocument.document, _).toJObject).toSeq
+    val sentences = annotatedDocument.document.sentences
+    val timExs = TimeNormFinder.getTimExs(annotatedDocument.odinMentions, sentences)
+    val geoPhraseIDs = GeoNormFinder.getGeoPhraseIDs(annotatedDocument.odinMentions, sentences)
+    val jldSentences = sentences.zipWithIndex.map { case (sentence, index) =>
+      new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index)).toJObject
+    }.toSeq
     val jldText = annotatedDocument.document.text.map(text => text)
-    val dct = annotatedDocument.document.asInstanceOf[EidosDocument].dct
-    val jldDCT = dct.map(new JLDDCT(serializer, _).toJObject)
+    val dctOpt = DctDocumentAttachment.getDct(annotatedDocument.document)
+    val jldDCT = dctOpt.map(dct => new JLDDCT(serializer, dct).toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
       "title" -> annotatedDocument.document.id,
       "text" -> jldText,
-      "dct" -> jldDCT,
+      JLDDCT.singular -> jldDCT,
       JLDSentence.plural -> jldSentences
     ))
   }

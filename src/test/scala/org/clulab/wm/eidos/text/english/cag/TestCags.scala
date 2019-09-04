@@ -13,7 +13,7 @@ class TestCags extends ExtractionTest {
     val stringBuilder = new StringBuilder(fullText + (" " + fullText) * 4) // + fullText // Because starting at 2
 
     // Pump the system once to get lazy loading
-    ieSystem.annotate(stringBuilder.toString(), keepText = true)
+    ieSystem.annotate(stringBuilder.toString())
 
     for (i <- 5 to 5 by 5) {
       val text = stringBuilder.toString()
