@@ -173,6 +173,7 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
 object EidosOntologyGrounder {
   val        GROUNDABLE = "Entity"
   // Namespace strings for the different in-house ontologies we typically use
+  val      WM_NAMESPACE = "wm"
   val      UN_NAMESPACE = "un"
   val     WDI_NAMESPACE = "wdi"
   val     FAO_NAMESPACE = "fao"

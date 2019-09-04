@@ -32,6 +32,7 @@ object ExtractAndExport extends App with Configured {
       case "jsonld" => JSONLDExporter(FileUtils.printWriterFromFile(filename + ".jsonld"), reader)
       case "mitre" => MitreExporter(FileUtils.printWriterFromFile(filename + ".mitre.tsv"), reader, filename, topN)
       case "serialized" => SerializedExporter(filename)
+      case "grounding" => GroundingExporter(FileUtils.printWriterFromFile(filename + ".ground.tsv"), reader)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }
@@ -136,6 +137,70 @@ case class MitreExporter(pw: PrintWriter, reader: EidosSystem, filename: String,
   }
 }
 
+case class GroundingExporter(pw: PrintWriter, reader: EidosSystem) extends Exporter {
+  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+    // Header
+    pw.println(header())
+    annotatedDocuments.foreach(printTableRows(_, pw, reader))
+  }
+
+  override def close(): Unit = Option(pw).map(_.close())
+
+  def header(): String = {
+    "Sentence ID\t" +
+    "Factor A SCORE\t" +
+    "Factor A Text\t" +
+    "Factor A Rank 1\t" +
+    "Factor A Rank 2\t" +
+    "Factor A Rank 3\t" +
+    "Factor A Rank 4\t" +
+    "Factor A Rank 5\t" +
+    "Factor B SCORE\t" +
+    "Factor B Text\t" +
+    "Factor B Rank 1\t" +
+    "Factor B Rank 2\t" +
+    "Factor B Rank 3\t" +
+    "Factor B Rank 4\t" +
+    "Factor B Rank 5\t" +
+    "Evidence"
+  }
+
+  def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, reader: EidosSystem): Unit = {
+    val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
+
+    for {
+      mention <- mentionsToPrint
+
+      sentence_id = mention.odinMention.sentence
+
+      // For now, only put EidosEventMentions in the mitre tsv
+      if mention.isInstanceOf[EidosEventMention]
+      cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
+      factor_a_info = EntityInfo(cause, topN = 5, delim = "\t")
+      factor_a_groundings = factor_a_info.wm // five in a row, tab-separated
+
+      effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
+      factor_b_info = EntityInfo(effect, topN = 5, delim = "\t")
+      factor_b_groundings = factor_b_info.wm // five in a row, tab-separated
+
+      evidence = ExporterUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
+
+      row = sentence_id + "\t" +
+        "\t" + // score
+        factor_a_info.text + "\t"
+        factor_a_groundings + "\t" +
+        "\t" + // score
+        factor_b_info.text + "\t"
+        factor_b_groundings + "\t" +
+        evidence
+    } pw.print(row)
+  }
+
+}
+
+
+
 case class SerializedExporter(filename: String) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     val odinMentions = annotatedDocuments.flatMap(ad => ad.odinMentions)
@@ -153,14 +218,15 @@ object SerializedMentions {
   def load(filename: String): Seq[Mention] = Serializer.load[SerializedMentions](filename).mentions
 }
 
-case class EntityInfo(m: EidosMention, topN: Int = 5) {
+case class EntityInfo(m: EidosMention, topN: Int = 5, delim: String = ", ") {
   val text = m.odinMention.text
   val norm = getBaseGrounding(m)
   val modifier = ExporterUtils.getModifier(m)
   val polarity = ExporterUtils.getPolarity(m)
-  val un = getGroundingsString(m, EidosOntologyGrounder.UN_NAMESPACE, topN)
-  val fao = getGroundingsString(m, EidosOntologyGrounder.FAO_NAMESPACE, topN)
-  val wdi = getGroundingsString(m, EidosOntologyGrounder.WDI_NAMESPACE, topN)
+  val un = getGroundingsString(m, EidosOntologyGrounder.UN_NAMESPACE, topN, delim)
+  val fao = getGroundingsString(m, EidosOntologyGrounder.FAO_NAMESPACE, topN, delim)
+  val wdi = getGroundingsString(m, EidosOntologyGrounder.WDI_NAMESPACE, topN, delim)
+  val wm = getGroundingsString(m, EidosOntologyGrounder.WM_NAMESPACE, topN, delim)
 
   def toTSV(): String = Seq(text, norm, modifier, polarity).map(_.normalizeSpace).mkString("\t")
 
