@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.apps.batch
 
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.MetaUtils

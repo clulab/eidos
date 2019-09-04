@@ -1,5 +1,10 @@
 package org.clulab.wm.eidos.apps.batch
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
+import org.clulab.wm.eidos.utils.FileUtils
+
 object RenameMetaFiles extends App {
   val textDir = args(0)
   val inputDir = args(1)
@@ -32,8 +37,8 @@ object RenameMetaFiles extends App {
     else string.substring(0, index)
   }
 
-  val textFiles = findFiles(textDir, "txt")
-  val metaFiles = findFiles(inputDir, "json")
+  val textFiles = FileUtils.findFiles(textDir, "txt")
+  val metaFiles = FileUtils.findFiles(inputDir, "json")
 
   textFiles.foreach { textFile =>
     val textFileName = textFile.getName()

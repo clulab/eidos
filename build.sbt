@@ -28,7 +28,7 @@ libraryDependencies ++= {
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
-//    "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
+    "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,

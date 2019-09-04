@@ -6,6 +6,7 @@ import java.util.concurrent.ForkJoinPool
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.MetaUtils
@@ -97,7 +98,7 @@ object ExtractMetaFromDirectoryWithId extends App {
           val documentCreationTime = MetaUtils.getDocumentCreationTime(json)
           val documentTitle = MetaUtils.getDocumentTitle(json)
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromText(text, documentCreationTime = documentCreationTime))
+          val annotatedDocuments = Seq(reader.extractFromText(text, dctString = documentCreationTime))
           annotatedDocuments.head.document.id = Some(id)
           // 4. Convert to JSON
           val corpus = new JLDCorpus(annotatedDocuments)

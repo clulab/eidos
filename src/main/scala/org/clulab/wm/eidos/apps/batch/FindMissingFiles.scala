@@ -7,6 +7,9 @@ import java.time.format.DateTimeFormatter
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.JValue
+import org.json4s.JsonAST.JField
+import org.json4s.JsonAST.JObject
+import org.json4s.JsonAST.JString
 import org.json4s.jackson.JsonMethods.parse
 
 object FindMissingFiles extends App {
