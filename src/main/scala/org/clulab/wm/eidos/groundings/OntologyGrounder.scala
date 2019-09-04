@@ -175,6 +175,7 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
 object EidosOntologyGrounder {
   protected val        GROUNDABLE = "Entity"
   protected val      WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
+  protected val WM_MIGRATION_EDITS_NAMESPACE = "wm_migration_edits"
   // Namespace strings for the different in-house ontologies we typically use
   protected val      UN_NAMESPACE = "un"
   protected val     WDI_NAMESPACE = "wdi"
@@ -192,7 +193,7 @@ object EidosOntologyGrounder {
 //  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
   protected val INTERVENTION_PLUGIN_TRIGGER = "wm/concept/causal_factor/intervention/"
 
-  protected val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  protected val indicatorNamespaces = Set(WM_MIGRATION_EDITS_NAMESPACE, WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
