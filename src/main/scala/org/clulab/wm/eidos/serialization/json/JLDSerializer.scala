@@ -194,10 +194,12 @@ object JLDOntologyGrounding {
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
   val jldGroundings: Seq[JObject] = grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
+  val versionOpt = if (name == "wm") Some("36ebfa7a92ccca67c14548ab8d4d9d55d7ac7abc") else None
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
     "name" -> name,
+    "version" -> versionOpt,
     "values" -> jldGroundings
   ))
 }
@@ -802,8 +804,8 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
       "id" -> annotatedDocument.document.id,
       "title" -> TitleDocumentAttachment.getTitle(annotatedDocument.document),
       "location" -> LocationDocumentAttachment.getLocation(annotatedDocument.document),
-      "text" -> jldText,
       JLDDCT.singular -> jldDCT,
+      "text" -> jldText,
       JLDSentence.plural -> jldSentences
     ))
   }
