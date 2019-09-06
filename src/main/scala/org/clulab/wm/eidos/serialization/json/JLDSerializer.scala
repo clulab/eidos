@@ -194,7 +194,7 @@ object JLDOntologyGrounding {
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
   val jldGroundings: Seq[JObject] = grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
-  val versionOpt = if (name == "wm") Some("36ebfa7a92ccca67c14548ab8d4d9d55d7ac7abc") else None
+  val versionOpt = if (name == "wm") Some("a1a6dbee0296bdd2b81a4a751fce17c9ed0a3af8") else None
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
