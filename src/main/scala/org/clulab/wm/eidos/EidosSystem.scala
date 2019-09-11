@@ -197,7 +197,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val afterHedging = loadableAttributes.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = loadableAttributes.negationHandler.detectNegations(afterHedging)
     val afterMigrationProc = processMigrationEvents(afterNegation)
-    val eidosMentions = EidosMention.asEidosMentions(afterMigrationProc, new Canonicalizer((stopwordManager)), loadableAttributes.multiOntologyGrounder)
+    val eidosMentions = EidosMention.asEidosMentions(afterMigrationProc, new Canonicalizer(stopwordManager), loadableAttributes.multiOntologyGrounder)
 
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)

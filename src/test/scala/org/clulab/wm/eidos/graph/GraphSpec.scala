@@ -271,9 +271,9 @@ class CountSpec(val value: Double, val modifier: CountModifier, val unit: CountU
     val result = matchClass(attachment) && {
       val countAttachment = attachment.asInstanceOf[CountAttachment]
 
-      countAttachment.v.value == value &&
-          countAttachment.v.modifier == modifier &&
-          countAttachment.v.unit == unit
+      countAttachment.migrationGroupCount.value == value &&
+          countAttachment.migrationGroupCount.modifier == modifier &&
+          countAttachment.migrationGroupCount.unit == unit
     }
     result
   }

@@ -8,6 +8,8 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
+
+import scala.util.matching.Regex
 // todo: check dependencies for the following three imports
 import org.clulab.wm.eidos.context.GeoPhraseID
 
@@ -67,6 +69,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     * @return the sequence of normalized mentions
     */
   def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    type Provenance = (String, Int, Int) // text, startOffset, endOffset
+
     val pattern = """[0-9]+,?[0-9]+""".r
     val normalized = new ArrayBuffer[Mention]()
 
@@ -74,9 +78,6 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
       // we only care about migration events here
       if(m.isInstanceOf[EventMention] && m.label == "HumanMigration") {
         val em = m.asInstanceOf[EventMention]
-        var count:Option[(Double, String)] = None
-        var countModifier:Option[(CountModifier.Value, String)] = None
-        var countUnit:Option[(CountUnit.Value, String)] = None
 
         var countAttachments = new mutable.HashSet[EidosAttachment]()
         if(em.arguments.contains("group")) {
@@ -84,34 +85,59 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
           val na:Option[(Int, Int, Double)] = extractNumber(ga.sentenceObj, ga.start, ga.end)
           if(na.nonEmpty) {
             // the event text includes +/- 1 words outside of the event span, to make sure it captures all modifiers
-            val eventText = em.sentenceObj.words.slice(math.max(0, em.start - 1), math.min(em.end + 1, em.sentenceObj.size)).mkString(" ")
+            val startWordIndex = math.max(0, em.start - 1)
+            val endWordIndex = math.min(em.end + 1, em.sentenceObj.size)
+            // TODO This strategy is worrisome.
+            // Later searching for regular expressions in this eventText can be problematic, because
+            // offsets into the event text constructed with mkString aren't necessarily offsets into
+            // the original text which may have included tokens separated by more than one space, as
+            // is often the case with punctuation, or tokens that have been expanded from contractions
+            // or from Greek symbols.
+            // The regular expressions do not check for matches against whole words.  So,
+            // "The hat least worn" will match "at least".  Are there problems with case as well?
+            // It seems like this might be the case for matching a subsequence of words against the
+            // entire em.sentenceObj.words.  This might address both issues.
+            val eventText = em.sentenceObj.words.slice(startWordIndex, endWordIndex).mkString(" ")
+            val eventStartOffset = em.sentenceObj.startOffsets(startWordIndex)
 
             //
             // compute the actual count
             //
-            count = Some(Tuple2(na.get._3, ga.sentenceObj.words.slice(na.get._1, na.get._2).mkString(" ")))
+            // double, text, startOffset, endOffset
+            val count: (Double, Option[Provenance]) = (
+              na.get._3,
+              Some(
+                ga.sentenceObj.words.slice(na.get._1, na.get._2).mkString(" "),
+                ga.sentenceObj.startOffsets(na.get._1),
+                ga.sentenceObj.endOffsets(na.get._2 - 1)
+              )
+            )
             //println(s"FOUND NUMBER: $count")
+
+            def newProvenance(regexMatch: Regex.Match): Provenance =
+                (regexMatch.matched, regexMatch.start + eventStartOffset, regexMatch.end + eventStartOffset)
 
             //
             // search for the measurement unit in the *whole* event span
             //
-            countUnit =
+            // countUnit, Option(text, startOffset, endOffset)
+            val countUnit: (CountUnit.Value, Option[Provenance]) =
               if(ga.sentenceObj.entities.get(na.get._1) == "PERCENT") {
-                Some(Tuple2(Percentage, "percentage"))
+                (Percentage, Some((ga.sentenceObj.words(na.get._1), ga.sentenceObj.startOffsets(na.get._1), ga.sentenceObj.endOffsets(na.get._1))))
               } else {
-                val d = """daily""".r.findFirstIn(eventText)
+                val d = """daily""".r.findFirstMatchIn(eventText)
                 if(d.nonEmpty) {
-                  Some(Tuple2(Daily, d.head))
+                  (Daily, Some(newProvenance(d.get)))
                 } else {
-                  val w = """weekly""".r.findFirstIn(eventText)
+                  val w = """weekly""".r.findFirstMatchIn(eventText)
                   if(w.nonEmpty) {
-                    Some(Tuple2(Weekly, w.head))
+                    (Weekly, Some(newProvenance(w.get)))
                   } else {
-                    val m = """monthly""".r.findFirstIn(eventText)
+                    val m = """monthly""".r.findFirstMatchIn(eventText)
                     if(m.nonEmpty) {
-                      Some(Tuple2(Monthly, m.head))
+                      (Monthly, Some(newProvenance(m.get)))
                     } else {
-                      Some(Tuple2(Absolute, "absolute"))
+                      (Absolute, None)
                     }
                   }
                 }
@@ -121,33 +147,46 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
             //
             // search for the count modifiers in the *whole* event span
             //
-            countModifier = {
-              val a = """about|approximately|around""".r.findFirstIn(eventText)
+            // countModifier, Option(text, startOffset, endOffset)
+            val countModifier: (CountModifier.Value, Option[Provenance]) = {
+              val a = """about|approximately|around""".r.findFirstMatchIn(eventText)
               if(a.nonEmpty) {
-                Some(Tuple2(Approximate, a.head))
+                (Approximate, Some(newProvenance(a.get)))
               } else {
-                val min = """(at\s+least)|(more\s+than)|over""".r.findFirstIn(eventText)
+                val min = """(at\s+least)|(more\s+than)|over""".r.findFirstMatchIn(eventText)
                 if(min.nonEmpty) {
-                  Some(Tuple2(Min, min.head))
+                  (Min, Some(newProvenance(min.get)))
                 } else {
-                  val max = """(at\s+most)|(less\s+than)|almost|under""".r.findFirstIn(eventText)
+                  val max = """(at\s+most)|(less\s+than)|almost|under""".r.findFirstMatchIn(eventText)
                   if(max.nonEmpty) {
-                    Some(Tuple2(Max, max.head))
+                    (Max, Some(newProvenance(max.get)))
                   } else {
-                    Some(Tuple2(NoModifier, ""))
+                    (NoModifier, None)
                   }
                 }
               }
             }
             //println(s"FOUND MOD: $countModifier")
 
+            val (text, startOffset, endOffset) = {
+              // This is an attempt to make the text pretty and describe the interval succinctly.
+              val option: Seq[Option[Provenance]] = Seq(count._2, countModifier._2, countUnit._2)
+              val some: Seq[Provenance] = option.filter(_.isDefined).map(_.get)
+              val sortedByStartOffset: Seq[Provenance] = some.sortBy(_._2)
+              val text: String = sortedByStartOffset.map(_._1).mkString(" ")
+              val startOffset: Int = sortedByStartOffset.head._2
+              val sortedByEndOffset: Seq[Provenance] = some.sortBy(_._3)
+              val endOffset: Int = sortedByEndOffset.last._3
+
+              (text, startOffset, endOffset)
+            }
+
             countAttachments +=
               new CountAttachment(
-                // Include quotes around the "value" to indicate it is the text version and include after ->
-                // the Double that is used in MigrationGroupCount to show how it was converted.
-                // A CountSpec should match the double version.
-                s"""value="${count.get._2}" -> ${count.get._1}, mod=${countModifier.get._1}, unit=${countUnit.get._1}""",
-                MigrationGroupCount(count.get._1, countModifier.get._1, countUnit.get._1))
+                text,
+                MigrationGroupCount(count._1, countModifier._1, countUnit._1),
+                startOffset, endOffset
+              )
           }
         }
 

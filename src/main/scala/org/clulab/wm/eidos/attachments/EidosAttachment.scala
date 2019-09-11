@@ -565,14 +565,27 @@ object CountUnit extends Enumeration {
   val Absolute, Daily, Weekly, Monthly, Percentage = Value
 }
 
-case class MigrationGroupCount(value:Double, modifier:CountModifier.Value, unit:CountUnit.Value)
+case class MigrationGroupCount(value: Double, modifier: CountModifier.Value, unit: CountUnit.Value)
 
-class CountAttachment(t:String, val v:MigrationGroupCount) extends ContextAttachment(text = t, value = v) {
+class CountAttachment(text: String, val migrationGroupCount: MigrationGroupCount,
+    val startOffset: Int, val endOffset: Int) extends ContextAttachment(text, migrationGroupCount) {
+
+  // Unlike other examples of ContextAttachments, this attachment itself keeps track of offsets.
+  // There is no independent reference to the migrationGroupCount sent to the superclass constructor.
+  // The "this" that we're interested in and it needs to be overridden here.
+  override val value = this // "this" isn't allowed in the constructor
+
+  override def toString: String =
+      s"""${CountAttachment.kind}("$text", value=${migrationGroupCount.value}, mod=${migrationGroupCount.modifier}, unit=${migrationGroupCount.unit})"""
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
-  // TODO, this "count" should be recorded somewhere else
-      new JLDEidosCountAttachment(serializer, "count", this)
+      newJLDContextAttachment(serializer, CountAttachment.kind)
 
-  override def toJson(): JValue = null // TODO: Keith, needs JSON output
+  override def toJson(): JValue = toJson(CountAttachment.label)
+
 }
 
+object CountAttachment {
+  val label = "Count"
+  val kind = "COUNT"
+}

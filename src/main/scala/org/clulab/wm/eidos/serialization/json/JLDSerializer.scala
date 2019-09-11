@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
+import java.util.IdentityHashMap
 
 import org.clulab.odin.EventMention
 import org.clulab.odin.{Attachment, Mention}
@@ -25,6 +26,7 @@ import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 // This is an object than when asked to convert itself a JSON object or value, converts
@@ -238,19 +240,27 @@ object JLDAttachment {
   val kind = "State"
 }
 
-class JLDCountAttachment(serializer: JLDSerializer, kind: String, countAttachment: CountAttachment)
-    extends JLDAttachment(serializer, kind) {
+class JLDCountAttachment(serializer: JLDSerializer, countAttachment: CountAttachment)
+    extends JLDObject(serializer, JLDCountAttachment.typename, countAttachment) {
 
   override def toJObject: TidyJObject = {
     TidyJObject(List(
       serializer.mkType(this),
-      "type" -> kind,
+      serializer.mkId(this),
+      "startOffset" -> countAttachment.startOffset,
+      "endOffset" -> countAttachment.endOffset,
       "text" -> countAttachment.text,
-      "value" -> countAttachment.v.value,
-      "modifier" -> countAttachment.v.modifier.toString,
-      "unit" -> countAttachment.v.unit.toString
+      "value" -> countAttachment.migrationGroupCount.value,
+      "modifier" -> countAttachment.migrationGroupCount.modifier.toString,
+      "unit" -> countAttachment.migrationGroupCount.unit.toString
     ))
   }
+}
+
+object JLDCountAttachment {
+  val singular = "count"
+  val plural = "counts"
+  val typename = "Count"
 }
 
 class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredAttachment: TriggeredAttachment)
@@ -406,7 +416,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         .map(attachment => newJLDAttachment(attachment))
     val jldCountAttachments = eidosMention.odinMention.attachments.toSeq
         .collect{ case a: CountAttachment => a }
-        //.sortWith(Time.lessThan) TODO How should these be sorted w/o provenance?
+        .sortBy(countAttachment => countAttachment.startOffset)
         .map(attachment => newJLDAttachment(attachment))
 
     // This might be used to test some groundings when they aren't configured to be produced.
@@ -620,7 +630,7 @@ class JLDRelationMigration(serializer: JLDSerializer, mention: EidosEventMention
 object JLDRelationMigration {
   val subtypeString = "migration"
   val taxonomy = "HumanMigration"
-  val keys: Seq[String] = Seq("cause", "moveTo", "moveFrom", "moveThrough", "timeStart", "timeEnd", "time")
+  val keys: Seq[String] = Seq("group", "moveTo", "moveFrom", "moveThrough", "timeStart", "timeEnd", "time")
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
@@ -786,8 +796,10 @@ object JLDDCT {
   val typename = "DCT"
 }
 
-class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence, timExs: Seq[TimEx], geoPhraseIDs: Seq[GeoPhraseID])
-    extends JLDObject(serializer, JLDSentence.typename, sentence) {
+class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence, timExs: Seq[TimEx],
+    geoPhraseIDs: Seq[GeoPhraseID], countAttachments: Seq[CountAttachment])
+    extends JLDObject(serializer, JLDSentence.typename, sentence)
+{
 
   protected def getSentenceText(sentence: Sentence): String = getSentenceFragmentText(sentence, 0, sentence.words.length)
 
@@ -821,6 +833,9 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val geoExps: Seq[JObject] = geoPhraseIDs.map { geoPhraseID =>
       new JLDGeoID(serializer, geoPhraseID).toJObject
     }
+    val counts: Seq[JObject] = countAttachments.map { countAttachment =>
+      new JLDCountAttachment(serializer, countAttachment).toJObject
+    }
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue)
 
@@ -831,7 +846,8 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
       JLDWord.plural -> jldWords.map(_.toJObject),
       JLDDependency.plural -> jldGraphMapPair,
       JLDTimex.plural -> timexes,
-      JLDGeoID.plural -> geoExps
+      JLDGeoID.plural -> geoExps,
+      JLDCountAttachment.plural -> counts
     ))
   }
 }
@@ -845,12 +861,54 @@ object JLDSentence {
 class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocument)
     extends JLDObject(serializer, JLDDocument.typename, annotatedDocument.document) {
 
+  // TODO This looks too similar to versions for time and geo.
+  def getCountAttachments(odinMentions: Seq[Mention]): Array[CountAttachment]= {
+    val reachableMentions = EidosMention.findReachableMentions(odinMentions)
+    val countAttachmentSeq: Seq[CountAttachment] = reachableMentions.flatMap { odinMention =>
+      odinMention.attachments.collect {
+        case attachment: CountAttachment => attachment
+      }
+    }
+    val countAttachmentMap: IdentityHashMap[CountAttachment, Int] = countAttachmentSeq.foldLeft(new IdentityHashMap[CountAttachment, Int]()) { (identityHashMap, countAttachment) =>
+      identityHashMap.put(countAttachment, 0)
+      identityHashMap
+    }
+    val countAttachmentArray = countAttachmentMap
+        .keySet
+        .asScala
+        .toArray
+        .sortWith { (left: CountAttachment, right: CountAttachment) =>
+          if (left.startOffset != right.startOffset)
+            left.startOffset < right.startOffset
+          else if (left.endOffset != right.endOffset)
+            left.endOffset < right.endOffset
+          else
+            true
+        }
+
+    countAttachmentArray
+  }
+
+  protected def getCountAttachments(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[CountAttachment]]= {
+    val countAttachments: Seq[CountAttachment] = getCountAttachments(odinMentions)
+    val alignedCountAttachments: Array[Seq[CountAttachment]] = sentences.map { sentence =>
+      val sentenceStart = sentence.startOffsets.head
+      val sentenceEnd = sentence.endOffsets.last
+
+      countAttachments.filter { countAttachment =>
+        sentenceStart <= countAttachment.startOffset && countAttachment.endOffset <= sentenceEnd
+      }
+    }
+    alignedCountAttachments
+  }
+
   override def toJObject: TidyJObject = {
     val sentences = annotatedDocument.document.sentences
     val timExs = TimeNormFinder.getTimExs(annotatedDocument.odinMentions, sentences)
     val geoPhraseIDs = GeoNormFinder.getGeoPhraseIDs(annotatedDocument.odinMentions, sentences)
+    val countAttachments = getCountAttachments(annotatedDocument.odinMentions, sentences)
     val jldSentences = sentences.zipWithIndex.map { case (sentence, index) =>
-      new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index)).toJObject
+      new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index), countAttachments(index)).toJObject
     }.toSeq
     val jldText = annotatedDocument.document.text.map(text => text)
     val dctOpt = DctDocumentAttachment.getDct(annotatedDocument.document)
