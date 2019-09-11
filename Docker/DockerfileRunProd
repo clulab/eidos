@@ -41,6 +41,7 @@ RUN sed -i 's/useW2V = false/useW2V = true/' src/main/resources/reference.conf
 RUN sed -i 's/glove.840B.300d.txt/vectors.txt/' src/main/resources/eidos.conf
 # Change this value for security reasons, preferably to a secret value not recorded here
 RUN sed -i 's/changeme/IHaveBeenChanged/' ./webapp/conf/application.conf
+RUN echo -e "\nplay.filters.hosts {allowed = [\".:9000\"]}" >> ./webapp/conf/application.conf
 # This command is for the development version, but this file is for production
 # RUN sbt assembly
 # Here is the production version
