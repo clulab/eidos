@@ -582,7 +582,6 @@ class CountAttachment(text: String, val migrationGroupCount: MigrationGroupCount
       newJLDContextAttachment(serializer, CountAttachment.kind)
 
   override def toJson(): JValue = toJson(CountAttachment.label)
-
 }
 
 object CountAttachment {
