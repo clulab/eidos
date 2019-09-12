@@ -199,7 +199,8 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
     val afterMigrationProc = processMigrationEvents(afterNegation)
     val eidosMentions = EidosMention.asEidosMentions(afterMigrationProc, new Canonicalizer(stopwordManager), loadableAttributes.multiOntologyGrounder)
 
-    AnnotatedDocument(doc, afterMigrationProc, eidosMentions)
+    // TODO: This needs to be afterMigrationProc instead of afterNegation.  It causes lots of tests to fail then.
+    AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 
   def extractFrom(doc: Document): Vector[Mention] = {
