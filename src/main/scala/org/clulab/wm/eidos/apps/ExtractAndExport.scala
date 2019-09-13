@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
@@ -26,15 +26,7 @@ import scala.collection.mutable.ArrayBuffer
   */
 object ExtractAndExport extends App with Configured {
 
-  def getExporter(exporterString: String, filename: String, topN: Int): Exporter = {
-    exporterString match {
-      case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
-      case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
-      case "serialized" => SerializedExporter(filename)
-      case "grounding" => GroundingExporter(FileUtils.printWriterFromFile(filename + ".ground.tsv"), reader, groundAs)
-      case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
-    }
-  }
+
 
   val config = ConfigFactory.load("eidos")
   override def getConf: Config = config
@@ -58,7 +50,7 @@ object ExtractAndExport extends App with Configured {
     val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
     // 4. Export to all desired formats
     exportAs.foreach { format =>
-      getExporter(format, s"$outputDir/${file.getName}", topN).export(annotatedDocuments)
+      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(annotatedDocuments)
     }
   }
 }
@@ -120,16 +112,16 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
       factor_a_info = EntityInfo(cause, groundAs)
 
       trigger = mention.odinMention.asInstanceOf[EventMention].trigger
-      relation_txt = ExporterUtils.removeTabAndNewline(trigger.text)
+      relation_txt = ExportUtils.removeTabAndNewline(trigger.text)
       relation_norm = mention.label // i.e., "Causal" or "Correlation"
-      relation_modifier = ExporterUtils.getModifier(mention) // prob none
+      relation_modifier = ExportUtils.getModifier(mention) // prob none
 
       effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
       factor_b_info = EntityInfo(effect, groundAs)
 
       location = "" // I could try here..?
       time = ""
-      evidence = ExporterUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
+      evidence = ExportUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
 
       row = source + "\t" + system + "\t" + sentence_id + "\t" +
         factor_a_info.toTSV + "\t" +
@@ -180,23 +172,23 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
       if mention.isInstanceOf[EidosEventMention]
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
       factor_a_info = EntityInfo(cause, groundAs, topN = 5, delim = "\t")
-      factor_a_groundings = factor_a_info.groundingStrings // five in a row, tab-separated
+      factor_a_groundings = factor_a_info.groundingStrings.head // five in a row, tab-separated
 
       effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
       factor_b_info = EntityInfo(effect, groundAs, topN = 5, delim = "\t")
-      factor_b_groundings = factor_b_info.groundingStrings // five in a row, tab-separated
+      factor_b_groundings = factor_b_info.groundingStrings.head // five in a row, tab-separated
 
-      evidence = ExporterUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
+      evidence = ExportUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
 
       row = sentence_id + "\t" +
         "\t" + // score
-        factor_a_info.text + "\t"
+        factor_a_info.text + "\t" +
         factor_a_groundings + "\t" +
         "\t" + // score
-        factor_b_info.text + "\t"
+        factor_b_info.text + "\t" +
         factor_b_groundings + "\t" +
         evidence
-    } pw.print(row)
+    } pw.println(row)
   }
 
 }
@@ -222,8 +214,8 @@ object SerializedMentions {
 case class EntityInfo(m: EidosMention, groundAs: Seq[String], topN: Int = 5, delim: String = ", ") {
   val text: String = m.odinMention.text
   val norm: String = getBaseGrounding(m)
-  val modifier: String = ExporterUtils.getModifier(m)
-  val polarity: String = ExporterUtils.getPolarity(m)
+  val modifier: String = ExportUtils.getModifier(m)
+  val polarity: String = ExportUtils.getPolarity(m)
   val groundingStrings: Seq[String] = groundAs.map { namespace =>
     getGroundingsString(m, namespace, topN, delim)
   }
@@ -234,32 +226,3 @@ case class EntityInfo(m: EidosMention, groundAs: Seq[String], topN: Int = 5, del
   def groundingToTSV: String = groundingStrings.map(_.normalizeSpace).mkString("\t")
 }
 
-object ExporterUtils {
-  def getModifier(mention: EidosMention): String = {
-    def quantHedgeString(a: Attachment): Option[String] = a match {
-      case q: Quantification => Some(f"Quant(${q.trigger.toLowerCase})")
-      case h: Hedging => Some(f"Hedged(${h.trigger.toLowerCase})")
-      case n: Negation => Some(f"Negated(${n.trigger.toLowerCase})")
-      case _ => None
-    }
-
-    val attachments = mention.odinMention.attachments.map(quantHedgeString).toSeq.filter(_.isDefined)
-
-    val modifierString = attachments.map(a => a.get).mkString(", ")
-    modifierString
-  }
-
-  //fixme: not working -- always ;
-  def getPolarity(mention: EidosMention): String = {
-    val sb = new ArrayBuffer[String]
-    val attachments = mention.odinMention.attachments
-    val incTriggers = attachments.collect{ case inc: Increase => inc.trigger}
-    val decTriggers = attachments.collect{ case dec: Decrease => dec.trigger}
-    for (t <- incTriggers) sb.append(s"Increase($t)")
-    for (t <- decTriggers) sb.append(s"Decrease($t)")
-
-    sb.mkString(", ")
-  }
-
-  def removeTabAndNewline(s: String): String = s.replaceAll("(\\n|\\t)", " ")
-}
