@@ -62,13 +62,13 @@ class TestOntologyGrounder extends EnglishTest {
       val odinMention = odinMentions.head
       val eidosMentions = annotatedDocument.eidosMentions.filter { eidosMention => eidosMention.odinMention.eq(odinMention) }
       val eidosMention = eidosMentions.head
-      val unGrounding = eidosMention.grounding("un").grounding
+      val unGrounding = eidosMention.groundings.get("un").grounding
       val grounding = unGrounding.map { case (namer, value) => (namer.name, value) }
 
       val ontologyYaml = FileUtils.getTextFromResource("/org/clulab/wm/eidos/english/ontologies/un_ontology.yml")
       val ontologyHandler = ieSystem.components.ontologyHandler
       val text = odinMention.text
-      val canonicalName = eidosMention.canonicalName
+      val canonicalName = eidosMention.canonicalName.get
 
       def reground(text: String) = {
         val name = "test"

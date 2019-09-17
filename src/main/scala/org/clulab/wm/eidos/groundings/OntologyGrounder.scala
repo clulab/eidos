@@ -68,7 +68,7 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
       }
       // Otherwise, back-off to the w2v-based approach
       else {
-        OntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalNameParts, conceptEmbeddings))
+        OntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalName.get.split(' '), conceptEmbeddings))
       }
     }
     else

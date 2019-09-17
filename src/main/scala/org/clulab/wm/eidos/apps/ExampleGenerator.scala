@@ -21,14 +21,14 @@ object ExampleGenerator extends App {
 
   // extract mentions from annotated document
   val mentions = ieSystem.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
-  val eidosMentions = EidosMention.asEidosMentions(mentions, new Canonicalizer(ieSystem.components.stopwordManager), ieSystem.components.multiOntologyGrounder)
+  val eidosMentions = EidosMention.asEidosMentions(mentions)
 
   // Display the groundings for all entities
   for (e <- eidosMentions.filter(_.odinMention matches "Entity")) {
     println("EidosMention:")
     displayMention(e.odinMention)
     println("Groundings:")
-    e.asInstanceOf[EidosTextBoundMention].grounding.values.foreach(g => println(s"\t$g"))
+    e.asInstanceOf[EidosTextBoundMention].groundings.get.values.foreach(g => println(s"\t$g"))
   }
 
   // Default debug display of the mentions

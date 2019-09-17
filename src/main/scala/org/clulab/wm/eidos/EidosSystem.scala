@@ -120,7 +120,15 @@ class EidosSystem(val components: EidosComponents) {
     // TODO: handle hedging and negation...
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(components.stopwordManager), components.multiOntologyGrounder)
+    // Note that this returns surface mentions only, not all reachable mentions.
+    val eidosMentions = EidosMention.asEidosMentions(afterNegation)
+    val reachableEidosMentions = EidosMention.findReachableOdinMentions(eidosMentions)
+    // Now that eidosMentions are available, these are considered post-processing stages.
+    val canonicalizer = new Canonicalizer(components.stopwordManager)
+    eidosMentions.foreach(canonicalizer.canonicalize)
+
+    val grounder = components.multiOntologyGrounder
+    eidosMentions.foreach(grounder.groundOntology)
 
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }

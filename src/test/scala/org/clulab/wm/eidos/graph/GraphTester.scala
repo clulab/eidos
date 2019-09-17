@@ -11,7 +11,7 @@ import scala.collection.Seq
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
   //val mentions = extractMentions(clean(text))
-  val mentions: Seq[Mention] = EidosMention.findReachableMentions(TestUtils.extractMentions(ieSystem, clean(text)))
+  val mentions: Seq[Mention] = EidosMention.findReachableOdinMentions(TestUtils.extractMentions(ieSystem, clean(text)))
 
   val testResults = new TestResults()
 

@@ -643,7 +643,10 @@ class JLDDeserializer {
     }.getOrElse(Map.empty)
     val allOdinMentions = mentionMap.values.toArray
     val odinMentions = removeTriggerOnlyMentions(allOdinMentions)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, ontologyGrounder)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    // TODO Need to get them all // kwa // add doing as a sequence?
+    eidosMentions.foreach(canonicalizer.canonicalize)
+    eidosMentions.foreach(ontologyGrounder.groundOntology)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
       AnnotatedDocument(documentSpec.idAndDocument.value, odinMentions, eidosMentions)
     }
