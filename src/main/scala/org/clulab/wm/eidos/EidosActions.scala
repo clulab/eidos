@@ -169,11 +169,19 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
             //println(s"FOUND MOD: $countModifier")
 
             val (text, startOffset, endOffset) = {
+              def isPrefix(value: String, texts: Seq[String]): Boolean = texts.exists { text =>
+                text.size > value.size && text.startsWith(value)
+              }
+
               // This is an attempt to make the text pretty and describe the interval succinctly.
               val option: Seq[Option[Provenance]] = Seq(count._2, countModifier._2, countUnit._2)
               val some: Seq[Provenance] = option.filter(_.isDefined).map(_.get)
               val sortedByStartOffset: Seq[Provenance] = some.sortBy(_._2)
-              val text: String = sortedByStartOffset.map(_._1).mkString(" ")
+              val texts: Seq[String] = sortedByStartOffset.map(_._1)
+              // Percents in particular cause repeated values like "about 75 percent 75"
+              // Keep 75 percent, but rule out 75.
+              val longTexts: Seq[String] = texts.filter { text => !isPrefix(text, texts) }
+              val text: String = longTexts.mkString(" ")
               val startOffset: Int = sortedByStartOffset.head._2
               val sortedByEndOffset: Seq[Provenance] = some.sortBy(_._3)
               val endOffset: Int = sortedByEndOffset.last._3
