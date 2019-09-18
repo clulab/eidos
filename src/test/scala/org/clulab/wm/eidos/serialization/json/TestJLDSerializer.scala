@@ -5,16 +5,14 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.Seq
 
 class TestJLDSerializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
@@ -25,11 +23,11 @@ class TestJLDSerializer extends ExtractionTest {
     annotatedDocument
   }
   
-  def serialize(corpus: Corpus) = {
+  def serialize(corpus: Corpus): String = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
       val jValue = jldCorpus.serialize(adjectiveGrounder)
-      stringify(jValue, true)
+      stringify(jValue, pretty = true)
     }
     
     json
@@ -124,15 +122,14 @@ class TestJLDSerializer extends ExtractionTest {
         Seq("Coreference", "label1", "label2", "...", "labelN"),
         firstMention,
         lastMention,
-        Map(("first" -> Seq(firstMention)), ("last" -> Seq(lastMention))),
+        Map("first" -> Seq(firstMention), "last" -> Seq(lastMention)),
         firstMention.document,
         true,
         "Found by me",
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions)
-      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
+      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions)
 
       nextAnnotatedDocument
     }

@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.PostProcessing
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
@@ -27,8 +29,8 @@ case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
 trait OntologyGrounder {
   val isPrimary: Boolean
 
-  def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding
   def groundOntology(mention: EidosMention): OntologyGrounding = groundOntology(mention, None)
+  def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding
   def groundOntology(mention: EidosMention, previousGroundings: Aliases.Groundings): OntologyGrounding = groundOntology(mention, Some(previousGroundings))
 
   def groundable(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): Boolean
@@ -36,7 +38,8 @@ trait OntologyGrounder {
   def groundable(mention: EidosMention, previousGroundings: Aliases.Groundings): Boolean = groundable(mention, Some(previousGroundings))
 }
 
-trait MultiOntologyGrounding {
+// It is unfortunate that the "ing" suffix is already part of grounding, so we're left with "er" even for a trait.
+trait MultiOntologyGrounder {
   def groundOntology(mention: EidosMention): Aliases.Groundings
 }
 
@@ -160,7 +163,7 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
   }
 }
 
-class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) extends MultiOntologyGrounding {
+class EidosMultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) extends MultiOntologyGrounder with PostProcessing {
   // Some plugin grounders need to be run after the primary grounders, i.e., they depend on the output of the primary grounders
   protected val (primaryGrounders, secondaryGrounders) = ontologyGrounders.partition(_.isPrimary)
 
@@ -171,6 +174,11 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
       (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
 
     primaryGroundings ++ secondaryGroundings
+  }
+
+  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    annotatedDocument.allEidosMentions.foreach(groundOntology)
+    annotatedDocument
   }
 }
 

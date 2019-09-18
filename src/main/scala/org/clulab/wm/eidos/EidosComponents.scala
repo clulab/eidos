@@ -20,7 +20,7 @@ case class EidosComponents(
   negationHandler: NegationHandler,
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
-  multiOntologyGrounder: MultiOntologyGrounder,
+  multiOntologyGrounder: EidosMultiOntologyGrounder,
   actions: EidosActions,
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
@@ -40,7 +40,7 @@ class EidosComponentsBuilder {
   var documentFilterOpt: Option[DocumentFilter] = None
   var stopwordManagerOpt: Option[StopwordManager] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
-  var multiOntologyGrounderOpt: Option[MultiOntologyGrounder] = None
+  var multiOntologyGrounderOpt: Option[EidosMultiOntologyGrounder] = None
   var actionsOpt: Option[EidosActions] = None
   var engineOpt: Option[ExtractorEngine] = None
   var hedgingHandlerOpt: Option[HypothesisHandler] = None

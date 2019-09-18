@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.text.english.cag
 import java.util.HashMap
 
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.groundings.{MultiOntologyGrounding, OntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.{MultiOntologyGrounder, OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{HashCodeBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils

@@ -14,10 +14,10 @@ class OntologyHandler(
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer) {
 
-  def ontologyGrounders: MultiOntologyGrounder = {
+  def ontologyGrounders: EidosMultiOntologyGrounder = {
     wordToVec match {
-      case _: RealWordToVec => new MultiOntologyGrounder(grounders)
-      case _: FakeWordToVec => new MultiOntologyGrounder(Seq.empty)
+      case _: RealWordToVec => new EidosMultiOntologyGrounder(grounders)
+      case _: FakeWordToVec => new EidosMultiOntologyGrounder(Seq.empty)
       case _ => ???
     }
   }

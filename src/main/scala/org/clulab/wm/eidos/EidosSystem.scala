@@ -120,14 +120,12 @@ class EidosSystem(val components: EidosComponents) {
     // TODO: handle hedging and negation...
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    // Note that this returns surface mentions only, not all reachable mentions.
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation)
-    val reachableEidosMentions = EidosMention.findReachableEidosMentions(eidosMentions)
-    // Now that eidosMentions are available, these are considered post-processing stages.
-    val grounder = components.multiOntologyGrounder
-    eidosMentions.foreach(grounder.groundOntology)
+    val annotatedDocument = AnnotatedDocument(doc, afterNegation)
+    // Grounding is the first PostProcessor and it is pre-configured in Eidos.  Other things can take
+    // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
+    val groundedAnnotatedDocument = components.multiOntologyGrounder.process(annotatedDocument) // if grounding is configured, that is
 
-    AnnotatedDocument(doc, afterNegation, eidosMentions)
+    groundedAnnotatedDocument
   }
 
   // MAIN PIPELINE METHOD if given text
