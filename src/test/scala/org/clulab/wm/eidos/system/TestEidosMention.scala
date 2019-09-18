@@ -97,21 +97,21 @@ than in the corresponding period two years earlier.
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
     val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
+    val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
 
 //    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
-    rainfall.head.canonicalName should be ("rainfall")
+    canonicalizer.canonicalize(rainfall.head) should be ("rainfall")
 
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
-    decrease.head.canonicalName should be ("rainfall decrease government")
+    canonicalizer.canonicalize(decrease.head) should be ("rainfall decrease government")
 
     // Since we filter out the text from attachments, "price" should be removed (Property attachment)
     val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")
     oil should have size(1)
-    oil.head.canonicalName should be ("oil")
-
+    canonicalizer.canonicalize(oil.head) should be ("oil")
   }
 }

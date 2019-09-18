@@ -30,7 +30,7 @@ class OntologyHandler(
 
     //OntologyGrounding
     val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter)
-    val grounder = EidosOntologyGrounder(name, ontology, wordToVec)
+    val grounder = EidosOntologyGrounder(name, ontology, wordToVec, canonicalizer)
     val groundings = grounder match {
       case g: EidosOntologyGrounder => canonicalNames.toArray.map(text => g.groundText(text))
       case _ => throw new RuntimeException("Regrounding needs an EidosOntologyGrounder")
@@ -69,7 +69,7 @@ object OntologyHandler {
           ontologyName <- selected
           path = config[String](ontologyName)
           domainOntology = mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
-        } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec)
+        } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec, canonicalizer)
         new OntologyHandler(enabledOntologies, wordToVec, proc, canonicalizer)
 
       case _: FakeWordToVec => new OntologyHandler(Seq.empty, wordToVec, proc, canonicalizer)

@@ -56,6 +56,5 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
     eidosMention.canonicalMentions.sortWith(lessThan).flatMap(canonicalTokensSimple).toArray
   }
 
-  def canonicalize(eidosMention: EidosMention): Unit =
-      eidosMention.canonicalName = Some(canonicalNameParts(eidosMention).mkString(" "))
+  def canonicalize(eidosMention: EidosMention): String = canonicalNameParts(eidosMention).mkString(" ")
 }

@@ -59,12 +59,6 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
 
   /* Methods for canonicalForms of Mentions */
 
-  /**
-    * The canonical version of the mention text, with any appropriate filtering/simplification.
-    * Being a var Option, this is filled in by a post-processor, probably using the Canonicalizer.
-    */
-  var canonicalName: Option[String] = None
-
   // Return any mentions that are involved in the canonical name.  By default, the argument values.
   // This is here to allow subclasses to override it so that the Canonicalizer doesn't have to keep track.
   def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
@@ -121,6 +115,7 @@ object EidosMention {
           case crossSentenceMention: CrossSentenceMention =>
             addMention(crossSentenceMention.anchor)
             addMention(crossSentenceMention.neighbor)
+          case _ =>
         }
       })
     }

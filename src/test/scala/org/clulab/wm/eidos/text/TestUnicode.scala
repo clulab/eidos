@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.text
 
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.Canonicalizer
 
 class TestUnicode extends ExtractionTest {
 
@@ -10,6 +12,10 @@ class TestUnicode extends ExtractionTest {
 
   // The original test sentences no longer result in any events found.  They have been replaced
   // by made up sentences that might be replaced if ever we come across a problem case.
+
+  val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
+
+  def canonicalize(eidosMention: EidosMention): String = canonicalizer.canonicalize(eidosMention)
 
   {
     val text = "\u2022 " + "Poverty caused significantly increased hunger."
@@ -21,14 +27,14 @@ class TestUnicode extends ExtractionTest {
     behavior of "text with bullet"
 
     ignore should "not be disturbed by the bullet" in {
-      odinMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.text) }
-      eidosMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.canonicalName) }
+      odinMentions.foreach { mention => println(mention.getClass.getName + ": " + mention.text) }
+      eidosMentions.foreach { mention => println(mention.getClass.getName + ": " + canonicalize(mention)) }
 
       odinMentions.exists(_.text == "Poverty") should be (true)
       odinMentions.exists(_.text == "\u2022 Poverty") should be (false)
 
-      eidosMentions.exists(_.canonicalName == "poverty") should be (true)
-      eidosMentions.exists(_.canonicalName.contains("\u2022")) should be (false)
+      eidosMentions.exists(canonicalize(_) == "poverty") should be (true)
+      eidosMentions.exists(canonicalize(_).contains("\u2022")) should be (false)
     }
   }
 
@@ -42,14 +48,14 @@ class TestUnicode extends ExtractionTest {
     behavior of "text with arrows"
 
     ignore should "not be disturbed by the arrows" in {
-      odinMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.text) }
-      eidosMentions.foreach { mention => println(mention.getClass().getName() + ": " + mention.canonicalName) }
+      odinMentions.foreach { mention => println(mention.getClass.getName + ": " + mention.text) }
+      eidosMentions.foreach { mention => println(mention.getClass.getName + ": " + canonicalize(mention)) }
 
       odinMentions.exists(_.text == "Poverty") should be (true)
       odinMentions.exists(_ == "\u27a4\u27a4 Poverty") should be (false)
 
-      eidosMentions.exists(_.canonicalName == "poverty") should be (true)
-      eidosMentions.exists(_.canonicalName.contains("\u27a4")) should be (false)
+      eidosMentions.exists(canonicalize(_) == "poverty") should be (true)
+      eidosMentions.exists(canonicalize(_).contains("\u27a4")) should be (false)
     }
   }
 }

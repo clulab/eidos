@@ -68,7 +68,8 @@ class TestOntologyGrounder extends EnglishTest {
       val ontologyYaml = FileUtils.getTextFromResource("/org/clulab/wm/eidos/english/ontologies/un_ontology.yml")
       val ontologyHandler = ieSystem.components.ontologyHandler
       val text = odinMention.text
-      val canonicalName = eidosMention.canonicalName.get
+      val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
+      val canonicalName = canonicalizer.canonicalize(eidosMention)
 
       def reground(text: String) = {
         val name = "test"
