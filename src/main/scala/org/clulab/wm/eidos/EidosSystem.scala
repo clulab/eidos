@@ -121,9 +121,10 @@ class EidosSystem(val components: EidosComponents) {
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
     val annotatedDocument = AnnotatedDocument(doc, afterNegation)
-    // Grounding is the first PostProcessor and it is pre-configured in Eidos.  Other things can take
+
+    // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
     // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
-    val groundedAnnotatedDocument = components.multiOntologyGrounder.process(annotatedDocument) // if grounding is configured, that is
+    val groundedAnnotatedDocument = components.ontologyHandler.applySteps(annotatedDocument)
 
     groundedAnnotatedDocument
   }

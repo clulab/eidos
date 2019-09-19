@@ -25,14 +25,12 @@ import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.attachments.{Property, Quantification}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.DctDocumentAttachment
-import org.clulab.wm.eidos.groundings.MultiOntologyGrounder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -609,7 +607,7 @@ class JLDDeserializer {
     remainingMentions
   }
 
-  def deserializeCorpus(corpusValue: JValue, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder): Corpus = {
+  def deserializeCorpus(corpusValue: JValue, canonicalizer: Canonicalizer): Corpus = {
     requireType(corpusValue, JLDCorpus.typename)
     // A corpus with no documents is hardly a corpus, so no extractOpt is used (for now).
     val documentSpecs = (corpusValue \ "documents").extract[JArray].arr.map(deserializeDocument)
@@ -651,9 +649,9 @@ class JLDDeserializer {
     corpus
   }
 
-  def deserialize(json: String, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounder): Corpus = {
+  def deserialize(json: String, canonicalizer: Canonicalizer): Corpus = {
     val jValue: JValue = parse(json)
-    val corpus = deserializeCorpus(jValue, canonicalizer, ontologyGrounder)
+    val corpus = deserializeCorpus(jValue, canonicalizer)
     corpus
   }
 }
