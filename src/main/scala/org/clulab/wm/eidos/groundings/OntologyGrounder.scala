@@ -19,7 +19,8 @@ object OntologyAliases {
   type OntologyGroundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty) {
+// TODO Put canonical name first and it shouldn't be optional.
+case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, val canonicalNameParts: Option[Seq[String]] = None) {
   def nonEmpty: Boolean = grounding.nonEmpty
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[SingleOntologyGrounding] = grounding.headOption

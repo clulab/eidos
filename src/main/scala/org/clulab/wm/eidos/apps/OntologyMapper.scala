@@ -157,7 +157,7 @@ object OntologyMapper {
 
   // Mapping the primary ontology to the indicator ontologies
   def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
-    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.grounders
+    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders
     println(s"number of eidos ontologies - ${grounders.length}")
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
@@ -231,7 +231,7 @@ object OntologyMapper {
     } else {
 
       // TODO.  How do we know what the head is?
-      reader.components.ontologyHandler.grounders.head.conceptEmbeddings
+      reader.components.ontologyHandler.ontologyGrounders.head.conceptEmbeddings
     }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
     val bbnConceptEmbeddings = loadOtherOntology(bbnPath, w2v)

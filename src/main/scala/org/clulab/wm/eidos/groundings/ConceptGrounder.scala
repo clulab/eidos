@@ -18,10 +18,11 @@ object ConceptAliases {
 
 case class CoreGrounding(val coreConcept: String, val groundings: MultipleConceptGrounding = Seq.empty)
 
-case class ModifierGrounding(val modifier: String, val groundings: MultipleConceptGrounding = Seq.empty)
+case class ModifierGrounding(val modifier: String, val category: String, val groundings: MultipleConceptGrounding = Seq.empty)
 
 case class CompositeGrounding(val coreGrounding: CoreGrounding, modifierGroundings: Seq[ModifierGrounding] = Seq.empty)
 
+// The argument is an Option for the case that there is no coreGrounding.
 case class ConceptGrounding(compositeGrounding: Option[CompositeGrounding]) {
   def nonEmpty: Boolean = compositeGrounding.nonEmpty
 }
@@ -36,32 +37,58 @@ trait MultiConceptGrounder {
   def groundConcept(mention: EidosMention): ConceptGroundings
 }
 
+// Arguments to include whatever information is needed.
 class EidosConceptGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer) extends ConceptGrounder {
 
-  def groundConcept(mention: EidosMention): ConceptGrounding = {
-    val coreConceptOpt: Option[String] = Some("hello")
-    val conceptGroundingOpt: Option[CompositeGrounding] = coreConceptOpt.map { coreConcept =>
-      val coreConceptGroundings: Option[MultipleConceptGrounding] = coreConceptOpt.map { coreConcept =>
-        Seq(
-          (domainOntology.getNamer(0), 0f),
-          (domainOntology.getNamer(1), 1f),
-          (domainOntology.getNamer(2), 2f),
-          (domainOntology.getNamer(3), 3f),
-          (domainOntology.getNamer(4), 4f)
-        )
-      }
-      val coreGrounding = CoreGrounding(coreConcept, coreConceptGroundings.get)
-      val modifiers: Seq[String] = Seq("one", "two", "three")
-      val modifierGroundings: Seq[ModifierGrounding] = modifiers.map { modifier =>
-        val modifierGroundings = Seq(
-          (domainOntology.getNamer(0), 0f),
-          (domainOntology.getNamer(1), 1f),
-          (domainOntology.getNamer(2), 2f),
-          (domainOntology.getNamer(3), 3f),
-          (domainOntology.getNamer(4), 4f)
-        )
+  // TODO
+  def findCoreConcept(eidosMention: EidosMention): Option[String] = {
+    Some("hello")
+  }
 
-        ModifierGrounding(modifier, modifierGroundings)
+  // TODO
+  def groundCoreConcept(eidosMention: EidosMention, coreConcept: String): MultipleConceptGrounding = {
+    Seq(
+      (domainOntology.getNamer(0), 0f),
+      (domainOntology.getNamer(1), 1f),
+      (domainOntology.getNamer(2), 2f),
+      (domainOntology.getNamer(3), 3f),
+      (domainOntology.getNamer(4), 4f)
+    )
+  }
+
+  // TODO
+  // Result is (modifier, category), each a string for now.
+  def findModifiersAndCategories(eidosMention: EidosMention, coreConcept: String): Seq[(String, String)] = {
+    val categories = Array("property", "process", "phenomenon")
+
+    Seq(
+      ("zero", categories(0)),
+      ("one", categories(1)),
+      ("two", categories(2))
+    )
+  }
+
+  // TODO
+  def groundModifiersAndCategories(eidosMention: EidosMention, coreConcept: String, modifier: String, category: String): MultipleConceptGrounding = {
+    Seq(
+      (domainOntology.getNamer(0), 0f),
+      (domainOntology.getNamer(1), 1f),
+      (domainOntology.getNamer(2), 2f),
+      (domainOntology.getNamer(3), 3f),
+      (domainOntology.getNamer(4), 4f)
+    )
+  }
+
+  def groundConcept(eidosMention: EidosMention): ConceptGrounding = {
+    val coreConceptOpt: Option[String] = findCoreConcept(eidosMention)
+    val conceptGroundingOpt: Option[CompositeGrounding] = coreConceptOpt.map { coreConcept =>
+      val coreConceptGroundings: MultipleConceptGrounding = groundCoreConcept(eidosMention, coreConcept)
+      val coreGrounding = CoreGrounding(coreConcept, coreConceptGroundings)
+      val modifiersAndCategories: Seq[(String, String)] = findModifiersAndCategories(eidosMention, coreConcept)
+      val modifierGroundings: Seq[ModifierGrounding] = modifiersAndCategories.map { case (modifier, category) =>
+        val modifierGroundings = groundModifiersAndCategories(eidosMention, coreConcept, modifier, category)
+
+        ModifierGrounding(modifier, category, modifierGroundings)
       }
 
       CompositeGrounding(coreGrounding, modifierGroundings)

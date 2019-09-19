@@ -21,6 +21,7 @@ case class EidosComponents(
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
   multiOntologyGrounder: EidosMultiOntologyGrounder,
+  multiConceptGrounder: EidosMultiConceptGrounder,
   actions: EidosActions,
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
@@ -41,6 +42,7 @@ class EidosComponentsBuilder {
   var stopwordManagerOpt: Option[StopwordManager] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
   var multiOntologyGrounderOpt: Option[EidosMultiOntologyGrounder] = None
+  var multiConceptGrounderOpt: Option[EidosMultiConceptGrounder] = None
   var actionsOpt: Option[EidosActions] = None
   var engineOpt: Option[ExtractorEngine] = None
   var hedgingHandlerOpt: Option[HypothesisHandler] = None
@@ -70,6 +72,7 @@ class EidosComponentsBuilder {
       // This involves reloading of very large vector files and is what we're trying to avoid.
       ontologyHandlerOpt = Some(eidosComponents.ontologyHandler)
       multiOntologyGrounderOpt = Some(eidosComponents.multiOntologyGrounder)
+      multiConceptGrounderOpt = Some(eidosComponents.multiConceptGrounder)
     }
     else {
       {
@@ -84,7 +87,8 @@ class EidosComponentsBuilder {
       stopwordManagerOpt = Some(StopwordManager.fromConfig(config))
       ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get))
       // Ontologies
-      multiOntologyGrounderOpt = Some(ontologyHandlerOpt.get.ontologyGrounders)
+      multiOntologyGrounderOpt = Some(ontologyHandlerOpt.get.ontologyGrounder)
+      multiConceptGrounderOpt = Some(ontologyHandlerOpt.get.conceptGrounder)
     }
 
     actionsOpt = Some(EidosActions.fromConfig(config[Config]("actions")))
@@ -127,6 +131,7 @@ class EidosComponentsBuilder {
       stopwordManagerOpt.get,
       ontologyHandlerOpt.get,
       multiOntologyGrounderOpt.get,
+      multiConceptGrounderOpt.get,
       actionsOpt.get,
       engineOpt.get,
       hedgingHandlerOpt.get,

@@ -9,15 +9,24 @@ import org.slf4j.{Logger, LoggerFactory}
 
 
 class OntologyHandler(
-  val grounders: Seq[EidosOntologyGrounder],
+  val ontologyGrounders: Seq[EidosOntologyGrounder],
+  val conceptGrounders: Seq[EidosConceptGrounder],
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer) {
 
-  def ontologyGrounders: EidosMultiOntologyGrounder = {
+  def ontologyGrounder: EidosMultiOntologyGrounder = {
     wordToVec match {
-      case _: RealWordToVec => new EidosMultiOntologyGrounder(grounders)
+      case _: RealWordToVec => new EidosMultiOntologyGrounder(ontologyGrounders)
       case _: FakeWordToVec => new EidosMultiOntologyGrounder(Seq.empty)
+      case _ => ???
+    }
+  }
+
+  def conceptGrounder: EidosMultiConceptGrounder = {
+    wordToVec match {
+      case _: RealWordToVec => new EidosMultiConceptGrounder(conceptGrounders)
+      case _: FakeWordToVec => new EidosMultiConceptGrounder(Seq.empty)
       case _ => ???
     }
   }
@@ -70,9 +79,10 @@ object OntologyHandler {
           path = config[String](ontologyName)
           domainOntology = mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
         } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec, canonicalizer)
-        new OntologyHandler(enabledOntologies, wordToVec, proc, canonicalizer)
+        val conceptGrounders: Seq[EidosConceptGrounder] = Seq.empty // TODO
+        new OntologyHandler(enabledOntologies, conceptGrounders, wordToVec, proc, canonicalizer)
 
-      case _: FakeWordToVec => new OntologyHandler(Seq.empty, wordToVec, proc, canonicalizer)
+      case _: FakeWordToVec => new OntologyHandler(Seq.empty, Seq.empty, wordToVec, proc, canonicalizer)
       case _ => ???
     }
 //    val selected = config[List[String]]("ontologies")
