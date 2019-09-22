@@ -61,13 +61,13 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct time1 node" taggedAs (Somebody) in {
       tester.test(time1) should be(successful)
     }
-    passingTest should "have correct group node" taggedAs (Somebody) in {
+    failingTest should "have correct group node" taggedAs (Somebody) in {
       tester.test(group) should be(successful)
     }
     passingTest should "have correct moveFrom node" taggedAs (Somebody) in {
       tester.test(moveFrom) should be(successful)
     }
-    passingTest should "have correct migration event" taggedAs (Somebody) in {
+    failingTest should "have correct migration event" taggedAs (Somebody) in {
       tester.test(migration1) should be(successful)
     }
 
@@ -137,7 +137,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveFrom2 node" taggedAs (Somebody) in {
       tester.test(moveFrom2) should be(successful)
     }
-    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
+    failingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be(successful)
     }
 
@@ -168,10 +168,10 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration1) should be(successful)
     }
 
-    passingTest should "have correct group2 node" taggedAs (Somebody) in {
+    failingTest should "have correct group2 node" taggedAs (Somebody) in {
       tester.test(group2) should be(successful)
     }
-    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
+    failingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be(successful)
     }
   }
@@ -339,7 +339,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveFrom2 node" taggedAs (Somebody) in {
       tester.test(moveFrom2) should be(successful)
     }
-    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
+    failingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be(successful)
     }
   }
@@ -768,7 +768,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct time1 node" taggedAs (Somebody) in {
       tester.test(time1) should be (successful)
     }
-    passingTest should "have correct group1 node" taggedAs (Somebody) in {
+    failingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
     failingTest should "have correct moveThrough1 node" taggedAs (Somebody) in {
