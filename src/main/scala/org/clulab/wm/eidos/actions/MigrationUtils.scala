@@ -135,7 +135,6 @@ object MigrationUtils {
     (m1.arguments.values.toList.intersect(m2.arguments.values.toList).nonEmpty
       // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: it does not look like we need this condition (it results in false negs at least in some cases), but keeping it here for now for potential future use
       // && m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).size != m1.arguments.values.toList.intersect(m2.arguments.values.toList).size
-
       //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
       //information with the same argName---merging will delete one of them); we want these to be separate events
       && !bothSpecific(m1, m2)
@@ -147,7 +146,6 @@ object MigrationUtils {
 
       //AND events share the type of argument (argName)
       && (m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).nonEmpty
-
       //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
       //information with the same argName---merging will delete one of them); we want these to be separate events
       && !bothSpecific(m1, m2))
@@ -168,9 +166,19 @@ object MigrationUtils {
       val relArg1 = m1.arguments(argName).head
       val relArg2 = m2.arguments(argName).head
 
-      //specific events either have attachements or have some numeric information in them (e.g., 300 refugees)
+      //specific events either have attachements or have some numeric information in them (e.g., 300 refugees) or have capital letters in them
       //AND are not the same mention
-      if ((relArg1.attachments.nonEmpty || (relArg1.text matches ".*\\d+.*")) && (relArg2.attachments.nonEmpty || (relArg2.text matches ".*\\d+.*")) && relArg1 != relArg2  ) return true
+      //AND the arguments in question don't overlap
+      if (
+        ((relArg1.attachments.nonEmpty || (relArg1.text matches ".*[\\dA-Z]+.*")) && (relArg2.attachments.nonEmpty || (relArg2.text matches ".*[\\dA-Z]+.*"))
+        &&
+        relArg1 != relArg2 //make sure they are not the same argument
+        &&
+        relArg1.tokenInterval.intersect(relArg2.tokenInterval).isEmpty //if the arguments in question overlap, don't count them as both specific
+         )
+
+      )
+        return true
     }
 
     false
@@ -210,9 +218,9 @@ object MigrationUtils {
     for (arg <- mention1.arguments ++ mention2.arguments) {
       //if the argumentName is present in both of the mentions...
       if (overlappingArgs.contains(arg._1)) {
-        //choose the more specific argument by checking if one of them contains an attachment or contains numbers
+        //choose the more specific argument by checking if one of them contains an attachment or contains numbers or contains capital letters
         val arg1 = mention1.arguments(arg._1)
-        if (arg1.exists(tbm => tbm.attachments.nonEmpty || (tbm.text matches ".*\\d+.*"))) {
+        if (arg1.exists(tbm => tbm.attachments.nonEmpty || (tbm.text matches ".*[A-Z\\d+].*"))) {
           newArgs = newArgs ++ Map(arg._1 -> arg1)
         } else {
           newArgs = newArgs ++ Map(arg._1 -> mention2.arguments(arg._1))
@@ -362,12 +370,14 @@ object MigrationUtils {
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
   def copyWithNewArgs(orig: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
+
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
 
     val newTokenInterval = if (mkNewInterval) {
-      // All involved token intervals, both for the original event and the expanded arguments
-      val allIntervals = Seq(orig.tokenInterval) ++ newArgs.values.flatten.map(arg => arg.tokenInterval)
+
+      // All involved token intervals, both for the original event and the expanded arguments => changed to just looking at the newArgs bc that involves the original set of args; may need to revisit
+      val allIntervals = Seq() ++ newArgs.values.flatten.map(arg => arg.tokenInterval)
       // Find the largest span from these intervals
       getNewTokenInterval(allIntervals)
     }
