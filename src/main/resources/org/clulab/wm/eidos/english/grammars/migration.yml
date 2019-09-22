@@ -11,12 +11,12 @@ rules:
     pattern: |
       trigger = [lemma=/^(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
-      moveTo: Location? = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl >nmod_in)|(>advmod >nmod_towards)
+      moveTo: Location? = (</${agents}/ >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl >nmod_in)|(>advmod >nmod_towards) | <acl <nmod_in <xcomp nsubj
       moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)|(>nsubj >compound)
       moveThrough: Location? = </${agents}/? (>nmod_via|>nmod_through)
       timeStart: Time? = >nmod_since|>nmod_after|(>advcl_since >nmod_in)
       timeEnd: Time? = >nmod_as_of|>nmod_until|>nmod_by
-      time: Time? = (>nmod_during >nummod)|>nmod_in
+      time: Time? = (>nmod_during >nummod)|>nmod_in | >nmod_in|<acl? <nmod_in? <xcomp nmod_in | <"acl:relcl"
 
 
   - name: migration-arrive
@@ -28,8 +28,8 @@ rules:
     pattern: |
       trigger = [lemma=arrive & tag=/^VB/]
       group: Entity? = ((<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?)|(<acl <nmod_with >nsubjpass)|nmod_to) [!entity="LOCATION"]
-      moveTo: Location? = (</${agents}/? >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl? >nmod_in)|(>advmod >nmod_towards)
-      moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of)
+      moveTo: Location? = (</${agents}/? >nmod_in)|(>dobj? >nmod_into)|(>nmod_from? (>nmod_to|>nmod_into))|>nmod_for| (>nmod_between >conj_and >compound?)|(<acl? >nmod_in)|(>advmod >nmod_towards) | (nsubj <dobj <xcomp nmod_in)
+      moveFrom: Location? = (>nmod_from >nmod_in?)|>nmod_out_of|>nmod_between|(>dobj >conj_or?)|((>/${agents}/|<acl) >nmod_from)|(>nmod_from >nmod_of) | nsubj compound
       moveThrough: Location? = </${agents}/? (>nmod_via|>nmod_through)
       timeStart: Time? = >nmod_since nmod_of?|>nmod_after|(>advcl_since >nmod_in)
       timeEnd: Time? = >nmod_as_of|>nmod_until|>nmod_by
@@ -84,7 +84,7 @@ rules:
       moveThrough: Location? = (</${agents}/ (>nmod_via|>nmod_through))
       timeStart: Time? = (>nmod_since|>nmod_after)|(>advcl_since >nmod_in)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
-      time: Time? = (>nmod_during >nummod|>nmod_in)
+      time: Time? = (>nmod_during >nummod|>nmod_in|<xcomp nmod_in)
 
 
   - name: migration-settle
@@ -159,7 +159,9 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [lemma=destination & tag=/^NN/]
-      moveTo: Location+ = <nsubj >conj_and?
+      group: Concept = <nmod_with <nmod_from nsubj nummod
+      moveFrom: Location = <nmod_with
+      moveTo: Location = <nsubj >conj_and? | dep? nmod_in?
 
   - name: migration-destination-left
     priority: ${ rulepriority }
@@ -224,9 +226,21 @@ rules:
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = (<dobj? (>nmod_during >nummod|>nmod_in))|(</${agents}/ >nmod_in)
 
+#very specific; clashes with the rate rule
+#  - name: migration-jump
+#    priority: ${ rulepriority }
+#    example: "The daily arrival rate has significantly jumped from 103 person in February and 199 in February to 660 so far in March."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [lemma=/jump/ & tag=/^VB/]
+#      groupModifier: Time = nsubj amod
+#      group: Concept? = nmod_from nummod | nmod_in | nmod_to
+#      time: Time? = advmod? nmod_in
+
   - name: migration-rate
     priority: ${ rulepriority }
-    example: "Additional cross border movement to Ethiopia occurs via Pagak."
+    example: "Of these, 3,967 arrived in the week of 6 to 11 March, representing a daily average arrival rate of 660 people."
     label: ${ label }
     action: ${ action }
     pattern: |
@@ -239,6 +253,7 @@ rules:
       timeStart: Time? = >advcl_since? (<dobj? >nmod_since)
       timeEnd: Time? = (>nmod_as_of|>nmod_until|>nmod_by)
       time: Time? = </${agents}/ /advmod|nmod_in/
+
 
   - name: migration-remain
     priority: ${ rulepriority }
