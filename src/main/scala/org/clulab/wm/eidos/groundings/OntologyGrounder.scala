@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
+import org.clulab.odin.{Mention, TextBoundMention}
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
@@ -7,6 +9,7 @@ import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
 
 object Aliases {
@@ -101,13 +104,99 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
 
 }
 
-class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer) extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
+class CompositionalGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer) extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
   override def groundOntology(mention: EidosMention): OntologyGrounding = {
     // Separate ontology nodes into Process, Property, and Phenomenon
     val (processNodes, other) = conceptEmbeddings.partition(_.namer.name.contains("wm/process"))
     val (propertyNodes, phenomenonNodes) = other.partition(_.namer.name.contains("wm/property"))
 
     // TODO: Andrew, please fill in!
+    //  split mention into syntactic head and modifiers based on dependencies?
+    //  head tends to be the property (e.g. PRICE in 'oil price' and 'price of oil')
+    //  ground only >compound and >nmod_ ?
+
+
+
+    /** start by grounding syntactic head */
+
+    // make a new mention that's just the syntactic head of the original mention
+    val syntacticHead = mention.odinMention.synHead
+    val mentionHead = new ArrayBuffer[Mention]
+    for {
+      tok <- syntacticHead
+    } mentionHead.append(
+      new TextBoundMention(
+        Seq("Mention_head"),
+        tokenInterval = Interval(tok),
+        sentence = mention.odinMention.sentence,
+        document = mention.odinMention.document,
+        keep = mention.odinMention.keep,
+        foundBy = mention.odinMention.foundBy
+      )
+    )
+
+    // Sieve-based approach
+    if (EidosOntologyGrounder.groundableType(EidosMention.asEidosMentions(mentionHead).head)) {
+      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+      // grounding and we want to use it.
+    val matchedPatterns = nodesPatternMatched(mentionHead.head.text, conceptPatterns)
+    if (matchedPatterns.nonEmpty) {
+      OntologyGrounding(matchedPatterns)
+    }
+      // Otherwise, back-off to the w2v-based approach
+    else {
+      val canonicalNameParts = canonicalizer.canonicalNameParts(EidosMention.asEidosMentions(mentionHead).head)
+      OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+    }
+//    else
+//      OntologyGrounding()
+
+      //todo: how to look inside grounding to see which partition it is part of?
+
+
+
+    // Get all dependencies within the original mention
+    val dependencies = mention.odinMention.sentenceObj.dependencies
+
+    // Get outgoing dependencies
+    val outgoing = dependencies match {
+      case Some(deps) => deps.outgoingEdges
+      case None => Array.empty
+    }
+
+    // Get incoming dependencies
+    val incoming = dependencies match {
+      case Some(deps) => deps.incomingEdges
+      case None => Array.empty
+    }
+
+
+
+  /** then ground modifiers of syntactic head */
+
+    // Get modifiers in original mention
+
+    val modifiers = new ArrayBuffer[Mention]
+
+    val argumentIntervals = mention.odinMention.arguments.values.flatten.map(_.tokenInterval)
+    for {
+      tok <- mention.odinMention.tokenInterval
+      if !argumentIntervals.exists(_.contains(tok))
+      in <- incoming.lift(tok)
+      (ix, label) <- in
+      if label == "compound" || label == "nmod_of"
+    } modifiers.append(
+      new TextBoundMention(
+        Seq("Compositional_modifier"),
+        Interval(tok),  // todo: not sure if this should be 'tok'
+        sentence = mention.odinMention.sentence,
+        document = mention.odinMention.document,
+        keep = mention.odinMention.keep,
+        foundBy = mention.odinMention.foundBy
+      )
+    )
+
+
     ???
   }
 }
