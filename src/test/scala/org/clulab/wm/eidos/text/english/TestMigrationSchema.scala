@@ -567,9 +567,9 @@ class TestMigrationSchema extends EnglishTest {
 
   {
     val text = "According to a recent sample survey conducted in Pagak, the new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
-    //todo: simplify the test
+    //todo: rule for `according to'
     val tester = new GraphTester(text)
-
+    val moveTo = NodeSpec("Pagak", GeoLoc("Pagak"))
     val group1 = NodeSpec("new arrivals") //leave of "the" ?
 
     val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
@@ -586,46 +586,60 @@ class TestMigrationSchema extends EnglishTest {
 
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom1)
+      moveFrom = Some(moveFrom1),
+      moveTo = Some(moveTo)
     )
     val migration2 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom2)
+      moveFrom = Some(moveFrom2),
+      moveTo = Some(moveTo)
     )
     val migration3 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom3)
+      moveFrom = Some(moveFrom3),
+      moveTo = Some(moveTo)
     )
     val migration4 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom4)
+      moveFrom = Some(moveFrom4),
+      moveTo = Some(moveTo)
     )
     val migration5 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom5)
+      moveFrom = Some(moveFrom5),
+      moveTo = Some(moveTo)
     )
     val migration6 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom6)
+      moveFrom = Some(moveFrom6),
+      moveTo = Some(moveTo)
     )
     val migration7 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom7)
+      moveFrom = Some(moveFrom7),
+      moveTo = Some(moveTo)
     )
     val migration8 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom8)
+      moveFrom = Some(moveFrom8),
+      moveTo = Some(moveTo)
     )
     val migration9 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom9)
+      moveFrom = Some(moveFrom9),
+      moveTo = Some(moveTo)
     )
     val migration10 = HumanMigrationEdgeSpec(
       group = Some(group1),
-      moveFrom = Some(moveFrom10)
+      moveFrom = Some(moveFrom10),
+      moveTo = Some(moveTo)
     )
 
     behavior of "migration-az-hack-6"
+
+    passingTest should "have correct moveTo node" taggedAs (Somebody) in {
+      tester.test(moveTo) should be (successful)
+    }
 
     passingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
@@ -808,18 +822,18 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "This brings the number of South Sudanese refugees who have arrived in Ethiopia since September 2016 to 68,858."
-    //todo: rule for "bring the number to"
+    val text = "This brings the number of refugees who have arrived in Ethiopia since September 2016 to 68,858."
+    //fixme: if there's a conflicting specific group ("South Sudanese refugees"), there are two migration events prevented from being merged by the 'bothSpecific' heuristic
 
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("68,858", CountSpec(68858))
-    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
+//    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
     val moveTo1 = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
     val timeStart1 = NodeSpec("since September 2016", TimEx("since September 2016"))
     val migration1 = HumanMigrationEdgeSpec(
-      group = Some(group1), //fixme: wrong group found => need a rule for "bring the number to"
-      moveFrom = Some(moveFrom1),
+      group = Some(group1),
+//      moveFrom = Some(moveFrom1),
       moveTo = Some(moveTo1),
       timeStart = Some(timeStart1)
     )
@@ -829,9 +843,9 @@ class TestMigrationSchema extends EnglishTest {
     failingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
-      tester.test(moveFrom1) should be (successful)
-    }
+//    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+//      tester.test(moveFrom1) should be (successful)
+//    }
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
       tester.test(moveTo1) should be (successful)
     }
@@ -980,6 +994,14 @@ class TestMigrationSchema extends EnglishTest {
       moveTo = Some(moveTo1),
       time = Some(time1))
 
+
+    val group2 = NodeSpec("77,874", CountSpec(77874))
+    val timeStart = NodeSpec("since September 2016", TimEx("since September 2016"))
+    val migration2 = HumanMigrationEdgeSpec(
+      group = Some(group2),
+      moveTo = Some(moveTo1),
+      timeStart = Some(timeStart))
+
     behavior of "migration-arrive"
 
     failingTest should "have correct group1 node" taggedAs (Somebody) in {
@@ -996,6 +1018,17 @@ class TestMigrationSchema extends EnglishTest {
     }
     failingTest should "have correct migration1 event" taggedAs (Somebody) in {
       tester.test(migration1) should be (successful)
+    }
+
+    passingTest should "have correct group2 node" taggedAs (Somebody) in {
+      tester.test(group2) should be (successful)
+    }
+
+    passingTest should "have correct timeStart node" taggedAs (Somebody) in {
+      tester.test(timeStart) should be (successful)
+    }
+    passingTest should "have correct migration2 event" taggedAs (Somebody) in {
+      tester.test(migration2) should be (successful)
     }
   }
 
@@ -1030,7 +1063,8 @@ class TestMigrationSchema extends EnglishTest {
 
   {
     val text = "Except for 246 individuals who are awaiting relocation and 200 others awaiting level 1 registration in Pagak, all new arrivals have been relocated to Nguenyyiel Refugee Camp."
-
+    //todo: negative number rule?
+    //todo: found two events with different moveTo's: Nguenyyiel AND Refugee Camp
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("new arrivals")
@@ -1054,13 +1088,13 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "* As of 30 March 2017, Ethiopia hosted around 365,600 South Sudanese refugees."
+    val text = "As of 30 March 2017, Ethiopia hosted around 365,600 South Sudanese refugees."
 
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("365,600 South Sudanese refugees", CountSpec(365600, CountModifier.Approximate))
     val moveTo1 = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
-    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese")) //fixme: can't extract location from an adjective
+    val moveFrom1 = NodeSpec("South Sudanese") //fixme: can't extract location from an adjective, so no attachment, but also the Location node based on gazetteer does not show
     val time1 = NodeSpec("30 March 2017", TimEx("30 March 2017"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
