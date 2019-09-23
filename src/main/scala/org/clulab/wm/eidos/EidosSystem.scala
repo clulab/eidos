@@ -201,6 +201,7 @@ class EidosSystem(val config: Config = EidosSystem.defaultConfig) {
 
 
     AnnotatedDocument(doc, afterMigrationProc, eidosMentions)
+
   }
 
   def extractFrom(doc: Document): Vector[Mention] = {
