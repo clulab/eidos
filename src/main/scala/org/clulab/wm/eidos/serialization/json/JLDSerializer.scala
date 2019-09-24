@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
-import java.util.IdentityHashMap
 
 import org.clulab.odin.EventMention
 import org.clulab.odin.{Attachment, Mention}
@@ -26,7 +25,6 @@ import org.json4s._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 // This is an object than when asked to convert itself a JSON object or value, converts
@@ -401,6 +399,12 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
   protected def provenance(): Seq[JValue] = Seq(new JLDProvenance(serializer, eidosMention).toJObject)
 
   override def toJObject: TidyJObject = {
+    // Important: Since the attachments come from the odinMention and those mentions have not been
+    // deduplicated like the eidosMentions have been, the attachments themselves can be duplicates.
+    // However, in serialization of the attachments, like everything else, identity is used to make
+    // the references.  This means that a duplicate, equals but not eq, count attribute will not be
+    // found so that a reference cannot be generated and an exception will be thrown.  Perhaps
+    // attachments need to be managed differently.
     val jldAttachments = eidosMention.odinMention.attachments.toSeq
         .collect{ case a: TriggeredAttachment => a }
         .sortWith(TriggeredAttachment.lessThan)
@@ -830,7 +834,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val key = GraphMap.UNIVERSAL_ENHANCED
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
     val dependencies = sentence.graphs.get(key)
-    val sent_id = document.sentences.indexOf(sentence)
+//    val sent_id = document.sentences.indexOf(sentence)
     val timexes: Seq[JObject] = timExs.map { timEx =>
       new JLDTimex(serializer, timEx).toJObject
     }
@@ -1090,9 +1094,9 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
         corpus.map { annotatedDocument => getCountAttachments(annotatedDocument.odinMentions) }
     val jldCountAttachmentsSeq: Seq[Seq[JLDCountAttachment]] =
         countAttachmentsSeq.map { countAttachments => countAttachments.map { countAttachment => new JLDCountAttachment(serializer, countAttachment) } }
-    val countAttachmentMap: Map[CountAttachment, JLDCountAttachment] = ((countAttachmentsSeq.flatten).zip(jldCountAttachmentsSeq.flatten)).toMap
-
-    val jldDocuments = (corpus.zip(jldCountAttachmentsSeq)).map { case (annotatedDocument, jldCountAttachments) => new JLDDocument(serializer, annotatedDocument, jldCountAttachments ) }
+    val countAttachmentMap: Map[CountAttachment, JLDCountAttachment] = countAttachmentsSeq.flatten.zip(jldCountAttachmentsSeq.flatten).toMap
+    // TODO: Some of this seems to assume a single document, especially if attributes are compared by equals.
+    val jldDocuments = corpus.zip(jldCountAttachmentsSeq).map { case (annotatedDocument, jldCountAttachments) => new JLDDocument(serializer, annotatedDocument, jldCountAttachments ) }
     val jldDocumentObjects = jldDocuments.map(_.toJObject) // So that serializer has typenames
     val exposedEidosMentions = corpus.flatMap(_.eidosMentions)
     val allJldExtractions = collectMentions(exposedEidosMentions, countAttachmentMap)

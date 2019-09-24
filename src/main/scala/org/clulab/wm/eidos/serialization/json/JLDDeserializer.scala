@@ -474,7 +474,7 @@ class JLDDeserializer {
           new Time(timexMap(value))
         else
           new DCTime(dctMap(value))
-      case "COUNT" =>
+      case JLDCountAttachment.typename =>
         require(provenanceOpt.isEmpty)
         val value = id((stateValue \ "value").extract[JValue])
         val countAttachment = countMap(value)
