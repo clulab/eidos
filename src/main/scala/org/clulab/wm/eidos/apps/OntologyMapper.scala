@@ -146,7 +146,7 @@ object OntologyMapper {
 
   // n is to limit the number returned, 0 means return all
   def mostSimilar(concept: ConceptEmbedding, indicators: Seq[ConceptEmbedding], n: Int, reader: EidosSystem, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f): Seq[(String, Float)] = {
-    println(s"comparing $concept...")
+    println(s"comparing ${concept.namer.name}...")
     val comparisons = indicators.map(indicator => (indicator.namer.name, pairwiseScore(concept, indicator, reader, exampleWeight, parentWeight)))//.filter(p => p._2 > 0.7)
     if (n > 0) {
       comparisons.sortBy(- _._2).take(n)
@@ -162,7 +162,9 @@ object OntologyMapper {
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
-    val indicatorMaps = grounders.map { ontology: EidosOntologyGrounder =>
+    val primaryKeys = primaryConceptEmbeddings.map(_.namer.name)
+    val indicatorGrounders = grounders.filter(g => EidosOntologyGrounder.indicatorNamespaces.contains(g.name))
+    val indicatorMaps = indicatorGrounders.map { ontology: EidosOntologyGrounder =>
       val namespace = ontology.name
       val concepts = ontology.conceptEmbeddings
       val mostSimilar: Map[String, Seq[(String, Float)]] = mostSimilarIndicators(primaryConceptEmbeddings, concepts, topN, reader).toMap
@@ -170,36 +172,23 @@ object OntologyMapper {
       mostSimilar.foreach(mapping => println(s"primary: ${mapping._1} --> most similar $namespace: ${mapping._2.mkString(",")}"))
       (namespace, mostSimilar)
     }
-    val primaryIndicatorMap = indicatorMaps.find { indicatorMap => indicatorMap._1 == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
+//    val primaryIndicatorMap = indicatorMaps.find { indicatorMap => indicatorMap._1 == EidosOntologyGrounder.PRIMARY_NAMESPACE }
 
     // Write the mapping file
     FileUtils.printWriterFromFile(outputFile).autoClose { pw =>
       FileUtils.printWriterFromFile(outputFile + ".no_ind_for_interventions").autoClose { pwInterventionSpecific =>
 
-        for (primaryConcept <- primaryIndicatorMap._2.keys) {
+        for (primaryConcept <- primaryKeys) {
           val mappings = indicatorMaps.flatMap(x => x._2(primaryConcept).map(p => (p._1, p._2, x._1)))
           val sorted = mappings.sortBy(-_._2)
           
           for ((indicator, score, label) <- sorted) {
             pw.println(s"primaryConcept\t$primaryConcept\t$label\t$indicator\t$score")
-            if (!primaryConcept.startsWith("wm/intervention")) { // Check the file for how this is named!
+            if (!primaryConcept.startsWith("wm/concept/causal_factor/intervention")) { // Check the file for how this is named!
               pwInterventionSpecific.println(s"primaryConcept\t$primaryConcept\t$label\t$indicator\t$score")
             }
           }
         }
-
-        // These would probably need to be changed from un to primary.
-        // Back when we were doing an exhaustive mapping...
-        //  for {
-        //    (unConcept, indicatorMappings) <- un2fao
-        //    (faoIndicator, score) <- indicatorMappings
-        //  } pw.println(s"unConcept\t$unConcept\tFAO\t$faoIndicator\t$score")
-        //
-        //  for {
-        //    (unConcept, indicatorMappings) <- un2wdi
-        //    (wdiIndicator, score) <- indicatorMappings
-        //  } pw.println(s"unConcept\t$unConcept\tWB\t$wdiIndicator\t$score")
-        //
       }
     }
   }
