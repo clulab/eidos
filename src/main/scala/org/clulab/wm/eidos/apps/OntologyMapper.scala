@@ -184,7 +184,7 @@ object OntologyMapper {
           
           for ((indicator, score, label) <- sorted) {
             pw.println(s"primaryConcept\t$primaryConcept\t$label\t$indicator\t$score")
-            if (!primaryConcept.startsWith("wm/intervention")) { // Check the file for how this is named!
+            if (!primaryConcept.startsWith("wm/concept/causal_factor/intervention")) { // Check the file for how this is named!
               pwInterventionSpecific.println(s"primaryConcept\t$primaryConcept\t$label\t$indicator\t$score")
             }
           }
