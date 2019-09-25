@@ -212,11 +212,9 @@ object OntologyMapper {
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
-      val grounder = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager))
-      grounder match {
-        case g: EidosOntologyGrounder => g.conceptEmbeddings
-        case _ => throw new RuntimeException("Custom ontology Grounder must be an EidosOntologyGrounder")
-      }
+      val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager))
+      val grounder = EidosOntologyGrounder(providedOntName, ontology, w2v)
+      grounder.conceptEmbeddings
     } else {
 
       // TODO.  How do we know what the head is?
