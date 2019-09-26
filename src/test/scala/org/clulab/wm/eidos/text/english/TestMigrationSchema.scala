@@ -6,12 +6,12 @@ import org.clulab.wm.eidos.test.TestUtils._
 
 class TestMigrationSchema extends EnglishTest {
 
-  def newTester(text: String): this.MigrationTester = new this.MigrationTester(text, useAttachments = false)
+  def newTester(text: String): MigrationTester = new MigrationTester(text, useAttachments = true)
 
   {
     val text = "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
 
-    val tester = newTester(text)
+    val tester = new MigrationTester(text, useAttachments = false)
 
     val group = NodeSpec("almost 40,000 refugees", CountSpec(40001, CountModifier.Max))
     val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
