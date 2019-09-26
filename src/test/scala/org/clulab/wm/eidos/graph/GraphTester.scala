@@ -47,19 +47,19 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       result ++ Seq("Mentions:\n" + toString(mentions))
 
   def test(nodeSpec: NodeSpec): Seq[String] = {
-    val testResult = nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+    val testResult = nodeSpec.test(mentions, useAttachments = true, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(testResult.complaints)
   }
 
   def test(edgeSpec: EdgeSpec): Seq[String] = {
-    val testResult = edgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+    val testResult = edgeSpec.test(mentions, useAttachments = true, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(testResult.complaints)
   }
 
   def test(humanMigrationEdgeSpec: HumanMigrationEdgeSpec): Seq[String] = {
-    val testResult = humanMigrationEdgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+    val testResult = humanMigrationEdgeSpec.test(mentions, useAttachments = true, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(testResult.complaints)
   }
@@ -70,4 +70,26 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
   def useTimeNorm: Boolean = ieSystem.useTimeNorm
   def useGeoNorm: Boolean = ieSystem.useGeoNorm
+}
+
+class MigrationTester(ieSystem: EidosSystem, text: String, useAttachments: Boolean)
+    extends GraphTester(ieSystem, text) {
+
+  override def test(nodeSpec: NodeSpec): Seq[String] = {
+    val testResult = nodeSpec.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
+
+    annotateTest(testResult.complaints)
+  }
+
+  override def test(edgeSpec: EdgeSpec): Seq[String] = {
+    val testResult = edgeSpec.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
+
+    annotateTest(testResult.complaints)
+  }
+
+  override def test(humanMigrationEdgeSpec: HumanMigrationEdgeSpec): Seq[String] = {
+    val testResult = humanMigrationEdgeSpec.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
+
+    annotateTest(testResult.complaints)
+  }
 }

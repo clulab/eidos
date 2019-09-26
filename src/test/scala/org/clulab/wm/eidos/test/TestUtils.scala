@@ -81,6 +81,9 @@ object TestUtils {
 
     class GraphTester(text: String) extends graph.GraphTester(ieSystem, text)
 
+    class MigrationTester(text: String, useAttachments: Boolean = true)
+        extends graph.MigrationTester(ieSystem, text, useAttachments)
+
     class RuleTester(text: String) extends rule.RuleTester(ieSystem, text)
 
     def useTimeNorm = ieSystem.useTimeNorm

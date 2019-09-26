@@ -311,12 +311,12 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
         val contextSpecs =  attachmentSpecs.collect { case a: ContextAttachmentSpec => a }
         // See if this works, then take out time and geo during the apply
 
-        ((useTimeNorm, useGeoNorm) match {
+        (useTimeNorm, useGeoNorm) match {
           case (true, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs)
           case (true, false) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs)
           case (false, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- timeSpecs)
           case _ => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs -- timeSpecs)
-        })
+        }
       }
 
   protected def matchText(mention: TextBoundMention): Boolean = {
@@ -326,10 +326,10 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
     success
   }
     
-  protected def testSpec(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[Mention] = {
+  protected def testSpec(mentions: Seq[Mention], useAttachments: Boolean, useTimeNorm: Boolean, useGeoNorm: Boolean): Seq[Mention] = {
     val matches1 = mentions.collect{ case m: TextBoundMention => m }
     val matches2 = matches1.filter(matchText)
-    val matches3 = matches2.filter(matchAttachments(useTimeNorm, useGeoNorm))
+    val matches3 = matches2.filter(match2 => !useAttachments || matchAttachments(useTimeNorm, useGeoNorm)(match2))
     val matches = matches3.zipWithIndex.filter { case (mention, index) =>
       nodeFilter(mention, index, matches3.size)
     }.map(pair => pair._1)
@@ -337,9 +337,9 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
     matches
   }
   
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+  def test(mentions: Seq[Mention], useAttachments: Boolean, useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
     if (!testResults.containsKey(this)) {
-      val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
+      val matches = testSpec(mentions, useAttachments, useTimeNorm, useGeoNorm)
       val testResult =
           if (matches.size < 1)
             new TestResult(None, Seq("Could not find NodeSpec " + this))
@@ -390,9 +390,9 @@ object NodeSpec {
 
 class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
 
-  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+  override def test(mentions: Seq[Mention], useAttachments: Boolean, useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
     if (!testResults.containsKey(this)) {
-      val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
+      val matches = testSpec(mentions, useAttachments, useTimeNorm, useGeoNorm)
       val testResult =
           if (matches.nonEmpty)
             new TestResult(None, Seq("Could find AntiNodeSpec " + this))
@@ -455,14 +455,14 @@ class HumanMigrationEdgeSpec(val event: EventSpec,
     matches4
   }
 
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+  def test(mentions: Seq[Mention], useAttachments: Boolean, useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
     if (!testResults.containsKey(this)) {
       val nodeTestResultsMap: Map[String, TestResult] = nodeSpecsMap.map { case (key, nodeSpec) =>
-        key -> nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+        key -> nodeSpec.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
       }
-      val nodeComplaints = nodeTestResultsMap.map { case (key, nodeTestResult) =>
+      val nodeComplaints = nodeTestResultsMap.flatMap { case (key, nodeTestResult) =>
         nodeTestResult.complaints
-      }.flatten
+      }
       val nodeSuccess = nodeComplaints.isEmpty
       val edgeTestResult =
         if (nodeSuccess) {
@@ -541,10 +541,10 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
     matches
   }
 
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+  def test(mentions: Seq[Mention], useAttachments: Boolean, useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
     if (!testResults.containsKey(this)) {
-      val causeTestResult = cause.test(mentions, useTimeNorm, useGeoNorm, testResults)
-      val effectTestResult = effect.test(mentions, useTimeNorm, useGeoNorm, testResults)
+      val causeTestResult = cause.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
+      val effectTestResult = effect.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
 
       val causeComplaints = causeTestResult.complaints
       val effectComplaints = effectTestResult.complaints
@@ -590,10 +590,10 @@ object EdgeSpec {
 class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends EdgeSpec(cause, event, effect) {
   override def toString: String = toString("->)", "(->")
 
-  override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
+  override def test(mentions: Seq[Mention], useAttachments: Boolean, useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
     if (!testResults.containsKey(this)) {
-      val causeTestResult = cause.test(mentions, useTimeNorm, useGeoNorm, testResults)
-      val effectTestResult = effect.test(mentions, useTimeNorm, useGeoNorm, testResults)
+      val causeTestResult = cause.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
+      val effectTestResult = effect.test(mentions, useAttachments, useTimeNorm, useGeoNorm, testResults)
 
       val causeComplaints = causeTestResult.complaints
       val effectComplaints = effectTestResult.complaints

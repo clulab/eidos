@@ -6,12 +6,14 @@ import org.clulab.wm.eidos.test.TestUtils._
 
 class TestMigrationSchema extends EnglishTest {
 
+  def newTester(text: String): this.MigrationTester = new this.MigrationTester(text, useAttachments = false)
+
   {
     val text = "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
-    val group = NodeSpec("almost 40,000 refugees", CountSpec(40000, CountModifier.Max))
+    val group = NodeSpec("almost 40,000 refugees", CountSpec(40001, CountModifier.Max))
     val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
     val moveFrom = NodeSpec("South Sudan", GeoLoc("South Sudan"))
     val timeStart = NodeSpec("September 2016", TimEx("September 2016"))
@@ -45,7 +47,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "For many FGD respondents from Greater Equatoria, this was the second or even third time they or their family had been displaced out of South Sudan; many reported leaving during the 2013 displacement crisis and/or in the second Sudanese Civil War (1983-2006)."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val time1 = NodeSpec("2013", TimEx("2013"))
     val time2 = NodeSpec("1983-2006") //what would timex be?
@@ -78,7 +80,7 @@ class TestMigrationSchema extends EnglishTest {
 
   {
     val text = "IDPs from Uror also made their way to Duk."
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group = NodeSpec("IDPs from Uror", NodeSpec.lastFilter) //TODO: is it ok to include "from Uror" here ?
     val moveFrom = NodeSpec("Uror", GeoLoc("Uror")) //fixme: uror is found with location-backoff => didn't find geoattachment
@@ -105,7 +107,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "In March, Bor Town continued to receive IDPs displaced from the Equatorias, in particular Yei and populations returning from refugee settlements in Uganda."
     //TODO: the parse is really bad for this sentence, so it might be hard to make this test pass
     //fixme: merging interference
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val moveTo = NodeSpec("Bor Town", GeoLoc("Bor Town"))
     val group1 = NodeSpec("IDPs displaced from the Equatorias")
@@ -146,7 +148,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Based on regular visits by REACH to sites in Bor Town where IDPs have settled, as well as the continuous inflow of new arrivals, a conservative estimate would suggest that the number of IDPs from the Equatorias in Bor Town is likely to have been around 12,000-15,000 individuals at the end of March."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("IDPs", NodeSpec.lastFilter) // Last in the list of mentions, not necessarily last in text.
   val moveTo = NodeSpec("Bor Town", GeoLoc("Bor Town"), NodeSpec.firstFilter)
@@ -179,7 +181,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Interviewed KIs passed through Nimule and Juba before settling in Bor."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1_2 = NodeSpec("Interviewed KIs")
     val moveTo1 = NodeSpec("Bor", GeoLoc("Bor"))
@@ -222,7 +224,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "Departures: 375 individuals were recorded leaving Juba (52%) of which the vast majority intended to reach refugees camps in Uganda (75%)"
     //fixme: not clear how many events should be extracted
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
 //    val group1 = NodeSpec("vast majority") //has been merged
     val moveTo = NodeSpec("Uganda", GeoLoc("Uganda"))
@@ -263,7 +265,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Additional cross border movement to Ethiopia occurs via Pagak."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
     val moveThrough = NodeSpec("Pagak", GeoLoc("Pagak")) //fixme: didn't find geoattachment
@@ -285,7 +287,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("358 individuals", CountSpec(358))
     val moveFrom1 = NodeSpec("Uganda", GeoLoc("Uganda"))
@@ -314,7 +316,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
     //fixme: need to decide on the ideal extraction
     //todo: update the test
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val moveTo1 = NodeSpec("Bor South", GeoLoc("Bor South")) //fixme: Bor South not found
     // This one matches the rule.
@@ -351,7 +353,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Between 1 and 11 March 2017, a total of 7,258 South Sudanese refugees have arrived in Gambella, Ethiopia, bringing the total who arrived since September 2016 to 68,858."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val time1 = NodeSpec("Between 1 and 11 March 2017", TimEx("Between 1 and 11 March 2017"))
     val group1 = NodeSpec("total of 7,258 South Sudanese refugees", CountSpec(7258))
@@ -404,7 +406,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "Of these, 3,967 arrived in the week of 6 to 11 March, representing a daily average arrival rate of 660 people."
     //todo: need a rule for rates of arrivals
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("3,967", CountSpec(3967))
     val time1 = NodeSpec("week of 6 to 11 March", TimEx("week of 6 to 11 March"))
@@ -447,7 +449,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "All of them have been registered (level1) and most of them were relocated to Nguenyyiel refugee camp."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val moveTo1 = NodeSpec("Nguenyyiel", GeoLoc("Nguenyyiel")) //fixme: doesn't have attachments
     val migration1 = HumanMigrationEdgeSpec(
@@ -466,7 +468,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "192 level1 registered new arrivals remain in Pagak, awaiting relocation."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("192 level1 registered new arrivals", CountSpec(192)) //fixme: didn't expand to full NP
     val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak")) // should this be moveThrough ? fixme: didn't find the attachment
@@ -493,7 +495,7 @@ class TestMigrationSchema extends EnglishTest {
     //fixme: group expands too much
     //todo: rewrite the test
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("103 person", CountSpec(103, CountModifier.NoModifier, CountUnit.Daily))
 //    val groupMod1 = NodeSpec("daily")
@@ -568,7 +570,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "According to a recent sample survey conducted in Pagak, the new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
     //todo: rule for `according to'
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
     val moveTo = NodeSpec("Pagak", GeoLoc("Pagak"))
     val group1 = NodeSpec("new arrivals") //leave of "the" ?
 
@@ -709,7 +711,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Conflict and food insecurity were cited as the main reasons for leaving South Sudan "
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val moveFrom1 = NodeSpec("South Sudan", GeoLoc("South Sudan"))
     val migration1 = HumanMigrationEdgeSpec(
@@ -729,7 +731,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "As of 15 March, Ethiopia hosted more than 356,000 South Sudanese refugees."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val timeEnd1 = NodeSpec("15 March", TimEx("15 March"))
     val moveTo1 = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
@@ -766,7 +768,7 @@ class TestMigrationSchema extends EnglishTest {
 
     //In this test, the time is not getting attached to the first migration event because of a bad parse (the clause starting with 'a total of...' is found as appos, so there is no good path from the migration to the time)
     //todo: need a rule for 'register'; difficult parse; need to decide on ideal extraction
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val time1 = NodeSpec("Between 1 February and 11 March 2017", TimEx("Between 1 February and 11 March 2017"))
     val group1 = NodeSpec("12,828 refugees", CountSpec(12828))
@@ -799,7 +801,7 @@ class TestMigrationSchema extends EnglishTest {
     //todo: bad parse
     //todo: update the test
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("all the new arrivals")
     val moveTo1 = NodeSpec("Nguenyyiel", GeoLoc("Nguenyyiel"))
@@ -825,7 +827,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "This brings the number of refugees who have arrived in Ethiopia since September 2016 to 68,858."
     //fixme: if there's a conflicting specific group ("South Sudanese refugees"), there are two migration events prevented from being merged by the 'bothSpecific' heuristic
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("68,858", CountSpec(68858))
 //    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
@@ -867,7 +869,7 @@ class TestMigrationSchema extends EnglishTest {
 //  {
 //    val text = "Since renewed fighting broke out across the country in July 2016, large numbers of refugees have poured into neighbouring countries, enlarging an already significant displacement crisis."
 //
-//    val tester = new GraphTester(text)
+//    val tester = newTester(text)
 //
 //    val group1 = NodeSpec("large numbers of refugees")
 //    val moveTo1 = NodeSpec("neighbouring countries")
@@ -899,7 +901,7 @@ class TestMigrationSchema extends EnglishTest {
 //  {
 //    val text = "By early-2017, nearly 60,000 people were fleeing the country each month, resulting in mass depopulation of both urban and rural areas."
 //
-//    val tester = new GraphTester(text)
+//    val tester = newTester(text)
 //
 //    val group1 = NodeSpec("nearly 60,000 people")
 //    val moveFrom1 = NodeSpec("country")
@@ -925,7 +927,7 @@ class TestMigrationSchema extends EnglishTest {
 //  {
 //    val text = "Civilians caught in the fighting between armed actors first displaced into remote areas of the bush, then flee to Uganda, Kenya or the DRC over the course of a few months."
 //
-//    val tester = new GraphTester(text)
+//    val tester = newTester(text)
 //
 //    val group1 = NodeSpec("Civilians")
 //    val moveTo1 = NodeSpec("remote areas of the bush")
@@ -982,7 +984,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Between 1 and 30 March 2017, 16,274 South Sudanese refugees arrived in Gambella, Ethiopia, bringing the total number of new arrivals since September 2016 to 77,874."
     //todo: test for the second clause?
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("16,274 South Sudanese refugees", CountSpec(16274)) //fixme: location attachment found but probably shouldn't be
     val time1 = NodeSpec("Between 1 and 30 March 2017", TimEx("Between 1 and 30 March 2017"))
@@ -1035,7 +1037,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "In the past week, the daily arrival average stood at 508 individuals."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("508 individuals", CountSpec(508, CountModifier.NoModifier, CountUnit.Daily))
     val groupMod1 = NodeSpec("daily", TimEx("daily"))
@@ -1065,7 +1067,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "Except for 246 individuals who are awaiting relocation and 200 others awaiting level 1 registration in Pagak, all new arrivals have been relocated to Nguenyyiel Refugee Camp."
     //todo: negative number rule?
     //todo: found two events with different moveTo's: Nguenyyiel AND Refugee Camp
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("new arrivals")
     val moveTo1 = NodeSpec("Nguenyyiel Refugee Camp", GeoLoc("Nguenyyiel")) //fixme: should fail but passes
@@ -1090,7 +1092,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "As of 30 March 2017, Ethiopia hosted around 365,600 South Sudanese refugees."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("365,600 South Sudanese refugees", CountSpec(365600, CountModifier.Approximate))
     val moveTo1 = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
@@ -1124,7 +1126,7 @@ class TestMigrationSchema extends EnglishTest {
 
   {
     val text = "They originate mostly from the Upper Nile, Jonglei and Unity states."
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val moveFrom1 = NodeSpec("Upper Nile", GeoLoc("Upper Nile")) //fixme: didn't find the attachment
     val migration1 = HumanMigrationEdgeSpec(
@@ -1173,7 +1175,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "During the past week, 4,608 new arrivals were relocated from Pagak to Nguenyyiel camp, with 246 individuals awaiting relocation as of 30 March 2017."
     //fixme: possible merge interference
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("4,608 new arrivals", CountSpec(4608))
     val moveFrom1 = NodeSpec("Pagak", GeoLoc("Pagak"))
@@ -1208,7 +1210,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "* Between 13 and 28 April 2017, 3,604 South Sudanese refugees arrived in Gambella, Ethiopia."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("3,604 South Sudanese refugees", CountSpec(3604))
     val time1 = NodeSpec("Between 13 and 28 April 2017", TimEx("Between 13 and 28 April 2017"))
@@ -1242,7 +1244,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Currently, the average daily rate of arrivals is 350 individuals."
     //fixme: potential merge interference (possibly rate + arrival)
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("350 individuals", CountSpec(350, CountModifier.NoModifier, CountUnit.Daily)) //fixme: expands to `arrivals is 350 individuals"
 //    val groupMod1 = NodeSpec("daily")
@@ -1271,7 +1273,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "The remaining 1% were registered to have fled from Unity State."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("remaining 1%", CountSpec(1, CountModifier.NoModifier, CountUnit.Percentage))
     val moveFrom1 = NodeSpec("Unity State", GeoLoc("Unity State")) //fixme: didn't find attachment
@@ -1297,7 +1299,7 @@ class TestMigrationSchema extends EnglishTest {
     //fixme: refine the originate rule to include multiple locations?
     //fixme: need to decide on ideal extraction (e.g., Nasir is part of Upper Nile State => one event or two events?
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("85% of the new arrivals", CountSpec(85, CountModifier.NoModifier, CountUnit.Percentage))
     val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
@@ -1459,7 +1461,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Pagak Reception Centre: As of 28 April 2017, Pagak accommodated around 3,604 new arrivals."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("3,604 new arrivals", CountSpec(3604, CountModifier.Approximate))
     val timeEnd1 = NodeSpec("28 April 2017", TimEx("28 April 2017"))
@@ -1489,7 +1491,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Between 1 and 25 March 2017, 13,225 South Sudanese refugees arrived in Gambella, Ethiopia, bringing the total number of new arrivals since September 2016 to 74,825."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("13,225 South Sudanese refugees", CountSpec(13225))
     val moveTo1 = NodeSpec("Gambella", GeoLoc("Gambella"))
@@ -1537,7 +1539,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "In the past week, the daily arrival average stood at 626 individuals."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("626 individuals", CountSpec(626, CountModifier.NoModifier, CountUnit.Daily))
     val groupModifier = NodeSpec("daily", TimEx("daily"))
@@ -1564,7 +1566,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = "Except 1,796 individuals who are awaiting relocation in Pagak, all the new arrivals have been relocated to Nguenyyiel refugee camp."
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("1,796 individuals", CountSpec(1796))
     val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak")) //todo: should this be intermediate point?
@@ -1611,7 +1613,7 @@ class TestMigrationSchema extends EnglishTest {
   {
     val text = ""
 
-    val tester = new GraphTester(text)
+    val tester = newTester(text)
 
     val group1 = NodeSpec("")
     val migration1 = HumanMigrationEdgeSpec(
