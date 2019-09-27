@@ -196,14 +196,15 @@ object OntologyMapper {
   /** Generates the mappings between the reader ontologies in a String format
     *
     * @param reader EidosSystem
-    * @param bbnPath path to the BBN ontology file
     * @param sofiaPath path to the Sofia ontology file
+    * @param providedOntology a YAML string representing the ontology against which mappings are generated
+    * @param providedOntName name of the ontology provided in the providedOntology argument
     * @param exampleWeight the weight for the similarity of the pair of nodes (default = 0.8)
     * @param parentWeight the weight for the similarity of the node parents (default = 0.1)
     * @param topN the number of similarity scores to return, when set to 0, return them all (default = 0)
     * @return String version of the mapping, akin to a file, newlines separate the "rows"
     */
-  def mapOntologies(reader: EidosSystem, bbnPath: String, sofiaPath: String, providedOntology: Option[String], providedOntName: String = "ProvidedOntology",
+  def mapOntologies(reader: EidosSystem, sofiaPath: String, providedOntology: Option[String], providedOntName: String = "ProvidedOntology",
                     exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
     // EidosSystem stuff
     val proc = reader.components.proc
@@ -221,30 +222,17 @@ object OntologyMapper {
       reader.components.ontologyHandler.grounders.head.conceptEmbeddings
     }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
-    val bbnConceptEmbeddings = loadOtherOntology(bbnPath, w2v)
     println("Finished loading other ontologies")
 
     // Initialize output
     val sb = new ArrayBuffer[String]()
 
     val eidos2Sofia = mostSimilarIndicators(eidosConceptEmbeddings, sofiaConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
-    val eidos2BBN = mostSimilarIndicators(eidosConceptEmbeddings, bbnConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
-    val sofia2BBN = mostSimilarIndicators(sofiaConceptEmbeddings, bbnConceptEmbeddings, topN, reader, exampleWeight, parentWeight)
 
     for {
       (eidosConcept, sofiaMappings) <- eidos2Sofia
       (sofiaConcept, score) <- sofiaMappings
-    } sb += s"primary\t$eidosConcept\tSOFIA\t$sofiaConcept\t$score"
-
-    for {
-      (eidosConcept, bbnMappings) <- eidos2BBN
-      (bbnConcept, score) <- bbnMappings
-    } sb += s"primary\t$eidosConcept\tHUME\t$bbnConcept\t$score"
-
-    for {
-      (sofiaConcept, bbnMappings) <- sofia2BBN
-      (bbnConcept, score) <- bbnMappings
-    } sb += s"SOFIA\t$sofiaConcept\tHUME\t$bbnConcept\t$score"
+    } sb += s"$providedOntName\t$eidosConcept\tSOFIA\t$sofiaConcept\t$score"
 
     sb.mkString("\n")
   }
