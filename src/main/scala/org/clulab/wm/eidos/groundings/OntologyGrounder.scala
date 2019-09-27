@@ -192,7 +192,7 @@ object EidosOntologyGrounder {
 //  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
   protected val INTERVENTION_PLUGIN_TRIGGER = "wm/concept/causal_factor/intervention/"
 
-  protected val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
