@@ -20,7 +20,6 @@ case class EidosComponents(
   negationHandler: NegationHandler,
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
-//  multiOntologyGrounder: EidosMultiOntologyGrounder,
   actions: EidosActions,
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,

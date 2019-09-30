@@ -35,6 +35,7 @@ class OntologyHandler(
   }
 
   // API for regrounding a sequence of strings (presumably mention texts, or the content words therein) to a newly provided ontology
+
   def reground(name: String = "Custom", ontologyYaml: String, canonicalNames: Seq[String], filter: Boolean = true, topk: Int = 10): Array[Array[(String, Float)]] = {
     def reformat(grounding: OntologyGrounding): Array[(String, Float)] ={
       val topGroundings = grounding.take(topk).toArray
@@ -88,8 +89,7 @@ object OntologyHandler {
 
         // Make the Handler
         new OntologyHandler(groundingSteps, wordToVec, proc, canonicalizer)
-
-      case _: FakeWordToVec => new OntologyHandler(Seq.empty, wordToVec, proc, canonicalizer)
+      case _: FakeWordToVec => new OntologyHandler(Seq.empty, Seq.empty, wordToVec, proc, canonicalizer)
       case _ => ???
     }
   }

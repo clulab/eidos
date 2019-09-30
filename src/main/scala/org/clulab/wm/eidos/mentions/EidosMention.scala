@@ -63,7 +63,9 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
   // This is here to allow subclasses to override it so that the Canonicalizer doesn't have to keep track.
   def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
 
-  var groundings: Option[Aliases.Groundings] = None
+  // These groundings are separated in part for compatibility reasons.
+  var groundings: Option[OntologyAliases.OntologyGroundings] = None // as in ontologyGroundings
+  var conceptGroundings: Option[ConceptAliases.ConceptGroundings] = None
 
   // Other EidosMentions which can be reached from this.
   def reachableMentions: Seq[EidosMention] = eidosArguments.values.flatten.toSeq

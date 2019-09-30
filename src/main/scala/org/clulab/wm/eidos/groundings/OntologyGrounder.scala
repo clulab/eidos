@@ -1,6 +1,10 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.PostProcessing
+import org.clulab.wm.eidos.groundings.OntologyAliases._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.Namer
@@ -9,17 +13,18 @@ import org.slf4j.LoggerFactory
 
 import scala.util.matching.Regex
 
-object Aliases {
-  type SingleGrounding = (Namer, Float)
-  type MultipleGrounding = Seq[SingleGrounding]
+object OntologyAliases {
+  type SingleOntologyGrounding = (Namer, Float)
+  type MultipleOntologyGrounding = Seq[SingleOntologyGrounding]
   // The string is something like wm or un.
-  type Groundings = Map[String, OntologyGrounding]
+  type OntologyGroundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
+// TODO Put canonical name first and it shouldn't be optional.
+case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, val canonicalNameParts: Option[Seq[String]] = None) {
   def nonEmpty: Boolean = grounding.nonEmpty
-  def take(n: Int): Aliases.MultipleGrounding = grounding.take(n)
-  def headOption: Option[Aliases.SingleGrounding] = grounding.headOption
+  def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
+  def headOption: Option[SingleOntologyGrounding] = grounding.headOption
   def headName: Option[String] = headOption.map(_._1.name)
 }
 
@@ -71,6 +76,8 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
       OntologyGrounding()
   }
 
+  def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
+
   // For Regex Matching
   def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[(Namer, Float)] = {
     nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => (node.namer, 1.0f))
@@ -114,8 +121,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
 class InterventionGrounder(val name: String, val domainOntology: DomainOntology, val w2v: EidosWordToVec, val canonicalizer: Canonicalizer) extends OntologyGrounder {
   def groundOntology(mention: EidosMention): OntologyGrounding = ???
-
-
 }
 
 object EidosOntologyGrounder {
