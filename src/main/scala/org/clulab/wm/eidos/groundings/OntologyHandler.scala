@@ -89,7 +89,7 @@ object OntologyHandler {
 
         // Make the Handler
         new OntologyHandler(groundingSteps, wordToVec, proc, canonicalizer)
-      case _: FakeWordToVec => new OntologyHandler(Seq.empty, Seq.empty, wordToVec, proc, canonicalizer)
+      case _: FakeWordToVec => new OntologyHandler(Seq.empty, wordToVec, proc, canonicalizer)
       case _ => ???
     }
   }
