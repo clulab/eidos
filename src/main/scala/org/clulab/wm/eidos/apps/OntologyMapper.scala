@@ -30,7 +30,6 @@ object OntologyMapper {
         line <- lines
         fields = line.split("\t")
         path = fields(0).split(",")
-        //pathSanitized = path.map(Word2Vec.sanitizeWord(_))
         examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
         embedding = w2v.makeCompositeVector(examples)
       } yield ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
@@ -155,9 +154,16 @@ object OntologyMapper {
     }
   }
 
+  def eidosGrounders(reader: EidosSystem): Seq[EidosOntologyGrounder] = {
+    reader.components.ontologyHandler.groundingSteps.map(_.grounder).collect{
+      case e: EidosOntologyGrounder => e
+    }
+  }
+
   // Mapping the primary ontology to the indicator ontologies
   def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
-    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders
+    // FIXME: should this be the base grounder or the compositional one??
+    val grounders: Seq[EidosOntologyGrounder] = eidosGrounders(reader)
     println(s"number of eidos ontologies - ${grounders.length}")
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
@@ -219,7 +225,6 @@ object OntologyMapper {
     // EidosSystem stuff
     val proc = reader.components.proc
     val w2v = reader.components.ontologyHandler.wordToVec
-//    val config = reader.config
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
@@ -229,9 +234,8 @@ object OntologyMapper {
         case _ => throw new RuntimeException("Custom ontology Grounder must be an EidosOntologyGrounder")
       }
     } else {
-
-      // TODO.  How do we know what the head is?
-      reader.components.ontologyHandler.ontologyGrounders.head.conceptEmbeddings
+      // FIXME: How do we know what the head is?
+      eidosGrounders(reader).head.conceptEmbeddings
     }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
     val bbnConceptEmbeddings = loadOtherOntology(bbnPath, w2v)

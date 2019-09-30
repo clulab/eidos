@@ -3,33 +3,38 @@ package org.clulab.wm.eidos.groundings
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
 import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
 
+class GroundingStep(val grounder: OntologyGrounder) extends PostProcessing {
+  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    // add new grounding in place
+    for (m <- annotatedDocument.allEidosMentions) {
+      grounder.updateGrounding(m)
+    }
+    annotatedDocument
+  }
+}
+
 class OntologyHandler(
-  val ontologyGrounders: Seq[EidosOntologyGrounder],
-  val conceptGrounders: Seq[EidosConceptGrounder],
+  val groundingSteps: Seq[GroundingStep],
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer) {
 
-  def ontologyGrounder: EidosMultiOntologyGrounder = {
-    wordToVec match {
-      case _: RealWordToVec => new EidosMultiOntologyGrounder(ontologyGrounders)
-      case _: FakeWordToVec => new EidosMultiOntologyGrounder(Seq.empty)
-      case _ => ???
+  def applySteps(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    var doc = annotatedDocument
+    for (step <- groundingSteps) {
+      doc = step.process(doc)
     }
+    doc
   }
 
-  def conceptGrounder: EidosMultiConceptGrounder = {
-    wordToVec match {
-      case _: RealWordToVec => new EidosMultiConceptGrounder(conceptGrounders)
-      case _: FakeWordToVec => new EidosMultiConceptGrounder(Seq.empty)
-      case _ => ???
-    }
-  }
+  // API for regrounding a sequence of strings (presumably mention texts, or the content words therein) to a newly provided ontology
 
   def reground(name: String = "Custom", ontologyYaml: String, canonicalNames: Seq[String], filter: Boolean = true, topk: Int = 10): Array[Array[(String, Float)]] = {
     def reformat(grounding: OntologyGrounding): Array[(String, Float)] ={
@@ -69,38 +74,24 @@ object OntologyHandler {
       )
     }
 
-
     // Load enabled ontologies
     wordToVec match {
       case _: RealWordToVec =>
         val selected = config[List[String]]("ontologies")
-        val enabledOntologies = for {
-          ontologyName <- selected
-          path = config[String](ontologyName)
-          domainOntology = mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
-        } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec, canonicalizer)
-        val conceptGrounders: Seq[EidosConceptGrounder] = Seq.empty // TODO
-        new OntologyHandler(enabledOntologies, conceptGrounders, wordToVec, proc, canonicalizer)
 
+        // Base grounding steps, which aren't compositional
+        val groundingSteps: List[GroundingStep] = for {
+          ontologyName <- selected
+          path: String = config[String](ontologyName)
+          domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
+          grounder = mkGrounder(ontologyName, domainOntology, wordToVec, canonicalizer)
+        } yield new GroundingStep(grounder)
+
+        // Make the Handler
+        new OntologyHandler(groundingSteps, wordToVec, proc, canonicalizer)
       case _: FakeWordToVec => new OntologyHandler(Seq.empty, Seq.empty, wordToVec, proc, canonicalizer)
       case _ => ???
     }
-//    val selected = config[List[String]]("ontologies")
-//    val enabledOntologies = for {
-//      ontologyName <- selected
-//      path = config[String](ontologyName)
-//      domainOntology = mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
-//    } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec)
-//
-//
-//    new OntologyHandler(enabledOntologies, wordToVec, proc, canonicalizer)
-  }
-
-  // fixme == this all needs to be unified, the constructors in DomainOntolgies and in TreeDomainOntBUilder / here should all
-  // be in one place!
-  def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean): DomainOntology = {
-    val ontSerializedPath: String = serializedPath(name, cacheDir)
-    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
   }
 
   def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true): DomainOntology = {
