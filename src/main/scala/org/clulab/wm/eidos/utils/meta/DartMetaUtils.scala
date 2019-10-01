@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.utils.meta
 
 import java.io.File
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
 
@@ -11,54 +13,83 @@ import org.clulab.wm.eidos.utils.StringUtils
 import org.json4s.DefaultFormats
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods.parse
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 object DartMetaUtils {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
+  // These are made repeatedly because SimpleDateFormat.parse() is not thread safe or synchronized!
+  protected def newDateFormat = {
+    val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val timeZone = TimeZone.getTimeZone("UTC")
+
+    dateFormat.setTimeZone(timeZone)
+    dateFormat
+  }
 
   def getDartDocumentTitle(json: Option[JValue]): Option[String] = {
     json.flatMap { json =>
-      Option((json \ "_source" \ "extracted_metadata" \ "Title").extract[String])
+      (json \ "_source" \ "extracted_metadata" \ "Title").extractOpt[String]
     }
   }
 
   def getDartDocumentLocation(json: Option[JValue]): Option[String] = {
     json.flatMap { json =>
-      Option((json \ "_source" \ "uri").extract[String])
+      (json \ "_source" \ "uri").extractOpt[String]
     }
   }
 
   def getDartDocumentId(json: Option[JValue]): Option[String] = {
     json.flatMap { json =>
-      Option((json \ "_source" \ "document_id").extract[String])
+      (json \ "_source" \ "document_id").extractOpt[String]
     }
   }
 
   def getDocumentCreationTime(json: Option[JValue]): Option[DCT] = {
 
-    val documentCreationTime = json.flatMap { json =>
-      val goodDateOpt: Option[Long] = {
-        val date: Long = (json \ "_source" \ "extracted_metadata" \ "ModDate").extract[Long]
+    def toCalendarOpt(json: JValue, label: String): Option[(Calendar, String)] = {
+      val longOpt: Option[Long] = (json \ "_source" \ "extracted_metadata" \ label).extractOpt[Long]
+      val dateOpt: Option[String] = (json \ "_source" \ "extracted_metadata" \ label).extractOpt[String]
+      val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
 
-        if (date == 0) None
-        else Some(date)
-      }
-      val okDateOpt: Option[Long] = goodDateOpt.orElse {
-        val date: Long = (json \ "_source" \ "extracted_metadata" \ "CreationDate").extract[Long]
-
-        if (date == 0) None
-        else Some(date)
-      }
-      val dctOpt = okDateOpt.map { seconds =>
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+      if (longOpt.isDefined) {
+        val seconds = longOpt.get
         calendar.setTimeInMillis(seconds * 1000)
+        Some(calendar, seconds.toString)
+      }
+      else if (dateOpt.isDefined) {
+        val date = dateOpt.get
+        try {
+          val parsed = newDateFormat.parse(date)
+
+          calendar.setTime(parsed)
+          Some(calendar, date)
+        }
+        catch {
+          case throwable: Throwable =>
+            logger.error(s"Could not decipher $date as a date", throwable)
+            None
+        }
+      }
+      else
+        None
+    }
+
+    val documentCreationTime = json.flatMap { json =>
+      val goodCalendarAndTextOpt: Option[(Calendar, String)] = toCalendarOpt(json, "ModDate")
+      val okCalendarAndTextOpt: Option[(Calendar, String)] = goodCalendarAndTextOpt.orElse(toCalendarOpt(json,"CreationDate"))
+      val dctOpt = okCalendarAndTextOpt.map { case (calendar: Calendar, text: String) =>
         val simpleInterval = SimpleInterval.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
-        val dct = DCT(simpleInterval, seconds.toString)
+        val dct = DCT(simpleInterval, text)
 
         dct
       }
 
       dctOpt
     }
+
     documentCreationTime
   }
 
