@@ -123,7 +123,15 @@ object ElasticSearch4Dart extends App {
             val metaText = hit.toString
             val json = hit.getSourceAsString
             val jValue = JsonMethods.parse(json)
-            val extractedText = (jValue \ "extracted_text").extract[String]
+            val extractedText = try {
+              (jValue \ "extracted_text").extract[String]
+            }
+            catch {
+              case throwable: Throwable =>
+                println(s"For $id the following exception is noted:")
+                throwable.printStackTrace
+                ""
+            }
 
             writeFile(metaText, metaDir, id, ".json")
             writeFile(extractedText, textDir, id, ".txt")
