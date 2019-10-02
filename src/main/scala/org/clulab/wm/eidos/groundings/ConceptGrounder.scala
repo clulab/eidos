@@ -32,11 +32,6 @@ trait ConceptGrounder {
   def isGroundable(mention: EidosMention): Boolean
 }
 
-// It is unfortunate that the "ing" suffix is already part of grounding, so we're left with "er" even for a trait.
-trait MultiConceptGrounder {
-  def groundConcept(mention: EidosMention): ConceptGroundings
-}
-
 // Arguments to include whatever information is needed.
 class EidosConceptGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer) extends ConceptGrounder {
 

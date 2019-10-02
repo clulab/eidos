@@ -9,11 +9,11 @@ import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
-class GroundingStep(val grounder: OntologyGrounder) extends PostProcessing {
+// TODO just put this into grounder?
+class GroundingStep(val grounder: OntologyGrounder) {
 
-  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+  def process(annotatedDocument: AnnotatedDocument): Unit = {
     annotatedDocument.allEidosMentions.foreach { eidosMention => grounder.updateGrounding(eidosMention) }
-    annotatedDocument
   }
 }
 
@@ -21,14 +21,13 @@ class OntologyHandler(
   val groundingSteps: Seq[GroundingStep],
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
-  val canonicalizer: Canonicalizer) {
+  val canonicalizer: Canonicalizer) extends PostProcessing {
 
-  def applySteps(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
-    val newAnnotatedDocument = groundingSteps.foldLeft(annotatedDocument) { (annotatedDocument, groundingStep) =>
+  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    groundingSteps.foreach { groundingStep =>
       groundingStep.process(annotatedDocument)
     }
-
-    newAnnotatedDocument
+    annotatedDocument
   }
 
   // API for regrounding a sequence of strings (presumably mention texts, or the content words therein) to a newly provided ontology

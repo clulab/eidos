@@ -31,7 +31,12 @@ case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, v
 trait OntologyGrounder {
   def name: String
   def domainOntology: DomainOntology
-  def groundOntology(mention: EidosMention): OntologyGrounding
+  def updateGrounding(mention: EidosMention): Unit
+}
+
+class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
+    extends OntologyGrounder {
+
   def updateGrounding(mention: EidosMention): Unit = {
     val g = groundOntology(mention)
     if (g.grounding.nonEmpty) { // if it grounded to something then attach to mention
@@ -42,9 +47,7 @@ trait OntologyGrounder {
       mention.groundings = Some(newGroundings)
     }
   }
-}
 
-class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer) extends OntologyGrounder {
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       ConceptEmbedding(domainOntology.getNamer(n),
@@ -105,10 +108,11 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
       OntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
     }
   }
-
 }
 
-class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer) extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
+class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
+    extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
+
   override def groundOntology(mention: EidosMention): OntologyGrounding = {
     // Separate ontology nodes into Process, Property, and Phenomenon
     val (processNodes, other) = conceptEmbeddings.partition(_.namer.name.contains("wm/process"))
@@ -119,8 +123,20 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   }
 }
 
-class InterventionGrounder(val name: String, val domainOntology: DomainOntology, val w2v: EidosWordToVec, val canonicalizer: Canonicalizer) extends OntologyGrounder {
+class InterventionGrounder(val name: String, val domainOntology: DomainOntology, val w2v: EidosWordToVec, val canonicalizer: Canonicalizer)
+    extends OntologyGrounder {
   def groundOntology(mention: EidosMention): OntologyGrounding = ???
+
+  def updateGrounding(mention: EidosMention): Unit = {
+    val g = groundOntology(mention)
+    if (g.grounding.nonEmpty) { // if it grounded to something then attach to mention
+      val newGroundings = mention.groundings match {
+        case None => Map(name -> g)
+        case Some(gs) => gs.updated(name, g)
+      }
+      mention.groundings = Some(newGroundings)
+    }
+  }
 }
 
 object EidosOntologyGrounder {

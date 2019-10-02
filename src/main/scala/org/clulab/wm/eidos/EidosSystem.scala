@@ -124,7 +124,7 @@ class EidosSystem(val components: EidosComponents) {
 
     // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
     // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
-    val groundedAnnotatedDocument = components.ontologyHandler.applySteps(annotatedDocument)
+    val groundedAnnotatedDocument = components.ontologyHandler.process(annotatedDocument)
 
     groundedAnnotatedDocument
   }
