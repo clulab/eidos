@@ -1,23 +1,14 @@
 package org.clulab.wm.elasticsearch.apps
 
 import java.io.File
-import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.ZonedDateTime
 import java.util
 
-import com.amazonaws.auth.AWS4Signer
-import com.amazonaws.auth.AWSCredentialsProvider
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.http.AWSRequestSigningApacheInterceptor
-import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.http.HttpHost
-import org.apache.http.HttpRequestInterceptor
 import org.clulab.wm.elasticsearch.utils.Closer.AutoCloser
 import org.clulab.wm.elasticsearch.utils.Sinker
-import org.clulab.wm.elasticsearch.utils.StringUtils
 import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
@@ -65,6 +56,7 @@ object ElasticSearch4Dart extends App {
     searchTemplateRequest.setRequest(searchRequest)
     searchTemplateRequest.setScriptType(ScriptType.INLINE)
     searchTemplateRequest.setScript(script)
+    // IntelliJ would rather have Any instead of AnyRef, but that's wrong.
     searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
     searchTemplateRequest
   }
@@ -77,7 +69,28 @@ object ElasticSearch4Dart extends App {
     }
   }
 
-  def downloadSearch(searchOpt: Option[String], metaDir: String, textDir: String): Unit = {
+  protected def processHit(hit: SearchHit, metaDir: String, textDir: String): Unit = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val id = hit.getId
+    val metaText = hit.toString
+    val json = hit.getSourceAsString
+    val jValue = JsonMethods.parse(json)
+    val extractedText = try {
+      (jValue \ "extracted_text").extract[String]
+    }
+    catch {
+      case throwable: Throwable =>
+        println(s"For $id the following exception is noted:")
+        throwable.printStackTrace()
+        ""
+    }
+
+    writeFile(metaText, metaDir, id, ".json")
+    writeFile(extractedText, textDir, id, ".txt")
+  }
+
+  def downloadTextSearch(searchOpt: Option[String], metaDir: String, textDir: String): Unit = {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
       val jsonSearchOpt = searchOpt.map { search => JsonMethods.pretty(new JString(search)) }
       // Use "term" for exact matches, "match" for fuzzy matches.
@@ -96,7 +109,7 @@ object ElasticSearch4Dart extends App {
            |{
            |  "size" : $resultsPerQuery,
            |  "query" : {
-           |    "match_all": {}
+           |    "match_all" : {}
            |  }
            |}
         """.stripMargin
@@ -117,24 +130,8 @@ object ElasticSearch4Dart extends App {
 
         do {
           hits.forEach { hit: SearchHit =>
-            implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
-
-            val id = hit.getId
-            val metaText = hit.toString
-            val json = hit.getSourceAsString
-            val jValue = JsonMethods.parse(json)
-            val extractedText = try {
-              (jValue \ "extracted_text").extract[String]
-            }
-            catch {
-              case throwable: Throwable =>
-                println(s"For $id the following exception is noted:")
-                throwable.printStackTrace
-                ""
-            }
-
-            writeFile(metaText, metaDir, id, ".json")
-            writeFile(extractedText, textDir, id, ".txt")
+            // TODO: Make this a callback in a more general structure
+            processHit(hit, metaDir, textDir)
           }
 
           continue = scrollIdOpt.exists { scrollId =>
@@ -161,18 +158,137 @@ object ElasticSearch4Dart extends App {
     }
   }
 
-  val metaDirOpt = args.lift(0)
-  val textDirOpt = args.lift(1)
-  val searchOpt = args.lift(2)
+  def downloadCutoffSearch(cutoff: String, metaDir: String, textDir: String): Unit = {
+    newRestHighLevelClient().autoClose { restHighLevelClient =>
+      val jsonCutoff = JsonMethods.pretty(new JString(cutoff))
+      // Use "term" for exact matches, "match" for fuzzy matches.
+      val script =
+          s"""
+             |{
+             |  "size" : $resultsPerQuery,
+             |  "query" : {
+             |    "range" : {
+             |      "timestamp" : {
+             |        "gt" : $jsonCutoff
+             |      }
+             |    }
+             |  }
+             |}
+          """.stripMargin
+      val searchTemplateRequest = newSearchTemplateRequest(script)
+      val requestOptions = RequestOptions.DEFAULT
+      val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
+      val status = searchTemplateResponse.status
 
-  if (metaDirOpt.isDefined && textDirOpt.isDefined) {
+      if (status != RestStatus.OK)
+        throw new RuntimeException(s"Bad status in searchTemplateResponse: $searchTemplateResponse")
+
+      var hits = searchTemplateResponse.getResponse.getHits
+
+      if (hits.totalHits > 0) {
+        var scrollIdOpt = Option(searchTemplateResponse.getResponse.getScrollId)
+        var continue = true
+
+        do {
+          hits.forEach { hit: SearchHit =>
+            processHit(hit, metaDir, textDir)
+          }
+
+          continue = scrollIdOpt.exists { scrollId =>
+            // See https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high-search-scroll.html
+            val searchScrollRequest = new SearchScrollRequest(scrollId)
+
+            searchScrollRequest.scroll(TimeValue.timeValueSeconds(timeout)) // It is important to rescroll the scroll!
+
+            val searchResponse: SearchResponse = restHighLevelClient.scroll(searchScrollRequest, RequestOptions.DEFAULT)
+
+            scrollIdOpt = Option(searchResponse.getScrollId)
+            hits = searchResponse.getHits
+            hits.getHits.length > 0
+          }
+        } while(continue)
+
+        scrollIdOpt.foreach { scrollId =>
+          val clearScrollRequest = new ClearScrollRequest()
+
+          clearScrollRequest.addScrollId(scrollId)
+          restHighLevelClient.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
+        }
+      }
+    }
+  }
+
+  def listCategories(): Unit = {
+    newRestHighLevelClient().autoClose { restHighLevelClient =>
+      // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
+      val categories = "categories"
+      val script =
+        s"""
+           |{
+           |  "aggs" : {
+           |    "$categories" : {
+           |      "terms" : { "field" : "categories.keyword" }
+           |    }
+           |  }
+           |}
+        """.stripMargin
+
+      val searchTemplateRequest = newSearchTemplateRequest(script)
+      val requestOptions = RequestOptions.DEFAULT
+      val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
+      val status = searchTemplateResponse.status
+
+      if (status != RestStatus.OK)
+        throw new RuntimeException(s"Bad status in searchTemplateResponse: $searchTemplateResponse")
+
+      val searchResponse: SearchResponse = searchTemplateResponse.getResponse
+      val stringTerms: ParsedStringTerms = searchResponse.getAggregations.get[ParsedStringTerms](categories)
+      val buckets: util.List[_ <: Terms.Bucket] = stringTerms.getBuckets
+
+      println("key\tcount")
+      buckets.forEach { bucket: Terms.Bucket =>
+        val key = bucket.getKey
+        val docCount = bucket.getDocCount
+
+        println(s"$key\t$docCount")
+      }
+    }
+  }
+
+  val commandOpt = args.lift(0)
+  val metaDirOpt = args.lift(1)
+  val textDirOpt = args.lift(2)
+
+  val categoryOpt = args.lift(3)
+  val searchOpt = args.lift(3)
+  val cutoffOpt = args.lift(3)
+
+  println(s"It is now ${ZonedDateTime.now()} locally.")
+  if (commandOpt.isDefined && commandOpt.get == "time" && metaDirOpt.isDefined && textDirOpt.isDefined && cutoffOpt.isDefined) {
+    val metaDir = metaDirOpt.get
+    val textDir = textDirOpt.get
+    val cutoff = cutoffOpt.get
+
+    Files.createDirectories(Paths.get(metaDir))
+    Files.createDirectories(Paths.get(textDir))
+    downloadCutoffSearch(cutoff, metaDir, textDir)
+  }
+  else if (commandOpt.isDefined && commandOpt.get == "text" && metaDirOpt.isDefined && textDirOpt.isDefined) {
     val metaDir = metaDirOpt.get
     val textDir = textDirOpt.get
 
     Files.createDirectories(Paths.get(metaDir))
     Files.createDirectories(Paths.get(textDir))
-    downloadSearch(searchOpt, metaDir, textDir)
+    downloadTextSearch(searchOpt, metaDir, textDir)
   }
-  else
-    println("argumets: metaDir textDir [searchText]")
+  else if (commandOpt.isDefined && commandOpt.get == "cats") {
+    listCategories()
+  }
+  else {
+    println("arguments: time <metaDir> <textDir> <cutoffDateTime> (for downloads after cutoffDate)")
+    // Not yet implemented
+    println("arguments: cat <metaDir> <textDir> <category> (for downloads based on category)")
+    println("arguments: text <metaDir> <textDir> [<searchText>] (for downloads based on searchText)")
+    println("arguments: cats (for list of categories)")
+  }
 }
