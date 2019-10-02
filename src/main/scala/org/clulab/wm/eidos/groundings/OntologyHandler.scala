@@ -9,23 +9,26 @@ import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
-// TODO just put this into grounder?
-class GroundingStep(val grounder: OntologyGrounder) {
-
-  def process(annotatedDocument: AnnotatedDocument): Unit = {
-    annotatedDocument.allEidosMentions.foreach { eidosMention => grounder.updateGrounding(eidosMention) }
-  }
-}
-
 class OntologyHandler(
-  val groundingSteps: Seq[GroundingStep],
+  val ontologyGrounders: Seq[OntologyGrounder],
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer) extends PostProcessing {
 
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
-    groundingSteps.foreach { groundingStep =>
-      groundingStep.process(annotatedDocument)
+    annotatedDocument.allEidosMentions.foreach { eidosMention =>
+      // If any of the grounders needs their own version, they'll have to make it themselves.
+      eidosMention.canonicalName = Some(canonicalizer.canonicalize(eidosMention))
+
+      val ontologyGroundings = ontologyGrounders.map { ontologyGrounder =>
+        // For serialization, this name will be combined with ontologyGrounding.branch.
+        val name: String = ontologyGrounder.name
+        val ontologyGrounding: OntologyGrounding = ontologyGrounder.groundOntology(eidosMention)
+
+        name -> ontologyGrounding
+      }.toMap
+
+      eidosMention.groundings = Some(ontologyGroundings)
     }
     annotatedDocument
   }
@@ -73,15 +76,15 @@ object OntologyHandler {
       case _: RealWordToVec =>
         val ontologyNames: List[String] = config[List[String]]("ontologies")
         // Base grounding steps, which aren't compositional
-        val groundingSteps = ontologyNames.map { ontologyName =>
+        val ontologyGrounders: Seq[OntologyGrounder] = ontologyNames.map { ontologyName =>
           val path: String = config[String](ontologyName)
           val domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
           val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
 
-          new GroundingStep(grounder)
+          grounder
         }
 
-        new OntologyHandler(groundingSteps, eidosWordToVec, proc, canonicalizer)
+        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer)
       case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer)
      case _ => ???
     }

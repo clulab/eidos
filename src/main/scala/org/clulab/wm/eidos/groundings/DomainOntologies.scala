@@ -25,5 +25,4 @@ object DomainOntologies {
     val ontSerializedPath: String = serializedPath(name, cacheDir)
     DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
   }
-
 }

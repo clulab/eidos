@@ -155,8 +155,8 @@ object OntologyMapper {
   }
 
   def eidosGrounders(reader: EidosSystem): Seq[EidosOntologyGrounder] = {
-    reader.components.ontologyHandler.groundingSteps.map(_.grounder).collect{
-      case e: EidosOntologyGrounder => e
+    reader.components.ontologyHandler.ontologyGrounders.collect{
+      case e: FlatOntologyGrounder => e
     }
   }
 

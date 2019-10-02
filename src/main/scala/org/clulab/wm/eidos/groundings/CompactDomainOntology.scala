@@ -15,6 +15,31 @@ class CompactNamerData(val nodeStrings: Array[String], val leafIndexes: Array[In
 
 class CompactNamer(protected val n: Int, data: CompactNamerData) extends Namer {
 
+  protected def branch(n: Int, prevNameOffset: Int): Option[String] = {
+    if (n > 0) {
+      val index = n * CompactDomainOntology.branchIndexWidth
+      val parentOffset = data.branchIndexes(index + CompactDomainOntology.parentOffset)
+
+      if (parentOffset == 0)
+        if (prevNameOffset >= 0) Some(data.nodeStrings(prevNameOffset))
+        else None
+      else {
+        val nameOffset = data.branchIndexes(index + CompactDomainOntology.nameOffset)
+
+        branch(parentOffset, nameOffset)
+      }
+    }
+    else None
+  }
+
+  def branch: Option[String] = {
+    // This will always be run on an n that corresponds to a leaf.
+    val index = n * CompactDomainOntology.leafIndexWidth
+    val parentOffset = data.leafIndexes(index + CompactDomainOntology.parentOffset)
+
+    branch(parentOffset, -1)
+  }
+
   protected def parentName(n: Int, stringBuilder: StringBuilder): Unit = {
     if (n > 0) {
       val index = n * CompactDomainOntology.branchIndexWidth
