@@ -408,6 +408,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
       "labels" -> eidosMention.odinMention.labels,
       "text" -> eidosMention.odinMention.text,
       "rule" -> eidosMention.odinMention.foundBy,
+      "canonicalName" -> eidosMention.canonicalName,
       "groundings" -> jldGroundings,
       JLDProvenance.singular -> provenance(),
       JLDAttachment.plural -> jldAllAttachments
@@ -888,14 +889,22 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
     def breakTie(): Boolean = {
       // Really this should visit anything in Mention.equals, but many aren't obvious to the jsonld reader.
-      // Don't go so far as to check the arguments just yet.
-      val leftLabel = leftOdinMention.label
-      val rightLabel = rightOdinMention.label
+      // Instead, check the canonical text, which might differ because of rule differences and then
+      // the label, which should also be different.  Don't go so far as to check the arguments just yet.
+      val leftCanonicalName = left.eidosMention.canonicalName.get
+      val rightCanonicalName = right.eidosMention.canonicalName.get
 
-      if (leftLabel != rightLabel)
-        leftLabel < rightLabel
-      else
-        true // Tie goes in favor of the left just because it came first.
+      if (leftCanonicalName != rightCanonicalName)
+        leftCanonicalName < rightCanonicalName
+      else {
+        val leftLabel = leftOdinMention.label
+        val rightLabel = rightOdinMention.label
+
+        if (leftLabel != rightLabel)
+          leftLabel < rightLabel
+        else
+          true // Tie goes in favor of the left just because it came first.
+      }
     }
 
     if (leftDocumentIndex != rightDocumentIndex)
