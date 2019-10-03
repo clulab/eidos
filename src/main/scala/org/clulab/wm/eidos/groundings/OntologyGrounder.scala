@@ -12,8 +12,8 @@ import scala.util.matching.Regex
 object OntologyAliases {
   type SingleOntologyGrounding = (Namer, Float)
   type MultipleOntologyGrounding = Seq[SingleOntologyGrounding]
-  // The string is something like wm or un.
-  type OntologyGroundings = Map[(String, Option[String]), OntologyGrounding]
+  // The first string is the name, something like wm or un.  The second is a branch/category.
+  type OntologyGroundings = Map[String, Seq[OntologyGrounding]]
 }
 
 case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
@@ -102,23 +102,23 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
-  protected lazy val conceptEmbedddingsMap: Map[String, Seq[ConceptEmbedding]] = {
+  protected lazy val conceptEmbedddingsSeq: Seq[(String, Seq[ConceptEmbedding])] = {
     def getBranch(branch: String): (String, Seq[ConceptEmbedding]) =
         branch -> conceptEmbeddings.filter { _.namer.branch == Some(branch) }
 
-    Map(
+    Seq(
       getBranch(CompositionalGrounder.PROCESS_BRANCH),
       getBranch(CompositionalGrounder.PROPERTY_BRANCH),
       getBranch(CompositionalGrounder.PHENOMENON_BRANCH)
-    )
+    ).filter { case (_, conceptEmbeddings) => conceptEmbeddings.nonEmpty }
   }
 
   override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
     val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
 
-    conceptEmbedddingsMap.map { case(branch, conceptEmbeddings) =>
+    conceptEmbedddingsSeq.map { case (branch, conceptEmbeddings) =>
       OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some(branch))
-    }.toSeq
+    }
   }
 }
 

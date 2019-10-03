@@ -399,10 +399,14 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
     val jldGroundings = eidosMention.groundings.map { groundings =>
-      val keys: Seq[(String, Option[String])] = groundings.keys.toSeq.sorted // for consistency
+      val keys = groundings.keys.toSeq.sorted // for consistency
 
-      keys.map { key =>
-        new JLDOntologyGroundings(serializer, key._1, key._2, groundings(key)).toJObject
+      keys.flatMap { key =>
+        val ontologyGroundings = groundings(key)
+
+        ontologyGroundings.map { ontologyGrounding =>
+          new JLDOntologyGroundings(serializer, key, ontologyGrounding.branch, ontologyGrounding).toJObject
+        }
       }
     }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)

@@ -21,14 +21,12 @@ class OntologyHandler(
       // If any of the grounders needs their own version, they'll have to make it themselves.
       eidosMention.canonicalName = Some(canonicalizer.canonicalize(eidosMention))
 
-      val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
+      val ontologyGroundings = ontologyGrounders.map { ontologyGrounder =>
         // For serialization, this name will be combined with ontologyGrounding.branch.
         val name: String = ontologyGrounder.name
         val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention)
 
-        ontologyGroundings.map { ontologyGrounding =>
-          (name, ontologyGrounding.branch) -> ontologyGrounding
-        }
+        name -> ontologyGroundings
       }.toMap
 
       eidosMention.groundings = Some(ontologyGroundings)
