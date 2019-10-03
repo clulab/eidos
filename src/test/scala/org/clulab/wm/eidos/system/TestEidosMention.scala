@@ -100,16 +100,18 @@ than in the corresponding period two years earlier.
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
-    rainfall.head.canonicalName should be ("rainfall")
+    // Mentions are no longer automatically canonicalized.
+//    rainfall.head.canonicalName should be ("rainfall")
 
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
-    decrease.head.canonicalName should be ("rainfall decrease government")
+    // Mentions are no longer automatically canonicalized.
+//    decrease.head.canonicalName should be ("rainfall decrease government")
 
     // Since we filter out the text from attachments, "price" should be removed (Property attachment)
     val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")
     oil should have size(1)
-    oil.head.canonicalName should be ("oil")
-
+    // Mentions are no longer automatically canonicalized.
+//    oil.head.canonicalName should be ("oil")
   }
 }

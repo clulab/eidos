@@ -642,7 +642,14 @@ class JLDDeserializer {
     val allOdinMentions = mentionMap.values.toArray
     val odinMentions = removeTriggerOnlyMentions(allOdinMentions)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
-      AnnotatedDocument(documentSpec.idAndDocument.value, odinMentions)
+      val document = documentSpec.idAndDocument.value
+      val annotatedDocument = AnnotatedDocument(document, odinMentions)
+
+      // TODO: Make this automatic somehow.  This needs to go through postprocessing phases.
+      annotatedDocument.allEidosMentions.foreach { eidosMention =>
+        eidosMention.canonicalName = Some(canonicalizer.canonicalize(eidosMention))
+      }
+      annotatedDocument
     }
     val corpus = annotatedDocuments
 
