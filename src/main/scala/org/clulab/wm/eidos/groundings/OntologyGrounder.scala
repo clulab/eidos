@@ -13,10 +13,9 @@ object OntologyAliases {
   type SingleOntologyGrounding = (Namer, Float)
   type MultipleOntologyGrounding = Seq[SingleOntologyGrounding]
   // The string is something like wm or un.
-  type OntologyGroundings = Map[String, OntologyGrounding]
+  type OntologyGroundings = Map[(String, Option[String]), OntologyGrounding]
 }
 
-// TODO Put canonical name first and it shouldn't be optional.
 case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
   def nonEmpty: Boolean = grounding.nonEmpty
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
@@ -27,13 +26,11 @@ case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, b
 trait OntologyGrounder {
   def name: String
   def domainOntology: DomainOntology
-  def groundOntology(mention: EidosMention): OntologyGrounding
+  def groundOntology(mention: EidosMention): Seq[OntologyGrounding]
 }
 
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
-
-  def groundOntology(mention: EidosMention): OntologyGrounding
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
@@ -80,43 +77,48 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
 class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
+  // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
-  def groundOntology(mention: EidosMention): OntologyGrounding = {
+  def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
       val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
       if (matchedPatterns.nonEmpty) {
-        OntologyGrounding(matchedPatterns)
+        Seq(OntologyGrounding(matchedPatterns))
       }
       // Otherwise, back-off to the w2v-based approach
       else {
         val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
-        OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+        Seq(OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings)))
       }
     }
     else
-      OntologyGrounding()
+      Seq(OntologyGrounding())
   }
 }
 
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
-  protected def getBranch(branch: String): Seq[ConceptEmbedding] =
-      conceptEmbeddings.filter { _.namer.branch == Some(branch) }
+  protected lazy val conceptEmbedddingsMap: Map[String, Seq[ConceptEmbedding]] = {
+    def getBranch(branch: String): (String, Seq[ConceptEmbedding]) =
+        branch -> conceptEmbeddings.filter { _.namer.branch == Some(branch) }
 
-  // Something like this, but perhaps in a map instead.
-  lazy val processNodes = getBranch(CompositionalGrounder.PROCESS_BRANCH)
-  lazy val propertyNodes = getBranch(CompositionalGrounder.PROPERTY_BRANCH)
-  lazy val phenomenonNodes = getBranch(CompositionalGrounder.PHENOMENON_BRANCH)
+    Map(
+      getBranch(CompositionalGrounder.PROCESS_BRANCH),
+      getBranch(CompositionalGrounder.PROPERTY_BRANCH),
+      getBranch(CompositionalGrounder.PHENOMENON_BRANCH)
+    )
+  }
 
-  override def groundOntology(mention: EidosMention): OntologyGrounding = {
-    // When constructing an OntologyGrounding, be sure to include the branch name as the last argument.
-    // That will be used suring serialization.
-    // TODO: Andrew, please fill in!
-    ???
+  override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
+    val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+
+    conceptEmbedddingsMap.map { case(branch, conceptEmbeddings) =>
+      OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some(branch))
+    }.toSeq
   }
 }
 
@@ -126,26 +128,21 @@ object CompositionalGrounder {
   val PHENOMENON_BRANCH = "phenomenon"
 }
 
-class InterventionGrounder(val name: String, val domainOntology: DomainOntology, val w2v: EidosWordToVec, val canonicalizer: Canonicalizer)
-    extends OntologyGrounder {
-  def groundOntology(mention: EidosMention): OntologyGrounding = ???
+class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
+    // TODO This might extend something else
+    extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
-  def updateGrounding(mention: EidosMention): Unit = {
-    val g = groundOntology(mention)
-    if (g.grounding.nonEmpty) { // if it grounded to something then attach to mention
-      val newGroundings = mention.groundings match {
-        case None => Map(name -> g)
-        case Some(gs) => gs.updated(name, g)
-      }
-      mention.groundings = Some(newGroundings)
-    }
+  def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
+    val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+
+    Seq(OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some("intervention")))
   }
 }
 
 object EidosOntologyGrounder {
   protected val                 GROUNDABLE = "Entity"
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
-  protected val WM_COMPOSITIONAL_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
+  protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
   // Namespace strings for the different in-house ontologies we typically use
   protected val               UN_NAMESPACE = "un"
   protected val              WDI_NAMESPACE = "wdi"
@@ -154,7 +151,7 @@ object EidosOntologyGrounder {
   protected val            PROPS_NAMESPACE = "props"
   protected val          MITRE12_NAMESPACE = "mitre12"
   protected val              WHO_NAMESPACE = "who"
-  protected val     INTERVENTION_NAMESPACE = "interventions"
+  protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
 
   val PRIMARY_NAMESPACE: String = WM_NAMESPACE // Assign the primary namespace here, publically.
@@ -172,7 +169,7 @@ object EidosOntologyGrounder {
   def mkGrounder(ontologyName: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer): OntologyGrounder = {
     ontologyName match {
       case WM_COMPOSITIONAL_NAMESPACE => new CompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
-      case INTERVENTION_NAMESPACE => new InterventionGrounder(ontologyName, domainOntology, w2v, canonicalizer)
+      case INTERVENTIONS_NAMESPACE => new InterventionGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case _ => EidosOntologyGrounder(ontologyName, domainOntology, w2v, canonicalizer)
     }
   }

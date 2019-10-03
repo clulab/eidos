@@ -188,15 +188,20 @@ object JLDOntologyGrounding {
   val plural: String = singular // Mass noun
 }
 
-class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
+class JLDOntologyGroundings(serializer: JLDSerializer, name: String, branchOpt: Option[String], grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
-  val jldGroundings: Seq[JObject] = grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
 
-  override def toJObject: TidyJObject = TidyJObject(List(
-    serializer.mkType(this),
-    "name" -> name,
-    "values" -> jldGroundings
-  ))
+  override def toJObject: TidyJObject = {
+    val jldGroundings: Seq[JObject] = grounding.grounding.map(pair =>new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
+    val nameWithBranch = name + branchOpt.map { branch => "/" + branch }.getOrElse("")
+
+    TidyJObject(List(
+      serializer.mkType(this),
+      "name" -> nameWithBranch,
+      "category" -> branchOpt,
+      "values" -> jldGroundings
+    ))
+  }
 }
 
 object JLDOntologyGroundings {
@@ -394,9 +399,11 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
     val jldGroundings = eidosMention.groundings.map { groundings =>
-      groundings.map { case (key, ontologyGrounding) =>
-        new JLDOntologyGroundings(serializer, key, ontologyGrounding).toJObject
-      }.toSeq
+      val keys: Seq[(String, Option[String])] = groundings.keys.toSeq.sorted // for consistency
+
+      keys.map { key =>
+        new JLDOntologyGroundings(serializer, key._1, key._2, groundings(key)).toJObject
+      }
     }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
 

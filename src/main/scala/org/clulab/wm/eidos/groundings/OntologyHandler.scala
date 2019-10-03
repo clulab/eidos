@@ -13,19 +13,22 @@ class OntologyHandler(
   val ontologyGrounders: Seq[OntologyGrounder],
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
-  val canonicalizer: Canonicalizer) extends PostProcessing {
+  val canonicalizer: Canonicalizer
+) extends PostProcessing {
 
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
     annotatedDocument.allEidosMentions.foreach { eidosMention =>
       // If any of the grounders needs their own version, they'll have to make it themselves.
       eidosMention.canonicalName = Some(canonicalizer.canonicalize(eidosMention))
 
-      val ontologyGroundings = ontologyGrounders.map { ontologyGrounder =>
+      val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
         // For serialization, this name will be combined with ontologyGrounding.branch.
         val name: String = ontologyGrounder.name
-        val ontologyGrounding: OntologyGrounding = ontologyGrounder.groundOntology(eidosMention)
+        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention)
 
-        name -> ontologyGrounding
+        ontologyGroundings.map { ontologyGrounding =>
+          (name, ontologyGrounding.branch) -> ontologyGrounding
+        }
       }.toMap
 
       eidosMention.groundings = Some(ontologyGroundings)
