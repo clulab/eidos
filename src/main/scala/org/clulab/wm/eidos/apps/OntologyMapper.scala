@@ -215,11 +215,12 @@ object OntologyMapper {
     // EidosSystem stuff
     val proc = reader.components.proc
     val w2v = reader.components.ontologyHandler.wordToVec
+    val canonicalizer = reader.components.ontologyHandler.canonicalizer
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
       val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager))
-      val grounder = EidosOntologyGrounder(providedOntName, ontology, w2v)
+      val grounder = EidosOntologyGrounder(providedOntName, ontology, w2v, canonicalizer)
       grounder.conceptEmbeddings
     } else {
       // FIXME: How do we know what the head is?
