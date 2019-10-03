@@ -99,17 +99,19 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   }
 }
 
+// Zupon
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   protected lazy val conceptEmbedddingsSeq: Seq[(String, Seq[ConceptEmbedding])] = {
+
     def getBranch(branch: String): (String, Seq[ConceptEmbedding]) =
         branch -> conceptEmbeddings.filter { _.namer.branch == Some(branch) }
 
     Seq(
-      getBranch(CompositionalGrounder.PROCESS_BRANCH),
-      getBranch(CompositionalGrounder.PROPERTY_BRANCH),
-      getBranch(CompositionalGrounder.PHENOMENON_BRANCH)
+      getBranch("process"),
+      getBranch("property"),
+      getBranch("phenomenon")
     ).filter { case (_, conceptEmbeddings) => conceptEmbeddings.nonEmpty }
   }
 
@@ -122,12 +124,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   }
 }
 
-object CompositionalGrounder {
-  val    PROCESS_BRANCH = "process"
-  val   PROPERTY_BRANCH = "property"
-  val PHENOMENON_BRANCH = "phenomenon"
-}
-
+// Zupon
 class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     // TODO This might extend something else
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
