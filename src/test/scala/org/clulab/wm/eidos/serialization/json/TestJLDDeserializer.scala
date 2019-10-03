@@ -633,7 +633,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson, ieSystem.postProcessors)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')

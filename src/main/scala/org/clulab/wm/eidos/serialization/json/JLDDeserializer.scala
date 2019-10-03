@@ -31,6 +31,7 @@ import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.PostProcessing
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -607,7 +608,7 @@ class JLDDeserializer {
     remainingMentions
   }
 
-  def deserializeCorpus(corpusValue: JValue, canonicalizer: Canonicalizer): Corpus = {
+  def deserializeCorpus(corpusValue: JValue, postProcessors: Seq[PostProcessing]): Corpus = {
     requireType(corpusValue, JLDCorpus.typename)
     // A corpus with no documents is hardly a corpus, so no extractOpt is used (for now).
     val documentSpecs = (corpusValue \ "documents").extract[JArray].arr.map(deserializeDocument)
@@ -644,21 +645,20 @@ class JLDDeserializer {
     val annotatedDocuments = documentSpecs.map { documentSpec =>
       val document = documentSpec.idAndDocument.value
       val annotatedDocument = AnnotatedDocument(document, odinMentions)
-
-      // TODO: Make this automatic somehow.  This needs to go through postprocessing phases.
-      annotatedDocument.allEidosMentions.foreach { eidosMention =>
-        eidosMention.canonicalName = Some(canonicalizer.canonicalize(eidosMention))
+      val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
+        postProcessor.process(nextAnnotatedDocument)
       }
-      annotatedDocument
+
+      lastAnnotatedDocument
     }
     val corpus = annotatedDocuments
 
     corpus
   }
 
-  def deserialize(json: String, canonicalizer: Canonicalizer): Corpus = {
+  def deserialize(json: String, postProcessors: Seq[PostProcessing]): Corpus = {
     val jValue: JValue = parse(json)
-    val corpus = deserializeCorpus(jValue, canonicalizer)
+    val corpus = deserializeCorpus(jValue, postProcessors)
     corpus
   }
 }

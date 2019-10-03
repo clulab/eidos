@@ -7,6 +7,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.annotation.tailrec
@@ -24,6 +25,10 @@ class EidosSystem(val components: EidosComponents) {
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   protected val debug = true
+
+  // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
+  // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
+  val postProcessors: Seq[PostProcessing] = Seq(components.ontologyHandler)
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
@@ -71,6 +76,14 @@ class EidosSystem(val components: EidosComponents) {
     //val cagRelevant = keepCAGRelevant(events)
 
     events
+  }
+
+  def postProcess(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
+      postProcessor.process(nextAnnotatedDocument)
+    }
+
+    lastAnnotatedDocument
   }
 
   // MAIN PIPELINE METHOD if given doc
@@ -122,11 +135,7 @@ class EidosSystem(val components: EidosComponents) {
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
     val annotatedDocument = AnnotatedDocument(doc, afterNegation)
 
-    // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
-    // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
-    val groundedAnnotatedDocument = components.ontologyHandler.process(annotatedDocument)
-
-    groundedAnnotatedDocument
+    postProcess(annotatedDocument)
   }
 
   // MAIN PIPELINE METHOD if given text
