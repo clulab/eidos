@@ -153,7 +153,7 @@ object EidosOntologyGrounder {
 
   val PRIMARY_NAMESPACE: String = WM_NAMESPACE // Assign the primary namespace here, publically.
 
-  protected val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
