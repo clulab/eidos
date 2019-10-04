@@ -13,7 +13,7 @@ object OntologyAliases {
   type SingleOntologyGrounding = (Namer, Float)
   type MultipleOntologyGrounding = Seq[SingleOntologyGrounding]
   // The first string is the name, something like wm or un.  The second is a branch/category.
-  type OntologyGroundings = Map[String, Seq[OntologyGrounding]]
+  type OntologyGroundings = Map[String, OntologyGrounding]
 }
 
 case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {

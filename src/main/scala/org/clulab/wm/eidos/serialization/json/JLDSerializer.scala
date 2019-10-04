@@ -188,17 +188,18 @@ object JLDOntologyGrounding {
   val plural: String = singular // Mass noun
 }
 
-class JLDOntologyGroundings(serializer: JLDSerializer, name: String, branchOpt: Option[String], grounding: OntologyGrounding)
+class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
 
   override def toJObject: TidyJObject = {
-    val jldGroundings: Seq[JObject] = grounding.grounding.map(pair =>new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
-    val nameWithBranch = name + branchOpt.map { branch => "/" + branch }.getOrElse("")
+    val jldGroundings: Seq[JObject] = grounding.grounding.map { case (namer, value) =>
+      new JLDOntologyGrounding(serializer, namer.name, value).toJObject
+    }
 
     TidyJObject(List(
       serializer.mkType(this),
-      "name" -> nameWithBranch,
-      "category" -> branchOpt,
+      "name" -> name,
+      "category" -> grounding.branch,
       "values" -> jldGroundings
     ))
   }
@@ -398,15 +399,14 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = eidosMention.groundings.map { groundings =>
+    val jldGroundings = {
+      val groundings = eidosMention.grounding
       val keys = groundings.keys.toSeq.sorted // for consistency
 
-      keys.flatMap { key =>
+      keys.map { key =>
         val ontologyGroundings = groundings(key)
 
-        ontologyGroundings.map { ontologyGrounding =>
-          new JLDOntologyGroundings(serializer, key, ontologyGrounding.branch, ontologyGrounding).toJObject
-        }
+        new JLDOntologyGroundings(serializer, key, ontologyGroundings).toJObject
       }
     }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
@@ -902,8 +902,8 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
       // Really this should visit anything in Mention.equals, but many aren't obvious to the jsonld reader.
       // Instead, check the canonical text, which might differ because of rule differences and then
       // the label, which should also be different.  Don't go so far as to check the arguments just yet.
-      val leftCanonicalName = left.eidosMention.canonicalName.get
-      val rightCanonicalName = right.eidosMention.canonicalName.get
+      val leftCanonicalName = left.eidosMention.canonicalName
+      val rightCanonicalName = right.eidosMention.canonicalName
 
       if (leftCanonicalName != rightCanonicalName)
         leftCanonicalName < rightCanonicalName

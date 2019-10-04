@@ -19,17 +19,21 @@ class OntologyHandler(
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
     annotatedDocument.allEidosMentions.foreach { eidosMention =>
       // If any of the grounders needs their own version, they'll have to make it themselves.
-      eidosMention.canonicalName = Some(canonicalizer.canonicalize(eidosMention))
+      eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
 
-      val ontologyGroundings = ontologyGrounders.map { ontologyGrounder =>
-        // For serialization, this name will be combined with ontologyGrounding.branch.
+      val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
         val name: String = ontologyGrounder.name
         val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention)
+        val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
+          val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
 
-        name -> ontologyGroundings
+          newName -> ontologyGrounding
+        }
+
+        nameAndOntologyGroundings
       }.toMap
 
-      eidosMention.groundings = Some(ontologyGroundings)
+      eidosMention.grounding = ontologyGroundings
     }
     annotatedDocument
   }
