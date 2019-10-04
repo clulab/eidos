@@ -236,5 +236,5 @@ object ElasticSearch4Jata extends App {
     downloadCategory(categoryOpt.get, metaDir, rawDir)
   }
   else
-    println("argumets: category | (metaDir rawDir)")
+    println("arguments: category | (metaDir rawDir)")
 }
