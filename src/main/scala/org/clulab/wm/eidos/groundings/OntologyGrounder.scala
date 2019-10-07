@@ -1,9 +1,11 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
+import org.clulab.odin.{Mention, TextBoundMention}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.Namer
+import org.clulab.struct.Interval
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -100,14 +102,14 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   }
 }
 
-// Zupon
+// TODO: Zupon
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   protected lazy val conceptEmbedddingsSeq: Seq[(String, Seq[ConceptEmbedding])] = {
 
     def getBranch(branch: String): (String, Seq[ConceptEmbedding]) =
-        branch -> conceptEmbeddings.filter { _.namer.branch == Some(branch) }
+        branch -> conceptEmbeddings.filter { _.namer.branch.contains(branch) }
 
     Seq(
       getBranch("process"),
@@ -119,13 +121,143 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
     val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
 
-    conceptEmbedddingsSeq.map { case (branch, conceptEmbeddings) =>
+
+    /** Get all dependencies within the original mention */
+
+    val dependencies = mention.odinMention.sentenceObj.dependencies
+    // Get outgoing dependencies
+    val outgoing = dependencies match {
+      case Some(deps) => deps.outgoingEdges
+      case None => Array.empty
+    }
+    // Get incoming dependencies
+    val incoming = dependencies match {
+      case Some(deps) => deps.incomingEdges
+      case None => Array.empty
+    }
+
+
+    /** Get syntactic head of mention */
+
+    // make a new mention that's just the syntactic head of the original mention
+    val syntacticHead = mention.odinMention.synHead
+    val mentionHead = new ArrayBuffer[Mention]
+    for {
+      tok <- syntacticHead
+    } mentionHead.append(
+      new TextBoundMention(
+        Seq("Mention_head"),
+        tokenInterval = Interval(tok),
+        sentence = mention.odinMention.sentence,
+        document = mention.odinMention.document,
+        keep = mention.odinMention.keep,
+        foundBy = mention.odinMention.foundBy
+      )
+    )
+    // text of syntactic head
+    val headText = Array(mentionHead.head.text)
+
+
+    /** Get modifiers of syntactic head */
+    val modifiers = new ArrayBuffer[Mention]
+    val allowedMods = List("compound", "nmod_of", "nmod_to", "nmod_for") // TODO: may need tuning
+
+    val argumentIntervals = mention.odinMention.arguments.values.flatten.map(_.tokenInterval)
+    for {
+      tok <- mention.odinMention.tokenInterval
+      if !argumentIntervals.exists(_.contains(tok))
+      in <- incoming.lift(tok)
+      (_, label) <- in
+      if allowedMods.contains(label)
+    } modifiers.append(
+      new TextBoundMention(
+        Seq("Compositional_modifier"),
+        Interval(tok),  // todo: not sure if this should be 'tok'
+        sentence = mention.odinMention.sentence,
+        document = mention.odinMention.document,
+        keep = mention.odinMention.keep,
+        foundBy = mention.odinMention.foundBy
+      )
+    )
+    // text of modifiers
+    var modText = Array[String]()
+    for (mod <- modifiers) {
+      modText += mod.text
+    }
+
+    // combine head with modifiers, head first
+    val allMentions = mentionHead ++ modifiers
+    val allText = headText ++ modText
+
+
+    // FIXME: I'm sure there's a WAY better way to do this;
+    //  done to compare words with nodes in branches of ontology
+    // get Namers for processes
+    var processNamers = Array[Namer]()
+    for (embedding <- conceptEmbedddingsSeq(0)._2) { // should be "process" branch
+      val embeddingNamer = embedding.namer
+      processNamers = processNamers :+ embeddingNamer
+    }
+    // get Namers for properties
+    var propertyNamers = Array[Namer]()
+    for (embedding <- conceptEmbedddingsSeq(1)._2) { // should be "property" branch
+      val embeddingNamer = embedding.namer
+      propertyNamers = propertyNamers :+ embeddingNamer
+    }
+    // get Namers for phenomena
+    var phenomenonNamers = Array[Namer]()
+    for (embedding <- conceptEmbedddingsSeq(2)._2) { // should be "phenomenon" branch
+      val embeddingNamer = embedding.namer
+      phenomenonNamers = phenomenonNamers :+ embeddingNamer
+    }
+
+    var propertyGrounding = OntologyGrounding()
+    var processGrounding = OntologyGrounding()
+    var phenomGrounding = OntologyGrounding()
+
+    for (mention <- allMentions) {
+      // Sieve-based approach
+      if (EidosOntologyGrounder.groundableType(EidosMention.asEidosMentions(Seq(mention)).head)) {
+        // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+        // grounding and we want to use it.
+        val matchedPatterns = nodesPatternMatched(mention.text, conceptPatterns)
+        val matchedPatternNamer = matchedPatterns.head._1
+        if (matchedPatterns.nonEmpty && propertyNamers.contains(matchedPatternNamer)) {
+          propertyGrounding = OntologyGrounding(matchedPatterns, Some("property"))
+        }
+        // Otherwise, back-off to the w2v-based approach
+        else {
+          var w2vNamers = Seq[Namer]()
+          for (embedding <- w2v.calculateSimilarities(headText, conceptEmbeddings)) {
+            val w2vNamer = embedding._1
+            w2vNamers = w2vNamers :+ w2vNamer
+          }
+          if (processNamers.contains(w2vNamers.head)) {
+            processGrounding = OntologyGrounding(w2v.calculateSimilarities(headText, conceptEmbeddings), Some("process"))
+          }
+          else {
+            phenomGrounding = OntologyGrounding(w2v.calculateSimilarities(headText, conceptEmbeddings), Some("phenomenon"))
+          }
+        }
+      }
+      else {
+        val returnedGroundings = Seq(OntologyGrounding())
+      }
+    }
+
+
+
+
+
+// todo: not sure what exactly this is returning for "branch"
+    val returnedGroundings = conceptEmbedddingsSeq.map { case (branch, conceptEmbeddings) =>
       OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some(branch))
     }
+    returnedGroundings
   }
 }
 
-// Zupon
+// TODO: Zupon
 class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     // TODO This might extend something else
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
@@ -154,7 +286,7 @@ object EidosOntologyGrounder {
 
   val PRIMARY_NAMESPACE: String = WM_NAMESPACE // Assign the primary namespace here, publically.
 
-  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
