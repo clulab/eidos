@@ -8,11 +8,14 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{HashCodeBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.Canonicalizer
 
 class TestEidosMention extends ExtractionTest {
   
   def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
+
+//  object StopwordManager extends StopwordManaging {
+//    def containsStopword(stopword: String) = stopword == "policy"
+//  }
 
   def test(text: String) = {
     def myprintln(text: String) = {
@@ -92,7 +95,7 @@ than in the corresponding period two years earlier.
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
     val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
-    val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
+    val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
 
 //    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
 

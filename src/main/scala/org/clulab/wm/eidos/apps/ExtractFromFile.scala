@@ -6,8 +6,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
@@ -20,7 +18,6 @@ object ExtractFromFile extends App {
 
   (FileUtils.printWriterFromFile(s"$outputFile")).autoClose { pw =>
     val ieSystem = new EidosSystem()
-    val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
 
     for (filename <- files) {
       val text = FileUtils.getTextFromFile(filename)
@@ -40,8 +37,8 @@ object ExtractFromFile extends App {
         println(s"Number of Eidos mentions found: ${sentenceMentions.length}")
         sentenceMentions.foreach(
           m => {
-            pw.println(s"CanonicalName: ${canonicalizer.canonicalize(m)}")
-            pw.println(s"OntologyGrounding: \n\t${m.groundings.get.values.mkString("\n\t")}")
+            pw.println(s"CanonicalName: ${m.canonicalName}")
+            pw.println(s"OntologyGrounding: \n\t${m.grounding.values.mkString("\n\t")}")
             printMention(m.odinMention, pw)
 
           }

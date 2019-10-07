@@ -190,13 +190,19 @@ object JLDOntologyGrounding {
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
-  val jldGroundings: Seq[JObject] = grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
 
-  override def toJObject: TidyJObject = TidyJObject(List(
-    serializer.mkType(this),
-    "name" -> name,
-    "values" -> jldGroundings
-  ))
+  override def toJObject: TidyJObject = {
+    val jldGroundings: Seq[JObject] = grounding.grounding.map { case (namer, value) =>
+      new JLDOntologyGrounding(serializer, namer.name, value).toJObject
+    }
+
+    TidyJObject(List(
+      serializer.mkType(this),
+      "name" -> name,
+      "category" -> grounding.branch,
+      "values" -> jldGroundings
+    ))
+  }
 }
 
 object JLDOntologyGroundings {
@@ -393,10 +399,15 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = eidosMention.groundings.map { groundings =>
-      groundings.map { case (key, ontologyGrounding) =>
-        new JLDOntologyGroundings(serializer, key, ontologyGrounding).toJObject
-      }.toSeq
+    val jldGroundings = {
+      val groundings = eidosMention.grounding
+      val keys = groundings.keys.toSeq.sorted // for consistency
+
+      keys.map { key =>
+        val ontologyGroundings = groundings(key)
+
+        new JLDOntologyGroundings(serializer, key, ontologyGroundings).toJObject
+      }
     }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
 
@@ -408,6 +419,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
       "labels" -> eidosMention.odinMention.labels,
       "text" -> eidosMention.odinMention.text,
       "rule" -> eidosMention.odinMention.foundBy,
+      "canonicalName" -> eidosMention.canonicalName,
       "groundings" -> jldGroundings,
       JLDProvenance.singular -> provenance(),
       JLDAttachment.plural -> jldAllAttachments
@@ -888,14 +900,22 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
     def breakTie(): Boolean = {
       // Really this should visit anything in Mention.equals, but many aren't obvious to the jsonld reader.
-      // Don't go so far as to check the arguments just yet.
-      val leftLabel = leftOdinMention.label
-      val rightLabel = rightOdinMention.label
+      // Instead, check the canonical text, which might differ because of rule differences and then
+      // the label, which should also be different.  Don't go so far as to check the arguments just yet.
+      val leftCanonicalName = left.eidosMention.canonicalName
+      val rightCanonicalName = right.eidosMention.canonicalName
 
-      if (leftLabel != rightLabel)
-        leftLabel < rightLabel
-      else
-        true // Tie goes in favor of the left just because it came first.
+      if (leftCanonicalName != rightCanonicalName)
+        leftCanonicalName < rightCanonicalName
+      else {
+        val leftLabel = leftOdinMention.label
+        val rightLabel = rightOdinMention.label
+
+        if (leftLabel != rightLabel)
+          leftLabel < rightLabel
+        else
+          true // Tie goes in favor of the left just because it came first.
+      }
     }
 
     if (leftDocumentIndex != rightDocumentIndex)

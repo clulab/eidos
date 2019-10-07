@@ -5,7 +5,6 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.DisplayUtils.{displayMention, displayMentions}
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.mentions.EidosTextBoundMention
-import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
@@ -15,7 +14,6 @@ object GenerateExampleMitre extends App {
 
   // creates an extractor engine using the rules and the default actions
   val reader = new EidosSystem()
-  val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
 
   val text = "Particularly for people living in market-dependent urban areas, economic decline has caused a " +
     "significant reduction in access to staple food, clean water, and to a variety of foods. Conflict and economic decline " +
@@ -27,10 +25,10 @@ object GenerateExampleMitre extends App {
 
   // Display the groundings for all entities
   for (e <- annotatedDocument.eidosMentions.filter(_.odinMention matches "Entity")) {
-    println(s"EidosMention: canonical=(${canonicalizer.canonicalize(e)})")
+    println(s"EidosMention: canonical=(${e.canonicalName})")
     displayMention(e.odinMention)
     println("Groundings:")
-    e.asInstanceOf[EidosTextBoundMention].groundings.get.values.foreach(g => println(s"\t$g"))
+    e.asInstanceOf[EidosTextBoundMention].grounding.values.foreach(g => println(s"\t$g"))
   }
 
   // Default debug display of the mentions

@@ -30,7 +30,7 @@ object CacheOntologies extends App {
 
   new File(cacheDir).mkdirs()
 
-  val ontologyGrounders: Seq[OntologyGrounder] = reader.components.ontologyHandler.groundingSteps.map(_.grounder)
+  val ontologyGrounders: Seq[OntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders
 
   if (ontologyGrounders.isEmpty)
     throw new RuntimeException("No ontologies were specified, please check the config file.")

@@ -12,6 +12,13 @@ class TestDomainOntology extends Test {
 
   def hasDuplicates(name: String, domainOntology: DomainOntology): Boolean = {
     val pathSeq = 0.until(domainOntology.size).map { i => domainOntology.getNamer(i).name }
+
+    0.until(domainOntology.size).foreach { i =>
+      // Just make sure this doesn't crash now.
+      val branch = domainOntology.getNamer(i).branch
+//      println(branch)
+    }
+
     val pathSet = pathSeq.toSet
 
 //    println(s"""The domain ontology "${domainOntology.name}" node count: ${ontologyNodes.length}""")
