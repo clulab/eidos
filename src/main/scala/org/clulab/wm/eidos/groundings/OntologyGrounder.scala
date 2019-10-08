@@ -136,7 +136,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       case None => Array.empty
     }
 
-
     /** Get syntactic head of mention */
 
     // make a new mention that's just the syntactic head of the original mention
@@ -156,7 +155,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     )
     // text of syntactic head
     val headText = Array(mentionHead.head.text)
-
 
     /** Get modifiers of syntactic head */
     val modifiers = new ArrayBuffer[Mention]
@@ -211,10 +209,16 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       phenomenonNamers = phenomenonNamers :+ embeddingNamer
     }
 
-    var propertyGrounding = OntologyGrounding()
-    var processGrounding = OntologyGrounding()
-    var phenomGrounding = OntologyGrounding()
+    // keep a placeholder for each component
+    var propertyGrounding: MultipleOntologyGrounding = Seq.empty
+    var processGrounding: MultipleOntologyGrounding = Seq.empty
+    var phenomGrounding: MultipleOntologyGrounding = Seq.empty
 
+    // hyperparameter for how many groundings to take
+    // should probably be inherited from somewhere else, rather than defined here
+    val k = 5
+
+    // for each word in the mention
     for (mention <- allMentions) {
       // Sieve-based approach
       if (EidosOntologyGrounder.groundableType(EidosMention.asEidosMentions(Seq(mention)).head)) {
@@ -223,7 +227,10 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         val matchedPatterns = nodesPatternMatched(mention.text, conceptPatterns)
         val matchedPatternNamer = matchedPatterns.head._1
         if (matchedPatterns.nonEmpty && propertyNamers.contains(matchedPatternNamer)) {
-          propertyGrounding = OntologyGrounding(matchedPatterns, Some("property"))
+          val propertyGround =
+            propertyGrounding.take(propertyGrounding.length) ++
+            OntologyGrounding(matchedPatterns, Some("property")).take(matchedPatterns.length)
+          propertyGrounding = propertyGround.sortBy(-_._2) // sort by confidence score high to low
         }
         // Otherwise, back-off to the w2v-based approach
         else {
@@ -233,24 +240,36 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
             w2vNamers = w2vNamers :+ w2vNamer
           }
           if (processNamers.contains(w2vNamers.head)) {
-            processGrounding = OntologyGrounding(w2v.calculateSimilarities(headText, conceptEmbeddings), Some("process"))
+            // if it's not a "property", try to ground to "process" first
+            // fixme: probably won't match exactly?
+            val processGround =
+              processGrounding.take(processGrounding.length) ++
+              OntologyGrounding(w2v.calculateSimilarities(headText, conceptEmbeddings), Some("process")).take(k)
+            processGrounding = processGround.sortBy(-_._2) // sort by confidence score high to low
           }
           else {
-            phenomGrounding = OntologyGrounding(w2v.calculateSimilarities(headText, conceptEmbeddings), Some("phenomenon"))
+            // otherwise ground to "phenomenon"
+            val phenomGround =
+              phenomGrounding.take(phenomGrounding.length) ++
+              OntologyGrounding(w2v.calculateSimilarities(headText, conceptEmbeddings), Some("phenomenon")).take(k)
+            phenomGrounding = phenomGround.sortBy(-_._2) // sort by confidence score high to low
           }
         }
       }
       else {
-        val returnedGroundings = Seq(OntologyGrounding())
+//        val returnedGroundings = Seq(OntologyGrounding())
       }
     }
 
-
+    val returnedGroundings = Seq(
+      OntologyGrounding(propertyGrounding, Some("property")),
+      OntologyGrounding(processGrounding, Some("process")),
+      OntologyGrounding(phenomGrounding, Some("phenomenon")))
 
 
 
 // todo: not sure what exactly this is returning for "branch"
-    val returnedGroundings = conceptEmbedddingsSeq.map { case (branch, conceptEmbeddings) =>
+    val returned = conceptEmbedddingsSeq.map { case (branch, conceptEmbeddings) =>
       OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some(branch))
     }
     returnedGroundings
