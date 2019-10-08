@@ -37,6 +37,25 @@ libraryDependencies ++= {
   )
 }
 
+sourceGenerators in Compile += Def.task {
+  import Versioner._
+  // These values need to be collected in a task in order have them forwarded to Scala functions.
+  val versioner = Versioner(git.runner.value, baseDirectory.value, (sourceManaged in Compile).value)
+  val codeDir = "src/main/resources/" // TODO: record this somehow, maybe with buildInfoKeys
+  val ontologyDir = codeDir + "org/clulab/wm/eidos/english/ontologies/"
+
+  // The user should set these values.
+  val namespace = "org.clulab.wm.eidos.ontologies"
+  // TODO: Automatically collect these files by querying the directory.
+  val files = Seq(
+    "un_ontology.yml",
+    "interventions.yml"
+  ).map { file => ontologyDir + file }
+
+  // This reads and codes the versions.
+  versioner.version(namespace, files)
+}.taskValue
+
 Test / fork := true // Also forces sequential operation
 Test / parallelExecution := false // Keeps groups in their order   false then true worked 4:14 and portuguese last
 //Test / testForkedParallel := true // Allow parallel within group?

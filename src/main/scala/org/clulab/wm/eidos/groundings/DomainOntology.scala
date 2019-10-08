@@ -5,6 +5,8 @@ import org.clulab.wm.eidos.utils.Namer
 import scala.util.matching.Regex
 
 trait DomainOntology {
+  val version: Option[String] = None
+  val date: Option[String] = None
 
   def size: Integer
 
