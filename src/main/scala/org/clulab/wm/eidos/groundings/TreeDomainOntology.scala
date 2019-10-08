@@ -166,7 +166,19 @@ object TreeDomainOntology {
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
       val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
       val descriptions: Option[Array[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
-      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
+      // The incoming polarity can now be Int or Double.  We will store either one as a Float.
+      val polarity = {
+        // There's something wrong with this type system, obviously.  This is legacy code.
+        val yamlNodesOpt: Option[JCollection[Any]] = yamlNodes.get(TreeDomainOntology.POLARITY)
+
+        yamlNodesOpt.map { yamlNode: Any =>
+          yamlNode match {
+            case value: Double => value.toFloat
+            case value: Int => value.toFloat
+            case _ => throw new Exception(s"Unexpected polarity value: $yamlNode!")
+          }
+        }.getOrElse(1.0f) // positive by default
+      }
       val patterns: Option[Array[Regex]] = yamlNodesToRegexes(yamlNodes, TreeDomainOntology.PATTERN)
 
       /*val filteredNames = names.flatMap(filtered)*/
@@ -178,7 +190,7 @@ object TreeDomainOntology {
     }
 
     protected def parseOntology(parent: OntologyParentNode, yamlNodes: Seq[Any]): Seq[OntologyLeafNode] = {
-      yamlNodes flatMap { yamlNode =>
+      yamlNodes.flatMap { yamlNode =>
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala
