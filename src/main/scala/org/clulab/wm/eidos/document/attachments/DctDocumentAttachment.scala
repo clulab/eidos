@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.document
+package org.clulab.wm.eidos.document.attachments
 
 import java.time.LocalDateTime
 
@@ -8,8 +8,8 @@ import org.clulab.processors.DocumentAttachmentBuilderFromJson
 import org.clulab.processors.DocumentAttachmentBuilderFromText
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
-import org.json4s._
 import org.json4s.JsonDSL._
+import org.json4s._
 
 /**
  * In case anyone is wondering, DCT stands for Document Creation Time.
@@ -80,10 +80,10 @@ class DctDocumentAttachment(val dct: DCT) extends DocumentAttachment { // Maybe 
 }
 
 object DctDocumentAttachment {
-  protected val DctKey = "dct"
+  protected val Key = "dct"
 
   def getDctDocumentAttachment(doc: Document): Option[DctDocumentAttachment] = {
-    val documentAttachmentOpt = doc.getAttachment(DctKey)
+    val documentAttachmentOpt = doc.getAttachment(Key)
     val dctDocumentAttachmentOpt = documentAttachmentOpt.map { documentAttachment =>
       documentAttachment.asInstanceOf[DctDocumentAttachment]
     }
@@ -103,7 +103,7 @@ object DctDocumentAttachment {
   def setDct(doc: Document, dct: DCT): DctDocumentAttachment = {
     val dctDocumentAttachment = new DctDocumentAttachment(dct)
 
-    doc.addAttachment(DctKey, dctDocumentAttachment)
+    doc.addAttachment(Key, dctDocumentAttachment)
     dctDocumentAttachment
   }
 }
