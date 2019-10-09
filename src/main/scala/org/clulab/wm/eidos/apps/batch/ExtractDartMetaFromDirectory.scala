@@ -5,8 +5,10 @@ import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.apps.ExtractFromDirectory.config
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
@@ -37,7 +39,11 @@ object ExtractDartMetaFromDirectory extends App {
     timer.start()
     // Prime it first.  This counts on overall time, but should not be attributed
     // to any particular document.
-    val reader = new EidosSystem()
+    val config = EidosSystem.defaultConfig
+    val reader = new EidosSystem(config)
+    // 0. Optionally include adjective grounding
+    val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+
     reader.extractFromText("This is a test.")
     timer.stop()
 
@@ -66,7 +72,7 @@ object ExtractDartMetaFromDirectory extends App {
           documentLocation.foreach { documentLocation => LocationDocumentAttachment.setLocation(annotatedDocuments.head.document, documentLocation) }
           // 4. Convert to JSON
           val corpus = new JLDCorpus(annotatedDocuments)
-          val mentionsJSONLD = corpus.serialize()
+          val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
           // 5. Write to output file
           val path = DartMetaUtils.convertTextToJsonld(outputDir, file)
           FileUtils.printWriterFromFile(path).autoClose { pw =>
