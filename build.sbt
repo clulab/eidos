@@ -28,7 +28,8 @@ libraryDependencies ++= {
     "net.sf.saxon"  % "saxon-dom"                 % "8.7",
     "org.slf4j"     % "slf4j-api"                 % "1.7.10",
     "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
-    "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
+//    "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
+    "WorldModelers"   %% "ontologies"     % "0.3.0-SNAPSHOT",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
@@ -41,12 +42,12 @@ sourceGenerators in Compile += Def.task {
   import java.io.File
   import Versioner._
   // These values need to be collected in a task in order have them forwarded to Scala functions.
-  val versioner = Versioner(git.runner.value, baseDirectory.value, (sourceManaged in Compile).value)
+  val versioner = Versioner(git.runner.value, git.gitCurrentBranch.value, baseDirectory.value, (sourceManaged in Compile).value)
 
   // The user should set these values.
   val codeDir = "src/main/resources/"
   val ontologyDir = codeDir + "org/clulab/wm/eidos/english/ontologies/"
-  val namespace = "org.clulab.wm.eidos.ontologies"
+  val namespace = "com.github.clulab.eidos"
 
   val files = new File(ontologyDir)
       .listFiles
