@@ -86,9 +86,9 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
   def save(filename: String): Unit = {
     FileUtils.newObjectOutputStream(filename).autoClose { objectOutputStream =>
       val firstLine = Seq(
-        if (version.isDefined) version else "",
-        if (date.isDefined) date.toString else ""
-      ).mkString(" ")
+        version.getOrElse(""),
+        date.map(_.toString).getOrElse("")
+      ).mkString("\t") // Some versions of ZonedDateTime.toString can contain spaces.
       objectOutputStream.writeObject(firstLine)
       objectOutputStream.writeObject(leafStrings.mkString("\n"))
       objectOutputStream.writeObject(leafStringIndexes)
@@ -132,7 +132,7 @@ object CompactDomainOntology {
     FileUtils.newClassLoaderObjectInputStream(filename, this).autoClose { objectInputStream =>
       val (versionOpt: Option[String], dateOpt: Option[ZonedDateTime]) = {
         val firstLine = objectInputStream.readObject().asInstanceOf[String]
-        val Array(commit, date) = firstLine.split(' ')
+        val Array(commit, date) = firstLine.split('\t')
         val commitOpt = if (commit.nonEmpty) Some(commit) else None
         val dateOpt = if (date.nonEmpty) Some(ZonedDateTime.parse(date)) else None
 
