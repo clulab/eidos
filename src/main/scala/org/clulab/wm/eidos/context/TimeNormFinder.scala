@@ -14,7 +14,7 @@ import org.clulab.timenorm.scate._
 import org.clulab.timenorm.scate.{Interval => TimExInterval, Intervals => TimExIntervals}
 import org.clulab.timenorm.scate.TemporalNeuralParser
 import org.clulab.wm.eidos.attachments.Time
-import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser

@@ -54,7 +54,7 @@ object ExtractAndExport extends App with Configured {
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
-    val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
+    val annotatedDocuments = Seq(reader.extractFromText(text, id = Some(file.getName)))
     // 4. Export to all desired formats
     exportAs.foreach { format =>
       getExporter(format, s"$outputDir/${file.getName}", topN).export(annotatedDocuments)
