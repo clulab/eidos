@@ -1,8 +1,11 @@
 package org.clulab.wm.eidos.groundings
 
+import java.time.ZonedDateTime
+
 import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
 
@@ -11,7 +14,9 @@ import scala.util.matching.Regex
 object Aliases {
   type SingleGrounding = (Namer, Float)
   type MultipleGrounding = Seq[SingleGrounding]
-  type Groundings = Map[String, OntologyGrounding]
+  type GroundingsKey = (String, Option[String], Option[ZonedDateTime])
+  // This now has to store the version information as well as the mapping from name to grounding.
+  type Groundings = Map[GroundingsKey, OntologyGrounding]
 }
 
 case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
@@ -142,7 +147,14 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
   override def groundable(mention: EidosMention, previousGrounding: Option[Aliases.Groundings]): Boolean = {
     val groundable = previousGrounding match {
       case Some(prev) =>
-        prev.get(EidosOntologyGrounder.PRIMARY_NAMESPACE).exists(_.headName.map(_ contains pluginGroundingTrigger).getOrElse(false))
+        val groundingOpt: Option[OntologyGrounding] = GroundingUtils.getBaseGroundingOpt(prev)
+        val containsPluginGroundingTrigger = groundingOpt.exists { grounding =>
+          grounding
+              .headName
+              .map (_ contains pluginGroundingTrigger)
+              .getOrElse(false)
+        }
+        containsPluginGroundingTrigger
       case _ => false
     }
 
@@ -164,9 +176,9 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
 
   def groundOntology(mention: EidosMention): Groundings = {
     val primaryGroundings = primaryGrounders.map(ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
+      ((ontologyGrounder.name, ontologyGrounder.domainOntology.version, ontologyGrounder.domainOntology.date), ontologyGrounder.groundOntology(mention))).toMap
     val secondaryGroundings = secondaryGrounders.map(ontologyGrounder =>
-      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
+      ((ontologyGrounder.name, ontologyGrounder.domainOntology.version, ontologyGrounder.domainOntology.date), ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
 
     primaryGroundings ++ secondaryGroundings
   }

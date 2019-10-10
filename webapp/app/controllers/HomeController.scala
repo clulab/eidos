@@ -357,10 +357,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       for (entity <- entities) {
         objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
         // If the primary groundings are available, let's print them too...
-        if (entity.grounding.contains(EidosOntologyGrounder.PRIMARY_NAMESPACE)) {
+        val groundingStringOpt = GroundingUtils.getGroundingsStringOpt(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
+        if (groundingStringOpt.isDefined) {
           objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
-          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
-          objectToReturn +=  groundings
+          objectToReturn +=  groundingStringOpt
           objectToReturn += "<br><br>"
         }
       }

@@ -1,11 +1,13 @@
 package org.clulab.wm.eidos.mentions
 
+import java.time.ZonedDateTime
 import java.util
 
 import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.groundings.Aliases.GroundingsKey
 import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.mutable
@@ -155,7 +157,7 @@ abstract class EidosMention(val odinMention: Mention, canonicalizer: Canonicaliz
   }
 
   // This is similarly lazy because groundOntology calls canonicalName.
-  lazy val grounding: Map[String, OntologyGrounding] = ontologyGrounder.groundOntology(this)
+  lazy val grounding: Aliases.Groundings = ontologyGrounder.groundOntology(this)
 
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)

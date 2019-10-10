@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 import org.clulab.odin.EventMention
 import org.clulab.odin.{Attachment, Mention}
@@ -188,13 +189,15 @@ object JLDOntologyGrounding {
   val plural: String = singular // Mass noun
 }
 
-class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
+class JLDOntologyGroundings(serializer: JLDSerializer, name: String, version: Option[String], date: Option[ZonedDateTime], grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
   val jldGroundings: Seq[JObject] = grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
     "name" -> name,
+    "version" -> version,
+    "versionDate" -> date.map(_.toString),
     "values" -> jldGroundings
   ))
 }
@@ -393,7 +396,9 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = eidosMention.grounding.map(pair => new JLDOntologyGroundings(serializer, pair._1, pair._2).toJObject).toSeq
+    val jldGroundings = eidosMention.grounding.map { case ((name, versionOpt, dateOpt), grounding) =>
+      new JLDOntologyGroundings(serializer, name, versionOpt, dateOpt, grounding).toJObject
+    }.toSeq
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
 
     TidyJObject(List(

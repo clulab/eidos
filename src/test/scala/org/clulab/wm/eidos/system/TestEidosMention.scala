@@ -1,8 +1,10 @@
 package org.clulab.wm.eidos.text.english.cag
 
+import java.time.ZonedDateTime
 import java.util.HashMap
 
 import org.clulab.odin.Mention
+import org.clulab.wm.eidos.groundings.Aliases.GroundingsKey
 import org.clulab.wm.eidos.groundings.{MultiOntologyGrounding, OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.{HashCodeBagger, IdentityBagger}
@@ -13,7 +15,7 @@ import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManaging}
 
 class TestEidosMention extends ExtractionTest with MultiOntologyGrounding {
   
-  def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
+  def groundOntology(mention: EidosMention): Map[GroundingsKey, OntologyGrounding] = Map.empty
 
   object StopwordManager extends StopwordManaging {
     def containsStopword(stopword: String) = stopword == "policy"
