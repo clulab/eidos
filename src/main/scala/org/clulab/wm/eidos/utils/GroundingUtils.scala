@@ -8,10 +8,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 object GroundingUtils {
 
   def getGroundingOpt(groundings: Aliases.Groundings, namespace: String): Option[OntologyGrounding] = {
-    val matches = groundings.keys.filter { case (name, _, _) => name == namespace }
-
-    // If only the namespace is given, return the first matching one.  Others may exist.
-    matches.headOption.map { key => groundings(key) }
+    groundings.get(namespace)
   }
 
   def getGroundingOpt(mention: EidosMention, namespace: String): Option[OntologyGrounding] =

@@ -14,12 +14,11 @@ import scala.util.matching.Regex
 object Aliases {
   type SingleGrounding = (Namer, Float)
   type MultipleGrounding = Seq[SingleGrounding]
-  type GroundingsKey = (String, Option[String], Option[ZonedDateTime])
   // This now has to store the version information as well as the mapping from name to grounding.
-  type Groundings = Map[GroundingsKey, OntologyGrounding]
+  type Groundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
+case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: Aliases.MultipleGrounding = Seq.empty) {
   def nonEmpty: Boolean = grounding.nonEmpty
 
   def take(n: Int): Aliases.MultipleGrounding = grounding.take(n)
@@ -49,6 +48,10 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
   // Is not dependent on the output of other grounders
   val isPrimary = true
 
+  def newOntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) = {
+    OntologyGrounding(domainOntology.version, domainOntology.date, grounding)
+  }
+
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),
@@ -62,22 +65,21 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
     }
 
   def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
-
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
       val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
       if (matchedPatterns.nonEmpty) {
-        OntologyGrounding(matchedPatterns)
+        newOntologyGrounding(matchedPatterns)
       }
       // Otherwise, back-off to the w2v-based approach
       else {
-        OntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalNameParts, conceptEmbeddings))
+        newOntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalNameParts, conceptEmbeddings))
       }
     }
     else
-      OntologyGrounding()
+      newOntologyGrounding()
   }
 
   def groundable(mention: EidosMention, primaryGrounding: Option[Aliases.Groundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
@@ -102,11 +104,11 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
   def groundText(text: String): OntologyGrounding = {
     val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
     if (matchedPatterns.nonEmpty) {
-      OntologyGrounding(matchedPatterns)
+      newOntologyGrounding(matchedPatterns)
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      OntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
     }
   }
 
@@ -125,10 +127,10 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
       val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray.sorted
 
       // FIXME - should be lemmas?
-      OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
     }
     else
-      OntologyGrounding()
+      newOntologyGrounding()
   }
 }
 
@@ -165,7 +167,7 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
     if (groundable(mention, previousGroundings)) {
       super.groundOntology(mention, None)
     } else {
-      OntologyGrounding()
+      newOntologyGrounding()
     }
   }
 }
@@ -176,9 +178,9 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
 
   def groundOntology(mention: EidosMention): Groundings = {
     val primaryGroundings = primaryGrounders.map(ontologyGrounder =>
-      ((ontologyGrounder.name, ontologyGrounder.domainOntology.version, ontologyGrounder.domainOntology.date), ontologyGrounder.groundOntology(mention))).toMap
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention))).toMap
     val secondaryGroundings = secondaryGrounders.map(ontologyGrounder =>
-      ((ontologyGrounder.name, ontologyGrounder.domainOntology.version, ontologyGrounder.domainOntology.date), ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
+      (ontologyGrounder.name, ontologyGrounder.groundOntology(mention, primaryGroundings))).toMap
 
     primaryGroundings ++ secondaryGroundings
   }

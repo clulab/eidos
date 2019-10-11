@@ -7,7 +7,6 @@ import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.groundings.Aliases.GroundingsKey
 import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.mutable
