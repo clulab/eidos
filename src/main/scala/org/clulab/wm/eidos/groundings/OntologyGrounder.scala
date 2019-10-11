@@ -1,8 +1,11 @@
 package org.clulab.wm.eidos.groundings
 
+import java.time.ZonedDateTime
+
 import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
 import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.LoggerFactory
 
@@ -11,10 +14,11 @@ import scala.util.matching.Regex
 object Aliases {
   type SingleGrounding = (Namer, Float)
   type MultipleGrounding = Seq[SingleGrounding]
+  // This now has to store the version information as well as the mapping from name to grounding.
   type Groundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) {
+case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: Aliases.MultipleGrounding = Seq.empty) {
   def nonEmpty: Boolean = grounding.nonEmpty
 
   def take(n: Int): Aliases.MultipleGrounding = grounding.take(n)
@@ -44,6 +48,10 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
   // Is not dependent on the output of other grounders
   val isPrimary = true
 
+  def newOntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) = {
+    OntologyGrounding(domainOntology.version, domainOntology.date, grounding)
+  }
+
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),
@@ -57,22 +65,21 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
     }
 
   def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
-
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
       val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
       if (matchedPatterns.nonEmpty) {
-        OntologyGrounding(matchedPatterns)
+        newOntologyGrounding(matchedPatterns)
       }
       // Otherwise, back-off to the w2v-based approach
       else {
-        OntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalNameParts, conceptEmbeddings))
+        newOntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalNameParts, conceptEmbeddings))
       }
     }
     else
-      OntologyGrounding()
+      newOntologyGrounding()
   }
 
   def groundable(mention: EidosMention, primaryGrounding: Option[Aliases.Groundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
@@ -97,11 +104,11 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
   def groundText(text: String): OntologyGrounding = {
     val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
     if (matchedPatterns.nonEmpty) {
-      OntologyGrounding(matchedPatterns)
+      newOntologyGrounding(matchedPatterns)
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      OntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
     }
   }
 
@@ -120,10 +127,10 @@ class PropertiesOntologyGrounder(name: String, domainOntology: DomainOntology, w
       val propertyTokens = propertyAttachments.flatMap(EidosAttachment.getAttachmentWords).toArray.sorted
 
       // FIXME - should be lemmas?
-      OntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(propertyTokens, conceptEmbeddings))
     }
     else
-      OntologyGrounding()
+      newOntologyGrounding()
   }
 }
 
@@ -142,7 +149,14 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
   override def groundable(mention: EidosMention, previousGrounding: Option[Aliases.Groundings]): Boolean = {
     val groundable = previousGrounding match {
       case Some(prev) =>
-        prev.get(EidosOntologyGrounder.PRIMARY_NAMESPACE).exists(_.headName.map(_ contains pluginGroundingTrigger).getOrElse(false))
+        val groundingOpt: Option[OntologyGrounding] = GroundingUtils.getBaseGroundingOpt(prev)
+        val containsPluginGroundingTrigger = groundingOpt.exists { grounding =>
+          grounding
+              .headName
+              .map (_ contains pluginGroundingTrigger)
+              .getOrElse(false)
+        }
+        containsPluginGroundingTrigger
       case _ => false
     }
 
@@ -153,7 +167,7 @@ class PluginOntologyGrounder(name: String, domainOntology: DomainOntology, wordT
     if (groundable(mention, previousGroundings)) {
       super.groundOntology(mention, None)
     } else {
-      OntologyGrounding()
+      newOntologyGrounding()
     }
   }
 }

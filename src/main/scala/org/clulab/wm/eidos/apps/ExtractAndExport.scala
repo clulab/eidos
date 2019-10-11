@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
+import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -158,7 +158,7 @@ object SerializedMentions {
 
 case class EntityInfo(m: EidosMention, groundAs: Seq[String], topN: Int = 5) {
   val text: String = m.odinMention.text
-  val norm: String = getBaseGrounding(m)
+  val norm: String = getBaseGroundingString(m)
   val modifier: String = ExporterUtils.getModifier(m)
   val polarity: String = ExporterUtils.getPolarity(m)
   val groundingStrings: Seq[String] = groundAs.map { namespace =>
