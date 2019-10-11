@@ -402,9 +402,12 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = eidosMention.grounding.map { case (name, grounding) =>
+    val names = eidosMention.grounding.keys.toSeq.sorted
+    val jldGroundings = names.map { name =>
+      val grounding = eidosMention.grounding(name)
+
       new JLDOntologyGroundings(serializer, name, grounding).toJObject
-    }.toSeq
+    }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
 
     TidyJObject(List(
