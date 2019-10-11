@@ -4,7 +4,9 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
 
   protected def isContentTag(tag: String): Boolean =
       tag.startsWith("NN") ||
-      tag.startsWith("VB")
+      tag.startsWith("VB") ||
+      tag.startsWith("JJ")
+
 
   def isCanonical(lemma: String, tag: String, ner: String): Boolean =
     isContentTag(tag) &&
