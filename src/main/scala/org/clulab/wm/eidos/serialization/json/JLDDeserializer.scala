@@ -166,7 +166,7 @@ class JLDDeserializer {
     val startOffset = (geoIdValue \ "startOffset").extract[Int]
     val endOffset = (geoIdValue \ "endOffset").extract[Int]
     val text = (geoIdValue \ "text").extract[String]
-    val geoId = (geoIdValue \ "geoID").extractOpt[String].map(Integer.parseInt)
+    val geoId = (geoIdValue \ "geoID").extractOpt[String]
     val geoPhraseId = GeoPhraseID(text, geoId, startOffset, endOffset)
 
     new IdAndGeoPhraseId(geoIdId, geoPhraseId)
