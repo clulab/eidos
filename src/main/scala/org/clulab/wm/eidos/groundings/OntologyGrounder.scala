@@ -150,24 +150,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
     val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
 
-
-    /** Get all dependencies within the original mention */
-
-    val dependencies = mention.odinMention.sentenceObj.dependencies
-    // Get outgoing dependencies
-    val outgoing = dependencies match {
-      case Some(deps) => deps.outgoingEdges
-      case None => Array.empty
-    }
-    // Get incoming dependencies
-    val incoming = dependencies match {
-      case Some(deps) => deps.incomingEdges
-      case None => Array.empty
-    }
-
-    /** Get syntactic head of mention */
-
-    // make a new mention that's just the syntactic head of the original mention
+    /** Get the syntactic head of the mention */
+    // Make a new mention that's just the syntactic head of the original mention
     val syntacticHead = mention.odinMention.synHead
     val mentionHead = syntacticHead.map ( head =>
       new TextBoundMention(
@@ -179,75 +163,58 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         foundBy = mention.odinMention.foundBy
       )
     )
-    // text of syntactic head
+    // Get the text of the syntactic head
     val headText = mentionHead.map(_.text).getOrElse("<NO_HEAD>")
 
-    /** Get modifiers of syntactic head */
-    val allowedMods = List("compound", "nmod_of", "nmod_to", "nmod_for") // TODO: may need tuning
+    /** Get the modifiers of the syntactic head */
+    // TODO: allowed modifier relations may need tuning
+    val allowedMods = List(
+      "compound",
+      "nmod_of",
+      "nmod_to",
+      "nmod_for"
+    )
     val modifierMentions = getModifierMentions(headText, mention.odinMention, allowedMods.mkString("|"))
-//    val modifiers = new ArrayBuffer[Mention]
-//    val allowedMods = List("compound", "nmod_of", "nmod_to", "nmod_for") // TODO: may need tuning
 
-
-//    for {
-//      tok <- mention.odinMention.tokenInterval
-//      in <- incoming.lift(tok)
-//      (src, label) <- in
-//      // if the link is an allowed type and it connects directly to the head
-//      if allowedMods.contains(label) //&& syntacticHead.getOrElse(-10) == src
-//    } modifiers.append(
-//      new TextBoundMention(
-//        Seq("Compositional_modifier"),
-//        Interval(tok),  // todo: not sure if this should be 'tok'
-//        sentence = mention.odinMention.sentence,
-//        document = mention.odinMention.document,
-//        keep = mention.odinMention.keep,
-//        foundBy = mention.odinMention.foundBy
-//      )
-//    )
-    // text of modifiers
-    val modText = modifierMentions.map(_.text)
-//    var modText = Array[String]()
-//    for (mod <- modifiers) {
-//      modText += mod.text
-//    }
-
-    // combine head with modifiers, head first
+    // Combine head with modifiers, head first
+    // TODO: Only needed if we to one big loop, unnecessary if we treat head special
     val allMentions = mentionHead.toSeq ++ modifierMentions
-    val allText = headText ++ modText
-
-
-    // FIXME: I'm sure there's a WAY better way to do this;
-    //  done to compare words with nodes in branches of ontology
-    // get Namers for processes
-//    var processNamers = Array[Namer]()
-//    for (embedding <- conceptEmbeddingsSeq(0)._2) { // should be "process" branch
-//      val embeddingNamer = embedding.namer
-//      processNamers = processNamers :+ embeddingNamer
-//    }
-//    // get Namers for properties
-//    var propertyNamers = Array[Namer]()
-//    for (embedding <- conceptEmbeddingsSeq(1)._2) { // should be "property" branch
-//      val embeddingNamer = embedding.namer
-//      propertyNamers = propertyNamers :+ embeddingNamer
-//    }
-//    // get Namers for phenomena
-//    var phenomenonNamers = Array[Namer]()
-//    for (embedding <- conceptEmbeddingsSeq(2)._2) { // should be "phenomenon" branch
-//      val embeddingNamer = embedding.namer
-//      phenomenonNamers = phenomenonNamers :+ embeddingNamer
-//    }
 
     // keep a placeholder for each component
     val propertyGrounding = new ArrayBuffer[SingleOntologyGrounding] // each SingleOntologyGrounding is (Namer, Float)
     val processGrounding = new ArrayBuffer[SingleOntologyGrounding]
     val phenomGrounding = new ArrayBuffer[SingleOntologyGrounding]
 
-    // hyperparameter for how many groundings to take
-    // should probably be inherited from somewhere else, rather than defined here
-    val k = 5
 
-    // TODO: treat head special
+    // Treat head special
+    // TODO: Do we need to treat it special after all?
+    for (mention <- mentionHead) {
+      // Try to match Property branch with regex
+      val matchedPropertyPatterns: Seq[(Namer, Float)] = nodesPatternMatched(mention.text, conceptPatternsSeq("property"))
+      if (matchedPropertyPatterns.nonEmpty) {
+        propertyGrounding.appendAll(matchedPropertyPatterns)
+      }
+      // Otherwise, back-off to the w2v-based approach
+      else {
+        // Try to match Process branch
+        val processGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("process"))
+        val maxProcessScore = processGroundings.maxBy(_._2)._2
+        // FIXME
+        if (maxProcessScore >= threshold) {
+          processGrounding.appendAll(processGroundings)
+        } else {
+          // Try to match Phenomenon branch
+          val phenomGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("phenomenon"))
+          val maxPhenomScore = phenomGroundings.maxBy(_._2)._2
+          // If Phenomenon confidence > Process confidence, ground to Phenom (& vice versa)
+          if (maxPhenomScore > maxProcessScore) {
+            phenomGrounding.appendAll(phenomGroundings)
+          } else {
+            processGrounding.appendAll(processGroundings)
+          }
+        }
+      }
+    }
 
 
     // for each word in the mention
@@ -256,24 +223,26 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
-      val matchedPropertyPatterns: Seq[(Namer, Float)] = nodesPatternMatched(mention.text, conceptPatternsSeq("property"))
 
-      if (matchedPropertyPatterns.nonEmpty) {
+      // Only ground to Property if something else hasn't already been grounded to the Property branch
+      val matchedPropertyPatterns: Seq[(Namer, Float)] = nodesPatternMatched(mention.text, conceptPatternsSeq("property"))
+      if (matchedPropertyPatterns.nonEmpty && propertyGrounding.isEmpty) {
         propertyGrounding.appendAll(matchedPropertyPatterns)
       }
       // Otherwise, back-off to the w2v-based approach
       else {
-        // head and process
         // TODO: property first?
+        // Try to match Process branch
         val processGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("process"))
         val maxProcessScore = processGroundings.maxBy(_._2)._2
         // FIXME
         if (maxProcessScore >= threshold) {
           processGrounding.appendAll(processGroundings)
         } else {
-          // otherwise ground to "phenomenon"
+          // Try to match Phenomenon branch
           val phenomGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("phenomenon"))
           val maxPhenomScore = phenomGroundings.maxBy(_._2)._2
+          // If Phenomenon confidence > Process confidence, ground to Phenom (& vice versa)
           if (maxPhenomScore > maxProcessScore) {
             phenomGrounding.appendAll(phenomGroundings)
           } else {
@@ -284,21 +253,26 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
     }
 
-    // sort in decreasing order
+    // After grounding head and modifiers in mention,
+    // sort in decreasing order by confidence score
     val sortedProperty = propertyGrounding.sortBy(-_._2)
+    val sortedProcess = processGrounding.sortBy(-_._2)
+    val sortedPhenom = phenomGrounding.sortBy(-_._2)
 
     val returnedGroundings = Seq(
-      OntologyGrounding(propertyGrounding, Some("property")),
-      OntologyGrounding(processGrounding, Some("process")),
-      OntologyGrounding(phenomGrounding, Some("phenomenon"))
+      OntologyGrounding(sortedProperty, Some("property")),
+      OntologyGrounding(sortedProcess, Some("process")),
+      OntologyGrounding(sortedPhenom, Some("phenomenon"))
     )
 
+// todo: not sure what exactly this (below) is returning
+//  commenting out bc Keith wrote it and it's probably
+//  useful for something that I just don't understand yet
 
+//    val returned = conceptEmbeddingsSeq.map { case (branch, conceptEmbeddings) =>
+//      OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some(branch))
+//    }
 
-// todo: not sure what exactly this is returning for "branch"
-    val returned = conceptEmbeddingsSeq.map { case (branch, conceptEmbeddings) =>
-      OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some(branch))
-    }
     returnedGroundings
   }
 
