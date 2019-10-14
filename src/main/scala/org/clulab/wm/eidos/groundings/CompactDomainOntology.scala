@@ -207,8 +207,14 @@ object CompactDomainOntology {
 
     protected def mkNodeStringMap(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
+      val parentSeq = parentMap
+          .entrySet
+          .asScala
+          .toSeq
+          .map { entrySet => (entrySet.getKey, entrySet.getValue) }
+          .sortBy(_._2)
 
-      parentMap.keySet().asScala.foreach { ontologyParentNode =>
+      parentSeq.foreach { case (ontologyParentNode, _)  =>
         append(stringMap, ontologyParentNode.escaped)
       }
       0.until(treeDomainOntology.size).foreach { i =>
@@ -263,6 +269,7 @@ object CompactDomainOntology {
       val leafIndexes = mkLeafIndexes(parentMap, nodeStringMap)
       val branchIndexes = mkParentIndexes(parentMap, nodeStringMap)
 
+      // This sorts by the latter, the Int, and then answers the former, the String.
       def toArray(stringMap:MutableHashMap[String, Int]): Array[String] =
           stringMap.toArray.sortBy(_._2).map(_._1)
 
