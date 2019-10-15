@@ -122,8 +122,25 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
       GeoNormFinder.getGeoPhraseIDs(odinMentions, sentences)
 
   def find(doc: Document, initialState: State): Seq[Mention] = {
-    val sentenceLocations = extractor(doc.sentences.map(_.raw))
     val Some(text) = doc.text
+
+    // Make Location attachments from previously found Location mentions (e.g., from the gazetteer)
+    val previouslyFound = initialState.allMentions.filter(_ matches "Location")
+    val withAttachments = for {
+        m <- previouslyFound
+    } yield {
+      val charStartIndex = m.startOffset
+      val charEndIndex = m.endOffset
+      val locationPhrase = m.text
+      val geoID = normalizer(text, (charStartIndex, charEndIndex)).headOption.map {
+        case (entry, _) => entry.id
+      }
+      val geoPhraseID = GeoPhraseID(locationPhrase, geoID, charStartIndex, charEndIndex)
+
+      m.withAttachment(Location(geoPhraseID))
+    }
+
+    val sentenceLocations = extractor(doc.sentences.map(_.raw))
     val mentions = for {
       sentenceIndex <- doc.sentences.indices
       sentence = doc.sentences(sentenceIndex)
@@ -148,7 +165,7 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
         Set(Location(geoPhraseID))
       )
     }
-    mentions
+    mentions ++ withAttachments
   }
 }
 
