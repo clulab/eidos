@@ -109,6 +109,13 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   // FIXME
   val threshold: Double = 0.8
+  // FIXME: this should connect to a config probably...?
+  val k = 5
+
+  // FIXME
+  def inBranch(s: String, branch: Seq[ConceptEmbedding]): Boolean = {
+    ???
+  }
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] = {
 
@@ -186,84 +193,110 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     val phenomGrounding = new ArrayBuffer[SingleOntologyGrounding]
 
 
-    // Treat head special
-    // TODO: Do we need to treat it special after all?
-    for (mention <- mentionHead) {
-      // Try to match Property branch with regex
-      val matchedPropertyPatterns: Seq[(Namer, Float)] = nodesPatternMatched(mention.text, conceptPatternsSeq("property"))
-      if (matchedPropertyPatterns.nonEmpty) {
-        propertyGrounding.appendAll(matchedPropertyPatterns)
-      }
-      // Otherwise, back-off to the w2v-based approach
-      else {
-        // Try to match Process branch
-        val processGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("process"))
-        val maxProcessScore = processGroundings.maxBy(_._2)._2
-        // FIXME
-        if (maxProcessScore >= threshold) {
-          processGrounding.appendAll(processGroundings)
-        } else {
-          // Try to match Phenomenon branch
-          val phenomGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("phenomenon"))
-          val maxPhenomScore = phenomGroundings.maxBy(_._2)._2
-          // If Phenomenon confidence > Process confidence, ground to Phenom (& vice versa)
-          if (maxPhenomScore > maxProcessScore) {
-            phenomGrounding.appendAll(phenomGroundings)
-          } else {
-            processGrounding.appendAll(processGroundings)
-          }
-        }
-      }
+    val propertyStuff = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq("property")))
+    val processStuff = allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq("process")))
+    val phenomStuff = allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq("phenomenon")))
+    val allGroundings = (propertyStuff ++ processStuff ++ phenomStuff).sortBy(-_._2)
+
+    // Sort them into the right bins
+    for (g <- allGroundings) {
+      val nodeName = g._1.name
+      if(inBranch(nodeName, conceptEmbeddingsSeq("property"))) propertyGrounding.append(g)
+      else if (inBranch(nodeName, conceptEmbeddingsSeq("process"))) processGrounding.append(g)
+      else phenomGrounding.append(g)
     }
 
-
-    // for each word in the mention
-    for (mention <- modifierMentions) {
-      // Sieve-based approach
-
-      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
-      // grounding and we want to use it.
-
-      // Only ground to Property if something else hasn't already been grounded to the Property branch
-      val matchedPropertyPatterns: Seq[(Namer, Float)] = nodesPatternMatched(mention.text, conceptPatternsSeq("property"))
-      if (matchedPropertyPatterns.nonEmpty && propertyGrounding.isEmpty) {
-        propertyGrounding.appendAll(matchedPropertyPatterns)
-      }
-      // Otherwise, back-off to the w2v-based approach
-      else {
-        // TODO: property first?
-        // Try to match Process branch
-        val processGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("process"))
-        val maxProcessScore = processGroundings.maxBy(_._2)._2
-        // FIXME
-        if (maxProcessScore >= threshold) {
-          processGrounding.appendAll(processGroundings)
-        } else {
-          // Try to match Phenomenon branch
-          val phenomGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("phenomenon"))
-          val maxPhenomScore = phenomGroundings.maxBy(_._2)._2
-          // If Phenomenon confidence > Process confidence, ground to Phenom (& vice versa)
-          if (maxPhenomScore > maxProcessScore) {
-            phenomGrounding.appendAll(phenomGroundings)
-          } else {
-            processGrounding.appendAll(processGroundings)
-          }
-        }
-      }
-
-    }
-
-    // After grounding head and modifiers in mention,
-    // sort in decreasing order by confidence score
-    val sortedProperty = propertyGrounding.sortBy(-_._2)
-    val sortedProcess = processGrounding.sortBy(-_._2)
-    val sortedPhenom = phenomGrounding.sortBy(-_._2)
-
+    // TopK
+    // todo: Zupon
     val returnedGroundings = Seq(
       OntologyGrounding(sortedProperty, Some("property")),
       OntologyGrounding(sortedProcess, Some("process")),
       OntologyGrounding(sortedPhenom, Some("phenomenon"))
     )
+
+//    // Treat head special
+//    // TODO: Do we need to treat it special after all?
+//    for (mention <- mentionHead) {
+//      // Try to match Property branch with regex
+//      val matchedPropertyPatterns: Seq[(Namer, Float)] = nodesPatternMatched(mention.text, conceptPatternsSeq("property"))
+//      if (matchedPropertyPatterns.nonEmpty) {
+//        propertyGrounding.appendAll(matchedPropertyPatterns)
+//      }
+//      // Otherwise, back-off to the w2v-based approach
+//      else {
+//        // Process score
+//        val processGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("process"))
+//        val maxProcessScore = processGroundings.maxBy(_._2)._2
+//        // Phenomenon score
+//        val phenomGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("phenomenon"))
+//        val maxPhenomScore = phenomGroundings.maxBy(_._2)._2
+//
+//        if (maxPhenomScore > maxProcessScore) {
+//          // concat with the modifiers and reground
+//          val processGroundingsAll = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("process"))
+//          val phenomGroundingsAll = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("phenomenon"))
+//        }
+//
+//        // FIXME
+//        if (maxProcessScore >= threshold) {
+//          processGrounding.appendAll(processGroundings)
+//        } else {
+//          // Try to match Phenomenon branch
+//
+//          // If Phenomenon confidence > Process confidence, ground to Phenom (& vice versa)
+//          if (maxPhenomScore > maxProcessScore) {
+//            phenomGrounding.appendAll(phenomGroundings)
+//          } else {
+//            processGrounding.appendAll(processGroundings)
+//          }
+//        }
+//      }
+//    }
+//
+//
+//    // for each word in the mention
+//    for (mention <- modifierMentions) {
+//      // Sieve-based approach
+//
+//      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+//      // grounding and we want to use it.
+//
+//      // Only ground to Property if something else hasn't already been grounded to the Property branch
+//      val matchedPropertyPatterns: Seq[(Namer, Float)] = nodesPatternMatched(mention.text, conceptPatternsSeq("property"))
+//      if (matchedPropertyPatterns.nonEmpty && propertyGrounding.isEmpty) {
+//        propertyGrounding.appendAll(matchedPropertyPatterns)
+//      }
+//      // Otherwise, back-off to the w2v-based approach
+//      else {
+//        // TODO: property first?
+//        // Try to match Process branch
+//        val processGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("process"))
+//        val maxProcessScore = processGroundings.maxBy(_._2)._2
+//        // FIXME
+//        if (maxProcessScore >= threshold) {
+//          processGrounding.appendAll(processGroundings)
+//        } else {
+//          // Try to match Phenomenon branch
+//          val phenomGroundings = w2v.calculateSimilarities(Array(mention.text), conceptEmbeddingsSeq("phenomenon"))
+//          val maxPhenomScore = phenomGroundings.maxBy(_._2)._2
+//          // If Phenomenon confidence > Process confidence, ground to Phenom (& vice versa)
+//          if (maxPhenomScore > maxProcessScore) {
+//            phenomGrounding.appendAll(phenomGroundings)
+//          } else {
+//            processGrounding.appendAll(processGroundings)
+//          }
+//        }
+//      }
+//
+//    }
+//
+//    // After grounding head and modifiers in mention,
+//    // sort in decreasing order by confidence score
+//    val sortedProperty = propertyGrounding.sortBy(-_._2)
+//    val sortedProcess = processGrounding.sortBy(-_._2)
+//    val sortedPhenom = phenomGrounding.sortBy(-_._2)
+
+
 
 // todo: not sure what exactly this (below) is returning
 //  commenting out bc Keith wrote it and it's probably
@@ -281,28 +314,30 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   def getModifierMentions(synHeadWord: String, mention: Mention, pattern: String): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
 
+    // FIXME: do we need VPs too?
     val rule =
       s"""
          | - name: AllWords
-         |   label: Word
+         |   label: Chunk
          |   priority: 1
          |   type: token
          |   pattern: |
-         |      []
+         |      [B-NP] [I-NP]*
          |
          | - name: SegmentConcept
          |   label: InternalModifier
          |   priority: 2
          |   pattern: |
          |      trigger = ${synHeadWord}
-         |      modifier: Word = >/^${pattern}/ >/amod|compound/?
+         |      modifier: Chunk+ = >/^${pattern}/{0,2} >/amod|compound/?
         """.stripMargin
 
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)
     val mods = results.filter(_ matches "InternalModifier")
+    val modifierArgs = mods.flatMap(m => m.arguments("modifier"))
 
-    mods
+    modifierArgs
   }
 
 
