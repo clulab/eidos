@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.utils.meta
 
 import java.io.File
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
@@ -56,8 +55,12 @@ object DartMetaUtils {
 
       if (longOpt.isDefined) {
         val seconds = longOpt.get
-        calendar.setTimeInMillis(seconds * 1000)
-        Some(calendar, seconds.toString)
+        if (seconds != 0) {
+          calendar.setTimeInMillis(seconds * 1000)
+          Some(calendar, seconds.toString)
+        }
+        else
+          None
       }
       else if (dateOpt.isDefined) {
         val date = dateOpt.get
@@ -65,7 +68,10 @@ object DartMetaUtils {
           val parsed = newDateFormat.parse(date)
 
           calendar.setTime(parsed)
-          Some(calendar, date)
+          if (calendar.getTimeInMillis != 0)
+            Some(calendar, date)
+          else
+            None
         }
         catch {
           case throwable: Throwable =>
@@ -79,8 +85,8 @@ object DartMetaUtils {
 
     val documentCreationTime = json.flatMap { json =>
       val goodCalendarAndTextOpt: Option[(Calendar, String)] = toCalendarOpt(json, "ModDate")
-      val okCalendarAndTextOpt: Option[(Calendar, String)] = goodCalendarAndTextOpt.orElse(toCalendarOpt(json,"CreationDate"))
-      val dctOpt = okCalendarAndTextOpt.map { case (calendar: Calendar, text: String) =>
+      val betterCalendarAndTextOpt: Option[(Calendar, String)] = goodCalendarAndTextOpt.orElse(toCalendarOpt(json,"CreationDate"))
+      val dctOpt = betterCalendarAndTextOpt.map { case (calendar: Calendar, text: String) =>
         val simpleInterval = SimpleInterval.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
         val dct = DCT(simpleInterval, text)
 
