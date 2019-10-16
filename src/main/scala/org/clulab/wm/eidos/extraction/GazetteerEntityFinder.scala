@@ -74,9 +74,7 @@ class GazetteerEntityFinder(lexicons: Seq[String], expander: Option[Expander]) e
     } yield engine.extractFrom(doc, initialState)
     val flattened = mentions.flatten
 //    DisplayUtils.displayMentions(flattened, doc)
-    val found = expander.map(_.expand(flattened)).getOrElse(flattened)
-
-    found
+    expander.map(_.expand(flattened)).getOrElse(flattened)
   }
 }
 
