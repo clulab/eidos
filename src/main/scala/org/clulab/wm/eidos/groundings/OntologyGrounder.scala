@@ -84,6 +84,8 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
   def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
+
+    println("$$$ FLAT ONTOLOGY GROUNDER $$$")
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
@@ -112,9 +114,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   // FIXME: this should connect to a config probably...?
   val k = 5
 
-  // FIXME
+  // FIXME: not sure if my filter is doing what I want yet
   def inBranch(s: String, branch: Seq[ConceptEmbedding]): Boolean = {
-    ???
+    val matching = branch.filter{_.namer.branch.contains(s)}
+    val result = if (matching.nonEmpty) true else false
+    result
+//    ???
   }
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] = {
@@ -173,6 +178,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     // Get the text of the syntactic head
     val headText = mentionHead.map(_.text).getOrElse("<NO_HEAD>")
 
+    println("$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
+
     /** Get the modifiers of the syntactic head */
     // TODO: allowed modifier relations may need tuning
     val allowedMods = List(
@@ -199,6 +206,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     val allGroundings = (propertyStuff ++ processStuff ++ phenomStuff).sortBy(-_._2)
 
     // Sort them into the right bins
+    // FIXME: take top k AFTER sorting into bins?
     for (g <- allGroundings) {
       val nodeName = g._1.name
       if(inBranch(nodeName, conceptEmbeddingsSeq("property"))) propertyGrounding.append(g)
@@ -209,10 +217,16 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     // TopK
     // todo: Zupon
     val returnedGroundings = Seq(
-      OntologyGrounding(sortedProperty, Some("property")),
-      OntologyGrounding(sortedProcess, Some("process")),
-      OntologyGrounding(sortedPhenom, Some("phenomenon"))
+      OntologyGrounding(propertyGrounding, Some("property")),
+      OntologyGrounding(processGrounding, Some("process")),
+      OntologyGrounding(phenomGrounding, Some("phenomenon"))
     )
+
+    println("PROPERTY:\t"+propertyGrounding.mkString("\n"))
+    println("PROCESS:\t"+processGrounding.mkString("\n"))
+    println("PHENOM:\t"+phenomGrounding.mkString("\n"))
+
+    println("RETURNED GROUNDINGS:\t"+returnedGroundings)
 
 //    // Treat head special
 //    // TODO: Do we need to treat it special after all?
