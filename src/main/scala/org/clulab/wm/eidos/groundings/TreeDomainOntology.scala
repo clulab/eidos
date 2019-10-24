@@ -1,13 +1,14 @@
 package org.clulab.wm.eidos.groundings
 
+import java.time.ZonedDateTime
 import java.util.{Collection => JCollection, Map => JMap}
 
-import org.clulab.processors.{Processor, Sentence}
-import org.clulab.processors.clu.CluProcessor
-import org.clulab.processors.shallownlp.ShallowNLPProcessor
+import com.github.clulab.eidos.Version
 import org.clulab.utils.Serializer
+import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, Namer}
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -69,7 +70,7 @@ class OntologyLeafNode(val nodeName: String, val parent: OntologyParentNode, pol
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = /*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)
 
-  override def toString(): String = fullName + " = " + values.toList
+  override def toString: String = fullName + " = " + values.toList
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[OntologyParentNode] = parents(parent)
@@ -78,7 +79,7 @@ class OntologyLeafNode(val nodeName: String, val parent: OntologyParentNode, pol
 }
 
 @SerialVersionUID(1000L)
-class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends DomainOntology with Serializable {
+class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode], override val version: Option[String], override val date: Option[ZonedDateTime]) extends DomainOntology with Serializable {
 
   def size: Integer = ontologyNodes.length
 
@@ -98,7 +99,7 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode]) extends Dom
 }
 
 object TreeDomainOntology {
-  protected lazy val logger = LoggerFactory.getLogger(this.getClass)
+  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val FIELD = "OntologyNode"
   val NAME = "name"
@@ -114,46 +115,22 @@ object TreeDomainOntology {
     domainOntology
   }
 
-  // This is mostly here to capture proc so that it doesn't have to be passed around.
-  class TreeDomainOntologyBuilder(proc: Processor, canonicalizer: Canonicalizer, filter: Boolean) {
+  // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
+  class TreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean) {
 
-    def buildFromPath(ontologyPath: String): TreeDomainOntology = buildFromYaml(getTextFromResource(ontologyPath))
-    def buildFromYaml(yamlText: String): TreeDomainOntology = {
+    def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None):
+        TreeDomainOntology = buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
+
+    def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): TreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(yamlText).asInstanceOf[JCollection[Any]].asScala.toSeq
       val ontologyNodes = parseOntology(new OntologyRootNode, yamlNodes)
 
-      new TreeDomainOntology(ontologyNodes.toArray)
-    }
-
-    protected val getSentences: String => Array[Sentence] = proc match {
-      // Earlier, a complete annotation was performed.
-      // val sentences = proc.annotate(text).sentences
-      // Now we just go through the POS tagging stage, but the procedure is
-      // different for different kinds of processors.
-      case proc: CluProcessor => text => {
-        val doc = proc.mkDocument(text)
-
-        // This is the key difference.  Lemmatization must happen first.
-        proc.lemmatize(doc)
-        proc.tagPartsOfSpeech(doc)
-        proc.recognizeNamedEntities(doc)
-        doc.sentences
-      }
-      case proc: ShallowNLPProcessor => text => {
-        val doc = proc.mkDocument(text)
-
-        if (doc.sentences.nonEmpty) {
-          proc.tagPartsOfSpeech(doc)
-          proc.lemmatize(doc)
-          proc.recognizeNamedEntities(doc)
-        }
-        doc.sentences
-      }
+      new TreeDomainOntology(ontologyNodes.toArray, versionOpt, dateOpt)
     }
 
     protected def realFiltered(text: String): Seq[String] = {
-      val result = getSentences(text).flatMap { sentence =>
+      val result = sentenceExtractor.extractSentences(text).flatMap { sentence =>
         val lemmas: Array[String] = sentence.lemmas.get
         val tags: Array[String] = sentence.tags.get
         val ners: Array[String] = sentence.entities.get
@@ -193,7 +170,19 @@ object TreeDomainOntology {
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
       val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
       val descriptions: Option[Array[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
-      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
+      // The incoming polarity can now be Int or Double.  We will store either one as a Float.
+      val polarity = {
+        // There's something wrong with this type system, obviously.  This is legacy code.
+        val yamlNodesOpt: Option[JCollection[Any]] = yamlNodes.get(TreeDomainOntology.POLARITY)
+
+        yamlNodesOpt.map { yamlNode: Any =>
+          yamlNode match {
+            case value: Double => value.toFloat
+            case value: Int => value.toFloat
+            case _ => throw new Exception(s"Unexpected polarity value: $yamlNode!")
+          }
+        }.getOrElse(1.0f) // positive by default
+      }
       val patterns: Option[Array[Regex]] = yamlNodesToRegexes(yamlNodes, TreeDomainOntology.PATTERN)
 
       /*val filteredNames = names.flatMap(filtered)*/
@@ -205,7 +194,7 @@ object TreeDomainOntology {
     }
 
     protected def parseOntology(parent: OntologyParentNode, yamlNodes: Seq[Any]): Seq[OntologyLeafNode] = {
-      yamlNodes flatMap { yamlNode =>
+      yamlNodes.flatMap { yamlNode =>
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala

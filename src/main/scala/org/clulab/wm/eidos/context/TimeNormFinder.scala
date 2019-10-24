@@ -10,11 +10,11 @@ import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.{Interval => TextInterval}
-import org.clulab.timenorm.formal._
-import org.clulab.timenorm.formal.{Interval => TimExInterval, Intervals => TimExIntervals}
-import org.clulab.timenorm.neural.TemporalNeuralParser
+import org.clulab.timenorm.scate._
+import org.clulab.timenorm.scate.{Interval => TimExInterval, Intervals => TimExIntervals}
+import org.clulab.timenorm.scate.TemporalNeuralParser
 import org.clulab.wm.eidos.attachments.Time
-import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
@@ -82,6 +82,9 @@ object TimeNormFinder {
 class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) extends Finder {
   private val CONTEXT_WINDOW_SIZE = 20
   private val BATCH_SIZE = 40
+
+  def getTimExs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[TimEx]] =
+      TimeNormFinder.getTimExs(odinMentions, sentences)
 
   def parseBatch(text: String, spans: Array[(Int, Int)],
                  textCreationTime: TimExInterval = UnknownInterval()): Array[Array[TimeExpression]] = {
@@ -200,13 +203,15 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
       }
 
       // get the Seq of Intervals for each TimeExpression and construct the attachment with the detailed time information
-      val timeSteps: Seq[TimeStep] = timeExpression match {
-        case timeInterval: TimExInterval if timeInterval.isDefined =>
-          Seq(TimeStep(timeInterval.start, timeInterval.end))
-        case timeIntervals: TimExIntervals if timeIntervals.isDefined =>
-          timeIntervals.iterator.toSeq.map(interval => TimeStep(interval.start, interval.end))
-        case _ => Seq()
-      }
+      val timeSteps: Seq[TimeStep] = Try { // Normalizing incorrectly parsed time expressions may throw an exception
+        timeExpression match {
+          case timeInterval: TimExInterval if timeInterval.isDefined =>
+          Seq (TimeStep (timeInterval.start, timeInterval.end) )
+          case timeIntervals: TimExIntervals if timeIntervals.isDefined =>
+          timeIntervals.iterator.toSeq.map (interval => TimeStep (interval.start, interval.end) )
+          case _ => Seq ()
+        }
+      }.getOrElse(Seq ())
       val attachment = TimEx(timeTextInterval, timeSteps, timeText)
 
       // create the Mention for this time expression

@@ -26,7 +26,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       .replace('\t', ' ')
       .replaceAll("  +", " ")
 
-    if (ieSystem.language == "english") {
+    if (ieSystem.components.language == "english") {
       val specialChars = getSpecialChars(cleanText)
       if (!specialChars.isEmpty)
         throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
@@ -35,9 +35,9 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   }
 
   protected def toString(mentions: Seq[Mention]): String = {
-    mentions.zipWithIndex.map{case (mention, index) => {
+    mentions.zipWithIndex.map { case (mention, index) =>
       s"$index: ${mention.text} ${mention.attachments.mkString(", ")}"
-    }}.mkString("\n")
+    }.mkString("\n")
   }
 
   protected def annotateTest(result: Seq[String]): Seq[String] =
@@ -58,6 +58,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
     annotateTest(testResult.complaints)
   }
 
+
   def test(humanMigrationEdgeSpec: HumanMigrationEdgeSpec): Seq[String] = {
     val testResult = humanMigrationEdgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
 
@@ -68,6 +69,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 //  def useTimeNorm: Boolean = ieSystem.loadableAttributes.timenorm.isDefined
 //  def useGeoNorm: Boolean = ieSystem.loadableAttributes.geonorm.isDefined
 
-  def useTimeNorm: Boolean = ieSystem.useTimeNorm
-  def useGeoNorm: Boolean = ieSystem.useGeoNorm
+  def useTimeNorm: Boolean = ieSystem.components.useTimeNorm
+  def useGeoNorm: Boolean = ieSystem.components.useGeoNorm
+
 }

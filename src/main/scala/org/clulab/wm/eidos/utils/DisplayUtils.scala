@@ -70,7 +70,7 @@ object DisplayUtils {
   def displayLocationExpressions(geolocations: Seq[GeoPhraseID]): String = {
     val sb = new StringBuffer()
     for (location <- geolocations) {
-      val geonameID = location.geonameID.map(_.toString).getOrElse("Undef")
+      val geonameID = location.geonameID.getOrElse("Undef")
 
       sb.append(s"$tab span: ${location.startOffset},${location.endOffset} $nl")
       sb.append(s"$tab geoNameID: $geonameID$nl")

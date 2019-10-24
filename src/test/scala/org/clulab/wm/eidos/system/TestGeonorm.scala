@@ -24,7 +24,7 @@ class TestGeonorm extends ExtractionTest {
       to Resolve the Crisis in South Sudan.
     """
     locations(text).map(_.text) should contain allElementsOf Set("Juba", "South Sudan")
-    locations(text).flatMap(_.geoPhraseID.geonameID) should contain (7909807) // South Sudan
+    locations(text).flatMap(_.geoPhraseID.geonameID) should contain ("7909807") // South Sudan
     // (no test for Juba since it's ambiguous between the city and the state)
 
     // The model sometimes generates I-LOC tags at the beginning of a sentence.

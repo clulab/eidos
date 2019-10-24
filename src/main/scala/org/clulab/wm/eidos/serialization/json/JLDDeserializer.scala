@@ -14,10 +14,10 @@ import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Edge
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
-import org.clulab.timenorm.formal.SimpleInterval
 import org.clulab.wm.eidos.attachments.CountAttachment
 import org.clulab.wm.eidos.attachments.CountModifier
 import org.clulab.wm.eidos.attachments.CountUnit
+import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
@@ -35,7 +35,9 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
-import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s._
@@ -103,7 +105,7 @@ class JLDDeserializer {
   protected def requireType(jValue: JValue, typeName: String): Unit =
       require((jValue \ "@type").extract[String] == typeName)
 
-  protected def id(jValue: JValue): String =
+  protected def getId(jValue: JValue): String =
       (jValue \ "@id").extract[String]
 
   protected def toInterval(start: Int, end: Int, offset: Int, inclusiveEnd: Boolean): Interval = {
@@ -123,7 +125,7 @@ class JLDDeserializer {
   def deserializeDct(dctValueOpt: Option[JValue]): Option[IdAndDct] = {
     dctValueOpt.map { dctValue =>
       requireType(dctValue, JLDDCT.typename)
-      val dctId = id(dctValue)
+      val dctId = getId(dctValue)
       val text = (dctValue \ "text").extract[String]
       val start = (dctValue \ "start").extract[String]
       val end = (dctValue \ "end").extract[String]
@@ -142,7 +144,7 @@ class JLDDeserializer {
 
   def deserializeTimeInterval(timeIntervalValue: JValue): TimeStep = {
     requireType(timeIntervalValue, JLDTimeInterval.typename)
-    val _ = id(timeIntervalValue) // This is never used, so why do we have it?
+    val _ = getId(timeIntervalValue) // This is never used, so why do we have it?
     val start = (timeIntervalValue \ "start").extract[String]
     val end = (timeIntervalValue \ "end").extract[String]
     val startDate = LocalDateTime.parse(start)
@@ -153,7 +155,7 @@ class JLDDeserializer {
 
   def deserializeTimex(timexValue: JValue): IdAndTimex = {
     requireType(timexValue, JLDTimex.typename)
-    val timexId = id(timexValue)
+    val timexId = getId(timexValue)
     val text = (timexValue \ "text").extract[String]
     val startOffset = (timexValue \ "startOffset").extract[Int]
     val endOffset = (timexValue \ "endOffset").extract[Int]
@@ -168,11 +170,11 @@ class JLDDeserializer {
 
   def deserializeGeoloc(geoIdValue: JValue): IdAndGeoPhraseId = {
     requireType(geoIdValue, JLDGeoID.typename)
-    val geoIdId = id(geoIdValue)
+    val geoIdId = getId(geoIdValue)
     val startOffset = (geoIdValue \ "startOffset").extract[Int]
     val endOffset = (geoIdValue \ "endOffset").extract[Int]
     val text = (geoIdValue \ "text").extract[String]
-    val geoId = (geoIdValue \ "geoID").extractOpt[String].map(Integer.parseInt)
+    val geoId = (geoIdValue \ "geoID").extractOpt[String]
     val geoPhraseId = GeoPhraseID(text, geoId, startOffset, endOffset)
 
     new IdAndGeoPhraseId(geoIdId, geoPhraseId)
@@ -180,7 +182,7 @@ class JLDDeserializer {
 
   def deserializeCountAttachment(countIdValue: JValue): IdAndCountAttachment = {
     requireType(countIdValue, JLDCountAttachment.typename)
-    val countId = id(countIdValue)
+    val countId = getId(countIdValue)
     val startOffset = (countIdValue \ "startOffset").extract[Int]
     val endOffset = (countIdValue \ "endOffset").extract[Int]
     val text = (countIdValue \ "text").extract[String]
@@ -197,7 +199,7 @@ class JLDDeserializer {
 
   def deserializeWordData(wordDataValue: JValue): IdAndWordSpec = {
     requireType(wordDataValue, JLDWord.typename)
-    val wordId = id(wordDataValue)
+    val wordId = getId(wordDataValue)
     // extractOpt is necessary because now the processed word is being stored rather than
     // the raw one.  The processed version can be empty in which case it will be tidied on
     // serialization and not be available here.
@@ -216,8 +218,8 @@ class JLDDeserializer {
 
   def deserializeDependency(dependencyValue: JValue, wordMap: Map[String, Int]): Edge[String] = {
     requireType(dependencyValue, JLDDependency.typename)
-    val source = id(dependencyValue \ "source")
-    val destination = id(dependencyValue \ "destination")
+    val source = getId(dependencyValue \ "source")
+    val destination = getId(dependencyValue \ "destination")
     val relation = (dependencyValue \ "relation").extract[String]
     val edge: Edge[String] = Edge(wordMap(source), wordMap(destination), relation)
 
@@ -244,7 +246,7 @@ class JLDDeserializer {
     var sentencesOpt = sentencesValue.extractOpt[JArray].map(_.arr)
     val idsAndSentences = sentencesOpt.map { sentences => sentences.map { sentenceValue: JValue =>
       requireType(sentenceValue, JLDSentence.typename)
-      val sentenceId = id(sentenceValue)
+      val sentenceId = getId(sentenceValue)
       // A sentence, if it exists at all, must have words; therefore, no extractOpt here.
       val idsAndWordSpecs = (sentenceValue \ "words").extract[JArray].arr.map(deserializeWordData).toArray
       val wordMap = idsAndWordSpecs.indices.map(index => idsAndWordSpecs(index).id -> index).toMap // why not directly to wordspec?
@@ -315,10 +317,10 @@ class JLDDeserializer {
   protected def deserializeSingularProvenance(provenanceValue: JValue, documentMap: DocumentMap,
       documentSentenceMap: DocumentSentenceMap): Provenance = {
     requireType(provenanceValue, JLDProvenance.typename)
-    val documentId = id(provenanceValue \ "document")
+    val documentId = getId(provenanceValue \ "document")
     val document = documentMap(documentId)
 
-    val sentenceId = id(provenanceValue \ "sentence")
+    val sentenceId = getId(provenanceValue \ "sentence")
     val sentence = documentSentenceMap(documentId)(sentenceId)
 
     // Provenance is always available and therefore extractOpt is not used.
@@ -346,24 +348,32 @@ class JLDDeserializer {
 
   def deserializeDocument(documentValue: JValue): DocumentSpec = {
     requireType(documentValue, JLDDocument.typename)
-    val documentId = id(documentValue)
-    val title = (documentValue \ "title").extractOpt[String]
-    val text = (documentValue \ "text").extractOpt[String]
+    val id = getId(documentValue)
+    val titleOpt = (documentValue \ "title").extractOpt[String]
+    val documentIdOpt = (documentValue \ "id").extractOpt[String]
+    val textOpt = (documentValue \ "text").extractOpt[String]
+    val locationOpt = (documentValue \ "location").extractOpt[String]
     val idAndDctOpt = deserializeDct(nothingToNone((documentValue \ JLDDCT.singular).extractOpt[JValue]))
     // Text is required here!  Can't otherwise make raw for sentences.
-    val sentencesSpec = deserializeSentences(documentValue \ "sentences", text)
+    val sentencesSpec = deserializeSentences(documentValue \ "sentences", textOpt)
     val timexCount = sentencesSpec.timexes.map(_.size).sum
     val geolocsCount = sentencesSpec.geolocs.map(_.size).sum
     val countsCounts = sentencesSpec.counts.map(_.size).sum
     val sentences = sentencesSpec.sentences
     val document = new Document(sentences)
-    document.id = title
-    document.text = text
+    document.id = documentIdOpt
+    document.text = textOpt
     idAndDctOpt.map(_.value).foreach { dct =>
       DctDocumentAttachment.setDct(document, dct)
     }
+    titleOpt.foreach { title =>
+      TitleDocumentAttachment.setTitle(document, title)
+    }
+    locationOpt.foreach { location =>
+      LocationDocumentAttachment.setLocation(document, location)
+    }
 
-    val idAndDocument = new IdAndDocument(documentId, document)
+    val idAndDocument = new IdAndDocument(id, document)
     DocumentSpec(idAndDocument, idAndDctOpt, sentencesSpec)
   }
 
@@ -385,7 +395,7 @@ class JLDDeserializer {
       argumentsValues.arr.map { argumentsValue =>
         requireType(argumentsValue, JLDArgument.typename)
         val name = (argumentsValue \ "type").extract[String]
-        val argumentId = id(argumentsValue \ "value")
+        val argumentId = getId(argumentsValue \ "value")
 
         if (argumentMap.contains(name)) {
           val oldValues = argumentMap(name)
@@ -403,7 +413,7 @@ class JLDDeserializer {
 
   def deserializeExtraction(extractionValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap): Extraction = {
     requireType(extractionValue, JLDExtraction.typename)
-    val extractionId = id(extractionValue)
+    val extractionId = getId(extractionValue)
     val extractionType = (extractionValue \ "type").extract[String]
     val extractionSubtype = (extractionValue \ "subtype").extract[String]
     val provenance = deserializeProvenance((extractionValue \ "provenance").extractOpt[JValue], documentMap, documentSentenceMap).get
@@ -468,7 +478,7 @@ class JLDDeserializer {
       case "TIMEX" =>
         // Both of these fall under TIMEX.
         require(provenanceOpt.isEmpty)
-        val value = id((stateValue \ "value").extract[JValue])
+        val value = getId((stateValue \ "value").extract[JValue])
         require(timexMap.contains(value) || dctMap.contains(value))
         if (timexMap.contains(value))
           new Time(timexMap(value))
@@ -476,13 +486,13 @@ class JLDDeserializer {
           new DCTime(dctMap(value))
       case JLDCountAttachment.typename =>
         require(provenanceOpt.isEmpty)
-        val value = id((stateValue \ "value").extract[JValue])
+        val value = getId((stateValue \ "value").extract[JValue])
         val countAttachment = countMap(value)
 
         countAttachment
       case "LocationExp" =>
         require(provenanceOpt.isEmpty)
-        val value = id((stateValue \ "value").extract[JValue])
+        val value = getId((stateValue \ "value").extract[JValue])
         val geoPhraseId = geolocMap(value)
 
         new Location(geoPhraseId)
@@ -617,7 +627,7 @@ class JLDDeserializer {
       val idsAndMentions = ripeExtractions.map { extraction =>
         val extractionValue = extractionsValue.arr.find { extractionValue =>
           requireType(extractionValue, JLDExtraction.typename)
-          val extractionId = id(extractionValue)
+          val extractionId = getId(extractionValue)
 
           extractionId == extraction.id
         }.get

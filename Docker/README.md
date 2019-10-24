@@ -1,8 +1,14 @@
 # Eidos Docker
-This directory contains a Dockerfile which generates a container that runs the Eidos web application and web service. From this directory you can build the container with:
+This directory contains several Dockerfiles which generate containers that run the Eidos web application and web service.
+
+* DockerfileRun - This runs the webapp through sbt in development mode
+* DockerfileRunProd - This runs the webapp through sbt in production mode
+* DockerfileStage - This runs the webapp directly in production mode
+
+From this directory you can build the container with:
 
 ```
-docker build -f Dockerfile . -t eidos-webservice
+docker build -f <Dockerfile> . -t eidos-webservice
 ```
 
 You can run the container with:

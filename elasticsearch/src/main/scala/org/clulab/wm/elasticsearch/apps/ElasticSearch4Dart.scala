@@ -1,86 +1,50 @@
 package org.clulab.wm.elasticsearch.apps
 
 import java.io.File
-import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.ZonedDateTime
 import java.util
 
-import com.amazonaws.auth.AWS4Signer
-import com.amazonaws.auth.AWSCredentialsProvider
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.http.AWSRequestSigningApacheInterceptor
-import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.http.HttpHost
-import org.apache.http.HttpRequestInterceptor
 import org.clulab.wm.elasticsearch.utils.Closer.AutoCloser
 import org.clulab.wm.elasticsearch.utils.Sinker
-import org.clulab.wm.elasticsearch.utils.StringUtils
 import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.action.search.SearchScrollRequest
+import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
-import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.rest.RestStatus
 import org.elasticsearch.script.ScriptType
+import org.elasticsearch.script.mustache.SearchTemplateRequest
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
-import org.elasticsearch.script.mustache.SearchTemplateRequest
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object ElasticSearch extends App {
+object ElasticSearch4Dart extends App {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val indexName = "wm-dev"
+  val indexName = "cdr_search"
   val resultsPerQuery = 50
   val timeout = resultsPerQuery * 2 // seconds
 
   // See https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-request-signing.html#es-request-signing-java
   // and https://github.com/WorldModelers/Document-Schema/blob/master/Document-Retrieval.ipynb
   def newRestHighLevelClient(): RestHighLevelClient = {
-    val serviceEndpoint = "search-world-modelers-dev-gjvcliqvo44h4dgby7tn3psw74.us-east-1.es.amazonaws.com"
-    val serviceName = "es"
-    val regionName = "us-east-1"
-    val profileName = "wmuser"
-    val port = 443
-    val scheme = "https"
-
-    val aws4signer = {
-      val signer = new AWS4Signer()
-      signer.setServiceName(serviceName)
-      signer.setRegionName(regionName)
-      signer
-    }
-    val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
-    val interceptor: HttpRequestInterceptor = new AWSRequestSigningApacheInterceptor(serviceName, aws4signer, awsCredentialsProvider)
+    val serviceEndpoint = "localhost"
+    val port = 9200
+    val scheme = "http"
     val httpHost = new HttpHost(serviceEndpoint, port, scheme)
-    val restClientBuilder = RestClient
-        .builder(httpHost)
-        .setHttpClientConfigCallback(_.addInterceptorLast(interceptor))
+    val restClientBuilder = RestClient.builder(httpHost)
 
     new RestHighLevelClient(restClientBuilder)
-  }
-
-  def newS3Client(): AmazonS3 = {
-    val profileName = "wmuser"
-    val regionName = "us-east-1"
-
-    val awsCredentialsProvider: AWSCredentialsProvider = new ProfileCredentialsProvider(profileName)
-    val amazonS3 = AmazonS3ClientBuilder.standard()
-        .withCredentials(awsCredentialsProvider)
-        .withRegion(regionName)
-        .build()
-
-    amazonS3
   }
 
   protected def newSearchTemplateRequest(script: String) = {
@@ -92,44 +56,42 @@ object ElasticSearch extends App {
     searchTemplateRequest.setRequest(searchRequest)
     searchTemplateRequest.setScriptType(ScriptType.INLINE)
     searchTemplateRequest.setScript(script)
+    // IntelliJ would rather have Any instead of AnyRef, but that's wrong.
     searchTemplateRequest.setScriptParams(new util.HashMap[String, AnyRef])
     searchTemplateRequest
   }
 
-  protected def writeMeta(text: String, metaDir: String, id: String, fileType: String): Unit = {
-    val filename = metaDir + File.separatorChar + id + fileType
+  protected def writeFile(text: String, fileDir: String, id: String, fileType: String): Unit = {
+    val filename = fileDir + File.separatorChar + id + fileType
 
     Sinker.printWriterFromFile(filename).autoClose { printWriter =>
       printWriter.println(text)
     }
   }
 
-  protected def writeRaw(s3Client: AmazonS3, storedUrl: String, rawDir: String, id: String, fileType: String): Unit = {
-    val filename = rawDir + File.separatorChar + id + fileType
-    val bucketName = "world-modelers"
-    val key = StringUtils.afterFirst(new URL(storedUrl).getFile, '/')
-    val getObjectRequest = new GetObjectRequest(bucketName, key)
+  protected def processHit(metaDir: String, textDir: String)(hit: SearchHit): Unit = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    s3Client.getObject(getObjectRequest, new File(filename))
+    val id = hit.getId
+    val metaText = hit.toString
+    val json = hit.getSourceAsString
+    val jValue = JsonMethods.parse(json)
+    val extractedText = try {
+      (jValue \ "extracted_text").extract[String]
+    }
+    catch {
+      case throwable: Throwable =>
+        println(s"For $id the following exception is noted:")
+        throwable.printStackTrace()
+        ""
+    }
+
+    writeFile(metaText, metaDir, id, ".json")
+    writeFile(extractedText, textDir, id, ".txt")
   }
 
-  def downloadCategory(category: String, metaDir: String, rawDir: String): Unit = {
+  protected def processScript(script: String, function: SearchHit => Unit): Unit = {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
-      val jsonCategory = JsonMethods.pretty(new JString(category))
-      // Use "term" for exact matches, "match" for fuzzy matches.
-      val script =
-        s"""
-          |{
-          |  "size" : $resultsPerQuery,
-          |  "query" : {
-          |    "term" : {
-          |      "category.keyword" : {
-          |        "value" : $jsonCategory
-          |      }
-          |    }
-          |  }
-          |}
-        """.stripMargin
       val searchTemplateRequest = newSearchTemplateRequest(script)
       val requestOptions = RequestOptions.DEFAULT
       val searchTemplateResponse = restHighLevelClient.searchTemplate(searchTemplateRequest, requestOptions)
@@ -142,23 +104,10 @@ object ElasticSearch extends App {
 
       if (hits.totalHits > 0) {
         var scrollIdOpt = Option(searchTemplateResponse.getResponse.getScrollId)
-        val s3Client = newS3Client()
         var continue = true
 
         do {
-          hits.forEach { hit: SearchHit =>
-            implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
-
-            val id = hit.getId
-            val text = hit.toString
-            val json = hit.getSourceAsString
-            val jValue = JsonMethods.parse(json)
-            val fileType = (jValue \ "file_type").extract[String]
-            val storedUrl = (jValue \ "stored_url").extract[String]
-
-            writeMeta(text, metaDir, id, ".json")
-            writeRaw(s3Client, storedUrl, rawDir, id, fileType)
-          }
+          hits.forEach(hit => function(hit))
 
           continue = scrollIdOpt.exists { scrollId =>
             // See https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high-search-scroll.html
@@ -172,7 +121,7 @@ object ElasticSearch extends App {
             hits = searchResponse.getHits
             hits.getHits.length > 0
           }
-        } while(continue)
+        } while (continue)
 
         scrollIdOpt.foreach { scrollId =>
           val clearScrollRequest = new ClearScrollRequest()
@@ -184,6 +133,72 @@ object ElasticSearch extends App {
     }
   }
 
+  def downloadTextSearch(searchOpt: Option[String], metaDir: String, textDir: String): Unit = {
+    val jsonSearchOpt = searchOpt.map { search => JsonMethods.pretty(new JString(search)) }
+    // Use "term" for exact matches, "match" for fuzzy matches.
+    val script = jsonSearchOpt.map { jsonSearch =>
+      s"""
+        |{
+        |  "size" : $resultsPerQuery,
+        |  "query" : {
+        |    "match" : {
+        |      "extracted_text" : $jsonSearch
+        |    }
+        |  }
+        |}
+      """ }.getOrElse {
+      s"""
+        |{
+        |  "size" : $resultsPerQuery,
+        |  "query" : {
+        |    "match_all" : {}
+        |  }
+        |}
+      """
+    }.stripMargin
+
+    processScript(script, processHit(metaDir, textDir))
+  }
+
+  def downloadCutoffSearch(cutoff: String, metaDir: String, textDir: String): Unit = {
+    val jsonCutoff = JsonMethods.pretty(new JString(cutoff))
+    val script =
+      s"""
+        |{
+        |  "size" : $resultsPerQuery,
+        |  "query" : {
+        |    "range" : {
+        |      "timestamp" : {
+        |        "gt" : $jsonCutoff
+        |      }
+        |    }
+        |  }
+        |}
+      """.stripMargin
+
+    processScript(script, processHit(metaDir, textDir))
+  }
+
+  def downloadCategory(category: String, metaDir: String, textDir: String): Unit = {
+    val jsonCategory = JsonMethods.pretty(new JString(category))
+    // Use "term" for exact matches, "match" for fuzzy matches.
+    val script =
+      s"""
+        |{
+        |  "size" : $resultsPerQuery,
+        |  "query" : {
+        |    "term" : {
+        |      "categories.keyword" : {
+        |        "value" : $jsonCategory
+        |      }
+        |    }
+        |  }
+        |}
+      """.stripMargin
+
+    processScript(script, processHit(metaDir, textDir))
+  }
+
   def listCategories(): Unit = {
     newRestHighLevelClient().autoClose { restHighLevelClient =>
       // For this see particularly https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.2/_search_apis.html
@@ -193,7 +208,7 @@ object ElasticSearch extends App {
           |{
           |  "aggs" : {
           |    "$categories" : {
-          |      "terms" : { "field" : "category.keyword" }
+          |      "terms" : { "field" : "categories.keyword" }
           |    }
           |  }
           |}
@@ -221,20 +236,47 @@ object ElasticSearch extends App {
     }
   }
 
-  val categoryOpt = args.lift(0)
+  val commandOpt = args.lift(0)
   val metaDirOpt = args.lift(1)
-  val rawDirOpt = args.lift(2)
+  val textDirOpt = args.lift(2)
 
-  if (categoryOpt.isEmpty)
-    listCategories()
-  else if (metaDirOpt.isDefined && rawDirOpt.isDefined) {
+  val categoryOpt = args.lift(3)
+  val searchOpt = args.lift(3)
+  val cutoffOpt = args.lift(3)
+
+  println(s"It is now ${ZonedDateTime.now()} locally.")
+  if (commandOpt.isDefined && commandOpt.get == "time" && metaDirOpt.isDefined && textDirOpt.isDefined && cutoffOpt.isDefined) {
     val metaDir = metaDirOpt.get
-    val rawDir = rawDirOpt.get
+    val textDir = textDirOpt.get
+    val cutoff = cutoffOpt.get
 
     Files.createDirectories(Paths.get(metaDir))
-    Files.createDirectories(Paths.get(rawDir))
-    downloadCategory(categoryOpt.get, metaDir, rawDir)
+    Files.createDirectories(Paths.get(textDir))
+    downloadCutoffSearch(cutoff, metaDir, textDir)
   }
-  else
-    println("argumets: [category metaDir rawDir]")
+  else if (commandOpt.isDefined && commandOpt.get == "text" && metaDirOpt.isDefined && textDirOpt.isDefined) {
+    val metaDir = metaDirOpt.get
+    val textDir = textDirOpt.get
+
+    Files.createDirectories(Paths.get(metaDir))
+    Files.createDirectories(Paths.get(textDir))
+    downloadTextSearch(searchOpt, metaDir, textDir)
+  }
+  else if (commandOpt.isDefined && commandOpt.get == "cat" && metaDirOpt.isDefined && textDirOpt.isDefined && categoryOpt.isDefined) {
+    val metaDir = metaDirOpt.get
+    val textDir = textDirOpt.get
+
+    Files.createDirectories(Paths.get(metaDir))
+    Files.createDirectories(Paths.get(textDir))
+    downloadCategory(categoryOpt.get, metaDir, textDir)
+  }
+  else if (commandOpt.isDefined && commandOpt.get == "cats") {
+    listCategories()
+  }
+  else {
+    println("arguments: time <metaDir> <textDir> <cutoffDateTime> (for downloads after cutoffDate)")
+    println("arguments: text <metaDir> <textDir> [<searchText>] (for downloads based on searchText)")
+    println("arguments: cat <metaDir> <textDir> <category> (for downloads based on category)")
+    println("arguments: cats (for list of categories)")
+  }
 }
