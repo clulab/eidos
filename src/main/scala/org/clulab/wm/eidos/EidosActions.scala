@@ -285,48 +285,6 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
   }
 
-
-//  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
-//    val normalized = for {
-//      m <- mentions
-//      groupMen = m.arguments("group").head
-//      interval = for {
-//
-//        word <- groupMen.words
-//        int = word
-//        if (word matches "[0-9]+,?[0-9]+")
-//
-//      }
-//
-//
-////      groupText = m.arguments("group").head.text
-////      pattern = "[0-9]+,?[0-9]+".r
-////      count1 = pattern.findFirstIn(groupText).getOrElse(None)
-////      interval = m.document.sentences(m.sentence)
-////      countMention = new TextBoundMention(Seq("count"), )
-////      currentArgs = m.arguments
-////      newArgs = currentArgs ++ Map("count" -> count1)
-//
-//    } yield count1
-//    //for (c <- count) println("COUNT " + c)
-//
-//    mentions
-//  }
-
-
-//  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
-//    val count = for {
-//      m <- mentions
-//      groupText = m.arguments("group").head.text
-//      pattern = "[0-9]+,?[0-9]+".r
-//      count1 = pattern.findFirstIn(groupText).getOrElse(None)
-//
-//    } yield count1
-//    for (c <- count) println("COUNT " + c)
-//    mentions
-//  }
-
-
   def createEventChain(causal: Seq[Mention], arg1: String, arg2: String): Seq[Mention] = {
     val arg1Mentions = State(causal.flatMap(_.arguments.getOrElse(arg1, Nil)))
     // replace event causes with captured effects if possible
