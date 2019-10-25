@@ -7,6 +7,8 @@ organization := "org.clulab"
 scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
+scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
+
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
@@ -166,7 +168,9 @@ lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(
     buildInfoPackage := "org.clulab.wm.eidos",
-    buildInfoOptions += BuildInfoOption.BuildTime,
+    // This next line of code results in constantly changing source files which then require
+    // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
+    // buildInfoOptions += BuildInfoOption.BuildTime,
     buildInfoKeys := Seq[BuildInfoKey](
       name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
       "gitCurrentBranch" -> { git.gitCurrentBranch.value },
