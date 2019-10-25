@@ -161,7 +161,7 @@ rules:
       trigger = [lemma=destination & tag=/^NN/]
       group: Concept = <nmod_with <nmod_from nsubj nummod
       moveFrom: Location = <nmod_with
-      moveTo: Location = <nsubj >conj_and? | dep? nmod_in?
+      moveTo: Location = <nsubj >conj_and? | dep compound | dep? nmod_in?
 
   - name: migration-destination-left
     priority: ${ rulepriority }
