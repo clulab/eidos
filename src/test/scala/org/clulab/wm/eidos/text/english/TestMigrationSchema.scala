@@ -144,17 +144,19 @@ class TestMigrationSchema extends EnglishTest {
   }
 
   {
-    val text = "Based on regular visits by REACH to sites in Bor Town where IDPs have settled, as well as the continuous inflow of new arrivals, a conservative estimate would suggest that the number of IDPs from the Equatorias in Bor Town is likely to have been around 12,000-15,000 individuals at the end of March."
+    val text = "Based on regular visits by REACH to sites in Bor Town where IDPs have settled, as well as the continuous inflow of new arrivals."
+
+    //todo: make a separate test for ", a conservative estimate would suggest that the number of IDPs from the Equatorias in Bor Town is likely to have been around 12,000-15,000 individuals at the end of March."
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("IDPs", NodeSpec.lastFilter) // Last in the list of mentions, not necessarily last in text.
-  val moveTo = NodeSpec("Bor Town", GeoLoc("Bor Town"), NodeSpec.firstFilter)
+    val group1 = NodeSpec("IDPs") // Last in the list of mentions, not necessarily last in text.
+  val moveTo = NodeSpec("Bor Town", GeoLoc("Bor Town"))
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo))
 
-    val group2 = NodeSpec("12,000-15,000 individuals") //todo: need the rule for the word number (but it's also in stop words)
-    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveTo))
+//    val group2 = NodeSpec("12,000-15,000 individuals") //todo: need the rule for the word number (but it's also in stop words)
+//    val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveTo))
 
     behavior of "migration_settle"
 
@@ -168,12 +170,13 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration1) should be(successful)
     }
 
-    passingTest should "have correct group2 node" taggedAs (Somebody) in {
-      tester.test(group2) should be(successful)
-    }
-    failingTest should "have correct migration2 event" taggedAs (Somebody) in {
-      tester.test(migration2) should be(successful)
-    }
+    //for the second clause test:
+//    passingTest should "have correct group2 node" taggedAs (Somebody) in {
+//      tester.test(group2) should be(successful)
+//    }
+//    failingTest should "have correct migration2 event" taggedAs (Somebody) in {
+//      tester.test(migration2) should be(successful)
+//    }
   }
 
   {
