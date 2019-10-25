@@ -8,8 +8,9 @@ import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.forkjoin.ForkJoinPool
 import scala.collection.parallel.ForkJoinTaskSupport
+
+import java.util.concurrent.ForkJoinPool
 
 object MakeRuleTSVs extends App {
 

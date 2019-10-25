@@ -205,9 +205,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     "gitCurrentBranch" -> BuildInfo.gitCurrentBranch,
     "gitHeadCommit" -> BuildInfo.gitHeadCommit,
     "gitHeadCommitDate" -> BuildInfo.gitHeadCommitDate,
-    "gitUncommittedChanges" -> BuildInfo.gitUncommittedChanges,
+    "gitUncommittedChanges" -> BuildInfo.gitUncommittedChanges /* ,
+    // These values change with each compilation and force repackaging.
+    // Since they are not being used at all anyway, they are no longer included.
+    // See build.sbt where a related line is commented out.
     "builtAtString" -> BuildInfo.builtAtString,
-    "builtAtMillis" -> BuildInfo.builtAtMillis
+    "builtAtMillis" -> BuildInfo.builtAtMillis */
   )
 
   protected def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
