@@ -4,6 +4,7 @@ import play.api.libs.{ json => pjson }
 import org.{ json4s => j4s }
 
 object PlayUtils {
+  implicit val implicitConversions = scala.language.implicitConversions
 
   implicit def toJson4s(json: play.api.libs.json.JsValue):org.json4s.JValue = json match {
     case pjson.JsString(str) => j4s.JString(str)
