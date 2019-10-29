@@ -15,11 +15,14 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
-abstract class OntologyNode(val parentOpt: Option[OntologyParentNode], val patterns: Option[Array[Regex]] = None) extends Namer with Serializable {
-  // Much of the extra code here is to avoid the root node having a parent of null.
+abstract class OntologyNode(val nodeName: String, var parentOpt: Option[OntologyNode], var childrenOpt: Option[Seq[OntologyNode]] = None,
+    val values: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None) extends Namer with Serializable {
+  // At this level there is no distinction made between a parent node and child node.
+  // Parent and children are var so that they can be assigned at different times and after object creation.
 
   // There can already be a / in any of the stages of the route that must be escaped.
   // First, double up any existing backslashes, then escape the forward slashes with backslashes.
@@ -31,52 +34,57 @@ abstract class OntologyNode(val parentOpt: Option[OntologyParentNode], val patte
   def parents(parent: OntologyNode): Seq[OntologyNode] = parent +: parent.parents
 
   def fullName: String
+
+  def name: String = fullName
+
   def parents: Seq[OntologyNode]
+
   def escaped: String
 
-  val values: Array[String]
-  def name: String = fullName
   def isLeaf: Boolean = false
 
   override def toString: String = fullName
+
+  def getValues: Array[String] = values.getOrElse(Array.empty)
+
+  def getPatterns: Array[Regex] = patterns.getOrElse(Array.empty)
 }
 
 @SerialVersionUID(1000L)
-abstract class OntologyParentNode(parentOpt: Option[OntologyParentNode]) extends OntologyNode(parentOpt)
+abstract class OntologyParentNode(nodeName: String, parentOpt: Option[OntologyNode]) extends OntologyNode(nodeName, parentOpt)
 
 @SerialVersionUID(1000L)
-class OntologyRootNode extends OntologyParentNode(None) {
+class OntologyRootNode extends OntologyParentNode("", None) {
 
   override def fullName: String = ""
 
   override def parents: Seq[OntologyNode] = Seq.empty
 
   override def escaped: String = ""
-
-  override val values: Array[String] = Array.empty
 }
 
-class OntologyBranchNode(val nodeName: String, parentOpt: Option[OntologyParentNode]) extends OntologyParentNode(parentOpt) {
+class OntologyBranchNode(nodeName: String, parent: OntologyNode) extends OntologyParentNode(nodeName, Some(parent)) {
 
   override def fullName: String = parentOpt.get.fullName + escaped + DomainOntology.SEPARATOR
-
-  override val values: Array[String] = Array.empty // TODO: Do something with children if there was only access?
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[OntologyNode] = parents(parentOpt.get)
 
   override def escaped: String = escaped(nodeName)
+
+  override def getValues: Array[String] = super.getValues // TODO: Do something with children
+
+  override def getPatterns: Array[Regex] = super.getPatterns // TODO: Do something with children
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(val nodeName: String, parentOpt: Option[OntologyParentNode], polarity: Float, /*names: Seq[String],*/
+class OntologyLeafNode(nodeName: String, parent: OntologyNode, polarity: Float, /*names: Seq[String],*/
     examples: Option[Array[String]] = None, descriptions: Option[Array[String]] = None,
-    override val patterns: Option[Array[Regex]] = None) extends OntologyNode(parentOpt, patterns) with Namer {
+    override val patterns: Option[Array[Regex]] = None)
+// Right now it doesn't matter where these come from, so they can be combined.
+    extends OntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns) with Namer {
 
   override def fullName: String = parentOpt.get.fullName + escaped
-
-  // Right now it doesn't matter where these come from, so they can be combined.
-  val values: Array[String] = /*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)
 
   override def toString: String = fullName + " = " + values.toList
 
@@ -95,7 +103,7 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyNode], override val ve
 
   def getNamer(n: Integer): Namer = ontologyNodes(n)
 
-  def getValues(n: Integer): Array[String] = ontologyNodes(n).values
+  def getValues(n: Integer): Array[String] = ontologyNodes(n).getValues
 
   def isLeaf(n: Integer): Boolean = ontologyNodes(n).isLeaf
 
@@ -137,12 +145,33 @@ object TreeDomainOntology {
     def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): TreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(yamlText).asInstanceOf[JCollection[Any]].asScala.toSeq
-      val ontologyParentAndLeafNodes: (Seq[OntologyParentNode], Seq[OntologyLeafNode]) =
-          parseOntology(new OntologyRootNode, yamlNodes) // Note: root node is created here
-      val ontologyParentNodes = ontologyParentAndLeafNodes._1 // TODO: Do something with these, perhaps by combining with leaf nodes.
-      val ontologyLeafNodes = ontologyParentAndLeafNodes._2
+      val rootNode = new OntologyRootNode // Note: root node is created here
 
-      new TreeDomainOntology(ontologyLeafNodes.toArray, versionOpt, dateOpt)
+      parseOntology(rootNode, yamlNodes)
+
+      def walk(node: OntologyNode, f: OntologyNode => Unit): Unit = {
+        node.childrenOpt.map { children =>
+          children.map { child =>
+            f(child)
+            walk(child, f)
+          }
+        }
+      }
+
+      val (ontologyParentNodes, ontologyChildNodes) = {
+        val parents = new ArrayBuffer[OntologyNode]
+        val children = new ArrayBuffer[OntologyNode]
+
+        walk(rootNode, { node: OntologyNode =>
+          if (node.isLeaf) children.append(node)
+          else parents.append(node)
+        })
+
+        (parents.toArray, children.toArray)
+      }
+
+      // TODO: Decide whether to do all or just some of the nodes.
+      new TreeDomainOntology(ontologyChildNodes, versionOpt, dateOpt)
     }
 
     protected def realFiltered(text: String): Seq[String] = {
@@ -180,7 +209,7 @@ object TreeDomainOntology {
       name.replace('_', ' ')
     }
 
-    protected def parseOntology(parent: OntologyParentNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
+    protected def parseOntology(parent: OntologyNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
       /* We're going without the names for now. */
       val name = yamlNodes(TreeDomainOntology.NAME).asInstanceOf[String]
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
@@ -205,33 +234,44 @@ object TreeDomainOntology {
       val filteredExamples = examples.map(_.flatMap(filtered))
       val filteredDescriptions = descriptions.map(_.flatMap(filtered))
 
+//      println("Adding new node")
       // Note: leaf nodes are created here
-      val res = new OntologyLeafNode(name, Some(parent), polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
-      res
+      new OntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
     }
 
-    protected def parseOntology(parent: OntologyParentNode, yamlNodes: Seq[Any]): (Seq[OntologyParentNode], Seq[OntologyLeafNode]) = {
-      val parentsAndLeaves: Seq[(Seq[OntologyParentNode], Seq[OntologyLeafNode])] = yamlNodes.map { yamlNode =>
+    protected def parseOntology(parent: OntologyNode, yamlNodes: Seq[Any], level: Int = 0): Unit = {
+      // This is a hack used because map doesn't work below, so I resort to foreach and have to build the result somewhere else.
+      val childNodesSeq = new ArrayBuffer[Seq[OntologyNode]]
+
+      yamlNodes.foreach { yamlNode => // For some really strange reason, map doesn't work here!!!
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala
+        val keys = map.keys
+//        println(s"Keys are $keys")
         val key: String = map.keys.head
 
-        if (key == TreeDomainOntology.FIELD)
-          (Seq.empty, Seq(parseOntology(parent, map)))
+        val childNodes = if (key == TreeDomainOntology.FIELD)
+          Seq(parseOntology(parent, map))
         else {
           // This is to account for leafless branches.
           val yamlNodesOpt = Option(map(key).asScala)
-          if (yamlNodesOpt.nonEmpty) // foreach does not work well here.
-            parseOntology(new OntologyBranchNode(key, Some(parent)), yamlNodesOpt.get.toSeq) // Note: branch nodes are created here
-          else
-            (Seq.empty, Seq.empty)
-        }
-      }
-      val parents = parentsAndLeaves.map(_._1).flatten
-      val leaves = parentsAndLeaves.map(_._2).flatten
+          if (yamlNodesOpt.nonEmpty) { // foreach does not work well here.
+            val branchNode = new OntologyBranchNode(key, parent) // Note: branch nodes are created here
 
-      (parents, leaves)
+            parseOntology(branchNode, yamlNodesOpt.get.toSeq, level + 1)
+            Seq(branchNode)
+          }
+          else
+            Seq.empty
+        }
+        childNodesSeq += childNodes
+      }
+
+      val flatChildNodes = childNodesSeq.toSeq.flatten
+
+      if (flatChildNodes.nonEmpty)
+        parent.childrenOpt = Some(flatChildNodes)
     }
   }
 }
