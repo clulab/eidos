@@ -72,7 +72,8 @@ class OntologyBranchNode(nodeName: String, parent: OntologyNode) extends Ontolog
 
   override def escaped: String = escaped(nodeName)
 
-  override def getValues: Array[String] = super.getValues // TODO: Do something with children
+  override def getValues: Array[String] = childrenOpt.get.flatMap(_.getValues).toArray
+  //super.getValues // TODO: Do something with children
 
   override def getPatterns: Array[Regex] = super.getPatterns // TODO: Do something with children
 }
@@ -137,7 +138,8 @@ object TreeDomainOntology {
   }
 
   // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
-  class TreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean) {
+  class TreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer,
+                                  filter: Boolean, includeParents: Boolean = false) {
 
     def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None):
         TreeDomainOntology = buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
@@ -170,8 +172,9 @@ object TreeDomainOntology {
         (parents.toArray, children.toArray)
       }
 
-      // TODO: Decide whether to do all or just some of the nodes.
-      new TreeDomainOntology(ontologyChildNodes, versionOpt, dateOpt)
+      // TODO: Decide whether to do all or just some of the nodes. Done?
+      val includedNodes = if (includeParents) ontologyParentNodes ++ ontologyChildNodes else ontologyChildNodes
+      new TreeDomainOntology(includedNodes, versionOpt, dateOpt)
     }
 
     protected def realFiltered(text: String): Seq[String] = {
