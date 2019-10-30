@@ -42,7 +42,7 @@ class TestDoc2 extends EnglishTest {
     val situation = NodeSpec("deteriorating situation", Dec("deteriorating"))
     val leanSeason = NodeSpec("unusually long and harsh annual lean season", Quant("harsh"), TimEx("annual"))
     val foodStocks = NodeSpec("food stocks", Dec("depleted"))
-    val foodInsecurity = NodeSpec("level of food insecurity this year", Quant("unprecedented"), TimEx("this year"))
+    val foodInsecurity = NodeSpec("level of food insecurity", Quant("unprecedented"), TimEx("this year"))
 
     behavior of "TestDoc2 Paragraph 2"
 
