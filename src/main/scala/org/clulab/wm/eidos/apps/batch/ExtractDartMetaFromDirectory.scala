@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.apps.batch
 
 import java.io.File
-import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
@@ -13,6 +12,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidos.utils.meta.DartMetaUtils
 
@@ -49,7 +49,7 @@ object ExtractDartMetaFromDirectory extends App {
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
-    val forkJoinPool = new ForkJoinPool(threads)
+    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
     val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
     parFiles.tasksupport = forkJoinTaskSupport
 

@@ -7,35 +7,41 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JNothing
+import org.json4s.JObject
 import org.json4s.JString
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods
 
-object FilterJson extends App {
+object FilterJsonExtractions extends App {
 
-  class Filter(val outputDir: String) {
+  class Filter() {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     def filter(inputFile: File, jValue: JValue): Unit = {
-      // println(s"Extracting from ${inputFile.getName}")
-      val geoLocations: JValue = (jValue \\ "geolocs" \ "text")
+      println(s"Extracting from ${inputFile.getName}")
+      val extractions: JValue = (jValue \\ "extractions")
 
-      geoLocations match {
-        case JArray(geoLocations: List[_]) => // Type erasure removes the [JString]
-          geoLocations.foreach { geoLocation =>
-            println(geoLocation.extract[String])
+      extractions match {
+        case JArray(extractions: List[_]) => // Type erasure removes the [JObject]
+          extractions.foreach { extraction =>
+            val jString = (extraction \ "text")
+            val text = jString.extract[String]
+            val oneLiner = text
+                .replace("\n", "\\n")
+                .replace("\t", "\\t")
+
+            println("\t" + oneLiner)
           }
-        case JNothing =>
-        case _ => throw new RuntimeException(s"Unexpected geoLocations value: $geoLocations")
+        case JObject(_) =>
+        case _ => throw new RuntimeException(s"Unexpected extractions value: $extractions")
       }
     }
   }
 
   val inputDir = args(0)
   val extension = args(1)
-  val outputDir = args(2)
   val inputFiles = findFiles(inputDir, extension)
-  val filter = new Filter(outputDir)
+  val filter = new Filter()
 
   inputFiles.foreach { inputFile =>
     val text = FileUtils.getTextFromFile(inputFile)
