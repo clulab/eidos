@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.io.SyncFailedException
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.ForkJoinPool
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
@@ -16,6 +15,7 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
 import scala.collection.parallel.ForkJoinTaskSupport
@@ -92,7 +92,7 @@ object FilteredExtractMetaFromDirectory extends App {
     val files = allFiles.filter(filter)
     val parFiles = files.par
 
-    val forkJoinPool = new ForkJoinPool(threads)
+    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
     val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
 
     parFiles.tasksupport = forkJoinTaskSupport
