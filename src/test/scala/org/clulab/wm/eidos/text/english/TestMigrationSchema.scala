@@ -379,7 +379,7 @@ class TestMigrationSchema extends EnglishTest {
     val time1 = NodeSpec("Between 1 and 11 March 2017", TimEx("Between 1 and 11 March 2017"))
     val group1 = NodeSpec("total of 7,258 South Sudanese refugees", CountSpec(7258))
     val moveTo = NodeSpec("Gambella", GeoLoc("Gambella")) //todo: add ", Ethiopia"?
-    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudan"))
+    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
     val migration1 = HumanMigrationEdgeSpec(
       time = Some(time1),
       group = Some(group1),
@@ -403,7 +403,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
       tester.test(moveTo) should be(successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
       tester.test(moveFrom1) should be(successful)
     }
     failingTest should "have correct migration1 node" taggedAs (Somebody) in {
@@ -754,7 +754,7 @@ class TestMigrationSchema extends EnglishTest {
     val timeEnd1 = NodeSpec("15 March", TimEx("15 March"))
     val moveTo1 = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
     val group1 = NodeSpec("more than 356,000 South Sudanese refugees", CountSpec(356000, CountModifier.Min, CountUnit.Absolute)) //fixme: fails because of "South" being found as attachment?
-    val moveFrom1 = NodeSpec("South Sudan", GeoLoc("South Sudan")) //fixme: can't get geoloc from adjectives
+    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese")) //fixme: can't get geoloc from adjectives
     val migration1 = HumanMigrationEdgeSpec(
       timeEnd = Some(timeEnd1),
       moveTo = Some(moveTo1),
@@ -773,7 +773,7 @@ class TestMigrationSchema extends EnglishTest {
     failingTest should "have correct group1 node" taggedAs (Somebody) in {
       tester.test(group1) should be (successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
       tester.test(moveFrom1) should be (successful)
     }
     failingTest should "have correct migration1 node" taggedAs (Somebody) in {
@@ -933,7 +933,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val group1 = NodeSpec("16,274 South Sudanese refugees", CountSpec(16274)) //fixme: "South" location attachment found but probably shouldn't be
     val time1 = NodeSpec("Between 1 and 30 March 2017", TimEx("Between 1 and 30 March 2017"))
-    val moveFrom1 = NodeSpec("South Sudan", GeoLoc("South Sudan")) //fixme: doesn't find locations expressed through an adjective
+    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese")) //fixme: doesn't find locations expressed through an adjective
     val moveTo1 = NodeSpec("Gambella", GeoLoc("Gambella"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
@@ -957,7 +957,7 @@ class TestMigrationSchema extends EnglishTest {
     failingTest should "have correct time1 node" taggedAs (Somebody) in {
       tester.test(time1) should be (successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
       tester.test(moveFrom1) should be (successful)
     }
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
@@ -1038,7 +1038,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val group1 = NodeSpec("365,600 South Sudanese refugees", CountSpec(365600, CountModifier.Approximate))
     val moveTo1 = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
-    val moveFrom1 = NodeSpec("South Sudan", GeoLoc("South Sudan")) //fixme: can't extract location from an adjective
+    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese")) //fixme: can't extract location from an adjective
     val time1 = NodeSpec("30 March 2017", TimEx("30 March 2017"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
@@ -1055,7 +1055,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
       tester.test(moveTo1) should be (successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
       tester.test(moveFrom1) should be (successful)
     }
     passingTest should "have correct time1 node" taggedAs (Somebody) in {
@@ -1155,7 +1155,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val group1 = NodeSpec("3,604 South Sudanese refugees", CountSpec(3604))
     val time1 = NodeSpec("Between 13 and 28 April 2017", TimEx("Between 13 and 28 April 2017"))
-    val moveFrom1 = NodeSpec("South Sudan", GeoLoc("South Sudan")) //fixme: can't extract locations from adjectives
+    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese")) //fixme: can't extract locations from adjectives
     val moveTo1 = NodeSpec("Gambella", GeoLoc("Gambella"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
@@ -1171,7 +1171,7 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct time1 node" taggedAs (Somebody) in {
       tester.test(time1) should be (successful)
     }
-    failingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
+    passingTest should "have correct moveFrom1 node" taggedAs (Somebody) in {
       tester.test(moveFrom1) should be (successful)
     }
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
