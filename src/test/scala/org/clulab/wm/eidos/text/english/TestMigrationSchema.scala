@@ -883,7 +883,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val group1 = NodeSpec("Civilians caught in the fighting between armed actors")
+    val group1 = NodeSpec("Civilians caught in the fighting")
     val moveTo1 = NodeSpec("Uganda", GeoLoc("Uganda"))
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
