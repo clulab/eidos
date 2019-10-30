@@ -52,6 +52,7 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
     OntologyGrounding(domainOntology.version, domainOntology.date, grounding)
   }
 
+  // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       new ConceptEmbedding(domainOntology.getNamer(n),

@@ -64,11 +64,12 @@ object OntologyHandler {
     // Load enabled ontologies
     wordToVec match {
       case _: RealWordToVec =>
-        val selected = config[List[String]]("ontologies")
+        val selected: List[String] = config[List[String]]("ontologies")
         val enabledOntologies = for {
           ontologyName <- selected
           path = config[String](ontologyName)
-          domainOntology = mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
+          includeParents = config[Boolean]("includeParents")
+          domainOntology = mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached, includeParents)
         } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec)
         new OntologyHandler(enabledOntologies, wordToVec, proc, canonicalizer)
 
@@ -88,9 +89,17 @@ object OntologyHandler {
 
   // fixme == this all needs to be unified, the constructors in DomainOntolgies and in TreeDomainOntBUilder / here should all
   // be in one place!
-  def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean): DomainOntology = {
+  def mkDomainOntology(
+    name: String,
+    ontologyPath: String,
+    sentenceExtractor: SentencesExtractor,
+    canonicalizer: Canonicalizer,
+    cacheDir: String,
+    useCached: Boolean,
+    includeParents: Boolean = false
+  ): DomainOntology = {
     val ontSerializedPath: String = serializedPath(name, cacheDir)
-    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
+    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true, useCache = useCached, includeParents = includeParents)
   }
 
   def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true): DomainOntology = {
