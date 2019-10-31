@@ -21,7 +21,8 @@ def ont_node(name, examples, keywords, add_name = True):
     if add_name:
         name_pieces = [remove_quotes(s).strip() for s in name.split(",")]
         examples.extend(name_pieces)
-    d = {'OntologyNode': None, "name": "_".join(name.split(" ")), 'examples': examples, 'polarity': 1.0}
+#     d = {'OntologyNode': None, "name": "_".join(name.split(" ")), 'examples': examples, 'polarity': 1.0}
+    d = {'OntologyNode': None, "name": name, 'examples': examples, 'polarity': 1.0}
     if keywords is not None:
         d['keywords'] = keywords
     return d
