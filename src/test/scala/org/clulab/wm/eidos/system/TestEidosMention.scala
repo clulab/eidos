@@ -1,12 +1,12 @@
 package org.clulab.wm.eidos.text.english.cag
 
+import java.time.ZonedDateTime
 import java.util.HashMap
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.groundings.{MultiOntologyGrounding, OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.{HashCodeBagger, IdentityBagger}
-import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManaging}
@@ -102,11 +102,11 @@ than in the corresponding period two years earlier.
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
-    rainfall.head.canonicalName should be ("rainfall")
+    rainfall.head.canonicalName should be ("seasonal rainfall")
 
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
-    decrease.head.canonicalName should be ("rainfall decrease government")
+    decrease.head.canonicalName should be ("seasonal rainfall decrease government")
 
     // Since we filter out the text from attachments, "price" should be removed (Property attachment)
     val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")

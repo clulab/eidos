@@ -426,15 +426,7 @@ in the directory `src/main/resources`.  The former is meant to contain default v
 that aren't very likely to change.  The latter is where users are advised to make
 adjustments.  These values in particular are often changed:
 
-- useTimeNorm - activates time processing functions
-- useGeoNorm - activates geolocation functions
 - useW2V - turns on grounding, which uses Word2Vec
-
-The model file used for time processing functions is included in the Eidos repository, so there
-is no other installation required for that.  The majority of the functionality is contained
-in the project [timenorm](https://github.com/clulab/timenorm), which is separate from
-Eidos and declared in `built.sbt` as a library dependency.  Change the value of
-`useTimeNorm` from `false` to `true` to use the time functions.
 
 Grounding also requires additional installation.  There are two significantly large files of
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
@@ -446,11 +438,26 @@ vectors used for the Word2Vec algorithm which are not stored on GitHub but on
 Only one of the files can be configured at a time.  The former is smaller and quicker and the latter
 more accurate.  Either should be downloaded and if necessary unzipped and untarred, and then the *.txt
 file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
-Next check the configuration value for `wordToVecPath`.  It is already set up for `vectors.txt`,
-but if you are using glove, change the value to `glove.840B.300d.txt`.  Lastly, change the
+Next, check the configuration value for `wordToVecPath`.  It is usually preset to `glove.840B.300d.txt`,
+so if you are using the other one, change it to `vectors.txt`.  Lastly, change the
 value for `useW2V` from `false` to `true`. 
 
-After `useTimeNorm`, `useGeoNorm`, and `useW2V` are set to `true`, your output should look more like this:
+Two previous settings are no longer used:
+
+- useTimeNorm - activates time processing functions
+- useGeoNorm - activates geolocation functions
+
+Their functionalty has been incorporated into the setting for `entityFinders`
+```
+entityFinders = ["gazetteer", "rulebased", "geonorm", "timenorm"]
+```
+in which they are configured to be active.  To deactivate them, remove them from the list.
+They no longer require any additional configuration.  All the code and resources are retrieved
+from projects [timenorm](https://github.com/clulab/timenorm) and
+[geonorm](https://github.com/clulab/geonorm), which are separate from
+Eidos and declared in `built.sbt` as a library dependencies.
+
+With `useW2V` set to `true` and `geonorm` and `timenorm` included, your output should look more like this:
 
 ![Eidos with Grounding](/doc/grounding.png?raw=True")
 

@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
@@ -7,7 +8,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 
 case class AdjectiveGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
-  protected def isGrounded = intercept != None && mu != None && sigma != None
+  protected def isGrounded: Boolean = intercept.isDefined && mu.isDefined && sigma.isDefined
 
   def predictDelta(mean: Double, stdev: Double): Option[Double] =
       if (!isGrounded) None
@@ -25,7 +26,7 @@ trait AdjectiveGrounder {
 class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounder {
 
   protected def load(): Map[Quantifier, Map[String, Double]] =
-      (Sourcer.sourceFromResource(quantifierKBFile)).autoClose { source =>
+      Sourcer.sourceFromResource(quantifierKBFile).autoClose { source =>
       // adjective -> Map(name:value)
         FileUtils.getCommentedLinesFromSource(source)
             .map { line => // "adjective  mu_coefficient  sigma_coefficient  intercept"
@@ -75,4 +76,6 @@ object EidosAdjectiveGrounder {
   def apply(quantifierKBFile: String): EidosAdjectiveGrounder = new EidosAdjectiveGrounder(quantifierKBFile)
 
   def fromConfig(config: Config): EidosAdjectiveGrounder = apply(config.getString("quantifierKBPath"))
+
+  def fromEidosConfig(config: Config): EidosAdjectiveGrounder = fromConfig(config[Config]("adjectiveGrounder"))
 }

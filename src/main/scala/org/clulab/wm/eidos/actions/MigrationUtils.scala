@@ -25,77 +25,50 @@ object MigrationUtils {
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
     // partition to get the migration events
     val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
-//    val handled = attachGeoLoc(migrationEvents)
+
     // todo: backoff times and locations -- use the normalization apis
-    // todo: combine times (timeStart/timeEnd)????
-
-    // return all
-//        handled ++ other
-//    assembleFragments(handled) ++ other
-//    assembleMoreSpecific(assembleFragments(handled)) ++ other
-//    assembleTime(assembleFragments(handled)) ++ other
-
-//    resolveGenericLocation(assembleTime(assembleFragments(handled))) ++ other
+    // todo: combine times (timeStart/timeEnd)
     resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
-//    migrationEvents ++ other
   }
 
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
     // combine events with shared arguments AND combine events in close proximity with complementary arguments
-
     var orderedMentions = orderMentions(mentions)
-
     // the events we will ultimately return
     var returnedEvents = ArrayBuffer[Mention]()
-
     // keep merging events until we have nothing acceptable left to merge
     var stillMerging = true
-
-
     // loop and merge compatible events, add to mergedEvents
     while (stillMerging) {
-//      println("\nLOOPING")
-
       // empty the array at the beginning of each loop
       returnedEvents = ArrayBuffer[Mention]()
-
       // to keep track of what events we've merged
       var used = Array.fill(orderedMentions.length)(false)
-
-
       for (i <- orderedMentions.indices) {
-//        println("i-th mention-->" + i + " " + orderedMentions(i).text)
 
         // only merge events if the first of the pair hasn't already been merged (heuristic!)
         if (!used(i)) {
           for (j <- i+1 until orderedMentions.length) {
-//            println("j-th mention--->" + j + " " + orderedMentions(j).text)
-
             //check if the two events can be merged
             if (isMergeable(orderedMentions(i), orderedMentions(j))) {
 
               // create the set of arguments to include in the new merged event (preference to the more specific args
               // in case of argName overlap)
               val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
-//              println("ORIG MENTION: " + orderedMentions(i).text)
-
               //create a new event with the new args by copying the rightmost mention of the two with the new set of args;
               // copy the rightmost event and not the first one because this way we keep the possibility of this newly-merged
               // event being merged with a fragment from the next sentence in the next merging loop (currently, we only
               // merge fragments from adjacent sentences)
               val copy = copyWithNewArgs(orderedMentions(j), newArgs)
-
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
                 returnedEvents += copy
-//                println("merged: " + orderedMentions(i).text + " AND " + orderedMentions(j).text + "\n" + "Resuling event: " + copy.text + "|")
               }
               used = used.updated(i,true)
               used = used.updated(j,true)
             }
           }
         }
-
       }
 
       // add unmerged events ('false' in used list)
@@ -111,12 +84,8 @@ object MigrationUtils {
         stillMerging = false
       }
       orderedMentions = returnedEvents
-//      for (e <- returnedEvents) println("returned after loop: " + e.text)
-//      println("end of loop")
     }
-
     returnedEvents
-
   }
 
 
@@ -143,15 +112,12 @@ object MigrationUtils {
     ||
     //if within one sent of each other
     (Math.abs(m1.sentence - m2.sentence) < 2
-
       //AND events share the type of argument (argName)
       && (m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).nonEmpty
       //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
       //information with the same argName---merging will delete one of them); we want these to be separate events
       && !bothSpecific(m1, m2))
-
       )) return true
-
     false
   }
 
@@ -176,11 +142,9 @@ object MigrationUtils {
         &&
         relArg1.tokenInterval.intersect(relArg2.tokenInterval).isEmpty //if the arguments in question overlap, don't count them as both specific
          )
-
       )
         return true
     }
-
     false
   }
 
@@ -191,10 +155,8 @@ object MigrationUtils {
   //todo: may go to mention utils
   def orderMentions(mentions: Seq[Mention]): Seq[Mention] = {
     val grouped = mentions.groupBy(_.sentence)
-
     //contains all mentions ordered by sent and by order in the sent
     var mentionArray = ArrayBuffer[Mention]()
-
     //for every sentence (sorted)...
     for (i <- grouped.keys.toList.sorted) {
       //...sort the mentions and append them to the mention array
@@ -225,12 +187,10 @@ object MigrationUtils {
         } else {
           newArgs = newArgs ++ Map(arg._1 -> mention2.arguments(arg._1))
         }
-
       } else {
         newArgs = newArgs ++ Map(arg)
       }
     }
-
     newArgs.toMap
   }
 
@@ -245,7 +205,6 @@ object MigrationUtils {
     for (m <- orderedMentions) {
       //check if the mention has a generic location argument
       if (containsGenericLocation(m)) {
-
         //get the name of the argument that contains the generic location
         val argName = getGenericLocArgName(m)
         //find the index of the current mention (used to look for specific locations only in the previous events)
@@ -317,9 +276,7 @@ object MigrationUtils {
         }
       }
     }
-
     relevantMentions.head
-
   }
 
 
@@ -329,19 +286,15 @@ object MigrationUtils {
   def getGenericLocArgName(m: Mention): String = {
     //look through the args; if arg contains a generic location, return the name of that arg
     var stringArray = ArrayBuffer[String]()
-
     while (stringArray.isEmpty) {
       for (arg <- m.arguments) {
         if (containsGenericLocation(arg)) {
           stringArray += arg._1
         }
-
       }
     }
     stringArray.head
-
   }
-
 
   /*
   given a mention, checks if it has an argument that is a generic location; todo: revise the list
@@ -373,24 +326,19 @@ object MigrationUtils {
 
     // Helper method to get a token interval for the new event mention with expanded args
     def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
-
     val newTokenInterval = if (mkNewInterval) {
-
       // All involved token intervals, both for the original event and the expanded arguments => changed to just looking at the newArgs bc that involves the original set of args; may need to revisit
       val allIntervals = Seq() ++ newArgs.values.flatten.map(arg => arg.tokenInterval)
       // Find the largest span from these intervals
       getNewTokenInterval(allIntervals)
     }
     else orig.tokenInterval
-
     val paths = for {
       (argName, argPathsMap) <- orig.paths
       origPath = argPathsMap(orig.arguments(argName).head)
     } yield (argName, Map(newArgs(argName).head -> origPath))
-
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_${foundByAffix.get}" else orig.foundBy
-
     val newArgsAsList = for {
       seqMen <- newArgs.values
       men <- seqMen
@@ -401,7 +349,7 @@ object MigrationUtils {
       //      orig.asInstanceOf[EventMention].copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
       new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = newArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = orig.attachments)
 
-    }else {
+    } else {
 
       orig match {
         case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
@@ -409,10 +357,7 @@ object MigrationUtils {
         case em: EventMention => em.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
       }
     }
-
     newMention
-
   }
-
 }
 

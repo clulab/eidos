@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import java.time.ZonedDateTime
 import java.util.IdentityHashMap
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
@@ -54,7 +55,8 @@ class CompactNamer(protected val n: Int, data: CompactNamerData) extends Namer {
   *                      Name offset is into nodeStrings, parent offset is back into branchIndexes.
   */
 class CompactDomainOntology(protected val leafStrings: Array[String], protected val leafStringIndexes: Array[Int], protected val leafStartIndexes: Array[Int],
-    patternStrings: Array[String], protected val patternStartIndexes: Array[Int], protected val nodeStrings: Array[String], protected val leafIndexes: Array[Int], protected val branchIndexes: Array[Int]) extends DomainOntology {
+    patternStrings: Array[String], protected val patternStartIndexes: Array[Int], protected val nodeStrings: Array[String], protected val leafIndexes: Array[Int], protected val branchIndexes: Array[Int],
+    override val version: Option[String] = None, override val date: Option[ZonedDateTime]) extends DomainOntology {
 
   def size: Integer = leafIndexes.length / CompactDomainOntology.leafIndexWidth
 
@@ -83,6 +85,11 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
 
   def save(filename: String): Unit = {
     FileUtils.newObjectOutputStream(filename).autoClose { objectOutputStream =>
+      val firstLine = Seq(
+        version.getOrElse(""),
+        date.map(_.toString).getOrElse("")
+      ).mkString("\t") // Some versions of ZonedDateTime.toString can contain spaces.
+      objectOutputStream.writeObject(firstLine)
       objectOutputStream.writeObject(leafStrings.mkString("\n"))
       objectOutputStream.writeObject(leafStringIndexes)
       objectOutputStream.writeObject(leafStartIndexes)
@@ -123,6 +130,14 @@ object CompactDomainOntology {
 
   def load(filename: String): CompactDomainOntology = {
     FileUtils.newClassLoaderObjectInputStream(filename, this).autoClose { objectInputStream =>
+      val (versionOpt: Option[String], dateOpt: Option[ZonedDateTime]) = {
+        val firstLine = objectInputStream.readObject().asInstanceOf[String]
+        val Array(commit, date) = firstLine.split('\t')
+        val commitOpt = if (commit.nonEmpty) Some(commit) else None
+        val dateOpt = if (date.nonEmpty) Some(ZonedDateTime.parse(date)) else None
+
+        (commitOpt, dateOpt)
+      }
       val leafStrings = splitText(objectInputStream.readObject().asInstanceOf[String])
       val leafStringIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
       val leafStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
@@ -132,7 +147,8 @@ object CompactDomainOntology {
       val leafIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
       val branchIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
 
-      new CompactDomainOntology(leafStrings, leafStringIndexes, leafStartIndexes, patternStrings, patternStartIndexes, nodeStrings, leafIndexes, branchIndexes)
+      new CompactDomainOntology(leafStrings, leafStringIndexes, leafStartIndexes, patternStrings, patternStartIndexes,
+          nodeStrings, leafIndexes, branchIndexes, versionOpt, dateOpt)
     }
   }
 
@@ -191,8 +207,14 @@ object CompactDomainOntology {
 
     protected def mkNodeStringMap(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
+      val parentSeq = parentMap
+          .entrySet
+          .asScala
+          .toSeq
+          .map { entrySet => (entrySet.getKey, entrySet.getValue) }
+          .sortBy(_._2)
 
-      parentMap.keySet().asScala.foreach { ontologyParentNode =>
+      parentSeq.foreach { case (ontologyParentNode, _)  =>
         append(stringMap, ontologyParentNode.escaped)
       }
       0.until(treeDomainOntology.size).foreach { i =>
@@ -247,13 +269,15 @@ object CompactDomainOntology {
       val leafIndexes = mkLeafIndexes(parentMap, nodeStringMap)
       val branchIndexes = mkParentIndexes(parentMap, nodeStringMap)
 
+      // This sorts by the latter, the Int, and then answers the former, the String.
       def toArray(stringMap:MutableHashMap[String, Int]): Array[String] =
           stringMap.toArray.sortBy(_._2).map(_._1)
 
       val leafStrings: Array[String] = toArray(leafStringMap)
       val nodeStrings: Array[String] = toArray(nodeStringMap)
 
-      new CompactDomainOntology(leafStrings, leafStringIndexes, leafStartIndexes, patternStrings, patternStartIndexes, nodeStrings, leafIndexes, branchIndexes)
+      new CompactDomainOntology(leafStrings, leafStringIndexes, leafStartIndexes, patternStrings, patternStartIndexes,
+          nodeStrings, leafIndexes, branchIndexes, treeDomainOntology.version, treeDomainOntology.date)
     }
   }
 }

@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.expansion
 
 import org.clulab.odin._
 import org.clulab.wm.eidos.attachments.{DCTime, Property, Time}
-import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.utils.MentionUtils
 
 object ExpansionUtils {

@@ -1,9 +1,9 @@
 package controllers
 
+import com.typesafe.config.Config
 import javax.inject._
 import com.typesafe.config.ConfigRenderOptions
 import org.clulab.odin._
-import org.clulab.processors.Processor
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.BuildInfo
@@ -32,12 +32,21 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   // Initialize the EidosSystem
   // -------------------------------------------------
   println("[EidosSystem] Initializing the EidosSystem ...")
-  val ieSystem: EidosSystem = new EidosSystem()
-  val proc: Processor = ieSystem.proc
+  val eidosConfig: Config = EidosSystem.defaultConfig
+  val ieSystem: EidosSystem = new EidosSystem(eidosConfig)
   val stanza = "adjectiveGrounder"
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig(stanza))
-  val domainParams: DomainParams = DomainParams.fromConfig(ieSystem.config.getConfig(stanza))
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(eidosConfig.getConfig(stanza))
+  val domainParams: DomainParams = DomainParams.fromConfig(eidosConfig.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
+
+  {
+    println("[EidosSystem] Priming the EidosSystem ...")
+    val annotatedDocument = 
+        ieSystem.extractFromText("In 2014 drought caused a famine in Ethopia.", cagRelevantOnly = true, Some("2019-08-09"))
+    val corpus = new JLDCorpus(annotatedDocument)
+    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+    println("[EidosSystem] Completed Priming ...")
+  }
   // -------------------------------------------------
 
   /**
@@ -56,8 +65,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def config: Action[AnyContent] = Action {
-    val options = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
-    val jsonString = ieSystem.config.root.render(options)
+    val options: ConfigRenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(true)
+    val jsonString = eidosConfig.root.render(options)
     Ok(jsonString).as(JSON)
   }
 
@@ -82,7 +91,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val doc = ieSystem.annotate(text)
 
     // Debug
-    println(s"DOC : $doc")
+//    println(s"DOC : $doc")
     // extract mentions from annotated document
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
     val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
@@ -196,9 +205,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     "gitCurrentBranch" -> BuildInfo.gitCurrentBranch,
     "gitHeadCommit" -> BuildInfo.gitHeadCommit,
     "gitHeadCommitDate" -> BuildInfo.gitHeadCommitDate,
-    "gitUncommittedChanges" -> BuildInfo.gitUncommittedChanges,
+    "gitUncommittedChanges" -> BuildInfo.gitUncommittedChanges /* ,
+    // These values change with each compilation and force repackaging.
+    // Since they are not being used at all anyway, they are no longer included.
+    // See build.sbt where a related line is commented out.
     "builtAtString" -> BuildInfo.builtAtString,
-    "builtAtMillis" -> BuildInfo.builtAtMillis
+    "builtAtMillis" -> BuildInfo.builtAtMillis */
   )
 
   protected def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
@@ -273,12 +285,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     eidosMentions.foreach(eidosMention => DisplayUtils.displayMention(eidosMention.odinMention))
 
     val odinMentions = eidosMentions.map(_.odinMention)
-    val timExs = // None
-        if (ieSystem.useTimeNorm) Some(TimeNormFinder.getTimExs(odinMentions, doc.sentences))
-        else None
-    val geoPhraseIDs = // None
-        if (ieSystem.useGeoNorm) Some(GeoNormFinder.getGeoPhraseIDs(odinMentions, doc.sentences))
-        else None
+    val timExs = ieSystem.components.timeNormFinderOpt.map(_.getTimExs(odinMentions, doc.sentences))
+    val geoPhraseIDs = ieSystem.components.geoNormFinderOpt.map(_.getGeoPhraseIDs(odinMentions, doc.sentences))
     val sent = doc.sentences.head
     val syntaxJsonObj = Json.obj(
         "text" -> text,
@@ -352,10 +360,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       for (entity <- entities) {
         objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
         // If the primary groundings are available, let's print them too...
-        if (entity.grounding.contains(EidosOntologyGrounder.PRIMARY_NAMESPACE)) {
+        val groundingStringOpt = GroundingUtils.getGroundingsStringOpt(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
+        if (groundingStringOpt.isDefined) {
           objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
-          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
-          objectToReturn +=  groundings
+          objectToReturn +=  groundingStringOpt
           objectToReturn += "<br><br>"
         }
       }

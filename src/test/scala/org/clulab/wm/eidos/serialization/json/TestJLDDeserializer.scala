@@ -29,7 +29,7 @@ import org.json4s.JArray
 import scala.collection.Seq
 
 class TestJLDDeserializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromConfig(ieSystem.config.getConfig("adjectiveGrounder"))
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
@@ -37,7 +37,7 @@ class TestJLDDeserializer extends ExtractionTest {
 //    val documentCreationTime: Option[String] = Some("This is a test")
     val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
-      documentCreationTime, filename = None)
+      documentCreationTime, id = None)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
@@ -133,7 +133,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val geoPhraseID = idAndGeoPhraseID.value
 
       id should be("_:GeoLocation_15")
-      geoPhraseID.geonameID should be(Some(7909807))
+      geoPhraseID.geonameID should be(Some("7909807"))
     }
 
     it should "deserialize Word from jsonld" in {
@@ -631,12 +631,12 @@ class TestJLDDeserializer extends ExtractionTest {
 
   def testCorpus(text: String, name: String) = {
     it should "deserialize corpus " + name + " from jsonld" in {
-      val canonicalizer = new Canonicalizer(ieSystem.stopwordManager)
+      val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
 
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.loadableAttributes.multiOntologyGrounder)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.components.multiOntologyGrounder)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')

@@ -8,8 +8,9 @@ import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.forkjoin.ForkJoinPool
 import scala.collection.parallel.ForkJoinTaskSupport
+
+import java.util.concurrent.ForkJoinPool
 
 object MakeRuleTSVs extends App {
 
@@ -30,7 +31,7 @@ object MakeRuleTSVs extends App {
 
   // Organize
   val mentions = annotatedDocuments.seq.flatMap(ad => ad.odinMentions)
-  val keptMentions = reader.stopwordManager.keepCAGRelevant(mentions)
+  val keptMentions = reader.components.stopwordManager.keepCAGRelevant(mentions)
   // create a map where the key is the Set of rule/rule components and the values are the Mentions
   val byRules = keptMentions.groupBy(_.foundBy)
     .map(grouping => (grouping._1.split("\\+\\+").toSet, grouping._2))

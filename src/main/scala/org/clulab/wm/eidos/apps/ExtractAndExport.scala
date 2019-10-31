@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGrounding, getGroundingsString}
+import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -54,7 +54,7 @@ object ExtractAndExport extends App with Configured {
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
-    val annotatedDocuments = Seq(reader.extractFromText(text, filename = Some(file.getName)))
+    val annotatedDocuments = Seq(reader.extractFromText(text, id = Some(file.getName)))
     // 4. Export to all desired formats
     exportAs.foreach { format =>
       getExporter(format, s"$outputDir/${file.getName}", topN).export(annotatedDocuments)
@@ -104,7 +104,7 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
 
   def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
     val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.components.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
 
     for {
       mention <- mentionsToPrint
@@ -158,7 +158,7 @@ object SerializedMentions {
 
 case class EntityInfo(m: EidosMention, groundAs: Seq[String], topN: Int = 5) {
   val text: String = m.odinMention.text
-  val norm: String = getBaseGrounding(m)
+  val norm: String = getBaseGroundingString(m)
   val modifier: String = ExporterUtils.getModifier(m)
   val polarity: String = ExporterUtils.getPolarity(m)
   val groundingStrings: Seq[String] = groundAs.map { namespace =>

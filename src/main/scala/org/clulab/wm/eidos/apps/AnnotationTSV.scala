@@ -27,7 +27,7 @@ object AnnotationTSV extends App with Configured {
 
   def mkTableRows(annotatedDocument: AnnotatedDocument, filename: String, reader: EidosSystem): (Seq[String], Counter[String]) = {
     val allMentions = annotatedDocument.odinMentions
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.stopwordManager.releventEdge(m.odinMention, State(allMentions)))
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.components.stopwordManager.releventEdge(m.odinMention, State(allMentions)))
 
     val ruleCounter = new Counter[String]
 

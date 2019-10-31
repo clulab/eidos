@@ -33,14 +33,10 @@ class CrossSentenceEventMention(
     val textArray = new ArrayBuffer[String]()
     val firstSentIndex = argsBySent.head._1
     val lastSentIndex = argsBySent.last._1
-
-
-
     for ((i, ms) <- argsBySent) {
       val sortedMentions = ms.toList.sortBy(_.startOffset) // sort mentions within the sentence by starting character
       val firstArgInd = sortedMentions.head.start // index of the first token of the first argument of the sentence
       val sentTextArr = sortedMentions.head.sentenceObj.raw //sentence as an array of tokens
-
       //compile text of the CrossSentenceEventMention from parts of the sentences that the CrossSentenceEventMention spans
       i match { //sentence index (ordered)
         case `firstSentIndex` => {
@@ -56,11 +52,7 @@ class CrossSentenceEventMention(
         case _ => textArray.append(sentTextArr.mkString(" ")) //if it's a middle sentence, the part to return is the whole sentence
       }
     }
-
     val text = textArray.mkString(" ")
-
     text
   }
-
-
 }
