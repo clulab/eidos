@@ -85,7 +85,6 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
 
   def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
 
-    println("$$$ FLAT ONTOLOGY GROUNDER $$$")
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
@@ -161,6 +160,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
     val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+    println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
+
+    println("CANONICAL NAME PARTS:\t"+canonicalNameParts.mkString((" ")))
+
+    val mentionText = mention.canonicalName
+    println("MENTION TEXT:\t"+mentionText)
 
     /** Get the syntactic head of the mention */
     // Make a new mention that's just the syntactic head of the original mention
@@ -177,8 +182,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     )
     // Get the text of the syntactic head
     val headText = mentionHead.map(_.text).getOrElse("<NO_HEAD>")
+    println("HEAD TEXT:\t"+headText)
 
-    println("$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
 
     /** Get the modifiers of the syntactic head */
     // TODO: allowed modifier relations may need tuning
@@ -190,9 +195,14 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     )
     val modifierMentions = getModifierMentions(headText, mention.odinMention, allowedMods.mkString("|"))
 
+    val modifierText = modifierMentions.map(_.text).mkString("\n")
+    println("MODIFIER TEXT:\t"+modifierText)
+
     // Combine head with modifiers, head first
     // TODO: Only needed if we to one big loop, unnecessary if we treat head special
     val allMentions = mentionHead.toSeq ++ modifierMentions
+    val allMentionsText = allMentions.map(_.text).mkString("\n")
+    println("ALL MENTIONS TEXT:\t"+allMentionsText)
 
     // keep a placeholder for each component
     val propertyGrounding = new ArrayBuffer[SingleOntologyGrounding] // each SingleOntologyGrounding is (Namer, Float)
@@ -209,6 +219,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     // FIXME: take top k AFTER sorting into bins?
     for (g <- allGroundings) {
       val nodeName = g._1.name
+      println("Node Name:\t"+nodeName)
       if(inBranch(nodeName, conceptEmbeddingsSeq("property"))) propertyGrounding.append(g)
       else if (inBranch(nodeName, conceptEmbeddingsSeq("process"))) processGrounding.append(g)
       else phenomGrounding.append(g)
@@ -222,11 +233,11 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       OntologyGrounding(phenomGrounding, Some("phenomenon"))
     )
 
-    println("PROPERTY:\t"+propertyGrounding.mkString("\n"))
+    println("\nPROPERTY:\t"+propertyGrounding.mkString("\n"))
     println("PROCESS:\t"+processGrounding.mkString("\n"))
     println("PHENOM:\t"+phenomGrounding.mkString("\n"))
 
-    println("RETURNED GROUNDINGS:\t"+returnedGroundings)
+    println("\nRETURNED GROUNDINGS:\n"+returnedGroundings.mkString("\n"))
 
 //    // Treat head special
 //    // TODO: Do we need to treat it special after all?
@@ -336,7 +347,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
          |   priority: 1
          |   type: token
          |   pattern: |
-         |      [B-NP] [I-NP]*
+         |      [chunk=B-NP] [chunk=I-NP]*
          |
          | - name: SegmentConcept
          |   label: InternalModifier
