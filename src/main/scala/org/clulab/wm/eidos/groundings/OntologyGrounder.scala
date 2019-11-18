@@ -113,12 +113,10 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   // FIXME: this should connect to a config probably...?
   val k = 5
 
-  // FIXME: not sure if my filter is doing what I want yet
   def inBranch(s: String, branch: Seq[ConceptEmbedding]): Boolean = {
-    val matching = branch.filter{_.namer.branch.contains(s)}
-    val result = if (matching.nonEmpty) true else false
-    result
-//    ???
+    val branchNodes = branch.map(_.namer.name)
+    val matching = branchNodes.contains(s)
+    matching
   }
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] = {
@@ -159,12 +157,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 //  def getBranchPatterns(branch: String): Seq[ConceptPatterns] = conceptPatterns.filter { _.namer.branch.contains(branch) }
 
   override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
-    val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+//    val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
     println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
 
-    println("CANONICAL NAME PARTS:\t"+canonicalNameParts.mkString((" ")))
+//    println("CANONICAL NAME PARTS:\t"+canonicalNameParts.mkString((" ")))
 
-    val mentionText = mention.canonicalName
+    val mentionText = mention.odinMention.text
     println("MENTION TEXT:\t"+mentionText)
 
     /** Get the syntactic head of the mention */
@@ -225,8 +223,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       else phenomGrounding.append(g)
     }
 
-    // TopK
-    // todo: Zupon
     val returnedGroundings = Seq(
       OntologyGrounding(propertyGrounding, Some("property")),
       OntologyGrounding(processGrounding, Some("process")),
