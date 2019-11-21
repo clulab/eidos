@@ -7,7 +7,6 @@ import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.collection.Seq
@@ -46,7 +45,7 @@ class TestGrounding extends EnglishTest {
       eidosMentionOpt.get.grounding
     }
 
-    protected def topGrounding(nodeSpec: NodeSpec, componentName: String): Float = {
+    protected def topGroundingValue(nodeSpec: NodeSpec, componentName: String): Float = {
       val allGroundings = groundings(nodeSpec)
       val topGrounding = allGroundings(grounderName + "/" + componentName).headOption.get._2
 
@@ -54,11 +53,20 @@ class TestGrounding extends EnglishTest {
     }
 
     // TODO Get these names from elsewhere
-    def topConceptGrounding(nodeSpec: NodeSpec): Float = topGrounding(nodeSpec, "concept")
+    def topConceptGrounding(nodeSpec: NodeSpec): Float = topGroundingValue(nodeSpec, "concept")
 
-    def topPropertyGrounding(nodeSpec: NodeSpec): Float = topGrounding(nodeSpec, "property")
+    def topPropertyGrounding(nodeSpec: NodeSpec): Float = topGroundingValue(nodeSpec, "property")
 
-    def topProcessGrounding(nodeSpec: NodeSpec): Float = topGrounding(nodeSpec, "process")
+    def topProcessGrounding(nodeSpec: NodeSpec): Float = topGroundingValue(nodeSpec, "process")
+
+    def allGroundingNames(nodeSpec: NodeSpec): Seq[String] = {
+      val allGroundings = groundings(nodeSpec)
+      val names = allGroundings.values.flatMap { ontologyGrounding =>
+        ontologyGrounding.grounding.map { grounding => grounding._1.name }
+      }.toSeq
+
+      names
+    }
   }
 
   {
@@ -71,17 +79,19 @@ class TestGrounding extends EnglishTest {
     val tester = new GroundingGraphTester(text)
 
     val prices = NodeSpec("prices", Inc("rising"))
-    val roads = NodeSpec("impassable roads", Quant("impassable"))
-    val markets = NodeSpec("dysfunctional markets", Quant("dysfunctional"))
-    val families = NodeSpec("many families", Quant("many"), Dec("preventing"))
+//    val roads = NodeSpec("impassable roads", Quant("impassable"))
+//    val markets = NodeSpec("dysfunctional markets", Quant("dysfunctional"))
+//    val families = NodeSpec("many families", Quant("many"), Dec("preventing"))
 
     behavior of "Grounding"
 
-    passingTest should "have ground node 1 correctly" taggedAs (Somebody) in {
+    passingTest should "process node 1 correctly" taggedAs (Somebody) in {
       tester.test(prices) should be (successful)
 
-      if (active)
+      if (active) {
         (tester.topPropertyGrounding(prices) > 0.5f) should be (true)
+        tester.allGroundingNames(prices).contains("wm/property/price") should be (true)
+      }
     }
   }
 }
