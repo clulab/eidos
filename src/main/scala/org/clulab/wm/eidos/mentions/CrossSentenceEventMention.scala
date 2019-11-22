@@ -40,10 +40,14 @@ class CrossSentenceEventMention(
       val words = sentence match { //sentence index (ordered)
         case firstSentence =>
           // in the first sentence the CrossSentenceEventMention spans, the part to return is the span from the start of the first argument of the event to the end of the sentence
+          // Although it doesn't matter much with a small collection, sorting one in its entirety just to extract
+          // an extreme value is inefficient.  So, a simple minBy is used.  Is there no minByBy?
           val start = mentions.minBy(_.start).start
           sentenceWordArr.drop(start)
         case lastSentence =>
           // in the last sentence the CrossSentenceEventMention spans, the part to return is the span from the beginning of the sentence to the end of the last argument
+          // Although it may not be a problem in this context, the maximum end does not necessarily come from the
+          // mention with the maximum start.  Sometimes mentions overlap and they might conceivably be nested.
           val end = mentions.maxBy(_.end).end
           sentenceWordArr.take(end)
         case _ =>
