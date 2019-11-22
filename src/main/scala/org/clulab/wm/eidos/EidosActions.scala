@@ -8,6 +8,8 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import scala.util.matching.Regex
 // todo: check dependencies for the following three imports
@@ -112,7 +114,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
                 ga.sentenceObj.endOffsets(na.get._2 - 1)
               )
             )
-            //println(s"FOUND NUMBER: $count")
+            //logger.debug(s"FOUND NUMBER: $count")
 
             def newProvenance(regexMatch: Regex.Match): Provenance =
                 (regexMatch.matched, regexMatch.start + eventStartOffset, regexMatch.end + eventStartOffset)
@@ -142,7 +144,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
                   }
                 }
               }
-            //println(s"FOUND UNIT: $countUnit")
+            //logger.debug(s"FOUND UNIT: $countUnit")
 
             //
             // search for the count modifiers in the *whole* event span
@@ -166,7 +168,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
                 }
               }
             }
-            //println(s"FOUND MOD: $countModifier")
+            //logger.debug(s"FOUND MOD: $countModifier")
 
             val (text, startOffset, endOffset) = {
               def isPrefix(value: String, texts: Seq[String]): Boolean = texts.exists { text =>
@@ -319,7 +321,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     val newBest = mentions.minBy(_.foundBy)
 
     //    if (!oldBest.eq(newBest))
-    //      println("Changed answer")
+    //      logger.debug("Changed answer")
     newBest
   }
 
@@ -456,7 +458,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
     Interval(start = min, end = max)
     } else {
-      println("WARNING: Event with no arguments.")
+      logger.warn("Event with no arguments.")
       Interval(start = m.trigger.tokenInterval.start, end = m.trigger.tokenInterval.end)
     }
   }
@@ -569,7 +571,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   }
 
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
-    println("DEBUG ACTION")
+    logger.debug("DEBUG ACTION")
     ms
   }
 
@@ -661,6 +663,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 }
 
 object EidosActions extends Actions {
+  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
   // Used for simplistic coreference identification
   val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
   val ANTECEDENT: String = "antecedent"
@@ -675,8 +679,4 @@ object EidosActions extends Actions {
 
     new EidosActions(expansionHandler, corefHandler)
   }
-
-
-
-
 }
