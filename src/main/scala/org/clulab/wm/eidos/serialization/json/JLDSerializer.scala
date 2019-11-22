@@ -55,6 +55,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def toJObject: TidyJObject
   
   def newJLDExtraction(mention: EidosMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDExtraction = mention match {
+    // A CrossSentenceEventMention will be serialized here and won't be deserialized properly.
     case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
     //case mention: EidosRelationMention =>
     case mention: EidosCrossSentenceMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
