@@ -196,7 +196,19 @@ object TreeDomainOntology {
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
       val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
       val descriptions: Option[Array[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
-      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
+//      val polarity = yamlNodes.getOrElse(TreeDomainOntology.POLARITY, 1.0d).asInstanceOf[Double].toFloat
+      val polarity = {
+        // There's something wrong with this type system, obviously.  This is legacy code.
+        val yamlNodesOpt: Option[JCollection[Any]] = yamlNodes.get(TreeDomainOntology.POLARITY)
+
+        yamlNodesOpt.map { yamlNode: Any =>
+          yamlNode match {
+            case value: Double => value.toFloat
+            case value: Int => value.toFloat
+            case _ => throw new Exception(s"Unexpected polarity value: $yamlNode!")
+          }
+        }.getOrElse(1.0f) // positive by default
+      }
       val patterns: Option[Array[Regex]] = yamlNodesToRegexes(yamlNodes, TreeDomainOntology.PATTERN)
 
       /*val filteredNames = names.flatMap(filtered)*/
