@@ -9,7 +9,6 @@ import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 object MigrationUtils {
 
@@ -35,7 +34,7 @@ object MigrationUtils {
       // 3 and higher have already been taken into account, as they are not unmerged anymore.
       val merges = Array.fill(mentions.length)(unmerged)
 
-      for (loIndex <- 0.until(mentions.size) if merges(loIndex) == unmerged) {
+      for (loIndex <- mentions.indices if merges(loIndex) == unmerged) {
         for (hiIndex <- (loIndex + 1).until(mentions.size) if merges(hiIndex) == unmerged) {
           if (isMergeable(mentions(loIndex), mentions(hiIndex))) {
             merges(loIndex) = used
@@ -50,7 +49,7 @@ object MigrationUtils {
       val merges = findMerges(mentions)
 
       if (merges.exists(_ != unmerged)) {
-        val routedMentions = merges.indices.map { hiIndex: Int =>
+        val mergedMentionsOpt = merges.indices.map { hiIndex: Int =>
           if (merges(hiIndex) == used)
             None // It was incorporated into something else, so skip it.
           else if (merges(hiIndex) == unmerged)
@@ -58,15 +57,18 @@ object MigrationUtils {
           else { // Substitute the merged mention.
             val loIndex = merges(hiIndex)
             val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
+            // This copy will have the sentence of the hi mention so that it is still in the right order.
             val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
 
             Some(copy)
           }
         }
-        val goodMentions = routedMentions.filter(_.isDefined).map(_.get)
-        val uniqueMentions = goodMentions.distinct
+        val mergedMentions = mergedMentionsOpt
+            .filter(_.isDefined)
+            .map(_.get)
+            .distinct
 
-        (true, uniqueMentions.toSeq)
+        (true, mergedMentions)
       }
       else
         (false, mentions)
@@ -91,25 +93,26 @@ object MigrationUtils {
     // at least for small collections when this is repeatedly done.
     def intersects[T](left: Seq[T], right: Seq[T]): Boolean = left.exists(right.contains)
 
+    // This will have to be calculated either way.
+    val notBothSpecific = !bothSpecific(mention1, mention2)
+
     (
       // if the two events are within one sentence of each other
       Math.abs(mention1.sentence - mention2.sentence) <= 1 &&
       (
         // both events have complementary arguments (no intersection)
-        !intersects(mention1.arguments.keys.toSeq, mention2.arguments.keys.toSeq) ||
         // OR NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
         // information with the same argName---merging will delete one of them); we want these to be separate events
-        !bothSpecific(mention1, mention2)
+        notBothSpecific || !intersects(mention1.arguments.keys.toSeq, mention2.arguments.keys.toSeq)
       )
     ) ||
     (
       // if both events share an argument
-      intersects(mention1.arguments.values.toSeq, mention2.arguments.values.toSeq) &&
       // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: it does not look like we need this condition (it results in false negs at least in some cases), but keeping it here for now for potential future use
       // && m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).size != m1.arguments.values.toList.intersect(m2.arguments.values.toList).size
       // AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
       // information with the same argName---merging will delete one of them); we want these to be separate events
-      !bothSpecific(mention1, mention2)
+      notBothSpecific && intersects(mention1.arguments.values.toSeq, mention2.arguments.values.toSeq)
     )
   }
 
@@ -119,22 +122,22 @@ object MigrationUtils {
   checks if both of the overlapping args are specific (AND are not the same arg because if they are the same argument,
   their...`specificity status` will be the same)
    */
-  def bothSpecific(m1: Mention, m2: Mention): Boolean = {
-    val overlappingArgNames = m1.arguments.keys.toList.intersect(m2.arguments.keys.toList)
+  def bothSpecific(mention1: Mention, mention2: Mention): Boolean = {
+    val overlappingArgNames = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
 
     overlappingArgNames.exists { argName =>
-      // TODO What heppens if there is more than one argument?
-      val relArg1 = m1.arguments(argName).head // Are these sorted?  Otherwise may cross compare and miss.
-      val relArg2 = m2.arguments(argName).head
+      // It is assumed that the size is always one.
+      val arg1 = mention1.arguments(argName).head
+      val arg2 = mention2.arguments(argName).head
 
       // Specific events either have attachements or have some numeric information in them
       // (e.g., 300 refugees) or have capital letters in them
-      (relArg1.attachments.nonEmpty || bothPattern.matcher(relArg1.text).matches) &&
-      (relArg2.attachments.nonEmpty || bothPattern.matcher(relArg2.text).matches) &&
+      (arg1.attachments.nonEmpty || bothPattern.matcher(arg1.text).matches) &&
+      (arg2.attachments.nonEmpty || bothPattern.matcher(arg2.text).matches) &&
       // AND are not the same mention
-      relArg1 != relArg2 &&
+      arg1 != arg2 &&
       // AND the arguments in question don't overlap.
-      relArg1.tokenInterval.intersect(relArg2.tokenInterval).isEmpty
+      arg1.tokenInterval.intersect(arg2.tokenInterval).isEmpty
     }
   }
 
@@ -154,25 +157,30 @@ object MigrationUtils {
   val mergePattern: Pattern = Pattern.compile(".*[A-Z\\d+].*")
 
   // merges args of two mentions in such a way as to hopefully return the more specific arg in case of an overlap
+  // If the two are equally good, favor the first.
   def mergeArgs(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
-    val intersectingKeys = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
-    val newArgs = (mention1.arguments ++ mention2.arguments).map { arg =>
+    val unionKeys = mention1.arguments.keys.toList.union(mention2.arguments.keys.toList)
+    val newArgs = unionKeys.map { key =>
+      val mentionsOpt1 = mention1.arguments.get(key)
+      val mentionsOpt2 = mention2.arguments.get(key)
       // The actual arg will be from mention2 which would have overwritten that in mention1
       // If the argumentName is present in both of the mentions...
       // Choose the more specific argument by checking if one of them contains an attachment or contains numbers or contains capital letters
-      if (intersectingKeys.contains(arg._1)) {
-        val mentions1 = mention1.arguments(arg._1)
-        val isGood1 = mentions1.exists(tbm => tbm.attachments.nonEmpty || mergePattern.matcher(tbm.text).matches)
+      val value = if (mentionsOpt1.isDefined && mentionsOpt2.isDefined) {
+        val mentions1 = mentionsOpt1.get
+        val mentions2 = mentionsOpt2.get
+        val isGood1 = mentions1.exists(mention => mention.attachments.nonEmpty || mergePattern.matcher(mention.text).matches)
+        val isGood2 = mentions2.exists(mention => mention.attachments.nonEmpty || mergePattern.matcher(mention.text).matches)
 
-        // TODO: This doesn't seem like a good idea.  The same one should always win in a tie.
-        if (isGood1)
-          arg._1 -> mentions1 // Take the first one, regardless of whether the second is just as good.
-        else
-          arg // Take the second one, regardless of whether the first is just as good.
+        if (isGood1) mentions1 // Favor first if it's good
+        else if (isGood2) mentions2 // otherwise choose the second if that's good
+        else mentions1 // and favor the first if neither is good.
       }
       else
-        arg // There was only one of them anyway.
-    }
+        mentionsOpt1.getOrElse(mentionsOpt2.get) // There was only one of them anyway.
+
+      key -> value
+    }.toMap
 
     newArgs
   }
@@ -239,7 +247,7 @@ object MigrationUtils {
   }
 
   // todo: revise the list
-  val genericLocations = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
+  val genericLocations: Seq[String] = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
 
   // given a complete argument (argName -> Mention), checks if it has an argument that is a generic location; todo: revise the list
   def containsGenericLocation(arg: (String, Seq[Mention])): Boolean =
