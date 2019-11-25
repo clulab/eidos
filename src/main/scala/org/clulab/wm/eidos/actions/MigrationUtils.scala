@@ -8,6 +8,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 object MigrationUtils {
@@ -23,60 +24,65 @@ object MigrationUtils {
 
   // combine events with shared arguments AND combine events in close proximity with complementary arguments
   def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
-    var orderedMentions = orderMentions(mentions)
-    // the events we will ultimately return
-    var returnedEvents = ArrayBuffer[Mention]()
-    // keep merging events until we have nothing acceptable left to merge
-    var stillMerging = true
-    // loop and merge compatible events, add to mergedEvents
-    while (stillMerging) {
-      // empty the array at the beginning of each loop
-      returnedEvents = ArrayBuffer[Mention]()
-      // to keep track of what events we've merged
-      var used = Array.fill(orderedMentions.length)(false)
-      for (i <- orderedMentions.indices) {
+    val unmerged = -1
+    val used = -2
 
-        // only merge events if the first of the pair hasn't already been merged (heuristic!)
-        if (!used(i)) {
-          for (j <- i + 1 until orderedMentions.length) {
-            //check if the two events can be merged
-            if (isMergeable(orderedMentions(i), orderedMentions(j))) {
+    def findMerges(mentions: Seq[Mention]): IndexedSeq[Int] = {
+      // This starts as [-1 -1 -1 -1 -1 -1 -1].
+      // If 0 should be merged with 3 and 4, the result is [-2 -1 -1 0 0 -1]
+      // If 1 should then be merged with 3 (already taken) and 5, the results is [-2 -2 -1 0 0 1]
+      // If 2 can't be merged with anything to the right, it remains -1.
+      // 3 and higher have already been taken into account, as they are not unmerged anymore.
+      val merges = Array.fill(mentions.length)(unmerged)
 
-              // create the set of arguments to include in the new merged event (preference to the more specific args
-              // in case of argName overlap)
-              val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
-              //create a new event with the new args by copying the rightmost mention of the two with the new set of args;
-              // copy the rightmost event and not the first one because this way we keep the possibility of this newly-merged
-              // event being merged with a fragment from the next sentence in the next merging loop (currently, we only
-              // merge fragments from adjacent sentences)
-              val copy = copyWithNewArgs(orderedMentions(j), newArgs)
-              // return the new event if it isn't identical to an existing event
-              if (!(returnedEvents contains copy)) {
-                returnedEvents += copy
-              }
-              used = used.updated(i, true)
-              used = used.updated(j, true)
-            }
+      for (loIndex <- 0.until(mentions.size) if merges(loIndex) == unmerged) {
+        for (hiIndex <- (loIndex + 1).until(mentions.size) if merges(hiIndex) == unmerged) {
+          if (isMergeable(mentions(loIndex), mentions(hiIndex))) {
+            merges(loIndex) = used
+            merges(hiIndex) = loIndex
           }
         }
       }
-
-      // add unmerged events ('false' in used list)
-      // TODO Doesn't adding them now would mean that they are now out of order?
-      for (i <- orderedMentions.indices) {
-        if (!used(i)) {
-          returnedEvents += orderedMentions(i)
-        }
-      }
-
-      //check if there are any mergeable events among the newly-created set of mentions; if not, set stillMerging to false,
-      // which will break the loop
-      if (!returnedEvents.exists(mention => returnedEvents.exists(mention2 => isMergeable(mention, mention2) && mention != mention2 ))) {
-        stillMerging = false
-      }
-      orderedMentions = returnedEvents
+      merges
     }
-    returnedEvents
+
+    def merge(mentions: Seq[Mention]): (Boolean, Seq[Mention]) = {
+      val merges = findMerges(mentions)
+
+      if (merges.exists(_ != unmerged)) {
+        val routedMentions = merges.indices.map { hiIndex: Int =>
+          if (merges(hiIndex) == used)
+            None // It was incorporated into something else, so skip it.
+          else if (merges(hiIndex) == unmerged)
+            Some(mentions(hiIndex)) // It stands alone for now.
+          else { // Substitute the merged mention.
+            val loIndex = merges(hiIndex)
+            val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
+            val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
+
+            Some(copy)
+          }
+        }
+        val goodMentions = routedMentions.filter(_.isDefined).map(_.get)
+        val uniqueMentions = goodMentions.distinct
+
+        (true, uniqueMentions.toSeq)
+      }
+      else
+        (false, mentions)
+    }
+
+    @tailrec
+    def doWhile(mentions: Seq[Mention]): Seq[Mention] = {
+      // This is the hack around a "do {} while (condition)" in which the condition can't make use
+      // of variables defined in the do block and the return value cannot be updated without a var.
+      val (done, newMentions) = merge(mentions)
+
+      if (done) newMentions
+      else doWhile(newMentions)
+    }
+
+    doWhile(orderMentions(mentions))
   }
 
   // given two event mentions, checks if they can be merged
