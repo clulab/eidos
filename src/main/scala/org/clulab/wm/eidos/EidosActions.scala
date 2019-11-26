@@ -1,24 +1,23 @@
 package org.clulab.wm.eidos
 
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin._
-import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.MentionUtils
-import org.clulab.struct.Interval
-import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-import scala.util.matching.Regex
-import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.odin.EventMention
 import org.clulab.processors.Sentence
-import org.clulab.wm.eidos.attachments.CountUnit._
+import org.clulab.struct.Interval
+import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
 import org.clulab.wm.eidos.attachments.CountModifier._
+import org.clulab.wm.eidos.attachments.CountUnit._
+import org.clulab.wm.eidos.expansion.Expander
+import org.clulab.wm.eidos.utils.MentionUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.{Set => MutableSet}
 import scala.util.Try
@@ -29,6 +28,11 @@ import scala.util.Try
 //TODO: need to add polarity flipping
 
 class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler]) extends Actions with LazyLogging {
+  type Provenance = (String, Int, Int) // text, startOffset, endOffset
+  type CountAndProvenance = (Double, Provenance)
+  type CountUnitAndProvenance = (CountUnit.Value, Provenance)
+  type CountModifierAndProvenance = (CountModifier.Value, Provenance)
+  type NumberArg = (Int, Int, Double) // start, end, value
 
   /*
       Global Action -- performed after each round in Odin
@@ -59,62 +63,59 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     afterResolving
   }
 
-  type Provenance = (String, Int, Int) // text, startOffset, endOffset
-  type ProvenanceFunction = Regex.Match => Provenance
-  type CountAndProvenance = (Double, Option[Provenance])
-  type CountUnitAndProvenance = (CountUnit.Value, Option[Provenance])
-  type CountModifierAndProvenance = (CountModifier.Value, Option[Provenance])
-  type NumberArg = (Int, Int, Double) // start, end, value
-
   protected def getCount(groupArg: Mention, numberArg: NumberArg): CountAndProvenance = {
     (
-        numberArg._3,
-        Some(
-          groupArg.sentenceObj.words.slice(numberArg._1, numberArg._2).mkString(" "),
-          groupArg.sentenceObj.startOffsets(numberArg._1),
-          groupArg.sentenceObj.endOffsets(numberArg._2 - 1)
-        )
+      numberArg._3,
+      (
+        groupArg.sentenceObj.words.slice(numberArg._1, numberArg._2).mkString(" "),
+        groupArg.sentenceObj.startOffsets(numberArg._1),
+        groupArg.sentenceObj.endOffsets(numberArg._2 - 1)
+      )
     )
   }
 
-  protected def getCountUnit(groupArg: Mention, numberArg: NumberArg, eventText: String, newProvenance: ProvenanceFunction): CountUnitAndProvenance = {
+  protected def getProvenanceOpt(pattern: Pattern, text: String, offset: Int): Option[Provenance] = {
+    val matcher: Matcher = pattern.matcher(text)
+
+    if (matcher.find) {
+      val matchedText = text.slice(matcher.start, matcher.end)
+
+      Some((matchedText, matcher.start + offset, matcher.end + offset))
+    }
+    else None
+  }
+
+  protected def getCountUnit(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountUnitAndProvenance = {
     if (groupArg.sentenceObj.entities.get(numberArg._1) == "PERCENT")
-      (Percentage, Some((groupArg.sentenceObj.words(numberArg._1), groupArg.sentenceObj.startOffsets(numberArg._1), groupArg.sentenceObj.endOffsets(numberArg._1))))
+      (Percentage, (groupArg.sentenceObj.words(numberArg._1), groupArg.sentenceObj.startOffsets(numberArg._1), groupArg.sentenceObj.endOffsets(numberArg._1)))
     else {
-      val daily = """daily""".r.findFirstMatchIn(eventText)
-      if (daily.isDefined)
-        (Daily, Some(newProvenance(daily.get)))
-      else {
-        val weekly = """weekly""".r.findFirstMatchIn(eventText)
-        if (weekly.isDefined)
-          (Weekly, Some(newProvenance(weekly.get)))
-        else {
-          val monthly = """monthly""".r.findFirstMatchIn(eventText)
-          if (monthly.isDefined)
-            (Monthly, Some(newProvenance(monthly.get)))
-          else
-            (Absolute, None)
-        }
+      def getCountUnitOpt(countUnit: CountUnit, pattern: Pattern): Option[CountUnitAndProvenance] = {
+        val provenanceOpt = getProvenanceOpt(pattern, text, offset)
+
+        provenanceOpt.map { provenance => (countUnit, provenance) }
       }
+
+      None
+          .orElse(getCountUnitOpt(Daily, EidosActions.DAILY_PATTERN))
+          .orElse(getCountUnitOpt(Weekly, EidosActions.WEEKLY_PATTERN))
+          .orElse(getCountUnitOpt(Monthly, EidosActions.MONTHLY_PATTERN))
+          .getOrElse((Absolute, None))
     }
   }
 
-  protected def getCountModifier(groupArg: Mention, numberArg: NumberArg, eventText: String, newProvenance: ProvenanceFunction): CountModifierAndProvenance = {
-    val approximate = """about|approximately|around""".r.findFirstMatchIn(eventText)
-    if (approximate.isDefined)
-      (Approximate, Some(newProvenance(approximate.get)))
-    else {
-      val min = """(at\s+least)|(more\s+than)|over""".r.findFirstMatchIn(eventText)
-      if (min.isDefined)
-        (Min, Some(newProvenance(min.get)))
-      else {
-        val max = """(at\s+most)|(less\s+than)|almost|under""".r.findFirstMatchIn(eventText)
-        if (max.isDefined)
-          (Max, Some(newProvenance(max.get)))
-        else
-          (NoModifier, None)
-      }
+  protected def getCountModifier(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountModifierAndProvenance = {
+
+    def getCountModifierOpt(countModifier: CountModifier, pattern: Pattern): Option[CountModifierAndProvenance] = {
+      val provenanceOpt = getProvenanceOpt(pattern, text, offset)
+
+      provenanceOpt.map { provenance => (countModifier, provenance) }
     }
+
+    None
+        .orElse(getCountModifierOpt(Approximate, EidosActions.APPROXIMATE_PATTERN))
+        .orElse(getCountModifierOpt(Min, EidosActions.MIN_PATTERN))
+        .orElse(getCountModifierOpt(Max, EidosActions.MAX_PATTERN))
+        .getOrElse((NoModifier, None))
   }
 
   protected def newCountAttachment(count: CountAndProvenance, countModifier: CountModifierAndProvenance, countUnit: CountUnitAndProvenance): CountAttachment = {
@@ -124,8 +125,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     }
 
     // This is an attempt to make the text pretty and describe the interval succinctly.
-    val option: Seq[Option[Provenance]] = Seq(count._2, countModifier._2, countUnit._2)
-    val some: Seq[Provenance] = option.filter(_.isDefined).map(_.get)
+    val some: Seq[Provenance] = Seq(count._2, countModifier._2, countUnit._2)
     val sortedByStartOffset: Seq[Provenance] = some.sortBy(_._2)
     val texts: Seq[String] = sortedByStartOffset.map(_._1)
     // Percents in particular cause repeated values like "about 75 percent 75"
@@ -149,12 +149,9 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         val endWordIndex = math.min(mention.end + 1, mention.sentenceObj.size)
         val eventText = mention.sentenceObj.words.slice(startWordIndex, endWordIndex).mkString(" ")
         val eventStartOffset = mention.sentenceObj.startOffsets(startWordIndex)
-        val newProvenance: Regex.Match => (String, Int, Int) = { regexMatch: Regex.Match =>
-          (regexMatch.matched, regexMatch.start + eventStartOffset, regexMatch.end + eventStartOffset)
-        }
         val count = getCount(groupArg, numberArg)
-        val countUnit = getCountUnit(groupArg, numberArg, eventText, newProvenance)
-        val countModifier = getCountModifier(groupArg, numberArg, eventText, newProvenance)
+        val countUnit = getCountUnit(groupArg, numberArg, eventText, eventStartOffset)
+        val countModifier = getCountModifier(groupArg, numberArg, eventText, eventStartOffset)
         val countAttachment = newCountAttachment(count, countModifier, countUnit)
 
         countAttachment
@@ -596,7 +593,6 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         }
   }
 
-
   // Get trigger from an attachment
   protected def triggerOf(attachment: Attachment): String = {
     attachment match {
@@ -611,11 +607,21 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 object EidosActions extends Actions {
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val BAD_NUMBER_PATTERN: Pattern = "[~%,<>]".r.pattern
   // Used for simplistic coreference identification
   val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
+
   val ANTECEDENT: String = "antecedent"
   val ANAPHOR: String = "anaphor"
+
+  val BAD_NUMBER_PATTERN: Pattern = Pattern.compile("[~%,<>]")
+
+  val DAILY_PATTERN: Pattern = Pattern.compile("daily")
+  val WEEKLY_PATTERN: Pattern = Pattern.compile("weekly")
+  val MONTHLY_PATTERN: Pattern = Pattern.compile("monthly")
+
+  val APPROXIMATE_PATTERN: Pattern = Pattern.compile("""about|approximately|around""")
+  val MIN_PATTERN: Pattern = Pattern.compile("""(at\s+least)|(more\s+than)|over""")
+  val MAX_PATTERN: Pattern = Pattern.compile("""(at\s+most)|(less\s+than)|almost|under""")
 
   def fromConfig(config: Config): EidosActions = {
     val useCoref: Boolean = config[Boolean]("useCoref")
