@@ -109,22 +109,30 @@ object EidosMention {
     val mentionBagger = new HashCodeBagger[Mention]()
     // val mentionBagger = new IdentityBagger[Mention]()
 
-    def addMention(odinMention: Mention): Unit = {
-      mentionBagger.putIfNew(odinMention, {
-        odinMention.arguments.flatMap(_._2).foreach(addMention)
-        // Skipping paths
-        odinMention match {
-          case eventMention: EventMention =>
-            addMention(eventMention.trigger)
-          case crossSentenceMention: CrossSentenceMention =>
-            addMention(crossSentenceMention.anchor)
-            addMention(crossSentenceMention.neighbor)
-          case _ =>
-        }
-      })
+    // Return whether odinMention was skipped because an internal node matched a surface node.
+    def addMention(odinMention: Mention, internal: Boolean = true): Boolean = {
+      if (internal && surfaceMentions.contains(odinMention))
+        true
+      else {
+        mentionBagger.putIfNew(odinMention, {
+          odinMention.arguments.flatMap(_._2).foreach(mention => addMention(mention))
+          // Skipping paths
+          odinMention match {
+            case eventMention: EventMention =>
+              addMention(eventMention.trigger)
+            case crossSentenceMention: CrossSentenceMention =>
+              addMention(crossSentenceMention.anchor)
+              addMention(crossSentenceMention.neighbor)
+            case _ =>
+          }
+        })
+        false
+      }
     }
 
-    surfaceMentions.foreach(addMention)
+    // The problem with this is that the contained mentions (arguments, triggers, and things) can include
+    // something that matches one of the surface mentions so that the surface mention is not added later.
+    surfaceMentions.foreach(mention => addMention(mention, false))
     mentionBagger.get()
   }
 

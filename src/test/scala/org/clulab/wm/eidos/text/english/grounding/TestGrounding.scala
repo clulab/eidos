@@ -25,12 +25,19 @@ class TestGrounding extends EnglishTest {
   class GroundingGraphTester(text: String) extends GraphTester(text) {
 
     protected val odinToEidosMentionMap: IdentityHashMap[Mention, EidosMention] = {
+      val odinMentions = annotatedDocument.allOdinMentions
       val eidosMentions = annotatedDocument.allEidosMentions
       val odinToEidosMentionMap = new IdentityHashMap[Mention, EidosMention]
 
-     eidosMentions.foreach { eidosMention =>
+      eidosMentions.foreach { eidosMention =>
         odinToEidosMentionMap.put(eidosMention.odinMention, eidosMention)
       }
+
+      odinMentions.foreach { odinMention =>
+        if (!odinToEidosMentionMap.containsKey(odinMention))
+          println("You messed up!")
+      }
+
       odinToEidosMentionMap
     }
 
@@ -105,7 +112,7 @@ class TestGrounding extends EnglishTest {
 
       if (active) {
         (tester.topConceptGrounding(roads) > 0.0f) should be (true)
-        tester.allGroundingNames(roads).contains("wm/concept/causal_factor/infrastructure/road") should be (true)
+        tester.allGroundingNames(roads).contains("wm_compositional/concept/causal_factor/infrastructure/road") should be (true)
       }
     }
   }
