@@ -30,8 +30,8 @@ import scala.util.Try
 class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler]) extends Actions with LazyLogging {
   type Provenance = (String, Int, Int) // text, startOffset, endOffset
   type CountAndProvenance = (Double, Provenance)
-  type CountUnitAndProvenance = (CountUnit.Value, Provenance)
-  type CountModifierAndProvenance = (CountModifier.Value, Provenance)
+  type CountUnitAndProvenanceOpt = (CountUnit.Value, Option[Provenance])
+  type CountModifierAndProvenanceOpt = (CountModifier.Value, Option[Provenance])
   type NumberArg = (Int, Int, Double) // start, end, value
 
   /*
@@ -85,14 +85,14 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     else None
   }
 
-  protected def getCountUnit(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountUnitAndProvenance = {
+  protected def getCountUnit(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountUnitAndProvenanceOpt = {
     if (groupArg.sentenceObj.entities.get(numberArg._1) == "PERCENT")
-      (Percentage, (groupArg.sentenceObj.words(numberArg._1), groupArg.sentenceObj.startOffsets(numberArg._1), groupArg.sentenceObj.endOffsets(numberArg._1)))
+      (Percentage, Some((groupArg.sentenceObj.words(numberArg._1), groupArg.sentenceObj.startOffsets(numberArg._1), groupArg.sentenceObj.endOffsets(numberArg._1))))
     else {
-      def getCountUnitOpt(countUnit: CountUnit, pattern: Pattern): Option[CountUnitAndProvenance] = {
+      def getCountUnitOpt(countUnit: CountUnit, pattern: Pattern): Option[CountUnitAndProvenanceOpt] = {
         val provenanceOpt = getProvenanceOpt(pattern, text, offset)
 
-        provenanceOpt.map { provenance => (countUnit, provenance) }
+        provenanceOpt.map { provenance => (countUnit, Some(provenance)) }
       }
 
       None
@@ -103,12 +103,12 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     }
   }
 
-  protected def getCountModifier(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountModifierAndProvenance = {
+  protected def getCountModifier(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountModifierAndProvenanceOpt = {
 
-    def getCountModifierOpt(countModifier: CountModifier, pattern: Pattern): Option[CountModifierAndProvenance] = {
+    def getCountModifierOpt(countModifier: CountModifier, pattern: Pattern): Option[CountModifierAndProvenanceOpt] = {
       val provenanceOpt = getProvenanceOpt(pattern, text, offset)
 
-      provenanceOpt.map { provenance => (countModifier, provenance) }
+      provenanceOpt.map { provenance => (countModifier, Some(provenance)) }
     }
 
     None
@@ -118,14 +118,15 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         .getOrElse((NoModifier, None))
   }
 
-  protected def newCountAttachment(count: CountAndProvenance, countModifier: CountModifierAndProvenance, countUnit: CountUnitAndProvenance): CountAttachment = {
+  protected def newCountAttachment(count: CountAndProvenance, countModifier: CountModifierAndProvenanceOpt, countUnit: CountUnitAndProvenanceOpt): CountAttachment = {
 
     def isPrefix(value: String, texts: Seq[String]): Boolean = texts.exists { text =>
       text.length > value.length && text.startsWith(value)
     }
 
     // This is an attempt to make the text pretty and describe the interval succinctly.
-    val some: Seq[Provenance] = Seq(count._2, countModifier._2, countUnit._2)
+    val option: Seq[Option[Provenance]] = Seq(Some(count._2), countModifier._2, countUnit._2)
+    val some: Seq[Provenance] = option.filter(_.isDefined).map(_.get)
     val sortedByStartOffset: Seq[Provenance] = some.sortBy(_._2)
     val texts: Seq[String] = sortedByStartOffset.map(_._1)
     // Percents in particular cause repeated values like "about 75 percent 75"
