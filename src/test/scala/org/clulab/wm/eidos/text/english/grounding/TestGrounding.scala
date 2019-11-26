@@ -48,7 +48,7 @@ class TestGrounding extends EnglishTest {
     protected def topGroundingValue(nodeSpec: NodeSpec, componentName: String): Float = {
       val allGroundings = groundings(nodeSpec)
       val topGrounding = allGroundings(grounderName + "/" + componentName).headOption.get._2
-
+      println("topGroundingValue:\t"+topGrounding)
       topGrounding
     }
 
@@ -79,7 +79,7 @@ class TestGrounding extends EnglishTest {
     val tester = new GroundingGraphTester(text)
 
     val prices = NodeSpec("prices", Inc("rising"))
-//    val roads = NodeSpec("impassable roads", Quant("impassable"))
+    val roads = NodeSpec("impassable roads", Quant("impassable"))
 //    val markets = NodeSpec("dysfunctional markets", Quant("dysfunctional"))
 //    val families = NodeSpec("many families", Quant("many"), Dec("preventing"))
 
@@ -88,10 +88,53 @@ class TestGrounding extends EnglishTest {
     passingTest should "process node 1 correctly" taggedAs (Somebody) in {
       tester.test(prices) should be (successful)
 
+      println("Top Property Grounding:\t"+tester.topPropertyGrounding(prices))
+      println("All Grounding Names:\t"+tester.allGroundingNames(prices))
+
       if (active) {
         (tester.topPropertyGrounding(prices) > 0.5f) should be (true)
-        tester.allGroundingNames(prices).contains("wm/property/price") should be (true)
+        tester.allGroundingNames(prices).contains("wm_compositional/property/price") should be (true)
+      }
+    }
+
+    passingTest should "process node 2 correctly" taggedAs (Somebody) in {
+      tester.test(roads) should be (successful)
+
+      println("Top Concept Grounding:\t"+tester.topConceptGrounding(roads))
+      println("All Grounding Names:\t"+tester.allGroundingNames(roads))
+
+      if (active) {
+        (tester.topConceptGrounding(roads) > 0.0f) should be (true)
+        tester.allGroundingNames(roads).contains("wm/concept/causal_factor/infrastructure/road") should be (true)
       }
     }
   }
+//
+//  {
+//    val text2 =
+//      """
+//        |The supply caused conflict in Sudan.
+//        |The prices of oil caused conflict in Ethiopia.
+//        |Conflict caused an increase in the transportation price of fresh water.
+//        |Fighting caused an increase in the cost of transportation in Jonglei State.
+//        |Armed clashes caused an increase in transportation demand in Jonglei State.
+//      """
+//    val tester = new GroundingGraphTester(text2)
+//
+//    val oilSupply = NodeSpec("supply")
+//
+//    behavior of "Grounding2"
+//
+//    passingTest should "process node 2 correctly" taggedAs (Somebody) in {
+//      tester.test(oilSupply) should be (successful)
+//
+////      println("Top Concept Grounding:\t"+tester.topConceptGrounding(oilSupply))
+////      println("All Grounding Names:\t"+tester.allGroundingNames(oilSupply))
+//
+//      if (active) {
+////        (tester.topConceptGrounding(oilSupply) > 0.5f) should be (true)
+//        tester.allGroundingNames(oilSupply).contains("wm/property/supply") should be (true)
+//      }
+//    }
+//  }
 }
