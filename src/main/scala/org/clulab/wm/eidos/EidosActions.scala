@@ -43,7 +43,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     // Merge attachments
     val merged = mergeAttachments(expanded, state.updated(expanded))
     // Keep only the most complete version of any given Mention
-    val mostComplete = keepMostCompleteEvents(merged, state.updated(merged))
+    /*val mostComplete =*/ keepMostCompleteEvents(merged, state.updated(merged))
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
     val (causal, nonCausal) = merged.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
@@ -325,21 +325,18 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     val entityGroups = entities.groupBy(event => (event.sentence, event.label))
 
     val filteredForTextSubsumption = for {
-      (_, entitiesInGroup) <- entityGroups
-
+      (_, unsortedEntitiesInGroup) <- entityGroups
+      // most args/longest/attachiest first
+      entitiesInGroup = unsortedEntitiesInGroup.sortBy(ent => -/*(*/mentionAttachmentWeight(ent)) //) + ent.tokenInterval.length))
       entitiesKept = MutableSet[TextBoundMention]() // Cache intermediate events.
-
-      filtered = entitiesInGroup
-        // most args/longest/attachiest first
-        .sortBy(ent => -/*(*/mentionAttachmentWeight(ent)) //) + ent.tokenInterval.length))
+      filtered = entitiesInGroup.filter { entity =>
         // Check to see if it's subsumed by something already there
-        .filter { entity =>
-          if (!entitiesKept.exists(ent => subsumesInterval(Set(ent.tokenInterval), Set(entity.tokenInterval)))) {
-            entitiesKept.add(entity) // Add this event because it isn't subsumed by what's already there.
-            true // Keep the attachment.
-          }
-          else
-            false
+        if (!entitiesKept.exists(ent => subsumesInterval(Set(ent.tokenInterval), Set(entity.tokenInterval)))) {
+          entitiesKept.add(entity) // Add this event because it isn't subsumed by what's already there.
+          true // Keep the attachment.
+        }
+        else
+          false
       }
     } yield filtered
 
@@ -352,7 +349,6 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   // Interval based
   def subsumesInterval(a: Set[Interval], b: Set[Interval]): Boolean = b.forall(elem => contained(elem, a))
   def contained(s: Interval, a: Set[Interval]): Boolean = a.exists(elem => elem.contains(s))
-
 
   def filterSubstringArgumentEvents(events: Seq[EventMention]): Seq[Mention] = {
 
@@ -368,24 +364,21 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     val triggerGroups = events.groupBy(event => (event.sentence, event.label, event.trigger.tokenInterval))
 
     val filteredForArgumentSubsumption = for {
-      (_, eventsInGroup) <- triggerGroups
-
+      (_, unsortedEventsInGroup) <- triggerGroups
+      // most args/longest/attachiest first
+      eventsInGroup = unsortedEventsInGroup.sortBy(event => -(mentionAttachmentWeight(event) + argTokenInterval(event).length))
       eventsKept = MutableSet[EventMention]() // Cache intermediate events.
-
-      filtered = eventsInGroup
-        // most args/longest/attachiest first
-        .sortBy(event => -(mentionAttachmentWeight(event) + argTokenInterval(event).length))
+      filtered = eventsInGroup.filter { event =>
         // Check to see if it's subsumed by something already there
-        .filter { event =>
-          val argTexts = argumentTexts(event)
+        val argTexts = argumentTexts(event)
 
-          if (!eventsKept.exists(ev => eventArgsSubsume(argTexts, ev))) {
-            eventsKept.add(event) // Add this event because it isn't subsumed by what's already there.
-            true // Keep the attachment.
-          }
-          else
-            false
+        if (!eventsKept.exists(ev => eventArgsSubsume(argTexts, ev))) {
+          eventsKept.add(event) // Add this event because it isn't subsumed by what's already there.
+          true // Keep the attachment.
         }
+        else
+          false
+      }
     } yield filtered
 
     filteredForArgumentSubsumption.toSeq.flatten
