@@ -37,6 +37,7 @@ trait OntologyGrounder {
   def groundable(mention: EidosMention): Boolean = groundable(mention, None)
   def groundable(mention: EidosMention, previousGroundings: Aliases.Groundings): Boolean = groundable(mention, Some(previousGroundings))
 
+  def groundStrings(strings: Array[String]): Seq[OntologyGrounding]
 }
 
 trait MultiOntologyGrounding {
@@ -64,6 +65,10 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
       new ConceptPatterns(domainOntology.getNamer(n),
         domainOntology.getPatterns(n))
     }
+
+  def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
+    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
+  }
 
   def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
     // Sieve-based approach
