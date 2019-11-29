@@ -6,29 +6,15 @@ import org.clulab.wm.eidos.groundings.TreeDomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.TsvUtils.TsvReader
+import org.clulab.wm.eidos.utils.TsvUtils.TsvWriter
 
 object GroundCanonicalNames extends App {
-
-  def escape(text: String): String = {
-    text
-        .replace("\\", "\\\\")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
-  }
-
-  def unescape(text: String): String = {
-    text
-        .replace("\\t", "\t")
-        .replace("\\r", "\r")
-        .replace("\\n", "\n")
-        .replace("\\\\", "\\")
-  }
 
   class Grounder {
     val name = "wm"
     protected val ontologyGrounder: EidosOntologyGrounder =
-      new EidosSystem().components.ontologyHandler.grounders.find(_.name == name).get
+        new EidosSystem().components.ontologyHandler.grounders.find(_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
       val treeDomainOntology = {
@@ -36,12 +22,9 @@ object GroundCanonicalNames extends App {
           throw new RuntimeException("I need a TreeDomainOntology, which is only possible if cached ontologies are _not_ used!")
         domainOntology.asInstanceOf[TreeDomainOntology]
       }
-      val size = treeDomainOntology.size
 
-      0.until(size).map { index =>
-        val node = treeDomainOntology.getNode(index)
-
-        node.fullName -> node.isLeaf
+      treeDomainOntology.ontologyNodes.map { ontologyNode =>
+        ontologyNode.fullName -> ontologyNode.isLeaf
       }.toMap
     }
 
@@ -66,17 +49,21 @@ object GroundCanonicalNames extends App {
   val inputFile = args(0)
   val outputFile = args(1)
   val grounder = new Grounder()
+  val reader = new TsvReader()
 
   Sourcer.sourceFromFile(inputFile).autoClose { source =>
     Sinker.printWriterFromFile(outputFile).autoClose { printWriter =>
-      printWriter.println("file\tid\ttext\tcanonicalName\tisLeaf\tgrounding")
-      source.getLines.drop(1).foreach { line =>
-        val Array(file, id, text, escapedCanonicalName) = line.split('\t')
-        val canonicalName = unescape(escapedCanonicalName)
-        val nameAndIsLeafOpt: Option[(String, Boolean)] = grounder.ground(canonicalName)
-        val (name, isLeaf) = nameAndIsLeafOpt.map { case (name, isLeaf) => (name, if (isLeaf) "T" else "F") }.getOrElse(("", ""))
+      val writer = new TsvWriter(printWriter)
 
-        printWriter.println(s"$file\t$id\t$text\t$escapedCanonicalName\t${escape(isLeaf)}\t${escape(name)}")
+      writer.println("file", "id", "text", "canonicalName", "isLeaf", "grounding")
+      source.getLines.drop(1).foreach { line =>
+        val Array(file, id, text, canonicalName) = reader.readln(line)
+        val nameAndIsLeafOpt: Option[(String, Boolean)] = grounder.ground(canonicalName)
+        val (name, isLeaf) = nameAndIsLeafOpt
+            .map { case (name, isLeaf) => (name, if (isLeaf) "T" else "F") }
+            .getOrElse(("", ""))
+
+        writer.println(file, id, text, canonicalName, isLeaf, name)
       }
     }
   }
