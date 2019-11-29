@@ -2,17 +2,12 @@ package org.clulab.wm.eidos.apps
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.groundings.TreeDomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Sourcer
 
 object GroundCanonicalNames extends App {
-  type SingleOntologyGrounding = (Namer, Float)
-  type MultipleOntologyGrounding = Seq[SingleOntologyGrounding]
-  type OntologyGroundings = Map[String, OntologyGrounding]
 
   def escape(text: String): String = {
     text
@@ -33,7 +28,7 @@ object GroundCanonicalNames extends App {
   class Grounder {
     val name = "wm"
     protected val ontologyGrounder: EidosOntologyGrounder =
-        new EidosSystem().components.ontologyHandler.grounders.find (_.name == name).get
+      new EidosSystem().components.ontologyHandler.grounders.find(_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
       val treeDomainOntology = {
