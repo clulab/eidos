@@ -2,33 +2,12 @@ package org.clulab.wm.eidos.apps
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.groundings.TreeDomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Sourcer
 
 object GroundCanonicalNames extends App {
-  type SingleOntologyGrounding = (Namer, Float)
-  type MultipleOntologyGrounding = Seq[SingleOntologyGrounding]
-  type OntologyGroundings = Map[String, OntologyGrounding]
-
-  class First {
-    protected var first = true
-
-    def ifTrue(f: Unit => Unit): Unit = {
-      if (first) f()
-      if (first)
-        first = false
-    }
-
-    def ifFalse(f: Unit => Unit): Unit = {
-      if (!first) f()
-      if (first)
-        first = false
-    }
-  }
 
   def escape(text: String): String = {
     text
@@ -48,16 +27,15 @@ object GroundCanonicalNames extends App {
 
   class Grounder {
     val name = "wm"
-    protected val ontologyGrounder: EidosOntologyGrounder = new EidosSystem().components.ontologyHandler.grounders.find { grounder =>
-      grounder.name == name
-    }.get
+    protected val ontologyGrounder: EidosOntologyGrounder =
+      new EidosSystem().components.ontologyHandler.grounders.find (_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
-
-      if (!domainOntology.isInstanceOf[TreeDomainOntology])
-        throw new RuntimeException("I need a TreeDomainOntology, which is only possible if cached ontologies are _not_ used!")
-
-      val treeDomainOntology = domainOntology.asInstanceOf[TreeDomainOntology]
+      val treeDomainOntology = {
+        if (!domainOntology.isInstanceOf[TreeDomainOntology])
+          throw new RuntimeException("I need a TreeDomainOntology, which is only possible if cached ontologies are _not_ used!")
+        domainOntology.asInstanceOf[TreeDomainOntology]
+      }
       val size = treeDomainOntology.size
 
       0.until(size).map { index =>
@@ -80,9 +58,7 @@ object GroundCanonicalNames extends App {
       val nameOpt = topGroundingName(split(canonicalName))
 
       nameOpt.map { name =>
-        val isLeaf = nameToIsLeaf(name)
-
-        (name, isLeaf)
+        (name, nameToIsLeaf(name))
       }
     }
   }
@@ -93,18 +69,14 @@ object GroundCanonicalNames extends App {
 
   Sourcer.sourceFromFile(inputFile).autoClose { source =>
     Sinker.printWriterFromFile(outputFile).autoClose { printWriter =>
-      val first = new First()
-
       printWriter.println("file\tid\ttext\tcanonicalName\tisLeaf\tgrounding")
-      source.getLines.foreach { line =>
-        first.ifFalse { _ =>
-          val Array(file, id, text, escapedCanonicalName) = line.split('\t')
-          val canonicalName = unescape(escapedCanonicalName)
-          val nameAndIsLeafOpt: Option[(String, Boolean)] = grounder.ground(canonicalName)
-          val (name, isLeaf) = nameAndIsLeafOpt.map { case (name, isLeaf) => (name, if (isLeaf) "T" else "F") }.getOrElse(("", ""))
+      source.getLines.drop(1).foreach { line =>
+        val Array(file, id, text, escapedCanonicalName) = line.split('\t')
+        val canonicalName = unescape(escapedCanonicalName)
+        val nameAndIsLeafOpt: Option[(String, Boolean)] = grounder.ground(canonicalName)
+        val (name, isLeaf) = nameAndIsLeafOpt.map { case (name, isLeaf) => (name, if (isLeaf) "T" else "F") }.getOrElse(("", ""))
 
-          printWriter.println(s"$file\t$id\t$text\t$escapedCanonicalName\t${escape(isLeaf)}\t${escape(name)}")
-        }
+        printWriter.println(s"$file\t$id\t$text\t$escapedCanonicalName\t${escape(isLeaf)}\t${escape(name)}")
       }
     }
   }
