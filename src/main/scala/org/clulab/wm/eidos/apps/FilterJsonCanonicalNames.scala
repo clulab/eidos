@@ -7,6 +7,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.TsvUtils.TsvWriter
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JObject
@@ -17,18 +18,11 @@ object FilterJsonCanonicalNames extends App {
 
   class Filter(printWriter: PrintWriter) {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+    protected val writer = new TsvWriter(printWriter)
 
-    printWriter.println("file\tid\ttext\tcanonicalName")
+    writer.println("file", "id", "text", "canonicalName")
 
-    def escape(text: String): String = {
-      text
-          .replace("\\", "\\\\")
-          .replace("\n", "\\n")
-          .replace("\r", "\\r")
-          .replace("\t", "\\t")
-    }
-
-    def filter(inputFile: File, jValue: JValue): Unit = {
+    def filter(jValue: JValue, inputFile: File): Unit = {
       val extractions: JValue = jValue \\ "extractions"
 
       extractions match {
@@ -38,7 +32,7 @@ object FilterJsonCanonicalNames extends App {
             val text = (extraction \ "text").extract[String]
             val canonicalName = (extraction \ "canonicalName").extract[String]
 
-            printWriter.println(s"${inputFile.getName}\t$id\t${escape(text)}\t${escape(canonicalName)}")
+            writer.println(inputFile.getName, id, text, canonicalName)
           }
         case JObject(_) =>
         case _ => throw new RuntimeException(s"Unexpected extractions value: $extractions")
@@ -54,11 +48,11 @@ object FilterJsonCanonicalNames extends App {
     val filter = new Filter(printWriter)
     val inputFiles = findFiles(inputDir, extension)
 
-    inputFiles.foreach { inputFile =>
+    inputFiles.sortBy(_.getName).foreach { inputFile =>
       val text = FileUtils.getTextFromFile(inputFile)
       val json = JsonMethods.parse(text)
 
-      filter.filter(inputFile, json)
+      filter.filter(json, inputFile)
     }
   }
 }
