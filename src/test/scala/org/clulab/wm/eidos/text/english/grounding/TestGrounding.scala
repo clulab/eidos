@@ -6,9 +6,9 @@ import org.clulab.odin.Mention
 import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyGrounder
+import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils._
-
 import scala.collection.Seq
 
 class TestGrounding extends EnglishTest {
@@ -25,12 +25,19 @@ class TestGrounding extends EnglishTest {
   class GroundingGraphTester(text: String) extends GraphTester(text) {
 
     protected val odinToEidosMentionMap: IdentityHashMap[Mention, EidosMention] = {
+      val odinMentions = annotatedDocument.allOdinMentions
       val eidosMentions = annotatedDocument.allEidosMentions
       val odinToEidosMentionMap = new IdentityHashMap[Mention, EidosMention]
 
-     eidosMentions.foreach { eidosMention =>
+      eidosMentions.foreach { eidosMention =>
         odinToEidosMentionMap.put(eidosMention.odinMention, eidosMention)
       }
+
+      odinMentions.foreach { odinMention =>
+        if (!odinToEidosMentionMap.containsKey(odinMention))
+          println("You messed up!")
+      }
+
       odinToEidosMentionMap
     }
 
@@ -105,10 +112,73 @@ class TestGrounding extends EnglishTest {
 
       if (active) {
         (tester.topConceptGrounding(roads) > 0.0f) should be (true)
-        tester.allGroundingNames(roads).contains("wm/concept/causal_factor/infrastructure/road") should be (true)
+        tester.allGroundingNames(roads).contains("wm_compositional/concept/causal_factor/infrastructure/road") should be (true)
       }
     }
   }
+
+  class GroundingTextTester {
+    val name = "wm_compositional"
+
+    // TODO: Account for groundTopN, threshold, etc.
+    val ontologyGrounder = ieSystem.components.ontologyHandler.ontologyGrounders.find { ontologyGrounder =>
+      ontologyGrounder.name == name
+    }.get
+
+    def split(text: String): Array[String] = text.split(' ')
+
+    def groundings(strings: Array[String]): OntologyGroundings = {
+      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundStrings(strings)
+      val groundings = ontologyGroundings.map { ontologyGrounding =>
+        val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
+
+        newName -> ontologyGrounding
+      }.toMap
+
+      groundings
+    }
+
+    protected def topGroundingValue(strings: Array[String], componentName: String): Float = {
+      val allGroundings = groundings(strings)
+      val topGrounding = allGroundings(grounderName + "/" + componentName).headOption.get._2
+      println("topGroundingValue:\t"+topGrounding)
+      topGrounding
+    }
+
+    // TODO Get these names from elsewhere
+    def topConceptGrounding(strings: Array[String]): Float = topGroundingValue(strings: Array[String], "concept")
+
+    def topPropertyGrounding(strings: Array[String]): Float = topGroundingValue(strings: Array[String], "property")
+
+    def topProcessGrounding(strings: Array[String]): Float = topGroundingValue(strings: Array[String], "process")
+
+    def allGroundingNames(strings: Array[String]): Seq[String] = {
+      val allGroundings = groundings(strings)
+      val names = allGroundings.values.flatMap { ontologyGrounding =>
+        ontologyGrounding.grounding.map { grounding => grounding._1.name }
+      }.toSeq
+
+      names
+    }
+  }
+
+  val tester = new GroundingTextTester
+
+  {
+    behavior of "Grounding"
+
+    val text = "roads"
+
+    passingTest should "process \"" + text + "\" correctly" taggedAs (Somebody) in {
+      val roads = tester.split(text)
+
+      if (active) {
+        (tester.topConceptGrounding(roads) > 0.0f) should be (true)
+        tester.allGroundingNames(roads).contains("wm_compositional/concept/causal_factor/infrastructure/road") should be (true)
+      }
+    }
+  }
+
 //
 //  {
 //    val text2 =

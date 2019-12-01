@@ -31,6 +31,7 @@ trait OntologyGrounder {
   def name: String
   def domainOntology: DomainOntology
   def groundOntology(mention: EidosMention): Seq[OntologyGrounding]
+  def groundStrings(strings: Array[String]): Seq[OntologyGrounding]
 }
 
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
@@ -83,6 +84,11 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
   // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
+
+  def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
+    Seq(OntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
+  }
+
   def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
 
     // Sieve-based approach
@@ -96,7 +102,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
       // Otherwise, back-off to the w2v-based approach
       else {
         val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
-        Seq(OntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings)))
+        groundStrings(canonicalNameParts)
       }
     }
     else
@@ -139,6 +145,14 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       "property" -> getBranch("property"),
       "concept" -> getBranch("concept")
     )
+  }
+
+  def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
+    val property = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("property")), Some("property"))
+    val process = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("process")), Some("process"))
+    val concept = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("concept")), Some("concept"))
+
+    Seq(property, process, concept)
   }
 
   override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
@@ -210,7 +224,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         val nodeName = g._1.name
         val nodeScore = g._2
         if (nodeScore >= threshold) {
-          if(inBranch(nodeName, conceptEmbeddingsSeq("property"))) propertyGrounding.append(g)
+          if (inBranch(nodeName, conceptEmbeddingsSeq("property"))) propertyGrounding.append(g)
           else if (inBranch(nodeName, conceptEmbeddingsSeq("process"))) processGrounding.append(g)
           else  conceptGrounding.append(g)
         }
@@ -231,8 +245,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       returnedGroundings
     }
   }
-
-
 
   def getModifierMentions(synHeadWord: String, mention: Mention, pattern: String): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
@@ -272,10 +284,14 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
     // TODO This might extend something else
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
+  def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
+    Seq(OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings), Some("intervention")))
+  }
+
   def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
     val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
 
-    Seq(OntologyGrounding(w2v.calculateSimilarities(canonicalNameParts, conceptEmbeddings), Some("intervention")))
+    groundStrings(canonicalNameParts)
   }
 }
 
