@@ -17,7 +17,10 @@ class TestVersioner extends FlatSpec with Matchers {
 
       version.nonEmpty should be (true)
       version.get.commit.nonEmpty should be (true)
-      version.get.date.isBefore(expirationDate) should be (true)
+
+      val versionDate = version.get.date
+
+      (versionDate.isBefore(expirationDate) || versionDate.isEqual(expirationDate)) should be (true)
       println(file + ": " + version)
 
       if (file.contains('/'))
