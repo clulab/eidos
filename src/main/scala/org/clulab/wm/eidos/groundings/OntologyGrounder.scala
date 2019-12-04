@@ -199,6 +199,7 @@ object EidosOntologyGrounder {
   protected val     WHO_NAMESPACE = "who"
   protected val     INT_NAMESPACE = "interventions"
   protected val   ICASA_NAMESPACE = "icasa"
+  protected val   MAAS_NAMES = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
 
   val PRIMARY_NAMESPACE = WM_NAMESPACE // Assign the primary namespace here, publically.
 
@@ -206,7 +207,7 @@ object EidosOntologyGrounder {
 //  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
   protected val INTERVENTION_PLUGIN_TRIGGER = "wm/concept/causal_factor/intervention/"
 
-  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  val indicatorNamespaces = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE) ++ MAAS_NAMES
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass())
 
