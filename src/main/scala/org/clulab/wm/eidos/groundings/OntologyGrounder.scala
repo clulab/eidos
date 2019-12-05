@@ -148,11 +148,17 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   }
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    val property = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("property")), Some("property"))
+    var property = ArrayBuffer(): Seq[(Namer,Float)]
+    for (string <- strings) {
+      val matchedPatterns = nodesPatternMatched(string, conceptPatternsSeq("property"))
+      if (matchedPatterns.nonEmpty) {
+        property = property ++ matchedPatterns
+      }
+    }
     val process = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("process")), Some("process"))
     val concept = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("concept")), Some("concept"))
 
-    Seq(property, process, concept)
+    Seq(OntologyGrounding(property, Some("property")), process, concept)
   }
 
   override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
@@ -165,7 +171,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     else {
 //      println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
 
-      val mentionText = mention.odinMention.text
+//      val mentionText = mention.odinMention.text
 //      println("MENTION TEXT:\t"+mentionText)
 
       /** Get the syntactic head of the mention */
