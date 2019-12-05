@@ -115,7 +115,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   // TODO: how should we pick the threshold?
-  val threshold: Double = 0.6
+  val threshold: Double = 0.5
   // FIXME: this should connect to a config probably...?
   val groundTopN = 5
 
@@ -169,10 +169,10 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     }
     // else ground them
     else {
-//      println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
+      println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
 
-//      val mentionText = mention.odinMention.text
-//      println("MENTION TEXT:\t"+mentionText)
+      val mentionText = mention.odinMention.text
+      println("MENTION TEXT:\t"+mentionText)
 
       /** Get the syntactic head of the mention */
       // Make a new mention that's just the syntactic head of the original mention
@@ -207,8 +207,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
       // Combine head with modifiers, head first
       val allMentions = mentionHead.toSeq ++ modifierMentions
-//      val allMentionsText = allMentions.map(_.text).mkString(", ")
-//      println("ALL MENTIONS TEXT:\t"+allMentionsText)
+      val allMentionsText = allMentions.map(_.text).mkString(", ")
+      println("ALL MENTIONS TEXT:\t"+allMentionsText)
 
       // keep a placeholder for each component
       val propertyGrounding = new ArrayBuffer[SingleOntologyGrounding] // each SingleOntologyGrounding is (Namer, Float)
@@ -243,9 +243,9 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       )
 
       // print stuff to see what it's doing
-//      println("\nPROPERTY:\t"+propertyGrounding.mkString("\n"))
-//      println("PROCESS:\t"+processGrounding.mkString("\n"))
-//      println("CONCEPT:\t"+conceptGrounding.mkString("\n"))
+      println("\nPROPERTY:\t"+propertyGrounding.mkString("\n"))
+      println("PROCESS:\t"+processGrounding.mkString("\n"))
+      println("CONCEPT:\t"+conceptGrounding.mkString("\n"))
 //      println("\nRETURNED GROUNDINGS:\n"+returnedGroundings.mkString("\n"))
 
       returnedGroundings
