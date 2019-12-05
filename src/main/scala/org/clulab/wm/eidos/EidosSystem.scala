@@ -115,7 +115,6 @@ class EidosSystem(val components: EidosComponents) {
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
     val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(components.stopwordManager), components.multiOntologyGrounder)
-
     AnnotatedDocument(doc, afterNegation, eidosMentions)
   }
 

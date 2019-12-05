@@ -5,6 +5,7 @@ import org.clulab.odin.Attachment
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.export._
+import org.clulab.wm.eidos.export.UnmodifiedTSVExporter
 import org.clulab.wm.eidos.mentions.EidosMention
 
 import scala.collection.mutable.ArrayBuffer
@@ -17,6 +18,7 @@ object ExportUtils {
       case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
       case "serialized" => SerializedExporter(filename)
       case "grounding" => GroundingExporter(FileUtils.printWriterFromFile(filename + ".ground.tsv"), reader, groundAs)
+      case "unmodifiedTSV" => UnmodifiedTSVExporter(filename + ".unmod.tsv", filename)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }
