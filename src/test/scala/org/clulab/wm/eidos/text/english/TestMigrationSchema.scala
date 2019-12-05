@@ -193,8 +193,7 @@ class TestMigrationSchema extends EnglishTest {
     val moveThrough2b = NodeSpec("Juba", GeoLoc("Juba"))
     // This one(s) matches the rule.
     val migration2a = HumanMigrationEdgeSpec(group = Some(group1_2), moveThrough = Some(moveThrough2a), moveTo = Some(moveTo1))
-    val migration2b = HumanMigrationEdgeSpec(group = Some(group1_2), moveThrough = Some(moveThrough2b)) // kwa: no longer getting this, moveTo = Some(moveTo1))
-//    val migration2b = HumanMigrationEdgeSpec(group = Some(group1_2), moveThrough = Some(moveThrough2b), moveTo = Some(moveTo1))
+    val migration2b = HumanMigrationEdgeSpec(group = Some(group1_2), moveThrough = Some(moveThrough2b), moveTo = Some(moveTo1))
 
     behavior of "migration_pass"
 

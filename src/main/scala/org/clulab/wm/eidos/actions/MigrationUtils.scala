@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
+//import scala.collection.mutable.ArrayBuffer
 
 object MigrationUtils {
 
@@ -19,57 +19,57 @@ object MigrationUtils {
 
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)
-    resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
+    resolveGenericLocation(assembleFragmentsNew(migrationEvents)) ++ other
   }
 
   // combine events with shared arguments AND combine events in close proximity with complementary arguments
-  def assembleFragments2(mentions: Seq[Mention]): Seq[Mention] = {
-    val unmerged = -1
-    val used = -2
+  def assembleFragmentsNew(mentions: Seq[Mention]): Seq[Mention] = {
 
-    def findMerges(mentions: Seq[Mention]): IndexedSeq[Int] = {
-      // This starts as [-1 -1 -1 -1 -1 -1 -1].
-      // If 0 should be merged with 3 and 4, the result is [-2 -1 -1 0 0 -1]
-      // If 1 should then be merged with 3 (already taken) and 5, the results is [-2 -2 -1 0 0 1]
-      // If 2 can't be merged with anything to the right, it remains -1.
-      // 3 and higher have already been taken into account, as they are not unmerged anymore.
-      val merges = Array.fill(mentions.length)(unmerged)
+    def findMerges(mentions: Seq[Mention]): (Array[Boolean], IndexedSeq[(Int, Int)]) = {
+      val used = Array.fill(mentions.length)(false)
+      val merges = mentions.indices.map { loIndex =>
+        if (!used(loIndex)) {
+          val mergeable = mentions
+              .indices
+              .drop(loIndex + 1)
+              .filter { hiIndex =>
+                isMergeable(mentions(loIndex), mentions(hiIndex))
+              }
 
-      for (loIndex <- mentions.indices if merges(loIndex) == unmerged) {
-        for (hiIndex <- (loIndex + 1).until(mentions.size) if merges(hiIndex) == unmerged) {
-          if (isMergeable(mentions(loIndex), mentions(hiIndex))) {
-            merges(loIndex) = used
-            merges(hiIndex) = loIndex
+          mergeable.map { hiIndex =>
+            used(loIndex) = true
+            used(hiIndex) = true
+            (loIndex, hiIndex)
           }
         }
+        else
+          Seq.empty
       }
-      merges
+      (used, merges.flatten)
     }
 
     def merge(mentions: Seq[Mention]): (Boolean, Seq[Mention]) = {
-      val merges = findMerges(mentions)
+      val (used, merges) = findMerges(mentions)
 
-      if (merges.exists(_ != unmerged)) {
-        val mergedMentionsOpt = merges.indices.map { hiIndex: Int =>
-          if (merges(hiIndex) == used)
-            None // It was incorporated into something else, so skip it.
-          else if (merges(hiIndex) == unmerged)
-            Some(mentions(hiIndex)) // It stands alone for now.
-          else { // Substitute the merged mention.
-            val loIndex = merges(hiIndex)
-            val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
-            // This copy will have the sentence of the hi mention so that it is still in the right order.
-            val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
+      if (merges.nonEmpty) {
+        val unorderedMergedMentionsOpt = merges.map { case (loIndex, hiIndex)  =>
+          // println("Merging " + loIndex + " and " + hiIndex)
+          val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
+          val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
 
-            Some(copy)
-          }
+          copy
         }
-        val mergedMentions = mergedMentionsOpt
-            .filter(_.isDefined)
-            .map(_.get)
-            .distinct
+        val unorderedUnmergedMentionsOpt = used
+            .indices
+            .filter { hiIndex: Int => !used(hiIndex) }
+            .map { hiIndex =>
+              // println("Copying " + hiIndex)
+              mentions(hiIndex)
+            }
+        // The merged ones are checked for equality, the unmerged not.
+        val unorderedMergedMentions = unorderedMergedMentionsOpt.distinct ++ unorderedUnmergedMentionsOpt
 
-        (false, mergedMentions)
+        (false, unorderedMergedMentions)
       }
       else
         (true, mentions)
@@ -88,8 +88,11 @@ object MigrationUtils {
     doWhile(orderMentions(mentions))
   }
 
+/*
+ This is preserved temporarily to show what the new version above was aiming for.
+
   // combine events with shared arguments AND combine events in close proximity with complementary arguments
-  def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
+  def assembleFragmentsOld(mentions: Seq[Mention]): Seq[Mention] = {
     var orderedMentions = orderMentions(mentions)
     // the events we will ultimately return
     var returnedEvents = ArrayBuffer[Mention]()
@@ -106,9 +109,10 @@ object MigrationUtils {
         // only merge events if the first of the pair hasn't already been merged (heuristic!)
         if (!used(i)) {
           for (j <- i + 1 until orderedMentions.length) {
+println("Checking " + i + " with " + j)
             //check if the two events can be merged
             if (isMergeable(orderedMentions(i), orderedMentions(j))) {
-
+println("Merging " + i + " and " + j)
               // create the set of arguments to include in the new merged event (preference to the more specific args
               // in case of argName overlap)
               val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
@@ -120,6 +124,7 @@ object MigrationUtils {
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
                 returnedEvents += copy
+                println("It did not contain.")
               }
               used = used.updated(i, true)
               used = used.updated(j, true)
@@ -133,6 +138,7 @@ object MigrationUtils {
       for (i <- orderedMentions.indices) {
         if (!used(i)) {
           returnedEvents += orderedMentions(i)
+println("Copying " + i)
         }
       }
 
@@ -145,7 +151,7 @@ object MigrationUtils {
     }
     returnedEvents
   }
-
+*/
   // given two event mentions, checks if they can be merged
   def isMergeable(mention1: Mention, mention2: Mention): Boolean = {
     // Don't construct the entire intersection just to find out whether or not it would be empty,
@@ -232,8 +238,9 @@ object MigrationUtils {
         val isGood2 = mentions2.exists(mention => mention.attachments.nonEmpty || mergePattern.matcher(mention.text).matches)
 
         if (isGood1) mentions1 // Favor first if it's good
-        else if (isGood2) mentions2 // otherwise choose the second if that's good
-        else mentions1 // and favor the first if neither is good.
+//        else if (isGood2) mentions2 // otherwise choose the second if that's good
+//        else mentions1 // and favor the first if neither is good.
+          else mentions2 // This is mimicking mergeArgsOld for regression testing.  The above two lines are preferred.
       }
       else
         mentionsOpt1.getOrElse(mentionsOpt2.get) // There was only one of them anyway.
@@ -243,7 +250,32 @@ object MigrationUtils {
 
     newArgs
   }
+/*
+  This is preserved temporarily to show what the new version above was aiming for.
 
+  def mergeArgsOld(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
+    val intersectingKeys = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
+    val newArgs = (mention1.arguments ++ mention2.arguments).map { arg =>
+      // The actual arg will be from mention2 which would have overwritten that in mention1
+      // If the argumentName is present in both of the mentions...
+      // Choose the more specific argument by checking if one of them contains an attachment or contains numbers or contains capital letters
+      if (intersectingKeys.contains(arg._1)) {
+        val mentions1 = mention1.arguments(arg._1)
+        val isGood1 = mentions1.exists(tbm => tbm.attachments.nonEmpty || mergePattern.matcher(tbm.text).matches)
+
+        // TODO: This doesn't seem like a good idea.  The same one should always win in a tie.
+        if (isGood1)
+          arg._1 -> mentions1 // Take the first one, regardless of whether the second is just as good.
+        else
+          arg // Take the second one, regardless of whether the first is just as good.
+      }
+      else
+        arg // There was only one of them anyway.
+    }
+
+    newArgs
+  }
+*/
   /*
   if there is a generic location mention in the migration event, try to resolve it to the nearest previous specific location
   (for now, specific == has an attachment)
