@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 object MigrationUtils {
 
@@ -22,7 +23,7 @@ object MigrationUtils {
   }
 
   // combine events with shared arguments AND combine events in close proximity with complementary arguments
-  def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
+  def assembleFragments2(mentions: Seq[Mention]): Seq[Mention] = {
     val unmerged = -1
     val used = -2
 
@@ -68,15 +69,15 @@ object MigrationUtils {
             .map(_.get)
             .distinct
 
-        (true, mergedMentions)
+        (false, mergedMentions)
       }
       else
-        (false, mentions)
+        (true, mentions)
     }
 
     @tailrec
     def doWhile(mentions: Seq[Mention]): Seq[Mention] = {
-      // This is the hack around a "do {} while (condition)" in which the condition can't make use
+      // This is the hack around a "do {} while (!condition)" in which the condition can't make use
       // of variables defined in the do block and the return value cannot be updated without a var.
       val (done, newMentions) = merge(mentions)
 
@@ -85,6 +86,64 @@ object MigrationUtils {
     }
 
     doWhile(orderMentions(mentions))
+  }
+
+  // combine events with shared arguments AND combine events in close proximity with complementary arguments
+  def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
+    var orderedMentions = orderMentions(mentions)
+    // the events we will ultimately return
+    var returnedEvents = ArrayBuffer[Mention]()
+    // keep merging events until we have nothing acceptable left to merge
+    var stillMerging = true
+    // loop and merge compatible events, add to mergedEvents
+    while (stillMerging) {
+      // empty the array at the beginning of each loop
+      returnedEvents = ArrayBuffer[Mention]()
+      // to keep track of what events we've merged
+      var used = Array.fill(orderedMentions.length)(false)
+      for (i <- orderedMentions.indices) {
+
+        // only merge events if the first of the pair hasn't already been merged (heuristic!)
+        if (!used(i)) {
+          for (j <- i + 1 until orderedMentions.length) {
+            //check if the two events can be merged
+            if (isMergeable(orderedMentions(i), orderedMentions(j))) {
+
+              // create the set of arguments to include in the new merged event (preference to the more specific args
+              // in case of argName overlap)
+              val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
+              //create a new event with the new args by copying the rightmost mention of the two with the new set of args;
+              // copy the rightmost event and not the first one because this way we keep the possibility of this newly-merged
+              // event being merged with a fragment from the next sentence in the next merging loop (currently, we only
+              // merge fragments from adjacent sentences)
+              val copy = copyWithNewArgs(orderedMentions(j), newArgs)
+              // return the new event if it isn't identical to an existing event
+              if (!(returnedEvents contains copy)) {
+                returnedEvents += copy
+              }
+              used = used.updated(i, true)
+              used = used.updated(j, true)
+            }
+          }
+        }
+      }
+
+      // add unmerged events ('false' in used list)
+      // TODO Doesn't adding them now would mean that they are now out of order?
+      for (i <- orderedMentions.indices) {
+        if (!used(i)) {
+          returnedEvents += orderedMentions(i)
+        }
+      }
+
+      //check if there are any mergeable events among the newly-created set of mentions; if not, set stillMerging to false,
+      // which will break the loop
+      if (!returnedEvents.exists(mention => returnedEvents.exists(mention2 => isMergeable(mention, mention2) && mention != mention2 ))) {
+        stillMerging = false
+      }
+      orderedMentions = returnedEvents
+    }
+    returnedEvents
   }
 
   // given two event mentions, checks if they can be merged
