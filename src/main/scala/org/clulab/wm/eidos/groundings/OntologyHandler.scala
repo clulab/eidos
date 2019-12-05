@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.groundings
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.processors.Processor
+import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
@@ -11,13 +11,13 @@ import org.slf4j.{Logger, LoggerFactory}
 class OntologyHandler(
   val grounders: Seq[EidosOntologyGrounder],
   val wordToVec: EidosWordToVec,
-  val proc: Processor,
+  val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer) {
 
   def ontologyGrounders: MultiOntologyGrounder = {
     wordToVec match {
-      case real: RealWordToVec => new MultiOntologyGrounder(grounders)
-      case fake: FakeWordToVec => new MultiOntologyGrounder(Seq.empty)
+      case _: RealWordToVec => new MultiOntologyGrounder(grounders)
+      case _: FakeWordToVec => new MultiOntologyGrounder(Seq.empty)
       case _ => ???
     }
   }
@@ -29,7 +29,7 @@ class OntologyHandler(
     }
 
     //OntologyGrounding
-    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, proc, canonicalizer, filter)
+    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter)
     val grounder = EidosOntologyGrounder(name, ontology, wordToVec)
     val groundings = grounder match {
       case g: EidosOntologyGrounder => texts.toArray.map(text => g.groundText(text))
@@ -42,7 +42,7 @@ class OntologyHandler(
 object OntologyHandler {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def load(config: Config, proc: Processor, stopwordManager: StopwordManager): OntologyHandler = {
+  def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager): OntologyHandler = {
 
     val canonicalizer = new Canonicalizer(stopwordManager)
     val cacheDir: String = config[String]("cacheDir")
@@ -63,7 +63,7 @@ object OntologyHandler {
 
     // Load enabled ontologies
     wordToVec match {
-      case real: RealWordToVec =>
+      case _: RealWordToVec =>
         val selected = config[List[String]]("ontologies")
         val enabledOntologies = for {
           ontologyName <- selected
@@ -72,7 +72,7 @@ object OntologyHandler {
         } yield EidosOntologyGrounder(ontologyName, domainOntology, wordToVec)
         new OntologyHandler(enabledOntologies, wordToVec, proc, canonicalizer)
 
-      case fake: FakeWordToVec => new OntologyHandler(Seq.empty, wordToVec, proc, canonicalizer)
+      case _: FakeWordToVec => new OntologyHandler(Seq.empty, wordToVec, proc, canonicalizer)
       case _ => ???
     }
 //    val selected = config[List[String]]("ontologies")
@@ -88,13 +88,13 @@ object OntologyHandler {
 
   // fixme == this all needs to be unified, the constructors in DomainOntolgies and in TreeDomainOntBUilder / here should all
   // be in one place!
-  def mkDomainOntology(name: String, ontologyPath: String, proc: Processor, canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean): DomainOntology = {
+  def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean): DomainOntology = {
     val ontSerializedPath: String = serializedPath(name, cacheDir)
-    DomainOntologies(ontologyPath, ontSerializedPath, proc, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
+    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
   }
 
-  def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, proc: Processor, canonicalizer: Canonicalizer, filter: Boolean = true): DomainOntology = {
-    new TreeDomainOntologyBuilder(proc, canonicalizer, filter).buildFromYaml(ontologyYaml)
+  def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true): DomainOntology = {
+    new TreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
   }
 
   def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"

@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.odin.Attachment
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps._
 import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.export._
 import org.clulab.wm.eidos.mentions.EidosMention
 
 import scala.collection.mutable.ArrayBuffer

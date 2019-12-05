@@ -22,7 +22,7 @@ class TestMigrationCause extends EnglishTest {
     val text = """ The primary reasons for moving were insecurity, lack of food, and poor access to services such as healthcare and education. """
     val insecurity = NodeSpec("insecurity")
     val food = NodeSpec("lack of food", Dec("lack"))
-    val services = NodeSpec("poor access to services such as healthcare and education", Dec("poor"), Quant("poor"))
+    val services = NodeSpec("poor access to services", Dec("poor"), Quant("poor"))
     val moving = NodeSpec("moving")
 
     behavior of "Example 2"

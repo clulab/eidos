@@ -7,10 +7,12 @@ organization := "org.clulab"
 scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
+scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
+
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-  val procVer = "7.5.3"
+  val procVer = "7.5.4"
   val luceneVer = "6.6.6"
 
   Seq(
@@ -19,8 +21,8 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-odin"          % procVer,
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
-    "org.clulab"    %% "geonorm"                  % "0.9.5",
-    "org.clulab"    %% "timenorm"                 % "1.0.1",
+    "org.clulab"    %% "geonorm"                  % "0.9.6",
+    "org.clulab"    %% "timenorm"                 % "1.0.2",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",
@@ -36,6 +38,25 @@ libraryDependencies ++= {
     "org.apache.lucene" % "lucene-grouping"         % luceneVer
   )
 }
+
+sourceGenerators in Compile += Def.task {
+  import java.io.File
+  import Versioner._
+  // These values need to be collected in a task in order have them forwarded to Scala functions.
+  val versioner = Versioner(git.runner.value, git.gitCurrentBranch.value, baseDirectory.value, (sourceManaged in Compile).value)
+
+  // The user should set these values.
+  val codeDir = "src/main/resources/"
+  val ontologyDir = codeDir + "org/clulab/wm/eidos/english/ontologies/"
+  val namespace = "com.github.clulab.eidos"
+
+  val files = new File(ontologyDir)
+      .listFiles
+      .filter { file => file.isFile }
+      .map { file => ontologyDir + file.name }
+
+  versioner.version(namespace, files)
+}.taskValue
 
 Test / fork := true // Also forces sequential operation
 Test / parallelExecution := false // Keeps groups in their order   false then true worked 4:14 and portuguese last
@@ -147,7 +168,9 @@ lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(
     buildInfoPackage := "org.clulab.wm.eidos",
-    buildInfoOptions += BuildInfoOption.BuildTime,
+    // This next line of code results in constantly changing source files which then require
+    // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
+    // buildInfoOptions += BuildInfoOption.BuildTime,
     buildInfoKeys := Seq[BuildInfoKey](
       name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
       "gitCurrentBranch" -> { git.gitCurrentBranch.value },

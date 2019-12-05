@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 import org.clulab.odin.EventMention
 import org.clulab.odin.{Attachment, Mention}
@@ -19,6 +20,9 @@ import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.json4s._
@@ -190,11 +194,16 @@ object JLDOntologyGrounding {
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, "Groundings") {
-  val jldGroundings: Seq[JObject] = grounding.grounding.map(pair => new JLDOntologyGrounding(serializer, pair._1.name, pair._2).toJObject)
+  val jldGroundings: Seq[JObject] = grounding.grounding.map { case (namer, value) =>
+    new JLDOntologyGrounding(serializer, namer.name, value).toJObject
+  }
+//  val versionOpt = if (name == "wm") Some("a1a6dbee0296bdd2b81a4a751fce17c9ed0a3af8") else None
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
     "name" -> name,
+    "version" -> grounding.version,
+    "versionDate" -> grounding.date.map(_.toString),
     "values" -> jldGroundings
   ))
 }
@@ -393,7 +402,12 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
-    val jldGroundings = eidosMention.grounding.map(pair => new JLDOntologyGroundings(serializer, pair._1, pair._2).toJObject).toSeq
+    val names = eidosMention.grounding.keys.toSeq.sorted
+    val jldGroundings = names.map { name =>
+      val grounding = eidosMention.grounding(name)
+
+      new JLDOntologyGroundings(serializer, name, grounding).toJObject
+    }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
 
     TidyJObject(List(
@@ -688,7 +702,7 @@ class JLDGeoID(serializer:JLDSerializer, val geoid: GeoPhraseID)
     "startOffset" -> geoid.startOffset,
     "endOffset" -> geoid.endOffset,
     "text" -> geoid.text,
-    "geoID" -> geoid.geonameID.map(_.toString)
+    "geoID" -> geoid.geonameID
     // JLDTimeInterval.plural -> toJObjects(jldIntervals)
   ))
 }
@@ -796,9 +810,11 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
-      "title" -> annotatedDocument.document.id,
-      "text" -> jldText,
+      "id" -> annotatedDocument.document.id,
+      "title" -> TitleDocumentAttachment.getTitle(annotatedDocument.document),
+      "location" -> LocationDocumentAttachment.getLocation(annotatedDocument.document),
       JLDDCT.singular -> jldDCT,
+      "text" -> jldText,
       JLDSentence.plural -> jldSentences
     ))
   }

@@ -1,10 +1,14 @@
 package org.clulab.wm.eidos.groundings
 
+import java.time.ZonedDateTime
+
 import org.clulab.wm.eidos.utils.Namer
 
 import scala.util.matching.Regex
 
 trait DomainOntology {
+  val version: Option[String] = None
+  val date: Option[ZonedDateTime] = None
 
   def size: Integer
 

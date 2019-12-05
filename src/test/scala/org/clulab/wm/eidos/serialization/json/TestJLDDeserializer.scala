@@ -36,7 +36,7 @@ class TestJLDDeserializer extends ExtractionTest {
 //    val documentCreationTime: Option[String] = Some("This is a test")
     val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
-      documentCreationTime, filename = None)
+      documentCreationTime, id = None)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
@@ -132,7 +132,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val geoPhraseID = idAndGeoPhraseID.value
 
       id should be("_:GeoLocation_15")
-      geoPhraseID.geonameID should be(Some(7909807))
+      geoPhraseID.geonameID should be(Some("7909807"))
     }
 
     it should "deserialize Word from jsonld" in {
