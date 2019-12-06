@@ -360,8 +360,9 @@ class JLDProvenance(serializer: JLDSerializer, provenance: Provenance)
     val tokenInterval = provenance.interval
     val documentCharInterval = {
       val start = sentence.startOffsets(tokenInterval.start)
-      // TODO: Especially in a CrossSentenceEventMention, the endOffset can be in a different sentence.
-      // See CrossSentenceEventMention.text for how to get it.  It is complicated and too big a task for Provenance.
+      // The provenance has only a single sentence, so the endOffset is within this sentence.
+      // If a mention comes from different sentences, each trigger, argument, or attribute involved
+      // will have its own provenance.
       val end = sentence.endOffsets(math.min(tokenInterval.end, sentence.endOffsets.length) - 1)
 
       Interval(start, end)
