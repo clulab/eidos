@@ -16,6 +16,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.serialization.json.JLDDeserializer.CountMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
@@ -544,9 +545,10 @@ class TestJLDDeserializer extends ExtractionTest {
       val timeIntervel = TimEx(Interval(0, 4), Seq.empty[TimeStep], "hello there")
       val timexMap = Map("_:DCT_1" -> timeIntervel)
       val geolocMap: GeolocMap = Map.empty
+      val countMap: CountMap = Map.empty
       val dctMap: DctMap = Map.empty
       val attachments = new JLDDeserializer().deserializeStates(Option(statesValue), documentMap, documentSentenceMap,
-        timexMap, geolocMap, dctMap)
+        timexMap, geolocMap, dctMap, countMap)
     }
 
     it should "deserialize Arguments from jsonld" in {
@@ -618,11 +620,12 @@ class TestJLDDeserializer extends ExtractionTest {
       val timeIntervel = TimEx(Interval(0, 4), List.empty[TimeStep], "hello there")
       val timexMap = Map("_:DCT_1" -> timeIntervel)
       val geolocMap: GeolocMap = Map.empty
+      val countMap: CountMap = Map.empty
       val mentionMap: MentionMap = Map.empty
       val provenanceMap: ProvenanceMap = Map(Provenance(null, 480, Interval(0, 1)) -> "_:Extraction_1")
       val dctMap: DctMap = Map.empty
       val mention = new JLDDeserializer().deserializeMention(extractionValue, extraction, mentionMap,
-        documentMap, documentSentenceMap, timexMap, geolocMap, provenanceMap, dctMap)
+        documentMap, documentSentenceMap, timexMap, geolocMap, provenanceMap, dctMap, countMap)
     }
   }
 

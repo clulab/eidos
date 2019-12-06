@@ -29,6 +29,28 @@ class TestEidosAttachment extends Test {
   }
 
   {
+    behavior of "a Count"
+
+    val attach1 = new CountAttachment("count", MigrationGroupCount(1d, CountModifier.Min, CountUnit.Daily), 1, 2)
+    val attach2 = new CountAttachment("count", MigrationGroupCount(1d, CountModifier.Min, CountUnit.Daily), 1, 2)
+    val attach3 = new CountAttachment("badcount", MigrationGroupCount(1d, CountModifier.Min, CountUnit.Daily), 1, 2)
+    val attach4 = new CountAttachment("count", MigrationGroupCount(1d, CountModifier.Max, CountUnit.Daily), 1, 2)
+
+    it should "equal itself" in {
+      attach1 == attach1 should be (true)
+    }
+
+    it should "equal something the same" in {
+      attach1 == attach2 should be (true)
+    }
+
+    it should "not equal something different" in {
+      attach1 == attach3 should be (false)
+      attach1 == attach4 should be (false)
+    }
+  }
+
+  {
     behavior of "an Increase"
 
     val attach1 = new Increase("trigger", Some(Seq("mod1", "mod2")))

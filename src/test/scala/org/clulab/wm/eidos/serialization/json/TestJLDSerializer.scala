@@ -17,7 +17,7 @@ class TestJLDSerializer extends ExtractionTest {
   val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
-  
+
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val annotatedDocument = ieSystem.extractFromText(text)
 
@@ -73,7 +73,18 @@ class TestJLDSerializer extends ExtractionTest {
     inspect(json)
     json should not be empty
   }
-  
+
+  it should "serialize a human migration event" in {
+    val json = serialize(Seq(
+      newTitledAnnotatedDocument("Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November.",
+        "This is the title") // This isn't cag-relevant
+    ))
+
+    inspect(json)
+    json should not be empty
+    json.contains("HumanMigration") should be (true)
+  }
+
   it should "be grounded" in {
     val json = serialize(Seq(
         newTitledAnnotatedDocument("Rainfall significantly increases poverty.")
@@ -244,5 +255,27 @@ class TestJLDSerializer extends ExtractionTest {
     }
   }
   else
+
+    println("It didn't do it")
+
+  it should "serialize a count attachment" in {
+    val json = serialize(Seq(
+      newTitledAnnotatedDocument(
+        "Since the beginning of September 2016, almost 40,000 refugees arrived daily in Ethiopia from South Sudan as of mid-November.",
+        "This includes a migration event")
+    ))
+
+    inspect(json)
+    json.contains("count") should be (true)
+    json.contains("value") should be (true)
+    json.contains("modifier") should be (true)
+    json.contains("unit") should be (true)
+
+    json.contains("40000.0") should be (true)
+    json.contains("Max") should be (true)
+    json.contains("Daily") should be (true)
+  }
+
     println("It did not test used geo expressions")
+
 }
