@@ -32,7 +32,7 @@ object ExtractDartMetaFromDirectory extends App {
   val parFiles = files.par
 
   Timer.time("Whole thing") {
-    val timePrintWriter = FileUtils.printWriterFromFile(timeFile, append = true)
+    val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
     timePrintWriter.println("File\tSize\tTime")
     val timer = new Timer("Startup")
 
