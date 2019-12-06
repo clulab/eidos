@@ -24,6 +24,7 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
+import org.clulab.wm.eidos.mentions.EidosCrossSentenceEventMention
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -55,7 +56,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def toJObject: TidyJObject
   
   def newJLDExtraction(mention: EidosMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDExtraction = mention match {
-    // A CrossSentenceEventMention will be serialized here and won't be deserialized properly.
+//    case mention: EidosCrossSentenceEventMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
     case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
     //case mention: EidosRelationMention =>
     case mention: EidosCrossSentenceMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
@@ -493,6 +494,16 @@ class JLDRelation(serializer: JLDSerializer, subtypeString: String, mention: Eid
 
 object JLDRelation {
   val typeString = "relation"
+
+  def newJLDRelation(serializer: JLDSerializer, mention: EidosCrossSentenceEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDRelation = {
+    mention.odinMention.label match {
+        // TODO: Figure out provenance for these!
+//      case JLDRelationCorrelation.taxonomy => new JLDRelationCorrelation(serializer, mention, countAttachmentMap)
+//      case JLDRelationCausation.taxonomy => new JLDRelationCausation(serializer, mention, countAttachmentMap)
+      case JLDRelationMigration.taxonomy => new JLDRelationMigration(serializer, mention, countAttachmentMap)
+      case _ => throw new IllegalArgumentException("Unknown CrossSentenceEventMention: " + mention)
+    }
+  }
 
   def newJLDRelation(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDRelation = {
     // This could be looked up in the taxonomy somehow, but the taxonomy doesn't include
