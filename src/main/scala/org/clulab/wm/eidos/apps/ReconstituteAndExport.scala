@@ -4,6 +4,7 @@ package org.clulab.wm.eidos.apps
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.JLDDeserializer
 import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 
 /**
@@ -11,8 +12,7 @@ import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
   * tsv or serialized mentions).  The input and output directories as well as the desired export formats are specified
   * in eidos.conf (located in src/main/resources).
   */
-object ExtractAndExport extends App with Configured {
-
+object ReconstituteAndExport extends App with Configured {
 
 
   val config = ConfigFactory.load("eidos")
@@ -20,7 +20,8 @@ object ExtractAndExport extends App with Configured {
 
   val inputDir = getArgString("apps.inputDirectory", None)
   val outputDir = getArgString("apps.outputDirectory", None)
-  val inputExtension = getArgString("apps.inputFileExtension", None)
+  val inputExtension = ".jsonld"
+  val deserializer = new JLDDeserializer()
   val exportAs = getArgStrings("apps.exportAs", None)
   val groundAs = getArgStrings("apps.groundAs", None)
   val topN = getArgInt("apps.groundTopN", Some(5))
@@ -31,14 +32,12 @@ object ExtractAndExport extends App with Configured {
   files.par.foreach { file =>
     // 1. Open corresponding output file and make all desired exporters
     println(s"Extracting from ${file.getName}")
-    // 2. Get the input file contents
-    val text = FileUtils.getTextFromFile(file)
-    // 3. Extract causal mentions from the text
-    val annotatedDocuments = Seq(reader.extractFromText(text, id = Some(file.getName)))
-    // 4. Export to all desired formats
+    // 2. Get the input file contents (extractions)
+    val json = FileUtils.getTextFromFile(file)
+    val corpus = deserializer.deserialize(json, reader.components.ontologyHandler.canonicalizer, reader.components.multiOntologyGrounder)
+    // 3. Export to all desired formats
     exportAs.foreach { format =>
-      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(annotatedDocuments)
+      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(corpus)
     }
   }
 }
-
