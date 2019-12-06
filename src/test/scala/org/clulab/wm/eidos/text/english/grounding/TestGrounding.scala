@@ -4,6 +4,7 @@ import java.util
 
 import org.clulab.odin.{Mention, TextBoundMention}
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyGrounder
@@ -180,16 +181,21 @@ class TestGrounding extends EnglishTest {
     val text = "The oil supply caused civil unrest in Sudan."
     val doc = ieSystem.annotate(text)
 
-    val causeTBM = new TextBoundMention(label="Concept", Interval(0,3), 0, doc, true, "FakeRule")
-    val effectTBM = new TextBoundMention(label="Concept", Interval(4,6), 0, doc, true, "FakeRule")
+    val causeTBM = new TextBoundMention(label="Entity", Interval(0,3), 0, doc, true, "FakeRule")
+    val effectTBM = new TextBoundMention(label="Entity", Interval(4,6), 0, doc, true, "FakeRule")
 
-    val cause = EidosMention.asEidosMentions(Seq(causeTBM)).head
-    val effect = EidosMention.asEidosMentions(Seq(effectTBM)).head
+    val causeAD = AnnotatedDocument(doc, Seq(causeTBM))
+    val cause = ieSystem.components.ontologyHandler.process(causeAD).eidosMentions.head
+
+    val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
+    val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
 
     println("Cause:\t"+cause.odinMention.text)
-    println("Cause Groundings:\t"+tester.allGroundingInfo(cause))
+//    println("Cause Groundings:\t"+tester.allGroundingInfo(cause))
+    println("Cause Groundings:\t"+tester.allGroundingNames(cause))
     println("Effect:\t"+effect.odinMention.text)
-    println("Effect Groundings:\t"+tester.allGroundingInfo(effect))
+//    println("Effect Groundings:\t"+tester.allGroundingInfo(effect))
+    println("Effect Groundings:\t"+tester.allGroundingNames(cause))
 
     passingTest should "process \"" + causeTBM.document.text + "\" cause correctly" taggedAs Somebody in {
       if (active) {
