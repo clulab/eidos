@@ -1,24 +1,15 @@
 package org.clulab.wm.eidos.actions
 
-import org.clulab.odin._
-import org.clulab.struct.{CorefMention, Interval}
-import org.clulab.odin.{EventMention, Mention, State, TextBoundMention}
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.{Location, Time}
-import org.clulab.wm.eidos.context.GeoPhraseID
-import ai.lum.common.ConfigUtils._
-import com.typesafe.config.Config
-import org.clulab.odin._
-import org.clulab.odin.impl.Taxonomy
-import org.clulab.processors.Document
-import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-import org.clulab.wm.eidos.EidosActions.COREF_DETERMINERS
-import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
-import org.clulab.wm.eidos.utils.{DisplayUtils, FileUtils}
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.Constructor
+import java.util.regex.Pattern
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import org.clulab.odin.Attachment
+import org.clulab.odin.{CrossSentenceMention, EventMention, Mention, RelationMention, TextBoundMention}
+import org.clulab.struct.Interval
+import org.clulab.wm.eidos.{EidosActions, EidosSystem}
+import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
+
+import scala.annotation.tailrec
+//import scala.collection.mutable.ArrayBuffer
 
 object MigrationUtils {
 
@@ -28,11 +19,80 @@ object MigrationUtils {
 
     // todo: backoff times and locations -- use the normalization apis
     // todo: combine times (timeStart/timeEnd)
-    resolveGenericLocation(assembleFragments(migrationEvents)) ++ other
+    resolveGenericLocation(assembleFragmentsNew(migrationEvents)) ++ other
   }
 
-  def assembleFragments(mentions: Seq[Mention]): Seq[Mention] = {
-    // combine events with shared arguments AND combine events in close proximity with complementary arguments
+  // combine events with shared arguments AND combine events in close proximity with complementary arguments
+  def assembleFragmentsNew(mentions: Seq[Mention]): Seq[Mention] = {
+
+    def findMerges(mentions: Seq[Mention]): (Array[Boolean], IndexedSeq[(Int, Int)]) = {
+      val used = Array.fill(mentions.length)(false)
+      val merges = mentions.indices.map { loIndex =>
+        if (!used(loIndex)) {
+          val mergeable = mentions
+              .indices
+              .drop(loIndex + 1)
+              .filter { hiIndex =>
+                isMergeable(mentions(loIndex), mentions(hiIndex))
+              }
+
+          mergeable.map { hiIndex =>
+            used(loIndex) = true
+            used(hiIndex) = true
+            (loIndex, hiIndex)
+          }
+        }
+        else
+          Seq.empty
+      }
+      (used, merges.flatten)
+    }
+
+    def merge(mentions: Seq[Mention]): (Boolean, Seq[Mention]) = {
+      val (used, merges) = findMerges(mentions)
+
+      if (merges.nonEmpty) {
+        val unorderedMergedMentionsOpt = merges.map { case (loIndex, hiIndex)  =>
+          // println("Merging " + loIndex + " and " + hiIndex)
+          val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
+          val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
+
+          copy
+        }
+        val unorderedUnmergedMentionsOpt = used
+            .indices
+            .filter { hiIndex: Int => !used(hiIndex) }
+            .map { hiIndex =>
+              // println("Copying " + hiIndex)
+              mentions(hiIndex)
+            }
+        // The merged ones are checked for equality, the unmerged not.
+        val unorderedMergedMentions = unorderedMergedMentionsOpt.distinct ++ unorderedUnmergedMentionsOpt
+
+        (false, unorderedMergedMentions)
+      }
+      else
+        (true, mentions)
+    }
+
+    @tailrec
+    def doWhile(mentions: Seq[Mention]): Seq[Mention] = {
+      // This is the hack around a "do {} while (!condition)" in which the condition can't make use
+      // of variables defined in the do block and the return value cannot be updated without a var.
+      val (done, newMentions) = merge(mentions)
+
+      if (done) newMentions
+      else doWhile(newMentions)
+    }
+
+    doWhile(orderMentions(mentions))
+  }
+
+/*
+ This is preserved temporarily to show what the new version above was aiming for.
+
+  // combine events with shared arguments AND combine events in close proximity with complementary arguments
+  def assembleFragmentsOld(mentions: Seq[Mention]): Seq[Mention] = {
     var orderedMentions = orderMentions(mentions)
     // the events we will ultimately return
     var returnedEvents = ArrayBuffer[Mention]()
@@ -48,10 +108,11 @@ object MigrationUtils {
 
         // only merge events if the first of the pair hasn't already been merged (heuristic!)
         if (!used(i)) {
-          for (j <- i+1 until orderedMentions.length) {
+          for (j <- i + 1 until orderedMentions.length) {
+println("Checking " + i + " with " + j)
             //check if the two events can be merged
             if (isMergeable(orderedMentions(i), orderedMentions(j))) {
-
+println("Merging " + i + " and " + j)
               // create the set of arguments to include in the new merged event (preference to the more specific args
               // in case of argName overlap)
               val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
@@ -63,301 +124,261 @@ object MigrationUtils {
               // return the new event if it isn't identical to an existing event
               if (!(returnedEvents contains copy)) {
                 returnedEvents += copy
+                println("It did not contain.")
               }
-              used = used.updated(i,true)
-              used = used.updated(j,true)
+              used = used.updated(i, true)
+              used = used.updated(j, true)
             }
           }
         }
       }
 
       // add unmerged events ('false' in used list)
+      // TODO Doesn't adding them now would mean that they are now out of order?
       for (i <- orderedMentions.indices) {
         if (!used(i)) {
           returnedEvents += orderedMentions(i)
+println("Copying " + i)
         }
       }
 
       //check if there are any mergeable events among the newly-created set of mentions; if not, set stillMerging to false,
       // which will break the loop
-      if (!returnedEvents.exists(mention => returnedEvents.exists(mention2 => isMergeable(mention, mention2) && mention!= mention2 ))) {
+      if (!returnedEvents.exists(mention => returnedEvents.exists(mention2 => isMergeable(mention, mention2) && mention != mention2 ))) {
         stillMerging = false
       }
       orderedMentions = returnedEvents
     }
     returnedEvents
   }
+*/
+  // given two event mentions, checks if they can be merged
+  def isMergeable(mention1: Mention, mention2: Mention): Boolean = {
+    // Don't construct the entire intersection just to find out whether or not it would be empty,
+    // at least for small collections when this is repeatedly done.
+    def intersects[T](left: Seq[T], right: Seq[T]): Boolean = left.exists(right.contains)
 
+    // This will have to be calculated either way.
+    val notBothSpecific = !bothSpecific(mention1, mention2)
 
-  /*
-  given two event mentions, checks if they can be merged
-   */
-  def isMergeable(m1: Mention, m2: Mention): Boolean = {
-
-    // if the two events are within one sentence of each other
-    if ((Math.abs(m1.sentence - m2.sentence) < 2
-      // AND both events have complementary arguments (no overlap)
-      && m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).isEmpty)
-    // OR
-    ||
-    // if both events share an argument
-    (m1.arguments.values.toList.intersect(m2.arguments.values.toList).nonEmpty
+    (
+      // if the two events are within one sentence of each other
+      Math.abs(mention1.sentence - mention2.sentence) <= 1 &&
+      (
+        // both events have complementary arguments (no intersection)
+        // OR NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
+        // information with the same argName---merging will delete one of them); we want these to be separate events
+        notBothSpecific || !intersects(mention1.arguments.keys.toSeq, mention2.arguments.keys.toSeq)
+      )
+    ) ||
+    (
+      // if both events share an argument
       // AND other arguments don't overlap (size of value intersection != size of key intersection) //todo: it does not look like we need this condition (it results in false negs at least in some cases), but keeping it here for now for potential future use
       // && m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).size != m1.arguments.values.toList.intersect(m2.arguments.values.toList).size
-      //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
-      //information with the same argName---merging will delete one of them); we want these to be separate events
-      && !bothSpecific(m1, m2)
-      )
-    //OR
-    ||
-    //if within one sent of each other
-    (Math.abs(m1.sentence - m2.sentence) < 2
-      //AND events share the type of argument (argName)
-      && (m1.arguments.keys.toList.intersect(m2.arguments.keys.toList).nonEmpty
-      //AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
-      //information with the same argName---merging will delete one of them); we want these to be separate events
-      && !bothSpecific(m1, m2))
-      )) return true
-    false
+      // AND NOT both args with overlapping argName are specific (i.e., don't merge if both mentions have some specific/key
+      // information with the same argName---merging will delete one of them); we want these to be separate events
+      notBothSpecific && intersects(mention1.arguments.values.toSeq, mention2.arguments.values.toSeq)
+    )
   }
 
+  val bothPattern: Pattern = Pattern.compile(".*[\\dA-Z]+.*")
 
   /*
   checks if both of the overlapping args are specific (AND are not the same arg because if they are the same argument,
   their...`specificity status` will be the same)
    */
-  def bothSpecific(m1: Mention, m2: Mention): Boolean = {
-    val overlappingArgNames = m1.arguments.keys.toList.intersect(m2.arguments.keys.toList)
-    for (argName <- overlappingArgNames) {
-      val relArg1 = m1.arguments(argName).head
-      val relArg2 = m2.arguments(argName).head
+  def bothSpecific(mention1: Mention, mention2: Mention): Boolean = {
+    val overlappingArgNames = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
 
-      //specific events either have attachements or have some numeric information in them (e.g., 300 refugees) or have capital letters in them
-      //AND are not the same mention
-      //AND the arguments in question don't overlap
-      if (
-        ((relArg1.attachments.nonEmpty || (relArg1.text matches ".*[\\dA-Z]+.*")) && (relArg2.attachments.nonEmpty || (relArg2.text matches ".*[\\dA-Z]+.*"))
-        &&
-        relArg1 != relArg2 //make sure they are not the same argument
-        &&
-        relArg1.tokenInterval.intersect(relArg2.tokenInterval).isEmpty //if the arguments in question overlap, don't count them as both specific
-         )
-      )
-        return true
+    overlappingArgNames.exists { argName =>
+      // It is assumed that the size is always one.
+      val arg1 = mention1.arguments(argName).head
+      val arg2 = mention2.arguments(argName).head
+
+      // Specific events either have attachements or have some numeric information in them
+      // (e.g., 300 refugees) or have capital letters in them
+      (arg1.attachments.nonEmpty || bothPattern.matcher(arg1.text).matches) &&
+      (arg2.attachments.nonEmpty || bothPattern.matcher(arg2.text).matches) &&
+      // AND are not the same mention
+      arg1 != arg2 &&
+      // AND the arguments in question don't overlap.
+      arg1.tokenInterval.intersect(arg2.tokenInterval).isEmpty
     }
-    false
   }
 
-
-  /*
-  returns mentions in the order they appear in the document (based on sent index and tokenInterval of the mention)
-   */
+  // returns mentions in the order they appear in the document (based on sent index and tokenInterval of the mention)
   //todo: may go to mention utils
   def orderMentions(mentions: Seq[Mention]): Seq[Mention] = {
-    val grouped = mentions.groupBy(_.sentence)
-    //contains all mentions ordered by sent and by order in the sent
-    var mentionArray = ArrayBuffer[Mention]()
-    //for every sentence (sorted)...
-    for (i <- grouped.keys.toList.sorted) {
-      //...sort the mentions and append them to the mention array
-      val sorted = grouped(i).sortBy(_.tokenInterval)
-      for (m <- sorted) mentionArray.append(m)
+    mentions.sortWith { (left: Mention, right: Mention) =>
+      if (left.sentence != right.sentence)
+        left.sentence < right.sentence
+      else if (left.tokenInterval != right.tokenInterval)
+        left.tokenInterval < right.tokenInterval
+      else
+        true // left before right
     }
-    mentionArray
   }
 
+  val mergePattern: Pattern = Pattern.compile(".*[A-Z\\d+].*")
 
-  /*
-  merges args of two mentions in such a way as to hopefully return the more specific arg in case of an overlap
-   */
-  //keep in migr utils
-
+  // merges args of two mentions in such a way as to hopefully return the more specific arg in case of an overlap
+  // If the two are equally good, favor the first.
   def mergeArgs(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
-    var newArgs = scala.collection.mutable.Map[String, Seq[Mention]]()
-    //overlapping argument names
-    val overlappingArgs = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
-    //for every argument in the two mentions...
-    for (arg <- mention1.arguments ++ mention2.arguments) {
-      //if the argumentName is present in both of the mentions...
-      if (overlappingArgs.contains(arg._1)) {
-        //choose the more specific argument by checking if one of them contains an attachment or contains numbers or contains capital letters
-        val arg1 = mention1.arguments(arg._1)
-        if (arg1.exists(tbm => tbm.attachments.nonEmpty || (tbm.text matches ".*[A-Z\\d+].*"))) {
-          newArgs = newArgs ++ Map(arg._1 -> arg1)
-        } else {
-          newArgs = newArgs ++ Map(arg._1 -> mention2.arguments(arg._1))
-        }
-      } else {
-        newArgs = newArgs ++ Map(arg)
+    val unionKeys = mention1.arguments.keys.toList.union(mention2.arguments.keys.toList)
+    val newArgs = unionKeys.map { key =>
+      val mentionsOpt1 = mention1.arguments.get(key)
+      val mentionsOpt2 = mention2.arguments.get(key)
+      // The actual arg will be from mention2 which would have overwritten that in mention1
+      // If the argumentName is present in both of the mentions...
+      // Choose the more specific argument by checking if one of them contains an attachment or contains numbers or contains capital letters
+      val value = if (mentionsOpt1.isDefined && mentionsOpt2.isDefined) {
+        val mentions1 = mentionsOpt1.get
+        val mentions2 = mentionsOpt2.get
+        val isGood1 = mentions1.exists(mention => mention.attachments.nonEmpty || mergePattern.matcher(mention.text).matches)
+        val isGood2 = mentions2.exists(mention => mention.attachments.nonEmpty || mergePattern.matcher(mention.text).matches)
+
+        if (isGood1) mentions1 // Favor first if it's good
+//        else if (isGood2) mentions2 // otherwise choose the second if that's good
+//        else mentions1 // and favor the first if neither is good.
+          else mentions2 // This is mimicking mergeArgsOld for regression testing.  The above two lines are preferred.
       }
-    }
-    newArgs.toMap
+      else
+        mentionsOpt1.getOrElse(mentionsOpt2.get) // There was only one of them anyway.
+
+      key -> value
+    }.toMap
+
+    newArgs
   }
+/*
+  This is preserved temporarily to show what the new version above was aiming for.
 
+  def mergeArgsOld(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
+    val intersectingKeys = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
+    val newArgs = (mention1.arguments ++ mention2.arguments).map { arg =>
+      // The actual arg will be from mention2 which would have overwritten that in mention1
+      // If the argumentName is present in both of the mentions...
+      // Choose the more specific argument by checking if one of them contains an attachment or contains numbers or contains capital letters
+      if (intersectingKeys.contains(arg._1)) {
+        val mentions1 = mention1.arguments(arg._1)
+        val isGood1 = mentions1.exists(tbm => tbm.attachments.nonEmpty || mergePattern.matcher(tbm.text).matches)
 
+        // TODO: This doesn't seem like a good idea.  The same one should always win in a tie.
+        if (isGood1)
+          arg._1 -> mentions1 // Take the first one, regardless of whether the second is just as good.
+        else
+          arg // Take the second one, regardless of whether the first is just as good.
+      }
+      else
+        arg // There was only one of them anyway.
+    }
+
+    newArgs
+  }
+*/
   /*
   if there is a generic location mention in the migration event, try to resolve it to the nearest previous specific location
   (for now, specific == has an attachment)
    */
   def resolveGenericLocation(mentions: Seq[Mention]): Seq[Mention] = {
     val orderedMentions = orderMentions(mentions)
-    val handled = ArrayBuffer[Mention]()
-    for (m <- orderedMentions) {
-      //check if the mention has a generic location argument
-      if (containsGenericLocation(m)) {
-        //get the name of the argument that contains the generic location
-        val argName = getGenericLocArgName(m)
-        //find the index of the current mention (used to look for specific locations only in the previous events)
-        val indexInOrderedMentions = orderedMentions.indexOf(m)
-        //check if there exists a previous event with a specific location
-        if (hasPrevGeoloc(orderedMentions, argName, indexInOrderedMentions)) {
-          //find previous specific location
-          val geoLocMention = findPrevGeoloc(orderedMentions, argName, indexInOrderedMentions)
-          //create a corefMention between the current generic location (neighbor) and the specific one (anchor)
-          val corefMention = new CrossSentenceMention(
-            labels = Seq("corefMention"),
-            anchor = geoLocMention,
-            neighbor = m.arguments(argName).head,
-            arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(geoLocMention)), (EidosActions.ANAPHOR, Seq(m.arguments(argName).head))),
-            document = m.document,
-            keep = true,
-            foundBy = s"resolveGenericLocationAction",
-            attachments = Set.empty[Attachment]
-          )
+    val resolvedMentions = orderedMentions.zipWithIndex.map { case (mention, index) =>
+      val argNameOpt = getGenericLocArgName(mention)
+      val geoLocMentionOpt = argNameOpt.flatMap { argName => findPrevGeoloc(orderedMentions, argName, index) }
+      val newMentionOpt = geoLocMentionOpt.map { geoLocMention =>
+        val argName = argNameOpt.get
+        //create a corefMention between the current generic location (neighbor) and the specific one (anchor)
+        val corefMention = new CrossSentenceMention(
+          labels = Seq("Coreference"),
+          anchor = geoLocMention,
+          neighbor = mention.arguments(argName).head,
+          arguments = Map[String, Seq[Mention]](
+            (EidosActions.ANTECEDENT, Seq(geoLocMention)),
+            (EidosActions.ANAPHOR, Seq(mention.arguments(argName).head))
+          ),
+          document = mention.document,
+          keep = true,
+          foundBy = s"resolveGenericLocationAction",
+          attachments = Set.empty[Attachment]
+        )
 
-          //the new mention added to `handled` will be the copy of the current mention with the arguments including the newly-created
-          //corefMention instead of the original generic location (the name of the arg is the same the generic location had)
-          handled += copyWithNewArgs(m, m.arguments ++ Map(argName -> Seq(corefMention)))
-
-        } else {
-          handled += m
-        }
-
-      } else {
-        handled += m
+        //the new mention will be the copy of the current mention with the arguments including the newly-created
+        //corefMention instead of the original generic location (the name of the arg is the same the generic location had)
+        copyWithNewArgs(mention, mention.arguments ++ Map(argName -> Seq(corefMention)))
       }
-    }
-      handled
+
+      newMentionOpt.getOrElse(mention)
     }
 
-
-  /*
-  Given an ordered seq of mentions, the relevant argName, and the index of the current mention in the ordered seq,
-  checks if there exists a previous event that contains a specific location argument with the same argName (for now, specific ==
-  has an attachment)
-   */
-  def hasPrevGeoloc(mentions: Seq[Mention], argName: String, order: Int): Boolean = {
-    for (m <- mentions.slice(0, order + 1)) {
-      if (m.arguments.keys.toList.contains(argName)) {
-        if (m.arguments(argName).head.attachments.nonEmpty) {
-          return true
-        }
-      }
-    }
-    false
-
+    resolvedMentions
   }
-
 
   /*
   Given an ordered seq of mentions, the relevant argName, and the index of the current mention in the ordered seq,
   finds the nearest previous event that contains a specific location argument with the same argName (for now, specific ==
   has an attachment)
    */
-  def findPrevGeoloc(orderedMentions: Seq[Mention], argName: String, order: Int): Mention = {
+  def findPrevGeoloc(orderedMentions: Seq[Mention], argName: String, order: Int): Option[Mention] = {
+    val mentionOpt = orderedMentions.slice(0, order + 1).reverse.find { mention =>
+      val argumentsOpt = mention.arguments.get(argName)
+      val nonEmptyOpt = argumentsOpt.map(_.head.attachments.nonEmpty)
 
-    var relevantMentions = ArrayBuffer[Mention]()
-    while (relevantMentions.isEmpty) {
-      for (m <- orderedMentions.slice(0, order + 1).reverse) {
-        if (m.arguments.keys.toList.contains(argName)) {
-          if (m.arguments(argName).head.attachments.nonEmpty) {
-            relevantMentions += m.arguments(argName).head
-          }
-        }
-      }
+      nonEmptyOpt.getOrElse(false)
     }
-    relevantMentions.head
+
+    mentionOpt.map(_.arguments(argName).head)
   }
 
-
-  /*
-  given a mention, returns the argName of the argument that contains a generic location
-   */
-  def getGenericLocArgName(m: Mention): String = {
+  // given a mention, returns the argName of the argument that contains a generic location
+  def getGenericLocArgName(mention: Mention): Option[String] = {
     //look through the args; if arg contains a generic location, return the name of that arg
-    var stringArray = ArrayBuffer[String]()
-    while (stringArray.isEmpty) {
-      for (arg <- m.arguments) {
-        if (containsGenericLocation(arg)) {
-          stringArray += arg._1
-        }
-      }
-    }
-    stringArray.head
+    val argumentOpt: Option[(String, Seq[Mention])] = mention.arguments.find(containsGenericLocation)
+
+    argumentOpt.map(_._1)
   }
 
-  /*
-  given a mention, checks if it has an argument that is a generic location; todo: revise the list
-   */
-  def containsGenericLocation(m: Mention): Boolean = {
-    val genericLocations = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
-    if (m.arguments.exists(arg => arg._2.exists(tbm => genericLocations.contains(tbm.text)))) {
-      return true
-    }
-  false
-  }
+  // todo: revise the list
+  val genericLocations: Seq[String] = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
 
-
-  /*
-  given a complete argument (argName -> Mention), checks if it has an argument that is a generic location; todo: revise the list
-   */
-  def containsGenericLocation(arg: (String, Seq[Mention])): Boolean = {
-    val genericLocations = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
-    if (arg._2.exists(m =>  genericLocations.contains(m.text))) {
-      return true
-    }
-    false
-  }
-
+  // given a complete argument (argName -> Mention), checks if it has an argument that is a generic location; todo: revise the list
+  def containsGenericLocation(arg: (String, Seq[Mention])): Boolean =
+      arg._2.exists(mention => genericLocations.contains(mention.text))
 
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
-  def copyWithNewArgs(orig: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
-
+  def copyWithNewArgs(mention: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Helper method to get a token interval for the new event mention with expanded args
-    def getNewTokenInterval(intervals: Seq[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
+    def getNewTokenInterval(intervals: Iterable[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
+
+    val newArgsAsList: Iterable[Mention] = newArgs.values.flatten
     val newTokenInterval = if (mkNewInterval) {
       // All involved token intervals, both for the original event and the expanded arguments => changed to just looking at the newArgs bc that involves the original set of args; may need to revisit
-      val allIntervals = Seq() ++ newArgs.values.flatten.map(arg => arg.tokenInterval)
+      val allIntervals = newArgsAsList.map(_.tokenInterval)
       // Find the largest span from these intervals
       getNewTokenInterval(allIntervals)
-    }
-    else orig.tokenInterval
+    } else mention.tokenInterval
     val paths = for {
-      (argName, argPathsMap) <- orig.paths
-      origPath = argPathsMap(orig.arguments(argName).head)
+      (argName, argPathsMap) <- mention.paths
+      origPath = argPathsMap(mention.arguments(argName).head)
     } yield (argName, Map(newArgs(argName).head -> origPath))
     // Make the copy based on the type of the Mention
-    val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_${foundByAffix.get}" else orig.foundBy
-    val newArgsAsList = for {
-      seqMen <- newArgs.values
-      men <- seqMen
-    } yield men
+    val copyFoundBy = if (foundByAffix.nonEmpty) s"${mention.foundBy}_${foundByAffix.get}" else mention.foundBy
 
     //create a mention to return as either another EventMention but with expanded args (the 'else' part) or a crossSentenceEventMention if the args of the Event are from different sentences
-    val newMention = if (newArgsAsList.exists(_.sentence != orig.sentence) ) {
+    val newMention = if (newArgsAsList.exists(_.sentence != mention.sentence)) {
+      // This is where an EventMention with some kind of custom text might be better.
       //      orig.asInstanceOf[EventMention].copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
-      new CrossSentenceEventMention(labels = orig.labels, tokenInterval = newTokenInterval, trigger = orig.asInstanceOf[EventMention].trigger, arguments = newArgs, Map.empty, orig.sentence, orig.document, keep = true, foundBy = orig.foundBy + "++ crossSentActions", attachments = orig.attachments)
-
-    } else {
-
-      orig match {
-        case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+      new CrossSentenceEventMention(labels = mention.labels, tokenInterval = newTokenInterval,
+          trigger = mention.asInstanceOf[EventMention].trigger, arguments = newArgs, Map.empty, mention.sentence,
+          mention.document, keep = true, foundBy = mention.foundBy + "++ crossSentActions", attachments = mention.attachments)
+    }
+    else
+      mention match {
+        case _: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
         case rm: RelationMention => rm.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
         case em: EventMention => em.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
       }
-    }
+
     newMention
   }
 }
-

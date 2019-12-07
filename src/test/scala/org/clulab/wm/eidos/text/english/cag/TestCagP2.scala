@@ -11,7 +11,7 @@ class TestCagP2 extends EnglishTest {
     val tester = new GraphTester(p2s1)
 
     val economicCrisis = NodeSpec("South Sudan's economic crisis", GeoLoc("South Sudan"))
-    val sudanesePound = NodeSpec("rapidly depreciating value of the South Sudanese Pound (SSP)", Dec("depreciating", "rapidly"), GeoLoc("South"), GeoLoc("Pound"))
+    val sudanesePound = NodeSpec("rapidly depreciating value of the South Sudanese Pound (SSP)", Dec("depreciating", "rapidly"), GeoLoc("South"), GeoLoc("Pound"), GeoLoc("South Sudanese"))
     val hardCurrency = NodeSpec("shortages of hard currency", Dec("shortages"))
     val oilPrices = NodeSpec("global declines in oil prices", Dec("declines"))
     val dependenceOnImports = NodeSpec("significant dependence on imports", Quant("significant"))

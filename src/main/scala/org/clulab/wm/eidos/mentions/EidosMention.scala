@@ -175,6 +175,10 @@ object EidosMention {
       mentionMapper: MentionMapper): EidosMention = {
     odinMention match {
       case mention: TextBoundMention => new EidosTextBoundMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
+      // TODO: These are going to the same place as the EventMention for now, so they are not distinguished here.
+      // Provenance for these mentions probably needs to be improved.
+      // Right now this is only migration and we're not especially using that right now.
+      //case mention: CrossSentenceEventMention => new EidosCrossSentenceEventMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
       case mention: EventMention => new EidosEventMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
       case mention: RelationMention => new EidosRelationMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
       case mention: CrossSentenceMention => new EidosCrossSentenceMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
@@ -269,6 +273,11 @@ class EidosEventMention(val odinEventMention: EventMention, canonicalizer: Canon
 
   protected override def canonicalMentions: Seq[Mention] =
       super.canonicalMentions ++ Seq(odinTrigger)
+}
+
+class EidosCrossSentenceEventMention(val crossSentenceEventMention: CrossSentenceEventMention, canonicalizer: Canonicalizer,
+  ontologyGrounder: MultiOntologyGrounding, mentionMapper: MentionMapper)
+    extends EidosEventMention(crossSentenceEventMention, canonicalizer, ontologyGrounder, mentionMapper) {
 }
 
 class EidosRelationMention(val odinRelationMention: RelationMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,

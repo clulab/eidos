@@ -64,12 +64,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
     annotateTest(testResult.complaints)
   }
-// from migration_schema-zupon branch
-// todo: check which one to keep
-//  def useTimeNorm: Boolean = ieSystem.loadableAttributes.timenorm.isDefined
-//  def useGeoNorm: Boolean = ieSystem.loadableAttributes.geonorm.isDefined
 
   def useTimeNorm: Boolean = ieSystem.components.useTimeNorm
   def useGeoNorm: Boolean = ieSystem.components.useGeoNorm
-
 }
