@@ -16,10 +16,14 @@ import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
 import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import scala.collection.parallel.ForkJoinTaskSupport
 
 object ExtractDartMetaFromDirectory extends App {
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
   val inputDir = args(0)
   val metaDir = args(1)
   val outputDir = args(2)
@@ -30,7 +34,7 @@ object ExtractDartMetaFromDirectory extends App {
   val converter = DartZipMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files // .par
+  val parFiles = files.par
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
@@ -57,7 +61,7 @@ object ExtractDartMetaFromDirectory extends App {
     parFiles.foreach { file =>
       try {
         // 1. Open corresponding output file
-        println(s"Extracting from ${file.getName}")
+        logger.info(s"Extracting from ${file.getName}")
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
           // 2. Get the input file contents
@@ -91,8 +95,7 @@ object ExtractDartMetaFromDirectory extends App {
       }
       catch {
         case exception: Exception =>
-          println(s"Exception for file $file")
-          exception.printStackTrace()
+          logger.error(s"Exception for file $file", exception)
       }
     }
     timePrintWriter.close()
