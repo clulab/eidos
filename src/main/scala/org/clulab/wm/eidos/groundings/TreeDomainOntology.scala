@@ -72,7 +72,10 @@ class OntologyBranchNode(nodeName: String, parent: OntologyNode) extends Ontolog
 
   override def escaped: String = escaped(nodeName)
 
-  override def getValues: Array[String] = childrenOpt.get.flatMap(_.getValues).toArray
+  override def getValues: Array[String] = {
+    val answer = nodeName.split('_')
+    answer
+  } // Array(nodeName) // childrenOpt.get.flatMap(_.getValues).toArray
   //super.getValues // TODO: Do something with children
 
   override def getPatterns: Array[Regex] = super.getPatterns // TODO: Do something with children
