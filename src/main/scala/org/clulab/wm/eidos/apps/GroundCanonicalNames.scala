@@ -30,18 +30,19 @@ object GroundCanonicalNames extends App {
 
     def split(text: String): Array[String] = text.split(' ')
 
-    protected def topGroundingName(strings: Array[String]): Option[String] = {
+    protected def topGroundingNameAndValue(strings: Array[String]): Option[(String, Float)] = {
       val allGroundings = ontologyGrounder.groundStrings(strings)
-      val topGroundingNameOpt = allGroundings.head.headName
+      val namerAndFloatOpt = allGroundings.head.headOption
+      val nameAndValueOpt = namerAndFloatOpt.map { case (namer, value) => (namer.name, value) }
 
-      topGroundingNameOpt
+      nameAndValueOpt
     }
 
-    def ground(canonicalName: String): Option[(String, Boolean)] = {
-      val nameOpt = topGroundingName(split(canonicalName))
+    def ground(canonicalName: String): Option[(String, Float, Boolean)] = {
+      val nameAndValueOpt = topGroundingNameAndValue(split(canonicalName))
 
-      nameOpt.map { name =>
-        (name, nameToIsLeaf(name))
+      nameAndValueOpt.map { case (name, value) =>
+        (name, value, nameToIsLeaf(name))
       }
     }
   }
@@ -55,15 +56,15 @@ object GroundCanonicalNames extends App {
     Sinker.printWriterFromFile(outputFile).autoClose { printWriter =>
       val writer = new TsvWriter(printWriter)
 
-      writer.println("file", "id", "text", "canonicalName", "isLeaf", "grounding")
+      writer.println("file", "id", "text", "canonicalName", "isLeaf", "score", "grounding")
       source.getLines.drop(1).foreach { line =>
         val Array(file, id, text, canonicalName) = reader.readln(line)
-        val nameAndIsLeafOpt: Option[(String, Boolean)] = grounder.ground(canonicalName)
-        val (name, isLeaf) = nameAndIsLeafOpt
-            .map { case (name, isLeaf) => (name, if (isLeaf) "T" else "F") }
-            .getOrElse(("", ""))
+        val nameAndValueAndIsLeafOpt: Option[(String, Float, Boolean)] = grounder.ground(canonicalName)
+        val (name, value, isLeaf) = nameAndValueAndIsLeafOpt
+            .map { case (name, value, isLeaf) => (name, value.toString, if (isLeaf) "T" else "F") }
+            .getOrElse(("", "", ""))
 
-        writer.println(file, id, text, canonicalName, isLeaf, name)
+        writer.println(file, id, text, canonicalName, isLeaf, value, name)
       }
     }
   }
