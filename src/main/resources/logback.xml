@@ -8,6 +8,14 @@
         </encoder>
     </appender>
 
+    <appender name="eidos" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-eidos.log</file>
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
     <appender name="timer" class="ch.qos.logback.core.FileAppender">
         <param name="Append" value="true" />
         <file>${HOSTNAME}-timer.log</file>
@@ -23,5 +31,6 @@
     <!-- ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
     <root level="all">
         <appender-ref ref="console"/>
+        <appender-ref ref="eidos"/>
     </root>
 </configuration>

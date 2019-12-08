@@ -30,7 +30,7 @@ object ExtractDartMetaFromDirectory extends App {
   val converter = DartZipMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = files // .par
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
