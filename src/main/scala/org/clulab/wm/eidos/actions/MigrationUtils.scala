@@ -49,26 +49,56 @@ object MigrationUtils {
 
     def merge(mentions: Seq[Mention]): (Boolean, Seq[Mention]) = {
       val (used, merges) = findMerges(mentions)
+      val sortedMerges = merges.sorted
+      assert(merges == sortedMerges)
 
       if (merges.nonEmpty) {
-        val unorderedMergedMentionsOpt = merges.map { case (loIndex, hiIndex)  =>
-          // println("Merging " + loIndex + " and " + hiIndex)
-          val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
-          val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
+        val orderedResult = {
+          println("I got this far")
+          val swappedMerges = merges.map { case (loIndex, hiIndex) => (hiIndex, loIndex) }
+          val sortedSwappedMerges = swappedMerges.sorted
+          val mapHiToLowIndex = sortedSwappedMerges.groupBy { case (hiIndex, loIndex) => hiIndex }
+          val orderedMergedMentions = used.indices.map { hiIndex =>
+            if (mapHiToLowIndex.contains(hiIndex)) {
+              mapHiToLowIndex(hiIndex).map { case (hiIndex, loIndex) =>
+                val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
+                val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
 
-          copy
-        }
-        val unorderedUnmergedMentionsOpt = used
-            .indices
-            .filter { hiIndex: Int => !used(hiIndex) }
-            .map { hiIndex =>
-              // println("Copying " + hiIndex)
-              mentions(hiIndex)
+                copy
+              }
             }
-        // The merged ones are checked for equality, the unmerged not.
-        val unorderedMergedMentions = unorderedMergedMentionsOpt.distinct ++ unorderedUnmergedMentionsOpt
+            else if (!used(hiIndex)) {
+              Seq(mentions(hiIndex))
+            }
+            else
+              Seq.empty
+          }.flatten
 
-        (false, unorderedMergedMentions)
+          (false, orderedMergedMentions)
+        }
+
+        val unorderedResult = {
+          val unorderedMergedMentionsOpt = merges.map { case (loIndex, hiIndex) =>
+            // println("Merging " + loIndex + " and " + hiIndex)
+            val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
+            val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
+
+            copy
+          }
+          val unorderedUnmergedMentionsOpt = used
+              .indices
+              .filter { hiIndex: Int => !used(hiIndex) }
+              .map { hiIndex =>
+                // println("Copying " + hiIndex)
+                mentions(hiIndex)
+              }
+          // The merged ones are checked for equality, the unmerged not.
+          val unorderedMergedMentions = unorderedMergedMentionsOpt.distinct ++ unorderedUnmergedMentionsOpt
+
+          (false, unorderedMergedMentions)
+        }
+
+        orderedResult
       }
       else
         (true, mentions)
