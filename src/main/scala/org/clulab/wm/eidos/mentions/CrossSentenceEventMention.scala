@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.mentions
 
+import org.clulab.odin
 import org.clulab.odin.{Attachment, EventMention, Mention, SynPath, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import scala.math.{min, max}
 
 //same as EventMention but with a different foundBy, no paths, sentence == the sent of the trigger, and a different text method
 //todo: place elsewhere
@@ -11,7 +11,6 @@ import scala.math.{min, max}
 //TODO: These will be serialized as EventMentions, and then won't be deserialized properly to this subclass.
 class CrossSentenceEventMention(
   labels: Seq[String],
-  tokenInterval: Interval,
   trigger: TextBoundMention,
   arguments: Map[String, Seq[Mention]],
   paths: Map[String, Map[Mention, SynPath]],
@@ -20,7 +19,7 @@ class CrossSentenceEventMention(
   keep: Boolean,
   foundBy: String,
   attachments: Set[Attachment] = Set.empty
-) extends EventMention(labels, tokenInterval, trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
+) extends EventMention(labels, CrossSentenceEventMention.calcTokenInterval(sentence, trigger, arguments), trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
 
   //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
 
@@ -60,5 +59,22 @@ class CrossSentenceEventMention(
     val text = perSentenceWords.flatten.mkString(" ")
 
     text
+  }
+}
+
+object CrossSentenceEventMention {
+
+  def calcTokenInterval(sentence: Int, trigger: TextBoundMention, arguments: Map[String, Seq[Mention]]): Interval = {
+    // Base the token interval only on arguments from the mention's sentence because the token interval is only
+    // valid for a single sentence.  They cannot extend to other sentences.
+    // TODO: Figure out a way around this limitation.
+    val localArguments = arguments.map { case (key, values) =>
+      key -> values.filter(_.sentence == sentence)
+    }
+
+    if (trigger.sentence == sentence)
+      odin.mkTokenInterval(trigger, localArguments)
+    else
+      odin.mkTokenInterval(localArguments)
   }
 }

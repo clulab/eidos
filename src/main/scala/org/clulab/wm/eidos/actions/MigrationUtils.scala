@@ -4,13 +4,11 @@ import java.util.regex.Pattern
 
 import org.clulab.odin.Attachment
 import org.clulab.odin.{CrossSentenceMention, EventMention, Mention, RelationMention, TextBoundMention}
-import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab._
 
 import scala.annotation.tailrec
-//import scala.collection.mutable.ArrayBuffer
 
 object MigrationUtils {
 
@@ -239,9 +237,8 @@ println("Copying " + i)
         val isGood2 = mentions2.exists(mention => mention.attachments.nonEmpty || mergePattern.matcher(mention.text).matches)
 
         if (isGood1) mentions1 // Favor first if it's good
-//        else if (isGood2) mentions2 // otherwise choose the second if that's good
-//        else mentions1 // and favor the first if neither is good.
-          else mentions2 // This is mimicking mergeArgsOld for regression testing.  The above two lines are preferred.
+        else if (isGood2) mentions2 // otherwise choose the second if that's good
+        else mentions1 // and favor the first if neither is good.
       }
       else
         mentionsOpt1.getOrElse(mentionsOpt2.get) // There was only one of them anyway.
@@ -251,32 +248,7 @@ println("Copying " + i)
 
     newArgs
   }
-/*
-  This is preserved temporarily to show what the new version above was aiming for.
 
-  def mergeArgsOld(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
-    val intersectingKeys = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
-    val newArgs = (mention1.arguments ++ mention2.arguments).map { arg =>
-      // The actual arg will be from mention2 which would have overwritten that in mention1
-      // If the argumentName is present in both of the mentions...
-      // Choose the more specific argument by checking if one of them contains an attachment or contains numbers or contains capital letters
-      if (intersectingKeys.contains(arg._1)) {
-        val mentions1 = mention1.arguments(arg._1)
-        val isGood1 = mentions1.exists(tbm => tbm.attachments.nonEmpty || mergePattern.matcher(tbm.text).matches)
-
-        // TODO: This doesn't seem like a good idea.  The same one should always win in a tie.
-        if (isGood1)
-          arg._1 -> mentions1 // Take the first one, regardless of whether the second is just as good.
-        else
-          arg // Take the second one, regardless of whether the first is just as good.
-      }
-      else
-        arg // There was only one of them anyway.
-    }
-
-    newArgs
-  }
-*/
   /*
   if there is a generic location mention in the migration event, try to resolve it to the nearest previous specific location
   (for now, specific == has an attachment)
@@ -345,37 +317,57 @@ println("Copying " + i)
   def containsGenericLocation(arg: (String, Seq[Mention])): Boolean =
       arg._2.exists(mention => genericLocations.contains(mention.text))
 
+  protected def newWithinSentenceMention(mention: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String], mkNewInterval: Boolean): Mention = {
+    val copyFoundBy = if (foundByAffix.nonEmpty) s"${mention.foundBy}_${foundByAffix.get}" else mention.foundBy
+    val newTokenInterval = {
+      if (mkNewInterval) {
+        // All involved token intervals, both for the original event and the expanded arguments => changed to just
+        // looking at the newArgs bc that involves the original set of args; may need to revisit
+        // The arguments are all in the same sentence, so odin's mkTokenInterval should be valid.
+        mention match {
+          case mention: EventMention => odin.mkTokenInterval(mention.trigger, newArgs)
+          case _: Mention => odin.mkTokenInterval(newArgs)
+        }
+      }
+      else
+        mention.tokenInterval
+    }
+    // Make the copy based on the type of the Mention
+    val newMention = mention match {
+      case rm: RelationMention => rm.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
+      case em: EventMention =>
+        val paths = for {
+          (argName, argPathsMap) <- mention.paths
+          origPath = argPathsMap(mention.arguments(argName).head)
+        } yield (argName, Map(newArgs(argName).head -> origPath))
+
+        em.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
+      case _: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+    }
+
+    newMention
+  }
+
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
   def copyWithNewArgs(mention: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
+    // Create a mention to return as either another EventMention but with expanded args (the 'else' part) or a
+    // crossSentenceEventMention if the args of the Event are from different sentences.
+    val needsCrossSentenceForArgs = newArgs.values.exists { mentions: Seq[Mention] => mentions.exists(_.sentence != mention.sentence) }
+    val needsCrossSentenceForTrigger = mention match {
+      case mention: EventMention => mention.trigger.sentence != mention.sentence
+      case _: Mention => false
+    }
+    val needsCrossSentence = needsCrossSentenceForArgs || needsCrossSentenceForTrigger
+    val newMention = if (needsCrossSentence) {
+      val trigger = mention.asInstanceOf[EventMention].trigger // This conversion doesn't seem to be a given!
 
-    val newTokenInterval = if (mkNewInterval) {
-      // All involved token intervals, both for the original event and the expanded arguments => changed to just looking at the newArgs bc that involves the original set of args; may need to revisit
-      //val allIntervals = newArgsAsList.map(_.tokenInterval)
-      // Find the largest span from these intervals
-      odin.mkTokenInterval(mention.asInstanceOf[EventMention].trigger, newArgs)
-    } else mention.tokenInterval
-    val paths = for {
-      (argName, argPathsMap) <- mention.paths
-      origPath = argPathsMap(mention.arguments(argName).head)
-    } yield (argName, Map(newArgs(argName).head -> origPath))
-    // Make the copy based on the type of the Mention
-    val copyFoundBy = if (foundByAffix.nonEmpty) s"${mention.foundBy}_${foundByAffix.get}" else mention.foundBy
-
-    //create a mention to return as either another EventMention but with expanded args (the 'else' part) or a crossSentenceEventMention if the args of the Event are from different sentences
-    val newMention = if (newArgs.values.flatten.exists(_.sentence != mention.sentence)) {
-      // This is where an EventMention with some kind of custom text might be better.
-      //      orig.asInstanceOf[EventMention].copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
-      new CrossSentenceEventMention(labels = mention.labels, tokenInterval = newTokenInterval,
-          trigger = mention.asInstanceOf[EventMention].trigger, arguments = newArgs, Map.empty, mention.sentence,
-          mention.document, keep = true, foundBy = mention.foundBy + "++ crossSentActions", attachments = mention.attachments)
+      new CrossSentenceEventMention(labels = mention.labels, trigger,
+          arguments = newArgs, Map.empty, mention.sentence, mention.document, keep = true,
+          foundBy = mention.foundBy + "++ crossSentActions", attachments = mention.attachments)
     }
     else
-      mention match {
-        case _: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
-        case rm: RelationMention => rm.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
-        case em: EventMention => em.copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
-      }
+      newWithinSentenceMention(mention, newArgs, foundByAffix, mkNewInterval)
 
     newMention
   }
