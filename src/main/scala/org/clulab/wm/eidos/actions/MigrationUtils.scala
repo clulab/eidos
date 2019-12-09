@@ -7,6 +7,7 @@ import org.clulab.odin.{CrossSentenceMention, EventMention, Mention, RelationMen
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
+import org.clulab._
 
 import scala.annotation.tailrec
 //import scala.collection.mutable.ArrayBuffer
@@ -347,15 +348,12 @@ println("Copying " + i)
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
   def copyWithNewArgs(mention: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
-    // Helper method to get a token interval for the new event mention with expanded args
-    def getNewTokenInterval(intervals: Iterable[Interval]): Interval = Interval(intervals.minBy(_.start).start, intervals.maxBy(_.end).end)
 
-    val newArgsAsList: Iterable[Mention] = newArgs.values.flatten
     val newTokenInterval = if (mkNewInterval) {
       // All involved token intervals, both for the original event and the expanded arguments => changed to just looking at the newArgs bc that involves the original set of args; may need to revisit
-      val allIntervals = newArgsAsList.map(_.tokenInterval)
+      //val allIntervals = newArgsAsList.map(_.tokenInterval)
       // Find the largest span from these intervals
-      getNewTokenInterval(allIntervals)
+      odin.mkTokenInterval(mention.asInstanceOf[EventMention].trigger, newArgs)
     } else mention.tokenInterval
     val paths = for {
       (argName, argPathsMap) <- mention.paths
@@ -365,7 +363,7 @@ println("Copying " + i)
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${mention.foundBy}_${foundByAffix.get}" else mention.foundBy
 
     //create a mention to return as either another EventMention but with expanded args (the 'else' part) or a crossSentenceEventMention if the args of the Event are from different sentences
-    val newMention = if (newArgsAsList.exists(_.sentence != mention.sentence)) {
+    val newMention = if (newArgs.values.flatten.exists(_.sentence != mention.sentence)) {
       // This is where an EventMention with some kind of custom text might be better.
       //      orig.asInstanceOf[EventMention].copy(arguments = newArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = Map.empty)
       new CrossSentenceEventMention(labels = mention.labels, tokenInterval = newTokenInterval,
