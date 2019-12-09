@@ -25,9 +25,9 @@ class CrossSentenceEventMention(
   //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
 
   override def text: String = {
-    val sentenceAndMentionsSeq = arguments
+    val sentenceAndMentionsSeq = (arguments
         .values
-        .flatten
+        .flatten ++ Seq(trigger))
         .groupBy(_.sentence)
         .toSeq
         .sortBy(_._1) // sort by the sentence
@@ -42,13 +42,13 @@ class CrossSentenceEventMention(
           // in the first sentence the CrossSentenceEventMention spans, the part to return is the span from the start of the first argument or trigger of the event to the end of the sentence
           // Although it doesn't matter much with a small collection, sorting one in its entirety just to extract
           // an extreme value is inefficient.  So, a simple minBy is used.  Is there no minByBy?
-          val start = min(mentions.minBy(_.start).start, trigger.start)
+          val start = mentions.minBy(_.start).start
           sentenceWordArr.drop(start)
         case sentence if sentence == lastSentence =>
           // in the last sentence the CrossSentenceEventMention spans, the part to return is the span from the beginning of the sentence to the end of the last argument or the trigger, whichever comes latest
           // Although it may not be a problem in this context, the maximum end does not necessarily come from the
           // mention with the maximum start.  Sometimes mentions overlap and they might conceivably be nested.
-          val end = max(mentions.maxBy(_.end).end, trigger.end)
+          val end = mentions.maxBy(_.end).end
           sentenceWordArr.take(end)
         case _ =>
           // if it's a middle sentence, the part to return is the whole sentence
