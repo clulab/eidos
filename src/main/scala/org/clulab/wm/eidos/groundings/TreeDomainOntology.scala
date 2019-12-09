@@ -63,7 +63,7 @@ class OntologyRootNode extends OntologyParentNode("", None) {
   override def escaped: String = ""
 }
 
-class OntologyBranchNode(nodeName: String, parent: OntologyNode) extends OntologyParentNode(nodeName, Some(parent)) {
+class OntologyBranchNode(nodeName: String, parent: OntologyNode, filtered: String => Seq[String]) extends OntologyParentNode(nodeName, Some(parent)) {
 
   override def fullName: String = parentOpt.get.fullName + escaped + DomainOntology.SEPARATOR
 
@@ -73,10 +73,11 @@ class OntologyBranchNode(nodeName: String, parent: OntologyNode) extends Ontolog
   override def escaped: String = escaped(nodeName)
 
   override def getValues: Array[String] = {
-    val answer = nodeName.split('_')
-    answer
-  } // Array(nodeName) // childrenOpt.get.flatMap(_.getValues).toArray
-  //super.getValues // TODO: Do something with children
+    val value = nodeName.replace('_', ' ')
+    val values = filtered(value)
+
+    values.toArray
+  }
 
   override def getPatterns: Array[Regex] = super.getPatterns // TODO: Do something with children
 }
@@ -263,7 +264,7 @@ object TreeDomainOntology {
           // This is to account for leafless branches.
           val yamlNodesOpt = Option(map(key).asScala)
           if (yamlNodesOpt.nonEmpty) { // foreach does not work well here.
-            val branchNode = new OntologyBranchNode(key, parent) // Note: branch nodes are created here
+            val branchNode = new OntologyBranchNode(key, parent, filtered) // Note: branch nodes are created here
 
             parseOntology(branchNode, yamlNodesOpt.get.toSeq, level + 1)
             Seq(branchNode)
