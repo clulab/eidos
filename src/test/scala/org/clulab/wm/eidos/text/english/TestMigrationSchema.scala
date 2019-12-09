@@ -6,6 +6,40 @@ import org.clulab.wm.eidos.test.TestUtils._
 
 class TestMigrationSchema extends EnglishTest {
 
+
+  {
+    val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
+
+    val tester = new GraphTester(text)
+
+    val group = NodeSpec("300 refugees", CountSpec(300))
+    val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
+    val moveFrom = NodeSpec("South Sudan", GeoLoc("South Sudan"))
+    val time = NodeSpec("1997", TimEx("1997"))
+
+    val migration = HumanMigrationEdgeSpec(group = Some(group),
+      moveTo = Some(moveTo), moveFrom = Some(moveFrom),
+      time = Some(time)) //fixme: time is found as "beginning of sept.."
+
+    behavior of "migration-crossSentence"
+
+    passingTest should "have correct group node" taggedAs (Somebody) in {
+      tester.test(group) should be(successful)
+    }
+    passingTest should "have correct moveTo node" taggedAs (Somebody) in {
+      tester.test(moveTo) should be(successful)
+    }
+    passingTest should "have correct moveFrom node" taggedAs (Somebody) in {
+      tester.test(moveFrom) should be(successful)
+    }
+    passingTest should "have correct time node" taggedAs (Somebody) in {
+      tester.test(time) should be(successful)
+    }
+    passingTest should "have correct migration event" taggedAs (Somebody) in {
+      tester.test(migration) should be(successful) //time is found as "the beginning of September 2016" and the timex's are not attached
+    }
+  }
+
   {
     val text = "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
 
