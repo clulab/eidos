@@ -171,8 +171,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     else {
       println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
 
-      val mentionText = mention.odinMention.text
-      println("MENTION TEXT:\t"+mentionText)
+//      val mentionText = mention.odinMention.text
+//      println("MENTION TEXT:\t"+mentionText)
 
       /** Get the syntactic head of the mention */
       // Make a new mention that's just the syntactic head of the original mention
@@ -198,7 +198,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         "compound",
         "nmod_of",
         "nmod_to",
-        "nmod_for"
+        "nmod_for",
+        "nmod_such_as"
       )
       val modifierMentions = getModifierMentions(headText, mention.odinMention, allowedMods.mkString("|"))
 
@@ -263,7 +264,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
          |   priority: 1
          |   type: token
          |   pattern: |
-         |      [chunk=/NP$$/ & !word=${synHeadWord} & !tag=DT]+
+         |      [chunk=/NP$$/ & !word=${synHeadWord} & !tag=/DT|JJ|CC/]+
          |
          | - name: SegmentConcept
          |   label: InternalModifier

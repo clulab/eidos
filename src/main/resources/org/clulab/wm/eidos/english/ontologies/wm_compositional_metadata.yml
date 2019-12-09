@@ -248,6 +248,8 @@
                 - migration
                 - displacement
                 - movement
+                - moving
+                - move
               name: migration
               take_args: 0
               polarity: 1.0
@@ -325,11 +327,12 @@
           polarity: 1.0
         - OntologyNode:
           pattern:
-            - (supply|amount|level)
+            - (supply|amount|level|lack)
           examples:
             - supply
             - amount
             - level
+            - lack
           name: supply
           take_args: 0
           polarity: 1.0
@@ -1228,6 +1231,7 @@
                         - medication
                         - medical therapy
                         - theraputic treatment
+                        - healthcare
                       name: health_treatment
                       take_args: 1
                       polarity: 1.0
