@@ -52,7 +52,6 @@ object MigrationUtils {
 
       if (merges.nonEmpty) {
         val sortedMerges = merges.sorted
-        assert(merges == sortedMerges)
         val hiToLoIndexMap = sortedMerges.groupBy { case (hiIndex, _) => hiIndex }
         val orderedMergedMentions = used.indices.flatMap { hiIndex =>
           if (hiToLoIndexMap.contains(hiIndex)) {
