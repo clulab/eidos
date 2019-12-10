@@ -56,10 +56,10 @@ object MigrationUtils {
 
       if (merges.nonEmpty) {
         val sortedMerges = merges.sorted
-        val rightToLeftIndexMap = sortedMerges.groupBy { case (rightIndex, _) => rightIndex }
+        val rightToRightAndLeftIndexMap = sortedMerges.groupBy { case (rightIndex, _) => rightIndex }
         val orderedMergedMentions = used.indices.flatMap { rightIndex =>
-          if (rightToLeftIndexMap.contains(rightIndex)) {
-            rightToLeftIndexMap(rightIndex).map { case (rightIndex, leftIndex) =>
+          if (rightToRightAndLeftIndexMap.contains(rightIndex)) {
+            rightToRightAndLeftIndexMap(rightIndex).map { case (rightIndex, leftIndex) =>
               val newArgs = mergeArgs(mentions(leftIndex), mentions(rightIndex))
               // This will have the sentence of the mention at rightIndex, so that sentence order is maintained.
               val copy = copyWithNewArgs(mentions(rightIndex), newArgs)
