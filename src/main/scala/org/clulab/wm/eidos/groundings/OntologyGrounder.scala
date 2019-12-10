@@ -101,14 +101,14 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
   }
 
   // For API to reground strings
-  def groundText(text: String): OntologyGrounding = {
-    val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
+  def groundText(tokens: Seq[String]): OntologyGrounding = {
+    val matchedPatterns = nodesPatternMatched(tokens.mkString(" "), conceptPatterns)
     if (matchedPatterns.nonEmpty) {
       newOntologyGrounding(matchedPatterns)
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(tokens.toArray, conceptEmbeddings))
     }
   }
 
