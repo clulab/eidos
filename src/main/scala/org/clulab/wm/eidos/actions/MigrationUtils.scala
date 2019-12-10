@@ -26,19 +26,23 @@ object MigrationUtils {
 
     def findMerges(mentions: Seq[Mention]): (Array[Boolean], IndexedSeq[(Int, Int)]) = {
       val used = Array.fill(mentions.length)(false)
-      val merges = mentions.indices.map { loIndex =>
-        if (!used(loIndex)) {
-          val mergeable = mentions
+      // These will be the (rightIndex, leftIndex) of the mentions that should be merged.
+      val merges = mentions.indices.map { leftIndex =>
+        if (!used(leftIndex)) {
+          val mergeableRightIndexes = mentions
               .indices
-              .drop(loIndex + 1)
-              .filter { hiIndex =>
-                isMergeable(mentions(loIndex), mentions(hiIndex))
+              // This keeps rightIndex values greater than leftIndex values.
+              .drop(leftIndex + 1)
+              .filter { rightIndex =>
+                isMergeable(mentions(leftIndex), mentions(rightIndex))
               }
 
-          mergeable.map { hiIndex =>
-            used(loIndex) = true
-            used(hiIndex) = true
-            (hiIndex, loIndex)
+          mergeableRightIndexes.map { rightIndex =>
+            // This creates an ordering.  If a rightIndex is used, it is ruled out as a leftIndex.
+            // The used(leftIndex) is superfluous locally, but it must be returned.
+            used(leftIndex) = true
+            used(rightIndex) = true
+            (rightIndex, leftIndex)
           }
         }
         else
@@ -52,19 +56,19 @@ object MigrationUtils {
 
       if (merges.nonEmpty) {
         val sortedMerges = merges.sorted
-        val hiToLoIndexMap = sortedMerges.groupBy { case (hiIndex, _) => hiIndex }
-        val orderedMergedMentions = used.indices.flatMap { hiIndex =>
-          if (hiToLoIndexMap.contains(hiIndex)) {
-            hiToLoIndexMap(hiIndex).map { case (hiIndex, loIndex) =>
-              val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
-              // This will have the sentence of the mention at hiIndex, so that order is used.
-              val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
+        val rightToLeftIndexMap = sortedMerges.groupBy { case (rightIndex, _) => rightIndex }
+        val orderedMergedMentions = used.indices.flatMap { rightIndex =>
+          if (rightToLeftIndexMap.contains(rightIndex)) {
+            rightToLeftIndexMap(rightIndex).map { case (rightIndex, leftIndex) =>
+              val newArgs = mergeArgs(mentions(leftIndex), mentions(rightIndex))
+              // This will have the sentence of the mention at rightIndex, so that sentence order is maintained.
+              val copy = copyWithNewArgs(mentions(rightIndex), newArgs)
 
               copy
             }
           }
-          else if (!used(hiIndex))
-            Seq(mentions(hiIndex))
+          else if (!used(rightIndex))
+            Seq(mentions(rightIndex))
           else
             Seq.empty
         }
