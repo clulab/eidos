@@ -301,7 +301,7 @@ object MigrationUtils {
 
       new CrossSentenceEventMention(labels = mention.labels, trigger,
           arguments = newArgs, Map.empty, mention.sentence, mention.document, keep = true,
-          foundBy = mention.foundBy + "++ crossSentActions", attachments = mention.attachments)
+          foundBy = mention.foundBy + "++crossSentActions", attachments = mention.attachments)
     }
     else
       newWithinSentenceMention(mention, newArgs, foundByAffix, mkNewInterval)
