@@ -19,7 +19,8 @@ class CrossSentenceEventMention(
   keep: Boolean,
   foundBy: String,
   attachments: Set[Attachment] = Set.empty
-) extends EventMention(labels, CrossSentenceEventMention.calcTokenInterval(sentence, trigger, arguments), trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
+) extends EventMention(labels,  CrossSentenceEventMention.calcTokenInterval(sentence, trigger, arguments, document.sentences(sentence).startOffsets.length),
+    trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
 
   //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
 
@@ -64,17 +65,26 @@ class CrossSentenceEventMention(
 
 object CrossSentenceEventMention {
 
-  def calcTokenInterval(sentence: Int, trigger: TextBoundMention, arguments: Map[String, Seq[Mention]]): Interval = {
+  def calcTokenInterval(sentence: Int, trigger: TextBoundMention, arguments: Map[String, Seq[Mention]], tokenCount: Int): Interval = {
     // Base the token interval only on arguments from the mention's sentence because the token interval is only
     // valid for a single sentence.  They cannot extend to other sentences.
     // TODO: Figure out a way around this limitation.
+    val hasPreceding = trigger.sentence < sentence || arguments.values.exists { mentions => mentions.exists(_.sentence < sentence) }
+    val hasFollowing = sentence < trigger.sentence || arguments.values.exists { mentions => mentions.exists(sentence < _.sentence) }
     val localArguments = arguments.map { case (key, values) =>
       key -> values.filter(_.sentence == sentence)
     }
-
-    if (trigger.sentence == sentence)
+    val localTokenInterval = if (trigger.sentence == sentence)
       odin.mkTokenInterval(trigger, localArguments)
     else
       odin.mkTokenInterval(localArguments)
+    val tokenInterval = (hasPreceding, hasFollowing) match {
+      case (false, false) => localTokenInterval
+      case (false, true) => Interval(localTokenInterval.start, tokenCount)
+      case (true, false) => Interval(0, localTokenInterval.end)
+      case (true, true) => Interval(0, tokenCount)
+    }
+
+    tokenInterval
   }
 }

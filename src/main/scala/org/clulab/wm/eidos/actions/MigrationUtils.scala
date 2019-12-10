@@ -38,7 +38,7 @@ object MigrationUtils {
           mergeable.map { hiIndex =>
             used(loIndex) = true
             used(hiIndex) = true
-            (loIndex, hiIndex)
+            (hiIndex, loIndex)
           }
         }
         else
@@ -51,24 +51,25 @@ object MigrationUtils {
       val (used, merges) = findMerges(mentions)
 
       if (merges.nonEmpty) {
-        val unorderedMergedMentionsOpt = merges.map { case (loIndex, hiIndex)  =>
-          // println("Merging " + loIndex + " and " + hiIndex)
-          val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
-          val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
+        val sortedMerges = merges.sorted
+        val hiToLoIndexMap = sortedMerges.groupBy { case (hiIndex, _) => hiIndex }
+        val orderedMergedMentions = used.indices.flatMap { hiIndex =>
+          if (hiToLoIndexMap.contains(hiIndex)) {
+            hiToLoIndexMap(hiIndex).map { case (hiIndex, loIndex) =>
+              val newArgs = mergeArgs(mentions(loIndex), mentions(hiIndex))
+              // This will have the sentence of the mention at hiIndex, so that order is used.
+              val copy = copyWithNewArgs(mentions(hiIndex), newArgs)
 
-          copy
-        }
-        val unorderedUnmergedMentionsOpt = used
-            .indices
-            .filter { hiIndex: Int => !used(hiIndex) }
-            .map { hiIndex =>
-              // println("Copying " + hiIndex)
-              mentions(hiIndex)
+              copy
             }
-        // The merged ones are checked for equality, the unmerged not.
-        val unorderedMergedMentions = unorderedMergedMentionsOpt.distinct ++ unorderedUnmergedMentionsOpt
+          }
+          else if (!used(hiIndex))
+            Seq(mentions(hiIndex))
+          else
+            Seq.empty
+        }
 
-        (false, unorderedMergedMentions)
+        (false, orderedMergedMentions)
       }
       else
         (true, mentions)
@@ -87,70 +88,6 @@ object MigrationUtils {
     doWhile(orderMentions(mentions))
   }
 
-/*
- This is preserved temporarily to show what the new version above was aiming for.
-
-  // combine events with shared arguments AND combine events in close proximity with complementary arguments
-  def assembleFragmentsOld(mentions: Seq[Mention]): Seq[Mention] = {
-    var orderedMentions = orderMentions(mentions)
-    // the events we will ultimately return
-    var returnedEvents = ArrayBuffer[Mention]()
-    // keep merging events until we have nothing acceptable left to merge
-    var stillMerging = true
-    // loop and merge compatible events, add to mergedEvents
-    while (stillMerging) {
-      // empty the array at the beginning of each loop
-      returnedEvents = ArrayBuffer[Mention]()
-      // to keep track of what events we've merged
-      var used = Array.fill(orderedMentions.length)(false)
-      for (i <- orderedMentions.indices) {
-
-        // only merge events if the first of the pair hasn't already been merged (heuristic!)
-        if (!used(i)) {
-          for (j <- i + 1 until orderedMentions.length) {
-println("Checking " + i + " with " + j)
-            //check if the two events can be merged
-            if (isMergeable(orderedMentions(i), orderedMentions(j))) {
-println("Merging " + i + " and " + j)
-              // create the set of arguments to include in the new merged event (preference to the more specific args
-              // in case of argName overlap)
-              val newArgs = mergeArgs(orderedMentions(i), orderedMentions(j))
-              //create a new event with the new args by copying the rightmost mention of the two with the new set of args;
-              // copy the rightmost event and not the first one because this way we keep the possibility of this newly-merged
-              // event being merged with a fragment from the next sentence in the next merging loop (currently, we only
-              // merge fragments from adjacent sentences)
-              val copy = copyWithNewArgs(orderedMentions(j), newArgs)
-              // return the new event if it isn't identical to an existing event
-              if (!(returnedEvents contains copy)) {
-                returnedEvents += copy
-                println("It did not contain.")
-              }
-              used = used.updated(i, true)
-              used = used.updated(j, true)
-            }
-          }
-        }
-      }
-
-      // add unmerged events ('false' in used list)
-      // TODO Doesn't adding them now would mean that they are now out of order?
-      for (i <- orderedMentions.indices) {
-        if (!used(i)) {
-          returnedEvents += orderedMentions(i)
-println("Copying " + i)
-        }
-      }
-
-      //check if there are any mergeable events among the newly-created set of mentions; if not, set stillMerging to false,
-      // which will break the loop
-      if (!returnedEvents.exists(mention => returnedEvents.exists(mention2 => isMergeable(mention, mention2) && mention != mention2 ))) {
-        stillMerging = false
-      }
-      orderedMentions = returnedEvents
-    }
-    returnedEvents
-  }
-*/
   // given two event mentions, checks if they can be merged
   def isMergeable(mention1: Mention, mention2: Mention): Boolean = {
     // Don't construct the entire intersection just to find out whether or not it would be empty,
@@ -364,7 +301,7 @@ println("Copying " + i)
 
       new CrossSentenceEventMention(labels = mention.labels, trigger,
           arguments = newArgs, Map.empty, mention.sentence, mention.document, keep = true,
-          foundBy = mention.foundBy + "++ crossSentActions", attachments = mention.attachments)
+          foundBy = mention.foundBy + "++crossSentActions", attachments = mention.attachments)
     }
     else
       newWithinSentenceMention(mention, newArgs, foundByAffix, mkNewInterval)
