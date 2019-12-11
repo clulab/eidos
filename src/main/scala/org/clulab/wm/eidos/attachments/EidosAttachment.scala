@@ -100,6 +100,7 @@ object EidosAttachment {
     a match {
       case triggered: TriggeredAttachment => Seq(triggered.trigger) ++ triggered.quantifiers.getOrElse(Seq())
       case context: ContextAttachment => context.text.split(" ")
+      case _: Score => Seq.empty
       case _ => throw new RuntimeException(s"Unsupported class of attachment: ${a.getClass}")
     }
   }
