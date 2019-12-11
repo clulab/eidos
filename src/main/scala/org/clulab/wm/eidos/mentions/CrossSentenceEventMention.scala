@@ -11,6 +11,7 @@ import org.clulab.struct.Interval
 //TODO: These will be serialized as EventMentions, and then won't be deserialized properly to this subclass.
 class CrossSentenceEventMention(
   labels: Seq[String],
+  tokenInterval: Interval,
   trigger: TextBoundMention,
   arguments: Map[String, Seq[Mention]],
   paths: Map[String, Map[Mention, SynPath]],
@@ -18,9 +19,21 @@ class CrossSentenceEventMention(
   document: Document,
   keep: Boolean,
   foundBy: String,
-  attachments: Set[Attachment] = Set.empty
-) extends EventMention(labels,  CrossSentenceEventMention.calcTokenInterval(sentence, trigger, arguments, document.sentences(sentence).startOffsets.length),
-    trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
+  attachments: Set[Attachment]
+) extends EventMention(labels,  tokenInterval, trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments) {
+
+  def this(
+    labels: Seq[String],
+    trigger: TextBoundMention,
+    arguments: Map[String, Seq[Mention]],
+    paths: Map[String, Map[Mention, SynPath]],
+    sentence: Int,
+    document: Document,
+    keep: Boolean,
+    foundBy: String,
+    attachments: Set[Attachment] = Set.empty
+  ) = this(labels,  CrossSentenceEventMention.calcTokenInterval(sentence, trigger, arguments, document.sentences(sentence).startOffsets.length),
+      trigger, arguments, Map.empty, trigger.sentence, document, keep, foundBy, attachments)
 
   //the text method is overridden bc the EventMention text method does not work with cross sentence mentions
 

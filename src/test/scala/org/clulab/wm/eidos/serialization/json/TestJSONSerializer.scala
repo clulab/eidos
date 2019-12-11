@@ -11,20 +11,41 @@ class TestJSONSerializer extends Test {
 
   behavior of "JSONSerializer"
 
-  it should "serialize and deserialize again" in {
+  {
     val text = "Water trucking has decreased due to the cost of fuel."
-    val reader = new EidosSystem()
-    val annotatedDocument = reader.extractFromText(text)
 
-    val mentionsOut = annotatedDocument.odinMentions
-    val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
-    val json1 = stringify(jValue1, pretty = true)
+    it should s"""serialize "$text"""" in {
+      val annotatedDocument = reader.extractFromText(text)
 
-    val mentionsIn = WMJSONSerializer.toMentions(jValue1)
-    val jValue2 = WMJSONSerializer.jsonAST(mentionsOut)
-    val json2 = stringify(jValue2, pretty = true)
+      val mentionsOut = annotatedDocument.odinMentions
+      val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
+      val json1 = stringify(jValue1, pretty = true)
 
-    json1 should be (json2)
-    mentionsOut should be (mentionsIn)
+      val mentionsIn = WMJSONSerializer.toMentions(jValue1)
+      val jValue2 = WMJSONSerializer.jsonAST(mentionsOut)
+      val json2 = stringify(jValue2, pretty = true)
+
+      json1 should be(json2)
+      mentionsOut should be(mentionsIn)
+    }
+  }
+
+  {
+    val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
+
+    it should s"""serialize "$text"""" in {
+      val annotatedDocument = reader.extractFromText(text)
+
+      val mentionsOut = annotatedDocument.odinMentions
+      val jValue1 = WMJSONSerializer.jsonAST(mentionsOut)
+      val json1 = stringify(jValue1, pretty = true)
+
+      val mentionsIn = WMJSONSerializer.toMentions(jValue1)
+      val jValue2 = WMJSONSerializer.jsonAST(mentionsOut)
+      val json2 = stringify(jValue2, pretty = true)
+
+      json1 should be(json2)
+      mentionsOut should be(mentionsIn)
+    }
   }
 }
