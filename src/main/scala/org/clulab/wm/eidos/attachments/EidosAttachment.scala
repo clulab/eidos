@@ -73,8 +73,15 @@ object EidosAttachment {
       kind match {
         case CountAttachment.label => CountAttachment(json)
         case Location.label => Location(json)
-        case Time.label => Time(json)
-        case DCTime.label => DCTime(json)
+        case Time.label =>
+        // DCTime.label is the same as Time.label, so the cases need to be distinguished by other means.
+        // case DCTime.label =>
+          // DCTime does not have a text position associated with it, so use the
+          // absence of start to distinguish it from Time.
+          val start = (json \ "start").extractOpt[String]
+
+          if (start.isEmpty) DCTime(json)
+          else Time(json)
         case Score.label => Score(json)
       }
     }
@@ -369,7 +376,7 @@ class Hedging(trigger: String, quantifiers: Option[Seq[String]],
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Hedging.kind)
 
-  override def toJson: JValue = toJson(trigger)
+  override def toJson: JValue = toJson(Hedging.label)
 }
 
 object Hedging {
@@ -386,7 +393,7 @@ class Negation(trigger: String, quantifiers: Option[Seq[String]],
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Negation.kind)
 
-  override def toJson: JValue = toJson(trigger)
+  override def toJson: JValue = toJson(Negation.label)
 }
 
 object Negation {
@@ -580,8 +587,8 @@ class DCTime(val dct: DCT) extends ContextAttachment(dct.text, dct) {
 
   override def toJson: JValue = ("type" -> DCTime.label) ~
       ("text" -> dct.text) ~
-      ("start" -> dct.interval.start.toString) ~ // Is this adequate for retrieval?
-      ("end" -> dct.interval.end.toString)
+      ("startTime" -> dct.interval.start.toString) ~
+      ("endTime" -> dct.interval.end.toString)
 }
 
 object DCTime {
@@ -594,10 +601,10 @@ object DCTime {
     implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val text = (json \ "text").extract[String]
-    val start = (json \ "start").extract[String]
-    val end = (json \ "end").extract[String]
-    val startDateTime = LocalDateTime.parse(start)
-    val endDateTime = LocalDateTime.parse(end)
+    val startTime = (json \ "startTime").extract[String]
+    val endTime = (json \ "endTime").extract[String]
+    val startDateTime = LocalDateTime.parse(startTime)
+    val endDateTime = LocalDateTime.parse(endTime)
     val interval = SimpleInterval(startDateTime, endDateTime)
     val dct = new DCT(interval, text)
 
@@ -622,6 +629,16 @@ class Score(val score: Double) extends EidosAttachment {
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     new JLDEidosScoredAttachment(serializer, Score.kind, this)
+
+  override def equals(other: Any): Boolean = {
+    if (other.isInstanceOf[Score]) {
+      val that = other.asInstanceOf[Score]
+
+      this.score == that.score
+    }
+    else
+      false
+  }
 
   override def toJson: JValue = ("type" -> Score.label) ~
       ("score" -> score)
