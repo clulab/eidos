@@ -66,6 +66,10 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
         domainOntology.getPatterns(n))
     }
 
+  def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
+    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
+  }
+
   def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding =
       groundOntology(EidosOntologyGrounder.groundableType(mention), mention.odinMention.text, mention.canonicalNameParts)
 
