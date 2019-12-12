@@ -1,12 +1,16 @@
 package org.clulab.wm.eidos.attachments
 
+import java.time.LocalDateTime
+
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
+import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.serialization.json.JLDCountAttachment
 import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
 import org.clulab.wm.eidos.utils.QuicklyEqualable
@@ -49,17 +53,37 @@ object EidosAttachment {
   def newEidosAttachment(json: JValue): EidosAttachment = {
     implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    val trigger: String = (json \ TRIGGER).extract[String]
-    val quantifications: Seq[String] = (json \ QUANTIFICATIONS).extract[Seq[String]]
-    val someQuantifications = if (quantifications.nonEmpty) Some(quantifications) else None
+    val kind = (json \ TYPE).extract[String]
+    val triggerOpt = (json \ TRIGGER).extractOpt[String]
 
-    (json \ TYPE).extract[String] match {
-      case Increase.label => new Increase(trigger, someQuantifications)
-      case Decrease.label => new Decrease(trigger, someQuantifications)
-      case Quantification.label => new Quantification(trigger, someQuantifications)
-      case Property.label => new Property(trigger, someQuantifications)
-      case Hedging.label => new Hedging(trigger, someQuantifications)
-      case Negation.label => new Negation(trigger, someQuantifications)
+    triggerOpt.map { trigger =>
+      val quantifications: Seq[String] = (json \ QUANTIFICATIONS).extract[Seq[String]]
+      val someQuantifications = if (quantifications.nonEmpty) Some(quantifications) else None
+
+      kind match {
+        case Increase.label => new Increase(trigger, someQuantifications)
+        case Decrease.label => new Decrease(trigger, someQuantifications)
+        case Quantification.label => new Quantification(trigger, someQuantifications)
+        case Property.label => new Property(trigger, someQuantifications)
+        case Hedging.label => new Hedging(trigger, someQuantifications)
+        case Negation.label => new Negation(trigger, someQuantifications)
+      }
+    }
+    .getOrElse {
+      kind match {
+        case CountAttachment.label => CountAttachment(json)
+        case Location.label => Location(json)
+        case Time.label =>
+        // DCTime.label is the same as Time.label, so the cases need to be distinguished by other means.
+        // case DCTime.label =>
+          // DCTime does not have a text position associated with it, so use the
+          // absence of start to distinguish it from Time.
+          val start = (json \ "start").extractOpt[String]
+
+          if (start.isEmpty) DCTime(json)
+          else Time(json)
+        case Score.label => Score(json)
+      }
     }
   }
 
@@ -76,6 +100,7 @@ object EidosAttachment {
     a match {
       case triggered: TriggeredAttachment => Seq(triggered.trigger) ++ triggered.quantifiers.getOrElse(Seq())
       case context: ContextAttachment => context.text.split(" ")
+      case _: Score => Seq.empty
       case _ => throw new RuntimeException(s"Unsupported class of attachment: ${a.getClass}")
     }
   }
@@ -352,7 +377,7 @@ class Hedging(trigger: String, quantifiers: Option[Seq[String]],
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Hedging.kind)
 
-  override def toJson: JValue = toJson(trigger)
+  override def toJson: JValue = toJson(Hedging.label)
 }
 
 object Hedging {
@@ -369,7 +394,7 @@ class Negation(trigger: String, quantifiers: Option[Seq[String]],
 
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment = newJLDTriggeredAttachment(serializer, Negation.kind)
 
-  override def toJson: JValue = toJson(trigger)
+  override def toJson: JValue = toJson(Negation.label)
 }
 
 object Negation {
@@ -414,7 +439,18 @@ class Time(val interval: TimEx) extends ContextAttachment(interval.text, interva
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, Time.kind)
 
-  override def toJson: JValue = toJson(Time.label)
+  override def toJson: JValue = {
+    val intervals = interval.intervals.map { interval =>
+      ("startDate" -> interval.startDate.toString) ~
+          ("endDate" -> interval.endDate.toString)
+    }
+
+    ("type" -> Time.label) ~
+        ("text" -> interval.text) ~
+        ("start" -> interval.span.start) ~
+        ("end" -> interval.span.end) ~
+        ("intervals" -> intervals)
+  }
 
   override def biEquals(other: Any): Boolean = {
     super.biEquals(other) && {
@@ -436,6 +472,27 @@ object Time {
   val kind = "TIMEX"
 
   def apply(interval: TimEx) = new Time(interval)
+
+  def apply(json: JValue): Time = {
+    implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val text = (json \ "text").extract[String]
+    val startOffset = (json \ "start").extract[Integer]
+    val endOffset = (json \ "end").extract[Integer]
+    val intervals = (json \ "intervals").asInstanceOf[JArray].arr.map { jValue =>
+      val startDate = (jValue \ "startDate").extract[String]
+      val endDate = (jValue \ "endDate").extract[String]
+      val localStart = LocalDateTime.parse(startDate)
+      val localEnd = LocalDateTime.parse(endDate)
+      val timeStep = TimeStep(localStart, localEnd)
+
+      timeStep
+    }
+    val span = Interval(startOffset, endOffset)
+    val timEx = new TimEx(span, intervals, text)
+
+    new Time(timEx)
+  }
 
   def lessThan(left: Time, right: Time): Boolean =
     compare(left, right) < 0
@@ -465,7 +522,11 @@ class Location(val geoPhraseID: GeoPhraseID) extends ContextAttachment(geoPhrase
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, Location.kind)
 
-  override def toJson: JValue = toJson(Location.label)
+  override def toJson: JValue = ("type" -> Location.label) ~
+      ("text" -> geoPhraseID.text) ~
+      ("start" -> geoPhraseID.startOffset) ~
+      ("end" -> geoPhraseID.endOffset) ~
+      ("geoID" -> geoPhraseID.geonameID)
 
   override def biEquals(other: Any): Boolean = {
     super.biEquals(other) && {
@@ -484,6 +545,18 @@ object Location {
   val kind = "LocationExp"
 
   def apply(interval: GeoPhraseID) = new Location(interval)
+
+  def apply(json: JValue): Location = {
+    implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val text = (json \ "text").extract[String]
+    val startOffset = (json \ "start").extract[Integer]
+    val endOffset = (json \ "end").extract[Integer]
+    val geonameID = (json \ "geoID").extractOpt[String]
+    val geoPhraseID = GeoPhraseID(text, geonameID, startOffset, endOffset)
+
+    new Location(geoPhraseID)
+  }
 
   def lessThan(left: Location, right: Location): Boolean =
     compare(left, right) < 0
@@ -513,7 +586,10 @@ class DCTime(val dct: DCT) extends ContextAttachment(dct.text, dct) {
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     newJLDContextAttachment(serializer, DCTime.kind)
 
-  override def toJson: JValue = toJson(DCTime.label)
+  override def toJson: JValue = ("type" -> DCTime.label) ~
+      ("text" -> dct.text) ~
+      ("startTime" -> dct.interval.start.toString) ~
+      ("endTime" -> dct.interval.end.toString)
 }
 
 object DCTime {
@@ -521,6 +597,20 @@ object DCTime {
   val kind = "TIMEX"
 
   def apply(dct: DCT) = new DCTime(dct)
+
+  def apply(json: JValue): DCTime = {
+    implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val text = (json \ "text").extract[String]
+    val startTime = (json \ "startTime").extract[String]
+    val endTime = (json \ "endTime").extract[String]
+    val startDateTime = LocalDateTime.parse(startTime)
+    val endDateTime = LocalDateTime.parse(endTime)
+    val interval = SimpleInterval(startDateTime, endDateTime)
+    val dct = new DCT(interval, text)
+
+    new DCTime(dct)
+  }
 
   def lessThan(left: DCTime, right: DCTime): Boolean =
     compare(left, right) < 0
@@ -541,7 +631,18 @@ class Score(val score: Double) extends EidosAttachment {
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
     new JLDEidosScoredAttachment(serializer, Score.kind, this)
 
-  override def toJson: JValue = JNull // toJson(Score.label)
+  override def equals(other: Any): Boolean = {
+    if (other.isInstanceOf[Score]) {
+      val that = other.asInstanceOf[Score]
+
+      this.score == that.score
+    }
+    else
+      false
+  }
+
+  override def toJson: JValue = ("type" -> Score.label) ~
+      ("score" -> score)
 }
 
 object Score {
@@ -549,6 +650,14 @@ object Score {
   val kind = "SCORE"
 
   def apply(score: Double) = new Score(score)
+
+  def apply(json: JValue): Score = {
+    implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val score = (json \ "score").extract[Double]
+
+    new Score(score)
+  }
 }
 
 //
@@ -565,11 +674,15 @@ object CountUnit extends Enumeration {
   val Absolute, Daily, Weekly, Monthly, Percentage = Value
 }
 
-case class MigrationGroupCount(value: Double, modifier: CountModifier.Value, unit: CountUnit.Value)
+case class MigrationGroupCount(value: Double, modifier: CountModifier.Value, unit: CountUnit.Value) {
+
+  def toJson: JValue = ("value" -> value) ~
+      ("modifier" -> modifier.toString) ~
+      ("unit" -> unit.toString)
+}
 
 class CountAttachment(text: String, val migrationGroupCount: MigrationGroupCount,
     val startOffset: Int, val endOffset: Int) extends ContextAttachment(text, migrationGroupCount) {
-
   // Unlike other examples of ContextAttachments, this attachment itself keeps track of offsets.
   // There is no independent reference to the migrationGroupCount sent to the superclass constructor.
   // The "this" that we're interested in and it needs to be overridden here.
@@ -581,7 +694,11 @@ class CountAttachment(text: String, val migrationGroupCount: MigrationGroupCount
   override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
       newJLDContextAttachment(serializer, JLDCountAttachment.typename)
 
-  override def toJson: JValue = toJson(CountAttachment.label)
+  override def toJson: JValue = (EidosAttachment.TYPE -> CountAttachment.label) ~
+      ("text" -> text) ~
+      ("count" -> migrationGroupCount.toJson) ~
+      ("start" -> startOffset) ~
+      ("end" -> endOffset)
 
   override def biEquals(other: Any): Boolean = {
     super.biEquals(other) && {
@@ -603,6 +720,24 @@ class CountAttachment(text: String, val migrationGroupCount: MigrationGroupCount
 }
 
 object CountAttachment {
+
+  def apply(json: JValue): CountAttachment = {
+    implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val text = (json \ "text").extract[String]
+    val count = (json \ "count")
+    val value = (count \ "value").extract[Double]
+    val modifier = (count \ "modifier").extract[String]
+    val countModifier = CountModifier.withName(modifier)
+    val unit = (count \ "unit").extract[String]
+    val countUnit = CountUnit.withName(unit)
+    val start = (json \ "start").extract[Integer]
+    val end = (json \ "end").extract[Integer]
+    val migrationGroupCount = MigrationGroupCount(value, countModifier, countUnit)
+
+    new CountAttachment(text, migrationGroupCount, start, end)
+  }
+
   val label = "Count"
   val kind = "COUNT"
 }

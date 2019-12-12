@@ -289,18 +289,31 @@ object MigrationUtils {
     newMention
   }
 
+  def needsCrossSentence(sentence: Int, triggerSentenceOpt: Option[Int], args: Map[String, Seq[Mention]]): Boolean = {
+    val needsCrossSentenceForArgs = args.values.exists { mentions: Seq[Mention] => mentions.exists(_.sentence != sentence) }
+    val needsCrossSentenceForTrigger = triggerSentenceOpt
+        .map { triggerSentence => triggerSentence != sentence }
+        .getOrElse(false)
+    val needsCrossSentence = needsCrossSentenceForArgs || needsCrossSentenceForTrigger
+
+    needsCrossSentence
+  }
+
+  def needsCrossSentence(mention: Mention, args: Map[String, Seq[Mention]]): Boolean = {
+    val triggerSentenceOpt = mention match {
+      case mention: EventMention => Some(mention.trigger.sentence)
+      case _: Mention => None
+    }
+
+    needsCrossSentence(mention.sentence, triggerSentenceOpt, args)
+  }
+
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
   def copyWithNewArgs(mention: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
     // Create a mention to return as either another EventMention but with expanded args (the 'else' part) or a
     // crossSentenceEventMention if the args of the Event are from different sentences.
-    val needsCrossSentenceForArgs = newArgs.values.exists { mentions: Seq[Mention] => mentions.exists(_.sentence != mention.sentence) }
-    val needsCrossSentenceForTrigger = mention match {
-      case mention: EventMention => mention.trigger.sentence != mention.sentence
-      case _: Mention => false
-    }
-    val needsCrossSentence = needsCrossSentenceForArgs || needsCrossSentenceForTrigger
-    val newMention = if (needsCrossSentence) {
+    val newMention = if (needsCrossSentence(mention, newArgs)) {
       val trigger = mention.asInstanceOf[EventMention].trigger // This conversion doesn't seem to be a given!
 
       new CrossSentenceEventMention(labels = mention.labels, trigger,
