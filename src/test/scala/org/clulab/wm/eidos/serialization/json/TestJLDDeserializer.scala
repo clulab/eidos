@@ -13,7 +13,23 @@ import org.json4s.jackson.JsonMethods._
 import JLDDeserializer.DocumentMap
 import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
+import org.clulab.timenorm.scate.SimpleInterval
+import org.clulab.wm.eidos.attachments.CountAttachment
+import org.clulab.wm.eidos.attachments.CountModifier
+import org.clulab.wm.eidos.attachments.CountUnit
+import org.clulab.wm.eidos.attachments.DCTime
+import org.clulab.wm.eidos.attachments.Decrease
+import org.clulab.wm.eidos.attachments.Hedging
+import org.clulab.wm.eidos.attachments.Increase
+import org.clulab.wm.eidos.attachments.Location
+import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.attachments.Provenance
+import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.attachments.Time
+import org.clulab.wm.eidos.context.DCT
+import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.CountMap
@@ -477,11 +493,7 @@ class TestJLDDeserializer extends ExtractionTest {
     }
 
     it should "deserialize States from jsonld" in {
-      val json = """
-        |[ {
-        |  "@type" : "State",
-        |  "type" : "DEC",
-        |  "text" : "decreased",
+      val provenance = """
         |  "provenance" : [ {
         |    "@type" : "Provenance",
         |    "document" : {
@@ -527,10 +539,59 @@ class TestJLDDeserializer extends ExtractionTest {
         |    "mu" : 1.034E-5,
         |    "sigma" : -0.001123
         |  } ]
+        |""".stripMargin
+
+      val json = s"""
+        |[ {
+        |  "@type" : "State",
+        |  "type" : "QUANT",
+        |  "text" : "quantifier",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "INC",
+        |  "text" : "increased",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "DEC",
+        |  "text" : "decreased",
+        |  $provenance
         |}, {
         |  "@type" : "State",
         |  "type" : "PROP",
-        |  "text" : "prices"
+        |  "text" : "property"
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "HEDGE",
+        |  "text" : "hedging",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "NEGATION",
+        |  "text" : "negation",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "Count",
+        |  "text" : "text",
+        |  "value" : {
+        |    "@id" : "_:Count_1"
+        |  }
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "LocationExp",
+        |  "text" : "text",
+        |  "value" : {
+        |    "@id" : "_:GeoLocation_1"
+        |  }
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "TIMEX",
+        |  "text" : "text",
+        |  "value" : {
+        |    "@id" : "_:TimeExpression_1"
+        |  }
         |}, {
         |  "@type" : "State",
         |  "type" : "TIMEX",
@@ -543,12 +604,29 @@ class TestJLDDeserializer extends ExtractionTest {
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_253" -> 0))
       val timeIntervel = TimEx(Interval(0, 4), Seq.empty[TimeStep], "hello there")
-      val timexMap = Map("_:DCT_1" -> timeIntervel)
-      val geolocMap: GeolocMap = Map.empty
-      val countMap: CountMap = Map.empty
-      val dctMap: DctMap = Map.empty
+      val timexMap = Map("_:TimeExpression_1" -> timeIntervel)
+      val geoPhraseID = GeoPhraseID("text", Some("Denmark"), 3, 5)
+      val geolocMap: GeolocMap = Map("_:GeoLocation_1" -> geoPhraseID)
+      val migrationGroupCount = MigrationGroupCount(3000.0d, CountModifier.Approximate, CountUnit.Weekly)
+      val countAttachment = new CountAttachment("text", migrationGroupCount, 3, 6)
+      val countMap: CountMap = Map("_:Count_1" -> countAttachment)
+
+      val dct = DCT(SimpleInterval(LocalDateTime.now.minusHours(5), LocalDateTime.now), "text")
+      val dctMap: DctMap = Map("_:DCT_1" -> dct)
       val attachments = new JLDDeserializer().deserializeStates(Option(statesValue), documentMap, documentSentenceMap,
-        timexMap, geolocMap, dctMap, countMap)
+          timexMap, geolocMap, dctMap, countMap)
+
+      attachments.exists { attachment => attachment.isInstanceOf[Quantification]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[Increase]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[Decrease]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[Property]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[Hedging]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[Negation]} should be (true)
+
+      attachments.exists { attachment => attachment.isInstanceOf[CountAttachment]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[Location]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[Time]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[DCTime]} should be (true)
     }
 
     it should "deserialize Arguments from jsonld" in {
@@ -600,6 +678,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |      "end" : 1
         |    } ]
         |  } ],
+        |
         |  "states" : [ {
         |    "@type" : "State",
         |    "type" : "PROP",
