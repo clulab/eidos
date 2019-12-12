@@ -94,15 +94,15 @@ class TestDomainOntology extends Test {
       hasDuplicates(name, newerOntology) should be (false)
       matches(newOntology, newerOntology)
 
-      if (useCache) {
-        val newestOntology = Timer.time(s"Load $name from cache") {
-          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCache = true)
-        }
-
-        show3(newOntology, newerOntology, newestOntology)
-        hasDuplicates(name, newestOntology) should be (false)
-        matches(newOntology, newestOntology)
-      }
+//      if (useCache) {
+//        val newestOntology = Timer.time(s"Load $name from cache") {
+//          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCache = true)
+//        }
+//
+//        show3(newOntology, newerOntology, newestOntology)
+//        hasDuplicates(name, newestOntology) should be (false)
+//        matches(newOntology, newestOntology)
+//      }
     }
   }
 
