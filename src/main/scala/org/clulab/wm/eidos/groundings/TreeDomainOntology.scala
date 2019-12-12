@@ -170,7 +170,8 @@ object TreeDomainOntology {
 
         walk(rootNode, { node: OntologyNode =>
           if (node.isLeaf) children.append(node)
-          else parents.append(node)
+          else if (!node.parentOpt.get.isInstanceOf[OntologyRootNode])
+            parents.append(node)
         })
 
         (parents.toArray, children.toArray)
