@@ -18,6 +18,7 @@ import org.clulab.wm.eidos.attachments.CountAttachment
 import org.clulab.wm.eidos.attachments.CountModifier
 import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.timenorm.scate.SimpleInterval
+import org.clulab.wm.eidos.actions.MigrationUtils
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
@@ -39,6 +40,7 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
+import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -517,6 +519,16 @@ class JLDDeserializer {
   def deserializeMention(extractionValue: JValue, extraction: Extraction, mentionMap: Map[String, Mention],
       documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap, timexMap: TimexMap,
       geolocMap: GeolocMap, provenanceMap: ProvenanceMap, dctMap: DctMap, countMap: CountMap): Mention = {
+
+    def newEventMention(labels: Seq[String], tokenInterval: Interval, trigger: TextBoundMention,
+        arguments: Map[String, Seq[Mention]], paths: Map[String, Map[Mention, SynPath]], sentence: Int,
+        document: Document, keep: Boolean, foundBy: String, attachments: Set[Attachment]): EventMention = {
+      if (MigrationUtils.needsCrossSentence(sentence, Some(trigger.sentence), arguments))
+        new CrossSentenceEventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
+      else
+        new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
+    }
+
     requireType(extractionValue, JLDExtraction.typename)
     val extractionType = extraction.extractionType
     val extractionSubtype = extraction.extractionSubtype
@@ -554,7 +566,7 @@ class JLDDeserializer {
             "cause" -> misnamedArguments("source"),
             "effect" -> misnamedArguments("destination")
           )
-          new EventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
+          newEventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
               keep, foundBy, attachments)
         }
         else if (extractionType == "relation" && extractionSubtype == "correlation") {
@@ -566,7 +578,7 @@ class JLDDeserializer {
             "cause" -> Seq(misnamedArguments("argument").head),
             "effect" -> Seq(misnamedArguments("argument")(1))
           )
-          new EventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
+          newEventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
               keep, foundBy, attachments)
         }
         else if (extractionType == "relation" && extractionSubtype == "coreference") {
@@ -590,7 +602,7 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "migration") {
           require(JLDRelationMigration.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          new EventMention(labels, tokenInterval, triggerOpt.get, misnamedArguments, paths, sentence, document,
+          newEventMention(labels, tokenInterval, triggerOpt.get, misnamedArguments, paths, sentence, document,
               keep, foundBy, attachments)
         }
         else

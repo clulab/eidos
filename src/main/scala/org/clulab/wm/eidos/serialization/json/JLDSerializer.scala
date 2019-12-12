@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.serialization.json
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 
 import org.clulab.odin.EventMention
 import org.clulab.odin.{Attachment, Mention}
@@ -665,7 +664,7 @@ class JLDRelationMigration(serializer: JLDSerializer, mention: EidosEventMention
 object JLDRelationMigration {
   val subtypeString = "migration"
   val taxonomy = "HumanMigration"
-  val keys: Seq[String] = Seq("group", "moveTo", "moveFrom", "moveThrough", "timeStart", "timeEnd", "time")
+  val keys: Seq[String] = Seq("group", "groupModifier", "moveTo", "moveFrom", "moveThrough", "timeStart", "timeEnd", "time")
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
