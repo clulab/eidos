@@ -32,6 +32,8 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.groundings.MultiOntologyGrounder
+import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.CountMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
@@ -727,6 +729,29 @@ class TestJLDDeserializer extends ExtractionTest {
       val mention = new JLDDeserializer().deserializeMention(extractionValue, extraction, mentionMap,
         documentMap, documentSentenceMap, timexMap, geolocMap, provenanceMap, dctMap, countMap)
     }
+  }
+
+  it should "deserialize CrossSentenceEventMention from jsonld" in {
+    val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
+    val ontologyGrounder = ieSystem.components.multiOntologyGrounder
+
+    def serialize(original: AnnotatedDocument): String = {
+      val corpus = Seq(original)
+      val jldCorpus = new JLDEidosCorpus(corpus)
+      val jValue = jldCorpus.serialize()
+      val json = stringify(jValue, pretty = true)
+
+      json
+    }
+
+    // The jsonld is too long to reasonably include.
+    val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
+    val annotatedDocument = ieSystem.extractFromText(text)
+    val json = serialize(annotatedDocument)
+    val copy = new JLDDeserializer().deserialize(json, canonicalizer, ontologyGrounder)
+    val mentions = copy.head.odinMentions
+
+    mentions.count(_.isInstanceOf[CrossSentenceEventMention]) should be (1)
   }
 
   def testCorpus(text: String, name: String) = {
