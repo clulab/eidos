@@ -152,6 +152,27 @@ class TestJLDDeserializer extends ExtractionTest {
       geoPhraseID.geonameID should be(Some("7909807"))
     }
 
+    it should "deserialize Count from jsonld" in {
+      val json = """
+        |{
+        |  "@type" : "Count",
+        |  "@id" : "_:Count_1",
+        |  "startOffset" : 3612,
+        |  "endOffset" : 3623,
+        |  "text" : "3000",
+        |  "value" : 3000.0,
+        |  "modifier" : "Approximate",
+        |  "unit" : "Weekly"
+        |}""".stripMargin
+      val countValue = parse(json)
+      val idAndCountAttachment = new JLDDeserializer().deserializeCountAttachment(countValue)
+      val id = idAndCountAttachment.id
+      val countAttachment = idAndCountAttachment.value
+
+      id should be ("_:Count_1")
+      countAttachment.migrationGroupCount.value should be (3000.0d)
+    }
+
     it should "deserialize Word from jsonld" in {
       val json = """
         |{
