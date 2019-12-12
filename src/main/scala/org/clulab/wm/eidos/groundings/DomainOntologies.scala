@@ -35,16 +35,17 @@ object DomainOntologies {
       (None, None)
   }
 
-  def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false): DomainOntology = {
+  def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false, includeParents: Boolean = false): DomainOntology = {
 
-    if (useCache) {
-      logger.info(s"Processing cached yml ontology $serializedPath...")
-      CompactDomainOntology.load(serializedPath)
-    }
-    else {
+    // We're skipping the cache for experiments
+//    if (useCache) {
+//      logger.info(s"Processing cached yml ontology $serializedPath...")
+//      CompactDomainOntology.load(serializedPath)
+//    }
+//    else {
       logger.info(s"Processing yml ontology $ontologyPath...")
       val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
-      new TreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
-    }
+      new TreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter, includeParents).buildFromPath(ontologyPath, versionOpt, dateOpt)
+//    }
   }
 }
