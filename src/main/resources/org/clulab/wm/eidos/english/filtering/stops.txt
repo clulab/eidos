@@ -1,5 +1,5 @@
 #
-# Transparent Words
+# Stop Words
 #
 #   - these should be lemma forms
 #   - the system will split on newlines and commas
@@ -60,4 +60,109 @@ l
 further
 however
 additional
-
+# -------------------------------------------------
+# Transparent from the other file
+#   Intended for not being included in the grounding,
+#   while the words in transparent.txt will be included
+#   in the grounding (12/09/2019)
+# -------------------------------------------------
+ability
+achievement
+activity
+addition
+adjustment
+administration
+agent
+aim
+algorithm
+alteration
+amount
+approach
+attempt
+auc
+author
+authors
+barrier
+case
+category
+change
+cohort
+combination
+concentration
+concept
+concern
+conclusion
+condition
+consequence
+contrast
+curve
+datum
+difference
+effect
+effort
+estimate
+evidence
+exacerbation
+expression
+extent
+factor
+form
+formation
+frequency
+gene
+hour
+hypothesis
+idea
+impact
+importance
+indication
+insight
+intake
+kind
+knowledge
+level
+manuscript
+measure
+measurement
+mg
+multiple
+notion
+number
+observation
+occurrence
+odds
+part
+percent
+phenotype
+pool
+possibility
+presence
+prevalence
+priority
+production
+progression
+proliferation
+range
+rate
+recognition
+referral
+role
+sample
+series
+situation
+size
+state
+status
+step
+strategy
+study
+substance
+technique
+time
+turn
+type
+understanding
+use
+view
+way
+year
