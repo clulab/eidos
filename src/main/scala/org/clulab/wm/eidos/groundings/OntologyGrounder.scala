@@ -178,20 +178,21 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
 }
 
 object EidosOntologyGrounder {
-  protected val        GROUNDABLE = "Entity"
-  protected val      WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
+  protected val             GROUNDABLE = "Entity"
+  protected val           WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
+  protected val WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
   // Namespace strings for the different in-house ontologies we typically use
-  protected val      UN_NAMESPACE = "un"
-  protected val     WDI_NAMESPACE = "wdi"
-  protected val     FAO_NAMESPACE = "fao"
-  protected val    MESH_NAMESPACE = "mesh"
-  protected val   PROPS_NAMESPACE = "props"
-  protected val MITRE12_NAMESPACE = "mitre12"
-  protected val     WHO_NAMESPACE = "who"
-  protected val     INT_NAMESPACE = "interventions"
-  protected val   ICASA_NAMESPACE = "icasa"
+  protected val           UN_NAMESPACE = "un"
+  protected val          WDI_NAMESPACE = "wdi"
+  protected val          FAO_NAMESPACE = "fao"
+  protected val         MESH_NAMESPACE = "mesh"
+  protected val        PROPS_NAMESPACE = "props"
+  protected val      MITRE12_NAMESPACE = "mitre12"
+  protected val          WHO_NAMESPACE = "who"
+  protected val          INT_NAMESPACE = "interventions"
+  protected val        ICASA_NAMESPACE = "icasa"
 
-  val PRIMARY_NAMESPACE = WM_NAMESPACE // Assign the primary namespace here, publically.
+  val PRIMARY_NAMESPACE = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
 
   // Used for plugin ontologies
 //  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"
