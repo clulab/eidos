@@ -12,7 +12,7 @@ trait StopwordManaging {
 }
 
 class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) extends StopwordManaging {
-  protected def stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
+  protected val stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
   protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
 
   protected val bothWords = stopwords ++ transparentWords
