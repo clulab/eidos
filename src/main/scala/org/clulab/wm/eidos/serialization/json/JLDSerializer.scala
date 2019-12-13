@@ -1027,8 +1027,20 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
         if (leftLabel != rightLabel)
           leftLabel < rightLabel
-        else
-          true // Tie goes in favor of the left just because it came first.
+        else if (leftOdinMention.attachments.size != rightOdinMention.attachments.size)
+          leftOdinMention.attachments.size < rightOdinMention.attachments.size
+        else {
+          def mkAttachmentNames(odinMention: Mention) = odinMention.attachments.toList
+              .map(_.getClass.getName).sorted.mkString(" ")
+
+          val leftAttachmentNames = mkAttachmentNames(leftOdinMention)
+          val rightAttachmentNames = mkAttachmentNames(rightOdinMention)
+
+          if (leftAttachmentNames != rightAttachmentNames)
+            leftAttachmentNames < rightAttachmentNames
+          else
+            true // Tie goes in favor of the left just because it came first.
+        }
       }
     }
 
