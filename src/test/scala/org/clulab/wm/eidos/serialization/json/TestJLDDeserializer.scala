@@ -731,27 +731,29 @@ class TestJLDDeserializer extends ExtractionTest {
     }
   }
 
-  it should "deserialize CrossSentenceEventMention from jsonld" in {
-    val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
-    val ontologyGrounder = ieSystem.components.multiOntologyGrounder
+  def testCrossSentenceEventMention() = {
+    it should "deserialize CrossSentenceEventMention from jsonld" in {
+      val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
+      val ontologyGrounder = ieSystem.components.multiOntologyGrounder
 
-    def serialize(original: AnnotatedDocument): String = {
-      val corpus = Seq(original)
-      val jldCorpus = new JLDEidosCorpus(corpus)
-      val jValue = jldCorpus.serialize()
-      val json = stringify(jValue, pretty = true)
+      def serialize(original: AnnotatedDocument): String = {
+        val corpus = Seq(original)
+        val jldCorpus = new JLDEidosCorpus(corpus)
+        val jValue = jldCorpus.serialize()
+        val json = stringify(jValue, pretty = true)
 
-      json
+        json
+      }
+
+      // The jsonld is too long to reasonably include.
+      val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
+      val annotatedDocument = ieSystem.extractFromText(text)
+      val json = serialize(annotatedDocument)
+      val copy = new JLDDeserializer().deserialize(json, canonicalizer, ontologyGrounder)
+      val mentions = copy.head.odinMentions
+
+      mentions.count(_.isInstanceOf[CrossSentenceEventMention]) should be(1)
     }
-
-    // The jsonld is too long to reasonably include.
-    val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
-    val annotatedDocument = ieSystem.extractFromText(text)
-    val json = serialize(annotatedDocument)
-    val copy = new JLDDeserializer().deserialize(json, canonicalizer, ontologyGrounder)
-    val mentions = copy.head.odinMentions
-
-    mentions.count(_.isInstanceOf[CrossSentenceEventMention]) should be (1)
   }
 
   def testCorpus(text: String, name: String) = {
@@ -834,6 +836,7 @@ class TestJLDDeserializer extends ExtractionTest {
   testSentences()
   testParagraphs()
   testDocuments()
+  testCrossSentenceEventMention()
   // Do not run this last test on Travis, but instead periodically on a real corpus
   // with all options enabled (useW2V, useTimeNorm, useGeoNorm, etc.)
 //  testFiles("../corpora/Doc52/txt")
