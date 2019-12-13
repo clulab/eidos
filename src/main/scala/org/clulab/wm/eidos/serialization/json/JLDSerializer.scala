@@ -1031,18 +1031,10 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
           if (leftOdinMention.attachments.size != rightOdinMention.attachments.size)
             leftOdinMention.attachments.size < rightOdinMention.attachments.size
           else {
-            val leftAttachmentNames = leftOdinMention
-                .attachments
-                .toList
-                .map { attachment => attachment.getClass.getName }
-                .sorted
-                .mkString(" ")
-            val rightAttachmentNames = rightOdinMention
-                .attachments
-                .toList
-                .map { attachment => attachment.getClass.getName }
-                .sorted
-                .mkString(" ")
+            def mkAttachmentNames(odinMention: Mention) = odinMention.attachments.toList
+                .map(_.getClass.getName).sorted.mkString(" ")
+            val leftAttachmentNames = mkAttachmentNames(leftOdinMention)
+            val rightAttachmentNames = mkAttachmentNames(rightOdinMention)
 
             if (leftAttachmentNames != rightAttachmentNames)
               leftAttachmentNames < rightAttachmentNames
