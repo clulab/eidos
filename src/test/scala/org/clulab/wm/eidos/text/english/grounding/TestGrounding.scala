@@ -118,15 +118,17 @@ class TestGrounding extends EnglishTest {
   class GroundingTextTester {
     val name = "wm_compositional"
 
-    // TODO: Account for groundTopN, threshold, etc.
+    val groundTopN: Option[Int] = Option(5)
+    val threshold: Option[Float] = Option(0.5f)
+
     val ontologyGrounder: OntologyGrounder = ieSystem.components.ontologyHandler.ontologyGrounders.find { ontologyGrounder =>
       ontologyGrounder.name == name
     }.get
 
     def split(text: String): Array[String] = text.split(' ')
 
-    def groundings(mention: EidosMention): OntologyGroundings = {
-      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(mention)
+    def groundings(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): OntologyGroundings = {
+      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(mention, topN = groundTopN, threshold = threshold)
       val groundings = ontologyGroundings.map { ontologyGrounding =>
         val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
 
@@ -149,8 +151,8 @@ class TestGrounding extends EnglishTest {
 
     def topProcessGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, "process")
 
-    def allGroundingNames(mention: EidosMention): Seq[String] = {
-      val allGroundings = groundings(mention)
+    def allGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[String] = {
+      val allGroundings = groundings(mention, topN, threshold)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
         ontologyGrounding.grounding.map { grounding => grounding._1.name }
       }.toSeq
@@ -166,6 +168,25 @@ class TestGrounding extends EnglishTest {
 
       names
     }
+
+    // TODO: pass topN and threshold through
+    def fakeAnnotatedDoc(text: String, causeIntervals: List[Interval], effectIntervals: List[Interval],
+                         topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)):
+    (List[EidosMention], List[EidosMention]) = {
+      val doc = ieSystem.annotate(text)
+      val causeTBM = causeIntervals.map( x =>
+        new TextBoundMention(label="Entity", x, 0, doc, true, "FakeRule") )
+      val causeAD = causeTBM.map( x => AnnotatedDocument(doc, Seq(x)) )
+      val cause = causeAD.map( x => ieSystem.components.ontologyHandler.process(x).eidosMentions.head)
+
+      val effectTBM = effectIntervals.map( x =>
+        new TextBoundMention(label="Entity", x, 0, doc, true, "FakeRule") )
+      val effectAD = effectTBM.map( x => AnnotatedDocument(doc, Seq(x)) )
+      val effect = effectAD.map( x => ieSystem.components.ontologyHandler.process(x).eidosMentions.head)
+
+      val returned = (cause, effect)
+      returned
+    }
   }
 
   val tester = new GroundingTextTester
@@ -174,26 +195,25 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 1"
 
     val text = "The oil supply caused civil unrest in Sudan."
-    val doc = ieSystem.annotate(text)
+    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,3)), List(Interval(4,6)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
 
-    val causeTBM = new TextBoundMention(label="Entity", Interval(0,3), 0, doc, true, "FakeRule")
-    val effectTBM = new TextBoundMention(label="Entity", Interval(4,6), 0, doc, true, "FakeRule")
-
-    val causeAD = AnnotatedDocument(doc, Seq(causeTBM))
-    val cause = ieSystem.components.ontologyHandler.process(causeAD).eidosMentions.head
-
-    val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
-    val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
-
-    passingTest should "process \"" + causeTBM.document.text + "\" cause correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(cause).contains("wm_compositional/property/supply") should be (true)
-        tester.allGroundingNames(cause).contains("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels") should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/property/supply"
+          ) should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels"
+          ) should be (true)
       }
     }
-    passingTest should "process \"" + effectTBM.document.text + "\" effect correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(effect).contains("wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate") should be (true)
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate"
+          ) should be (true)
       }
     }
   }
@@ -203,26 +223,25 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 2"
 
     val text = "The prices of oil caused conflict in Ethiopia."
-    val doc = ieSystem.annotate(text)
+    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,4)), List(Interval(5,6)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
 
-    val causeTBM = new TextBoundMention(label="Entity", Interval(0,4), 0, doc, true, "FakeRule")
-    val effectTBM = new TextBoundMention(label="Entity", Interval(5,6), 0, doc, true, "FakeRule")
-
-    val causeAD = AnnotatedDocument(doc, Seq(causeTBM))
-    val cause = ieSystem.components.ontologyHandler.process(causeAD).eidosMentions.head
-
-    val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
-    val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
-
-    passingTest should "process \"" + causeTBM.document.text + "\" cause correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(cause).contains("wm_compositional/property/price") should be (true)
-        tester.allGroundingNames(cause).contains("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels") should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/property/price"
+          ) should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels"
+          ) should be (true)
       }
     }
-    passingTest should "process \"" + effectTBM.document.text + "\" effect correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(effect).contains("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility") should be (true)
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility"
+          ) should be (true)
       }
     }
   }
@@ -232,27 +251,28 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 3"
 
     val text = "Conflict caused an increase in the transportation price of fresh water."
-    val doc = ieSystem.annotate(text)
+    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,1)), List(Interval(5,11)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
 
-    val causeTBM = new TextBoundMention(label="Entity", Interval(0,1), 0, doc, true, "FakeRule")
-    val effectTBM = new TextBoundMention(label="Entity", Interval(5,11), 0, doc, true, "FakeRule")
-
-    val causeAD = AnnotatedDocument(doc, Seq(causeTBM))
-    val cause = ieSystem.components.ontologyHandler.process(causeAD).eidosMentions.head
-
-    val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
-    val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
-
-    passingTest should "process \"" + causeTBM.document.text + "\" cause correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(cause).contains("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility") should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility"
+          ) should be (true)
       }
     }
-    passingTest should "process \"" + effectTBM.document.text + "\" effect correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(effect).contains("wm_compositional/property/price") should be (true)
-        tester.allGroundingNames(effect).contains("wm_compositional/process/transportation/transportation") should be (true)
-        tester.allGroundingNames(effect).contains("wm_compositional/concept/causal_factor/infrastructure/water") should be (true)
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/property/price"
+          ) should be (true)
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/process/transportation/transportation"
+          ) should be (true)
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/concept/causal_factor/infrastructure/water"
+          ) should be (true)
       }
     }
   }
@@ -262,26 +282,25 @@ class TestGrounding extends EnglishTest {
    behavior of "Grounding 4"
 
    val text = "Armed clashes caused a decrease in the supply of school supplies in Jonglei State."
-   val doc = ieSystem.annotate(text)
+   val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,2)), List(Interval(6,11)))
+   val causeMentions = eidosMentions._1
+   val effectMentions = eidosMentions._2
 
-   val causeTBM = new TextBoundMention(label="Entity", Interval(0,2), 0, doc, true, "FakeRule")
-   val effectTBM = new TextBoundMention(label="Entity", Interval(6,11), 0, doc, true, "FakeRule")
-
-   val causeAD = AnnotatedDocument(doc, Seq(causeTBM))
-   val cause = ieSystem.components.ontologyHandler.process(causeAD).eidosMentions.head
-
-   val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
-   val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
-
-   passingTest should "process \"" + causeTBM.document.text + "\" cause correctly" taggedAs Somebody in {
+   passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
      if (active) {
-       tester.allGroundingNames(cause).contains("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility") should be (true)
+       tester.allGroundingNames(causeMentions.head).contains(
+         "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility"
+        ) should be (true)
      }
    }
-   passingTest should "process \"" + effectTBM.document.text + "\" effect correctly" taggedAs Somebody in {
+   passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
      if (active) {
-       tester.allGroundingNames(effect).contains("wm_compositional/property/supply") should be (true)
-       tester.allGroundingNames(effect).contains("wm_compositional/concept/causal_factor/social_and_political/education/educational_materials") should be (true)
+       tester.allGroundingNames(effectMentions.head).contains(
+         "wm_compositional/property/supply"
+        ) should be (true)
+       tester.allGroundingNames(effectMentions.head).contains(
+         "wm_compositional/concept/causal_factor/social_and_political/education/educational_materials"
+        ) should be (true)
      }
    }
  }
@@ -291,26 +310,25 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 5"
 
     val text = "Food security was mentioned as the main reason for flight."
-    val doc = ieSystem.annotate(text)
+    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,2)), List(Interval(9,10)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
 
-    val causeTBM = new TextBoundMention(label="Entity", Interval(0,2), 0, doc, true, "FakeRule")
-    val effectTBM = new TextBoundMention(label="Entity", Interval(9,10), 0, doc, true, "FakeRule")
-
-    val causeAD = AnnotatedDocument(doc, Seq(causeTBM))
-    val cause = ieSystem.components.ontologyHandler.process(causeAD).eidosMentions.head
-
-    val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
-    val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
-
-    passingTest should "process \"" + causeTBM.document.text + "\" cause correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(cause).contains("wm_compositional/concept/causal_factor/social_and_political/humanitarian/food") should be (true)
-        tester.allGroundingNames(cause).contains("wm_compositional/property/security") should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/concept/causal_factor/social_and_political/humanitarian/food"
+          ) should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/property/security"
+          ) should be (true)
       }
     }
-    passingTest should "process \"" + effectTBM.document.text + "\" effect correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(effect).contains("wm_compositional/process/migration/emigration") should be (true)
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/process/migration/emigration"
+          ) should be (true)
       }
     }
   }
@@ -320,77 +338,74 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 6"
 
     val text = "The primary reasons for moving were insecurity, lack of food, and poor access to services such as healthcare and education."
-    val doc = ieSystem.annotate(text)
+    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(6,7), Interval(8,11), Interval(14,22), Interval(4,5)), List(Interval(4,5)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
 
-    val cause1TBM = new TextBoundMention(label="Entity", Interval(6,7), 0, doc, true, "FakeRule")
-    val cause2TBM = new TextBoundMention(label="Entity", Interval(8,11), 0, doc, true, "FakeRule")
-    val cause3TBM = new TextBoundMention(label="Entity", Interval(14,22), 0, doc, true, "FakeRule")
-    val effectTBM = new TextBoundMention(label="Entity", Interval(4,5), 0, doc, true, "FakeRule")
-
-    val cause1AD = AnnotatedDocument(doc, Seq(cause1TBM))
-    val cause1 = ieSystem.components.ontologyHandler.process(cause1AD).eidosMentions.head
-
-    val cause2AD = AnnotatedDocument(doc, Seq(cause2TBM))
-    val cause2 = ieSystem.components.ontologyHandler.process(cause2AD).eidosMentions.head
-
-    val cause3AD = AnnotatedDocument(doc, Seq(cause3TBM))
-    val cause3 = ieSystem.components.ontologyHandler.process(cause3AD).eidosMentions.head
-
-    val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
-    val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
-
-    passingTest should "process \"" + cause1TBM.document.text + "\" cause1 correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" cause1 correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(cause1).contains("wm_compositional/property/insecurity") should be (true)
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/property/insecurity"
+          ) should be (true)
       }
     }
-    passingTest should "process \"" + cause2TBM.document.text + "\" cause2 correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" cause2 correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(cause2).contains("wm_compositional/property/supply") should be (true)
-        tester.allGroundingNames(cause2).contains("wm_compositional/concept/causal_factor/social_and_political/humanitarian/food") should be (true)
+        tester.allGroundingNames(causeMentions(1)).contains(
+          "wm_compositional/property/supply"
+          ) should be (true)
+        tester.allGroundingNames(causeMentions(1)).contains(
+          "wm_compositional/concept/causal_factor/social_and_political/humanitarian/food"
+          ) should be (true)
       }
     }
-    failingTest should "process \"" + cause3TBM.document.text + "\" cause3 correctly" taggedAs Somebody in {
+    failingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
       if (active) {
         // FIXME:  'access' not grounding properly; the others work fine
-        tester.allGroundingNames(cause3).contains("wm_compositional/process/access/access") should be (true)
-        tester.allGroundingNames(cause3).contains("wm_compositional/concept/causal_factor/health_and_life/treatment/health_treatment") should be (true)
-        tester.allGroundingNames(cause3).contains("wm_compositional/concept/causal_factor/social_and_political/education/education") should be (true)
+        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)).contains(
+          "wm_compositional/process/access/access"
+          ) should be (true)
+        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)).contains(
+          "wm_compositional/concept/causal_factor/health_and_life/treatment/health_treatment"
+          ) should be (true)
+        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)).contains(
+          "wm_compositional/concept/causal_factor/social_and_political/education/education"
+          ) should be (true)
       }
     }
-    passingTest should "process \"" + effectTBM.document.text + "\" effect correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (active) {
-        tester.allGroundingNames(effect).contains("wm_compositional/process/migration/migration") should be (true)
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/process/migration/migration"
+          ) should be (true)
       }
     }
   }
 
 ///// template for compositional grounder tests
+///// add test name, sentence text, and token intervals for cause and effect mentions
+///// if you have multiple causes/effects, see "Grounding 6" test for how to include them
+
 //  {
-//    behavior of "name_of_test"
+//    behavior of "test name"
 //
-//    val text = "Sentence"
-//    val doc = ieSystem.annotate(text)
+//    val text = "Sentence goes here"
+//    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,1)), List(Interval(1,2)))
+//    val causeMentions = eidosMentions._1
+//    val effectMentions = eidosMentions._2
 //
-//    // intervals of cause and effect mention spans in sentence
-//    val causeTBM = new TextBoundMention(label="Entity", Interval(0,2), 0, doc, true, "FakeRule")
-//    val effectTBM = new TextBoundMention(label="Entity", Interval(9,10), 0, doc, true, "FakeRule")
-//
-//    val causeAD = AnnotatedDocument(doc, Seq(causeTBM))
-//    val cause = ieSystem.components.ontologyHandler.process(causeAD).eidosMentions.head
-//
-//    val effectAD = AnnotatedDocument(doc, Seq(effectTBM))
-//    val effect = ieSystem.components.ontologyHandler.process(effectAD).eidosMentions.head
-//
-//    // fill in path in ontology for all cause/effect mentions
-//    passingTest should "process \"" + causeTBM.document.text + "\" cause correctly" taggedAs Somebody in {
+//    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
 //      if (active) {
-//        tester.allGroundingNames(cause).contains("wm_compositional/") should be (true)
+//        tester.allGroundingNames(causeMentions.head).contains(
+//          "wm_compositional/???"
+//        ) should be (true)
 //      }
 //    }
-//    passingTest should "process \"" + effectTBM.document.text + "\" effect correctly" taggedAs Somebody in {
+//    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
 //      if (active) {
-//        tester.allGroundingNames(effect).contains("wm_compositional/") should be (true)
+//        tester.allGroundingNames(effectMentions.head).contains(
+//          "wm_compositional/???"
+//        ) should be (true)
 //      }
 //    }
 //  }

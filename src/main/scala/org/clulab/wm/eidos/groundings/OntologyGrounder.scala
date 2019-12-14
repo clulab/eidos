@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
-import org.clulab.odin.{ExtractorEngine, Mention, State, TextBoundMention}
+import org.clulab.odin.{ExtractorEngine, Mention, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
@@ -30,7 +30,7 @@ case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, b
 trait OntologyGrounder {
   def name: String
   def domainOntology: DomainOntology
-  def groundOntology(mention: EidosMention): Seq[OntologyGrounding]
+  def groundOntology(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[OntologyGrounding]
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding]
 }
 
@@ -89,7 +89,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
     Seq(OntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
   }
 
-  def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
+  def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {
 
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
@@ -110,13 +110,12 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   }
 }
 
-// TODO: Zupon
+
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
-  // TODO: how should we pick the threshold?
-  val threshold: Double = 0.5
-  // FIXME: this should connect to a config probably...?
+  // FIXME: these should connect to a config probably...?
+  val threshold: Option[Float] = Option(0.5f)
   val groundTopN = 5
 
   def inBranch(s: String, branch: Seq[ConceptEmbedding]): Boolean = {
@@ -161,7 +160,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     Seq(OntologyGrounding(property, Some("property")), process, concept)
   }
 
-  override def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
+  override def groundOntology(mention: EidosMention, topN: Option[Int] = Option(groundTopN), threshold: Option[Float] = threshold): Seq[OntologyGrounding] = {
 
     // do nothing to non-groundableType mentions
     if (!EidosOntologyGrounder.groundableType(mention)) {
@@ -230,7 +229,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       for (g <- allGroundings) {
         val nodeName = g._1.name
         val nodeScore = g._2
-        if (nodeScore >= threshold) {
+        if (nodeScore >= threshold.getOrElse(0.5f)) {
           if (inBranch(nodeName, conceptEmbeddingsSeq("property"))) propertyGrounding.append(g)
           else if (inBranch(nodeName, conceptEmbeddingsSeq("process"))) processGrounding.append(g)
           else  conceptGrounding.append(g)
@@ -264,14 +263,14 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
          |   priority: 1
          |   type: token
          |   pattern: |
-         |      [chunk=/NP$$/ & !word=${synHeadWord} & !tag=/DT|JJ|CC/]+
+         |      [chunk=/NP$$/ & !word=$synHeadWord & !tag=/DT|JJ|CC/]+
          |
          | - name: SegmentConcept
          |   label: InternalModifier
          |   priority: 2
          |   pattern: |
-         |      trigger = ${synHeadWord}
-         |      modifier: Chunk+ = >/^${pattern}/{0,2} >/amod|compound/?
+         |      trigger = $synHeadWord
+         |      modifier: Chunk+ = >/^$pattern/{0,2} >/amod|compound/?
         """.stripMargin
 
     val engine = ExtractorEngine(rule)
@@ -295,7 +294,7 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
     Seq(OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings), Some("intervention")))
   }
 
-  def groundOntology(mention: EidosMention): Seq[OntologyGrounding] = {
+  def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {
     val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
 
     groundStrings(canonicalNameParts)

@@ -23,7 +23,7 @@ class OntologyHandler(
 
       val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
         val name: String = ontologyGrounder.name
-        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention)
+        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold= Option(0.5f))
         val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
           val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
 
