@@ -232,6 +232,7 @@
             - OntologyNode:
               examples:
                 - access
+                - accessibility
                 - availability
               name: access
               take_args: 0

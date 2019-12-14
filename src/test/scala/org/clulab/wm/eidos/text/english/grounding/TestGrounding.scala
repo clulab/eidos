@@ -359,7 +359,7 @@ class TestGrounding extends EnglishTest {
           ) should be (true)
       }
     }
-    failingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
+    passingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
       if (active) {
         // FIXME:  'access' not grounding properly; the others work fine
         tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)).contains(
@@ -381,6 +381,67 @@ class TestGrounding extends EnglishTest {
       }
     }
   }
+
+
+    {
+      behavior of "Grounding ACCESS"
+
+      val text = "sorghum access caused an increase in migration."
+      val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,2)), List(Interval(6,7)))
+      val causeMentions = eidosMentions._1
+      val effectMentions = eidosMentions._2
+
+      passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
+        if (active) {
+          tester.allGroundingNames(causeMentions.head).contains(
+            "wm_compositional/process/access/access"
+          ) should be (true)
+        }
+        if (active) {
+          tester.allGroundingNames(causeMentions.head).contains(
+            "wm_compositional/concept/causal_factor/agriculture/crop"
+          ) should be (true)
+        }
+      }
+      passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+        if (active) {
+          tester.allGroundingNames(effectMentions.head).contains(
+            "wm_compositional/process/migration/migration"
+          ) should be (true)
+        }
+      }
+    }
+
+
+  {
+    behavior of "Grounding SUPPLY"
+
+    val text = "sorghum shortage caused an increase in migration."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,2)), List(Interval(6,7)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+
+    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
+      if (active) {
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/process/access/shortage"
+        ) should be (true)
+      }
+      if (active) {
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/concept/causal_factor/agriculture/crop"
+        ) should be (true)
+      }
+    }
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+      if (active) {
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/process/migration/migration"
+        ) should be (true)
+      }
+    }
+  }
+
 
 ///// template for compositional grounder tests
 ///// add test name, sentence text, and token intervals for cause and effect mentions
