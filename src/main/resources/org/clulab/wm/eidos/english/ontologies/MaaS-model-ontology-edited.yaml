@@ -1,0 +1,76 @@
+- MaaS-Models:
+  - OntologyNode:
+    examples:
+    - total number of people per grid square
+    - WorldPop country level African datasets
+    - world population africa
+    name: world_population_africa
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - population model
+    - Crude Birth Rates (CBR)
+    - Crude Death Rates (CDR)
+    - migration rates (inmigration and outmigration)
+    - growth rate
+    - bias in the census data.
+    name: population_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - consumption
+    name: consumption_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Global Ensemble Forecast System (GEFS)
+    - weather forecast
+    name: CHIRPS-GEFS
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - malnutrition model
+    - malnutrition rates for Global Acute Malnutrition (GAM)
+    - Severe Acute Malnutrition (SAM)
+    name: malnutrition_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Food Shocks Cascade Model (FSC)
+    - negative production
+    - dynamic food balance sheets
+    name: FSC
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - asset wealth
+    name: asset_wealth_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Climate Hazards
+    - Precipitation
+    - rainfall data
+    - climatology
+    - rainfall time series
+    - seasonal drought monitoring
+    name: CHIRPS
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Agrotechnology
+    - crop growth
+    - crops
+    - growth development
+    - crop yield
+    - soil plant atmosphere dynamics
+    name: DSSAT
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+      - crop yield
+      - global vegetation, hydrology and crop-growth model
+      - simulate wheat, maize and millet yield anomalies
+      - climate, soil conditions and management regimes
+    name: yield_anomalies_lpjml
+    polarity: 1.0

@@ -1,0 +1,117 @@
+- MaaS-Variables:
+  - OntologyNode:
+    examples:
+    - pixel value corresponds to the population residing there.
+    model: world_population_africa
+    name: population
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - pixel value corresponds to the population residing there.
+    model: population_model
+    name: population
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Measure of how much a person would spend each day (2011 USD per capita per day)
+    model: consumption_model
+    name: consumption per capita per day
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - rainfall in mm per 5km
+    model: CHIRPS-GEFS
+    name: Rainfall
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Rainfall relative to the historic average in mm per 5km
+    model: CHIRPS-GEFS
+    name: Rainfall relative to average
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standardized Precipitation Index
+    model: CHIRPS-GEFS
+    name: SPI
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - pixel value corresponds to predicted number of malnutrition cases.
+    model: malnutrition_model
+    name: malnutrition
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Change in crop stock reserve levels
+    model: FSC
+    name: dR
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Change in consumption
+    model: FSC
+    name: dC
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Change in production levels
+    model: FSC
+    name: dP
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Measure of household poverty levels based on the assets they own (unitless)
+    model: asset_wealth_model
+    name: poverty level
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - rainfall in mm per 5km
+    model: CHIRPS
+    name: Rainfall
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Rainfall relative to the historic average in mm per 5km
+    model: CHIRPS
+    name: Rainfall relative to average
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Standardized Precipitation Index
+    model: CHIRPS
+    name: SPI
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Harvested weight at harvest (kg/ha)
+    model: DSSAT
+    name: HWAH
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Amount of area harvested under all management practices for this point (ha)
+    model: DSSAT
+    name: HARVEST_AREA
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Yield for the given point/management practice (kg)
+    model: DSSAT
+    name: Yield
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Indicates the type of management practice for the given yield/point combination.  1
+      corresponds to high nitrogen, 2 to irrigated high nitrogen, 3 to  subsistence,
+      and 4 to low nitrogen.
+    model: DSSAT
+    name: management_practice
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Percent increase or decrease in yield from baseline
+    model: yield_anomalies_lpjml
+    name: yield level
+    polarity: 1.0

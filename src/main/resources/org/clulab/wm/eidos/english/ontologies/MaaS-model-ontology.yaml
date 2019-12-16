@@ -1,0 +1,101 @@
+- MaaS-Models:
+  - OntologyNode:
+    examples:
+    - Version 2.0 estimates of total number of people per grid square for five timepoints
+      between 2000 and 2020 at five year intervals; national totals have been adjusted
+      to match UN Population Division estimates for each time point.This dataset is
+      a mosaic of all WorldPop country level African datasets resampled to 1km resolution.
+      The continental grouping of countries honours the macro geographical classification
+      developed and maintained by the United Nations Statistics Division. For countries
+      within each continental group which have not been mapped by WorldPop, GPWv4
+      1km population count data was used to complete the mosaic. Full details of WorldPop
+      population mapping methodologies are described at www.worldpop.org.uk/data/methods/
+    name: world_population_africa
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The population model is grounded on a method called Component Analysis (or Component
+      Method) 1, which takes into account Crude Birth Rates (CBR), Crude Death Rates
+      (CDR), and migration rates (inmigration and outmigration). Any of these rates
+      may change in a linear or non-linear fashion.popt = popt-1 + popt-1 * CBRt*(1
+      + birth_rate_fct) - popt-1 * CDRt *(1 + death_rate_fct) + Immigrationt- OutmigrationtIn
+      this equaiton, death/birth_rate fct is applied to the nominal growth rates.
+      It is used for sensitivity studies of changes in the growth rate. For example,
+      if one uses a birth_rate_fct of 0.1 this will boost the nominal growth rates
+      by 10%. These variables are put in place to account for any possible bias in
+      the census data.
+    name: population_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - This model uses remote sensing imagery to predict consumption.
+    name: consumption_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - NCEP’s Global Ensemble Forecast System (GEFS) is a weather forecast system that
+      provides daily forecasts out to 16 days at 1 X 1 degree resolution at 6-hour
+      intervals. This forecast product can be very useful to early warning famine
+      and hydrological monitoring efforts, so the Climate Hazards Group (CHG) creates
+      forecast precipitation fields at the dekadal (10 day) time scale and makes those
+      available to researchers and decision makers.
+    name: CHIRPS-GEFS
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Currently, the malnutrition model takes the following input variables CHIRPS,
+      Consumer Price Index(CPI), population, cereal production per capita, consumption
+      expenditure,Normalized Difference Vegetation Index (NDVI),and month to predict
+      the malnutrition rates for Global Acute Malnutrition (GAM) and Severe Acute
+      Malnutrition (SAM). According to World Health Organization (WHO) guideline,
+      GAM and SAM are defined as weight-for-height z-score below -2, and weight-for-height
+      z-score below -3, respectively. By this definition, GAM includes all categories
+      of malnutrition.
+    name: malnutrition_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The Food Shocks Cascade Model (FSC) is a simple agent-based network model that
+      computes chain-reactions due to negative production anomalies based on dynamic
+      food balance sheets at the country level.
+    name: FSC
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - This model uses remote sensing imagery to predict asset wealth.
+    name: asset_wealth_model
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Climate Hazards Group InfraRed Precipitation with Station data (CHIRPS) is a
+      35+ year quasi-global rainfall data set. Spanning 50°S-50°N (and all longitudes)
+      and ranging from 1981 to near-present, CHIRPS incorporates our in-house climatology,
+      CHPclim, 0.05° resolution satellite imagery, and in-situ station data to create
+      gridded rainfall time series for trend analysis and seasonal drought monitoring.
+    name: CHIRPS
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The Decision Support System for Agrotechnology Transfer (DSSAT) comprises dynamic
+      crop growth simulation model for over 40 crops. The model simulates growth development;
+      and yield as a function of the soil-plant-atmosphere dynamics.
+    name: DSSAT
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - We use LPJmL, a well-established dynamic global vegetation, hydrology and crop-growth
+      model, to simulate wheat, maize and millet yield anomalies for 2018 based on
+      climate, soil conditions and management regimes. Observed weather data are fed
+      into the model until April 30, 2018; afterwards, to simulate the uncertainty
+      of operational forecasts, weather data is sourced from the portion May 01-Dec
+      31 from the previous years (1984-2017). The crop model runs on a global grid
+      with 0.5° size in latitude and longitude.We provide yield anomalies as deviation
+      from the mean of 2013-2017 as simulated by LPJmL. The data is available on a
+      global grid and as nationally aggregated anomalies. Apart from a default simulation,
+      assuming the same management in 2018 as for the previous years, we provide alternative
+      intervention scenarios that assume different irrigation levels, more nitrogen
+      input, or both. In total, there are 3 (crops) * 12 (scenarios) = 36 hypothetical
+      back-casting simulations. Each of these scenarios is calculated for each of
+      the 34 different 2018 climate realizations.
+    name: yield_anomalies_lpjml
+    polarity: 1.0

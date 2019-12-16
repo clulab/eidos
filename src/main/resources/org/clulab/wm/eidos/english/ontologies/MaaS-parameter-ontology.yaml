@@ -1,0 +1,251 @@
+- MaaS-Parameters:
+  - OntologyNode:
+    examples:
+    - Select the year of the population estimate.
+    model: world_population_africa
+    name: year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Select the country of interest.
+    model: population_model
+    name: country
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Select the year of interest. 2008-2020 is available for South Sudan, and  2000-2020
+      is available for Ethiopia. '
+    model: population_model
+    name: year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - This should be one of ['mm_data','mm_anomaly','none_z-score']. mm_data is the
+      CHIRPS estimates  of precipitation. The mm_anomaly provides the data value minus
+      the mean of the entire time  series up to the previous year. none_z-score provides
+      the Standardized Precipitation Indexes (SPI)  of the estimates.
+    model: CHIRPS-GEFS
+    name: _type
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - A zero padded value for the dekad of the year, 01-36 (a 10 day period).
+    model: CHIRPS-GEFS
+    name: dekad
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The year in YYYY format for the data of interest.
+    model: CHIRPS-GEFS
+    name: year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'The geospatial bounding box of interest. It should represent 4-elements in
+      the WGS84  coordinate system: [xmin, ymin, xmax, ymax]. x is longitude, y is
+      latitude. In other  words, the coordinates of a SW point and a NE point define
+      your region of interest.'
+    model: CHIRPS-GEFS
+    name: bbox
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The rainfall scenario based on historical monthly average of the precipitation
+      values. High value is estimated by 2x mean, and low value is estimated by 0.25x
+      mean.
+    model: malnutrition_model
+    name: rainfall_scenario
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Select the country of interest.
+    model: malnutrition_model
+    name: country
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Select the year of interest. June, 2011 - April, 2019 is available for South
+      Sudan. Jan, 2007 - April 2019 is available for Ethiopia.
+    model: malnutrition_model
+    name: year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Select the month of interest. June, 2011 - April, 2019 is available for South
+      Sudan. Jan, 2007 - April 2019 is available for Ethiopia.
+    model: malnutrition_model
+    name: month
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Select the country for which to induce a food shock (ISO-3 format).
+    model: FSC
+    name: country
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The fraction of reserves that countries can access. Between 0 and 1, where 0
+      indicates that  countries cannot access there reserves and 1 indicates that
+      countries can access the entirety  of their reserves.
+    model: FSC
+    name: fractional_reserve_access
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The percent decrease in crop production due to the shock on the target country
+      (the size  of the shock).
+    model: FSC
+    name: production_decrease
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The year in which to induce the shock in YYYY format.
+    model: FSC
+    name: year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - This should be one of ['mm_data','mm_anomaly','none_z-score']. mm_data is the
+      CHIRPS estimates  of precipitation. The mm_anomaly provides the data value minus
+      the mean of the entire time  series up to the previous year. none_z-score provides
+      the Standardized Precipitation Indexes (SPI)  of the estimates.
+    model: CHIRPS
+    name: _type
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - A zero padded value for the dekad of the year, 01-36 (a 10 day period).
+    model: CHIRPS
+    name: dekad
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The year in YYYY format for the data of interest.
+    model: CHIRPS
+    name: year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'The geospatial bounding box of interest. It should represent 4-elements in
+      the WGS84  coordinate system: [xmin, ymin, xmax, ymax]. x is longitude, y is
+      latitude. In other  words, the coordinates of a SW point and a NE point define
+      your region of interest.'
+    model: CHIRPS
+    name: bbox
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The number of pixel predictions DSSAT will make. Setting samples to 0 returns
+      the  entire geography (all Ethiopia) which is quite large.
+    model: DSSAT
+    name: samples
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'The management practice to model. maize_rf_highN corresponds to a high nitrogen
+      management  practice. maize_irrig corresponds to a high nitrogen, irrigated
+      management practice. maize_rf_0N  corresponds to a subsistence management practice.
+      maize_rf_lowN corresponds to a low nitrogen  managemet practice. If set to combined,
+      all practices are produced. '
+    model: DSSAT
+    name: management_practice
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The year to begin the simulation. The earliest possible year to begin is 1984
+      and the latest is  2019.
+    model: DSSAT
+    name: start_year
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The number of years to run the simulation. If start_year + number_years - 1
+      > 2018 then this  will be set such that your simulation runs through 2018.
+    model: DSSAT
+    name: number_years
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - The degree to perturb rainfall from the baseline model. This should be a real
+      number,  which, if 0, would indicate no rainfall in any district. If 1 it would
+      indicate rainfall matching baseline estimates. 1.25 would indicate a 25% increase
+      in rainfall from off the baseline estimate.
+    model: DSSAT
+    name: rainfall
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - This a scalar between 0 and 200 which represents fertilizer in kg/ha. 100 is
+      considered the  baseline amount (per management practice), so anything above
+      100 represents additional  fertilizer usage/availability and anything below
+      100 represents decreased fertilzer (per  management practice).
+    model: DSSAT
+    name: fertilizer
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - This is the month and day in "mm-dd" format when planting should begin. This
+      allows the modeler  to simulate various planting seasons (such as Belg and Maher).
+    model: DSSAT
+    name: planting_start
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - This is the month and day in "mm-dd" format when planting should end. This allows
+      the modeler  to simulate various planting seasons (such as Belg and Maher).
+      This must be after the  planting_start parameter.
+    model: DSSAT
+    name: planting_end
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Choose the crop of interest from one of [millet, maize, wheat].
+    model: yield_anomalies_lpjml
+    name: crop
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Choose the irrigation level. It should be one of [LIM, NO, POT]. NO: no irrigation
+      anywhere. Crops are rain-fed only. This can be considered as a "what-if irrigation
+      failed scenario".  LIM: irrigation is applied on crop-specific areas equipped
+      for irrigation. Irrigation water withdrawal is limited to water available in
+      surface water bodies. As a result, it is possible that irrigation demand cannot
+      be fulfilled completely in some grid cells if demand is higher than supply.  POT:
+      uses the same irrigated areas as LIM_IRRIGATION, but allows for withdrawals
+      to exceed water available in surface water bodies. As a result, irrigated crops
+      should not experience water stress.'
+    model: yield_anomalies_lpjml
+    name: irrigation
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - 'Choose the nitrogen level. It should be one of [LIM, LIM_p25, LIM_p50, UNLIM].  LIM:
+      country- and crop-type-specific amounts of N fertilizer to crops. The dataset
+      is from GGCMI (the Global Gridded Crop Model Inter-comparison within AgMIP)
+      and describes fertilizer application levels around the year 2000.  LIM_p25:
+      same as LIM, but with 25% more fertilizer in all cells where N>0. That is, cells
+      without fertilization around 2000 in our data set do also not receive fertilizer
+      in this scenario.  LIM_p50: similar to _p25, but with 50% more N.  UNLIM: extremely
+      high N rates in all cells such that there should be no N limitation of crop
+      growth. There are no negative effects of too much nitrogen on plant growth in
+      our model (but there will be increased leaching and outgassing).'
+    model: yield_anomalies_lpjml
+    name: nitrogen
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Either global (global pixel tif file) or merged (a txt file aggregated to the
+      country level).
+    model: yield_anomalies_lpjml
+    name: area
+    polarity: 1.0
+  - OntologyNode:
+    examples:
+    - Only provide if area=global. Select the statistical aggregation over possible
+      future climate  realizations which can be any of ["mean", "std", "pctl,5", "pctl,95"]
+      for the mean, standard  deviation, 5th percentile or 95th percentile. These
+      four measures reflect the uncertainty of  the climate forecasts starting in
+      May 2018.
+    model: yield_anomalies_lpjml
+    name: statistic
+    polarity: 1.0

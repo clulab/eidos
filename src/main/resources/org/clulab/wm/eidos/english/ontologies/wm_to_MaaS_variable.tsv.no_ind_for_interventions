@@ -1,0 +1,1400 @@
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.53413904
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.53413904
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/Rainfall	0.50851905
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/Rainfall	0.50851905
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/management_practice	0.50089794
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.43104365
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/HWAH	0.38294408
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/Yield	0.3744307
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/yield level	0.3720034
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/weather	MaaS-variable	MaaS-Variables/dR	0.3537316
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.45534775
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.45534775
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/Rainfall	0.42092496
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/Rainfall	0.42092496
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/management_practice	0.39027905
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/malnutrition	0.318511
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/population	0.30603456
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/population	0.30603456
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/dR	0.3021356
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/climate	MaaS-variable	MaaS-Variables/poverty level	0.29578456
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/Rainfall	0.6317845
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/Rainfall	0.6317845
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.5354923
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.5354923
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/management_practice	0.40214324
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/HWAH	0.34059066
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/yield level	0.3404995
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3212312
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/malnutrition	0.29042518
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/rainfall	MaaS-variable	MaaS-Variables/dR	0.28343353
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.50095266
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.50095266
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/Rainfall	0.46696892
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/Rainfall	0.46696892
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/management_practice	0.41486517
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3947473
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/HWAH	0.3937911
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/dR	0.34297156
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/yield level	0.3204371
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/precipitation/storm	MaaS-variable	MaaS-Variables/Yield	0.31316915
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/management_practice	0.49697953
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4668211
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4668211
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/yield level	0.39120156
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/Yield	0.38010454
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.37160996
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/Rainfall	0.3647858
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/Rainfall	0.3647858
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/HWAH	0.35699305
+primaryConcept	wm/concept/causal_factor/environmental/meteorologic/temperature	MaaS-variable	MaaS-Variables/malnutrition	0.3032377
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/management_practice	0.48881924
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/Yield	0.45216593
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.44277897
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/poverty level	0.43119022
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/population	0.38448578
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/population	0.38448578
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/yield level	0.33998522
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33754456
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33754456
+primaryConcept	wm/concept/causal_factor/environmental/environment	MaaS-variable	MaaS-Variables/malnutrition	0.32031155
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/management_practice	0.43947187
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40638974
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40638974
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/poverty level	0.39808983
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.38392577
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/yield level	0.38151124
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/Yield	0.38113096
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/dR	0.36450765
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/malnutrition	0.3589605
+primaryConcept	wm/concept/causal_factor/environmental/climate_change_mitigation	MaaS-variable	MaaS-Variables/population	0.31119144
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/management_practice	0.588494
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5725762
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/Yield	0.5138974
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/poverty level	0.4797418
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/dR	0.45336735
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/yield level	0.42372078
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3925278
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3925278
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/HWAH	0.38389677
+primaryConcept	wm/concept/causal_factor/environmental/resource_management	MaaS-variable	MaaS-Variables/population	0.37517378
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4604447
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/management_practice	0.42078447
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/Yield	0.3571223
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/dR	0.3452157
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/poverty level	0.34239426
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/HWAH	0.33475602
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/yield level	0.3211198
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28492603
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28492603
+primaryConcept	wm/concept/causal_factor/environmental/forestry	MaaS-variable	MaaS-Variables/malnutrition	0.25880626
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5452854
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/management_practice	0.52434635
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.48436072
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.48436072
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/poverty level	0.44258043
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/Yield	0.43608558
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/HWAH	0.41918436
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/population	0.40924147
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/population	0.40924147
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land	MaaS-variable	MaaS-Variables/dR	0.40879202
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/management_practice	0.5524247
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4740292
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4717018
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4717018
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/Yield	0.4221056
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/HWAH	0.3990322
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/yield level	0.37936977
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/Rainfall	0.37934032
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/Rainfall	0.37934032
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_bodies	MaaS-variable	MaaS-Variables/poverty level	0.3647236
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/management_practice	0.44661736
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.43065155
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40456972
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40456972
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/poverty level	0.37915722
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/population	0.36654243
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/population	0.36654243
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/dR	0.36602098
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/yield level	0.34623888
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/land_availability	MaaS-variable	MaaS-Variables/HWAH	0.34298337
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/management_practice	0.5274077
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4172027
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4082824
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4082824
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/Yield	0.38627592
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/yield level	0.37478226
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/HWAH	0.36249104
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/Rainfall	0.36148316
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/Rainfall	0.36148316
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/water_commodity	MaaS-variable	MaaS-Variables/poverty level	0.31886855
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/management_practice	0.4982803
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/yield level	0.42090157
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/Yield	0.3980511
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/dR	0.39234722
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3786715
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3786715
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/poverty level	0.37251204
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.36350656
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/HWAH	0.34681723
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/fossil_fuels	MaaS-variable	MaaS-Variables/consumption per capita per day	0.2991236
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/management_practice	0.56151575
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.43179068
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/Yield	0.4180137
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/HWAH	0.41417217
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/yield level	0.40524998
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3887407
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3887407
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/poverty level	0.350069
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/malnutrition	0.32479617
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/soil	MaaS-variable	MaaS-Variables/dR	0.321025
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/management_practice	0.42624792
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4218852
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/HWAH	0.36093518
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.35022455
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.35022455
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/dR	0.32451507
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/Yield	0.3128422
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/Rainfall	0.30735564
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/Rainfall	0.30735564
+primaryConcept	wm/concept/causal_factor/environmental/natural_resources/pasture	MaaS-variable	MaaS-Variables/yield level	0.29945776
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/management_practice	0.45202857
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/yield level	0.43636334
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33571357
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33571357
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/malnutrition	0.32456797
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/poverty level	0.2962973
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/population	0.28804302
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/population	0.28804302
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/Yield	0.27652603
+primaryConcept	wm/concept/causal_factor/environmental/pollution/air_pollution	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.2728532
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/management_practice	0.5265149
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/yield level	0.4432106
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39014173
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39014173
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/malnutrition	0.37284753
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.35010856
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/population	0.3282537
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/population	0.3282537
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/poverty level	0.32617593
+primaryConcept	wm/concept/causal_factor/environmental/pollution/land_pollution	MaaS-variable	MaaS-Variables/HWAH	0.32552782
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/Rainfall	0.30951196
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/Rainfall	0.30951196
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/management_practice	0.28860065
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/yield level	0.2877285
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.26727426
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.26727426
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/malnutrition	0.26597977
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/poverty level	0.2435008
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/dR	0.2319643
+primaryConcept	wm/concept/causal_factor/environmental/pollution/climate_change	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.21783206
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/management_practice	0.55801237
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4735937
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/poverty level	0.4619321
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/Yield	0.4482434
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4470112
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4470112
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/yield level	0.42834908
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/dR	0.39344412
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/malnutrition	0.38967296
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_insecurity	MaaS-variable	MaaS-Variables/HWAH	0.3882816
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/management_practice	0.61238885
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5516797
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/Yield	0.5239615
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/poverty level	0.4526586
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/yield level	0.42090413
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/dR	0.41541135
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.409008
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.409008
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/HWAH	0.38447106
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_management	MaaS-variable	MaaS-Variables/malnutrition	0.3335194
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/management_practice	0.5417592
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.48027638
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/Yield	0.46044487
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/poverty level	0.40699777
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40185705
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40185705
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/yield level	0.37039933
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/dR	0.36300924
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/HWAH	0.32299098
+primaryConcept	wm/concept/causal_factor/food_water_and_nutrition/water_security	MaaS-variable	MaaS-Variables/consumption per capita per day	0.31354126
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/poverty level	0.4232914
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/Yield	0.38009676
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.37218687
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/management_practice	0.3468614
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/malnutrition	0.33373186
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/dR	0.31560156
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.30392906
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.30392906
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/yield level	0.3031684
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/crisis	MaaS-variable	MaaS-Variables/population	0.26035136
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/poverty level	0.54563457
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/Yield	0.48064744
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/management_practice	0.44813198
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/yield level	0.44212526
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.42216942
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/dR	0.41219336
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/malnutrition	0.41212955
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39670676
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39670676
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis	MaaS-variable	MaaS-Variables/population	0.35306478
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/management_practice	0.61520797
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/yield level	0.6003543
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/dR	0.54335153
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/HWAH	0.5380565
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/Yield	0.53797764
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/malnutrition	0.5214581
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.51720244
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/poverty level	0.45526135
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.44642597
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/crop_failure	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.44642597
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/HWAH	0.2883073
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/management_practice	0.26757115
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.25924727
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/malnutrition	0.2411806
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/population	0.23360807
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/population	0.23360807
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/yield level	0.22754595
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.20373176
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.20373176
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/insect_infestation	MaaS-variable	MaaS-Variables/poverty level	0.19105293
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3804611
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3804611
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/Rainfall	0.36753577
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/Rainfall	0.36753577
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/management_practice	0.3406046
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3310863
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/malnutrition	0.29491115
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/poverty level	0.28598738
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/population	0.28108513
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/flooding	MaaS-variable	MaaS-Variables/population	0.28108513
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/management_practice	0.20215198
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.17906809
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.17906809
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/malnutrition	0.17796463
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/HWAH	0.16846259
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/Rainfall	0.16655582
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/Rainfall	0.16655582
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.16569757
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/poverty level	0.1568469
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/avalanche	MaaS-variable	MaaS-Variables/yield level	0.14958319
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/Rainfall	0.20911351
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/Rainfall	0.20911351
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.1953689
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.19442277
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.19442277
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/dR	0.18057528
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/HWAH	0.17579521
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/management_practice	0.16514303
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/yield level	0.15304445
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/wildfire	MaaS-variable	MaaS-Variables/poverty level	0.14246549
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/Rainfall	0.30123225
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/Rainfall	0.30123225
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28126398
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28126398
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/management_practice	0.20293134
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/malnutrition	0.18967025
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/yield level	0.1847176
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/population	0.17298381
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/population	0.17298381
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/volcanic_eruption	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.14905211
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.5548972
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.5548972
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/management_practice	0.52348566
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/Rainfall	0.5234196
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/Rainfall	0.5234196
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/yield level	0.46706468
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/HWAH	0.40249178
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/malnutrition	0.3953534
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.39137298
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/drought	MaaS-variable	MaaS-Variables/dR	0.38796434
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33338276
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33338276
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/Rainfall	0.2808469
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/Rainfall	0.2808469
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/malnutrition	0.2220668
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/poverty level	0.21796171
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.20296389
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/population	0.19929129
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/population	0.19929129
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/natural_disaster/earthquake	MaaS-variable	MaaS-Variables/yield level	0.18828389
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/management_practice	0.47819543
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4681638
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4681638
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.42276704
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/Yield	0.39347994
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/Rainfall	0.37214866
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/Rainfall	0.37214866
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/yield level	0.35685003
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/HWAH	0.35662732
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/weather_issue/cold_temperature	MaaS-variable	MaaS-Variables/poverty level	0.3232061
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.32353824
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/management_practice	0.307677
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/Yield	0.26464862
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/HWAH	0.26110753
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.24351199
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.24351199
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/yield level	0.23376828
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/poverty level	0.2247154
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/dR	0.21380122
+primaryConcept	wm/concept/causal_factor/crisis_and_disaster/environmental_disasters/fire	MaaS-variable	MaaS-Variables/Rainfall	0.17407906
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/poverty level	0.5776428
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/Yield	0.54197323
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/management_practice	0.5105932
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5074904
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/yield level	0.43013301
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/malnutrition	0.40828001
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/population	0.4059205
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/population	0.4059205
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/consumption per capita per day	0.403758
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/livelihood	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40227434
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/consumption per capita per day	0.54316324
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/Yield	0.51857066
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/poverty level	0.5028675
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/management_practice	0.46069407
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/dR	0.434575
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.42857233
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/yield level	0.41222927
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/population	0.37811407
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/population	0.37811407
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/currency	MaaS-variable	MaaS-Variables/malnutrition	0.36097768
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/management_practice	0.4915332
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.48509938
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/dR	0.47500986
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/Yield	0.4710674
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/HWAH	0.4186723
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/poverty level	0.41729575
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/yield level	0.386328
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/malnutrition	0.36670652
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/consumption per capita per day	0.35545835
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/import/food_import	MaaS-variable	MaaS-Variables/population	0.35513476
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/management_practice	0.5074237
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.48879048
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/dR	0.48549405
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/Yield	0.46919918
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/poverty level	0.43926275
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/HWAH	0.4327708
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/yield level	0.4072898
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/malnutrition	0.37942827
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/consumption per capita per day	0.36812556
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/export/food_export	MaaS-variable	MaaS-Variables/population	0.36136344
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/Yield	0.5927398
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/poverty level	0.55386853
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.52119356
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/management_practice	0.50837106
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/consumption per capita per day	0.47233823
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/yield level	0.44944286
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4135427
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4135427
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/population	0.41291505
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market	MaaS-variable	MaaS-Variables/population	0.41291505
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/management_practice	0.49673405
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/yield level	0.46356115
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/dR	0.43098304
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/Yield	0.42358303
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/poverty level	0.39712456
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.37083614
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.37083614
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.36317116
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/consumption per capita per day	0.3494311
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel	MaaS-variable	MaaS-Variables/HWAH	0.32868063
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/management_practice	0.56770545
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/consumption per capita per day	0.5222503
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/Yield	0.51571584
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/yield level	0.5015424
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.48045918
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/dR	0.47747275
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/poverty level	0.44790685
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/HWAH	0.44771358
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4412285
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4412285
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/management_practice	0.49275532
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/yield level	0.4876623
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/consumption per capita per day	0.45556453
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/Yield	0.45382795
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/dR	0.4510145
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/poverty level	0.4074156
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39361566
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39361566
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3775849
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price	MaaS-variable	MaaS-Variables/HWAH	0.33980677
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/consumption per capita per day	0.5575675
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/poverty level	0.5304303
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/management_practice	0.4947109
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/Yield	0.48238772
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.47487396
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.47487396
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/population	0.45989624
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/population	0.45989624
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.45050442
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_living	MaaS-variable	MaaS-Variables/yield level	0.44205803
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/management_practice	0.56460655
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/yield level	0.5520536
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/consumption per capita per day	0.5420381
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/Yield	0.5194555
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/poverty level	0.4994088
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.48991385
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.48991385
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.44270694
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/population	0.416298
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation	MaaS-variable	MaaS-Variables/population	0.416298
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/consumption per capita per day	0.59317344
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/poverty level	0.57212186
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/Yield	0.55809224
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/yield level	0.54919726
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/management_practice	0.51657146
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.47092432
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4488705
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4488705
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/population	0.44851258
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/revenue	MaaS-variable	MaaS-Variables/population	0.44851258
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/yield level	0.46791828
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/poverty level	0.46408704
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/Yield	0.4093702
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/management_practice	0.39974388
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/malnutrition	0.3914823
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/consumption per capita per day	0.38929427
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.35859096
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.35859096
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/population	0.3552974
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget	MaaS-variable	MaaS-Variables/population	0.3552974
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/poverty level	0.6052661
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/Yield	0.5241386
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4783873
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/management_practice	0.45825094
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/population	0.44793728
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/population	0.44793728
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/dR	0.4323489
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41355038
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41355038
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/assets	MaaS-variable	MaaS-Variables/yield level	0.40134355
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/management_practice	0.5908116
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5220097
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/Yield	0.5028641
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/HWAH	0.48036012
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/dR	0.4777176
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/yield level	0.45367607
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/poverty level	0.44021004
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/malnutrition	0.40282264
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40238497
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.40238497
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/management_practice	0.61807144
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/Yield	0.5618763
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/yield level	0.5536456
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.52761656
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/dR	0.5083388
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/poverty level	0.5033842
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/malnutrition	0.4624115
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/HWAH	0.4558598
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.44963032
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/demand/food_demand	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.44963032
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/management_practice	0.49447528
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/dR	0.4860935
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/Yield	0.48327762
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/yield level	0.4424634
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/poverty level	0.42297426
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.41455272
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/consumption per capita per day	0.40727654
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/HWAH	0.34731516
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33403894
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33403894
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/yield level	0.5833662
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/poverty level	0.4828825
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/malnutrition	0.48135272
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/consumption per capita per day	0.44418353
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/population	0.43557265
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/population	0.43557265
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/management_practice	0.43296
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41780534
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41780534
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/depreciation	MaaS-variable	MaaS-Variables/Yield	0.39618883
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/yield level	0.45982355
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/management_practice	0.388189
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/poverty level	0.385176
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/malnutrition	0.37158182
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/Yield	0.34262526
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33882293
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33882293
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/dR	0.30639407
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/consumption per capita per day	0.27997684
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation	MaaS-variable	MaaS-Variables/population	0.25467142
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/poverty level	0.36103767
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/consumption per capita per day	0.32719225
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/yield level	0.30286723
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/malnutrition	0.29913238
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/population	0.25709087
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/population	0.25709087
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/dR	0.23864453
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/Yield	0.23863474
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/management_practice	0.2274885
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/market/currency_devaluation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2246067
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/management_practice	0.5054872
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/Yield	0.48751536
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.48414555
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/HWAH	0.43693334
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/consumption per capita per day	0.41965452
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/poverty level	0.41239783
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/dR	0.39602605
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/yield level	0.38184693
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/malnutrition	0.3665015
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/consumption/food_consumption	MaaS-variable	MaaS-Variables/population	0.36323598
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/Yield	0.5498014
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/management_practice	0.4989824
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.49863005
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/poverty level	0.4799985
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/yield level	0.41470915
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39096996
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39096996
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/dR	0.3903007
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/consumption per capita per day	0.35007367
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/competition	MaaS-variable	MaaS-Variables/malnutrition	0.34707108
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/management_practice	0.5272326
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5245887
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/Yield	0.50741637
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/poverty level	0.5072708
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/yield level	0.42623353
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4025649
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4025649
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/population	0.38251203
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/population	0.38251203
+primaryConcept	wm/concept/causal_factor/economic_and_commerce/economic_activity/development	MaaS-variable	MaaS-Variables/malnutrition	0.36056653
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/Yield	0.557128
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/management_practice	0.5263194
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.49518096
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/poverty level	0.47534826
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/population	0.40241778
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/population	0.40241778
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/yield level	0.37439507
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.34649718
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.34649718
+primaryConcept	wm/concept/causal_factor/social_and_political/basic_services	MaaS-variable	MaaS-Variables/consumption per capita per day	0.34607184
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/population	0.6582799
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/population	0.6582799
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.5872121
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.5872121
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/yield level	0.54192024
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/management_practice	0.52303636
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/malnutrition	0.49494144
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/poverty level	0.47536072
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/Yield	0.45238617
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/population_density	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4418409
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/Rainfall	0.08557359
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/Rainfall	0.08557359
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/malnutrition	0.082620785
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/poverty level	0.06794731
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/population	0.052420244
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/population	0.052420244
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/HWAH	0.043280832
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/yield level	0.020958493
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.016439384
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/de-population	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.016439384
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/malnutrition	0.4281176
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/population	0.42684072
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/population	0.42684072
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/yield level	0.4211895
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/management_practice	0.39521483
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.38104343
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.38104343
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/poverty level	0.349254
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/HWAH	0.26624426
+primaryConcept	wm/concept/causal_factor/social_and_political/population_group/overcrowding	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.24945424
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/Yield	0.48387712
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4756754
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/poverty level	0.42066643
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/management_practice	0.4179611
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/consumption per capita per day	0.30646512
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/population	0.30404365
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/population	0.30404365
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/yield level	0.28591037
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.27939305
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/education	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.27939305
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/Yield	0.56184447
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/management_practice	0.5381504
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5230879
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/poverty level	0.4601841
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/population	0.3720137
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/population	0.3720137
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/yield level	0.3593713
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/consumption per capita per day	0.34275684
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/malnutrition	0.33661675
+primaryConcept	wm/concept/causal_factor/social_and_political/educational/educational_materials	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.32320684
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/population	0.4039217
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/population	0.4039217
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.37696853
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.37696853
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.32042655
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/poverty level	0.31884512
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/yield level	0.30168623
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/Yield	0.29647005
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/SPI	0.291424
+primaryConcept	wm/concept/causal_factor/social_and_political/government/census	MaaS-variable	MaaS-Variables/SPI	0.291424
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/Yield	0.463227
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.41500345
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/management_practice	0.40471482
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/poverty level	0.4035344
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/yield level	0.34214446
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/population	0.2918388
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/population	0.2918388
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/dR	0.26853323
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/malnutrition	0.26348627
+primaryConcept	wm/concept/causal_factor/social_and_political/government/regulation	MaaS-variable	MaaS-Variables/consumption per capita per day	0.25666812
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/consumption per capita per day	0.45015532
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/poverty level	0.44381732
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/yield level	0.42087322
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/management_practice	0.41053924
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/Yield	0.39484733
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.34773627
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/dR	0.33065283
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/population	0.31428334
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/population	0.31428334
+primaryConcept	wm/concept/causal_factor/social_and_political/government/tax_duty	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.30912718
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/poverty level	0.51361436
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/Yield	0.46504793
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/management_practice	0.44001558
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.40732765
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/malnutrition	0.39325577
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/yield level	0.38375455
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3647885
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3647885
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/population	0.35916036
+primaryConcept	wm/concept/causal_factor/social_and_political/political/political_instability	MaaS-variable	MaaS-Variables/population	0.35916036
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/poverty level	0.3164728
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/Yield	0.21579674
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.2142227
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/management_practice	0.19172364
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/malnutrition	0.18485552
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/consumption per capita per day	0.1758164
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/yield level	0.16290265
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/population	0.13308766
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/population	0.13308766
+primaryConcept	wm/concept/causal_factor/social_and_political/political/corruption	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.1219498
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/poverty level	0.39706278
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/Yield	0.32987723
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/population	0.2968797
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/population	0.2968797
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.29179353
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/management_practice	0.2798304
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.24703293
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.24703293
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/malnutrition	0.2440808
+primaryConcept	wm/concept/causal_factor/social_and_political/political/independence	MaaS-variable	MaaS-Variables/yield level	0.24014276
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/poverty level	0.3494482
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/Yield	0.33983952
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/management_practice	0.2917427
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/yield level	0.27671948
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.26361555
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/consumption per capita per day	0.26219365
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/malnutrition	0.24997033
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.23803192
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.23803192
+primaryConcept	wm/concept/causal_factor/social_and_political/political/sanction	MaaS-variable	MaaS-Variables/population	0.2309293
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/population	0.47779655
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/population	0.47779655
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/poverty level	0.47197658
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41118535
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41118535
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/management_practice	0.39076063
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.38090804
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/malnutrition	0.37110022
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/Yield	0.3675669
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/human_migration	MaaS-variable	MaaS-Variables/yield level	0.34304327
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/population	0.4426354
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/population	0.4426354
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/management_practice	0.42129385
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/poverty level	0.41808036
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/Yield	0.3851348
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.38167304
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/malnutrition	0.37206632
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33855575
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33855575
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/hosting_idps	MaaS-variable	MaaS-Variables/consumption per capita per day	0.29726583
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/poverty level	0.38768917
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/Yield	0.33219337
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/population	0.32770905
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/population	0.32770905
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.31694514
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/management_practice	0.28771082
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2874773
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2874773
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/consumption per capita per day	0.27362245
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/emigration	MaaS-variable	MaaS-Variables/malnutrition	0.24413821
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/Yield	0.42200652
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/poverty level	0.41843656
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/population	0.41426197
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/population	0.41426197
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.41045663
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/management_practice	0.40157667
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/consumption per capita per day	0.3523077
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3510991
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3510991
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/immigration	MaaS-variable	MaaS-Variables/malnutrition	0.32659426
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/poverty level	0.3988967
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/population	0.35112345
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/population	0.35112345
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/Yield	0.3475061
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3468998
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/management_practice	0.30148572
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/malnutrition	0.28607333
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28535306
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28535306
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/migration_returnees	MaaS-variable	MaaS-Variables/yield level	0.24904671
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/management_practice	0.4389889
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4141916
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4141916
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/population	0.40367508
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/population	0.40367508
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/yield level	0.40347135
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.38573226
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/malnutrition	0.36479864
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/poverty level	0.3514917
+primaryConcept	wm/concept/causal_factor/social_and_political/migration/seasonal_migration	MaaS-variable	MaaS-Variables/HWAH	0.3471896
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/poverty level	0.38030103
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/malnutrition	0.28480622
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.28462628
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/management_practice	0.2801942
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/population	0.26650086
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/population	0.26650086
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/Yield	0.2579886
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/yield level	0.21998563
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.21817566
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/exploitation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.21817566
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/poverty level	0.5557724
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/management_practice	0.48510066
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/malnutrition	0.48368394
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/Yield	0.459503
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/yield level	0.43301785
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/population	0.41819623
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/population	0.41819623
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.40850022
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3652094
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/physical_insecurity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3652094
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/poverty level	0.20516555
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/malnutrition	0.12348248
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/Yield	0.122689016
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/management_practice	0.11183265
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/yield level	0.10607777
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.08325625
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/dC	0.082092546
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/dP	0.076933235
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/population	0.074409164
+primaryConcept	wm/concept/causal_factor/social_and_political/threat/disarmament	MaaS-variable	MaaS-Variables/population	0.074409164
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/poverty level	0.40871334
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/Yield	0.33897972
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3389345
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/consumption per capita per day	0.30708966
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/management_practice	0.29063603
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/population	0.27772602
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/population	0.27772602
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/yield level	0.2671606
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/malnutrition	0.26484826
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/crime	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.24174754
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/poverty level	0.25518197
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.21985248
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/Yield	0.2107006
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/management_practice	0.18598035
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/malnutrition	0.16331223
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.161247
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.161247
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/population	0.1593501
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/population	0.1593501
+primaryConcept	wm/concept/causal_factor/social_and_political/criminal/abduction	MaaS-variable	MaaS-Variables/HWAH	0.15380679
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/poverty level	0.42673862
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/Yield	0.34765708
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.33035308
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/management_practice	0.3080459
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/malnutrition	0.29077896
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/population	0.27885014
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/population	0.27885014
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.26770645
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.26770645
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/hostility	MaaS-variable	MaaS-Variables/yield level	0.26338863
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/poverty level	0.44229692
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/Yield	0.41524568
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.38543457
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/management_practice	0.3647607
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.32372925
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.32372925
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/yield level	0.31445992
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/malnutrition	0.28304783
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/population	0.2793559
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/demonstrate	MaaS-variable	MaaS-Variables/population	0.2793559
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/poverty level	0.39735788
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.32600346
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/Yield	0.3163407
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/management_practice	0.28925413
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/population	0.28145674
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/population	0.28145674
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/malnutrition	0.2692085
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.23581931
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.23581931
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/war	MaaS-variable	MaaS-Variables/yield level	0.22683452
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.37541902
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/Yield	0.3688616
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/poverty level	0.3639832
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/management_practice	0.32307497
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/malnutrition	0.2750743
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/yield level	0.27283996
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/population	0.26561183
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/population	0.26561183
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.25193584
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/attack	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.25193584
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/poverty level	0.3177525
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/Yield	0.31296575
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.31037763
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/management_practice	0.30760717
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2644538
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2644538
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/yield level	0.24694286
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/malnutrition	0.23650253
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/population	0.22862683
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/strike	MaaS-variable	MaaS-Variables/population	0.22862683
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/poverty level	0.37099746
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.29796782
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/Yield	0.29636955
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/management_practice	0.28195527
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2593488
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2593488
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/malnutrition	0.22795177
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/yield level	0.22083016
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/population	0.20865802
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/terrorism	MaaS-variable	MaaS-Variables/population	0.20865802
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4301356
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/management_practice	0.38835067
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/HWAH	0.36478865
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/Yield	0.3612683
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/poverty level	0.32467934
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/yield level	0.30231544
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.29602772
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.29602772
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/dR	0.2950905
+primaryConcept	wm/concept/causal_factor/social_and_political/conflict/livestock_raid	MaaS-variable	MaaS-Variables/population	0.28231266
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/management_practice	0.41819105
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/Yield	0.36753958
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3370882
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33374187
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33374187
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/poverty level	0.32261696
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/yield level	0.32233924
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/consumption per capita per day	0.30367273
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/population	0.29431033
+primaryConcept	wm/concept/causal_factor/movement/transport	MaaS-variable	MaaS-Variables/population	0.29431033
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/malnutrition	0.40742376
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/population	0.39793506
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/population	0.39793506
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/yield level	0.36099344
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/management_practice	0.3376092
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33066303
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33066303
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/poverty level	0.324405
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/Yield	0.228479
+primaryConcept	wm/concept/causal_factor/movement/human_displacement	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.20376217
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/poverty level	0.3869513
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/Yield	0.32086357
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/management_practice	0.31883916
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.31558216
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/population	0.28466743
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/population	0.28466743
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2837447
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2837447
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/consumption per capita per day	0.26883984
+primaryConcept	wm/concept/causal_factor/movement/evacuate_humanitarian_workers	MaaS-variable	MaaS-Variables/malnutrition	0.26408422
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5442984
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/management_practice	0.5395615
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/HWAH	0.48458573
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/Yield	0.47840074
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/poverty level	0.43775383
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/yield level	0.3940485
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/dR	0.39176586
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3783903
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3783903
+primaryConcept	wm/concept/causal_factor/agriculture/agricultural_production	MaaS-variable	MaaS-Variables/population	0.3488238
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/management_practice	0.4676929
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.45527875
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/HWAH	0.4424962
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/dR	0.41087908
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/Yield	0.38429186
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/yield level	0.34464255
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.31091386
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.31091386
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/poverty level	0.30693498
+primaryConcept	wm/concept/causal_factor/agriculture/planting	MaaS-variable	MaaS-Variables/population	0.25372103
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/HWAH	0.4355707
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.418018
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/management_practice	0.41338968
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/dR	0.40784386
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/Yield	0.33232054
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3270935
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3270935
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/population	0.3078207
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/population	0.3078207
+primaryConcept	wm/concept/causal_factor/agriculture/crop_storage	MaaS-variable	MaaS-Variables/yield level	0.30264166
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/management_practice	0.3913346
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/HWAH	0.3488232
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/yield level	0.27627486
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.25985798
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/dR	0.22436282
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/Yield	0.20954224
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/Rainfall	0.19927491
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/Rainfall	0.19927491
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.17968006
+primaryConcept	wm/concept/causal_factor/agriculture/fertilization	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.17968006
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/management_practice	0.4987249
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.41733283
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.38643596
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.38643596
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/Rainfall	0.38566464
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/Rainfall	0.38566464
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/yield level	0.3633223
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/HWAH	0.34548923
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/Yield	0.34429997
+primaryConcept	wm/concept/causal_factor/agriculture/irrigation	MaaS-variable	MaaS-Variables/malnutrition	0.29263514
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/management_practice	0.35955182
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/HWAH	0.29383686
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/yield level	0.2897713
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.26402923
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/Yield	0.23434962
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/malnutrition	0.23144421
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.20748354
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.20748354
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/dR	0.18296248
+primaryConcept	wm/concept/causal_factor/agriculture/pesticide	MaaS-variable	MaaS-Variables/poverty level	0.17920838
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/HWAH	0.4787894
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/management_practice	0.43240616
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.37226397
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/dR	0.36171687
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/yield level	0.34386247
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/Yield	0.3183999
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.26592562
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.26592562
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/malnutrition	0.25327435
+primaryConcept	wm/concept/causal_factor/agriculture/crop	MaaS-variable	MaaS-Variables/poverty level	0.24239966
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/HWAH	0.58487195
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/management_practice	0.5486961
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4974177
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/dR	0.4818044
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/yield level	0.4685881
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/Yield	0.43636623
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3704834
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3704834
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/malnutrition	0.3608428
+primaryConcept	wm/concept/causal_factor/agriculture/crop_production	MaaS-variable	MaaS-Variables/poverty level	0.34455115
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/management_practice	0.48356023
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4804638
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/Yield	0.42364246
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/HWAH	0.42258677
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/yield level	0.3756663
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/dR	0.36981818
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/poverty level	0.3583691
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.34632826
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.34632826
+primaryConcept	wm/concept/causal_factor/agriculture/livestock_production	MaaS-variable	MaaS-Variables/population	0.33464223
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/HWAH	0.37420925
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/management_practice	0.35236198
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.332247
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/yield level	0.26371685
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/Yield	0.24043761
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/population	0.22807257
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/population	0.22807257
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/poverty level	0.22595
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.22562082
+primaryConcept	wm/concept/causal_factor/agriculture/pest	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.22562082
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/malnutrition	0.29403043
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/population	0.29039955
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/population	0.29039955
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/management_practice	0.26562002
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/Yield	0.2487205
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/poverty level	0.23356885
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/yield level	0.18605621
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.1792192
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.16680391
+primaryConcept	wm/concept/causal_factor/health_and_life/biometrics	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.16680391
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/malnutrition	0.39383006
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/yield level	0.38083524
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/management_practice	0.35653797
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.29434702
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/poverty level	0.2797918
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/population	0.27843934
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/population	0.27843934
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/Yield	0.27819422
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.24821195
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/human_disease	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.24821195
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/management_practice	0.40205768
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/Yield	0.40134186
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/yield level	0.38759553
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.371204
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/poverty level	0.3670857
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/consumption per capita per day	0.3063408
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/malnutrition	0.28764912
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2608252
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2608252
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/alcohol_drug_and_substance_abuse	MaaS-variable	MaaS-Variables/population	0.25738254
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.2943882
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/HWAH	0.27992436
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/management_practice	0.26975235
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/yield level	0.21983062
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/population	0.21671407
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/population	0.21671407
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/Yield	0.21374995
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/malnutrition	0.20741835
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.20411043
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/plant_disease/pest_infestation	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.20411043
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/management_practice	0.4813817
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.44960338
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/yield level	0.41729757
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/malnutrition	0.4160975
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/Yield	0.40690842
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/HWAH	0.38357005
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/population	0.36053705
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/population	0.36053705
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/dR	0.33940372
+primaryConcept	wm/concept/causal_factor/health_and_life/disease/animal_disease	MaaS-variable	MaaS-Variables/poverty level	0.337185
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/management_practice	0.46124348
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/Yield	0.4525958
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.43535024
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/yield level	0.4143179
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/malnutrition	0.36281082
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/poverty level	0.34753096
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/HWAH	0.3001078
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/population	0.29619932
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/population	0.29619932
+primaryConcept	wm/concept/causal_factor/health_and_life/treatment/health_treatment	MaaS-variable	MaaS-Variables/consumption per capita per day	0.28386256
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/management_practice	0.4199919
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/Yield	0.4183497
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4113132
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/poverty level	0.40742886
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/yield level	0.4067823
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/malnutrition	0.39707398
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.36450616
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.36450616
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/HWAH	0.34271616
+primaryConcept	wm/concept/causal_factor/health_and_life/death	MaaS-variable	MaaS-Variables/consumption per capita per day	0.3417524
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/Yield	0.37862217
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3759709
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/management_practice	0.3733918
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/yield level	0.30409813
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/poverty level	0.26182824
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/malnutrition	0.25917768
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.25168258
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.25168258
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/HWAH	0.22551374
+primaryConcept	wm/concept/causal_factor/health_and_life/injury	MaaS-variable	MaaS-Variables/consumption per capita per day	0.1927566
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.36530975
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/management_practice	0.3571001
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/Yield	0.35685837
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/malnutrition	0.35264558
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/HWAH	0.33311725
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/population	0.3221315
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/population	0.3221315
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/yield level	0.3197502
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/poverty level	0.31515762
+primaryConcept	wm/concept/causal_factor/health_and_life/birth	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3086238
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/poverty level	0.56243706
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/population	0.5207824
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/population	0.5207824
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/management_practice	0.50957066
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/Yield	0.48585933
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.46458134
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4591836
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4591836
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/malnutrition	0.45729446
+primaryConcept	wm/concept/causal_factor/health_and_life/basic_needs	MaaS-variable	MaaS-Variables/yield level	0.4503005
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/management_practice	0.502812
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/Yield	0.465425
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.43846852
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/poverty level	0.40807328
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/yield level	0.39902592
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3719943
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3719943
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/population	0.3528732
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/population	0.3528732
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/electrical	MaaS-variable	MaaS-Variables/dR	0.32063475
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/management_practice	0.58150595
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5182451
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/Yield	0.5012646
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4238637
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4238637
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/poverty level	0.41260922
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/yield level	0.41031554
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/HWAH	0.3777582
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/dR	0.36674866
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/water	MaaS-variable	MaaS-Variables/consumption per capita per day	0.32933983
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/management_practice	0.44072723
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.41335118
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/Yield	0.36996105
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/poverty level	0.32673326
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/yield level	0.3149154
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/HWAH	0.3077048
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28465456
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.28465456
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/population	0.26479873
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/waste	MaaS-variable	MaaS-Variables/population	0.26479873
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.41011265
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/Yield	0.40010557
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3993359
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3993359
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/management_practice	0.36678517
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/poverty level	0.32512635
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/consumption per capita per day	0.27142158
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/population	0.2703078
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/population	0.2703078
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/road	MaaS-variable	MaaS-Variables/yield level	0.26928562
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.28141198
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/Yield	0.2676902
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2577937
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.2577937
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/management_practice	0.24838606
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/poverty level	0.2304775
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/population	0.2007618
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/population	0.2007618
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/yield level	0.16543405
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/bridge	MaaS-variable	MaaS-Variables/consumption per capita per day	0.15360379
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/management_practice	0.486519
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/Yield	0.4686885
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4342232
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/poverty level	0.4122651
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/yield level	0.3386556
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/population	0.3306803
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/population	0.3306803
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.32126337
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.32126337
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/construction_materials	MaaS-variable	MaaS-Variables/malnutrition	0.28569883
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/Yield	0.47002438
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/management_practice	0.46474287
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/poverty level	0.4415458
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.43878615
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.42103115
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.42103115
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/consumption per capita per day	0.3716546
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/population	0.36643857
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/population	0.36643857
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/travel	MaaS-variable	MaaS-Variables/yield level	0.36583576
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/management_practice	0.2965835
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/dR	0.29260996
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/consumption per capita per day	0.27053472
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/yield level	0.24050622
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/Yield	0.24044715
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.24031083
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/poverty level	0.2361044
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/HWAH	0.2339849
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.19625048
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/transportation/shipping	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.19625048
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.18874887
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/Yield	0.18348251
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/consumption per capita per day	0.16948536
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/management_practice	0.15872629
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/poverty level	0.15600486
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.15305923
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.15305923
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/yield level	0.103153944
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/Rainfall	0.102593
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/ambulances	MaaS-variable	MaaS-Variables/Rainfall	0.102593
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.48880407
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/Yield	0.48869416
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/management_practice	0.43035287
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/poverty level	0.38197002
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/consumption per capita per day	0.34211817
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33658096
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33658096
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/yield level	0.33044434
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/population	0.30146834
+primaryConcept	wm/concept/causal_factor/access/infrastructure_access/medical/medical_facility	MaaS-variable	MaaS-Variables/population	0.30146834
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/management_practice	0.55005234
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5082411
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/Yield	0.4965612
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/poverty level	0.45989245
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/malnutrition	0.43534213
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/HWAH	0.43344626
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/yield level	0.42780516
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/consumption per capita per day	0.3994486
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/dR	0.39146197
+primaryConcept	wm/concept/causal_factor/access/food_shortage	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39032817
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/management_practice	0.62421834
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.52106553
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/Yield	0.5123352
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/yield level	0.4998005
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.49181932
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.49181932
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/poverty level	0.4706263
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/dR	0.41707638
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/HWAH	0.41679883
+primaryConcept	wm/concept/causal_factor/access/water_shortage	MaaS-variable	MaaS-Variables/malnutrition	0.41056564
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/management_practice	0.56026155
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.45862904
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/Yield	0.44128424
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4038207
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4038207
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/yield level	0.39170972
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/HWAH	0.37672672
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/dR	0.36759087
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/poverty level	0.35524413
+primaryConcept	wm/concept/causal_factor/access/water_supply	MaaS-variable	MaaS-Variables/Rainfall	0.32215327
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/Yield	0.5526892
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.52578616
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/management_practice	0.49848056
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.47134346
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.47134346
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/poverty level	0.43979448
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/yield level	0.37722966
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/population	0.37154943
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/population	0.37154943
+primaryConcept	wm/concept/causal_factor/access/road_access	MaaS-variable	MaaS-Variables/consumption per capita per day	0.36964172
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/poverty level	0.33134753
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/management_practice	0.30305868
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/population	0.2978234
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/population	0.2978234
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/malnutrition	0.2917709
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.28448427
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/Yield	0.24908814
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/consumption per capita per day	0.22389153
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.21737234
+primaryConcept	wm/concept/causal_factor/condition/living_condition/unsanitary_condition	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.21737234
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/poverty level	0.4913498
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/Yield	0.47370422
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/management_practice	0.46257573
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/yield level	0.43917185
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.40965256
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/malnutrition	0.40720847
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33990902
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.33990902
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/population	0.33297545
+primaryConcept	wm/concept/causal_factor/condition/tension	MaaS-variable	MaaS-Variables/population	0.33297545
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/yield level	0.74224097
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/management_practice	0.6038226
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/Yield	0.5479669
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/malnutrition	0.5463087
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.51264393
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.51264393
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/poverty level	0.50650203
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/population	0.49685052
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/population	0.49685052
+primaryConcept	wm/concept/causal_factor/condition/trend	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4668027
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/malnutrition	0.51643515
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/management_practice	0.48005477
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/poverty level	0.44766703
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/yield level	0.43987343
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.40928158
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/Yield	0.39731267
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/HWAH	0.3693353
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/population	0.36212328
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/population	0.36212328
+primaryConcept	wm/concept/causal_factor/condition/famine	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.36020574
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/poverty level	0.5756253
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/malnutrition	0.44786444
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/management_practice	0.4444282
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/Yield	0.42541268
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4099237
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/yield level	0.39919534
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39813566
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39813566
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/population	0.38999197
+primaryConcept	wm/concept/causal_factor/condition/poverty	MaaS-variable	MaaS-Variables/population	0.38999197
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/management_practice	0.55877614
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5371081
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/Yield	0.53451496
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/poverty level	0.46411243
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/HWAH	0.42306754
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/yield level	0.4015908
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/consumption per capita per day	0.391195
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/dR	0.38597143
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/malnutrition	0.37300968
+primaryConcept	wm/concept/causal_factor/condition/food_security	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.36909664
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/management_practice	0.5605591
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/malnutrition	0.5158578
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/poverty level	0.48407662
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/yield level	0.46724308
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.46610966
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/Yield	0.45745918
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/HWAH	0.42040363
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/population	0.3968948
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/population	0.3968948
+primaryConcept	wm/concept/causal_factor/condition/food_insecurity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3945806
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/management_practice	0.5351352
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/Yield	0.49156067
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.48243523
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/poverty level	0.43162045
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/HWAH	0.40109783
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/population	0.3922777
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/population	0.3922777
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/yield level	0.38072053
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/malnutrition	0.3790883
+primaryConcept	wm/concept/causal_factor/condition/food_diversity	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.35816795
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/population	0.49932387
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/population	0.49932387
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4555811
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.4555811
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/malnutrition	0.39759508
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/poverty level	0.3692216
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/management_practice	0.35779372
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/Yield	0.356775
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.35293552
+primaryConcept	wm/concept/entity/geo-location	MaaS-variable	MaaS-Variables/Rainfall	0.26552498
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/Yield	0.46403977
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4634267
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/poverty level	0.38123596
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/management_practice	0.37106156
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/dR	0.32680538
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/dC	0.28420037
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/consumption per capita per day	0.2684847
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/dP	0.2639059
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/yield level	0.2591226
+primaryConcept	wm/concept/entity/organization	MaaS-variable	MaaS-Variables/population	0.25154367
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/poverty level	0.48653698
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/population	0.42956185
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/population	0.42956185
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/Yield	0.4094172
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.3731606
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/management_practice	0.36173862
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/consumption per capita per day	0.34471035
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/malnutrition	0.32843855
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/yield level	0.29527953
+primaryConcept	wm/concept/entity/government_entity	MaaS-variable	MaaS-Variables/dR	0.26783195
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/population	0.566863
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/population	0.566863
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.502513
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.502513
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/poverty level	0.45076805
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/management_practice	0.40466216
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.39250565
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/malnutrition	0.38430327
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/yield level	0.3800454
+primaryConcept	wm/concept/entity/person_and_group/population	MaaS-variable	MaaS-Variables/consumption per capita per day	0.37078518
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.4606756
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/poverty level	0.41071463
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/Yield	0.3813455
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3787967
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.3787967
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/population	0.3705936
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/population	0.3705936
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/management_practice	0.35535523
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/consumption per capita per day	0.28516513
+primaryConcept	wm/concept/entity/person_and_group/community	MaaS-variable	MaaS-Variables/HWAH	0.24155577
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/population	0.2669628
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/population	0.2669628
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/malnutrition	0.25047082
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/poverty level	0.22402287
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/management_practice	0.19444126
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.19127244
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.19127244
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/Yield	0.1903538
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/yield level	0.18744418
+primaryConcept	wm/concept/entity/artifact	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.1736735
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/HWAH	0.5828258
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.5657956
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/management_practice	0.48836252
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/Yield	0.47051057
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/dR	0.41645887
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39890906
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.39890906
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/yield level	0.39276874
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/poverty level	0.30296946
+primaryConcept	wm/concept/time/temporal/crop_season	MaaS-variable	MaaS-Variables/consumption per capita per day	0.27777904
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/HARVEST_AREA	0.42604715
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41777143
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/Rainfall relative to average	0.41777143
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/HWAH	0.40248585
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/management_practice	0.38859838
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/Rainfall	0.36357376
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/Rainfall	0.36357376
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/dR	0.33757704
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/Yield	0.33573583
+primaryConcept	wm/concept/time/temporal/season	MaaS-variable	MaaS-Variables/yield level	0.27152303
