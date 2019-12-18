@@ -12,12 +12,13 @@ trait StopwordManaging {
 }
 
 class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) extends StopwordManaging {
-  protected def stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
+  protected val stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
   protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
 
   protected val bothWords = stopwords ++ transparentWords
 
   def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
+  override def containsStopwordStrict(stopword: String): Boolean = stopwords.contains(stopword)
 
   def hasContent(mention: Mention, state: State): Boolean = hasContent(mention) || resolvedCoref(mention, state)
 
@@ -53,7 +54,6 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
       // Remove mentions which are entirely stop/transparent words
       mentions.filter(hasContent)
 
-  override def containsStopwordStrict(stopword: String): Boolean = stopwords.contains(stopword)
 
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
 
