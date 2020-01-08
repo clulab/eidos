@@ -161,6 +161,8 @@ rules:
         (<case <nmod_because_of (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
           |
         (<case <nmod_because_of)
+          |
+        (<case <nmod_because_of [tag=/^JJ/] >advcl_for)
 
   - name: becauseSyntax2-${addlabel}
     priority: ${rulepriority}

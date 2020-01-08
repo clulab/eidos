@@ -131,6 +131,16 @@ rules:
       theme: Entity = nmod_for
       quantifier: Quantifier? = ${quant_modifiers}
 
+  - name: ${ label}_adjective_rule_5
+    priority:  ${ rulepriority }
+    example: "difficult for X to Y"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      theme: Entity = >advcl_for
+      quantifier: Quantifier? = ${quant_modifiers}
+
   - name: ${ label}_X_remains_y
     priority:  ${ rulepriority }
     example: "heavier than normal"

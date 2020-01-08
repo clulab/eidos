@@ -42,10 +42,10 @@ class TestDoc5 extends EnglishTest {
     val tester = new GraphTester(text)
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(insecurity)
+      tester.test(insecurity) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(food)
+      tester.test(food) should be (successful)
     }
     failingTest should "have correct edges 1" taggedAs(Keith) in {
       tester.test(EdgeSpec(security, Correlation, insecurity2)) should be (successful)
@@ -228,19 +228,19 @@ class TestDoc5 extends EnglishTest {
     val tester = new GraphTester(text)
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(response)
+      tester.test(response) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(crisis)
+      tester.test(crisis) should be (successful)
     }
     passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
-      tester.test(gaps)
+      tester.test(gaps) should be (successful)
     }
     passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
-      tester.test(risk)
+      tester.test(risk) should be (successful)
     }
     passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
-      tester.test(malnutrition)
+      tester.test(malnutrition) should be (successful)
     }
   }
 

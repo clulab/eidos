@@ -74,6 +74,29 @@ class TextBoundExpander(dependencies: Dependencies, maxHops: Int) extends Expand
     traverseOutgoingLocal(Set.empty, m.tokenInterval.toSet, outgoingRelations = outgoing, incomingRelations = incoming, numHops, m.sentence, stateFromAvoid, sentence)
   }
 
+  private def crossesTrigger(sent: Int, orig: Interval, nextTok: Int, triggerState: State): Boolean = {
+    val trigger = triggerState.mentionsFor(sent).headOption
+    // if there is no trigger, it can't be crossed
+    if (trigger.isEmpty) {
+      return false
+    }
+    // If you're landing on the trigger, it crosses!
+    if (triggerState.mentionsFor(sent, nextTok).nonEmpty) {
+      return true
+    }
+    val triggerInterval = trigger.get.tokenInterval
+    // orig to the left of the trigger
+    if (orig.end < triggerInterval.start) {
+      nextTok > triggerInterval.start
+    } else if (orig.start > triggerInterval.end) {
+      nextTok < triggerInterval.end
+    } else {
+      logger.warn("Trigger and original entity overlap")
+      true
+    }
+    // orig to the right of the trigger
+  }
+
   /** Used by expand to selectively traverse the provided syntactic dependency graph **/
   @tailrec
   private def traverseIncomingLocal(
@@ -95,7 +118,8 @@ class TextBoundExpander(dependencies: Dependencies, maxHops: Int) extends Expand
         if incomingRelations.nonEmpty && tok < incomingRelations.length
         (nextTok, dep) <- incomingRelations(tok)
         if isValidIncomingDependency(dep)
-        if state.mentionsFor(sent, nextTok).isEmpty
+        currMentionTokens = tokens ++ newTokens
+        if !crossesTrigger(sent, Interval(currMentionTokens.min, currMentionTokens.max + 1), nextTok, state)
       } yield nextTok
       traverseIncomingLocal(tokens ++ newTokens, newNewTokens, incomingRelations, remainingHops - 1, sent, state, sentence)
     }

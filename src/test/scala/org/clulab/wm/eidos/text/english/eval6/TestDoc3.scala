@@ -58,23 +58,23 @@ class TestDoc3 extends EnglishTest {
     behavior of "TestDoc3 Paragraph 2"
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(rainfall)
+      tester.test(rainfall) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(agrConditions)
+      tester.test(agrConditions) should be (successful)
     }
     // Note: Has a causal link across sentences, so a futureWorkTest.
     futureWorkTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, agrConditions)) should be (successful) // Test edges connecting them
     }
     passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
-      tester.test(flooding)
+      tester.test(flooding) should be (successful)
     }
     passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
-      tester.test(rainfall2)
+      tester.test(rainfall2) should be (successful)
     }
     passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
-      tester.test(rainfall3)
+      tester.test(rainfall3) should be (successful)
     }
   }
 
@@ -104,7 +104,7 @@ class TestDoc3 extends EnglishTest {
       tester.test(EdgeSpec(rainfall, Causal, vegetation)) should be (successful) // Test edges connecting them
     }
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(vegetation2)
+      tester.test(vegetation2) should be (successful)
     }
   }
 
@@ -140,13 +140,13 @@ class TestDoc3 extends EnglishTest {
     behavior of "TestDoc3 Paragraph 4"
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(rainfall1)
+      tester.test(rainfall1) should be (successful)
     }
     passingTest should "have correct edges 1" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(rainfall2, Causal, cropDevelopment)) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(rainfall3)
+      tester.test(rainfall3) should be (successful)
     }
     futureWorkTest should "have correct edges 2" taggedAs(Somebody) in { //Note: Adding a causal link here. todo: But the issue of noCausal is still present in the system. will be addressed later
       tester.test(EdgeSpec(rainfall4, Causal, moistureStress)) should be (successful) // Test edges connecting them
@@ -181,7 +181,7 @@ class TestDoc3 extends EnglishTest {
     behavior of "TestDoc3 Paragraph 5"
 
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(rainfall)
+      tester.test(rainfall) should be (successful)
     }
     // todo: when hyperedges added, these tests should prob be combined to make one with 2 causes
     failingTest should "have correct edges 1" taggedAs(Becky) in {
@@ -215,7 +215,7 @@ class TestDoc3 extends EnglishTest {
 
     // tests here
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(rainfall)
+      tester.test(rainfall) should be (successful)
     }
     passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(season, Causal, cropYield)) should be (successful) // Test edges connecting them
@@ -280,10 +280,10 @@ class TestDoc3 extends EnglishTest {
 
     // tests here
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(water)
+      tester.test(water) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(landTemp)
+      tester.test(landTemp) should be (successful)
     }
   }
 
@@ -353,19 +353,19 @@ class TestDoc3 extends EnglishTest {
 
     // tests here
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(sunny)
+      tester.test(sunny) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(dry)
+      tester.test(dry) should be (successful)
     }
     passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
-      tester.test(rainfall)
+      tester.test(rainfall) should be (successful)
     }
     passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
-      tester.test(pasture)
+      tester.test(pasture) should be (successful)
     }
     passingTest should "have correct singleton node 5" taggedAs(Somebody) in {
-      tester.test(water)
+      tester.test(water) should be (successful)
     }
   }
 
@@ -417,7 +417,7 @@ class TestDoc3 extends EnglishTest {
       tester.test(EdgeSpec(drySpell2, Causal, prodArea)) should be (successful) // Test edges connecting them
     }
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(maize)
+      tester.test(maize) should be (successful)
     }
   }
 
@@ -453,10 +453,10 @@ class TestDoc3 extends EnglishTest {
 
     // tests here
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(rainfall)
+      tester.test(rainfall) should be (successful)
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(rainfall2)
+      tester.test(rainfall2) should be (successful)
     }
     futureWorkTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall, Causal, cropProd)) should be (successful) // Test edges connecting them
@@ -471,16 +471,16 @@ class TestDoc3 extends EnglishTest {
       tester.test(EdgeSpec(rainfall3, Causal, pastures)) should be (successful) // Test edges connecting them
     }
     passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
-      tester.test(planting)
+      tester.test(planting) should be (successful)
     }
     passingTest should "have correct singleton node 4" taggedAs(Somebody) in {
-      tester.test(crops)
+      tester.test(crops) should be (successful)
     }
     futureWorkTest should "have correct edges 5" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(rainfall4, Causal, harvest2))
+      tester.test(EdgeSpec(rainfall4, Causal, harvest2)) should be (successful)
     }
     futureWorkTest should "have correct edges 6" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(rainfall4, Causal, drying2))
+      tester.test(EdgeSpec(rainfall4, Causal, drying2)) should be (successful)
     }
   }
 
@@ -561,10 +561,10 @@ class TestDoc3 extends EnglishTest {
 //      tester.test(rainfall)
 //    }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(vegetation)
+      tester.test(vegetation) should be (successful)
     }
     passingTest should "have correct singleton node 3" taggedAs(Somebody) in {
-      tester.test(vegetation2)
+      tester.test(vegetation2) should be (successful)
     }
     passingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfallForecasts, Causal, agriculturalAreas)) should be (successful)
@@ -623,7 +623,7 @@ class TestDoc3 extends EnglishTest {
       tester.test(EdgeSpec(rainfall2, Causal, losses)) should be (successful) // Test edges connecting them
     }
     passingTest should "have correct singleton node 2" taggedAs(Somebody) in {
-      tester.test(dry)
+      tester.test(dry) should be (successful)
     }
     //todo: "if the rains are sustained without significant dry days in coming weeks." --> future tests with hyper edge and negation
 
@@ -646,7 +646,7 @@ class TestDoc3 extends EnglishTest {
 
     // tests here
     passingTest should "have correct singleton node 1" taggedAs(Somebody) in {
-      tester.test(rainfall)
+      tester.test(rainfall) should be (successful)
     }
 
   }
