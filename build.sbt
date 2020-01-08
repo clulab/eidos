@@ -22,7 +22,7 @@ libraryDependencies ++= {
     "org.clulab"    %% "processors-modelsmain"    % procVer,
     "org.clulab"    %% "processors-modelscorenlp" % procVer,
     "org.clulab"    %% "geonorm"                  % "0.9.7",
-    "org.clulab"    %% "timenorm"                 % "1.0.3",
+    "org.clulab"    %% "timenorm"                 % "1.0.4",
     "ai.lum"        %% "common"                   % "0.0.8",
     "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
     "commons-io"    %  "commons-io"               % "2.5",
