@@ -1,9 +1,33 @@
 package org.clulab.wm.eidos.serialization.json
 
+import java.time.LocalDateTime
+
 import org.clulab.odin.CrossSentenceMention
+import org.clulab.odin.TextBoundMention
 import org.clulab.serialization.json.stringify
+import org.clulab.struct.{Interval => TextInterval}
+import org.clulab.timenorm.scate.SimpleInterval
+import org.clulab.wm.eidos.attachments.CountAttachment
+import org.clulab.wm.eidos.attachments.CountModifier
+import org.clulab.wm.eidos.attachments.CountUnit
+import org.clulab.wm.eidos.attachments.DCTime
+import org.clulab.wm.eidos.attachments.Decrease
+import org.clulab.wm.eidos.attachments.Hedging
+import org.clulab.wm.eidos.attachments.Increase
+import org.clulab.wm.eidos.attachments.Location
+import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.Property
+import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.attachments.Score
+import org.clulab.wm.eidos.attachments.Time
+import org.clulab.wm.eidos.context.DCT
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
@@ -14,10 +38,10 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import scala.collection.Seq
 
 class TestJLDSerializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
-  
+
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val annotatedDocument = ieSystem.extractFromText(text)
 
@@ -25,11 +49,11 @@ class TestJLDSerializer extends ExtractionTest {
     annotatedDocument
   }
   
-  def serialize(corpus: Corpus) = {
+  def serialize(corpus: Corpus): String = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
       val jValue = jldCorpus.serialize(adjectiveGrounder)
-      stringify(jValue, true)
+      stringify(jValue, pretty = true)
     }
     
     json
@@ -73,7 +97,18 @@ class TestJLDSerializer extends ExtractionTest {
     inspect(json)
     json should not be empty
   }
-  
+
+  it should "serialize a human migration event" in {
+    val json = serialize(Seq(
+      newTitledAnnotatedDocument("Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November.",
+        "This is the title") // This isn't cag-relevant
+    ))
+
+    inspect(json)
+    json should not be empty
+    json.contains("HumanMigration") should be (true)
+  }
+
   it should "be grounded" in {
     val json = serialize(Seq(
         newTitledAnnotatedDocument("Rainfall significantly increases poverty.")
@@ -124,7 +159,7 @@ class TestJLDSerializer extends ExtractionTest {
         Seq("Coreference", "label1", "label2", "...", "labelN"),
         firstMention,
         lastMention,
-        Map(("first" -> Seq(firstMention)), ("last" -> Seq(lastMention))),
+        Map("first" -> Seq(firstMention), "last" -> Seq(lastMention)),
         firstMention.document,
         true,
         "Found by me",
@@ -244,5 +279,72 @@ class TestJLDSerializer extends ExtractionTest {
     }
   }
   else
-    println("It did not test used geo expressions")
+
+    println("It didn't do it")
+
+  it should "serialize a count attachment" in {
+    val json = serialize(Seq(
+      newTitledAnnotatedDocument(
+        "Since the beginning of September 2016, almost 40,000 refugees arrived daily in Ethiopia from South Sudan as of mid-November.",
+        "This includes a migration event")
+    ))
+
+    inspect(json)
+    json.contains("count") should be (true)
+    json.contains("value") should be (true)
+    json.contains("modifier") should be (true)
+    json.contains("unit") should be (true)
+
+    json.contains("40000.0") should be (true)
+    json.contains("Max") should be (true)
+    json.contains("Daily") should be (true)
+  }
+
+  println("It did not test used geo expressions")
+
+  it should "serialize all kinds of attachments" in {
+    val annotatedDocument = newTitledAnnotatedDocument(
+        "Since the beginning of September 2016, almost 40,000 refugees arrived daily in Ethiopia from South Sudan as of mid-November.",
+        "This includes a migration event"
+    )
+    val document = annotatedDocument.document
+    val mention = annotatedDocument.odinMentions(2)
+    val textBoundMention = mention.asInstanceOf[TextBoundMention]
+    val emptyMention = textBoundMention.newWithoutAttachment(mention.attachments.head)
+
+    val trigger = "trigger"
+    val someQuantifications = Some(Seq("one", "two"))
+    val migrationGroupCount = MigrationGroupCount(3000.0d, CountModifier.Approximate, CountUnit.Weekly)
+    val geoPhraseID = GeoPhraseID("text", Some("Denmark"), 3, 5)
+    val timEx = TimEx(TextInterval(3, 8), Seq(TimeStep(LocalDateTime.now, LocalDateTime.now.plusDays(1))), "text")
+    val dct = DCT(SimpleInterval(LocalDateTime.now.minusHours(5), LocalDateTime.now), "text")
+
+    DctDocumentAttachment.setDct(document, dct)
+
+    val attachments = Seq(
+      new Decrease(trigger, someQuantifications),
+      new Increase(trigger, someQuantifications),
+      new Quantification(trigger, someQuantifications),
+      new Property(trigger, someQuantifications),
+      new Hedging(trigger, someQuantifications),
+      new Negation(trigger, someQuantifications),
+
+      new CountAttachment("text", migrationGroupCount, 3, 6),
+      new Location(geoPhraseID),
+      new Time(timEx),
+      new DCTime(dct),
+      new Score(4.5d)
+    )
+
+    val fullMention = attachments.foldLeft(emptyMention) { case (textBoundMention, attachment) => textBoundMention.newWithAttachment(attachment)}
+    val odinMentions = Seq(fullMention)
+    val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
+    val grounder = ieSystem.components.multiOntologyGrounder
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, grounder)
+    val annotatedDocument2 = AnnotatedDocument(document, odinMentions, eidosMentions)
+    val json = serialize(Seq(annotatedDocument2))
+
+    inspect(json)
+    json should not be empty
+  }
 }

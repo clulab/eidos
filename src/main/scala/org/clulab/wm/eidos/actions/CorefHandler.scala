@@ -5,7 +5,6 @@ import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-import org.clulab.wm.eidos.EidosActions.{COREF_DETERMINERS}
 import org.clulab.wm.eidos.utils.FileUtils
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -25,7 +24,7 @@ object CorefHandler {
   }
 
   def startsWithCorefDeterminer(m: Mention): Boolean = {
-    val corefDeterminers = COREF_DETERMINERS
+    val corefDeterminers = EidosActions.COREF_DETERMINERS
     corefDeterminers.exists(det => m.text.toLowerCase.startsWith(det))
   }
 }
@@ -33,7 +32,7 @@ object CorefHandler {
 class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
 
   def resolveCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    val (eventMentions, otherMentions) = mentions.partition(_.isInstanceOf[EventMention])
+    val (eventMentions, _) = mentions.partition(_.isInstanceOf[EventMention])
 
     if (eventMentions.isEmpty) mentions
     else {
@@ -55,7 +54,7 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
               if (prevSentenceCausal.nonEmpty) {
 
                 // If there was also a causal event in the previous sentence
-                val lastOccurring = prevSentenceCausal.sortBy(-_.tokenInterval.end).head
+                val lastOccurring = prevSentenceCausal.maxBy(_.tokenInterval.end)
                 // antecedent
                 val prevEffects = lastOccurring.arguments("effect")
                 // reference
@@ -104,7 +103,6 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
   def isCauseEvent(mention: Mention): Boolean = {
     mention.arguments.get("cause").nonEmpty
   }
-
 
   def hasCorefToResolve(m: Mention): Boolean = {
     m match {

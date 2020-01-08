@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
 import org.slf4j.{Logger, LoggerFactory}
+import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
 
 import scala.annotation.tailrec
 
@@ -112,11 +113,13 @@ class EidosSystem(val components: EidosComponents) {
         if (cagRelevantOnly) components.stopwordManager.keepCAGRelevant(mentionsAndNestedArgs)
         else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
+
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(components.stopwordManager), components.multiOntologyGrounder)
+    val afterMigrationProc = processMigrationEvents(afterNegation)
+    val eidosMentions = EidosMention.asEidosMentions(afterMigrationProc, new Canonicalizer(components.stopwordManager), components.multiOntologyGrounder)
 
-    AnnotatedDocument(doc, afterNegation, eidosMentions)
+    AnnotatedDocument(doc, afterMigrationProc, eidosMentions)
   }
 
   def newDct(dctStringOpt: Option[String]): Option[DCT] = {
@@ -171,6 +174,7 @@ object EidosSystem {
   val CONCEPT_EXPANDED_LABEL = "Concept-Expanded"
   val CORR_LABEL = "Correlation"
   val COREF_LABEL = "Coreference"
+  val MIGRATION_LABEL = "HumanMigration"
   // Taxonomy relations for other uses
   val RELATION_LABEL = "EntityLinker"
 
@@ -184,6 +188,7 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
+  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 

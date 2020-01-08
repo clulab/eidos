@@ -538,6 +538,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         case m: TextBoundMention => m
         case m: RelationMention => new TextBoundMention(m.labels, m.tokenInterval, m.sentence, m.document, m.keep, m.foundBy)
         case m: EventMention => m.trigger
+        case m: CrossSentenceMention => m.anchor.asInstanceOf[TextBoundMention]
       }
       mkArgMention(argRole, s"T${tbmToId(arg)}")
     }
