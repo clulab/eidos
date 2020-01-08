@@ -22,9 +22,13 @@ import scala.io.Source
 
 object FileUtils {
 
-  def printWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file)
+  def appendingPrintWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, true)
 
-  def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path)
+  def appendingPrintWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, true)
+
+  def printWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, false)
+
+  def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, false)
 
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)
@@ -170,6 +174,12 @@ object FileUtils {
 
   def newBufferedOutputStream(filename: String): BufferedOutputStream =
       newBufferedOutputStream(new File(filename))
+
+  def newAppendingBufferedOutputStream(file: File): BufferedOutputStream =
+    new BufferedOutputStream(new FileOutputStream(file, true))
+
+  def newAppendingBufferedOutputStream(filename: String): BufferedOutputStream =
+    newAppendingBufferedOutputStream(new File(filename))
 
   def newObjectOutputStream(filename: String): ObjectOutputStream =
       new ObjectOutputStream(newBufferedOutputStream(filename))
