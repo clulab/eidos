@@ -91,7 +91,7 @@ class TextBoundExpander(dependencies: Dependencies, maxHops: Int) extends Expand
     } else if (orig.start > triggerInterval.end) {
       nextTok < triggerInterval.end
     } else {
-      logger.warn("Trigger and original entity overlap")
+//      logger.warn("Trigger and original entity overlap")
       true
     }
     // orig to the right of the trigger
