@@ -65,4 +65,13 @@ rules:
       trigger = [lemma=/^(ramp|turn)/] up
       theme: Entity  = dobj compound?
 
+  - name: increase_explicit_doubled_1
+    priority: ${ rulepriority }
+    example: "prices have more than doubled"
+    label: Increase
+    action: ${ action }
+    pattern: |
+      trigger = (more than|almost|approximately) [lemma=/^(double|triple)/]
+      theme: Entity  = /${agents}/
+
 

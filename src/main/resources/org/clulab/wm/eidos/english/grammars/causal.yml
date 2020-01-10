@@ -38,7 +38,11 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case /${preps}|${noun_modifiers}/{,2}
-      effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to)
+      effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
+      |
+      (<case <nmod_due_to (?! [incoming=nmod_than]))
+      |
+      (<case <nmod_due_to <nmod_than >'nsubj:xsubj')
 
   # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
   - name: dueTo-caseSyntax-dobj_effect-${addlabel}

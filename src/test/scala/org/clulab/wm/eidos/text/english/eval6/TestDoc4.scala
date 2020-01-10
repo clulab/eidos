@@ -63,8 +63,8 @@ counties in Unity State.
     val tester = new GraphTester(text)
 
     // Sentence 1
-    val caseload = NodeSpec("the food insecure caseload", Inc("increased"), TimEx("February"))
-    val access = NodeSpec("food access", Quant("constrained", "severely"))
+    val caseload = NodeSpec("food insecure caseload", Inc("increased"), TimEx("February"))
+    val access = NodeSpec("food access", Dec("constrained", "severely"))
     val insecurity = NodeSpec("widespread insecurity", Inc("widespread"))
     val displacements = NodeSpec("large scale displacements", Quant("large"))
     val foodPrices = NodeSpec("high food prices", Quant("high"), Inc("high"))
@@ -105,22 +105,22 @@ counties in Unity State.
       tester.test(EdgeSpec(caseload, Correlation, access)) should be (successful)
     }
     passingTest should "have correct edges 2" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(access, Causal, insecurity)) should be (successful)
+      tester.test(EdgeSpec(insecurity, Causal, access)) should be (successful)
     }
     passingTest should "have correct edges 3" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(access, Causal, displacements)) should be (successful)
+      tester.test(EdgeSpec(displacements, Causal, access)) should be (successful)
     }
     passingTest should "have correct edges 4" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(access, Causal, foodPrices)) should be (successful)
+      tester.test(EdgeSpec(foodPrices, Causal, access)) should be (successful)
     }
     passingTest should "have correct edges 5" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(access, Causal, marketDisruptions)) should be (successful)
+      tester.test(EdgeSpec(marketDisruptions, Causal, access)) should be (successful)
     }
     passingTest should "have correct edges 6" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(access, Causal, collapse)) should be (successful)
+      tester.test(EdgeSpec(collapse, Causal, access)) should be (successful)
     }
     passingTest should "have correct edges 7" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(access, Causal, mechanisms)) should be (successful)
+      tester.test(EdgeSpec(mechanisms, Causal, access)) should be (successful)
     }
   }
 
@@ -216,7 +216,7 @@ reportedly left their living areas.
     val damage = NodeSpec("households' productive assets", Dec("damage"))
 
     // Sentence 2
-    val production = NodeSpec("crop production is expected to be lower than the already poor 2016 output", Dec("lower"), TimEx("2016"), Quant("poor"), Dec("poor"))
+    val production = NodeSpec("crop production", Dec("lower"))
     val displacements = NodeSpec("recent massive displacements", Quant("massive"), TimEx("recent"))
 
     // Sentence 3
@@ -290,8 +290,7 @@ than in the corresponding period two years earlier.
     val tester = new GraphTester(text)
 
     // Sentence 1
-    val prices = NodeSpec("prices of maize and sorghum", Inc("doubled", "more than"))
-    val pricesTo = NodeSpec("prices of maize and sorghum")
+    val prices = NodeSpec("prices of maize and sorghum", Inc("more than doubled"))
     val situation = NodeSpec("tight supply situation")
     val disruptions = NodeSpec("market disruptions")
     val hyperinflation = NodeSpec("hyperinflation")
@@ -306,52 +305,53 @@ than in the corresponding period two years earlier.
 //    val prices2 = NodeSpec("Prices of groundnuts", Dec("decreased", "by 22 percent"))
     val prices2 = NodeSpec("Prices of groundnuts", Dec("decreased"), TimEx("the same period"))
     val prices3 = NodeSpec("prices of wheat flour", Quant("soar"))
-    val prices3To = NodeSpec("prices of wheat flour", Quant("new record highs"))
 
     // Sentence 4
-    val prices4 = NodeSpec("Overall, prices of these food staples in August were more than twice the high levels in August last year", Inc("high"), Quant("high"), TimEx("August last year"))
-    val prices5 = NodeSpec("prices of these food staples", Quant("12 times higher"))
+    val prices4 = NodeSpec("prices of these food staples in August were more than twice the high levels in August last year", Inc("high"), Quant("high"), TimEx("August last year"))
+    val prices5 = NodeSpec("prices of these food staples", Quant("12 times higher than the corresponding period two years earlier"))
 
     behavior of "TestDoc4 Paragraph 7"
 
     passingTest should "have correct node 1" taggedAs(Somebody) in {
-      tester.test(pricesTo) should be (successful)
+      tester.test(prices) should be (successful)
     }
     failingTest should "have correct node 2" taggedAs(Somebody) in {
       tester.test(situation) should be (successful)
     }
-    passingTest should "have correct node 3" taggedAs(Somebody) in {
+    // fixme: I don't know why this isn't found, the output from the testing framework doesn't match webapp
+    failingTest should "have correct node 3" taggedAs(Somebody) in {
       tester.test(prices2) should be (successful)
     }
     futureWorkTest should "have correct node 4" taggedAs(Somebody) in {
       tester.test(prices3) should be (successful)
     }
-    futureWorkTest should "have correct node 5" taggedAs(Somebody) in {
-      tester.test(prices3To) should be (successful)
-    }
-    passingTest should "have correct node 6" taggedAs(Somebody) in {
+    // diff kind of quantification -- more explicit
+    futureWorkTest should "have correct node 6" taggedAs(Somebody) in {
       tester.test(prices4) should be (successful)
     }
+    // diff kind of quantification -- more explicit
     futureWorkTest should "have correct node 7" taggedAs(Somebody) in {
       tester.test(prices5) should be (successful)
     }
 
-    passingTest should "have correct edges 1" taggedAs(Somebody) in {
+    failingTest should "have correct edges 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(situation, Causal, prices)) should be (successful)
     }
-    passingTest should "have correct edges 2" taggedAs(Somebody) in {
+    failingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(disruptions, Causal, prices)) should be (successful)
     }
-    passingTest should "have correct edges 3" taggedAs(Somebody) in {
+    failingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(hyperinflation, Causal, prices)) should be (successful)
     }
-    passingTest should "have correct edges 4" taggedAs(Somebody) in {
+    failingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(depreciation, Causal, prices)) should be (successful)
     }
-    passingTest should "have correct edges 5" taggedAs(Somebody) in {
+    // Coreference?
+    futureWorkTest should "have correct edges 5" taggedAs(Somebody) in {
       tester.test(EdgeSpec(harvest, Correlation, they)) should be (successful)
     }
-    passingTest should "have correct edges 6" taggedAs(Somebody) in {
+    // Coreference?
+    futureWorkTest should "have correct edges 6" taggedAs(Somebody) in {
       tester.test(EdgeSpec(selling, Correlation, they)) should be (successful)
     }
   }

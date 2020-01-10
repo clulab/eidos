@@ -107,7 +107,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/] [mention=Quantifier]
-      theme: Entity = </${ complements }/? >${ agents }
+      theme: Entity = </${ complements }/? >/${ agents }/
       quantifier: Quantifier? = ${quant_modifiers}
 
 
