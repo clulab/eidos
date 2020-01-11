@@ -4,7 +4,6 @@ import java.io.File
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps.ExtractFromDirectory.config
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
@@ -15,13 +14,13 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
-import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
+//import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import scala.collection.parallel.ForkJoinTaskSupport
 
-object ExtractDartMetaFromDirectory extends App {
+object ExtractDartMetaFromDirectoryES extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val inputDir = args(0)
@@ -31,7 +30,7 @@ object ExtractDartMetaFromDirectory extends App {
   val threads = args(4).toInt
 
   val doneDir = inputDir + "/done"
-  val converter = DartZipMetaUtils.convertTextToMeta _
+  val converter = DartEsMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
   val parFiles = files.par
@@ -66,11 +65,11 @@ object ExtractDartMetaFromDirectory extends App {
         val size = timer.time {
           // 2. Get the input file contents
           val text = FileUtils.getTextFromFile(file)
-          val json = DartZipMetaUtils.getMetaData(converter, metaDir, file)
-          val documentCreationTime = DartZipMetaUtils.getDocumentCreationTime(json)
-          val documentId = DartZipMetaUtils.getDartDocumentId(json)
-          val documentTitle = DartZipMetaUtils.getDartDocumentTitle(json)
-          val documentLocation = DartZipMetaUtils.getDartDocumentLocation(json)
+          val json = DartEsMetaUtils.getMetaData(converter, metaDir, file)
+          val documentCreationTime = DartEsMetaUtils.getDocumentCreationTime(json)
+          val documentId = DartEsMetaUtils.getDartDocumentId(json)
+          val documentTitle = DartEsMetaUtils.getDartDocumentTitle(json)
+          val documentLocation = DartEsMetaUtils.getDartDocumentLocation(json)
           // 3. Extract causal mentions from the text
           val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dct = documentCreationTime, id = documentId))
           documentTitle.foreach { documentTitle => TitleDocumentAttachment.setTitle(annotatedDocuments.head.document, documentTitle) }
@@ -79,7 +78,7 @@ object ExtractDartMetaFromDirectory extends App {
           val corpus = new JLDCorpus(annotatedDocuments)
           val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
           // 5. Write to output file
-          val path = DartZipMetaUtils.convertTextToJsonld(outputDir, file)
+          val path = DartEsMetaUtils.convertTextToJsonld(outputDir, file)
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(stringify(mentionsJSONLD, pretty = true))
           }

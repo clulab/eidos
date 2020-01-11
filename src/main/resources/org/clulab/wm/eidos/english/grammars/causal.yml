@@ -5,14 +5,15 @@ rules:
 # ------------------- Explicitly Causal New --------------------------
 
 
-  # todo: not very general
-  - name: dueTo2-${addlabel}
-    priority: ${rulepriority}
-    type: token
-    label: ${label}
-    action: ${ action }
-    pattern: |
-      @effect:Event [lemma="due"] [lemma="to"] @cause:Entity
+  # todo: not very general; is disabled because relation mentions are not handled
+  #by serializer; revisit
+#  - name: dueTo2-${addlabel}
+#    priority: ${rulepriority}
+#    type: token
+#    label: ${label}
+#    action: ${ action }
+#    pattern: |
+#      @effect:Event [lemma="due"] [lemma="to"] @cause:Entity
 
   - name: dueToSyntax1-${addlabel}
     priority: ${rulepriority}

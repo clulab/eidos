@@ -7,9 +7,9 @@ import org.clulab.struct.{DirectedGraph, Edge, Interval}
 import org.clulab.odin._
 import org.clulab.serialization.json.DocOps
 import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.serialization.json.json._
 import org.clulab.wm.eidos.utils.FileUtils
-
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -150,6 +150,20 @@ object WMJSONSerializer {
     mjson \ "type" match {
       case JString(WMEventMention.string) =>
         new EventMention(
+          labels,
+          tokInterval,
+          // trigger must be TextBoundMention
+          toMention(mjson \ "trigger", docMap).asInstanceOf[TextBoundMention],
+          mkArgumentsFromJsonAST(mjson \ "arguments"),
+          paths = toPaths(mjson, docMap),
+          sentence,
+          document,
+          keep,
+          foundBy,
+          attachments = attachments
+        )
+      case JString(WMCrossSentenceEventMention.string) =>
+        new CrossSentenceEventMention(
           labels,
           tokInterval,
           // trigger must be TextBoundMention

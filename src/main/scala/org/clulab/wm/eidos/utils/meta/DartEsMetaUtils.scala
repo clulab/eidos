@@ -15,7 +15,7 @@ import org.json4s.jackson.JsonMethods.parse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object DartMetaUtils {
+object DartEsMetaUtils {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 

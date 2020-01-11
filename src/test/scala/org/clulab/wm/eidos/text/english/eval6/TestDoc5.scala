@@ -149,7 +149,7 @@ class TestDoc5 extends EnglishTest {
     val prices = NodeSpec("exorbitant staple food prices", Inc("exorbitant"))
     val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("since 2014"))
     val reserves = NodeSpec("both foreign currency reserves", Dec("drop", "sharp"))
-    val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"))
+    val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"), GeoLoc("South Sudanese"))
     val factors2 = NodeSpec("factors")
     val insecurity = NodeSpec("insecurity along key trade routes")
     val flows = NodeSpec("normal trade flow", Dec("restricted"), Quant("normal")) //NOTE: change flows to flow to facilitate correct parse;
