@@ -7,6 +7,7 @@ import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.context.SeasonFinder
 import org.clulab.wm.eidos.expansion.ConceptExpander
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.extraction.Finder
@@ -30,6 +31,7 @@ case class EidosComponents(
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
   lazy val timeNormFinderOpt: Option[TimeNormFinder] = entityFinders.collectFirst { case f: TimeNormFinder => f }
+  lazy val seasonFinderOpt: Option[SeasonFinder] = entityFinders.collectFirst { case f: SeasonFinder => f }
   lazy val useTimeNorm: Boolean = timeNormFinderOpt.isDefined
   lazy val language: String = proc.language
 }
