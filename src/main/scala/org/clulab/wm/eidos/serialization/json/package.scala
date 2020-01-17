@@ -1,11 +1,10 @@
 package org.clulab.wm.eidos.serialization.json
 
 import scala.util.hashing.MurmurHash3._
-
 import org.clulab.odin._
 import org.clulab.struct.DirectedGraph
 import org.clulab.wm.eidos.attachments.EidosAttachment
-
+import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.Serialization.write
@@ -47,6 +46,8 @@ package object json {
 
     def jsonAST(m: Mention): JValue = m match {
       case tb: TextBoundMention => TextBoundMentionOps.jsonAST(tb)
+      // CrossSentenceEventMention inherits from EventMention, so must go before it.
+      case csem: CrossSentenceEventMention => CrossSentenceEventMentionOps.jsonAST(csem)
       case em: EventMention => EventMentionOps.jsonAST(em)
       case rm: RelationMention => RelationMentionOps.jsonAST(rm)
       case csm: CrossSentenceMention => CrossSentenceMentionOps.jsonAST(csm)
@@ -54,6 +55,8 @@ package object json {
 
     def stringCode(m: Mention): String = m match {
       case tb: TextBoundMention => TextBoundMentionOps.stringCode
+      // CrossSentenceEventMention inherits from EventMention, so must go before it.
+      case csem: CrossSentenceEventMention => CrossSentenceEventMentionOps.stringCode
       case em: EventMention => EventMentionOps.stringCode
       case rm: RelationMention => RelationMentionOps.stringCode
       case csm: CrossSentenceMention => CrossSentenceMentionOps.stringCode
@@ -61,6 +64,8 @@ package object json {
 
     def equivalenceHash(m: Mention): Int = m match {
       case tb: TextBoundMention => TextBoundMentionOps.equivalenceHash(tb)
+      // CrossSentenceEventMention inherits from EventMention, so must go before it.
+      case csem: CrossSentenceEventMention => CrossSentenceEventMentionOps.equivalenceHash(csem)
       case em: EventMention => EventMentionOps.equivalenceHash(em)
       case rm: RelationMention => RelationMentionOps.equivalenceHash(rm)
       case csm: CrossSentenceMention => CrossSentenceMentionOps.equivalenceHash(csm)
@@ -68,6 +73,8 @@ package object json {
 
     def id(m: Mention): String = m match {
       case tb: TextBoundMention => TextBoundMentionOps.id(tb)
+      // CrossSentenceEventMention inherits from EventMention, so must go before it.
+      case csem: CrossSentenceEventMention => CrossSentenceEventMentionOps.id(csem)
       case em: EventMention => EventMentionOps.id(em)
       case rm: RelationMention => RelationMentionOps.id(rm)
       case csm: CrossSentenceMention => CrossSentenceMentionOps.id(csm)
@@ -254,6 +261,55 @@ package object json {
     }
   }
 
+  // It seems that a package object cannot inherit from another one.
+  // This code has been copied from EventMentionOps.
+  object CrossSentenceEventMentionOps {
+
+    val stringCode = s"org.clulab.odin.${WMCrossSentenceEventMention.string}"
+
+    def equivalenceHash(csem: CrossSentenceEventMention): Int = {
+      // the seed (not counted in the length of finalizeHash)
+      val h0 = stringHash(stringCode)
+      // labels
+      val h1 = mix(h0, csem.labels.hashCode)
+      // interval.start
+      val h2 = mix(h1, csem.tokenInterval.start)
+      // interval.end
+      val h3 = mix(h2, csem.tokenInterval.end)
+      // sentence index
+      val h4 = mix(h3, csem.sentence)
+      // document.equivalenceHash
+      val h5 = mix(h4, csem.document.equivalenceHash)
+      // args
+      val h6 = mix(h5, argsHash(csem.arguments))
+      // trigger
+      val h7 = mix(h6, TextBoundMentionOps.equivalenceHash(csem.trigger))
+      finalizeHash(h7, 7)
+    }
+
+    def id(csem: CrossSentenceEventMention): String = s"${WMCrossSentenceEventMention.shortString}:${equivalenceHash(csem)}"
+
+    def jsonAST(csem: CrossSentenceEventMention): JValue = {
+      ("type" -> WMCrossSentenceEventMention.string) ~
+          // used for paths map
+          ("id" -> id(csem)) ~
+          ("text" -> csem.text) ~
+          ("labels" -> csem.labels) ~
+          ("trigger" -> TextBoundMentionOps.jsonAST(csem.trigger)) ~
+          ("arguments" -> argsAST(csem.arguments)) ~
+          // paths are encoded as (arg name -> (mentionID -> path))
+          ("paths" -> pathsAST(csem.paths)) ~
+          ("tokenInterval" -> Map("start" -> csem.tokenInterval.start, "end" -> csem.tokenInterval.end)) ~
+          ("characterStartOffset" -> csem.startOffset) ~
+          ("characterEndOffset" -> csem.endOffset) ~
+          ("sentence" -> csem.sentence) ~
+          ("document" -> csem.document.equivalenceHash.toString) ~
+          ("keep" -> csem.keep) ~
+          ("foundBy" -> csem.foundBy) ~
+          ("attachments" -> attachmentsAST(csem.attachments))
+    }
+  }
+
   /** For sequences of mentions */
   object MentionSeq {
 
@@ -298,3 +354,7 @@ package object json {
   }
 }
 
+object WMCrossSentenceEventMention {
+  val string = "CrossSentenceEventMention"
+  val shortString = "CSE"
+}

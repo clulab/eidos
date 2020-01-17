@@ -205,9 +205,12 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     "gitCurrentBranch" -> BuildInfo.gitCurrentBranch,
     "gitHeadCommit" -> BuildInfo.gitHeadCommit,
     "gitHeadCommitDate" -> BuildInfo.gitHeadCommitDate,
-    "gitUncommittedChanges" -> BuildInfo.gitUncommittedChanges,
+    "gitUncommittedChanges" -> BuildInfo.gitUncommittedChanges /* ,
+    // These values change with each compilation and force repackaging.
+    // Since they are not being used at all anyway, they are no longer included.
+    // See build.sbt where a related line is commented out.
     "builtAtString" -> BuildInfo.builtAtString,
-    "builtAtMillis" -> BuildInfo.builtAtMillis
+    "builtAtMillis" -> BuildInfo.builtAtMillis */
   )
 
   protected def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
@@ -357,10 +360,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       for (entity <- entities) {
         objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
         // If the primary groundings are available, let's print them too...
-        if (entity.grounding.contains(EidosOntologyGrounder.PRIMARY_NAMESPACE)) {
+        val groundingStringOpt = GroundingUtils.getGroundingsStringOpt(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
+        if (groundingStringOpt.isDefined) {
           objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
-          val groundings = GroundingUtils.getGroundingsString(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
-          objectToReturn +=  groundings
+          objectToReturn +=  groundingStringOpt
           objectToReturn += "<br><br>"
         }
       }
@@ -535,6 +538,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         case m: TextBoundMention => m
         case m: RelationMention => new TextBoundMention(m.labels, m.tokenInterval, m.sentence, m.document, m.keep, m.foundBy)
         case m: EventMention => m.trigger
+        case m: CrossSentenceMention => m.anchor.asInstanceOf[TextBoundMention]
       }
       mkArgMention(argRole, s"T${tbmToId(arg)}")
     }

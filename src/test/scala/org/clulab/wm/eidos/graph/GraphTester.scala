@@ -57,6 +57,13 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
     annotateTest(testResult.complaints)
   }
 
+
+  def test(humanMigrationEdgeSpec: HumanMigrationEdgeSpec): Seq[String] = {
+    val testResult = humanMigrationEdgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+
+    annotateTest(testResult.complaints)
+  }
+
   def useTimeNorm: Boolean = ieSystem.components.useTimeNorm
   def useGeoNorm: Boolean = ieSystem.components.useGeoNorm
 }

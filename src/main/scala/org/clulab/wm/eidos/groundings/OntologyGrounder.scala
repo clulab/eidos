@@ -1,10 +1,11 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.wm.eidos.groundings.OntologyAliases._
-import org.clulab.odin.{ExtractorEngine, Mention, TextBoundMention}
-import org.clulab.processors.Document
+import java.time.ZonedDateTime
+
+import org.clulab.wm.eidos.attachments.{EidosAttachment, Property}
+import org.clulab.wm.eidos.groundings.Aliases.Groundings
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidos.utils.Namer
 import org.clulab.struct.Interval
 import org.slf4j.Logger
@@ -20,7 +21,7 @@ object OntologyAliases {
   type OntologyGroundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
+case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: Aliases.MultipleGrounding = Seq.empty) {
   def nonEmpty: Boolean = grounding.nonEmpty
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[SingleOntologyGrounding] = grounding.headOption
@@ -37,6 +38,15 @@ trait OntologyGrounder {
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
 
+
+class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec) extends OntologyGrounder {
+  // Is not dependent on the output of other grounders
+  val isPrimary = true
+
+  def newOntologyGrounding(grounding: Aliases.MultipleGrounding = Seq.empty) = {
+    OntologyGrounding(domainOntology.version, domainOntology.date, grounding)
+  }
+
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       ConceptEmbedding(domainOntology.getNamer(n),
@@ -49,7 +59,29 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         domainOntology.getPatterns(n))
     }
 
-  def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
+  def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding =
+      groundOntology(EidosOntologyGrounder.groundableType(mention), mention.odinMention.text, mention.canonicalNameParts)
+
+  // For API to reground strings
+  def groundOntology(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
+    // Sieve-based approach
+    if (isGroundableType) {
+      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+      // grounding and we want to use it.
+      val matchedPatterns = nodesPatternMatched(mentionText, conceptPatterns)
+      if (matchedPatterns.nonEmpty) {
+        newOntologyGrounding(matchedPatterns)
+      }
+      // Otherwise, back-off to the w2v-based approach
+      else {
+        newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+      }
+    }
+    else
+      newOntologyGrounding()
+  }
+
+  def groundable(mention: EidosMention, primaryGrounding: Option[Aliases.Groundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
 
   // For Regex Matching
   def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[(Namer, Float)] = {
@@ -64,18 +96,6 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
           if (r.findFirstIn(s).nonEmpty) return true
         }
         false
-    }
-  }
-
-  // For API to reground strings
-  def groundText(text: String): OntologyGrounding = {
-    val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
-    if (matchedPatterns.nonEmpty) {
-      OntologyGrounding(matchedPatterns)
-    }
-    // Otherwise, back-off to the w2v-based approach
-    else {
-      OntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
     }
   }
 }
@@ -305,6 +325,7 @@ object EidosOntologyGrounder {
   protected val                 GROUNDABLE = "Entity"
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
+  protected val WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
   // Namespace strings for the different in-house ontologies we typically use
   protected val               UN_NAMESPACE = "un"
   protected val              WDI_NAMESPACE = "wdi"
@@ -316,7 +337,7 @@ object EidosOntologyGrounder {
   protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
 
-  val PRIMARY_NAMESPACE: String = WM_NAMESPACE // Assign the primary namespace here, publically.
+  val PRIMARY_NAMESPACE = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
 
   val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 

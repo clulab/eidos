@@ -2,6 +2,8 @@ package org.clulab.wm.eidos.groundings
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
+import org.clulab.processors.Processor
+import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
 import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
@@ -38,22 +40,48 @@ class OntologyHandler(
     annotatedDocument
   }
 
-  // API for regrounding a sequence of strings (presumably mention texts, or the content words therein) to a newly provided ontology
-
-  def reground(name: String = "Custom", ontologyYaml: String, canonicalNames: Seq[String], filter: Boolean = true, topk: Int = 10): Array[Array[(String, Float)]] = {
-
+  def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10, isAlreadyCanonicalized: Boolean = true): Array[Array[(String, Float)]] = {
     def reformat(grounding: OntologyGrounding): Array[(String, Float)] ={
       val topGroundings = grounding.take(topk).toArray
       topGroundings.map(gr => (gr._1.name, gr._2))
     }
 
+    def recanonicalize(text: String): Seq[String] = {
+      val doc = processor.annotate(text)
+
+      val contentLemmas = for {
+        s <- doc.sentences
+        lemmas = s.lemmas.get
+        ners = s.entities.get
+        tags = s.tags.get
+        i <- lemmas.indices
+        if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
+      } yield lemmas(i)
+
+      if (contentLemmas.isEmpty)
+        doc.sentences.flatMap(_.words)   // fixme -- better and cleaner backoff, to match what is done with a mention
+      else
+        contentLemmas
+    }
+
     //OntologyGrounding
-    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter)
-    val grounder = EidosOntologyGrounder(name, ontology, wordToVec, canonicalizer)
+    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, processor, canonicalizer, filter)
+    val grounder = EidosOntologyGrounder(name, ontology, wordToVec)
     val groundings = grounder match {
-      case g: EidosOntologyGrounder => canonicalNames.toArray.map(text => g.groundText(text))
+      case g: EidosOntologyGrounder =>
+        texts.toArray.map { text =>
+          val mentionText =
+              if (isAlreadyCanonicalized) text // It can't be restored, so make do.
+              else text
+          val canonicalNameParts =
+              if (isAlreadyCanonicalized) text.split(' ')
+              else recanonicalize(text).toArray // Attempt to regenerate them.
+
+          g.groundOntology(isGroundableType = true, mentionText, canonicalNameParts)
+      }
       case _ => throw new RuntimeException("Regrounding needs an EidosOntologyGrounder")
     }
+
     groundings.map(reformat)
   }
 }
