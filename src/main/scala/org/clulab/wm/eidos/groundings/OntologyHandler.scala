@@ -47,10 +47,10 @@ class OntologyHandler(
     }
 
     def recanonicalize(text: String): Seq[String] = {
-      val doc = processor.annotate(text)
+      val sentences = sentencesExtractor.extractSentences(text)
 
       val contentLemmas = for {
-        s <- doc.sentences
+        s <- sentences
         lemmas = s.lemmas.get
         ners = s.entities.get
         tags = s.tags.get
@@ -59,14 +59,14 @@ class OntologyHandler(
       } yield lemmas(i)
 
       if (contentLemmas.isEmpty)
-        doc.sentences.flatMap(_.words)   // fixme -- better and cleaner backoff, to match what is done with a mention
+        sentences.flatMap(_.words)   // fixme -- better and cleaner backoff, to match what is done with a mention
       else
         contentLemmas
     }
 
     //OntologyGrounding
-    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, processor, canonicalizer, filter)
-    val grounder = EidosOntologyGrounder(name, ontology, wordToVec)
+    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter)
+    val grounder = EidosOntologyGrounder(name, ontology, wordToVec, canonicalizer)
     val groundings = grounder match {
       case g: EidosOntologyGrounder =>
         texts.toArray.map { text =>
@@ -77,12 +77,14 @@ class OntologyHandler(
               if (isAlreadyCanonicalized) text.split(' ')
               else recanonicalize(text).toArray // Attempt to regenerate them.
 
-          g.groundOntology(isGroundableType = true, mentionText, canonicalNameParts)
+          g.groundStrings(canonicalNameParts) // TODO: kwa this is wrong!
       }
       case _ => throw new RuntimeException("Regrounding needs an EidosOntologyGrounder")
     }
 
-    groundings.map(reformat)
+//    groundings.map(reformat)
+    throw new NotImplementedError
+    null // TODO: This is wrong!
   }
 }
 

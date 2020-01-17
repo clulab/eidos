@@ -335,10 +335,7 @@ class TestJLDSerializer extends ExtractionTest {
 
     val fullMention = attachments.foldLeft(emptyMention) { case (textBoundMention, attachment) => textBoundMention.newWithAttachment(attachment)}
     val odinMentions = Seq(fullMention)
-    val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
-    val grounder = ieSystem.components.multiOntologyGrounder
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, grounder)
-    val annotatedDocument2 = AnnotatedDocument(document, odinMentions, eidosMentions)
+    val annotatedDocument2 = AnnotatedDocument(document, odinMentions)
     val json = serialize(Seq(annotatedDocument2))
 
     inspect(json)

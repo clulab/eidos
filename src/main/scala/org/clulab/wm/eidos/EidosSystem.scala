@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
-import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
@@ -130,14 +130,9 @@ class EidosSystem(val components: EidosComponents) {
 
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val afterMigrationProc = processMigrationEvents(afterNegation)
+    val afterMigration = processMigrationEvents(afterNegation)
+    val annotatedDocument = AnnotatedDocument(doc, afterMigration)
 
-    val eidosMentions = EidosMention.asEidosMentions(afterMigrationProc, new Canonicalizer(components.stopwordManager), components.multiOntologyGrounder)
-    val annotatedDocument = AnnotatedDocument(doc, afterNegation, eidosMentions)
-
-//    AnnotatedDocument(doc, afterMigrationProc, eidosMentions)
-
-//    AnnotatedDocument(doc, afterNegation, eidosMentions)
     postProcess(annotatedDocument)
   }
 

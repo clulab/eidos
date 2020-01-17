@@ -1,13 +1,13 @@
 package org.clulab.wm.eidos.utils
 
-import org.clulab.wm.eidos.groundings.Aliases
+import org.clulab.wm.eidos.groundings.OntologyAliases
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 
 object GroundingUtils {
 
-  def getGroundingOpt(groundings: Aliases.Groundings, namespace: String): Option[OntologyGrounding] = {
+  def getGroundingOpt(groundings: OntologyAliases.OntologyGroundings, namespace: String): Option[OntologyGrounding] = {
     groundings.get(namespace)
   }
 
@@ -17,7 +17,7 @@ object GroundingUtils {
   def getBaseGroundingOpt(mention: EidosMention): Option[OntologyGrounding] =
       getGroundingOpt(mention, EidosOntologyGrounder.PRIMARY_NAMESPACE)
 
-  def getBaseGroundingOpt(groundings: Aliases.Groundings): Option[OntologyGrounding] =
+  def getBaseGroundingOpt(groundings: OntologyAliases.OntologyGroundings): Option[OntologyGrounding] =
       getGroundingOpt(groundings, EidosOntologyGrounder.PRIMARY_NAMESPACE)
 
   // Get the top primary (formerly UN) ontology grounding.

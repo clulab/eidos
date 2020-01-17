@@ -450,14 +450,6 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         new JLDOntologyGroundings(serializer, key, ontologyGroundings).toJObject
       }
     }
-    val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
-
-    val names = eidosMention.grounding.keys.toSeq.sorted
-    val jldGroundings = names.map { name =>
-      val grounding = eidosMention.grounding(name)
-
-      new JLDOntologyGroundings(serializer, name, grounding).toJObject
-    }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments ++ jldCountAttachments).map(_.toJObject)
 
     TidyJObject(List(
@@ -1110,10 +1102,9 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
     sortedJldExtractions
   }
 
-  protected def getCountAttachments(odinMentions: Seq[Mention]): Seq[CountAttachment]= {
-    val reachableMentions = EidosMention.findReachableMentions(odinMentions)
-    val countAttachmentSeq: Seq[CountAttachment] = reachableMentions.flatMap { odinMention =>
-      odinMention.attachments.collect {
+  protected def getCountAttachments(reachableMentions: Seq[EidosMention]): Seq[CountAttachment]= {
+    val countAttachmentSeq: Seq[CountAttachment] = reachableMentions.flatMap { eidosMention =>
+      eidosMention.odinMention.attachments.collect {
         case attachment: CountAttachment => attachment
       }
     }
@@ -1142,7 +1133,7 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
   override def toJObject: TidyJObject = {
     // These are then on a per document basis.
     val countAttachmentsSeq: Seq[Seq[CountAttachment]] =
-        corpus.map { annotatedDocument => getCountAttachments(annotatedDocument.odinMentions) }
+        corpus.map { annotatedDocument => getCountAttachments(annotatedDocument.allEidosMentions) }
     val jldCountAttachmentsSeq: Seq[Seq[JLDCountAttachment]] =
         countAttachmentsSeq.map { countAttachments => countAttachments.map { countAttachment => new JLDCountAttachment(serializer, countAttachment) } }
     val countAttachmentMap: Map[CountAttachment, JLDCountAttachment] = countAttachmentsSeq.flatten.zip(jldCountAttachmentsSeq.flatten).toMap

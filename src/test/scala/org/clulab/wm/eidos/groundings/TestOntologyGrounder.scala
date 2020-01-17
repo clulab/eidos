@@ -72,7 +72,7 @@ class TestOntologyGrounder extends EnglishTest {
 
       def reground(text: String) = {
         val name = "test"
-        val regrounding = ontologyHandler.reground(name = name, ontologyYaml = ontologyYaml, canonicalNames = Seq(text))
+        val regrounding = ontologyHandler.reground(name = name, ontologyYaml = ontologyYaml, texts = Seq(text), isAlreadyCanonicalized = false)
 
         regrounding
       }

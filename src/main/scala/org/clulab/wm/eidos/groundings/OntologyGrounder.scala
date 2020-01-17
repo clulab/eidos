@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
+import java.time.ZonedDateTime
+
 import org.clulab.wm.eidos.groundings.OntologyAliases._
 import org.clulab.odin.{ExtractorEngine, Mention, TextBoundMention}
 import org.clulab.processors.Document
@@ -20,7 +22,7 @@ object OntologyAliases {
   type OntologyGroundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
+case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
   def nonEmpty: Boolean = grounding.nonEmpty
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[SingleOntologyGrounding] = grounding.headOption
@@ -36,6 +38,10 @@ trait OntologyGrounder {
 
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
+
+  def newOntologyGrounding(grounding: OntologyAliases.MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) = {
+    OntologyGrounding(domainOntology.version, domainOntology.date, grounding, branch)
+  }
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
@@ -71,11 +77,11 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   def groundText(text: String): OntologyGrounding = {
     val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
     if (matchedPatterns.nonEmpty) {
-      OntologyGrounding(matchedPatterns)
+      newOntologyGrounding(matchedPatterns)
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      OntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
     }
   }
 }
@@ -86,7 +92,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
 
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(OntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
+    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
   }
 
   def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {
@@ -97,7 +103,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
       // grounding and we want to use it.
       val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
       if (matchedPatterns.nonEmpty) {
-        Seq(OntologyGrounding(matchedPatterns))
+        Seq(newOntologyGrounding(matchedPatterns))
       }
       // Otherwise, back-off to the w2v-based approach
       else {
@@ -106,7 +112,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
       }
     }
     else
-      Seq(OntologyGrounding())
+      Seq(newOntologyGrounding())
   }
 }
 
@@ -154,17 +160,17 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         property = property ++ matchedPatterns
       }
     }
-    val process = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("process")), Some("process"))
-    val concept = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("concept")), Some("concept"))
+    val process = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("process")), Some("process"))
+    val concept = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("concept")), Some("concept"))
 
-    Seq(OntologyGrounding(property, Some("property")), process, concept)
+    Seq(newOntologyGrounding(property, Some("property")), process, concept)
   }
 
   override def groundOntology(mention: EidosMention, topN: Option[Int] = Option(groundTopN), threshold: Option[Float] = threshold): Seq[OntologyGrounding] = {
 
     // do nothing to non-groundableType mentions
     if (!EidosOntologyGrounder.groundableType(mention)) {
-      Seq(OntologyGrounding())
+      Seq(newOntologyGrounding())
     }
     // else ground them
     else {
@@ -237,9 +243,9 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       }
 
       val returnedGroundings = Seq(
-        OntologyGrounding(propertyGrounding, Some("property")),
-        OntologyGrounding(processGrounding, Some("process")),
-        OntologyGrounding(conceptGrounding, Some("concept"))
+        newOntologyGrounding(propertyGrounding, Some("property")),
+        newOntologyGrounding(processGrounding, Some("process")),
+        newOntologyGrounding(conceptGrounding, Some("concept"))
       )
 
       // print stuff to see what it's doing
@@ -291,7 +297,7 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings), Some("intervention")))
+    Seq(newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings), Some("intervention")))
   }
 
   def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {

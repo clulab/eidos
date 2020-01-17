@@ -35,12 +35,11 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.document.PostProcessing
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
-import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 

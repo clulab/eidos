@@ -72,21 +72,6 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
   // Other EidosMentions which can be reached from this.
   def reachableMentions: Seq[EidosMention] = eidosArguments.values.flatten.toSeq
 
-    val contentLemmas = for {
-      i <- lemmas.indices
-      if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
-      if !attachmentWords.contains(words(i))
-    } yield lemmas(i)
-
-    if (contentLemmas.isEmpty)
-      words   // fixme -- better and cleaner backoff
-    else
-      contentLemmas
-  }
-
-  // This is similarly lazy because groundOntology calls canonicalName.
-  lazy val grounding: Aliases.Groundings = ontologyGrounder.groundOntology(this)
-
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
@@ -97,14 +82,14 @@ object EidosMention {
 
   def newEidosMention(odinMention: Mention, mentionMapper: MentionMapper): EidosMention = {
     odinMention match {
-      case mention: TextBoundMention => new EidosTextBoundMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
+      case mention: TextBoundMention => new EidosTextBoundMention(mention, mentionMapper)
       // TODO: These are going to the same place as the EventMention for now, so they are not distinguished here.
       // Provenance for these mentions probably needs to be improved.
       // Right now this is only migration and we're not especially using that right now.
       //case mention: CrossSentenceEventMention => new EidosCrossSentenceEventMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
-      case mention: EventMention => new EidosEventMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
-      case mention: RelationMention => new EidosRelationMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
-      case mention: CrossSentenceMention => new EidosCrossSentenceMention(mention, canonicalizer, ontologyGrounder, mentionMapper)
+      case mention: EventMention => new EidosEventMention(mention, mentionMapper)
+      case mention: RelationMention => new EidosRelationMention(mention, mentionMapper)
+      case mention: CrossSentenceMention => new EidosCrossSentenceMention(mention, mentionMapper)
       case _ => throw new IllegalArgumentException("Unknown Mention: " + odinMention)
     }
   }
@@ -239,14 +224,12 @@ class EidosEventMention(val odinEventMention: EventMention, mentionMapper: Menti
   override def reachableMentions: Seq[EidosMention] = super.reachableMentions ++ Seq(eidosTrigger)
 }
 
-class EidosCrossSentenceEventMention(val crossSentenceEventMention: CrossSentenceEventMention, canonicalizer: Canonicalizer,
-  ontologyGrounder: MultiOntologyGrounding, mentionMapper: MentionMapper)
-    extends EidosEventMention(crossSentenceEventMention, canonicalizer, ontologyGrounder, mentionMapper) {
+class EidosCrossSentenceEventMention(val crossSentenceEventMention: CrossSentenceEventMention, mentionMapper: MentionMapper)
+    extends EidosEventMention(crossSentenceEventMention, mentionMapper) {
 }
 
-class EidosRelationMention(val odinRelationMention: RelationMention, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding,
-    mentionMapper: MentionMapper)
-    extends EidosMention(odinRelationMention, canonicalizer, ontologyGrounder, mentionMapper) {
+class EidosRelationMention(val odinRelationMention: RelationMention, mentionMapper: MentionMapper)
+    extends EidosMention(odinRelationMention, mentionMapper) {
 }
 
 class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, mentionMapper: MentionMapper)
