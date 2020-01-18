@@ -7,10 +7,11 @@ import org.clulab.odin.{EventMention, State}
 import org.clulab.struct.Counter
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.export.EntityInfo
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 import ai.lum.common.StringUtils._
 
 object AnnotationTSV extends App with Configured {
@@ -46,7 +47,7 @@ object AnnotationTSV extends App with Configured {
       trigger = mention.odinMention.asInstanceOf[EventMention].trigger
       relation_txt = trigger.text.normalizeSpace
       relation_norm = mention.label // i.e., "Causal" or "Correlation"
-      relation_modifier = ExporterUtils.getModifier(mention) // prob none
+      relation_modifier = ExportUtils.getModifier(mention) // prob none
 
       effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
       factor_b_info = EntityInfo(effect, groundAs)

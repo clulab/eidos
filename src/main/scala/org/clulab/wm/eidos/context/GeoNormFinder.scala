@@ -146,10 +146,14 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
       sentence = doc.sentences(sentenceIndex)
       locations = sentenceLocations(sentenceIndex)
       (wordStartIndex, wordEndIndex) <- locations
+      charStartIndex = sentence.startOffsets(wordStartIndex)
+      charEndIndex = sentence.endOffsets(wordEndIndex - 1)
+      // There needs to be at least one character.  There may not be,
+      // especially if the raw character doesn't really exist.
+      // This happens if an implicit period completes a paragraph or document.
+      locationPhrase = text.substring(charStartIndex, charEndIndex)
+      if (locationPhrase.length > 0)
     } yield {
-      val charStartIndex = sentence.startOffsets(wordStartIndex)
-      val charEndIndex = sentence.endOffsets(wordEndIndex - 1)
-      val locationPhrase = text.substring(charStartIndex, charEndIndex)
       val geoID = normalizer(text, (charStartIndex, charEndIndex)).headOption.map {
         case (entry, _) => entry.id
       }

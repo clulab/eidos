@@ -65,18 +65,22 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
         domainOntology.getPatterns(n))
     }
 
-  def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding = {
+  def groundOntology(mention: EidosMention, previousGroundings: Option[Aliases.Groundings]): OntologyGrounding =
+      groundOntology(EidosOntologyGrounder.groundableType(mention), mention.odinMention.text, mention.canonicalNameParts)
+
+  // For API to reground strings
+  def groundOntology(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     // Sieve-based approach
-    if (EidosOntologyGrounder.groundableType(mention)) {
+    if (isGroundableType) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
-      val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
+      val matchedPatterns = nodesPatternMatched(mentionText, conceptPatterns)
       if (matchedPatterns.nonEmpty) {
         newOntologyGrounding(matchedPatterns)
       }
       // Otherwise, back-off to the w2v-based approach
       else {
-        newOntologyGrounding(wordToVec.calculateSimilarities(mention.canonicalNameParts, conceptEmbeddings))
+        newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
       }
     }
     else
@@ -100,19 +104,6 @@ class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology
         false
     }
   }
-
-  // For API to reground strings
-  def groundText(text: String): OntologyGrounding = {
-    val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
-    if (matchedPatterns.nonEmpty) {
-      newOntologyGrounding(matchedPatterns)
-    }
-    // Otherwise, back-off to the w2v-based approach
-    else {
-      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
-    }
-  }
-
 }
 
 // todo: surely there is a way to unify this with the PluginOntologyGrounder below -- maybe split out to a "stringMatchPlugin" and an "attachmentBasedPlugin" ?
@@ -188,8 +179,9 @@ class MultiOntologyGrounder(ontologyGrounders: Seq[EidosOntologyGrounder]) exten
 }
 
 object EidosOntologyGrounder {
-  protected val        GROUNDABLE = "Entity"
-  protected val      WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
+  protected val             GROUNDABLE = "Entity"
+  protected val           WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
+  protected val WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
   // Namespace strings for the different in-house ontologies we typically use
   protected val      UN_NAMESPACE = "un"
   protected val     WDI_NAMESPACE = "wdi"
@@ -202,7 +194,8 @@ object EidosOntologyGrounder {
   protected val   ICASA_NAMESPACE = "icasa"
   protected val  DELPHI_NAMESPACE = "delphi_db_inds"
 
-  val PRIMARY_NAMESPACE = WM_NAMESPACE // Assign the primary namespace here, publically.
+  val PRIMARY_NAMESPACE = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
+
 
   // Used for plugin ontologies
 //  protected val INTERVENTION_PLUGIN_TRIGGER = "UN/interventions"

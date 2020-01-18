@@ -10,6 +10,6 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
 
   def isCanonical(lemma: String, tag: String, ner: String): Boolean =
     isContentTag(tag) &&
-    !stopwordManaging.containsStopword(lemma) &&
+    !stopwordManaging.containsStopwordStrict(lemma) &&
     !StopwordManager.STOP_NER.contains(ner)
 }
