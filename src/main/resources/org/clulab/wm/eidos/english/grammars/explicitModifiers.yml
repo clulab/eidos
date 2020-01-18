@@ -53,6 +53,14 @@ rules:
       trigger = little if any
       theme: Entity = >nmod_if
 
+  - name: Decrease_explicit_brought_down
+    priority: ${ rulepriority }
+    example: "He said in order to boost intra-African trade , tariffs needed to be brought down "
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=bring] down
+      theme: Entity = >dobj
 
 # ------------------- Specific Increase --------------------------
 

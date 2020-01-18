@@ -1,7 +1,7 @@
 increase_triggers: "acceler|aggravat|aid|augment|boost|compound|doubl|deep|elev|enhanc|exacerbat|exorbitant|favorable|height|improv|increas|intens|maximiz|prolong|promot|rais|reactivat|restor|sav(e|ed|es|ing)$|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
 noncausal_increase_triggers: "above|above-average|better|good|greater|heav|(highs?$)|highe(r|s)|provid|rise|rising|widespread"
 
-decrease_triggers: "abat|alleviat|attenu|abolish|abrog|arrest|block|collaps|constrain|(cuts?$)|cutting|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|diminish|disrupt|down-reg|downreg|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|hamper|limit|less|lower|minimiz|mitigat|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin|worse"
+decrease_triggers: "abat|alleviat|attenu|abolish|abrog|arrest|block|collaps|constrain|curtail|(cuts?$)|cutting|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|diminish|disrupt|down-reg|downreg|drain|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|hamper|limit|less|lower|minimiz|mitigat|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin|worse"
 noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|(fall$)|fail|(fell$)|inactiv|inadequate|knockdown|lack|loss|(lows?$)|plummet|poor|scarce|scarcity|shortage|shutdown"
 #advers|perturb|resist|
 
