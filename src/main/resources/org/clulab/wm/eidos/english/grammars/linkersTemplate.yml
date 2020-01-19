@@ -53,7 +53,7 @@ rules:
         # agents (i.e., noun subjects)
         (${ agents })
         # optionally you can follow specified modifiers
-        /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}/{,2}
+        /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}|nmod_in|nmod_of/{,2}
         # if you land on another trigger, you are then licensed to follow more preps
         ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
       effect: Entity =
