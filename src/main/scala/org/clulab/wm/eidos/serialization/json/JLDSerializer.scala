@@ -561,6 +561,73 @@ object JLDRelationCausation {
   val effect = "effect"
 }
 
+class JLDRelationPositiveAffect(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
+  extends JLDRelation(serializer, JLDRelationPositiveAffect.subtypeString, mention, countAttachmentMap) {
+
+  override def getMentions: Seq[EidosMention] = {
+    val sources = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.effect, Seq.empty).filter(isExtractable)
+    //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
+
+    sources ++ targets /*++ triggers*/ ++ super.getMentions
+  }
+
+  override def toJObject: TidyJObject = {
+    val trigger = new JLDTrigger(serializer, mention.eidosTrigger).toJObject
+    val sources = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.effect, Seq.empty).filter(isExtractable)
+    val jldArguments =
+      sources.map(new JLDArgument(serializer, "source", _).toJObject) ++
+        targets.map(new JLDArgument(serializer, "destination", _).toJObject)
+
+    super.toJObject + TidyJObject(List(
+      JLDTrigger.singular -> trigger,
+      JLDArgument.plural -> jldArguments
+    ))
+  }
+}
+
+object JLDRelationPositiveAffect {
+  val subtypeString = "positiveaffect"
+  val taxonomy = "PositiveAffect"
+  val cause = "cause"
+  val effect = "effect"
+}
+
+class JLDRelationNegativeAffect(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
+  extends JLDRelation(serializer, JLDRelationNegativeAffect.subtypeString, mention, countAttachmentMap) {
+
+  override def getMentions: Seq[EidosMention] = {
+    val sources = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.effect, Seq.empty).filter(isExtractable)
+    //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
+
+    sources ++ targets /*++ triggers*/ ++ super.getMentions
+  }
+
+  override def toJObject: TidyJObject = {
+    val trigger = new JLDTrigger(serializer, mention.eidosTrigger).toJObject
+    val sources = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.cause, Seq.empty).filter(isExtractable)
+    val targets = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.effect, Seq.empty).filter(isExtractable)
+    val jldArguments =
+      sources.map(new JLDArgument(serializer, "source", _).toJObject) ++
+        targets.map(new JLDArgument(serializer, "destination", _).toJObject)
+
+    super.toJObject + TidyJObject(List(
+      JLDTrigger.singular -> trigger,
+      JLDArgument.plural -> jldArguments
+    ))
+  }
+}
+
+object JLDRelationNegativeAffect {
+  val subtypeString = "negativeaffect"
+  val taxonomy = "NegativeAffect"
+  val cause = "cause"
+  val effect = "effect"
+}
+
+
 class JLDRelationCorrelation(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
   extends JLDRelation(serializer, JLDRelationCorrelation.subtypeString, mention, countAttachmentMap) {
 
@@ -586,6 +653,8 @@ class JLDRelationCorrelation(serializer: JLDSerializer, mention: EidosEventMenti
     ))
   }
 }
+
+
 
 object JLDRelationCorrelation {
   val subtypeString = "correlation"

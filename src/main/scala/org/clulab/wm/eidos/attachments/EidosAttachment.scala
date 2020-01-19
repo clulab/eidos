@@ -47,6 +47,8 @@ object EidosAttachment {
       case Quantification.label => Quantification(eventMention)
       case Increase.label => Increase(eventMention)
       case Decrease.label => Decrease(eventMention)
+      case PosChange.label => PosChange(eventMention)
+      case NegChange.label => NegChange(eventMention)
     }
   }
 
@@ -63,6 +65,8 @@ object EidosAttachment {
       kind match {
         case Increase.label => new Increase(trigger, someQuantifications)
         case Decrease.label => new Decrease(trigger, someQuantifications)
+        case PosChange.label => new PosChange(trigger, someQuantifications)
+        case NegChange.label => new NegChange(trigger, someQuantifications)
         case Quantification.label => new Quantification(trigger, someQuantifications)
         case Property.label => new Property(trigger, someQuantifications)
         case Hedging.label => new Hedging(trigger, someQuantifications)
@@ -367,6 +371,58 @@ object Decrease {
 
     new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
         attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
+  }
+}
+
+@SerialVersionUID(1L)
+class PosChange(trigger: String, quantifiers: Option[Seq[String]],
+                triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+  extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDTriggeredAttachment(serializer, PosChange.kind)
+
+  override def toJson: JValue = toJson(PosChange.label)
+}
+
+object PosChange {
+  val label = "PositiveChange"
+  val kind = "POS"
+  val argument = "quantifier"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new PosChange(trigger, quantifiers)
+
+  def apply(mention: Mention): PosChange = {
+    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
+
+    new PosChange(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+      attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
+  }
+}
+
+@SerialVersionUID(1L)
+class NegChange(trigger: String, quantifiers: Option[Seq[String]],
+                triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+  extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDTriggeredAttachment(serializer, NegChange.kind)
+
+  override def toJson: JValue = toJson(NegChange.label)
+}
+
+object NegChange {
+  val label = "NegativeChange"
+  val kind = "NEG"
+  val argument = "quantifier"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new NegChange(trigger, quantifiers)
+
+  def apply(mention: Mention): NegChange = {
+    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
+
+    new NegChange(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+      attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
   }
 }
 

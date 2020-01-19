@@ -4,9 +4,7 @@ import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.odin.State
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.Decrease
-import org.clulab.wm.eidos.attachments.Increase
-import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.attachments.{Decrease, Increase, NegChange, PosChange, Quantification}
 import org.clulab.wm.eidos.utils.MentionUtils
 
 class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boolean) extends Expander {
@@ -14,7 +12,12 @@ class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boole
   // If enabled and applicable, expand Concepts which don't participate in primary events
   def expand(mentions: Seq[Mention], avoidState: State = new State()): Seq[Mention] = {
 
-    def isIncDecQuant(a: Attachment): Boolean = a.isInstanceOf[Increase] || a.isInstanceOf[Decrease] || a.isInstanceOf[Quantification]
+    def isExpandableMod(a: Attachment): Boolean =
+      a.isInstanceOf[Increase] ||
+        a.isInstanceOf[Decrease] ||
+        a.isInstanceOf[Quantification] ||
+        a.isInstanceOf[PosChange] ||
+        a.isInstanceOf[NegChange]
 
     def expandIfNotExpanded(ms: Seq[Mention], expandedState: State): Seq[Mention] = {
       // Get only the Concepts that don't overlap with a previously expanded Concept...
@@ -35,7 +38,7 @@ class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boole
       // Split the mentions into Cpncepts and Relations by the label
       val (concepts, relations) = mentions.partition(_ matches EidosSystem.CONCEPT_LABEL)
       // Check to see if any of the Concepts have state attachments
-      val (expandable, notExpandable) = concepts.partition(_.attachments.exists(isIncDecQuant))
+      val (expandable, notExpandable) = concepts.partition(_.attachments.exists(isExpandableMod))
       // Get the already expanded mentions for this document
       val prevExpandableState = State(relations.filter(rel => EidosSystem.CAG_EDGES.contains(rel.label)))
       // Expand the Concepts if they weren't already part of an expanded Relation

@@ -609,6 +609,8 @@ object HomeController {
     val stateAffix = m.attachments match {
       case inc if inc.exists(a => a.isInstanceOf[Increase]) => EidosSystem.INC_LABEL_AFFIX
       case dec if dec.exists(a => a.isInstanceOf[Decrease]) => EidosSystem.DEC_LABEL_AFFIX
+      case pos if pos.exists(a => a.isInstanceOf[PosChange]) => EidosSystem.POS_LABEL_AFFIX
+      case neg if neg.exists(a => a.isInstanceOf[NegChange]) => EidosSystem.NEG_LABEL_AFFIX
       case quant if quant.exists(a => a.isInstanceOf[Quantification]) => EidosSystem.QUANT_LABEL_AFFIX
       case _ => ""
     }

@@ -10,6 +10,8 @@
     - Quantification
     - Increase
     - Decrease
+    - PositiveChange
+    - NegativeChange
     - Time
     - Location:
       - Location-NN
@@ -19,6 +21,9 @@
       - Causal
       - IsA
       - Coreference
+      - Affect:
+          - PositiveAffect
+          - NegativeAffect
     - UndirectedRelation:
       - Correlation
       - SameAs
