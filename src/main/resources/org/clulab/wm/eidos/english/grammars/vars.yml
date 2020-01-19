@@ -12,7 +12,7 @@ negTriggers: "not"
 
 objects: "dobj"
 
-preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_than|acl_of"
+preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_on|nmod_than|acl_of"
 
 prep_dobjs: "nmod"
 
