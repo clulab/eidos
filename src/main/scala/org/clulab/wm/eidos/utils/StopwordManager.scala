@@ -27,6 +27,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
     val tags = mention.tags.get
     val entities = mention.entities.get
 
+    if (!tags.exists(_.startsWith("NN"))) return false
     //println(s"Checking mention: ${mention.text}")
     lemmas.indices.exists { i =>
       isContentPOS(tags(i)) &&

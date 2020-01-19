@@ -60,7 +60,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [lemma=bring] down
-      theme: Entity = >dobj
+      theme: Entity = >/dobj|^nsubjpass/
 
 # ------------------- Specific Increase --------------------------
 
