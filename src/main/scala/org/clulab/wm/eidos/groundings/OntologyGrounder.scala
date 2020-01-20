@@ -46,7 +46,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       ConceptEmbedding(domainOntology.getNamer(n),
-        wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+          wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
@@ -176,8 +176,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     else {
       println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
 
-      //      val mentionText = mention.odinMention.text
-      //      println("MENTION TEXT:\t"+mentionText)
+//      val mentionText = mention.odinMention.text
+//      println("MENTION TEXT:\t"+mentionText)
 
       /** Get the syntactic head of the mention */
       // Make a new mention that's just the syntactic head of the original mention
@@ -194,7 +194,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       )
       // Get the text of the syntactic head
       val headText = mentionHead.map(_.text).getOrElse("<NO_HEAD>")
-      //      println("HEAD TEXT:\t"+headText)
+//      println("HEAD TEXT:\t"+headText)
 
 
       /** Get the modifiers of the syntactic head */
@@ -208,8 +208,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       )
       val modifierMentions = getModifierMentions(headText, mention.odinMention, allowedMods.mkString("|"))
 
-      //      val modifierText = modifierMentions.map(_.text).mkString("\n")
-      //      println("MODIFIER TEXT:\t"+modifierText)
+//      val modifierText = modifierMentions.map(_.text).mkString("\n")
+//      println("MODIFIER TEXT:\t"+modifierText)
 
       // Combine head with modifiers, head first
       val allMentions = mentionHead.toSeq ++ modifierMentions
@@ -220,7 +220,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val propertyGrounding = new ArrayBuffer[SingleOntologyGrounding] // each SingleOntologyGrounding is (Namer, Float)
       val processGrounding = new ArrayBuffer[SingleOntologyGrounding]
       val conceptGrounding = new ArrayBuffer[SingleOntologyGrounding]
-
       // get all groundings for each branch
       val propertyStuff = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq("property")))
       val processStuff = allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq("process")))
@@ -252,7 +251,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       println("\nPROPERTY:\t"+propertyGrounding.mkString("\n"))
       println("PROCESS:\t"+processGrounding.mkString("\n"))
       println("CONCEPT:\t"+conceptGrounding.mkString("\n"))
-      //      println("\nRETURNED GROUNDINGS:\n"+returnedGroundings.mkString("\n"))
+//      println("\nRETURNED GROUNDINGS:\n"+returnedGroundings.mkString("\n"))
 
       returnedGroundings
     }
@@ -282,7 +281,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)
     val mods = results.filter(_ matches "InternalModifier")
-    //    for (modifier <- mods) println("Modifier:\t"+modifier.text)
+//    for (modifier <- mods) println("Modifier:\t"+modifier.text)
     val modifierArgs = mods.flatMap(m => m.arguments("modifier")).distinct
 
     modifierArgs
@@ -293,7 +292,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
 // TODO: Zupon
 class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
-// TODO This might extend something else
+    // TODO This might extend something else
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
@@ -311,6 +310,7 @@ object EidosOntologyGrounder {
   protected val                 GROUNDABLE = "Entity"
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
+  protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
   // Namespace strings for the different in-house ontologies we typically use
   protected val               UN_NAMESPACE = "un"
   protected val              WDI_NAMESPACE = "wdi"
@@ -322,7 +322,7 @@ object EidosOntologyGrounder {
   protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
 
-  val PRIMARY_NAMESPACE: String = WM_NAMESPACE // Assign the primary namespace here, publically.
+  val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
 
   val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 

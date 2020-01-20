@@ -231,6 +231,7 @@ object CompactDomainOntology {
     }
 
     protected def mkNodeStringMap(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
+      // TODO: Fix this code.  Try to sort entrySet.      
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
       val parentSeq = parentMap
           .entrySet

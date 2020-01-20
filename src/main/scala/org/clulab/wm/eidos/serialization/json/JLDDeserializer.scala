@@ -726,6 +726,7 @@ class JLDDeserializer {
     corpus
   }
 
+  // TODO: Remove these post processors.  Deserialize completely here without their help.
   def deserialize(json: String, postProcessors: Seq[PostProcessing]): Corpus = {
     val jValue: JValue = parse(json)
     val corpus = deserializeCorpus(jValue, postProcessors)

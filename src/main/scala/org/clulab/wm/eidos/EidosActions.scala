@@ -390,9 +390,9 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   def argTokenInterval(m: EventMention): Interval =  {
 
     if (m.arguments.keys.nonEmpty) {
-    val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
-    val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
-    Interval(start = min, end = max)
+      val min =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.start).toList.min
+      val max =  m.arguments.values.toSeq.flatten.map(_.tokenInterval.end).toList.max
+      Interval(start = min, end = max)
     }
     else {
       logger.warn("Event with no arguments.")

@@ -41,6 +41,7 @@ class OntologyHandler(
   }
 
   def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10, isAlreadyCanonicalized: Boolean = true): Array[Array[(String, Float)]] = {
+
     def reformat(grounding: OntologyGrounding): Array[(String, Float)] ={
       val topGroundings = grounding.take(topk).toArray
       topGroundings.map(gr => (gr._1.name, gr._2))
