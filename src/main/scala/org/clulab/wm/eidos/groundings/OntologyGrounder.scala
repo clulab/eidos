@@ -55,6 +55,25 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         domainOntology.getPatterns(n))
     }
 
+  // For API to reground strings
+  def groundOntology(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
+    // Sieve-based approach
+    if (isGroundableType) {
+      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+      // grounding and we want to use it.
+      val matchedPatterns = nodesPatternMatched(mentionText, conceptPatterns)
+      if (matchedPatterns.nonEmpty) {
+        newOntologyGrounding(matchedPatterns)
+      }
+      // Otherwise, back-off to the w2v-based approach
+      else {
+        newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+      }
+    }
+    else
+      newOntologyGrounding()
+  }
+
   def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
 
   // For Regex Matching

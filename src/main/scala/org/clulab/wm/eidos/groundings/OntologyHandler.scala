@@ -2,8 +2,6 @@ package org.clulab.wm.eidos.groundings
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.processors.Processor
-import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
 import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
@@ -78,14 +76,12 @@ class OntologyHandler(
               if (isAlreadyCanonicalized) text.split(' ')
               else recanonicalize(text).toArray // Attempt to regenerate them.
 
-          g.groundStrings(canonicalNameParts) // TODO: kwa this is wrong!
+          g.groundOntology(isGroundableType = true, mentionText, canonicalNameParts)
       }
       case _ => throw new RuntimeException("Regrounding needs an EidosOntologyGrounder")
     }
 
-//    groundings.map(reformat)
-    throw new NotImplementedError
-    null // TODO: This is wrong!
+    groundings.map(reformat)
   }
 }
 

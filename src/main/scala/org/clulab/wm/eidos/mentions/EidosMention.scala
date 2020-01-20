@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.mentions
 
-import java.time.ZonedDateTime
 import java.util
 
 import org.clulab.odin._
