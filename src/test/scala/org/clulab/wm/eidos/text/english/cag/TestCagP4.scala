@@ -51,7 +51,7 @@ class TestCagP4 extends EnglishTest {
     val insecurity = NodeSpec("insecurity")
     val expertise  = NodeSpec("lack of technical expertise and supplies", Dec("lack"))
 //    val supplies   = NodeSpec("supplies", Dec("lack"))
-    val access     = NodeSpec("lack of access", Dec("lack"))
+    val access     = NodeSpec("access", Dec("lack"))
     val repairs    = NodeSpec("Borehole repairs", Dec("possible"))
 
     //TO-DO:  "have not been possible" is not be recognized as "inhibit", it is not currently supported yet
@@ -65,6 +65,7 @@ class TestCagP4 extends EnglishTest {
     passingTest should "have correct edges 2" taggedAs(Fan) in {
       tester.test(EdgeSpec(expertise, Causal, repairs)) should be (successful)
     }
+    // conjunctions and non-contiguous entities
 //    tempBrokenEntitiesTest should "have correct edges 3" taggedAs(Fan) in {
 //      tester.test(EdgeSpec(supplies, Causal, repairs)) should be (successful)
 //    }
