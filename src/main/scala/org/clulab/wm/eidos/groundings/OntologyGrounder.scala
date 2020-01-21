@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import java.time.ZonedDateTime
+import java.util.{Map => JMap}
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
 import org.clulab.odin.{ExtractorEngine, Mention, TextBoundMention}
@@ -9,8 +10,10 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.Namer
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.utils.YamlUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.yaml.snakeyaml.Yaml
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
@@ -45,14 +48,12 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
-      ConceptEmbedding(domainOntology.getNamer(n),
-          wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+      ConceptEmbedding(domainOntology.getNamer(n), wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
     0.until(domainOntology.size).map { n =>
-      ConceptPatterns(domainOntology.getNamer(n),
-        domainOntology.getPatterns(n))
+      ConceptPatterns(domainOntology.getNamer(n), domainOntology.getPatterns(n))
     }
 
   // For API to reground strings
@@ -109,13 +110,11 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
   // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
-
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
     Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
   }
 
   def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {
-
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
@@ -135,7 +134,6 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   }
 }
 
-
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
@@ -143,33 +141,18 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
   val threshold: Option[Float] = Option(0.5f)
   val groundTopN = 5
 
-  def inBranch(s: String, branch: Seq[ConceptEmbedding]): Boolean = {
-    val branchNodes = branch.map(_.namer.name)
-    val matching = branchNodes.contains(s)
-    matching
-  }
+  def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
+      branches.exists(_.namer.name == s)
 
-  protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] = {
+  protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
+      CompositionalGrounder.branches.map { branch =>
+        (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) })
+      }.toMap
 
-    def getBranch(branch: String): Seq[ConceptEmbedding] = conceptEmbeddings.filter { _.namer.branch.contains(branch) }
-
-    Map(
-      "process" -> getBranch("process"),
-      "property" -> getBranch("property"),
-      "concept" -> getBranch("concept")
-    )
-  }
-
-  protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] = {
-
-    def getBranch(branch: String): Seq[ConceptPatterns] = conceptPatterns.filter { _.namer.branch.contains(branch) }
-
-    Map(
-      "process" -> getBranch("process"),
-      "property" -> getBranch("property"),
-      "concept" -> getBranch("concept")
-    )
-  }
+  protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
+      CompositionalGrounder.branches.map { branch =>
+        (branch, conceptPatterns.filter { _.namer.branch.contains(branch) })
+      }.toMap
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
     var property = ArrayBuffer(): Seq[(Namer,Float)]
@@ -278,10 +261,13 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   def getModifierMentions(synHeadWord: String, mention: Mention, pattern: String): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
+    // The strings below will not be valid yaml if synHeadWord is %, for example.
+    // See documentation at https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-over-multiple-lines.
+    // These values need to be entered into the yaml structure at the right place.
 
     // FIXME: do we need VPs too?
-    val rule =
-      s"""
+    val rules = // Do not "s" this, because the yaml may not be escaped properly
+      """
          | - name: AllWords
          |   label: Chunk
          |   priority: 1
@@ -297,7 +283,30 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
          |      modifier: Chunk+ = >/^$pattern/{0,2} >/amod|compound/?
         """.stripMargin
 
-    val engine = ExtractorEngine(rule)
+    val ruleTemplates: Array[JMap[String, String]] = YamlUtils.newRules(rules)
+
+    def replace(index: Int, target: String, replacement: String): Unit = {
+      val pattern = ruleTemplates(index).get("pattern")
+
+      ruleTemplates(index).put("pattern", pattern.replace(target, replacement))
+    }
+
+    replace(0, "$synHeadWord", "%") // synHeadWord)
+    // Do the $pattern first in base synHeadWord contains "$pattern" itself.
+    replace(1, "$pattern", pattern)
+    replace(1, "$synHeadWord", synHeadWord)
+    val yaml = new Yaml
+    val rule = yaml.dump(ruleTemplates)
+    println(rule)
+
+    val engine = try {
+      ExtractorEngine(rule)
+    }
+    catch {
+      case e: Exception =>
+        println("What went wrong?")
+        throw e
+    }
     val results = engine.extractFrom(doc)
     val mods = results.filter(_ matches "InternalModifier")
 //    for (modifier <- mods) println("Modifier:\t"+modifier.text)
@@ -305,8 +314,14 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
     modifierArgs
   }
+}
 
+object CompositionalGrounder {
+  val PROCESS = "process"
+  val PROPERTY = "property"
+  val CONCEPT =  "concept"
 
+  val branches: List[String] = List(PROCESS, PROPERTY, CONCEPT)
 }
 
 // TODO: Zupon
