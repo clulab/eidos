@@ -8,8 +8,8 @@ import org.clulab.odin.{ExtractorEngine, Mention, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
-import org.clulab.wm.eidos.utils.Namer
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.OdinUtils
 import org.clulab.wm.eidos.utils.YamlUtils
 import org.slf4j.Logger
@@ -115,7 +115,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
     Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
   }
 
-  def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {
+  def groundOntology(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
@@ -137,16 +137,13 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
 
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
-  // FIXME: these should connect to a config probably...?
-  val threshold: Option[Float] = Option(0.5f)
-  val groundTopN = 5
 
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
       branches.exists(_.namer.name == s)
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
       CompositionalGrounder.branches.map { branch =>
-        (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) })
+        (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) }) // kwa: Shouldn't these be identical?
       }.toMap
 
   protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
@@ -168,15 +165,15 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     Seq(newOntologyGrounding(property, Some(CompositionalGrounder.PROPERTY)), process, concept)
   }
 
-  override def groundOntology(mention: EidosMention, topN: Option[Int] = Option(groundTopN), threshold: Option[Float] = threshold): Seq[OntologyGrounding] = {
-    // do nothing to non-groundableType mentions
+  override def groundOntology(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
+    // Do nothing to non-groundableType mentions
     if (!EidosOntologyGrounder.groundableType(mention))
       Seq(newOntologyGrounding())
-    // else ground them
+    // or else ground them.
     else {
-      // Get the syntactic head of the mention
+      // Get the syntactic head of the mention.
       val syntacticHeadOpt = mention.odinMention.synHead
-      // Make a new mention that's just the syntactic head of the original mention
+      // Make a new mention that's just the syntactic head of the original mention.
       val mentionHeadOpt = syntacticHeadOpt.map ( syntacticHead =>
         new TextBoundMention(
           Seq("Mention_head"),
@@ -187,93 +184,39 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
           foundBy = mention.odinMention.foundBy
         )
       )
-      // Get the text of the syntactic head
-      // TODO: Let's not use a placeholder, but in stead keep track of the Option
-      val headText = mentionHeadOpt.map(_.text).getOrElse("<NO_HEAD>")
-//      println("HEAD TEXT:\t"+headText)
-      val modifierMentions = getModifierMentions(headText, mention.odinMention)
-
-//      val modifierText = modifierMentions.map(_.text).mkString("\n")
-//      println("MODIFIER TEXT:\t"+modifierText)
-
-      // Combine head with modifiers, head first
+      val headTextOpt = mentionHeadOpt.map(_.text)
+      val modifierMentions = headTextOpt.map { headText =>
+        getModifierMentions(headText, mention.odinMention)
+      }.getOrElse(Seq.empty)
       val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
-//      val allMentionsText = allMentions.map(_.text).mkString(", ")
-//      println("ALL MENTIONS TEXT:\t"+allMentionsText)
-
-      // get all groundings for each branch
-      val propertyStuff = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
-      val processStuff = allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
-      val conceptStuff = allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
-      // Sort each branch by score, take top N, then add all remaining to allGroundings
-      val allGroundings =
-        propertyStuff.sortBy(-_._2).take(groundTopN) ++
-            processStuff.sortBy(-_._2).take(groundTopN) ++
-            conceptStuff.sortBy(-_._2).take(groundTopN)
-
-      // keep a placeholder for each component
-      val propertyGrounding = new ArrayBuffer[SingleOntologyGrounding] // each SingleOntologyGrounding is (Namer, Float)
-      val processGrounding = new ArrayBuffer[SingleOntologyGrounding]
-      val conceptGrounding = new ArrayBuffer[SingleOntologyGrounding]
-
-      // Sort groundings into the right bins
-      for (g <- allGroundings) {
-        val nodeName = g._1.name
-        val nodeScore = g._2
-        if (nodeScore >= threshold.getOrElse(0.5f)) {
-          if (inBranch(nodeName, conceptEmbeddingsSeq(CompositionalGrounder.PROPERTY))) propertyGrounding.append(g)
-          else if (inBranch(nodeName, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))) processGrounding.append(g)
-          else conceptGrounding.append(g)
-        }
-      }
-
-      val returnedGroundings = Seq(
-        newOntologyGrounding(propertyGrounding, Some(CompositionalGrounder.PROPERTY)),
-        newOntologyGrounding(processGrounding, Some(CompositionalGrounder.PROCESS)),
-        newOntologyGrounding(conceptGrounding, Some(CompositionalGrounder.CONCEPT))
+      // Get all groundings for each branch.
+      val allSimiliarities = Map(
+        CompositionalGrounder.PROPERTY ->
+            allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+        CompositionalGrounder.PROCESS ->
+            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+        CompositionalGrounder.CONCEPT ->
+            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
       )
+      val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
+      val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
+      val goodGroundings = allSimiliarities.map { case(name, similarities) =>
+        val goodSimilarities = similarities
+            .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
+            .sortBy(-_._2)
+            .take(effectiveTopN)
 
-      returnedGroundings
+        newOntologyGrounding(goodSimilarities, Some(name))
+      }.toSeq
+
+      goodGroundings
     }
   }
 
   def getModifierMentions(synHeadWord: String, mention: Mention): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
-    // The strings below will not be valid yaml if synHeadWord is %, for example.
-    // See documentation at https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-over-multiple-lines.
-    // These values need to be entered into the yaml structure at the right place.
-
-    // FIXME: do we need VPs too?
-    val rules = // Do not "s" this, because then the yaml may not be escaped properly.
-      """
-         | - name: AllWords
-         |   label: Chunk
-         |   priority: 1
-         |   type: token
-         |   pattern: |
-         |      [chunk=/NP$$/ & !word=$synHeadWord & !tag=/DT|JJ|CC/]+
-         |
-         | - name: SegmentConcept
-         |   label: InternalModifier
-         |   priority: 2
-         |   pattern: |
-         |      trigger = $synHeadWord
-         |      modifier: Chunk+ = >/^(compound|nmod_of|nmod_to|nmod_for|nmod_such_as)/{0,2} >/amod|compound/?
-        """.stripMargin
-
-    val ruleTemplates: Array[JMap[String, String]] = YamlUtils.newRules(rules)
-
-    def replace(index: Int, target: String, replacement: String): Unit = {
-      val pattern = ruleTemplates(index).get("pattern")
-
-      ruleTemplates(index).put("pattern", pattern.replace(target, OdinUtils.escapeExactStringMatcher(replacement)))
-    }
-
-    replace(0, "$synHeadWord", synHeadWord)
-    replace(1, "$synHeadWord", synHeadWord)
-
-    val yaml = new Yaml
-    val rule = yaml.dump(ruleTemplates)
+    val rule = CompositionalGrounder.ruleTemplates.replaceAllLiterally(CompositionalGrounder.SYN_HEAD_WORD,
+        OdinUtils.escapeExactStringMatcher(synHeadWord))
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)
     val mods = results.filter(_ matches "InternalModifier")
@@ -289,6 +232,35 @@ object CompositionalGrounder {
   val CONCEPT =  "concept"
 
   val branches: Seq[String] = Seq(PROCESS, PROPERTY, CONCEPT)
+
+  // FIXME: these should connect to a config probably...?
+  val defaultThreshold: Float = 0.5f
+  val defaultGroundTopN = 5
+
+  val SYN_HEAD_WORD = "$synHeadWord"
+
+  // See documentation at https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-over-multiple-lines.
+  // Some values need to be entered into the yaml structure at the right place.
+  // Do not "s" a yaml string (in general), because then the yaml may not be escaped properly.
+  // In this case, all substitutions are after a | which,
+  // "allow[s] characters such as \ and " without escaping, and add a new line (\n) to the end of your string".
+  // These are exactly the characters that might be inserted in OdinUtils.escapeExactStringMatcher.
+  val ruleTemplates =
+      s"""
+        | - name: AllWords
+        |   label: Chunk
+        |   priority: 1
+        |   type: token
+        |   pattern: |
+        |      [chunk=/NP$$/ & !word=$SYN_HEAD_WORD & !tag=/DT|JJ|CC/]+
+        |
+        | - name: SegmentConcept
+        |   label: InternalModifier
+        |   priority: 2
+        |   pattern: |
+        |      trigger = $SYN_HEAD_WORD
+        |      modifier: Chunk+ = >/^(compound|nmod_of|nmod_to|nmod_for|nmod_such_as)/{0,2} >/amod|compound/?
+          """.stripMargin
 }
 
 // TODO: Zupon
