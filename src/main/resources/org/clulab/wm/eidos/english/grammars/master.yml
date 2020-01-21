@@ -51,7 +51,12 @@ rules:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
 
-
+  # Find the modifiers of time expressions
+  - import: org/clulab/wm/eidos/english/grammars/timeModifiers.yml
+    vars:
+      rulepriority: "4"
+      action: applyAttachment #Should add modifier to time
+      label: TimeModifier
 
   # ------------ Causal ------------
   - import: org/clulab/wm/eidos/english/grammars/causal.yml

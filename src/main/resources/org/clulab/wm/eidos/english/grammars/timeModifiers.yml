@@ -1,0 +1,14 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+rules:
+
+  - name: time_modifier_1
+    priority: ${ rulepriority }
+    example: "... X has not been possible ..."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [word=/late/ & tag=/RB/]
+      theme: Time = <advmod
+
+
