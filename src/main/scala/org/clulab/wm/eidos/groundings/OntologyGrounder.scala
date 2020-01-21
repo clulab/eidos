@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
 import java.time.ZonedDateTime
-import java.util.{Map => JMap}
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
 import org.clulab.odin.{ExtractorEngine, Mention, TextBoundMention}
@@ -11,10 +10,8 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.OdinUtils
-import org.clulab.wm.eidos.utils.YamlUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.yaml.snakeyaml.Yaml
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
@@ -143,7 +140,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
       CompositionalGrounder.branches.map { branch =>
-        (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) }) // kwa: Shouldn't these be identical?
+        (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) })
       }.toMap
 
   protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
@@ -245,7 +242,7 @@ object CompositionalGrounder {
   // In this case, all substitutions are after a | which,
   // "allow[s] characters such as \ and " without escaping, and add a new line (\n) to the end of your string".
   // These are exactly the characters that might be inserted in OdinUtils.escapeExactStringMatcher.
-  val ruleTemplates =
+  val ruleTemplates: String =
       s"""
         | - name: AllWords
         |   label: Chunk
