@@ -98,7 +98,7 @@ rules:
       addlabel: "PositiveAffect"
       label: PositiveAffect
       action: pass
-      trigger: ${ positive_affect_triggers }|${ noncausal_positive_affect_triggers }
+      trigger: ${ positive_affect_triggers } #|${ noncausal_positive_affect_triggers }
 
   - import: org/clulab/wm/eidos/english/grammars/linkersTemplate.yml
     vars:
