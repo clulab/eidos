@@ -30,18 +30,16 @@ import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.attachments.{Property, Quantification}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.document.PostProcessing
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.MultiOntologyGrounding
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
-import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
@@ -677,7 +675,7 @@ class JLDDeserializer {
     remainingMentions
   }
 
-  def deserializeCorpus(corpusValue: JValue, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding): Corpus = {
+  def deserializeCorpus(corpusValue: JValue, postProcessors: Seq[PostProcessing]): Corpus = {
     requireType(corpusValue, JLDCorpus.typename)
     // A corpus with no documents is hardly a corpus, so no extractOpt is used (for now).
     val documentSpecs = (corpusValue \ "documents").extract[JArray].arr.map(deserializeDocument)
@@ -714,18 +712,24 @@ class JLDDeserializer {
     }.getOrElse(Map.empty)
     val allOdinMentions = mentionMap.values.toArray
     val odinMentions = removeTriggerOnlyMentions(allOdinMentions)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, ontologyGrounder)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
-      AnnotatedDocument(documentSpec.idAndDocument.value, odinMentions, eidosMentions)
+      val document = documentSpec.idAndDocument.value
+      val annotatedDocument = AnnotatedDocument(document, odinMentions)
+      val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
+        postProcessor.process(nextAnnotatedDocument)
+      }
+
+      lastAnnotatedDocument
     }
     val corpus = annotatedDocuments
 
     corpus
   }
 
-  def deserialize(json: String, canonicalizer: Canonicalizer, ontologyGrounder: MultiOntologyGrounding): Corpus = {
+  // TODO: Remove these post processors.  Deserialize completely here without their help.
+  def deserialize(json: String, postProcessors: Seq[PostProcessing]): Corpus = {
     val jValue: JValue = parse(json)
-    val corpus = deserializeCorpus(jValue, canonicalizer, ontologyGrounder)
+    val corpus = deserializeCorpus(jValue, postProcessors)
     corpus
   }
 }

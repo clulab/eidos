@@ -4,20 +4,19 @@ import java.time.ZonedDateTime
 import java.util.HashMap
 
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.groundings.{MultiOntologyGrounding, OntologyGrounder, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.mentions.{HashCodeBagger, IdentityBagger}
+import org.clulab.wm.eidos.utils.{HashCodeBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManaging}
 
-class TestEidosMention extends ExtractionTest with MultiOntologyGrounding {
+class TestEidosMention extends ExtractionTest {
   
   def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
 
-  object StopwordManager extends StopwordManaging {
-    def containsStopword(stopword: String) = stopword == "policy"
-  }
+//  object StopwordManager extends StopwordManaging {
+//    def containsStopword(stopword: String) = stopword == "policy"
+//  }
 
   def test(text: String) = {
     def myprintln(text: String) = {
@@ -28,7 +27,7 @@ class TestEidosMention extends ExtractionTest with MultiOntologyGrounding {
     }
 
     val extractedOdinMentions = ieSystem.extractFromText(text, cagRelevantOnly = false).odinMentions
-    val reachableOdinMentions = EidosMention.findReachableMentions(extractedOdinMentions)
+    val reachableOdinMentions = EidosMention.findReachableOdinMentions(extractedOdinMentions)
 
     {
       // Diagnostics
@@ -47,7 +46,7 @@ class TestEidosMention extends ExtractionTest with MultiOntologyGrounding {
 
     val odinMentions = reachableOdinMentions // These should already be distinct
     val distinctOdinMentions = new HashCodeBagger[Mention].put(odinMentions).get() // This shouldn't make a difference
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, new Canonicalizer(this.StopwordManager), this)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
     odinMentions.size should be (distinctOdinMentions.size)
     odinMentions.size should be (eidosMentions.size)
 
@@ -96,22 +95,23 @@ than in the corresponding period two years earlier.
   it should "properly make canonical form" in {
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
-    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3, new Canonicalizer(this.StopwordManager), this)
-
-//    eidosMentions3.foreach(m => println(s"\t${m.odinMention.text}\tcanonical: ${m.canonicalName}"))
+    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
+    val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
+    rainfall.head.canonicalName = canonicalizer.canonicalize(rainfall.head)
     rainfall.head.canonicalName should be ("seasonal rainfall")
 
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
-    decrease.head.canonicalName should be ("seasonal rainfall decrease government")
+    decrease.head.canonicalName = canonicalizer.canonicalize(decrease.head)
+    decrease.head.canonicalName should be ("seasonal rainfall decrease government policy")
 
     // Since we filter out the text from attachments, "price" should be removed (Property attachment)
     val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")
     oil should have size(1)
-    oil.head.canonicalName should be ("oil")
-
+    oil.head.canonicalName = canonicalizer.canonicalize(oil.head)
+    canonicalizer.canonicalize(oil.head) should be ("oil")
   }
 }

@@ -8,6 +8,8 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
 
@@ -26,6 +28,10 @@ class EidosSystem(val components: EidosComponents) {
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   protected val debug = true
+
+  // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
+  // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
+  val postProcessors: Seq[PostProcessing] = Seq(components.ontologyHandler)
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
@@ -75,6 +81,14 @@ class EidosSystem(val components: EidosComponents) {
     events
   }
 
+  def postProcess(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
+      postProcessor.process(nextAnnotatedDocument)
+    }
+
+    lastAnnotatedDocument
+  }
+
   // MAIN PIPELINE METHOD if given doc
   def extractFromDoc(
       doc: Document,
@@ -116,10 +130,10 @@ class EidosSystem(val components: EidosComponents) {
 
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val afterMigrationProc = processMigrationEvents(afterNegation)
-    val eidosMentions = EidosMention.asEidosMentions(afterMigrationProc, new Canonicalizer(components.stopwordManager), components.multiOntologyGrounder)
+    val afterMigration = processMigrationEvents(afterNegation)
+    val annotatedDocument = AnnotatedDocument(doc, afterMigration)
 
-    AnnotatedDocument(doc, afterMigrationProc, eidosMentions)
+    postProcess(annotatedDocument)
   }
 
   def newDct(dctStringOpt: Option[String]): Option[DCT] = {

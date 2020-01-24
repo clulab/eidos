@@ -46,7 +46,7 @@ object TimeNormFinder {
   }
 
   def getTimExs(odinMentions: Seq[Mention]): Seq[TimEx] = {
-    val reachableMentions = EidosMention.findReachableMentions(odinMentions)
+    val reachableMentions = EidosMention.findReachableOdinMentions(odinMentions)
     val timExSeq: Seq[TimEx] = reachableMentions.flatMap { odinMention =>
       odinMention.attachments.collect {
         case attachment: Time => attachment.interval
