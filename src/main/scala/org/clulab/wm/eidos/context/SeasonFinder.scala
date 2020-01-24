@@ -52,10 +52,18 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]]) extend
                         timeInterval = timex.attachments.head.asInstanceOf[TimeAttachment].interval.intervals.headOption
                         if seasonMap(geoLocationID).contains(seasonName) && timeInterval.isDefined
     } yield {
-      val seasonStartOffset = sentence.startOffsets(firstTokenIdx)
-      val seasonEndOffset = sentence.endOffsets(secondTokenIdx)
       val seasonStartMonth = seasonMap(geoLocationID)(seasonName)("start")
       val seasonEndMonth = seasonMap(geoLocationID)(seasonName)("end")
+
+      val modifierMap = Map("early" -> -1, "late" -> 1)
+      val modifierHead = sentence.dependencies.get.outgoingEdges(secondTokenIdx).find(i => i._2 == "advmod" && modifierMap.contains(sentence.lemmas.get(i._1)))
+      val (modifier, seasonStartOffset, seasonEndOffset) = modifierHead match {
+        case Some(m) =>
+          val firstExtendedIdx = if (m._1 < firstTokenIdx) m._1 else firstTokenIdx
+          val lastExtendedIdx = if (m._1 > secondTokenIdx) m._1 else secondTokenIdx
+          (modifierMap.getOrElse(sentence.lemmas.get(m._1), 0), sentence.startOffsets(firstExtendedIdx), sentence.endOffsets(lastExtendedIdx))
+        case None => (0, sentence.startOffsets(firstTokenIdx), sentence.endOffsets(secondTokenIdx))
+      }
 
       val seasonTextInterval = TextInterval(seasonStartOffset, seasonEndOffset)
       val seasonText = text.substring(seasonStartOffset, seasonEndOffset)
@@ -64,7 +72,7 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]]) extend
       val startInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonStartMonth))
       val endInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonEndMonth))
       val seasonInterval = Between(startInterval, endInterval, startIncluded = true, endIncluded = true)
-      val timeSteps: Seq[TimeStep] = Seq(TimeStep (seasonInterval.start, seasonInterval.end))
+      val timeSteps: Seq[TimeStep] = Seq(TimeStep (seasonInterval.start.plusMonths(modifier), seasonInterval.end.plusMonths(modifier)))
       val attachment = TimEx(seasonTextInterval, timeSteps, seasonText)
 
       val wordInterval = TextInterval(firstTokenIdx, secondTokenIdx + 1)
