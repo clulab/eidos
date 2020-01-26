@@ -1,0 +1,12 @@
+
+GET  /eidos/v1/ping           controllers.v1.HomeController.ping
+
+GET  /eidos/v2/ping           controllers.v2.HomeController.ping
+POST /eidos/v2/echo           controllers.v2.HomeController.echo(text: String)
+GET  /eidos/v2/status         controllers.v2.HomeController.status
+POST /eidos/v2/readText       controllers.v2.HomeController.read(text: String, title: Option[String], id: Option[String], date: Option[String], location: Option[String])
+#POST /eidos/v2/readCdr        controllers.v2.HomeController.read(text: String)
+
+# Map static resources from the /public folder to the /assets URL path
+#GET  /assets/*file            controllers.Assets.at(path="/public", file: Asset)
+GET  /favicon.ico             controllers.Assets.at(path="/public", file="/images/favicon.ico")
