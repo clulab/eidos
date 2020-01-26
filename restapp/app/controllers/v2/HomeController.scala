@@ -74,8 +74,6 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       catch {
         case exception: MappingException =>
           BadRequest(exception.getMessage)
-        case exception: EidosException =>
-          ServiceUnavailable(exception.getMessage)
       }
       finally {
         eidosStatus.stop
