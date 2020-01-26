@@ -1,0 +1,86 @@
+openapi: 3.0.2
+info:
+  title: eidos
+  version: v2
+servers:
+  - url: 'http://localhost:9000/eidos/v2'
+    description: Localhost
+  - url: 'http://kwalcock.noip.me/eidos/v2'
+    description: Keith's computer
+paths:
+  /ping:
+    get:
+      responses:
+        200:
+          description: OK
+  /echo:
+    post:
+      summary: Echo back the input text
+      parameters:
+        - name: text
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A copy of the input
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+  /status:
+    get:
+      responses:
+        200:
+          description: A prose description of system status
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            
+  /readText:
+    post:
+      summary: Read/process a simple text
+      parameters:
+        - name: text
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: Bad Request, particularly for poorly formatted dates
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
+            
+          

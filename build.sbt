@@ -180,12 +180,17 @@ lazy val core = (project in file("."))
     )
   )
 
-lazy val webapp = project
+//lazy val webapp = project
+//  .enablePlugins(PlayScala)
+//  .aggregate(core)
+//  .dependsOn(core)
+
+lazy val elasticsearch = project
+
+lazy val restapp = project
   .enablePlugins(PlayScala)
   .aggregate(core)
   .dependsOn(core)
-
-lazy val elasticsearch = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {

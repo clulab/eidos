@@ -1,0 +1,31 @@
+openapi: 3.0.2
+info:
+  title: eidos
+  version: v1
+servers:
+  - url: 'http://localhost:9000/eidos/v1'
+    description: Localhost
+  - url: 'http://kwalcock.noip.me/eidos/v1'
+    description: Keith's computer
+paths:
+  /ping:
+    get:
+      responses:
+        200:
+          description: OK
+  /echo:
+    post:
+      summary: Echo back the input text
+      parameters:
+        - name: text
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A copy of the input
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string

@@ -20,18 +20,6 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   val eidosHost = new SerialHost(false) // Should be true for production
   val eidosStatus = new EidosStatus
 
-  def ping: Action[AnyContent] = Action {
-    println("Ping function was called!")
-    eidosStatus.inc
-    Ok
-  }
-
-  def echo(text: String): Action[AnyContent] = Action {
-    println("Echo function was called!")
-    eidosStatus.inc
-    Ok(text)
-  }
-
   def status: Action[AnyContent] = Action {
     println("Status function was called!")
     eidosStatus.inc

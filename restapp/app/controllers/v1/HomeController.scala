@@ -11,4 +11,9 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     println("Ping function was called!")
     Ok
   }
+
+  def echo(text: String): Action[AnyContent] = Action {
+    println("Echo function was called!")
+    Ok(text)
+  }
 }
