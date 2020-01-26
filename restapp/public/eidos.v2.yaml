@@ -96,13 +96,11 @@ paths:
   /readCdr:
     post:
       summary: Read/process text and metadata passed in a Cdr object
-      parameters:
-        - name: cdr
-          in: header
-          required: true
-          schema:
-#            type: string
-            $ref: '#/components/schemas/cdr'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cdr'
       responses:
         200:
           description: OK

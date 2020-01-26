@@ -3,13 +3,17 @@ package controllers.v2
 import ai.lum.eidos.host.SerialHost
 import ai.lum.eidos.text.PlainText
 import ai.lum.eidos.EidosStatus
+import ai.lum.eidos.text.CdrText
 import javax.inject._
 import models.ai.lum.eidos.EidosException
+import models.ai.lum.eidos.utils.JsonUtils
 import org.clulab.serialization.{json => Json}
 import play.api.libs.json.{Json => JSon}
+import play.api.libs.json.JsValue
 import org.json4s.JObject
 import org.json4s.JField
 import org.json4s.JString
+import org.json4s.MappingException
 import play.api.http.Status.SERVICE_UNAVAILABLE
 import play.api.mvc.Action
 import play.api.mvc._
@@ -40,9 +44,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         //    val json = Json.stringify(jObject, pretty = false)
         //    val jsValue = JSon.parse(json)
 
-        val jObject = eidosText.toJson
-        val json = Json.stringify(jObject, pretty = false)
-        val jsValue = JSon.parse(json)
+        val jValue = eidosText.toJson
+        val jsValue = JsonUtils.toJsValue(jValue)
 
         Ok(jsValue)
       }
@@ -56,17 +59,21 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     }
   }
 
-  def readCdr(): Action[AnyContent] = Action {
+  def readCdr(): Action[JsValue] = Action(parse.json) { request: Request[JsValue] =>
     println("ReadCdr function was called!")
     if (eidosStatus.start)
       ServiceUnavailable("I was already busy")
     else {
       try {
-        //      throw new EidosException("Too many questions", null)
-        Thread.sleep(10000)
-        Ok("Keith was here")
+        val eidosText = new CdrText(JsonUtils.toJValue(request.body))
+        val jValue = eidosText.toJson
+        val jsValue = JsonUtils.toJsValue(jValue)
+
+        Ok(jsValue)
       }
       catch {
+        case exception: MappingException =>
+          BadRequest(exception.getMessage)
         case exception: EidosException =>
           ServiceUnavailable(exception.getMessage)
       }

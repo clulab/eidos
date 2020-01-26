@@ -7,7 +7,7 @@ import java.util.TimeZone
 import models.ai.lum.eidos.EidosException
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
-import org.json4s.JObject
+import org.json4s.JValue
 import org.json4s.JsonDSL._
 
 class PlainText(text: String, titleOpt: Option[String] = None, idOpt: Option[String] = None, dateOpt: Option[String] = None, locationOpt: Option[String] = None) extends EidosText {
@@ -49,7 +49,7 @@ class PlainText(text: String, titleOpt: Option[String] = None, idOpt: Option[Str
        | location = $locationOpt
        |""".stripMargin
 
-  def toJson: JObject = {
+  def toJson: JValue = {
     ("text" -> text) ~
     ("title" -> titleOpt) ~
     ("id" -> idOpt) ~
