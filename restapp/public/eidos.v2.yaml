@@ -7,28 +7,32 @@ servers:
     description: Localhost
   - url: 'http://kwalcock.noip.me/eidos/v2'
     description: Keith's computer
+
+components:
+  schemas:
+    cdr:
+      type: object
+      required:
+      - document_id
+      - extracted_text
+      properties:
+        extracted_metadata:
+          type: object
+          properties:
+            CreationDate:
+              type: string
+            ModDate:
+              type: string
+            Title:
+              type: string
+        document_id:
+          type: string
+        extracted_text:
+          type: string
+        uri:
+          type: string
+
 paths:
-  /ping:
-    get:
-      responses:
-        200:
-          description: OK
-  /echo:
-    post:
-      summary: Echo back the input text
-      parameters:
-        - name: text
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: A copy of the input
-          content:
-            'text/plain; charset=utf-8':
-              schema:
-                type: string
   /status:
     get:
       responses:
@@ -41,11 +45,11 @@ paths:
             
   /readText:
     post:
-      summary: Read/process a simple text
+      summary: Read/process a text with optional metadata
       parameters:
         - name: text
           in: query
-          required: false
+          required: true
           schema:
             type: string
         - name: title
@@ -82,5 +86,41 @@ paths:
               schema:
                 type: string
             text/html: {}
-            
-          
+        503:
+          description: Service is unavailable, probably because a request is already pending
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
+  /readCdr:
+    post:
+      summary: Read/process text and metadata passed in a Cdr object
+      parameters:
+        - name: cdr
+          in: header
+          required: true
+          schema:
+#            type: string
+            $ref: '#/components/schemas/cdr'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: Bad Request, particularly for poorly formatted dates
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
+        503:
+          description: Service is unavailable, probably because a request is already pending
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
