@@ -7,7 +7,7 @@ import com.typesafe.config.Config
 import org.yaml.snakeyaml.Yaml
 import org.clulab.timenorm.scate._
 import org.clulab.odin.{Mention, State, TextBoundMention}
-import org.clulab.processors.Document
+import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.wm.eidos.attachments.{Location => LocationAttachment, Time => TimeAttachment}
 import org.clulab.wm.eidos.extraction.Finder
@@ -19,23 +19,37 @@ import scala.collection.JavaConverters._
 object SeasonFinder {
 
   def fromConfig(config: Config): SeasonFinder = {
+    val yaml = new Yaml()
     val seasonDBPath: String = config[String]("seasonsDBPath")
     val seasonDBTxt = getTextFromResource(seasonDBPath)
-    val yaml = new Yaml()
     val seasonJavaMap = yaml.load(seasonDBTxt).asInstanceOf[java.util.Map[String, java.util.Map[String, java.util.Map[String, Int]]]]
     val seasonMap = seasonJavaMap.asScala.mapValues(_.asScala.mapValues(_.asScala.toMap).toMap).toMap
-    new SeasonFinder(seasonMap)
+    val seasonModifiersPath: String = config[String]("seasonModifiersPath")
+    val seasonModifiersTxt = getTextFromResource(seasonModifiersPath)
+    val seasonModifiersJavaMap = yaml.load(seasonModifiersTxt).asInstanceOf[java.util.Map[String, Int]]
+    val seasonModifiersMap = seasonModifiersJavaMap.asScala.toMap
+    new SeasonFinder(seasonMap, seasonModifiersMap)
   }
 }
 
 
-class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]]) extends Finder{
+class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], modifierMap: Map[String, Int]) extends Finder{
+
+  // val modifierMap = Map("early" -> -1, "late" -> 1)
 
   private def closestMention(sentIdx: Int, sentSize: Int, firstTokenIdx: Int, secondTokenIdx: Int, initialState: State, label: String): Option[Mention] = {
     val previousMentions = initialState.mentionsFor(sentIdx, 0 to firstTokenIdx, label).map(m => (firstTokenIdx - m.tokenInterval.start, m))
     val followingMentions = initialState.mentionsFor(sentIdx, secondTokenIdx + 1 to sentSize, label).map(m => (m.tokenInterval.start - secondTokenIdx, m))
     val sortedMentions = (previousMentions ++ followingMentions).sortBy(_._1).map(_._2)
     sortedMentions.headOption
+  }
+
+  private def findModifier(sentence: Sentence, tokenIdx: Int): Option[Int] = {
+    sentence.dependencies.get.allEdges.map{
+      case (head, dependant, edge) if edge.matches("a(dv)?mod") && modifierMap.contains(sentence.lemmas.get(dependant)) &&
+        (head == tokenIdx || sentence.dependencies.get.outgoingEdges(head).map(_._1).contains(tokenIdx)) => Some(dependant)
+      case _ => None
+    }.find(_.isDefined).get
   }
 
   def find(doc: Document, initialState: State): Seq[Mention] = {
@@ -55,13 +69,12 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]]) extend
       val seasonStartMonth = seasonMap(geoLocationID)(seasonName)("start")
       val seasonEndMonth = seasonMap(geoLocationID)(seasonName)("end")
 
-      val modifierMap = Map("early" -> -1, "late" -> 1)
-      val modifierHead = sentence.dependencies.get.outgoingEdges(secondTokenIdx).find(i => i._2 == "advmod" && modifierMap.contains(sentence.lemmas.get(i._1)))
-      val (modifier, seasonStartOffset, seasonEndOffset) = modifierHead match {
-        case Some(m) =>
-          val firstExtendedIdx = if (m._1 < firstTokenIdx) m._1 else firstTokenIdx
-          val lastExtendedIdx = if (m._1 > secondTokenIdx) m._1 else secondTokenIdx
-          (modifierMap.getOrElse(sentence.lemmas.get(m._1), 0), sentence.startOffsets(firstExtendedIdx), sentence.endOffsets(lastExtendedIdx))
+      val modifierTokenIdx = findModifier(sentence, secondTokenIdx)
+      val (modifier, seasonStartOffset, seasonEndOffset) = modifierTokenIdx match {
+        case Some(tokenIdx) =>
+          val firstExtendedIdx = if (tokenIdx < firstTokenIdx) tokenIdx else firstTokenIdx
+          val lastExtendedIdx = if (tokenIdx > secondTokenIdx) tokenIdx else secondTokenIdx
+          (modifierMap.getOrElse(sentence.lemmas.get(tokenIdx), 0), sentence.startOffsets(firstExtendedIdx), sentence.endOffsets(lastExtendedIdx))
         case None => (0, sentence.startOffsets(firstTokenIdx), sentence.endOffsets(secondTokenIdx))
       }
 
