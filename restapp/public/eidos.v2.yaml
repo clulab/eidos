@@ -44,7 +44,7 @@ paths:
                 type: string
             
   /readText:
-    post:
+    get:
       summary: Read/process a text with optional metadata
       parameters:
         - name: text

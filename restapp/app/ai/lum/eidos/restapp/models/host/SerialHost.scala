@@ -1,7 +1,7 @@
-package ai.lum.eidos.host
+package ai.lum.eidos.restapp.models.host
 
-import ai.lum.eidos.text.EidosText
 import com.typesafe.config.Config
+import ai.lum.eidos.restapp.models.text.EidosText
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment

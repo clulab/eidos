@@ -1,7 +1,8 @@
-package ai.lum.eidos.text
+package ai.lum.eidos.restapp.models.text
 
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
+
 import org.json4s.DefaultFormats
 import org.json4s.JValue
 import org.json4s.JsonDSL._

@@ -1,6 +1,7 @@
-package ai.lum.eidos.text
+package ai.lum.eidos.restapp.models.text
 
 import org.clulab.wm.eidos.context.DCT
+
 import org.json4s.JValue
 
 trait EidosText {

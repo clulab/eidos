@@ -1,38 +1,45 @@
-package controllers.v2
+package ai.lum.eidos.restapp.controllers.v2
 
-import ai.lum.eidos.host.SerialHost
-import ai.lum.eidos.text.PlainText
-import ai.lum.eidos.EidosStatus
-import ai.lum.eidos.text.CdrText
 import javax.inject._
-import models.ai.lum.eidos.EidosException
-import models.ai.lum.eidos.utils.JsonUtils
+
+import ai.lum.eidos.restapp.models.EidosException
+import ai.lum.eidos.restapp.models.EidosStatus
+import ai.lum.eidos.restapp.models.host.SerialHost
+import ai.lum.eidos.restapp.models.text.CdrText
+import ai.lum.eidos.restapp.models.text.PlainText
+import ai.lum.eidos.restapp.models.utils.JsonUtils
+
 import org.clulab.serialization.{json => Json}
-import play.api.libs.json.{Json => JSon}
-import play.api.libs.json.JsValue
-import org.json4s.JObject
+
 import org.json4s.JField
+import org.json4s.JObject
 import org.json4s.JString
 import org.json4s.MappingException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import play.api.http.Status.SERVICE_UNAVAILABLE
-import play.api.mvc.Action
+import play.api.libs.json.{Json => JSon}
+import play.api.libs.json.JsValue
 import play.api.mvc._
 
 import scala.util.Try
 
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+  import HomeController.logger
+
   val eidosHost = new SerialHost(false) // Should be true for production
   val eidosStatus = new EidosStatus
 
   def status: Action[AnyContent] = Action {
-    println("Status function was called!")
+    logger.info("Called 'status' function!")
     Ok(s"The status is ${eidosStatus.get}.")
   }
 
   // Make sure incoming is also utf-8
   def readText(text: String, titleOpt: Option[String], idOpt: Option[String], dateOpt: Option[String], locationOpt: Option[String]): Action[AnyContent] = Action {
-    println("ReadText function was called!")
+    logger.info("Called 'readText' function!")
     if (eidosStatus.start)
       ServiceUnavailable("I was already busy")
     else {
@@ -60,7 +67,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def readCdr(): Action[JsValue] = Action(parse.json) { request: Request[JsValue] =>
-    println("ReadCdr function was called!")
+    logger.info("Called 'readCdr' function!")
     if (eidosStatus.start)
       ServiceUnavailable("I was already busy")
     else {
@@ -80,4 +87,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       }
     }
   }
+}
+
+object HomeController {
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 }

@@ -1,12 +1,11 @@
-package models.ai.lum.eidos.utils
+package ai.lum.eidos.restapp.models.utils
 
 import org.json4s.JValue
+import org.json4s.jackson.prettyJson
+import org.json4s.jackson.parseJson
 
 import play.api.libs.json.JsValue
 import play.api.libs.json.{Json => JSon}
-
-import org.json4s.jackson.prettyJson
-import org.json4s.jackson.parseJson
 
 object JsonUtils {
 

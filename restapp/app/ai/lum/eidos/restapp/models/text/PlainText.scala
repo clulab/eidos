@@ -1,12 +1,14 @@
-package ai.lum.eidos.text
+package ai.lum.eidos.restapp.models.text
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
 
-import models.ai.lum.eidos.EidosException
+import ai.lum.eidos.restapp.models.EidosException
+
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
+
 import org.json4s.JValue
 import org.json4s.JsonDSL._
 

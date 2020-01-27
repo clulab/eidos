@@ -1,4 +1,4 @@
-package ai.lum.eidos
+package ai.lum.eidos.restapp.models
 
 class EidosStatus {
   protected var busy: Boolean = false

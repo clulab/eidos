@@ -1,6 +1,6 @@
-package ai.lum.eidos.host
+package ai.lum.eidos.restapp.models.host
 
-import ai.lum.eidos.text.EidosText
+import ai.lum.eidos.restapp.models.text.EidosText
 import org.json4s.JValue
 import org.json4s.JsonAST.JNull
 
