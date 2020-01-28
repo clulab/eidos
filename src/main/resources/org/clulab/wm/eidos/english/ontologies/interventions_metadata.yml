@@ -1,0 +1,1059 @@
+- Interventions:
+  - Events:
+    - OntologyNode:
+      name: Constructing
+      examples:
+      - Constructing
+      appliedTo:
+      - Objects/Infrastructures
+      polarity: 1.0
+    - OntologyNode:
+      name: Removing
+      examples:
+      - Removing
+      appliedTo:
+      - Objects/Hazards
+      polarity: 1.0
+    - OntologyNode:
+      name: Administering
+      examples:
+      - Administering
+      appliedTo:
+      - Objects/Operations
+      polarity: 1.0
+    - OntologyNode:
+      name: Providing
+      examples:
+      - Providing
+      appliedTo:
+      - Objects/Goods
+      - Objects/Services
+      - Objects/Personnel
+      - Objects/Training
+      polarity: 1.0
+    - OntologyNode:
+      name: Maintaining
+      examples:
+      - Maintaining
+      polarity: 1.0
+    - OntologyNode:
+      name: Protecting
+      examples:
+      - Protecting
+      polarity: 1.0
+    - OntologyNode:
+      name: Repairing
+      examples:
+      - Repairing
+      appliedTo:
+      - Objects/Infrastructures
+      polarity: 1.0
+    - OntologyNode:
+      name: Assessing
+      examples:
+      - Assessing
+      appliedTo:
+      - Objects/Goods
+      - Objects/Hazards
+      - Objects/Infrastructures
+      - Objects/Operations
+      - Objects/Services
+      polarity: 1.0
+    - OntologyNode:
+      name: Conserving
+      examples:
+      - Conserving
+      appliedTo:
+      - Objects/Environment
+      polarity: 1.0
+  - Objects:
+    - Services:
+      - OntologyNode:
+        name: Electricity, gas and water distribution services
+        examples:
+        - Electricity, gas and water distribution services
+        polarity: 1.0
+      - Rental and leasing services:
+        - OntologyNode:
+          name: Solid waste collection
+          examples:
+          - Solid waste collection
+          polarity: 1.0
+        - OntologyNode:
+          name: Solid waste disposal
+          examples:
+          - Solid waste disposal
+          polarity: 1.0
+        - OntologyNode:
+          name: Recycling services
+          examples:
+          - Recycling services
+          polarity: 1.0
+        - OntologyNode:
+          name: Waste clean-up
+          examples:
+          - Waste clean-up
+          polarity: 1.0
+      - OntologyNode:
+        name: Distributive trade services
+        examples:
+        - Distributive trade services
+        polarity: 1.0
+      - Community, social and personal services:
+        - OntologyNode:
+          name: Human and child rights monitoring
+          examples:
+          - Human and child rights monitoring
+          polarity: 1.0
+        - Human health and social care services:
+          - OntologyNode:
+            name: Malnutrition screening
+            examples:
+            - Malnutrition screening
+            polarity: 1.0
+        - OntologyNode:
+          name: Services of membership organizations
+          examples:
+          - Services of membership organizations
+          polarity: 1.0
+        - OntologyNode:
+          name: Family reunification
+          examples:
+          - Family reunification
+          polarity: 1.0
+        - OntologyNode:
+          name: Recreational, cultural and sporting services
+          examples:
+          - Recreational, cultural and sporting services
+          polarity: 1.0
+        - OntologyNode:
+          name: Guardianship and foster parenting
+          examples:
+          - Guardianship and foster parenting
+          polarity: 1.0
+        - OntologyNode:
+          name: Sewage and waste collection, treatment and disposal and other environmental
+            protection services
+          examples:
+          - Sewage and waste collection, treatment and disposal and other environmental
+            protection services
+          polarity: 1.0
+        - Legal aid for displaced persons:
+          - OntologyNode:
+            name: Legal information programs
+            examples:
+            - Legal information programs
+            polarity: 1.0
+          - OntologyNode:
+            name: Legal counselling
+            examples:
+            - Legal counselling
+            polarity: 1.0
+          - OntologyNode:
+            name: Legal aid programs
+            examples:
+            - Legal aid programs
+            polarity: 1.0
+        - OntologyNode:
+          name: Compulsory social security services
+          examples:
+          - Compulsory social security services
+          polarity: 1.0
+        - OntologyNode:
+          name: Education services
+          examples:
+          - Education services
+          polarity: 1.0
+        - OntologyNode:
+          name: Domestic services
+          examples:
+          - Domestic services
+          polarity: 1.0
+        - OntologyNode:
+          name: School feeding
+          examples:
+          - School feeding
+          polarity: 1.0
+        - OntologyNode:
+          name: Public administration and other services provided to the community
+            as a whole
+          examples:
+          - Public administration and other services provided to the community as
+            a whole
+          polarity: 1.0
+        - OntologyNode:
+          name: Other services
+          examples:
+          - Other services
+          polarity: 1.0
+      - OntologyNode:
+        name: Real estate services
+        examples:
+        - Real estate services
+        polarity: 1.0
+      - Transport services:
+        - OntologyNode:
+          name: Rental services of transport vehicles with operators
+          examples:
+          - Rental services of transport vehicles with operators
+          polarity: 1.0
+        - OntologyNode:
+          name: Postal and courier services
+          examples:
+          - Postal and courier services
+          polarity: 1.0
+        - OntologyNode:
+          name: Passenger transport services
+          examples:
+          - Passenger transport services
+          polarity: 1.0
+        - OntologyNode:
+          name: Freight transport services
+          examples:
+          - Freight transport services
+          polarity: 1.0
+        - OntologyNode:
+          name: Supporting transport services
+          examples:
+          - Supporting transport services
+          polarity: 1.0
+      - Business and production services:
+        - Support and operation services to agriculture, hunting, forestry, fishing, mining and utilities:
+          - OntologyNode:
+            name: Famine early warning system
+            examples:
+            - Famine early warning system
+            polarity: 1.0
+        - OntologyNode:
+          name: Indoor residual spraying
+          examples:
+          - Indoor residual spraying
+          polarity: 1.0
+        - OntologyNode:
+          name: Other manufacturing services; publishing, printing and reproduction
+            services; materials recovery services
+          examples:
+          - Other manufacturing services; publishing, printing and reproduction services;
+            materials recovery services
+          polarity: 1.0
+        - OntologyNode:
+          name: Maintenance, repair and installation (except construction) services
+          examples:
+          - Maintenance, repair and installation (except construction) services
+          polarity: 1.0
+        - Livestock services:
+          - OntologyNode:
+            name: Veterinary services
+            examples:
+            - Veterinary services
+            polarity: 1.0
+          - OntologyNode:
+            name: Livestock destocking
+            examples:
+            - Livestock destocking
+            polarity: 1.0
+        - OntologyNode:
+          name: Research and development services
+          examples:
+          - Research and development services
+          polarity: 1.0
+        - OntologyNode:
+          name: Support services
+          examples:
+          - Support services
+          polarity: 1.0
+        - OntologyNode:
+          name: Legal and accounting services
+          examples:
+          - Legal and accounting services
+          polarity: 1.0
+        - Larval source management:
+          - Environmental management:
+            - OntologyNode:
+              name: Habitat modification
+              examples:
+              - Habitat modification
+              polarity: 1.0
+            - OntologyNode:
+              name: Habitat manipulation
+              examples:
+              - Habitat manipulation
+              polarity: 1.0
+          - OntologyNode:
+            name: Larviciding
+            examples:
+            - Larviciding
+            polarity: 1.0
+          - OntologyNode:
+            name: Biological control
+            examples:
+            - Biological control
+            polarity: 1.0
+        - OntologyNode:
+          name: Professional, technical and business services (except research, development,
+            legal and accounting services) Telecommunications, broadcasting and information
+            supply services
+          examples:
+          - Professional, technical and business services (except research, development,
+            legal and accounting services) Telecommunications, broadcasting and information
+            supply services
+          polarity: 1.0
+        - OntologyNode:
+          name: Manufacturing services on physical inputs owned by others
+          examples:
+          - Manufacturing services on physical inputs owned by others
+          polarity: 1.0
+    - OntologyNode:
+      name: Environment
+      examples:
+      - Environment
+      polarity: 1.0
+    - Operations:
+      - OntologyNode:
+        name: Impact evaluation
+        examples:
+        - Impact evaluation
+        polarity: 1.0
+      - OntologyNode:
+        name: Disarmament, demobilization and reintegration? TBC
+        examples:
+        - Disarmament, demobilization and reintegration? TBC
+        polarity: 1.0
+      - OntologyNode:
+        name: Pest control operation
+        examples:
+        - Pest control operation
+        polarity: 1.0
+      - OntologyNode:
+        name: Conflict mediation
+        examples:
+        - Conflict mediation
+        polarity: 1.0
+      - OntologyNode:
+        name: Dialogue sessions
+        examples:
+        - Dialogue sessions
+        polarity: 1.0
+      - OntologyNode:
+        name: Peacekeeping mission
+        examples:
+        - Peacekeeping mission
+        polarity: 1.0
+      - OntologyNode:
+        name: Community assessment
+        examples:
+        - Community assessment
+        polarity: 1.0
+      - Public information campaigns:
+        - OntologyNode:
+          name: Television campaigns
+          examples:
+          - Television campaigns
+          polarity: 1.0
+        - OntologyNode:
+          name: Community awareness days
+          examples:
+          - Community awareness days
+          polarity: 1.0
+        - Communication materials:
+          - OntologyNode:
+            name: Billboards
+            examples:
+            - Billboards
+            polarity: 1.0
+          - OntologyNode:
+            name: Posters
+            examples:
+            - Posters
+            polarity: 1.0
+          - OntologyNode:
+            name: Leaflets
+            examples:
+            - Leaflets
+            polarity: 1.0
+        - OntologyNode:
+          name: Radio campaigns
+          examples:
+          - Radio campaigns
+          polarity: 1.0
+    - OntologyNode:
+      name: Personnel
+      examples:
+      - Personnel
+      polarity: 1.0
+    - Training topics:
+      - Good nutrition practices:
+        - OntologyNode:
+          name: Malnutrition
+          examples:
+          - Malnutrition
+          polarity: 1.0
+        - IYCF:
+          - OntologyNode:
+            name: Balanced diet
+            examples:
+            - Balanced diet
+            polarity: 1.0
+          - OntologyNode:
+            name: Breastfeeding
+            examples:
+            - Breastfeeding
+            polarity: 1.0
+      - OntologyNode:
+        name: Teaching
+        examples:
+        - Teaching
+        polarity: 1.0
+      - OntologyNode:
+        name: Mine risk
+        examples:
+        - Mine risk
+        polarity: 1.0
+      - OntologyNode:
+        name: School attendance
+        examples:
+        - School attendance
+        polarity: 1.0
+      - Income generation:
+        - OntologyNode:
+          name: Vocational training
+          examples:
+          - Vocational training
+          polarity: 1.0
+        - OntologyNode:
+          name: Financial training
+          examples:
+          - Financial training
+          polarity: 1.0
+      - OntologyNode:
+        name: ITN use
+        examples:
+        - ITN use
+        polarity: 1.0
+      - OntologyNode:
+        name: Public health
+        examples:
+        - Public health
+        polarity: 1.0
+      - Good WASH practices:
+        - OntologyNode:
+          name: Water safety
+          examples:
+          - Water safety
+          polarity: 1.0
+        - OntologyNode:
+          name: Latrine use
+          examples:
+          - Latrine use
+          polarity: 1.0
+        - OntologyNode:
+          name: Good hygiene practices
+          examples:
+          - Good hygiene practices
+          polarity: 1.0
+      - OntologyNode:
+        name: Peacekeeping mandate
+        examples:
+        - Peacekeeping mandate
+        polarity: 1.0
+    - OntologyNode:
+      name: Training
+      examples:
+      - Training
+      polarity: 1.0
+    - Infrastructures:
+      - Washing and bathing facilities:
+        - OntologyNode:
+          name: Shower blocks
+          examples:
+          - Shower blocks
+          polarity: 1.0
+        - OntologyNode:
+          name: Hand-washing stations
+          examples:
+          - Hand-washing stations
+          polarity: 1.0
+        - OntologyNode:
+          name: Laundry facilities
+          examples:
+          - Laundry facilities
+          polarity: 1.0
+      - Housing:
+        - Short Term Housing:
+          - OntologyNode:
+            name: Temporary Communal Settlement
+            examples:
+            - Temporary Communal Settlement
+            polarity: 1.0
+          - OntologyNode:
+            name: Prefabricated buildings
+            examples:
+            - Prefabricated buildings
+            polarity: 1.0
+        - OntologyNode:
+          name: Long Term Housing
+          examples:
+          - Long Term Housing
+          polarity: 1.0
+      - OntologyNode:
+        name: Telecommunication
+        examples:
+        - Telecommunication
+        polarity: 1.0
+      - Roads:
+        - Long-term roads:
+          - OntologyNode:
+            name: Seoncdary
+            examples:
+            - Seoncdary
+            polarity: 1.0
+          - OntologyNode:
+            name: Tertiary
+            examples:
+            - Tertiary
+            polarity: 1.0
+          - OntologyNode:
+            name: Primary
+            examples:
+            - Primary
+            polarity: 1.0
+        - OntologyNode:
+          name: Temporary roads
+          examples:
+          - Temporary roads
+          polarity: 1.0
+      - Airports:
+        - OntologyNode:
+          name: Airport Terminals
+          examples:
+          - Airport Terminals
+          polarity: 1.0
+        - OntologyNode:
+          name: Airplane Hangers
+          examples:
+          - Airplane Hangers
+          polarity: 1.0
+        - OntologyNode:
+          name: Run Ways
+          examples:
+          - Run Ways
+          polarity: 1.0
+      - Sanitation:
+        - OntologyNode:
+          name: Composting Toilets
+          examples:
+          - Composting Toilets
+          polarity: 1.0
+        - OntologyNode:
+          name: Flush Toilet
+          examples:
+          - Flush Toilet
+          polarity: 1.0
+        - OntologyNode:
+          name: Pit latrines with a slab
+          examples:
+          - Pit latrines with a slab
+          polarity: 1.0
+        - Waste Management:
+          - OntologyNode:
+            name: Hazardous Waste Management
+            examples:
+            - Hazardous Waste Management
+            polarity: 1.0
+          - OntologyNode:
+            name: Solid Waste Management
+            examples:
+            - Solid Waste Management
+            polarity: 1.0
+        - OntologyNode:
+          name: Pit Latrine
+          examples:
+          - Pit Latrine
+          polarity: 1.0
+        - OntologyNode:
+          name: Ventilated Improved pit latrines
+          examples:
+          - Ventilated Improved pit latrines
+          polarity: 1.0
+      - Bridge:
+        - OntologyNode:
+          name: Truss Bridge
+          examples:
+          - Truss Bridge
+          polarity: 1.0
+        - OntologyNode:
+          name: Arch Bridge
+          examples:
+          - Arch Bridge
+          polarity: 1.0
+        - OntologyNode:
+          name: Cable-stayed Bridge
+          examples:
+          - Cable-stayed Bridge
+          polarity: 1.0
+        - OntologyNode:
+          name: Cantilever Bridge
+          examples:
+          - Cantilever Bridge
+          polarity: 1.0
+        - OntologyNode:
+          name: Suspension Bridges
+          examples:
+          - Suspension Bridges
+          polarity: 1.0
+        - OntologyNode:
+          name: Beam Bridge
+          examples:
+          - Beam Bridge
+          polarity: 1.0
+      - Water infrastructures:
+        - OntologyNode:
+          name: Well
+          examples:
+          - Well
+          polarity: 1.0
+        - OntologyNode:
+          name: Irrigation scheme
+          examples:
+          - Irrigation scheme
+          polarity: 1.0
+        - OntologyNode:
+          name: Piped Water to a Dwelling
+          examples:
+          - Piped Water to a Dwelling
+          polarity: 1.0
+        - OntologyNode:
+          name: Protected Spring
+          examples:
+          - Protected Spring
+          polarity: 1.0
+        - OntologyNode:
+          name: Dam
+          examples:
+          - Dam
+          polarity: 1.0
+        - OntologyNode:
+          name: Public tap
+          examples:
+          - Public tap
+          polarity: 1.0
+        - OntologyNode:
+          name: Borehole
+          examples:
+          - Borehole
+          polarity: 1.0
+        - OntologyNode:
+          name: Piped Water to a Plot
+          examples:
+          - Piped Water to a Plot
+          polarity: 1.0
+        - OntologyNode:
+          name: Rainwater
+          examples:
+          - Rainwater
+          polarity: 1.0
+        - OntologyNode:
+          name: Wastewater Plants
+          examples:
+          - Wastewater Plants
+          polarity: 1.0
+        - OntologyNode:
+          name: Protected Dug Well
+          examples:
+          - Protected Dug Well
+          polarity: 1.0
+      - Health facilities:
+        - OntologyNode:
+          name: Field hospital
+          examples:
+          - Field hospital
+          polarity: 1.0
+        - OntologyNode:
+          name: Health post
+          examples:
+          - Health post
+          polarity: 1.0
+        - OntologyNode:
+          name: Urgent Care
+          examples:
+          - Urgent Care
+          polarity: 1.0
+        - OntologyNode:
+          name: Hospital
+          examples:
+          - Hospital
+          polarity: 1.0
+        - OntologyNode:
+          name: Health centre
+          examples:
+          - Health centre
+          polarity: 1.0
+        - OntologyNode:
+          name: Nursing Home
+          examples:
+          - Nursing Home
+          polarity: 1.0
+        - OntologyNode:
+          name: Doctor's Office
+          examples:
+          - Doctor's Office
+          polarity: 1.0
+        - OntologyNode:
+          name: Surgery Center
+          examples:
+          - Surgery Center
+          polarity: 1.0
+      - OntologyNode:
+        name: Schools
+        examples:
+        - Schools
+        polarity: 1.0
+      - Power Generation:
+        - Chemical Energy:
+          - OntologyNode:
+            name: Fuel Cells
+            examples:
+            - Fuel Cells
+            polarity: 1.0
+          - OntologyNode:
+            name: Batteries
+            examples:
+            - Batteries
+            polarity: 1.0
+        - Potential Energy:
+          - OntologyNode:
+            name: Hydroelectric Dam
+            examples:
+            - Hydroelectric Dam
+            polarity: 1.0
+        - OntologyNode:
+          name: Solar Electric
+          examples:
+          - Solar Electric
+          polarity: 1.0
+        - OntologyNode:
+          name: Wind Energy
+          examples:
+          - Wind Energy
+          polarity: 1.0
+        - Thermal Energy:
+          - OntologyNode:
+            name: Petroleum
+            examples:
+            - Petroleum
+            polarity: 1.0
+          - OntologyNode:
+            name: Geothermal
+            examples:
+            - Geothermal
+            polarity: 1.0
+          - OntologyNode:
+            name: Solar Thermal Energy
+            examples:
+            - Solar Thermal Energy
+            polarity: 1.0
+          - OntologyNode:
+            name: Nuclear
+            examples:
+            - Nuclear
+            polarity: 1.0
+          - OntologyNode:
+            name: Coal
+            examples:
+            - Coal
+            polarity: 1.0
+          - OntologyNode:
+            name: Natural Gas
+            examples:
+            - Natural Gas
+            polarity: 1.0
+      - OntologyNode:
+        name: Railway lines
+        examples:
+        - Railway lines
+        polarity: 1.0
+    - Goods:
+      - Other transportable goods (except metal products, machinery and equipment):
+        - OntologyNode:
+          name: Coke oven products; refined petroleum products; nuclear fuel
+          examples:
+          - Coke oven products; refined petroleum products; nuclear fuel
+          polarity: 1.0
+        - OntologyNode:
+          name: Rubber and plastics products
+          examples:
+          - Rubber and plastics products
+          polarity: 1.0
+        - OntologyNode:
+          name: Other chemical products; man-made fibres
+          examples:
+          - Other chemical products; man-made fibres
+          polarity: 1.0
+        - OntologyNode:
+          name: Furniture; other transportable goods n.e.c.
+          examples:
+          - Furniture; other transportable goods n.e.c.
+          polarity: 1.0
+        - OntologyNode:
+          name: Products of wood, cork, straw and plaiting materials Pulp, paper and
+            paper products; printed matter and related articles
+          examples:
+          - Products of wood, cork, straw and plaiting materials Pulp, paper and paper
+            products; printed matter and related articles
+          polarity: 1.0
+        - OntologyNode:
+          name: Glass and glass products and other non-metallic products n.e.c.
+          examples:
+          - Glass and glass products and other non-metallic products n.e.c.
+          polarity: 1.0
+        - OntologyNode:
+          name: Wastes or scraps
+          examples:
+          - Wastes or scraps
+          polarity: 1.0
+        - OntologyNode:
+          name: Basic chemicals
+          examples:
+          - Basic chemicals
+          polarity: 1.0
+      - Ores and minerals:
+        - OntologyNode:
+          name: Crude petroleum and natural gas
+          examples:
+          - Crude petroleum and natural gas
+          polarity: 1.0
+        - OntologyNode:
+          name: Other minerals
+          examples:
+          - Other minerals
+          polarity: 1.0
+        - OntologyNode:
+          name: Coal and peat
+          examples:
+          - Coal and peat
+          polarity: 1.0
+        - OntologyNode:
+          name: Stone, sand and clay
+          examples:
+          - Stone, sand and clay
+          polarity: 1.0
+        - OntologyNode:
+          name: Electricity, town gas, steam and hot water Natural water
+          examples:
+          - Electricity, town gas, steam and hot water Natural water
+          polarity: 1.0
+        - OntologyNode:
+          name: Uranium and thorium ores and concentrates Metal ores
+          examples:
+          - Uranium and thorium ores and concentrates Metal ores
+          polarity: 1.0
+      - Agriculture, forestry and fishery products:
+        - OntologyNode:
+          name: Fish and other fishing products
+          examples:
+          - Fish and other fishing products
+          polarity: 1.0
+        - OntologyNode:
+          name: Products of agriculture, horticulture and market gardening
+          examples:
+          - Products of agriculture, horticulture and market gardening
+          polarity: 1.0
+        - OntologyNode:
+          name: Live animals and animal products (excluding meat)
+          examples:
+          - Live animals and animal products (excluding meat)
+          polarity: 1.0
+        - OntologyNode:
+          name: Forestry and logging products
+          examples:
+          - Forestry and logging products
+          polarity: 1.0
+      - Metal products, machinery and equipment:
+        - OntologyNode:
+          name: Transport equipment
+          examples:
+          - Transport equipment
+          polarity: 1.0
+        - OntologyNode:
+          name: Office, accounting and computing machinery
+          examples:
+          - Office, accounting and computing machinery
+          polarity: 1.0
+        - OntologyNode:
+          name: General-purpose machinery
+          examples:
+          - General-purpose machinery
+          polarity: 1.0
+        - OntologyNode:
+          name: Electrical machinery and apparatus
+          examples:
+          - Electrical machinery and apparatus
+          polarity: 1.0
+        - OntologyNode:
+          name: Fabricated metal products, except machinery and equipment
+          examples:
+          - Fabricated metal products, except machinery and equipment
+          polarity: 1.0
+        - OntologyNode:
+          name: Medical appliances, precision and optical instruments, watches and
+            clocks
+          examples:
+          - Medical appliances, precision and optical instruments, watches and clocks
+          polarity: 1.0
+        - OntologyNode:
+          name: Radio, television and communication equipment and apparatus
+          examples:
+          - Radio, television and communication equipment and apparatus
+          polarity: 1.0
+        - OntologyNode:
+          name: Special-purpose machinery
+          examples:
+          - Special-purpose machinery
+          polarity: 1.0
+        - OntologyNode:
+          name: Basic metals
+          examples:
+          - Basic metals
+          polarity: 1.0
+      - Food products and beverages:
+        - OntologyNode:
+          name: Other food products
+          examples:
+          - Other food products
+          polarity: 1.0
+        - OntologyNode:
+          name: Meat, fish, fruits, vegetables, oils and fats
+          examples:
+          - Meat, fish, fruits, vegetables, oils and fats
+          polarity: 1.0
+        - OntologyNode:
+          name: Grain mill products, starches and starch products
+          examples:
+          - Grain mill products, starches and starch products
+          polarity: 1.0
+        - OntologyNode:
+          name: Dairy products and egg products
+          examples:
+          - Dairy products and egg products
+          polarity: 1.0
+        - OntologyNode:
+          name: Beverages
+          examples:
+          - Beverages
+          polarity: 1.0
+      - OntologyNode:
+        name: Cash and vouchers
+        examples:
+        - Cash and vouchers
+        polarity: 1.0
+      - Textiles, apparel and leather products:
+        - OntologyNode:
+          name: Knitted or crocheted fabrics
+          examples:
+          - Knitted or crocheted fabrics
+          polarity: 1.0
+        - OntologyNode:
+          name: Footwear
+          examples:
+          - Footwear
+          polarity: 1.0
+        - OntologyNode:
+          name: Yarn and thread
+          examples:
+          - Yarn and thread
+          polarity: 1.0
+        - OntologyNode:
+          name: Woven and tufted textile fabrics
+          examples:
+          - Woven and tufted textile fabrics
+          polarity: 1.0
+        - OntologyNode:
+          name: Wearing apparel
+          examples:
+          - Wearing apparel
+          polarity: 1.0
+        - OntologyNode:
+          name: Textile articles other than apparel
+          examples:
+          - Textile articles other than apparel
+          polarity: 1.0
+        - OntologyNode:
+          name: Leather and leather products
+          examples:
+          - Leather and leather products
+          polarity: 1.0
+    - Hazards:
+      - OntologyNode:
+        name: Debris
+        examples:
+        - Debris
+        polarity: 1.0
+      - OntologyNode:
+        name: Mines
+        examples:
+        - Mines
+        polarity: 1.0
+  - Organizations:
+    - Private:
+      - OntologyNode:
+        name: Sole Proprietor
+        examples:
+        - Sole Proprietor
+        polarity: 1.0
+      - OntologyNode:
+        name: Partnership
+        examples:
+        - Partnership
+        polarity: 1.0
+      - OntologyNode:
+        name: Limited Companies
+        examples:
+        - Limited Companies
+        polarity: 1.0
+      - OntologyNode:
+        name: Cooperatives
+        examples:
+        - Cooperatives
+        polarity: 1.0
+      - OntologyNode:
+        name: Charities
+        examples:
+        - Charities
+        polarity: 1.0
+      - OntologyNode:
+        name: Franchise
+        examples:
+        - Franchise
+        polarity: 1.0
+    - NGO:
+      - OntologyNode:
+        name: Multilateral
+        examples:
+        - Multilateral
+        polarity: 1.0
+      - OntologyNode:
+        name: Unilateral
+        examples:
+        - Unilateral
+        polarity: 1.0
+      - OntologyNode:
+        name: Bilateral
+        examples:
+        - Bilateral
+        polarity: 1.0
+    - Government:
+      - OntologyNode:
+        name: Bilateral
+        examples:
+        - Bilateral
+        polarity: 1.0
+      - OntologyNode:
+        name: Multilateral
+        examples:
+        - Multilateral
+        polarity: 1.0
+      - OntologyNode:
+        name: Unilateral
+        examples:
+        - Unilateral
+        polarity: 1.0

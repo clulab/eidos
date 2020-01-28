@@ -28,4 +28,4 @@ reverse_direction_cause_triggers: "result|effect|consequence"
 affect_triggers: "affect|alter|(displaces?$)|chang|influenc|modifi|modify"
 nonavoid_affect_triggers: "impact"
 
-correlation_triggers: "associat|coincid|link"
+correlation_triggers: "associat|coincid|link|relat"

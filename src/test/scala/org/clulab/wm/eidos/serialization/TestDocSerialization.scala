@@ -14,7 +14,6 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.serialization.json.{DocOps, JSONSerializer}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.groundings.MultiOntologyGrounder
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
@@ -24,7 +23,6 @@ class TestDocSerialization extends Test {
   val reader: EidosSystem = new EidosSystem(config)
   val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
   val canonicalizer: Canonicalizer = reader.components.ontologyHandler.canonicalizer
-  val ontologyGrounder: MultiOntologyGrounder = reader.components.multiOntologyGrounder
 
   def testObjectSerialization(annotatedDocument: AnnotatedDocument): Unit = {
     val document = annotatedDocument.document
@@ -107,7 +105,7 @@ class TestDocSerialization extends Test {
         val jldCorpus = new JLDEidosCorpus(corpus)
         val jValue = jldCorpus.serialize()
         val json = stringify(jValue, pretty = true)
-        val copy = new JLDDeserializer().deserialize(json, canonicalizer, ontologyGrounder)
+        val copy = new JLDDeserializer().deserialize(json, reader.postProcessors)
 
         copy should not be (None)
 //        copy should be (original)
