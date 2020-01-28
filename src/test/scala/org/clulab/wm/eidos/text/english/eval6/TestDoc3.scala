@@ -50,7 +50,7 @@ class TestDoc3 extends EnglishTest {
 
     // To get "well above" as a single quantifier perhaps add it to Quantifier.tsv ?
     val rainfall = NodeSpec("rainfall", Inc("heavy"), Quant("well above average"), Quant("persistently heavy"), TimEx("past month"))
-    val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Inc("favorable"))
+    val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Pos("favorable"))
     val flooding = NodeSpec("potential for flooding")
     val rainfall2 = NodeSpec("rainfall", Quant("Average to above-average"), Inc("above-average"))
     val rainfall3 = NodeSpec("rainfall", Quant("below average"))
