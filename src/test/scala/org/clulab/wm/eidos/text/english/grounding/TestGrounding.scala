@@ -442,6 +442,46 @@ class TestGrounding extends EnglishTest {
     }
   }
 
+  // TODO: in progress to address github issueor me
+  {
+    behavior of "Grounding ISSUE #739"
+
+    val text = "The price of oil increased the price of water transportation."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,4)), List(Interval(5,10)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+
+    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
+      if (active) {
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/property/price"
+        ) should be (true)
+      }
+      if (active) {
+        tester.allGroundingNames(causeMentions.head).contains(
+          "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels"
+        ) should be (true)
+      }
+    }
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+      if (active) {
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/property/price"
+        ) should be(true)
+      }
+      if (active) {
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/process/transportation/transportation"
+        ) should be(true)
+      }
+      if (active) {
+        tester.allGroundingNames(effectMentions.head).contains(
+          "wm_compositional/concept/causal_factor/infrastructure/water"
+        ) should be (true)
+      }
+    }
+  }
+
 
 ///// template for compositional grounder tests
 ///// add test name, sentence text, and token intervals for cause and effect mentions

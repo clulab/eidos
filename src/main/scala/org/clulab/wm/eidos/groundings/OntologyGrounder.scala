@@ -256,6 +256,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     val doc = Document(Array(mention.sentenceObj))
 
     // FIXME: do we need VPs too?
+    // FIXME: issue with  multiple copies of the same head word, e.g. "price of oil increase price of transportation"
     val rule =
       s"""
          | - name: AllWords
@@ -263,7 +264,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
          |   priority: 1
          |   type: token
          |   pattern: |
-         |      [chunk=/NP$$/ & !word=$synHeadWord & !tag=/DT|JJ|CC/]+
+         |      [chunk=/NP$$/ & !word=$synHeadWord & !tag=/DT|JJ|CC/]
          |
          | - name: SegmentConcept
          |   label: InternalModifier
@@ -276,7 +277,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)
     val mods = results.filter(_ matches "InternalModifier")
-//    for (modifier <- mods) println("Modifier:\t"+modifier.text)
+//    for (modifier <- mods) println("Modifier from rule:\t"+modifier.text)
     val modifierArgs = mods.flatMap(m => m.arguments("modifier")).distinct
 
     modifierArgs
