@@ -2,6 +2,8 @@ package org.clulab.wm.eidos.utils
 
 import java.io.PrintWriter
 
+// See https://en.wikipedia.org/wiki/Tab-separated_values.
+// This does not attempt to double internal quotes or quote an entire field that contains a quote, etc.
 object TsvUtils {
   val separatorChar = '\t'
   val separatorString = separatorChar.toString
