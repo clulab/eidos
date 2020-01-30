@@ -8,11 +8,13 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
 
   protected def isContentTag(tag: String): Boolean =
       tag.startsWith("NN") ||
-      tag.startsWith("VB")
+      tag.startsWith("VB") ||
+      tag.startsWith("JJ")
+
 
   def isCanonical(lemma: String, tag: String, ner: String): Boolean =
       isContentTag(tag) &&
-      !stopwordManaging.containsStopword(lemma) &&
+      !stopwordManaging.containsStopwordStrict(lemma) &&
       !StopwordManager.STOP_NER.contains(ner)
 
   // This is the filtering method for deciding what makes it into the canonical name and what doesn't.

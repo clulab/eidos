@@ -1,12 +1,15 @@
 package org.clulab.wm.eidos.groundings
 
+import java.time.ZonedDateTime
+
 import org.clulab.wm.eidos.groundings.OntologyAliases._
 import org.clulab.odin.{ExtractorEngine, Mention, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
-import org.clulab.wm.eidos.utils.Namer
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidos.utils.OdinUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -20,7 +23,7 @@ object OntologyAliases {
   type OntologyGroundings = Map[String, OntologyGrounding]
 }
 
-case class OntologyGrounding(grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
+case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
   def nonEmpty: Boolean = grounding.nonEmpty
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[SingleOntologyGrounding] = grounding.headOption
@@ -37,17 +40,38 @@ trait OntologyGrounder {
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
 
+  def newOntologyGrounding(grounding: OntologyAliases.MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None): OntologyGrounding = {
+    OntologyGrounding(domainOntology.version, domainOntology.date, grounding, branch)
+  }
+
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
-      ConceptEmbedding(domainOntology.getNamer(n),
-           wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+      ConceptEmbedding(domainOntology.getNamer(n), wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
     0.until(domainOntology.size).map { n =>
-      ConceptPatterns(domainOntology.getNamer(n),
-        domainOntology.getPatterns(n))
+      ConceptPatterns(domainOntology.getNamer(n), domainOntology.getPatterns(n))
     }
+
+  // For API to reground strings
+  def groundOntology(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
+    // Sieve-based approach
+    if (isGroundableType) {
+      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
+      // grounding and we want to use it.
+      val matchedPatterns = nodesPatternMatched(mentionText, conceptPatterns)
+      if (matchedPatterns.nonEmpty) {
+        newOntologyGrounding(matchedPatterns)
+      }
+      // Otherwise, back-off to the w2v-based approach
+      else {
+        newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+      }
+    }
+    else
+      newOntologyGrounding()
+  }
 
   def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
 
@@ -71,11 +95,11 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   def groundText(text: String): OntologyGrounding = {
     val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
     if (matchedPatterns.nonEmpty) {
-      OntologyGrounding(matchedPatterns)
+      newOntologyGrounding(matchedPatterns)
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      OntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
     }
   }
 }
@@ -84,20 +108,18 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
   // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
-
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(OntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
+    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
   }
 
-  def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {
-
+  def groundOntology(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise
       // grounding and we want to use it.
       val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
       if (matchedPatterns.nonEmpty) {
-        Seq(OntologyGrounding(matchedPatterns))
+        Seq(newOntologyGrounding(matchedPatterns))
       }
       // Otherwise, back-off to the w2v-based approach
       else {
@@ -106,184 +128,139 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
       }
     }
     else
-      Seq(OntologyGrounding())
+      Seq(newOntologyGrounding())
   }
 }
-
 
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
-  // FIXME: these should connect to a config probably...?
-  val threshold: Option[Float] = Option(0.5f)
-  val groundTopN = 5
+  def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
+      branches.exists(_.namer.name == s)
 
-  def inBranch(s: String, branch: Seq[ConceptEmbedding]): Boolean = {
-    val branchNodes = branch.map(_.namer.name)
-    val matching = branchNodes.contains(s)
-    matching
-  }
+  protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
+      CompositionalGrounder.branches.map { branch =>
+        (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) })
+      }.toMap
 
-  protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] = {
-
-    def getBranch(branch: String): Seq[ConceptEmbedding] = conceptEmbeddings.filter { _.namer.branch.contains(branch) }
-
-    Map(
-      "process" -> getBranch("process"),
-      "property" -> getBranch("property"),
-      "concept" -> getBranch("concept")
-    )
-  }
-
-  protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] = {
-
-    def getBranch(branch: String): Seq[ConceptPatterns] = conceptPatterns.filter { _.namer.branch.contains(branch) }
-
-    Map(
-      "process" -> getBranch("process"),
-      "property" -> getBranch("property"),
-      "concept" -> getBranch("concept")
-    )
-  }
+  protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
+      CompositionalGrounder.branches.map { branch =>
+        (branch, conceptPatterns.filter { _.namer.branch.contains(branch) })
+      }.toMap
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
     var property = ArrayBuffer(): Seq[(Namer,Float)]
     for (string <- strings) {
-      val matchedPatterns = nodesPatternMatched(string, conceptPatternsSeq("property"))
+      val matchedPatterns = nodesPatternMatched(string, conceptPatternsSeq(CompositionalGrounder.PROPERTY))
       if (matchedPatterns.nonEmpty) {
         property = property ++ matchedPatterns
       }
     }
-    val process = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("process")), Some("process"))
-    val concept = OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq("concept")), Some("concept"))
+    val process = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)), Some(CompositionalGrounder.PROCESS))
+    val concept = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)), Some(CompositionalGrounder.CONCEPT))
 
-    Seq(OntologyGrounding(property, Some("property")), process, concept)
+    Seq(newOntologyGrounding(property, Some(CompositionalGrounder.PROPERTY)), process, concept)
   }
 
-  override def groundOntology(mention: EidosMention, topN: Option[Int] = Option(groundTopN), threshold: Option[Float] = threshold): Seq[OntologyGrounding] = {
-
-    // do nothing to non-groundableType mentions
-    if (!EidosOntologyGrounder.groundableType(mention)) {
-      Seq(OntologyGrounding())
-    }
-    // else ground them
+  override def groundOntology(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
+    // Do nothing to non-groundableType mentions
+    if (!EidosOntologyGrounder.groundableType(mention))
+      Seq(newOntologyGrounding())
+    // or else ground them.
     else {
-      println("\n\n$$$ COMPOSITIONAL ONTOLOGY GROUNDER $$$")
-
-//      val mentionText = mention.odinMention.text
-//      println("MENTION TEXT:\t"+mentionText)
-
-      /** Get the syntactic head of the mention */
-      // Make a new mention that's just the syntactic head of the original mention
-      val syntacticHead = mention.odinMention.synHead
-      val mentionHead = syntacticHead.map ( head =>
+      // Get the syntactic head of the mention.
+      val syntacticHeadOpt = mention.odinMention.synHead
+      // Make a new mention that's just the syntactic head of the original mention.
+      val mentionHeadOpt = syntacticHeadOpt.map ( syntacticHead =>
         new TextBoundMention(
           Seq("Mention_head"),
-          tokenInterval = Interval(head),
+          tokenInterval = Interval(syntacticHead),
           sentence = mention.odinMention.sentence,
           document = mention.odinMention.document,
           keep = mention.odinMention.keep,
           foundBy = mention.odinMention.foundBy
         )
       )
-      // Get the text of the syntactic head
-      val headText = mentionHead.map(_.text).getOrElse("<NO_HEAD>")
-//      println("HEAD TEXT:\t"+headText)
-
-
-      /** Get the modifiers of the syntactic head */
-      // TODO: allowed modifier relations may need tuning
-      val allowedMods = List(
-        "compound",
-        "nmod_of",
-        "nmod_to",
-        "nmod_for",
-        "nmod_such_as"
+      val headTextOpt = mentionHeadOpt.map(_.text)
+      val modifierMentions = headTextOpt.map { headText =>
+        getModifierMentions(headText, mention.odinMention)
+      }.getOrElse(Seq.empty)
+      val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
+      // Get all groundings for each branch.
+      val allSimiliarities = Map(
+        CompositionalGrounder.PROPERTY ->
+            allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+        CompositionalGrounder.PROCESS ->
+            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+        CompositionalGrounder.CONCEPT ->
+            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
       )
-      val modifierMentions = getModifierMentions(headText, mention.odinMention, allowedMods.mkString("|"))
+      val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
+      val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
+      val goodGroundings = allSimiliarities.map { case(name, similarities) =>
+        val goodSimilarities = similarities
+            .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
+            .sortBy(-_._2)
+            .take(effectiveTopN)
 
-//      val modifierText = modifierMentions.map(_.text).mkString("\n")
-//      println("MODIFIER TEXT:\t"+modifierText)
+        newOntologyGrounding(goodSimilarities, Some(name))
+      }.toSeq
 
-      // Combine head with modifiers, head first
-      val allMentions = mentionHead.toSeq ++ modifierMentions
-      val allMentionsText = allMentions.map(_.text).mkString(", ")
-      println("ALL MENTIONS TEXT:\t"+allMentionsText)
-
-      // keep a placeholder for each component
-      val propertyGrounding = new ArrayBuffer[SingleOntologyGrounding] // each SingleOntologyGrounding is (Namer, Float)
-      val processGrounding = new ArrayBuffer[SingleOntologyGrounding]
-      val conceptGrounding = new ArrayBuffer[SingleOntologyGrounding]
-
-      // get all groundings for each branch
-      val propertyStuff = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq("property")))
-      val processStuff = allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq("process")))
-      val conceptStuff = allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq("concept")))
-      // Sort each branch by score, take top N, then add all remaining to allGroundings
-      val allGroundings =
-        propertyStuff.sortBy(-_._2).take(groundTopN) ++
-        processStuff.sortBy(-_._2).take(groundTopN) ++
-        conceptStuff.sortBy(-_._2).take(groundTopN)
-
-      // Sort groundings into the right bins
-      for (g <- allGroundings) {
-        val nodeName = g._1.name
-        val nodeScore = g._2
-        if (nodeScore >= threshold.getOrElse(0.5f)) {
-          if (inBranch(nodeName, conceptEmbeddingsSeq("property"))) propertyGrounding.append(g)
-          else if (inBranch(nodeName, conceptEmbeddingsSeq("process"))) processGrounding.append(g)
-          else  conceptGrounding.append(g)
-        }
-      }
-
-      val returnedGroundings = Seq(
-        OntologyGrounding(propertyGrounding, Some("property")),
-        OntologyGrounding(processGrounding, Some("process")),
-        OntologyGrounding(conceptGrounding, Some("concept"))
-      )
-
-      // print stuff to see what it's doing
-      println("\nPROPERTY:\t"+propertyGrounding.mkString("\n"))
-      println("PROCESS:\t"+processGrounding.mkString("\n"))
-      println("CONCEPT:\t"+conceptGrounding.mkString("\n"))
-//      println("\nRETURNED GROUNDINGS:\n"+returnedGroundings.mkString("\n"))
-
-      returnedGroundings
+      goodGroundings
     }
   }
 
-  def getModifierMentions(synHeadWord: String, mention: Mention, pattern: String): Seq[Mention] = {
+  def getModifierMentions(synHeadWord: String, mention: Mention): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
 
     // FIXME: do we need VPs too?
     // FIXME: issue with  multiple copies of the same head word, e.g. "price of oil increase price of transportation"
-    val rule =
-      s"""
-         | - name: AllWords
-         |   label: Chunk
-         |   priority: 1
-         |   type: token
-         |   pattern: |
-         |      [chunk=/NP$$/ & !word=$synHeadWord & !tag=/DT|JJ|CC/]
-         |
-         | - name: SegmentConcept
-         |   label: InternalModifier
-         |   priority: 2
-         |   pattern: |
-         |      trigger = $synHeadWord
-         |      modifier: Chunk+ = >/^$pattern/{0,2} >/amod|compound/?
-        """.stripMargin
-
+    val rule = CompositionalGrounder.ruleTemplates.replaceAllLiterally(CompositionalGrounder.SYN_HEAD_WORD,
+        OdinUtils.escapeExactStringMatcher(synHeadWord))
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)
     val mods = results.filter(_ matches "InternalModifier")
-//    for (modifier <- mods) println("Modifier from rule:\t"+modifier.text)
     val modifierArgs = mods.flatMap(m => m.arguments("modifier")).distinct
 
     modifierArgs
   }
+}
 
+object CompositionalGrounder {
+  val PROCESS = "process"
+  val PROPERTY = "property"
+  val CONCEPT =  "concept"
 
+  val branches: Seq[String] = Seq(PROCESS, PROPERTY, CONCEPT)
+
+  // FIXME: these should connect to a config probably...?
+  val defaultThreshold: Float = 0.5f
+  val defaultGroundTopN = 5
+
+  val SYN_HEAD_WORD = "$synHeadWord"
+
+  // See documentation at https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-over-multiple-lines.
+  // Some values need to be entered into the yaml structure at the right place.
+  // Do not "s" a yaml string (in general), because then the yaml may not be escaped properly.
+  // In this case, all substitutions are after a | which,
+  // "allow[s] characters such as \ and " without escaping, and add a new line (\n) to the end of your string".
+  // These are exactly the characters that might be inserted in OdinUtils.escapeExactStringMatcher.
+  val ruleTemplates: String =
+      s"""
+        | - name: AllWords
+        |   label: PotentialModifier
+        |   priority: 1
+        |   type: token
+        |   pattern: |
+        |      [chunk=/NP$$/ & !word=$SYN_HEAD_WORD & !tag=/DT|JJ|CC/]
+        |
+        | - name: SegmentConcept
+        |   label: InternalModifier
+        |   priority: 2
+        |   pattern: |
+        |      trigger = $SYN_HEAD_WORD
+        |      modifier: PotentialModifier+ = >/^(compound|nmod_of|nmod_to|nmod_for|nmod_such_as)/{0,2} >/amod|compound/?
+          """.stripMargin
 }
 
 // TODO: Zupon
@@ -292,7 +269,7 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(OntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings), Some("intervention")))
+    Seq(newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings), Some("intervention")))
   }
 
   def groundOntology(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {
@@ -306,6 +283,7 @@ object EidosOntologyGrounder {
   protected val                 GROUNDABLE = "Entity"
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
+  protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
   // Namespace strings for the different in-house ontologies we typically use
   protected val               UN_NAMESPACE = "un"
   protected val              WDI_NAMESPACE = "wdi"
@@ -317,7 +295,7 @@ object EidosOntologyGrounder {
   protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
 
-  val PRIMARY_NAMESPACE: String = WM_NAMESPACE // Assign the primary namespace here, publically.
+  val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
 
   val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
 

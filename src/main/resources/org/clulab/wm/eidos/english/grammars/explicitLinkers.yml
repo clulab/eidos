@@ -95,5 +95,26 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [lemma=/^(favorable|helpful|amenable)/ & tag=/^JJ/]
-      cause: Entity = (?= cop) ${agents}
+      cause: Entity = (?= cop) /${agents}/
       effect: Entity = nmod_for
+
+  - name: syntax_explicit_Correlation_related
+    priority: ${ rulepriority }
+    example: "But soils could quickly become nutrient deficient due to leaching related to heavy rainfall"
+    label: Correlation
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ correlation_trigger })/ & tag=/^JJ/]
+      cause: Entity = <dobj
+      effect: Entity = >nmod_to
+
+  - name: syntax_explicit_Correlation_means_that
+    priority: ${ rulepriority }
+    example: "X means that Y"
+    label: Correlation
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=mean & tag=VBN] that
+      cause: Entity = >/${agents}/
+      effect: Entity = >ccomp
+

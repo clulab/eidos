@@ -2,67 +2,130 @@ package org.clulab.wm.eidos.serialization
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 
+import com.typesafe.config.Config
 import org.clulab.processors.Document
 import org.clulab.serialization.DocumentSerializer
+import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.serialization.json.{DocOps, JSONSerializer}
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
+import org.clulab.wm.eidos.serialization.json.JLDDeserializer
+import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 
 class TestDocSerialization extends Test {
-  val text = "Water trucking has decreased due to the cost of fuel last week." // "last week" added for time
-  val reader = new EidosSystem()
-  val document = reader.extractFromText(text).document
+  val config: Config = EidosSystem.defaultConfig
+  val reader: EidosSystem = new EidosSystem(config)
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+  val canonicalizer: Canonicalizer = reader.components.ontologyHandler.canonicalizer
 
-  behavior of "Java serializer"
+  def testObjectSerialization(annotatedDocument: AnnotatedDocument): Unit = {
+    val document = annotatedDocument.document
+    val text = document.text.get
 
-  it should "serialize and deserialize documents" in {
+    behavior of "Java serializer"
 
-    def serialize(original: Document): Unit = {
-      val serial = (new ByteArrayOutputStream()).autoClose { streamOut =>
-        (new ObjectOutputStream(streamOut)).autoClose { encoder =>
-          encoder.writeObject(original)
+    it should s"""process "$text" properly""" in {
+
+      def serialize(original: Document): Unit = {
+        val serial = new ByteArrayOutputStream().autoClose { streamOut =>
+          new ObjectOutputStream(streamOut).autoClose { encoder =>
+            encoder.writeObject(original)
+          }
+          streamOut.toByteArray
         }
-        streamOut.toByteArray
-      }
-      val copy = FileUtils.load[Document](serial, this)
+        val copy = FileUtils.load[Document](serial, this)
 
-      copy should not be (None)
+        copy should not be (None)
 //      copy should be (original)
 //      document.hashCode should be (copy.hashCode)
-    }
+      }
 
-    serialize(document)
+      serialize(document)
+    }
   }
 
-  behavior of "JSON serializer"
+  def testJsonSerialization(annotatedDocument: AnnotatedDocument): Unit = {
+    val document = annotatedDocument.document
+    val text = document.text.get
 
-  it should "serialize and deserialize documents" in {
+    behavior of "JSON serializer"
 
-    def serialize(original: Document): Unit = {
-      val serial = pretty(render(original.jsonAST))
-      val copy = JSONSerializer.toDocument(parse(serial))
+    it should s"""process "$text" properly""" in {
 
-      copy should not be (None)
+      def serialize(original: Document): Unit = {
+        val serial = pretty(render(original.jsonAST))
+        val copy = JSONSerializer.toDocument(parse(serial))
+
+        copy should not be (None)
+//        copy should be (original)
+//        document.hashCode should be (copy.hashCode)
+      }
+
+      serialize(document)
     }
-
-    serialize(document)
   }
 
-  behavior of "Custom serializer"
+  def testCusomSerialization(annotatedDocument: AnnotatedDocument): Unit = {
+    val document = annotatedDocument.document
+    val text = document.text.get
 
-  it should "serialize and deserialize documents" in {
+    behavior of "Custom serializer"
 
-    def serialize(original: Document): Unit = {
-      val serializer = new DocumentSerializer
-      val serial = serializer.save(original, "UTF-8", true)
-      val copy = serializer.load(serial)
+    it should s"""process "$text" properly""" in {
 
-      copy should not be (None)
+      def serialize(original: Document): Unit = {
+        val serializer = new DocumentSerializer
+        val serial = serializer.save(original, encoding = "UTF-8", keepText = true)
+        val copy = serializer.load(serial)
+
+        copy should not be (None)
+//        copy should be (original)
+//        document.hashCode should be (copy.hashCode)
+      }
+
+      serialize(document)
     }
+  }
 
-    serialize(document)
+  def testJldSerialization(annotatedDocument: AnnotatedDocument): Unit = {
+    val text = annotatedDocument.document.text.get
+
+    behavior of "JLD serializer"
+
+    it should s"""process "$text" properly""" in {
+
+      def serialize(original: AnnotatedDocument): Unit = {
+        val corpus = Seq(original)
+        val jldCorpus = new JLDEidosCorpus(corpus)
+        val jValue = jldCorpus.serialize()
+        val json = stringify(jValue, pretty = true)
+        val copy = new JLDDeserializer().deserialize(json, reader.postProcessors)
+
+        copy should not be (None)
+//        copy should be (original)
+//        annotatedDocument.document.hashCode should be (copy.head.document.hashCode)
+      }
+
+      serialize(annotatedDocument)
+    }
+  }
+
+  val texts = Seq(
+    "Water trucking has decreased due to the cost of fuel last week.",
+    "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
+  )
+  val annotateDocuments = texts.map(reader.extractFromText(_))
+
+  annotateDocuments.foreach { annotatedDocument =>
+    testObjectSerialization(annotatedDocument)
+    testJsonSerialization(annotatedDocument)
+    testCusomSerialization(annotatedDocument)
+    testJldSerialization(annotatedDocument)
   }
 }

@@ -3,12 +3,15 @@ package org.clulab.wm.eidos
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.Document
+import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
-import org.clulab.wm.eidos.document.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
+import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
 
 import scala.annotation.tailrec
 
@@ -90,22 +93,15 @@ class EidosSystem(val components: EidosComponents) {
   def extractFromDoc(
       doc: Document,
       cagRelevantOnly: Boolean = true,
-      dctStringOpt: Option[String] = None,
-      filename: Option[String] = None): AnnotatedDocument = {
+      dctOpt: Option[DCT] = None,
+      id: Option[String] = None): AnnotatedDocument = {
     // It is assumed and not verified that the document _has_ already been annotated.
     // Prepare the document here for further extraction.
     require(doc.text.isDefined)
-    doc.id = filename
-    for (dctString <- dctStringOpt; timeNormFinder <- components.timeNormFinderOpt) {
-      val dctOpt = timeNormFinder.parseDctString(dctString)
-      dctOpt match {
-        case Some(dct) =>
-          DctDocumentAttachment.setDct(doc, dct)
-        case None =>
-          EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
-      }
+    doc.id = id
+    dctOpt.foreach { dct =>
+      DctDocumentAttachment.setDct(doc, dct)
     }
-
     // Extract Mentions
     val odinMentions = extractFrom(doc)
     // Expand the Concepts that have a modified state if they are not part of a causal event
@@ -131,11 +127,23 @@ class EidosSystem(val components: EidosComponents) {
         if (cagRelevantOnly) components.stopwordManager.keepCAGRelevant(mentionsAndNestedArgs)
         else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
+
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val annotatedDocument = AnnotatedDocument(doc, afterNegation)
+    val afterMigration = processMigrationEvents(afterNegation)
+    val annotatedDocument = AnnotatedDocument(doc, afterMigration)
 
     postProcess(annotatedDocument)
+  }
+
+  def newDct(dctStringOpt: Option[String]): Option[DCT] = {
+    val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- components.timeNormFinderOpt) yield {
+      val dctOpt = timeNormFinder.parseDctString(dctString)
+      if (dctOpt.isEmpty)
+        EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
+      dctOpt
+    }
+    dctOpt.flatten
   }
 
   // MAIN PIPELINE METHOD if given text
@@ -143,9 +151,17 @@ class EidosSystem(val components: EidosComponents) {
       text: String,
       cagRelevantOnly: Boolean = true,
       dctString: Option[String] = None,
-      filename: Option[String] = None): AnnotatedDocument = {
+      id: Option[String] = None): AnnotatedDocument = {
+    extractFromTextWithDct(text, cagRelevantOnly, newDct(dctString), id)
+  }
+
+  def extractFromTextWithDct(
+      text: String,
+      cagRelevantOnly: Boolean = true,
+      dct: Option[DCT] = None,
+      id: Option[String] = None): AnnotatedDocument = {
     val document = annotate(text)
-    extractFromDoc(document, cagRelevantOnly, dctString, filename)
+    extractFromDoc(document, cagRelevantOnly, dct, id)
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -172,6 +188,7 @@ object EidosSystem {
   val CONCEPT_EXPANDED_LABEL = "Concept-Expanded"
   val CORR_LABEL = "Correlation"
   val COREF_LABEL = "Coreference"
+  val MIGRATION_LABEL = "HumanMigration"
   // Taxonomy relations for other uses
   val RELATION_LABEL = "EntityLinker"
 
@@ -185,6 +202,7 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
+  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 

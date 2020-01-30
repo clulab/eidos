@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 
 @SerialVersionUID(1L)
-case class GeoPhraseID(text: String, geonameID: Option[Int], startOffset: Int, endOffset: Int)
+case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int, endOffset: Int)
 
 object GeoNormFinder {
 
@@ -29,7 +29,7 @@ object GeoNormFinder {
   class CacheManager(config: Config) {
     val geoNamesIndexPath: Path = Paths.get(config[String]("geoNamesIndexPath")).toAbsolutePath.normalize
     protected lazy val segmentsPath: Path = geoNamesIndexPath.resolve("segments_1")
-    protected lazy val zipPath: Path = geoNamesIndexPath.resolve("geonames-index.zip")
+    protected lazy val zipPath: Path = geoNamesIndexPath.resolve("geonames+woredas.zip")
 
     // The default is not to replace any files on a machine that is simply running Eidos.
     // This can be overruled by programs that are managing the cache.
@@ -122,19 +122,40 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
       GeoNormFinder.getGeoPhraseIDs(odinMentions, sentences)
 
   def find(doc: Document, initialState: State): Seq[Mention] = {
-    val sentenceLocations = extractor(doc.sentences.map(_.raw))
     val Some(text) = doc.text
+
+    // Make Location attachments from previously found Location mentions (e.g., from the gazetteer)
+    val previouslyFound = initialState.allMentions.filter(_ matches "Location")
+    val withAttachments = for {
+        m <- previouslyFound
+    } yield {
+      val charStartIndex = m.startOffset
+      val charEndIndex = m.endOffset
+      val locationPhrase = m.text
+      val geoID = normalizer(text, (charStartIndex, charEndIndex)).headOption.map {
+        case (entry, _) => entry.id
+      }
+      val geoPhraseID = GeoPhraseID(locationPhrase, geoID, charStartIndex, charEndIndex)
+
+      m.withAttachment(Location(geoPhraseID))
+    }
+
+    val sentenceLocations = extractor(doc.sentences.map(_.raw))
     val mentions = for {
       sentenceIndex <- doc.sentences.indices
       sentence = doc.sentences(sentenceIndex)
       locations = sentenceLocations(sentenceIndex)
       (wordStartIndex, wordEndIndex) <- locations
+      charStartIndex = sentence.startOffsets(wordStartIndex)
+      charEndIndex = sentence.endOffsets(wordEndIndex - 1)
+      // There needs to be at least one character.  There may not be,
+      // especially if the raw character doesn't really exist.
+      // This happens if an implicit period completes a paragraph or document.
+      locationPhrase = text.substring(charStartIndex, charEndIndex)
+      if (locationPhrase.length > 0)
     } yield {
-      val charStartIndex = sentence.startOffsets(wordStartIndex)
-      val charEndIndex = sentence.endOffsets(wordEndIndex - 1)
-      val locationPhrase = text.substring(charStartIndex, charEndIndex)
       val geoID = normalizer(text, (charStartIndex, charEndIndex)).headOption.map {
-        case (entry, _) => entry.id.toInt
+        case (entry, _) => entry.id
       }
       val geoPhraseID = GeoPhraseID(locationPhrase, geoID, charStartIndex, charEndIndex)
 
@@ -148,7 +169,7 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
         Set(Location(geoPhraseID))
       )
     }
-    mentions
+    mentions ++ withAttachments
   }
 }
 

@@ -36,4 +36,29 @@ class TestConfig extends Test with Configured {
     val innerTestInt: Int = innerConfig[Int]("innerTestInt")
     innerTestInt should be (6)
   }
+
+  behavior of "englishTest.conf"
+
+  it should "configure expander" in {
+    val config = ConfigFactory.load("englishTest")
+
+    val invalidOutgoing: List[String] = config[List[String]]("actions.expander.invalidOutgoing")
+
+    invalidOutgoing.contains("acl:relcl") should be (true)
+    invalidOutgoing.contains("nmod:poss") should be (false)
+    invalidOutgoing.contains("nmod_worsen") should be (true)
+  }
+
+  behavior of "eidos.conf"
+
+  it should "configure expander" in {
+    val config = ConfigFactory.load("eidos")
+
+    // These should actually come from reference.conf.
+    val invalidOutgoing: List[String] = config[List[String]]("actions.expander.invalidOutgoing")
+
+    invalidOutgoing.contains("acl:relcl") should be (true)
+    invalidOutgoing.contains("nmod:poss") should be (false)
+    invalidOutgoing.contains("nmod_worsen") should be (true)
+  }
 }
