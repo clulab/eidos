@@ -71,7 +71,7 @@ object EvalOntologyGrounders extends App {
     "TEXT"                    // 18
   )
 
-  def findMatch(eidosMentions: Seq[EidosMention], subjText: String, objText: String): Option[(EidosMention, EidosMention)] = {
+  def findMatch(eidosMentions: Seq[EidosMention], subjText: String, objText: String, isEidos: Boolean): Option[(EidosMention, EidosMention)] = {
     val foundMatchOpt = eidosMentions.find { eidosMention =>
       val causesOpt = eidosMention.eidosArguments.get("cause")
       val effectsOpt = eidosMention.eidosArguments.get("effect")
@@ -89,6 +89,27 @@ object EvalOntologyGrounders extends App {
       }
       else
         false
+    }
+
+    if (foundMatchOpt.isEmpty && isEidos) {
+      println(s"""Could not match subject "$subjText" and object "$objText" to any of these:""")
+      eidosMentions.foreach { eidosMention =>
+        val causesOpt = eidosMention.eidosArguments.get("cause")
+        val effectsOpt = eidosMention.eidosArguments.get("effect")
+
+        if (causesOpt.isDefined && effectsOpt.isDefined) {
+          causesOpt.foreach { causes =>
+            causes.foreach { cause =>
+              println(s"cause: ${cause.odinMention.text}")
+            }
+          }
+          effectsOpt.foreach { effects =>
+            effects.foreach { effect =>
+              println(s"effect: ${effect.odinMention.text}")
+            }
+          }
+        }
+      }
     }
 
     foundMatchOpt.map { foundMatch =>
@@ -149,7 +170,6 @@ object EvalOntologyGrounders extends App {
       val tsvWriter = new TsvWriter(printWriter)
 
       source.getLines.foreach { line =>
-          println(line)
         if (first.isTrue) {
           val fields = TsvUtils.readln(line)
           val newLine = TsvUtils.stringln(fields: _*)
@@ -167,9 +187,10 @@ object EvalOntologyGrounders extends App {
           if (!valid)
             printWriter.println(line)
           else {
+            val isEidos = row.getReader == "eidos"
             val annotatedDocument = eidosSystem.extractFromText(row.getText)
             val eidosMentions = annotatedDocument.eidosMentions
-            val subjAndObjMentionOpt = findMatch(eidosMentions, row.getSubjText, row.getObjText)
+            val subjAndObjMentionOpt = findMatch(eidosMentions, row.getSubjText, row.getObjText, isEidos)
             val subjAndObjSingleOntologyGroundingOpt = subjAndObjMentionOpt.map { case (subjMention, objMention) =>
               (topSingleOntologyGrounding(name, subjMention.grounding), topSingleOntologyGrounding(name, objMention.grounding))
             }
@@ -180,7 +201,7 @@ object EvalOntologyGrounders extends App {
               objPossible += 1
 
             if (subjAndObjSingleOntologyGroundingOpt.isEmpty) {
-              if (row.getReader == "eidos") {
+              if (isEidos) {
                 println("Can no longer ground: " + line)
                 if (row.getCorrectSubjGrounding.nonEmpty)
                   subjSkipped += 1
@@ -199,7 +220,7 @@ object EvalOntologyGrounders extends App {
                 val expectedName = row.getCorrectSubjGrounding
                 val correct = expectedName == actualName
 
-                if (actualName == "" && row.getReader == "eidos") {
+                if (actualName == "" && isEidos) {
                   println("Can no longer ground subject: " + line)
                   subjSkipped += 1
                 }
@@ -217,7 +238,7 @@ object EvalOntologyGrounders extends App {
                 val expectedName = row.getCorrectObjGrounding
                 val correct = expectedName == actualName
 
-                if (actualName == "" && row.getReader == "eidos") {
+                if (actualName == "" && isEidos) {
                   println("Can no longer ground object: " + line)
                   objSkipped += 1
                 }
