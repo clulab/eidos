@@ -432,7 +432,7 @@ Grounding also requires additional installation.  There are two significantly la
 vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
 [Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
 
-- [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
+- [vectors.txt](https://drive.google.com/file/d/1tP13lAGCAA0sldM6krRHeCg4STzhwQ6Y/view?usp=sharing) and
 - [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
 
 Only one of the files can be configured at a time.  The former is smaller and quicker and the latter
