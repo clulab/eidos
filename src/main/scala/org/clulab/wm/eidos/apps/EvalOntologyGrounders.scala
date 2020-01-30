@@ -143,9 +143,12 @@ object EvalOntologyGrounders extends App {
   var subjCorrect = 0
   var subjTotal = 0
   var subjPossible = 0
+  var subjSkipped = 0
+
   var objCorrect = 0
   var objTotal = 0
   var objPossible = 0
+  var objSkipped = 0
 
   // Export from Excel isn't valid utf-8, but copy and paste is.
   // Procedure: Copy and paste out of excel.  Save as input document for this program.
@@ -186,6 +189,13 @@ object EvalOntologyGrounders extends App {
               objPossible += 1
 
             if (subjAndObjSingleOntologyGroundingOpt.isEmpty) {
+              if (row.getReader == "eidos") {
+                println("Can no longer ground: " + line)
+                if (row.getCorrectSubjGrounding.nonEmpty)
+                  subjSkipped += 1
+                if (row.getCorrectObjGrounding.nonEmpty)
+                  objSkipped += 1
+              }
               printWriter.println(line)
             }
             else {
@@ -198,8 +208,10 @@ object EvalOntologyGrounders extends App {
                 val expectedName = row.getCorrectSubjGrounding
                 val correct = expectedName == actualName
 
-                if (actualName == "" && row.getReader == "eidos")
+                if (actualName == "" && row.getReader == "eidos") {
                   println("Can no longer ground subject: " + line)
+                  subjSkipped += 1
+                }
 
                 row.setSubjGrounding(actualName)
                 row.setSubjGroundingScore(value)
@@ -214,8 +226,10 @@ object EvalOntologyGrounders extends App {
                 val expectedName = row.getCorrectObjGrounding
                 val correct = expectedName == actualName
 
-                if (actualName == "" && row.getReader == "eidos")
+                if (actualName == "" && row.getReader == "eidos") {
                   println("Can no longer ground object: " + line)
+                  objSkipped += 1
+                }
 
                 row.setObjGrounding(actualName)
                 row.setObjGroundingScore(value)
@@ -232,5 +246,6 @@ object EvalOntologyGrounders extends App {
       }
     }
   }
-  println(s"Subject: $subjCorrect / $subjTotal of $subjPossible, Object: $objCorrect / $objTotal of $objPossible")
+  println(s"Subject: $subjCorrect / $subjTotal of $subjPossible possible with $subjSkipped eidos skipped\n" +
+          s" Object: $objCorrect / $objTotal of $objPossible possible with $objSkipped eidos skipped")
 }
