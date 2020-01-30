@@ -6,20 +6,12 @@ import java.io.PrintWriter
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyAliases
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Closer
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.First
-import org.clulab.wm.eidos.utils.Sink
-import org.clulab.wm.eidos.utils.Sinker
-import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.wm.eidos.utils.Sourcer.logger
-import org.clulab.wm.eidos.utils.Sourcer.utf8
 import org.clulab.wm.eidos.utils.StringUtils
 import org.clulab.wm.eidos.utils.TsvUtils
 import org.clulab.wm.eidos.utils.TsvUtils.TsvWriter
 
-import scala.io.BufferedSource
 import scala.io.Source
 
 object EvalOntologyGrounders extends App {
@@ -80,7 +72,6 @@ object EvalOntologyGrounders extends App {
   )
 
   def findMatch(eidosMentions: Seq[EidosMention], subjText: String, objText: String): Option[(EidosMention, EidosMention)] = {
-    println(eidosMentions.size)
     val foundMatchOpt = eidosMentions.find { eidosMention =>
       val causesOpt = eidosMention.eidosArguments.get("cause")
       val effectsOpt = eidosMention.eidosArguments.get("effect")
@@ -119,7 +110,7 @@ object EvalOntologyGrounders extends App {
   protected def getNameAndValue(singleOntologyGrounderOpt: Option[OntologyAliases.SingleOntologyGrounding]): (String, Double) = {
     val nameAndValue = singleOntologyGrounderOpt.map { case (namer, value) =>
       val name = namer.name
-      val shortName = StringUtils.afterFirst(name, '/',true)
+      val shortName = StringUtils.afterFirst(name, '/')
       val prefix = "concept/causal_factor/"
       val shorterName =
         if (shortName.startsWith(prefix))
