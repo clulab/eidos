@@ -40,7 +40,7 @@ object CacheOntologies extends App {
       val ontologyName = grounder.name
       val ontology: DomainOntology = grounder.domainOntology
       // convert
-      val treeDomainOntology = ontology.asInstanceOf[TreeDomainOntology]
+      val treeDomainOntology = ontology.asInstanceOf[HalfTreeDomainOntology]
       val compactDomainOntology = new CompactDomainOntologyBuilder(treeDomainOntology).build()
       // save
       val serializedPath = OntologyHandler.serializedPath(ontologyName, cacheDir)

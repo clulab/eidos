@@ -8,7 +8,7 @@ import com.github.worldModelers.ontologies.{Version => AwayVersion}
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
-import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
@@ -45,7 +45,7 @@ object DomainOntologies {
     else {
       logger.info(s"Processing yml ontology $ontologyPath...")
       val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
-      new TreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+      new HalfTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
     }
   }
 

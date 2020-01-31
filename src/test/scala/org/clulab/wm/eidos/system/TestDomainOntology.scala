@@ -96,7 +96,7 @@ class TestDomainOntology extends Test {
       hasDuplicates(name, newOntology) should be (false)
 
       val newerOntology = Timer.time(s"Convert $name to compact") {
-        new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        new CompactDomainOntologyBuilder(newOntology.asInstanceOf[HalfTreeDomainOntology]).build
       }
       hasDuplicates(name, newerOntology) should be (false)
       matches(newOntology, newerOntology)

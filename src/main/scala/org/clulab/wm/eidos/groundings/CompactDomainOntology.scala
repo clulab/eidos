@@ -177,17 +177,17 @@ object CompactDomainOntology {
     }
   }
 
-  class CompactDomainOntologyBuilder(treeDomainOntology: TreeDomainOntology) {
+  class CompactDomainOntologyBuilder(treeDomainOntology: HalfTreeDomainOntology) {
 
     protected def append(strings: MutableHashMap[String, Int], string: String): Unit =
        if (!strings.contains(string))
           strings.put(string, strings.size)
 
-    protected def mkParentMap(): IdentityHashMap[OntologyParentNode, (Int, Int)] = {
+    protected def mkParentMap(): IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = {
       // This is myIndex, parentIndex
-      val parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)] = new IdentityHashMap()
+      val parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = new IdentityHashMap()
 
-      def append(parents: Seq[OntologyParentNode]): Int =
+      def append(parents: Seq[HalfOntologyParentNode]): Int =
           if (parents.nonEmpty)
             if (parentMap.containsKey(parents.head))
               parentMap.get(parents.head)._1
@@ -230,7 +230,7 @@ object CompactDomainOntology {
       (stringBuffer.toArray, startIndexBuffer)
     }
 
-    protected def mkNodeStringMap(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
+    protected def mkNodeStringMap(parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
       // TODO: Fix this code.  Try to sort entrySet.      
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
       val parentSeq = parentMap
@@ -263,7 +263,7 @@ object CompactDomainOntology {
       (stringIndexBuffer.toArray, startIndexBuffer.toArray)
     }
 
-    protected def mkLeafIndexes(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkLeafIndexes(parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
 
       0.until(treeDomainOntology.size).foreach { i =>
@@ -275,9 +275,9 @@ object CompactDomainOntology {
       indexBuffer.toArray
     }
 
-    protected def mkParentIndexes(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkParentIndexes(parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
-      val keysAndValues: Array[(OntologyParentNode, (Int, Int))] = parentMap.asScala.toArray.sortBy(_._2._1)
+      val keysAndValues: Array[(HalfOntologyParentNode, (Int, Int))] = parentMap.asScala.toArray.sortBy(_._2._1)
 
       keysAndValues.foreach { case (branchNode, (_, parentIndex)) =>
         indexBuffer += parentIndex // parentOffset
@@ -287,7 +287,7 @@ object CompactDomainOntology {
     }
 
     def build(): DomainOntology = {
-      val parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)] = mkParentMap()
+      val parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = mkParentMap()
       val leafStringMap: MutableHashMap[String, Int] = mkLeafStringMap()
       val nodeStringMap: MutableHashMap[String, Int] = mkNodeStringMap(parentMap)
       val (leafStringIndexes, leafStartIndexes) = mkLeafStringAndStartIndexes(leafStringMap)

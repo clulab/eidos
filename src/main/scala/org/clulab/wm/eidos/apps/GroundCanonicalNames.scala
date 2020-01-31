@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyGrounder
-import org.clulab.wm.eidos.groundings.TreeDomainOntology
+import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Sourcer
