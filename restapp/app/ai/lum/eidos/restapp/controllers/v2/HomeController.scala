@@ -54,6 +54,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         val jValue = eidosText.toJson
         val jsValue = JsonUtils.toJsValue(jValue)
 
+//        Thread.sleep(10000)
         Ok(jsValue)
       }
       catch {
