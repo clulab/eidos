@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 import java.util.{Collection => JCollection, Map => JMap}
 
-import com.github.clulab.eidos.Version
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
@@ -39,6 +38,8 @@ abstract class HalfOntologyNode extends Serializable {
   def branch: Option[String]
 
   def isRoot: Boolean = false
+
+  def isLeaf: Boolean = false
 }
 
 @SerialVersionUID(1000L)
@@ -106,6 +107,8 @@ class HalfOntologyLeafNode(
   override def parents: Seq[HalfOntologyParentNode] = parents(parent)
 
   override def escaped: String = escaped(nodeName)
+
+  override def isLeaf: Boolean = true
 }
 
 @SerialVersionUID(1000L)
@@ -116,6 +119,8 @@ class HalfTreeDomainOntology(val ontologyNodes: Array[HalfOntologyLeafNode], ove
   def getNamer(n: Integer): Namer = ontologyNodes(n)
 
   def getValues(n: Integer): Array[String] = ontologyNodes(n).values
+
+  def isLeaf(n: Integer): Boolean = ontologyNodes(n).isLeaf
 
   def getPatterns(n: Integer): Option[Array[Regex]] = ontologyNodes(n).patterns
 

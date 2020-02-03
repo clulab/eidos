@@ -48,7 +48,7 @@ object DomainOntologies {
       val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
 // kwa do something with includeParents
       new HalfTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
-    }
+//    }
   }
 
   def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean): DomainOntology = {

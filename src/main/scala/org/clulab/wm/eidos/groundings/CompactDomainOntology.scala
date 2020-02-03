@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import java.time.ZonedDateTime
-import java.util.IdentityHashMap
+import java.util
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
@@ -186,9 +186,9 @@ object CompactDomainOntology {
        if (!strings.contains(string))
           strings.put(string, strings.size)
 
-    protected def mkParentMap(): IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = {
+    protected def mkParentMap(): util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = {
       // This is myIndex, parentIndex
-      val parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = new IdentityHashMap()
+      val parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = new util.IdentityHashMap()
 
       def append(parents: Seq[HalfOntologyParentNode]): Int =
           if (parents.nonEmpty)
@@ -204,7 +204,7 @@ object CompactDomainOntology {
             -1
 
       0.until(treeDomainOntology.size).foreach { i =>
-        append(treeDomainOntology.getParents(i).map(_.asInstanceOf[OntologyParentNode])) // TODO: This may soon be incorrect
+        append(treeDomainOntology.getParents(i))
       }
       parentMap
     }
@@ -233,7 +233,7 @@ object CompactDomainOntology {
       (stringBuffer.toArray, startIndexBuffer)
     }
 
-    protected def mkNodeStringMap(parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
+    protected def mkNodeStringMap(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
       // TODO: Fix this code.  Try to sort entrySet.      
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
       val parentSeq = parentMap
@@ -266,19 +266,19 @@ object CompactDomainOntology {
       (stringIndexBuffer.toArray, startIndexBuffer.toArray)
     }
 
-    protected def mkLeafIndexes(parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkLeafIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
 
       0.until(treeDomainOntology.size).foreach { i =>
-        val node = treeDomainOntology.getNode(i).asInstanceOf[OntologyLeafNode] // TODO: This will soon not be true.
+        val node: HalfOntologyLeafNode = treeDomainOntology.getNode(i)
 
-        indexBuffer += parentMap.get(node.parentOpt.get)._1 // parentOffset
+        indexBuffer += parentMap.get(node.parent)._1 // parentOffset
         indexBuffer += stringMap(node.escaped) // nameOffset
       }
       indexBuffer.toArray
     }
 
-    protected def mkParentIndexes(parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkParentIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
       val keysAndValues: Array[(HalfOntologyParentNode, (Int, Int))] = parentMap.asScala.toArray.sortBy(_._2._1)
 
@@ -290,7 +290,7 @@ object CompactDomainOntology {
     }
 
     def build(): DomainOntology = {
-      val parentMap: IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = mkParentMap()
+      val parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = mkParentMap()
       val leafStringMap: MutableHashMap[String, Int] = mkLeafStringMap()
       val nodeStringMap: MutableHashMap[String, Int] = mkNodeStringMap(parentMap)
       val (leafStringIndexes, leafStartIndexes) = mkLeafStringAndStartIndexes(leafStringMap)
