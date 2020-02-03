@@ -98,6 +98,9 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
     start.until(stop).toArray.map(n => leafStrings(leafStringIndexes(n)))
   }
 
+  // TODO: This will not always store just the leaves.
+  def isLeaf(n: Integer): Boolean = false
+
   def getPatterns(n: Integer): Option[Array[Regex]] = {
     val start = patternStartIndexes(n)
     val stop = patternStartIndexes(n + 1)
@@ -201,7 +204,7 @@ object CompactDomainOntology {
             -1
 
       0.until(treeDomainOntology.size).foreach { i =>
-        append(treeDomainOntology.getParents(i))
+        append(treeDomainOntology.getParents(i).map(_.asInstanceOf[OntologyParentNode])) // TODO: This may soon be incorrect
       }
       parentMap
     }
@@ -267,9 +270,9 @@ object CompactDomainOntology {
       val indexBuffer = new ArrayBuffer[Int]()
 
       0.until(treeDomainOntology.size).foreach { i =>
-        val node = treeDomainOntology.getNode(i)
+        val node = treeDomainOntology.getNode(i).asInstanceOf[OntologyLeafNode] // TODO: This will soon not be true.
 
-        indexBuffer += parentMap.get(node.parent)._1 // parentOffset
+        indexBuffer += parentMap.get(node.parentOpt.get)._1 // parentOffset
         indexBuffer += stringMap(node.escaped) // nameOffset
       }
       indexBuffer.toArray

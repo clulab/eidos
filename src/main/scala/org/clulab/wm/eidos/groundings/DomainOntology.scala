@@ -18,6 +18,8 @@ trait DomainOntology {
 
   def getPatterns(n: Integer): Option[Array[Regex]]
 
+  def isLeaf(n: Integer): Boolean
+
   def save(filename: String): Unit
 }
 
