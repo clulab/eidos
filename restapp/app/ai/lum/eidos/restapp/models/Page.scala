@@ -11,6 +11,7 @@ import play.api.libs.json.JsValue
 object Page {
   case class Read(eidosText: EidosText)
   case class Cancel()
+  case class Filed()
 }
 
 class Page(library: ActorRef, reader: ActorRef) extends EidosActor {
@@ -24,15 +25,17 @@ class Page(library: ActorRef, reader: ActorRef) extends EidosActor {
     case Page.Read(eidosText) =>
       // Do I know which this goes to?  How can it be cancelled?
       reader ! Reader.Read(eidosText, context.self)
-      this.context.become(reading(5))
+      this.context.become(reading(eidosText.getDocumentIdOpt.get))
 //    case Page.Renew(documentId)
 //    case Page.Delete(documentId)
     case Page.Cancel =>
       // There is nothing to cancel now
   }
 
-  def reading(jobId: Int): Receive = LoggingReceive {
+  def reading(jobId: String): Receive = LoggingReceive {
     case Reader.Complete(jsValueEither: Either[Throwable, JsValue]) =>
+      library ! Library.Create(jobId, jsValueEither)
+      this.context.become(filing)
       // Add next thing to transcript and time, notify database?
       // Inform the database that I am complete by sending the message
       // It will kill me
@@ -40,6 +43,7 @@ class Page(library: ActorRef, reader: ActorRef) extends EidosActor {
       // Somehow cancel job 5
   }
 
-  // This may need context.stop(self) after note that library
-  // received my delivery.
+  def filing: Receive = LoggingReceive {
+    case Page.Filed => context.stop(self) // My job is done
+  }
 }

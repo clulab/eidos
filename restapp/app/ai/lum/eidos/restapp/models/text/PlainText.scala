@@ -12,7 +12,7 @@ import org.clulab.wm.eidos.context.DCT
 import org.json4s.JValue
 import org.json4s.JsonDSL._
 
-class PlainText(text: String, titleOpt: Option[String] = None, idOpt: Option[String] = None, dateOpt: Option[String] = None, locationOpt: Option[String] = None) extends EidosText {
+class PlainText(text: String, titleOpt: Option[String] = None, documentIdOpt: Option[String] = None, dateOpt: Option[String] = None, locationOpt: Option[String] = None) extends EidosText {
   protected val dctOpt: Option[DCT] = {
     dateOpt.map { date =>
       val calendar = try {
@@ -36,7 +36,7 @@ class PlainText(text: String, titleOpt: Option[String] = None, idOpt: Option[Str
 
   override def getTitleOpt: Option[String] = titleOpt
 
-  override def getDocumentIdOpt: Option[String] = idOpt
+  override def getDocumentIdOpt: Option[String] = documentIdOpt
 
   override def getDctOpt: Option[DCT] = dctOpt
 
@@ -46,7 +46,7 @@ class PlainText(text: String, titleOpt: Option[String] = None, idOpt: Option[Str
     s"""
        | text = $text
        | title = $titleOpt
-       | id = $idOpt
+       | id = $documentIdOpt
        | dct = ${dctOpt.map(_.interval.start.toString)}
        | location = $locationOpt
        |""".stripMargin
@@ -54,7 +54,7 @@ class PlainText(text: String, titleOpt: Option[String] = None, idOpt: Option[Str
   def toJson: JValue = {
     ("text" -> text) ~
     ("title" -> titleOpt) ~
-    ("id" -> idOpt) ~
+    ("id" -> documentIdOpt) ~
     ("dct" -> dctOpt.map(_.interval.start.toString)) ~
     ("location" -> locationOpt)
   }

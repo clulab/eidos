@@ -4,6 +4,7 @@ import ai.lum.eidos.restapp.models.Reader
 import javax.inject._
 import ai.lum.eidos.restapp.models.EidosStatus
 import ai.lum.eidos.restapp.models.Library
+import ai.lum.eidos.restapp.models.Library.DirectoryResponse
 import ai.lum.eidos.restapp.models.Page
 import ai.lum.eidos.restapp.models.host.SerialHost
 import ai.lum.eidos.restapp.models.text.CdrText
@@ -14,6 +15,7 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor._
+import akka.pattern.ask
 import akka.routing.FromConfig
 import akka.util.Timeout
 import org.clulab.serialization.{json => Json}
@@ -23,12 +25,16 @@ import org.json4s.JString
 import org.json4s.MappingException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import play.api.libs.json.JsArray
+import play.api.libs.json.JsString
 import play.api.libs.json.{Json => JSon}
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import play.libs.concurrent.CustomExecutionContext
 
 import scala.collection.mutable
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -85,7 +91,7 @@ class PageProvider(actorSystem: ActorSystem, library: ActorRef, reader: ActorRef
 class HomeController @Inject()(actorSystem: ActorSystem, executionContext: ExecutionContext,
     controllerComponents: ControllerComponents) extends AbstractController(controllerComponents) {
   import HomeController.logger
-
+  implicit val timeout = Timeout(60 seconds) // Time that client might disconnect
 
   // This is most like the ProcessorServer
   // It makes the instance of Eidos, and then creates enough Readers to use it?
@@ -111,8 +117,15 @@ class HomeController @Inject()(actorSystem: ActorSystem, executionContext: Execu
 //  }
 
   def listDocuments(): Action[AnyContent] = Action {
-    // Send something to library and wait for response?
-    Ok // Do their statuses here so that know to download results
+    val future = library ? Library.Directory() // This is given 60 seconds
+    val result = Await.result(future, Duration.Inf) // Give it twice that?
+    result match {
+      case DirectoryResponse(list: List[String]) =>
+        val jsStrings = list.map(JsString(_))
+        val jsArray = JsArray(jsStrings)
+
+        Ok(jsArray)
+    }
   }
 
   def newDocument(): Action[JsValue] = Action(parse.json) { request: Request[JsValue] =>
@@ -126,8 +139,8 @@ class HomeController @Inject()(actorSystem: ActorSystem, executionContext: Execu
     // DocumentID needs to be required!
     try {
       //val eidosText = new CdrText(JsonUtils.toJValue(request.body))
-      val eidosText = new PlainText("This is a test")
       0.until(6).foreach { index =>
+        val eidosText = new PlainText("This is test ", titleOpt = None, documentIdOpt = Some("documentId=" + index))
         val page = pageProvider.newInstance
 
         page ! Page.Read(eidosText)
