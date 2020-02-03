@@ -136,7 +136,7 @@ class FullTreeDomainOntology(val ontologyNodes: Array[FullOntologyNode], overrid
   def getNode(n: Integer): FullOntologyNode = ontologyNodes(n)
 
   // It is assumed that the root node, for which parentOpt is None, is not in the list.
-  def getParents(n: Integer): Seq[FullOntologyNode] = ontologyNodes(n).parentOpt.get +: ontologyNodes(n).parentOpt.get.parents
+  def getParents(n: Integer): Seq[FullOntologyParentNode] = ontologyNodes(n).parentOpt.get +: ontologyNodes(n).parentOpt.get.parents
 
   def save(filename: String): Unit = {
     Serializer.save(this, filename)

@@ -14,6 +14,7 @@ import org.clulab.wm.eidos.groundings._
 object CacheOntologies extends App {
 
   val config = ConfigFactory.load("eidos")
+  val includeParents: Boolean = config[Boolean]("includeParents")
   // Since here we want to cache the current, we can't load from cached:
   assert(config[Boolean]("ontologies.useCache") == false, "To use CacheOntologies, you must set ontologies.useCache = false")
   assert(config[Boolean]("ontologies.useW2V") == true, "To use CacheOntologies, you must set useW2V = true")
@@ -43,7 +44,7 @@ object CacheOntologies extends App {
       val treeDomainOntology = ontology.asInstanceOf[HalfTreeDomainOntology]
       val compactDomainOntology = new CompactDomainOntologyBuilder(treeDomainOntology).build()
       // save
-      val serializedPath = OntologyHandler.serializedPath(ontologyName, cacheDir)
+      val serializedPath = OntologyHandler.serializedPath(ontologyName, cacheDir, includeParents)
       compactDomainOntology.save(serializedPath)
     }
     println(s"Finished serializing ${ontologyGrounders.length} ontologies.")
