@@ -7,7 +7,7 @@ import org.json4s.JValue
 trait EidosText {
   def getText: String
   def getTitleOpt: Option[String]
-  def getIdOpt: Option[String]
+  def getDocumentIdOpt: Option[String]
   def getDctOpt: Option[DCT]
   def getLocationOpt: Option[String]
   def toJson: JValue

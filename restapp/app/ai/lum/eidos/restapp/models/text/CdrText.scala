@@ -22,7 +22,7 @@ class CdrText(cdr: JValue) extends EidosText {
 
   override def getTitleOpt: Option[String] = titleOpt
 
-  override def getIdOpt: Option[String] = idOpt
+  override def getDocumentIdOpt: Option[String] = idOpt
 
   override def getDctOpt: Option[DCT] = dctOpt
 

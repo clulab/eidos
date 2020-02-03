@@ -29,7 +29,7 @@ class SerialHost(prime: Boolean) extends EidosHost {
   }
 
   def process(eidosText: EidosText): JValue = {
-    val annotatedDocument = eidosSystem.extractFromTextWithDct(eidosText.getText, dct = eidosText.getDctOpt, id = eidosText.getIdOpt)
+    val annotatedDocument = eidosSystem.extractFromTextWithDct(eidosText.getText, dct = eidosText.getDctOpt, id = eidosText.getDocumentIdOpt)
 
     eidosText.getTitleOpt.foreach { titleOpt =>
       TitleDocumentAttachment.setTitle(annotatedDocument.document, titleOpt)
@@ -46,6 +46,4 @@ class SerialHost(prime: Boolean) extends EidosHost {
 
   if (prime)
     prepare
-
-
 }

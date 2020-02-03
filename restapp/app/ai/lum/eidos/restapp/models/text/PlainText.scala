@@ -36,7 +36,7 @@ class PlainText(text: String, titleOpt: Option[String] = None, idOpt: Option[Str
 
   override def getTitleOpt: Option[String] = titleOpt
 
-  override def getIdOpt: Option[String] = idOpt
+  override def getDocumentIdOpt: Option[String] = idOpt
 
   override def getDctOpt: Option[DCT] = dctOpt
 

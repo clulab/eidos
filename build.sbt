@@ -11,6 +11,8 @@ scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
 resolvers += "jitpack" at "https://jitpack.io"
 
+lazy val keith = "keithwas here"
+
 libraryDependencies ++= {
   val procVer = "7.5.4"
   val luceneVer = "6.6.6"
@@ -190,6 +192,9 @@ lazy val elasticsearch = project
 lazy val restapp = project
   .enablePlugins(PlayScala)
   .dependsOn(core)
+
+lazy val akkaapp = project
+//    .dependsOn(core)
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
