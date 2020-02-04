@@ -49,6 +49,8 @@ abstract class FullOntologyNode(val nodeName: String, var parentOpt: Option[Full
   def getValues: Array[String] = values.getOrElse(Array.empty)
 
   def getPatterns: Array[Regex] = patterns.getOrElse(Array.empty)
+
+  def getChildren: Seq[FullOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 }
 
 @SerialVersionUID(1000L)
@@ -90,9 +92,8 @@ class FullOntologyBranchNode(nodeName: String, parent: FullOntologyParentNode) e
       else parent.branch
 
   override def getValues: Array[String] = childrenOpt.get.flatMap(_.getValues).toArray
-  //super.getValues // TODO: Do something with children
 
-  override def getPatterns: Array[Regex] = super.getPatterns // TODO: Do something with children
+  override def getPatterns: Array[Regex] = super.getPatterns
 }
 
 @SerialVersionUID(1000L)
