@@ -40,11 +40,11 @@ components:
         type: array
         items:
           type: object
-            properties:
-              grounding:
-                type: string
-              score:
-                type: float
+          properties:
+            grounding:
+              type: string
+            score:
+              type: number
             
 paths:
   /reground:

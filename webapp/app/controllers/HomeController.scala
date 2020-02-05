@@ -121,58 +121,43 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def reground: Action[JsValue] = Action(parse.json) { request =>
-    type argumentsType = (String, String, IndexedSeq[String], Boolean, Int, Boolean)
 
     def extract(name: String): JsLookupResult = request.body \ name
 
-    val eitherResultOrArguments: Either[Result, argumentsType] = try {
+    try {
       val name = extract("name").asOpt[String].getOrElse("Custom")
       val ontologyYaml = extract("ontologyYaml").as[String]
-      val texts = extract("texts").as[JsArray].value.map { case JsString(text) => text }
+      val texts = extract("texts").as[JsArray].value.map { jsString =>
+        (jsString: @unchecked) match {
+          case JsString(text) => text
+        }
+      }
       val filter = extract("filter").asOpt[Boolean].getOrElse(true)
       val topk = extract("topk").asOpt[Int].getOrElse(10)
       val isAlreadyCanonicalized = extract("isAlreadyCanonicalized").asOpt[Boolean].getOrElse(true)
-      val arguments = (name, ontologyYaml, texts, filter, topk, isAlreadyCanonicalized)
 
-      Right(arguments)
-    }
-    catch {
-      // Handle anything caused by bad input.
-      case throwable: Throwable =>
-        val message = throwable.getMessage
-        val action = BadRequest(JsString(s"The request seems to be bad: $message"))
-
-        Left(action)
-    }
-
-    if (eitherResultOrArguments.isLeft)
-      eitherResultOrArguments.left
-    else {
-      val arguments = eitherResultOrArguments.right
       try {
         val ontologyHandler = ieSystem.components.ontologyHandler
-        val regroundings = (ontologyHandler.reground _).tupled(arguments)
-        val result = JsArray {
-          regroundings.map { regrounding =>
-            JsArray {
-              regrounding.map { case (grounding, score) =>
+        val regroundings = ontologyHandler.reground(name, ontologyYaml, texts, filter, topk, isAlreadyCanonicalized)
+        val result = JsArray { regroundings.map { regrounding =>
+            JsArray { regrounding.map { case (grounding, score) =>
                 JsObject(Map(
                   "grounding" -> JsString(grounding),
                   "score" -> JsNumber(score.toDouble)
                 ))
-              }
-            }
-          }
-        }
+            }}
+        }}
 
         Ok(result)
       }
       catch {
         case throwable: Throwable =>
-          val message = throwable.getMessage
-
-          InternalServerError(JsString(s"The server couldn't handle it: $message"))
+          InternalServerError(JsString(s"The server couldn't handle it: ${throwable.getMessage}"))
       }
+    }
+    catch {
+      case throwable: Throwable =>
+        BadRequest(JsString(s"The request seems to be bad: ${throwable.getMessage}"))
     }
   }
 
