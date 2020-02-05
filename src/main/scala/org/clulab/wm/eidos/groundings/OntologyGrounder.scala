@@ -213,7 +213,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   def getModifierMentions(synHeadWord: String, mention: Mention): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
-    val rule = CompositionalGrounder.ruleTemplates.replaceAllLiterally(CompositionalGrounder.SYN_HEAD_WORD,
+    val rule = CompositionalGrounder.ruleTemplates.replace(CompositionalGrounder.SYN_HEAD_WORD,
         OdinUtils.escapeExactStringMatcher(synHeadWord))
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)

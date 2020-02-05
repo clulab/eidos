@@ -184,8 +184,11 @@ object FastDomainOntology {
 
       def append(node: FullOntologyNode): Unit =
         node.childrenOpt.foreach { children =>
-          children.foreach(nodeMap.put(_, nodeMap.size()))
-          children.foreach(append)
+          // Do this depth first, child before its own children.
+          children.foreach { child =>
+            nodeMap.put(child, nodeMap.size())
+            append(child)
+          }
         }
 
       append(rootNode)
@@ -195,10 +198,8 @@ object FastDomainOntology {
     protected def mkWordStringMap(nodes: Seq[FullOntologyNode]): MutableHashMap[String, Int] = {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
 
-      nodes.foreach { node =>
-          // This will run recursively
-        node.getValues.foreach { value => append(stringMap, value) }
-      }
+      // This gets the top level node and everything under it, because getValues is recursive.
+      nodes.head.getValues.foreach(append(stringMap, _))
       stringMap
     }
 
@@ -211,18 +212,25 @@ object FastDomainOntology {
       stringMap
     }
 
-    protected def mkWordIndexesAndStarts(nodes: Seq[FullOntologyNode], stringMap: MutableHashMap[String, Int]): (Array[Int], Array[Int], Array[Int]) = {
+    protected def mkWordIndexesAndStartsAndStops(nodes: Seq[FullOntologyNode], stringMap: MutableHashMap[String, Int]): (Array[Int], Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
       val stopIndexBuffer = new Array[Int](nodes.size + 1)
 
       nodes.zipWithIndex.foreach { case (node, index) =>
-        val indexes = node.getValues.map { value => // This is a problem, because getValues is recursive
+        node match {
+          case Full // Full tree node has none itself
+            // leaf node does
+        }
+        val childWords = node.getValues.size
+        val indexes = node.getValues.map { value =>
+            val childWords =
           stringMap(value)
         }
 
         startIndexBuffer(index) = indexBuffer.size
         indexBuffer.appendAll(indexes)
+        stopIndexBuffer(index) = indexBuffer.size
       }
       startIndexBuffer(nodes.size) = indexBuffer.size // extra
       (indexBuffer.toArray, startIndexBuffer, stopIndexBuffer)
@@ -279,7 +287,7 @@ object FastDomainOntology {
       }
       val wordStringMap: MutableHashMap[String, Int] = mkWordStringMap(nodeArr)
       val wordStringArr = wordStringMap.toSeq.map(_.swap).sorted.map(_._2).toArray
-      val (wordIndexes, wordStartIndexes, wordStopIndexes) = mkWordIndexesAndStarts(nodeArr, wordStringMap)
+      val (wordIndexes, wordStartIndexes, wordStopIndexes) = mkWordIndexesAndStartsAndStops(nodeArr, wordStringMap)
       val (patterns, patternStartIndexes) = mkPatternsAndStarts(nodeArr)
       val (childIndexes, childStartIndexes) = mkChildIndexesAndStarts(nodeArr, nodeMap)
 
