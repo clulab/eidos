@@ -1,5 +1,6 @@
 package controllers
 
+import org.clulab.wm.eidos.utils.FileUtils
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.test._
@@ -56,6 +57,45 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
 
       contentAsString(result) must include ("Missing parameter [text]")
     }
+
+    "be able to reground" in {
+      val name = "test"
+      // This was simply chosen because it is the smallest.
+      val ontologyYaml = FileUtils.getTextFromResource("/org/clulab/wm/eidos/english/ontologies/un_properties.yml")
+      val texts = Array(
+        "Rainfall in the summer causes good crop yields in the fall.",
+        "This is another text that should be grounded."
+      )
+      val filter = true
+      val topk = 5
+      val isAlreadyCanonicalized = false
+      val regroundRequest = JsObject { Map(
+        "name" -> JsString(name),
+        "ontologyYaml" -> JsString(ontologyYaml),
+        "texts" -> JsArray(texts.map(JsString)),
+        "filter" -> JsBoolean(filter),
+        "topk" -> JsNumber(topk),
+        "isAlreadyCanonicalized" -> JsBoolean(isAlreadyCanonicalized)
+      ) }
+      val request = FakeRequest(POST, "/reground").withJsonBody(regroundRequest)
+      val regroundResponse = contentAsJson(route(app, request).get)
+
+      val outerJsArray = regroundResponse.as[JsArray]
+      outerJsArray.value.size must be (texts.length)
+
+      outerJsArray.value.foreach { jsValue: JsValue =>
+        val innerJsArray = jsValue.as[JsArray]
+        innerJsArray.value.size must be (topk)
+
+        innerJsArray.value.foreach { jsValue =>
+          val jsObject = jsValue.as[JsObject]
+          val grounding = (jsObject \ "grounding").as[String]
+          val score = (jsObject \ "score").as[Double]
+
+          grounding.nonEmpty mustBe (true)
+          score > 0 mustBe (true)
+        }
+      }
+    }
   }
-  
 }
