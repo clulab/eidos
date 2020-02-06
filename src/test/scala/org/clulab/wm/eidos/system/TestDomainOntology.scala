@@ -108,7 +108,7 @@ class TestDomainOntology extends Test {
 
       if (useCache) {
         val newestOntology = Timer.time(s"Load $name from cache") {
-          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCache, includeParents)
+          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCache = true, includeParents)
         }
 
         show3(newOntology, newerOntology, newestOntology)

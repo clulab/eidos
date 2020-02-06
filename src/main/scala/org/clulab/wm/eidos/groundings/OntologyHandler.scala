@@ -7,6 +7,7 @@ import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
+import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -14,7 +15,8 @@ class OntologyHandler(
   val ontologyGrounders: Seq[OntologyGrounder],
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
-  val canonicalizer: Canonicalizer
+  val canonicalizer: Canonicalizer,
+  val includeParents: Boolean
 ) extends PostProcessing {
 
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
@@ -65,7 +67,7 @@ class OntologyHandler(
     }
 
     //OntologyGrounding
-    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter)
+    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter, includeParents)
     val grounder = EidosOntologyGrounder(name, ontology, wordToVec, canonicalizer)
     val groundings = grounder match {
       case g: EidosOntologyGrounder =>
@@ -119,16 +121,19 @@ object OntologyHandler {
           grounder
         }
 
-        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer)
-      case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer)
+        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer, includeParents)
+      case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer, includeParents)
      case _ => ???
     }
 
     ontologyHandler
   }
 
-  def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true): DomainOntology = {
-    new HalfTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
+  def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true, includeParents: Boolean): DomainOntology = {
+    if (includeParents)
+      new FullTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
+    else
+      new HalfTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
   }
 
   def serializedPath(name: String, dir: String, includeParents: Boolean): String =

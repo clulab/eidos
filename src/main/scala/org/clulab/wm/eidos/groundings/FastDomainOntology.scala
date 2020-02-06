@@ -12,7 +12,7 @@ import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
 
-class FastNamerData(val names: Array[String], val parents: Array[Int])
+class FastNamerData(val names: Array[String], val parents: Array[Int], val leaves: Array[Boolean])
 
 class FastNamer(protected val n: Int, data: FastNamerData) extends Namer {
 
@@ -29,20 +29,20 @@ class FastNamer(protected val n: Int, data: FastNamerData) extends Namer {
   protected def isTop(n: Int): Boolean = data.parents(n) < 0
 
   protected def parentName(n: Int, stringBuilder: StringBuilder): Unit = {
-    if (!isTop(n)) {
+    if (!isTop(n))
       parentName(data.parents(n), stringBuilder)
-      stringBuilder.append(data.names(n))
-      stringBuilder.append(DomainOntology.SEPARATOR)
-    }
+    stringBuilder.append(data.names(n))
+    stringBuilder.append(DomainOntology.SEPARATOR)
   }
 
   def name: String = {
     val stringBuilder = new StringBuilder()
 
-    if (!isTop(n))
-      parentName(data.parents(n), stringBuilder)
+    parentName(data.parents(n), stringBuilder)
     stringBuilder.append(data.names(n))
-    stringBuilder.result()
+    if (!data.leaves(n))
+      stringBuilder.append(DomainOntology.SEPARATOR)
+    stringBuilder.toString
   }
 }
 
@@ -77,7 +77,7 @@ class FastDomainOntology(
 
   def size: Integer = names.length
 
-  protected val namerData: FastNamerData = new FastNamerData(names, parents)
+  protected val namerData: FastNamerData = new FastNamerData(names, parents, leaves)
   protected val patternRegexes: Array[Regex] = patterns.map(_.r)
 
   // This is done so that other data can be thrown away
@@ -107,6 +107,7 @@ class FastDomainOntology(
       objectOutputStream.writeObject(firstLine)
       objectOutputStream.writeObject(names.mkString("\n"))
       objectOutputStream.writeObject(parents)
+      objectOutputStream.writeObject(leaves)
       objectOutputStream.writeObject(wordIndexes)
       objectOutputStream.writeObject(wordStartIndexes)
       objectOutputStream.writeObject(patterns.mkString("\n"))
@@ -120,12 +121,24 @@ class FastDomainOntology(
   def isLeaf(n: Integer): Boolean = leaves(n)
 }
 
-object FastDomainOntology {
-  val branchIndexWidth = 2
-  val leafIndexWidth = 2
+// This wraps the above FastDomainOntology and allows for offset nodes to be skipped.
+// For example, the top level wm node shouldn't be grounded to.  It's possible that
+// for the compositional grounding even the next level will be skipped.
+class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1) extends DomainOntology {
+  override def size: Integer = fastDomainOntology.size - offset
 
-  val parentOffset = 0
-  val nameOffset = 1
+  override def getNamer(n: Integer): Namer = fastDomainOntology.getNamer(n + offset)
+
+  override def getValues(n: Integer): Array[String] = fastDomainOntology.getValues(n + offset)
+
+  override def getPatterns(n: Integer): Option[Array[Regex]] = fastDomainOntology.getPatterns(n + offset)
+
+  override def isLeaf(n: Integer): Boolean = fastDomainOntology.isLeaf(n + offset)
+
+  override def save(filename: String): Unit = fastDomainOntology.save(filename)
+}
+
+object FastDomainOntology {
 
   // This is so that text can be abandoned at the end of the block, before the array is read.
   protected def splitText(text: String): Array[String] = {
@@ -146,7 +159,7 @@ object FastDomainOntology {
     arrayBuffer.toArray
   }
 
-  def load(filename: String): FastDomainOntology = {
+  protected def loadFast(filename: String): FastDomainOntology = {
     FileUtils.newClassLoaderObjectInputStream(filename, this).autoClose { objectInputStream =>
       val (versionOpt: Option[String], dateOpt: Option[ZonedDateTime]) = {
         val firstLine = objectInputStream.readObject().asInstanceOf[String]
@@ -168,8 +181,15 @@ object FastDomainOntology {
       val wordStringArr = splitText(objectInputStream.readObject().asInstanceOf[String])
 
       new FastDomainOntology(names, parents, leaves, wordIndexes, wordStartIndexes, patterns, patternStartIndexes,
-          childIndexes, childStartIndexes, wordStringArr, versionOpt, dateOpt)
+        childIndexes, childStartIndexes, wordStringArr, versionOpt, dateOpt)
     }
+  }
+
+  def load(filename: String): DomainOntology = {
+    val fastDomainOntology = loadFast(filename)
+    val skipDomainOntology = new SkipDomainOntology(fastDomainOntology, 1)
+
+    skipDomainOntology
   }
 
   class FastDomainOntologyBuilder(treeDomainOntology: FullTreeDomainOntology) {
@@ -198,8 +218,9 @@ object FastDomainOntology {
     protected def mkWordStringMap(nodes: Seq[FullOntologyNode]): MutableHashMap[String, Int] = {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
 
-      // This gets the top level node and everything under it, because getValues is recursive.
-      nodes.head.getValues.foreach(append(stringMap, _))
+      nodes.foreach { node =>
+        node.getValues.foreach(append(stringMap, _))
+      }
       stringMap
     }
 
@@ -212,28 +233,20 @@ object FastDomainOntology {
       stringMap
     }
 
-    protected def mkWordIndexesAndStartsAndStops(nodes: Seq[FullOntologyNode], stringMap: MutableHashMap[String, Int]): (Array[Int], Array[Int], Array[Int]) = {
+    protected def mkWordIndexesAndStarts(nodes: Seq[FullOntologyNode], stringMap: MutableHashMap[String, Int]): (Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
-      val stopIndexBuffer = new Array[Int](nodes.size + 1)
 
       nodes.zipWithIndex.foreach { case (node, index) =>
-        node match {
-          case Full // Full tree node has none itself
-            // leaf node does
-        }
-        val childWords = node.getValues.size
         val indexes = node.getValues.map { value =>
-            val childWords =
           stringMap(value)
         }
 
         startIndexBuffer(index) = indexBuffer.size
         indexBuffer.appendAll(indexes)
-        stopIndexBuffer(index) = indexBuffer.size
       }
       startIndexBuffer(nodes.size) = indexBuffer.size // extra
-      (indexBuffer.toArray, startIndexBuffer, stopIndexBuffer)
+      (indexBuffer.toArray, startIndexBuffer)
     }
 
     protected def mkPatternsAndStarts(nodes: Seq[FullOntologyNode]): (Array[String], Array[Int]) = {
@@ -253,7 +266,7 @@ object FastDomainOntology {
     }
 
     protected def mkChildIndexesAndStarts(nodes: Seq[FullOntologyNode], nodeMap: util.IdentityHashMap[FullOntologyNode, Int]):
-        (Array[Int], Array[Int]) = {
+    (Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
 
@@ -269,7 +282,7 @@ object FastDomainOntology {
       (indexBuffer.toArray, startIndexBuffer)
     }
 
-    def build(): DomainOntology = {
+    def buildFast(): FastDomainOntology = {
       // This stops at, for example, wm, not the implied root above.  It is not an OntologyRootNode.
       val rootNode = treeDomainOntology.getNode(0).parents.last
       val nodeMap: util.IdentityHashMap[FullOntologyNode, Int] = mkNodeMap(rootNode)
@@ -280,20 +293,27 @@ object FastDomainOntology {
           .sortBy(_.getValue)
           .map(_.getKey)
           .toArray
-      val names = nodeArr.map { node => node.nodeName }
+      val names = nodeArr.map { node => node.escaped }
       val leaves = nodeArr.map { node => node.isLeaf }
       val parents = nodeArr.map { node =>
         Option(nodeMap.get(node.parentOpt.get)).getOrElse(-1)
       }
       val wordStringMap: MutableHashMap[String, Int] = mkWordStringMap(nodeArr)
       val wordStringArr = wordStringMap.toSeq.map(_.swap).sorted.map(_._2).toArray
-      val (wordIndexes, wordStartIndexes, wordStopIndexes) = mkWordIndexesAndStartsAndStops(nodeArr, wordStringMap)
+      val (wordIndexes, wordStartIndexes) = mkWordIndexesAndStarts(nodeArr, wordStringMap)
       val (patterns, patternStartIndexes) = mkPatternsAndStarts(nodeArr)
       val (childIndexes, childStartIndexes) = mkChildIndexesAndStarts(nodeArr, nodeMap)
 
       new FastDomainOntology(names, parents, leaves, wordIndexes, wordStartIndexes,
-          patterns, patternStartIndexes, childIndexes, childStartIndexes, wordStringArr,
-          treeDomainOntology.version, treeDomainOntology.date)
+        patterns, patternStartIndexes, childIndexes, childStartIndexes, wordStringArr,
+        treeDomainOntology.version, treeDomainOntology.date)
+    }
+
+    def build(): DomainOntology = {
+      val fastDomainOntology = buildFast()
+      val skipDomainOntology = new SkipDomainOntology(fastDomainOntology, 1)
+
+      skipDomainOntology
     }
   }
 }

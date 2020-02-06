@@ -74,7 +74,7 @@ class FullOntologyRootNode extends FullOntologyParentNode("", None) {
   def isParentRoot: Boolean = false
 }
 
-class FullOntologyBranchNode(nodeName: String, parent: FullOntologyParentNode) extends FullOntologyParentNode(nodeName, Some(parent)) {
+class FullOntologyBranchNode(nodeName: String, parent: FullOntologyParentNode, filtered: String => Seq[String]) extends FullOntologyParentNode(nodeName, Some(parent)) {
 
   override def fullName: String = parentOpt.get.fullName + escaped + DomainOntology.SEPARATOR
 
@@ -91,7 +91,12 @@ class FullOntologyBranchNode(nodeName: String, parent: FullOntologyParentNode) e
       if (parent.isParentRoot) Some(nodeName)
       else parent.branch
 
-  override def getValues: Array[String] = childrenOpt.get.flatMap(_.getValues).toArray
+  override def getValues: Array[String] = {
+    val value = nodeName.replace('_', ' ')
+    val values = filtered(value)
+
+    values.toArray
+  }
 
   override def getPatterns: Array[Regex] = super.getPatterns
 }
@@ -163,7 +168,7 @@ object FullTreeDomainOntology {
 
   // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
   class FullTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer,
-      filter: Boolean, includeParents: Boolean = false) {
+      filter: Boolean) {
 
     def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None):
         FullTreeDomainOntology = buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
@@ -190,14 +195,14 @@ object FullTreeDomainOntology {
 
         walk(rootNode, { node: FullOntologyNode =>
           if (node.isLeaf) children.append(node)
-          else parents.append(node)
+          else if (!node.parentOpt.get.isInstanceOf[FullOntologyRootNode])
+            parents.append(node)
         })
 
         (parents.toArray, children.toArray)
       }
 
-      // TODO: Decide whether to do all or just some of the nodes. Done?
-      val includedNodes = if (includeParents) ontologyParentNodes ++ ontologyChildNodes else ontologyChildNodes
+      val includedNodes = ontologyParentNodes ++ ontologyChildNodes
       new FullTreeDomainOntology(includedNodes, versionOpt, dateOpt)
     }
 
@@ -284,7 +289,7 @@ object FullTreeDomainOntology {
           // This is to account for leafless branches.
           val yamlNodesOpt = Option(map(key).asScala)
           if (yamlNodesOpt.nonEmpty) { // foreach does not work well here.
-            val branchNode = new FullOntologyBranchNode(key, parent) // Note: branch nodes are created here
+            val branchNode = new FullOntologyBranchNode(key, parent, filtered) // Note: branch nodes are created here
 
             parseOntology(branchNode, yamlNodesOpt.get.toSeq, level + 1)
             Seq(branchNode)
