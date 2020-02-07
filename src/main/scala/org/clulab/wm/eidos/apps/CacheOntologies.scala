@@ -84,8 +84,8 @@ object CacheOntologies extends App {
     OntologyMapper.mapIndicators(reader, outputFile, topN)
   }
 
-//  removeGeoNorms()
+  removeGeoNorms()
   cacheOntologies()
-//  cacheWord2Vec()
-//  updateIndicatorMappings()
+  cacheWord2Vec()
+  updateIndicatorMappings()
 }

@@ -26,7 +26,7 @@ class TestCachedDomainOntology extends Test {
   val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
   val filter = true
 
-  case class OntologySpec(abbrev: String, name: String, path: String)
+  case class OntologySpec(abbrev: String, path: String)
 
   case class OntologyEntry(name: String, values: Array[String], patterns: Array[String]) {
 
@@ -55,8 +55,6 @@ class TestCachedDomainOntology extends Test {
   protected def getDomainOntologies(ontologySpec: OntologySpec, includeParents: Boolean): Array[DomainOntology] = {
     val path = ontologySpec.path
     val domainOntologies = Array(false, true).flatMap { useCache =>
-      println(s"Reading ${ontologySpec.abbrev} with includeParents = $includeParents and useCache = $useCache")
-
       if (!useCache) {
         val orig = DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCache , includeParents)
         val copy =
@@ -75,47 +73,46 @@ class TestCachedDomainOntology extends Test {
     domainOntologies
   }
 
-  protected def run(ontologySpec: OntologySpec, includeParents: Boolean): Unit = {
-    val domainOntologies = getDomainOntologies(ontologySpec, includeParents).toSeq
-    assert(domainOntologies.size == 3)
-    val headOntologyEntries = extract(domainOntologies.head)
+  protected def test(ontologySpec: OntologySpec, includeParents: Boolean): Unit = {
+    behavior of s"${ontologySpec.abbrev} with includeParents $includeParents"
 
-    domainOntologies.tail.foreach { domainOntology =>
-      val ontologyEntries = extract(domainOntology)
-      val names = ontologyEntries.map(_.name).distinct
+    ignore should "Work in all three circumstances" in { // it
+      val domainOntologies = getDomainOntologies(ontologySpec, includeParents).toSeq
+      assert(domainOntologies.size == 3)
 
-      if (ontologyEntries.size != names.size)
-        println("There are repeats!")
+      val headOntologyEntries = extract(domainOntologies.head)
+      val headNames = headOntologyEntries.map(_.name).distinct
+      headOntologyEntries.size should be (headNames.size)
 
-      if (headOntologyEntries.size != ontologyEntries.size)
-        println("Oh no, the sizes are different!")
-      else {
+      domainOntologies.tail.foreach { domainOntology =>
+        val ontologyEntries = extract(domainOntology)
+
+        headOntologyEntries.size should be (ontologyEntries.size)
         headOntologyEntries.zip(ontologyEntries).foreach { case (expected, actual) =>
-          if (expected != actual)
-            println("It didn't work again!")
+          expected should be (actual)
         }
       }
     }
   }
 
-  def run(ontologySpec: OntologySpec): Unit = {
+  def test(ontologySpec: OntologySpec): Unit = {
     Array(false, true).foreach { includeParents =>
-      run(ontologySpec, includeParents)
+      test(ontologySpec, includeParents)
     }
   }
 
   val ontologySpecs: Array[OntologySpec] = Array (
-    //  OntologySpec("topo", "topoFlow ontology", "/topoflow_ontology.yml"),
-    //  OntologySpec("mesh", "mesh ontology", "/mesh_ontology.yml"),
-    //  OntologySpec("props", "props ontology", "/un_properties.yml"),
+//    OntologySpec("topo",             "/topoflow_ontology.yml"),
+//    OntologySpec("mesh",             "/mesh_ontology.yml"),
+//    OntologySpec("props",            "/un_properties.yml"),
 
-    OntologySpec("mitre12", "mitre12 ontology", "/mitre12_indicators.yml"),
-    OntologySpec("un", "un ontology", "/un_ontology.yml"),
-    OntologySpec("who", "un ontology", "/who_ontology.yml"),
-    OntologySpec("wm", "wm ontology", "/wm_metadata.yml"),
-    OntologySpec("wm_compositional", "wm compositional ontology", "/wm_compositional_metadata.yml"),
-    OntologySpec("wm_flattened", "wm flattened ontology", "/wm_with_flattened_interventions_metadata.yml")
+    OntologySpec("mitre12",          "/mitre12_indicators.yml"),
+    OntologySpec("un",               "/un_ontology.yml"),
+    OntologySpec("who",              "/who_ontology.yml"),
+    OntologySpec("wm",               "/wm_metadata.yml"),
+    OntologySpec("wm_compositional", "/wm_compositional_metadata.yml"),
+    OntologySpec("wm_flattened",     "/wm_with_flattened_interventions_metadata.yml")
   )
 
-//   ontologySpecs.foreach(run)
+   ontologySpecs.foreach(test)
 }
