@@ -56,10 +56,12 @@ class FastNamer(protected val n: Int, data: FastNamerData) extends Namer {
  * @param wordStartIndexes At position N the index into wordIndexes of the start of words for node N
  * @param patterns All the actual patterns, which aren't mapped.
  * @param patternStartIndexes Similarly to wordStartIndexes but index into patterns of the start of patterns for node N
- * @param childIndexes Similar to above two, but indexes to children of a node
- * @param childStartIndexes Similar to above two, but index into childIndexes of the start of children for node N
- * @param wordStringArr All the words
+ * @param wordStringArr All the words//
  */
+
+//* @param childIndexes Similar to above two, but indexes to children of a node
+//* @param childStartIndexes Similar to above two, but index into childIndexes of the start of children for node N
+
 class FastDomainOntology(
   names: Array[String],
   parents: Array[Int],
@@ -68,8 +70,8 @@ class FastDomainOntology(
   wordStartIndexes: Array[Int],
   patterns: Array[String],
   patternStartIndexes: Array[Int],
-  childIndexes: Array[Int],
-  childStartIndexes: Array[Int],
+//  childIndexes: Array[Int],
+//  childStartIndexes: Array[Int],
   wordStringArr: Array[String],
   override val version: Option[String] = None,
   override val date: Option[ZonedDateTime]
@@ -112,8 +114,8 @@ class FastDomainOntology(
       objectOutputStream.writeObject(wordStartIndexes)
       objectOutputStream.writeObject(patterns.mkString("\n"))
       objectOutputStream.writeObject(patternStartIndexes)
-      objectOutputStream.writeObject(childIndexes)
-      objectOutputStream.writeObject(childStartIndexes)
+//      objectOutputStream.writeObject(childIndexes)
+//      objectOutputStream.writeObject(childStartIndexes)
       objectOutputStream.writeObject(wordStringArr.mkString("\n"))
     }
   }
@@ -176,12 +178,12 @@ object FastDomainOntology {
       val wordStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
       val patterns = splitText(objectInputStream.readObject().asInstanceOf[String])
       val patternStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
-      val childIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
-      val childStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
+//      val childIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
+//      val childStartIndexes = objectInputStream.readObject().asInstanceOf[Array[Int]]
       val wordStringArr = splitText(objectInputStream.readObject().asInstanceOf[String])
 
       new FastDomainOntology(names, parents, leaves, wordIndexes, wordStartIndexes, patterns, patternStartIndexes,
-        childIndexes, childStartIndexes, wordStringArr, versionOpt, dateOpt)
+        /*childIndexes, childStartIndexes,*/ wordStringArr, versionOpt, dateOpt)
     }
   }
 
@@ -302,10 +304,10 @@ object FastDomainOntology {
       val wordStringArr = wordStringMap.toSeq.map(_.swap).sorted.map(_._2).toArray
       val (wordIndexes, wordStartIndexes) = mkWordIndexesAndStarts(nodeArr, wordStringMap)
       val (patterns, patternStartIndexes) = mkPatternsAndStarts(nodeArr)
-      val (childIndexes, childStartIndexes) = mkChildIndexesAndStarts(nodeArr, nodeMap)
+//      val (childIndexes, childStartIndexes) = mkChildIndexesAndStarts(nodeArr, nodeMap)
 
       new FastDomainOntology(names, parents, leaves, wordIndexes, wordStartIndexes,
-        patterns, patternStartIndexes, childIndexes, childStartIndexes, wordStringArr,
+        patterns, patternStartIndexes, /*childIndexes, childStartIndexes,*/ wordStringArr,
         treeDomainOntology.version, treeDomainOntology.date)
     }
 
