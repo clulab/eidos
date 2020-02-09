@@ -46,7 +46,7 @@ object DumpOntology extends App {
       |    ?component data-prov:text_value ?text.             # In that case, get the text of the component.
       |}
       |
-      |LIMIT 100
+      |#LIMIT 100
       |""".stripMargin
 
   def mkFile(ontologyName: String): File = {
@@ -88,6 +88,7 @@ object DumpOntology extends App {
       }
     }
     countPrintWriter.println(s"$ontologyName\t$count")
+    countPrintWriter.flush()
   }
 
   Sinker.printWriterFromFile("counts.txt").autoClose { printWriter =>
