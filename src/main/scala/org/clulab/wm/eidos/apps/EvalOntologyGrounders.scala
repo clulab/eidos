@@ -160,24 +160,28 @@ object EvalOntologyGrounders extends App {
     }
   }
 
-  protected def topSingleOntologyGrounding(name: String, groundings: OntologyAliases.OntologyGroundings): Option[OntologyAliases.SingleOntologyGrounding] = {
-    val ontologyGroundingOpt = groundings.get(name)
-
-    ontologyGroundingOpt.map { ontologyGrounding =>
-      ontologyGrounding.grounding.maxBy { case (_, value) => value }
-    }
+  protected def getOntologyGroundings(name: String, groundings: OntologyAliases.OntologyGroundings):
+      Option[OntologyAliases.MultipleOntologyGrounding] = {
+    groundings.get(name).map(_.grounding) // It is assumed that these are sorted!
   }
 
-  protected def getNameAndValue(singleOntologyGrounderOpt: Option[OntologyAliases.SingleOntologyGrounding]): (String, Double) = {
-    val nameAndValue = singleOntologyGrounderOpt.map { case (namer, value) =>
+  protected def getShorterName(name: String): String = {
+    val shortName = StringUtils.afterFirst(name, '/')
+    val prefix = "concept/causal_factor/"
+    val shorterName =
+      if (shortName.startsWith(prefix)) shortName.substring(prefix.length)
+      else shortName
+
+    shorterName
+  }
+
+  protected def getNameAndValue(multipleOntologyGroundingsOpt: Option[OntologyAliases.MultipleOntologyGrounding]): (String, Double) = {
+    val singleOntologyGroundingOpt = multipleOntologyGroundingsOpt.map { multipleOntologyGroundingsOpt =>
+      multipleOntologyGroundingsOpt.head // Can it be assumed not to be empty?
+    }
+    val nameAndValue = singleOntologyGroundingOpt.map { case (namer, value) =>
       val name = namer.name
-      val shortName = StringUtils.afterFirst(name, '/')
-      val prefix = "concept/causal_factor/"
-      val shorterName =
-        if (shortName.startsWith(prefix))
-          shortName.substring(prefix.length)
-        else
-          shortName
+      val shorterName = getShorterName(name)
 
       (shorterName, value.toDouble)
     }.getOrElse("", 0d)
@@ -186,12 +190,24 @@ object EvalOntologyGrounders extends App {
   }
 
   protected def evaluateSide(side: Side.Value, row: Row, scores: Scores, caption: String, line: String, isEidos: Boolean,
-      singleOntologyGroundingOpt: Option[OntologyAliases.SingleOntologyGrounding]): Unit = {
-    val (actualName, value) = getNameAndValue(singleOntologyGroundingOpt)
+      multipleOntologyGroundingsOpt: Option[OntologyAliases.MultipleOntologyGrounding]): Unit = {
+    val (actualName, value) = getNameAndValue(multipleOntologyGroundingsOpt)
     val expectedName = row.getCorrectGrounding(Side.Subject)
     val correct = expectedName == actualName
 
-    if (actualName == "" && isEidos) {
+    if (multipleOntologyGroundingsOpt.isDefined) {
+      if (!correct) {
+        // See how far down the list the expected value is.
+        val shorterNames = multipleOntologyGroundingsOpt.get.map { case (namer, _) =>
+          getShorterName(namer.name)
+        }
+        val index = shorterNames.indexOf(expectedName)
+
+        if (index >= 0)
+          println(s"The expected grounder is now at index $index in the list of groundings.")
+      }
+    }
+    else {
       println(s"Can no longer ground $caption: $line")
       scores.incSkipped(side)
     }
@@ -210,8 +226,9 @@ object EvalOntologyGrounders extends App {
     val annotatedDocument = eidosSystem.extractFromText(row.getText)
     val eidosMentions = annotatedDocument.eidosMentions
     val subjAndObjMentionOpt = findMatch(eidosMentions, row.getText(Side.Subject), row.getText(Side.Object), isEidos)
-    val subjAndObjSingleOntologyGroundingOpt = subjAndObjMentionOpt.map { case (subjMention, objMention) =>
-      (topSingleOntologyGrounding(name, subjMention.grounding), topSingleOntologyGrounding(name, objMention.grounding))
+    // Try to get multiple groundings in case the ordering changed and the old is not longer at the very top.
+    val subjAndObjOntologyGroundingOpt = subjAndObjMentionOpt.map { case (subjMention, objMention) =>
+      (getOntologyGroundings(name, subjMention.grounding), getOntologyGroundings(name, objMention.grounding))
     }
 
     // There is correct subj or obj in row, so test should be possible.
@@ -219,7 +236,7 @@ object EvalOntologyGrounders extends App {
     scores.incPossible(Side.Subject, row.getCorrectGrounding(Side.Subject).nonEmpty)
     scores.incPossible(Side.Object, row.getCorrectGrounding(Side.Object).nonEmpty)
     // However, the grounding does not produce a result.
-    if (subjAndObjSingleOntologyGroundingOpt.isEmpty) {
+    if (subjAndObjOntologyGroundingOpt.isEmpty) {
       if (isEidos) {
         println("Can no longer ground eidos values for line: " + line)
         scores.incSkipped(Side.Subject, row.getCorrectGrounding(Side.Subject).nonEmpty)
@@ -228,10 +245,10 @@ object EvalOntologyGrounders extends App {
       false
     }
     else {
-      val (subjSingleOntologyGroundingOpt, objSingleOntologyGroundingOpt) = subjAndObjSingleOntologyGroundingOpt.get
+      val (subjOntologyGroundingsOpt, objOntologyGroundingsOpt) = subjAndObjOntologyGroundingOpt.get
 
-      evaluateSide(Side.Subject, row, scores, "subject", line, isEidos, subjSingleOntologyGroundingOpt)
-      evaluateSide(Side.Object, row, scores, "object", line, isEidos, objSingleOntologyGroundingOpt)
+      evaluateSide(Side.Subject, row, scores, "subject", line, isEidos, subjOntologyGroundingsOpt)
+      evaluateSide(Side.Object, row, scores, "object", line, isEidos, objOntologyGroundingsOpt)
       true
     }
   }
