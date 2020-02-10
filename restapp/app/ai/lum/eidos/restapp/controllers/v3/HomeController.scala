@@ -117,7 +117,14 @@ class HomeController @Inject()(actorSystem: ActorSystem, executionContext: Execu
 //  }
 
   def listDocuments(): Action[AnyContent] = Action {
-    val future = library ? Library.Directory() // This is given 60 seconds
+    /*
+    def sayHello(name: String) = Action.async {
+  (helloActor ? SayHello(name)).mapTo[String].map { message =>
+    Ok(message)
+  }
+}
+     */
+    val future = library ? Library.DirectoryRequest() // This is given 60 seconds
     val result = Await.result(future, Duration.Inf) // Give it twice that?
     result match {
       case DirectoryResponse(list: List[String]) =>

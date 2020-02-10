@@ -1,5 +1,7 @@
 package ai.lum.eidos.restapp.models
 
+import java.time.LocalDateTime
+
 import ai.lum.eidos.restapp.EidosActor
 import akka.actor.Actor
 import akka.actor.ActorLogging
@@ -15,16 +17,24 @@ import scala.collection.mutable
 object Library {
   case class Create(documentId: String, reading: Either[Throwable, JsValue])
   case class Read(documentId: String)
-  case class Update(documentId: String, provenance: List[String])
+  case class Update(documentId: String, provenance: List[String]) // Don't know if necessary
   case class Delete(documentId: String)
 
   case class Expire(documentId: String) // remove results from memory
   // This is being put into a command to ensure thread safety?
+  // Expire removes result, especially large one
+
   case class Status(documentId: String) // Who wants to know?, reads the metadata
 
-  case class Directory() // Who wants to know?, reads the map
-  // Add Read of various kinds for CRUD
+  case class DirectoryRequest()
   case class DirectoryResponse(documentIds: List[String])
+}
+
+class LibraryCard {
+  var provenance: Provenance = null
+  var readingResult = new ReceivedReadingResult
+  // Library sets expiration when it receives the entry?
+  var expirationOpt: Option[LocalDateTime] = None
 }
 
 class Library extends EidosActor {
@@ -44,7 +54,7 @@ class Library extends EidosActor {
 
     case Library.Delete(documentId) =>
 
-    case Library.Directory() =>
+    case Library.DirectoryRequest() =>
       val documentIds: List[String] = map.keys.toList.sorted
       sender ! Library.DirectoryResponse(documentIds)
   }
