@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.apps
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyGrounder
-import org.clulab.wm.eidos.groundings.TreeDomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Sourcer
@@ -15,18 +14,14 @@ object GroundCanonicalNames extends App {
     val name = "wm"
     protected val ontologyGrounder: OntologyGrounder =
         new EidosSystem().components.ontologyHandler.ontologyGrounders.find(_.name == name).get
-//    protected val nameToIsLeaf: Map[String, Boolean] = {
-//      val domainOntology = ontologyGrounder.domainOntology
-//      val treeDomainOntology = {
-//        if (!domainOntology.isInstanceOf[TreeDomainOntology])
-//          throw new RuntimeException("I need a TreeDomainOntology, which is only possible if cached ontologies are _not_ used!")
-//        domainOntology.asInstanceOf[TreeDomainOntology]
-//      }
-//
-//      treeDomainOntology.ontologyNodes.map { ontologyNode =>
-//        ontologyNode.fullName -> false // ontologyNode.isLeaf
-//      }.toMap
-//    }
+    protected val nameToIsLeaf: Map[String, Boolean] = {
+      val domainOntology = ontologyGrounder.domainOntology
+      0.until(domainOntology.size).map { index =>
+        val name = domainOntology.getNamer(index).name
+        val isLeaf = domainOntology.isLeaf(index)
+        name -> isLeaf
+      }.toMap
+    }
 
     def split(text: String): Array[String] = text.split(' ')
 
@@ -42,7 +37,7 @@ object GroundCanonicalNames extends App {
       val nameAndValueOpt = topGroundingNameAndValue(split(canonicalName))
 
       nameAndValueOpt.map { case (name, value) =>
-        (name, value, false) // nameToIsLeaf(name))
+        (name, value, nameToIsLeaf(name))
       }
     }
   }
