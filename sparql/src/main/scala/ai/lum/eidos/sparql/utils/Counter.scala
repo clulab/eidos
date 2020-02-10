@@ -1,0 +1,16 @@
+package ai.lum.eidos.sparql.utils
+
+class Counter(protected var value: Int, step: Int) {
+
+  def inc: Int = {
+    value += step
+    value
+  }
+
+  def get: Int = value
+}
+
+object Counter {
+
+  def apply(start: Int = 0, step: Int = 1): Counter = new Counter(start, step)
+}

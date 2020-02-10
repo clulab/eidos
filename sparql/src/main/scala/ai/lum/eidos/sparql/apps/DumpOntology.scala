@@ -6,6 +6,8 @@ import java.io.PrintWriter
 import ai.lum.eidos.sparql.data.Dataset
 import ai.lum.eidos.sparql.data.Ontology
 import ai.lum.eidos.sparql.utils.Closer.AutoCloser
+import ai.lum.eidos.sparql.utils.Counter
+import ai.lum.eidos.sparql.utils.ShortTermMemory
 import ai.lum.eidos.sparql.utils.Sinker
 import ai.lum.eidos.sparql.utils.StringUtils
 import org.apache.jena.rdfconnection.RDFConnection
@@ -61,13 +63,13 @@ object DumpOntology extends App {
       .replace("\r", "\\r")
 
   def run(countPrintWriter: PrintWriter, ontologyName: String): Unit = {
-    var count = 0
+    val counter = Counter
 
     Sinker.printWriterFromFile(mkFile(ontologyName)).autoClose { printWriter =>
       Dataset.names.foreach { datasetName =>
         // There seem to be multiple events of the same kind in the same sentence.
         // The query delivers them in order, so this is essentially implements DISTINCT.
-        var prevText = ""
+        val shortTermMemory = ShortTermMemory[String]
 
         mkConnection(datasetName).autoClose { connection =>
           val query = mkQuery(datasetName, ontologyName)
@@ -77,17 +79,16 @@ object DumpOntology extends App {
               val querySolution = resultSet.next
               val text = querySolution.getLiteral("text").getString
 
-              if (text != prevText) {
+              if (shortTermMemory.isDifferent(text)) {
                 printWriter.println(escape(text))
-                count += 1
+                count.inc
               }
-              prevText = text
             }
           })
         }
       }
     }
-    countPrintWriter.println(s"$ontologyName\t$count")
+    countPrintWriter.println(s"$ontologyName\t${count.get}")
     countPrintWriter.flush()
   }
 
