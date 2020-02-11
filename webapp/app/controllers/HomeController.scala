@@ -76,11 +76,13 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
   def mapNode: Action[AnyContent] = Action { request =>
     val data = request.body.asJson.get.toString()
-    Ok(MaaSUtils.mapNodeToPrimaryConcepts(ieSystem, data, topN=10)).as(JSON)
+    // Note -- topN can be exposed to the API if needed
+    Ok(MaaSUtils.mapNodeToPrimaryConcepts(ieSystem, data, topN = 10)).as(JSON)
   }
 
   def mapOntology: Action[AnyContent] = Action { request =>
     val fileContents = request.body.asText.get
+    // Note -- topN can be exposed to the API if needed
     Ok(MaaSUtils.mapOntology(ieSystem, "MaaS", fileContents, topN = 10)).as(JSON)
   }
 
