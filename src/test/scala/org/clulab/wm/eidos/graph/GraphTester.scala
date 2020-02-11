@@ -10,9 +10,8 @@ import org.clulab.wm.eidos.test.TestUtils
 import scala.collection.Seq
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
-  //val mentions = extractMentions(clean(text))
-  val mentions: Seq[Mention] = EidosMention.findReachableMentions(TestUtils.extractMentions(ieSystem, clean(text)))
-
+  val annotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
+  val mentions: Seq[Mention] = annotatedDocument.allOdinMentions
   val testResults = new TestResults()
 
   def getSpecialChars(s: String): String = s.filter(c => c < 32 || 127 < c)
@@ -54,6 +53,13 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
   def test(edgeSpec: EdgeSpec): Seq[String] = {
     val testResult = edgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+
+    annotateTest(testResult.complaints)
+  }
+
+
+  def test(humanMigrationEdgeSpec: HumanMigrationEdgeSpec): Seq[String] = {
+    val testResult = humanMigrationEdgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(testResult.complaints)
   }

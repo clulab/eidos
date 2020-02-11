@@ -1,10 +1,11 @@
 package org.clulab.wm.eidos.system
 
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
-
 import ai.lum.common.ConfigUtils._
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.apps.CacheOntologies.config
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.{Canonicalizer, Timer}
@@ -36,6 +37,13 @@ class TestDomainOntology extends Test {
 
   def hasDuplicates(name: String, domainOntology: DomainOntology): Boolean = {
     val pathSeq = 0.until(domainOntology.size).map { i => domainOntology.getNamer(i).name }
+
+    0.until(domainOntology.size).foreach { i =>
+      // Just make sure this doesn't crash now.
+      val branch = domainOntology.getNamer(i).branch
+//      println(branch)
+    }
+
     val pathSet = pathSeq.toSet
 
 //    println(s"""The domain ontology "${domainOntology.name}" node count: ${ontologyNodes.length}""")
@@ -60,6 +68,7 @@ class TestDomainOntology extends Test {
   val proc = reader.components.proc
   val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
   val useCache = config[Boolean]("ontologies.useCache")
+  val includeParents = config[Boolean]("ontologies.includeParents")
   val filter = true
 
   def show1(ontology: DomainOntology): Unit = {
@@ -78,25 +87,28 @@ class TestDomainOntology extends Test {
 
   def testOntology(abbrev: String, name: String, path: String): Unit = {
 
-    def cachePath(name: String): String = s"./cache/english/${name}.serialized"
+    def cachePath(name: String): String = OntologyHandler.serializedPath(abbrev, path, includeParents)
 
     behavior of name
 
     it should "load and not have duplicates" in {
       val newOntology = Timer.time(s"Load $name without cache") {
-        DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCache = false)
+        DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCache = false, includeParents)
       }
       hasDuplicates(name, newOntology) should be (false)
 
       val newerOntology = Timer.time(s"Convert $name to compact") {
-        new CompactDomainOntologyBuilder(newOntology.asInstanceOf[TreeDomainOntology]).build
+        if (includeParents)
+          new FastDomainOntologyBuilder(newOntology.asInstanceOf[FullTreeDomainOntology]).build
+        else
+          new CompactDomainOntologyBuilder(newOntology.asInstanceOf[HalfTreeDomainOntology]).build
       }
       hasDuplicates(name, newerOntology) should be (false)
       matches(newOntology, newerOntology)
 
       if (useCache) {
         val newestOntology = Timer.time(s"Load $name from cache") {
-          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCache = true)
+          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCache = true, includeParents)
         }
 
         show3(newOntology, newerOntology, newestOntology)

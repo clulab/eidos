@@ -4,6 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.extraction.EntityHelper
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.expansion.ArgumentExpander.logger
@@ -65,6 +66,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
         m.start
       }
     }
+
     // Get the trigger of the mention, if there is one so that it isn't expanded over
     val trigger = m match {
       case rm: RelationMention => None

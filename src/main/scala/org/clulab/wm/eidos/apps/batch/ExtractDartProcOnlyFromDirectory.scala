@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
-import org.clulab.wm.eidos.utils.meta.DartMetaUtils
+import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
 import org.clulab.serialization.json.DocOps
 import org.clulab.wm.eidos.utils.StringUtils
 
@@ -27,7 +27,7 @@ object ExtractDartProcOnlyFromDirectory extends App {
   val threads = args(3).toInt
 
 //  val doneDir = inputDir + "/done"
-  val converter = DartMetaUtils.convertTextToMeta _
+  val converter = DartEsMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
   val parFiles = files.par

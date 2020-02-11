@@ -135,6 +135,47 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     }
   }
 
+  def reground: Action[JsValue] = Action(parse.json) { request =>
+
+    def extract(name: String): JsLookupResult = request.body \ name
+
+    try {
+      val name = extract("name").asOpt[String].getOrElse("Custom")
+      val ontologyYaml = extract("ontologyYaml").as[String]
+      val texts = extract("texts").as[JsArray].value.map { jsString =>
+        (jsString: @unchecked) match {
+          case JsString(text) => text
+        }
+      }
+      val filter = extract("filter").asOpt[Boolean].getOrElse(true)
+      val topk = extract("topk").asOpt[Int].getOrElse(10)
+      val isAlreadyCanonicalized = extract("isAlreadyCanonicalized").asOpt[Boolean].getOrElse(true)
+
+      try {
+        val ontologyHandler = ieSystem.components.ontologyHandler
+        val regroundings = ontologyHandler.reground(name, ontologyYaml, texts, filter, topk, isAlreadyCanonicalized)
+        val result = JsArray { regroundings.map { regrounding =>
+            JsArray { regrounding.map { case (grounding, score) =>
+                JsObject(Map(
+                  "grounding" -> JsString(grounding),
+                  "score" -> JsNumber(score.toDouble)
+                ))
+            }}
+        }}
+
+        Ok(result)
+      }
+      catch {
+        case throwable: Throwable =>
+          InternalServerError(JsString(s"The server couldn't handle it: ${throwable.getMessage}"))
+      }
+    }
+    catch {
+      case throwable: Throwable =>
+        BadRequest(JsString(s"The request seems to be bad: ${throwable.getMessage}"))
+    }
+  }
+
   // Method where eidos processing for webservice happens
   def processPlaytext(
     ieSystem: EidosSystem,
@@ -553,6 +594,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
         case m: TextBoundMention => m
         case m: RelationMention => new TextBoundMention(m.labels, m.tokenInterval, m.sentence, m.document, m.keep, m.foundBy)
         case m: EventMention => m.trigger
+        case m: CrossSentenceMention => m.anchor.asInstanceOf[TextBoundMention]
       }
       mkArgMention(argRole, s"T${tbmToId(arg)}")
     }

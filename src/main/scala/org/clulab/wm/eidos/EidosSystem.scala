@@ -8,7 +8,10 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils._
+import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
+import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
 
 import scala.annotation.tailrec
 
@@ -25,6 +28,10 @@ class EidosSystem(val components: EidosComponents) {
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   protected val debug = true
+
+  // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
+  // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
+  val postProcessors: Seq[PostProcessing] = Seq(components.ontologyHandler)
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
@@ -74,6 +81,14 @@ class EidosSystem(val components: EidosComponents) {
     events
   }
 
+  def postProcess(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
+      postProcessor.process(nextAnnotatedDocument)
+    }
+
+    lastAnnotatedDocument
+  }
+
   // MAIN PIPELINE METHOD if given doc
   def extractFromDoc(
       doc: Document,
@@ -112,11 +127,13 @@ class EidosSystem(val components: EidosComponents) {
         if (cagRelevantOnly) components.stopwordManager.keepCAGRelevant(mentionsAndNestedArgs)
         else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
+
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val eidosMentions = EidosMention.asEidosMentions(afterNegation, new Canonicalizer(components.stopwordManager), components.multiOntologyGrounder)
+    val afterMigration = processMigrationEvents(afterNegation)
+    val annotatedDocument = AnnotatedDocument(doc, afterMigration)
 
-    AnnotatedDocument(doc, afterNegation, eidosMentions)
+    postProcess(annotatedDocument)
   }
 
   def newDct(dctStringOpt: Option[String]): Option[DCT] = {
@@ -171,6 +188,7 @@ object EidosSystem {
   val CONCEPT_EXPANDED_LABEL = "Concept-Expanded"
   val CORR_LABEL = "Correlation"
   val COREF_LABEL = "Coreference"
+  val MIGRATION_LABEL = "HumanMigration"
   // Taxonomy relations for other uses
   val RELATION_LABEL = "EntityLinker"
 
@@ -184,6 +202,7 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
+  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 

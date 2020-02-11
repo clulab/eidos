@@ -27,6 +27,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
     val tags = mention.tags.get
     val entities = mention.entities.get
 
+    if (!tags.exists(_.startsWith("NN"))) return false
     //println(s"Checking mention: ${mention.text}")
     lemmas.indices.exists { i =>
       isContentPOS(tags(i)) &&
@@ -79,10 +80,10 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
 
   def releventEdge(m: Mention, state: State): Boolean = {
     m match {
-      case tb: TextBoundMention => EidosSystem.CAG_EDGES.contains(tb.label)
-      case rm: RelationMention => EidosSystem.CAG_EDGES.contains(rm.label)
-      case em: EventMention => EidosSystem.CAG_EDGES.contains(em.label) && argumentsHaveContent(em, state)
-      case cs: CrossSentenceMention => EidosSystem.CAG_EDGES.contains(cs.label)
+      case tb: TextBoundMention => EidosSystem.EXPAND.contains(tb.label)
+      case rm: RelationMention => EidosSystem.EXPAND.contains(rm.label)
+      case em: EventMention => EidosSystem.EXPAND.contains(em.label) && argumentsHaveContent(em, state)
+      case cs: CrossSentenceMention => EidosSystem.EXPAND.contains(cs.label)
       case _ => throw new UnsupportedClassVersionError()
     }
   }
@@ -102,7 +103,11 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
 object StopwordManager {
   val CONTENT_POS_PREFIXES: Set[String] = Set("ADJ", "NOUN", "NN", "PROPN", "VERB", "VB", "JJ")
   val STOP_POS: Set[String] = Set("CD")
-  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "PERSON", "PLACE", "SET", "TIME")
+  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME")
+
+// maybe use this to get missed Locations/Dates/etc?; not sure if necessary anymore?
+//  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")
+
 
   def apply(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) = new StopwordManager(stopwordsPath, transparentPath, corefHandler)
 

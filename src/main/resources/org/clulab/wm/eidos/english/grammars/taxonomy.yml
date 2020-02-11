@@ -5,12 +5,15 @@
 - Property
 - Quantifier
 - Event:
+  - HumanMigration
   - EntityModifier:
     - Quantification
     - Increase
     - Decrease
     - Time
-    - Location
+    - Location:
+      - Location-NN
+      - Location-Expand
   - EntityLinker:
     - DirectedRelation:
       - Causal
