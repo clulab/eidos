@@ -192,7 +192,7 @@ object EvalOntologyGrounders extends App {
   protected def evaluateSide(side: Side.Value, row: Row, scores: Scores, caption: String, line: String, isEidos: Boolean,
       multipleOntologyGroundingsOpt: Option[OntologyAliases.MultipleOntologyGrounding]): Unit = {
     val (actualName, value) = getNameAndValue(multipleOntologyGroundingsOpt)
-    val expectedName = row.getCorrectGrounding(Side.Subject)
+    val expectedName = row.getCorrectGrounding(side)
     val correct = expectedName == actualName
 
     if (multipleOntologyGroundingsOpt.isDefined) {
@@ -247,8 +247,10 @@ object EvalOntologyGrounders extends App {
     else {
       val (subjOntologyGroundingsOpt, objOntologyGroundingsOpt) = subjAndObjOntologyGroundingOpt.get
 
-      evaluateSide(Side.Subject, row, scores, "subject", line, isEidos, subjOntologyGroundingsOpt)
-      evaluateSide(Side.Object, row, scores, "object", line, isEidos, objOntologyGroundingsOpt)
+      if (row.getCorrectGrounding(Side.Subject).nonEmpty)
+        evaluateSide(Side.Subject, row, scores, "subject", line, isEidos, subjOntologyGroundingsOpt)
+      if (row.getCorrectGrounding(Side.Object).nonEmpty)
+        evaluateSide(Side.Object, row, scores, "object", line, isEidos, objOntologyGroundingsOpt)
       true
     }
   }
