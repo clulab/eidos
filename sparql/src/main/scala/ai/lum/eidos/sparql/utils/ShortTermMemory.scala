@@ -21,5 +21,5 @@ object ShortTermMemory {
 
   def apply[T]: ShortTermMemory[T] = new ShortTermMemory[T](None)
 
-  def apply[T](value: T): ShortTermMemory[T] = new ShortTermMemory(Some[T])
+  def apply[T](value: T): ShortTermMemory[T] = new ShortTermMemory[T](Some(value))
 }

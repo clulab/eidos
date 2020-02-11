@@ -26,8 +26,10 @@ object DumpOntology extends App {
   }
 
   def mkQuery(datasetName: String, ontologyName: String): String =
+    // Be careful: fhe stripMargin only works correctly if the variables being
+    // substituted in do not contains characters that look like margins themselves.
     s"""
-      |PREFIX data-prov: <http://ontology.causeex.com/ontology/odps/DataProvenance#>
+      |PREFIX prov: <http://ontology.causeex.com/ontology/odps/DataProvenance#>
       |PREFIX event: <http://ontology.causeex.com/ontology/odps/Event#>
       |PREFIX gc: <http://ontology.causeex.com/ontology/odps/GeneralConcepts#>
       |PREFIX icm: <http://ontology.causeex.com/ontology/odps/ICM#>
@@ -38,14 +40,14 @@ object DumpOntology extends App {
       |SELECT ?text
       |FROM <$host/$datasetName/data/$datasetName>
       |WHERE {
-      |    ?doc a data-prov:Document;                         # Find a document.
-      |        data-prov:contains* ?component.                # It must have some components.
-      |    ?event data-prov:sourced_from* ?component;         # Some events are sourced_from these components.
-      |        a ?eventType.                                  # They are of a certain event type.
-      |    ?eventType rdfs:subClassOf* event:Event.           # That event type is a subClassOf Event.
-      |    ?event icm:has_factor ?factor.                     # The event has_factor factor
-      |    ?factor icm:has_factor_type $ontologyName.         # And that factor has_factor_type of a certain value
-      |    ?component data-prov:text_value ?text.             # In that case, get the text of the component.
+      |    ?doc a prov:Document;                      # Find a document.
+      |        prov:contains* ?component.             # It must have some components.
+      |    ?event prov:sourced_from* ?component;      # Some events are sourced_from these components.
+      |        a ?eventType.                          # They are of a certain event type.
+      |    ?eventType rdfs:subClassOf* event:Event.   # That event type is a subClassOf Event.
+      |    ?event icm:has_factor ?factor.             # The event has_factor factor
+      |    ?factor icm:has_factor_type $ontologyName. # And that factor has_factor_type of a certain value
+      |    ?component prov:text_value ?text.          # In that case, get the text of the component.
       |}
       |
       |#LIMIT 100
@@ -63,7 +65,7 @@ object DumpOntology extends App {
       .replace("\r", "\\r")
 
   def run(countPrintWriter: PrintWriter, ontologyName: String): Unit = {
-    val counter = Counter
+    val counter = Counter()
 
     Sinker.printWriterFromFile(mkFile(ontologyName)).autoClose { printWriter =>
       Dataset.names.foreach { datasetName =>
@@ -81,14 +83,14 @@ object DumpOntology extends App {
 
               if (shortTermMemory.isDifferent(text)) {
                 printWriter.println(escape(text))
-                count.inc
+                counter.inc
               }
             }
           })
         }
       }
     }
-    countPrintWriter.println(s"$ontologyName\t${count.get}")
+    countPrintWriter.println(s"$ontologyName\t${counter.get}")
     countPrintWriter.flush()
   }
 
