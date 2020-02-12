@@ -56,15 +56,8 @@ object DumpOntologyTextTriggerScore extends App {
       |""".stripMargin
 
   def mkFile(ontologyName: String): File = {
-    new File("../sparql/texts/" + StringUtils.afterFirst(ontologyName, ':') + ".txt")
+    new File("../sparql/texts/" + StringUtils.afterFirst(ontologyName, ':') + ".tsv")
   }
-
-  // Make sure the text stays on one line and can be used in tsv file.
-  def escape(text: String): String = text
-      .replace("\\", "\\\\")
-      .replace("\t", "\\t")
-      .replace("\n", "\\n")
-      .replace("\r", "\\r")
 
   case class Row(ontologyName: String, relevance: Double, text: String, description: String)
 
@@ -75,7 +68,7 @@ object DumpOntologyTextTriggerScore extends App {
       val printWriter = Sinker.printWriterFromFile(mkFile(ontologyName))
       val tsvWriter = new TsvUtils.TsvWriter(printWriter)
 
-      tsvWriter.println("ontologyName", "relevance", "text", "description")
+      tsvWriter.printlnExcel("ontologyName", "relevance", "text", "description")
       StringUtils.afterFirst(ontologyName, ':') -> tsvWriter
     }.toMap
     // There seem to be multiple events of the same kind in the same sentence.
@@ -101,7 +94,7 @@ object DumpOntologyTextTriggerScore extends App {
               if (shortTermMemories(ontologyName).isDifferent(row)) {
                 val tsvWriter = tsvWriters(ontologyName)
 
-                tsvWriter.println(ontologyName, relevance.toString, text, description)
+                tsvWriter.printlnExcel(ontologyName, relevance.toString, text, description)
                 counter.inc
               }
             }
