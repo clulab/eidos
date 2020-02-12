@@ -10,14 +10,25 @@ import upickle.default.{ReadWriter, macroRW}
 
 object MaaSUtils {
   def mapOntology(reader: EidosSystem, ontologyName: String, ontologyString: String, topN: Int = 10): String = {
-    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.grounders
+    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
     val primaryKeys = primaryConceptEmbeddings.map(_.namer.name)
-
-    val providedOntology = OntologyHandler.mkDomainOntologyFromYaml(ontologyName, ontologyString, reader.components.proc, new Canonicalizer(reader.components.stopwordManager))
-    val grounder = EidosOntologyGrounder(ontologyName, providedOntology, reader.components.ontologyHandler.wordToVec)
+    val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
+    val providedOntology = OntologyHandler.mkDomainOntologyFromYaml(
+      ontologyName,
+      ontologyString,
+      reader.components.proc,
+      canonicalizer,
+      includeParents = true
+    )
+    val grounder = EidosOntologyGrounder(
+      ontologyName,
+      providedOntology,
+      reader.components.ontologyHandler.wordToVec,
+      canonicalizer
+    )
     val concepts = grounder.conceptEmbeddings
 
     // Seq(Concept:String, Seq(Indicator: String, Score: Float))
@@ -40,7 +51,7 @@ object MaaSUtils {
     // convert to a ConceptEmbedding
     val conceptEmbed = ConceptEmbedding(new PassThruNamer(node), embedding)
 
-    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.grounders
+    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
