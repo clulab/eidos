@@ -44,6 +44,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     OntologyGrounding(domainOntology.version, domainOntology.date, grounding, branch)
   }
 
+  // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       ConceptEmbedding(domainOntology.getNamer(n), wordToVec.makeCompositeVector(domainOntology.getValues(n)))
@@ -215,7 +216,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
     // FIXME: do we need VPs too?
     // FIXME: issue with  multiple copies of the same head word, e.g. "price of oil increase price of transportation"
-    val rule = CompositionalGrounder.ruleTemplates.replaceAllLiterally(CompositionalGrounder.SYN_HEAD_WORD,
+    val rule = CompositionalGrounder.ruleTemplates.replace(CompositionalGrounder.SYN_HEAD_WORD,
         OdinUtils.escapeExactStringMatcher(synHeadWord))
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)

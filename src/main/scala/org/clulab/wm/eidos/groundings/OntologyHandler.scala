@@ -2,10 +2,12 @@ package org.clulab.wm.eidos.groundings
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
-import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
+import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -13,7 +15,8 @@ class OntologyHandler(
   val ontologyGrounders: Seq[OntologyGrounder],
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
-  val canonicalizer: Canonicalizer
+  val canonicalizer: Canonicalizer,
+  val includeParents: Boolean
 ) extends PostProcessing {
 
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
@@ -64,7 +67,7 @@ class OntologyHandler(
     }
 
     //OntologyGrounding
-    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter)
+    val ontology = OntologyHandler.mkDomainOntologyFromYaml(name, ontologyYaml, sentencesExtractor, canonicalizer, filter, includeParents)
     val grounder = EidosOntologyGrounder(name, ontology, wordToVec, canonicalizer)
     val groundings = grounder match {
       case g: EidosOntologyGrounder =>
@@ -92,6 +95,7 @@ object OntologyHandler {
     val canonicalizer = new Canonicalizer(stopwordManager)
     val cacheDir: String = config[String]("cacheDir")
     val useCached: Boolean = config[Boolean]("useCache")
+    val includeParents: Boolean = config[Boolean]("includeParents")
     val eidosWordToVec: EidosWordToVec = {
       // This isn't intended to be (re)loadable.  This only happens once.
       OntologyHandler.logger.info("Loading W2V...")
@@ -110,23 +114,29 @@ object OntologyHandler {
         // Base grounding steps, which aren't compositional
         val ontologyGrounders: Seq[OntologyGrounder] = ontologyNames.map { ontologyName =>
           val path: String = config[String](ontologyName)
-          val domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir, useCached)
+          val domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
+              useCached, includeParents)
           val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
 
           grounder
         }
 
-        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer)
-      case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer)
+        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer, includeParents)
+      case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer, includeParents)
      case _ => ???
     }
 
     ontologyHandler
   }
 
-  def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true): DomainOntology = {
-    new TreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
+  def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true, includeParents: Boolean): DomainOntology = {
+    if (includeParents)
+      new FullTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
+    else
+      new HalfTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
   }
 
-  def serializedPath(name: String, dir: String): String = s"$dir/$name.serialized"
+  def serializedPath(name: String, dir: String, includeParents: Boolean): String =
+    if (includeParents) s"$dir/$name.fast.serialized"
+    else s"$dir/$name.serialized"
 }
