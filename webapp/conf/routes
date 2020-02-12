@@ -6,6 +6,8 @@
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index
 GET     /parseText                  controllers.HomeController.parseText(text: String, cagRelevantOnly: Boolean)
+POST    /map_node                   controllers.HomeController.mapNode
+POST    /map_ontology               controllers.HomeController.mapOntology
 POST    /process_text               controllers.HomeController.process_text
 GET     /buildInfo                  controllers.HomeController.buildInfo
 GET     /config                     controllers.HomeController.config

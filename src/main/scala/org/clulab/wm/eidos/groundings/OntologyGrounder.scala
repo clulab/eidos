@@ -282,7 +282,6 @@ object EidosOntologyGrounder {
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
   protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
-  // Namespace strings for the different in-house ontologies we typically use
   protected val               UN_NAMESPACE = "un"
   protected val              WDI_NAMESPACE = "wdi"
   protected val              FAO_NAMESPACE = "fao"
@@ -292,10 +291,11 @@ object EidosOntologyGrounder {
   protected val              WHO_NAMESPACE = "who"
   protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
+  protected val   MAAS_NAMES = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
 
   val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
 
-  val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE) ++ MAAS_NAMES
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 

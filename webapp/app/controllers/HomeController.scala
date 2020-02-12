@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, MaaSUtils, PlayUtils}
 import play.api.mvc._
 import play.api.libs.json._
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
@@ -69,6 +69,23 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val jsonString = eidosConfig.root.render(options)
     Ok(jsonString).as(JSON)
   }
+
+  // -------------------------------------------
+  //      API entry points for MaaS
+  // -------------------------------------------
+
+  def mapNode: Action[AnyContent] = Action { request =>
+    val data = request.body.asJson.get.toString()
+    // Note -- topN can be exposed to the API if needed
+    Ok(MaaSUtils.mapNodeToPrimaryConcepts(ieSystem, data, topN = 10)).as(JSON)
+  }
+
+  def mapOntology: Action[AnyContent] = Action { request =>
+    val fileContents = request.body.asText.get
+    // Note -- topN can be exposed to the API if needed
+    Ok(MaaSUtils.mapOntology(ieSystem, "MaaS", fileContents, topN = 10)).as(JSON)
+  }
+
 
   // Entry method
   def parseText(text: String, cagRelevantOnly: Boolean): Action[AnyContent] = Action {
