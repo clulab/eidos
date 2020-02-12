@@ -1,7 +1,6 @@
 package ai.lum.eidos.sparql.apps
 
 import java.io.File
-import java.io.PrintWriter
 
 import ai.lum.eidos.sparql.data.Dataset
 import ai.lum.eidos.sparql.data.Ontology
@@ -10,10 +9,11 @@ import ai.lum.eidos.sparql.utils.Counter
 import ai.lum.eidos.sparql.utils.ShortTermMemory
 import ai.lum.eidos.sparql.utils.Sinker
 import ai.lum.eidos.sparql.utils.StringUtils
+import ai.lum.eidos.sparql.utils.TsvUtils
 import org.apache.jena.rdfconnection.RDFConnection
 import org.apache.jena.rdfconnection.RDFConnectionFuseki
 
-object DumpOntology extends App {
+object DumpOntologyTextTriggerScore extends App {
   val host = "http://localhost:3030"
 
   def mkConnection(datasetName: String): RDFConnection = {
@@ -25,7 +25,7 @@ object DumpOntology extends App {
     builder.build
   }
 
-  def mkQuery(datasetName: String, ontologyName: String): String =
+  def mkQuery(datasetName: String): String =
     // Be careful: fhe stripMargin only works correctly if the variables being
     // substituted in do not contains characters that look like margins themselves.
     s"""
@@ -37,7 +37,7 @@ object DumpOntology extends App {
       |PREFIX lcc: <http://www.languagecomputer.com/lcc#>
       |PREFIX src: <http://graph.causeex.com/documents/sources#>
       |
-      |SELECT ?text
+      |SELECT ?ontologyName ?relevance ?text ?description
       |FROM <$host/$datasetName/data/$datasetName>
       |WHERE {
       |    ?doc a prov:Document;                      # Find a document.
@@ -45,8 +45,10 @@ object DumpOntology extends App {
       |    ?event prov:sourced_from* ?component;      # Some events are sourced_from these components.
       |        a ?eventType.                          # They are of a certain event type.
       |    ?eventType rdfs:subClassOf* event:Event.   # That event type is a subClassOf Event.
-      |    ?event icm:has_factor ?factor.             # The event has_factor factor
-      |    ?factor icm:has_factor_type $ontologyName. # And that factor has_factor_type of a certain value
+      |    ?event icm:has_factor ?factor;             # The event has_factor factor
+      |        gc:description ?description.           # and a description.
+      |    ?factor icm:has_factor_type ?ontologyName; # And that factor has_factor_type of a certain value
+      |        icm:has_relevance ?relevance.          # along with its relevance.
       |    ?component prov:text_value ?text.          # In that case, get the text of the component.
       |}
       |
@@ -54,7 +56,7 @@ object DumpOntology extends App {
       |""".stripMargin
 
   def mkFile(ontologyName: String): File = {
-    new File("./texts/" + StringUtils.afterFirst(ontologyName, ':') + ".txt")
+    new File("../sparql/texts/" + StringUtils.afterFirst(ontologyName, ':') + ".txt")
   }
 
   // Make sure the text stays on one line and can be used in tsv file.
@@ -64,39 +66,52 @@ object DumpOntology extends App {
       .replace("\n", "\\n")
       .replace("\r", "\\r")
 
-  def run(countPrintWriter: PrintWriter, ontologyName: String): Unit = {
+  case class Row(ontologyName: String, relevance: Double, text: String, description: String)
+
+  def run(ontologyNames: Array[String]): Unit = {
     val counter = Counter()
 
-    Sinker.printWriterFromFile(mkFile(ontologyName)).autoClose { printWriter =>
-      Dataset.names.foreach { datasetName =>
-        // There seem to be multiple events of the same kind in the same sentence.
-        // The query delivers them in order, so this is essentially implements DISTINCT.
-        val shortTermMemory = ShortTermMemory[String]
+    val tsvWriters = ontologyNames.map { ontologyName =>
+      val printWriter = Sinker.printWriterFromFile(mkFile(ontologyName))
+      val tsvWriter = new TsvUtils.TsvWriter(printWriter)
 
+      tsvWriter.println("ontologyName", "relevance", "text", "description")
+      StringUtils.afterFirst(ontologyName, ':') -> tsvWriter
+    }.toMap
+    // There seem to be multiple events of the same kind in the same sentence.
+    // The query delivers them in order, so this is essentially implements DISTINCT.
+    val shortTermMemories = tsvWriters.map { case (key, _) =>
+      key -> ShortTermMemory[Row]
+    }
+
+    {
+      Dataset.names.foreach { datasetName =>
         mkConnection(datasetName).autoClose { connection =>
-          val query = mkQuery(datasetName, ontologyName)
+          val query = mkQuery(datasetName)
 
           connection.queryResultSet(query, { resultSet =>
             while (resultSet.hasNext()) {
               val querySolution = resultSet.next
+              val ontologyName = querySolution.getResource("ontologyName").getLocalName
+              val relevance = querySolution.getLiteral("relevance").getDouble
               val text = querySolution.getLiteral("text").getString
+              val description = querySolution.getLiteral("description").getString
+              val row = Row(ontologyName, relevance, text, description)
 
-              if (shortTermMemory.isDifferent(text)) {
-                printWriter.println(escape(text))
+              if (shortTermMemories(ontologyName).isDifferent(row)) {
+                val tsvWriter = tsvWriters(ontologyName)
+
+                tsvWriter.println(ontologyName, relevance.toString, text, description)
                 counter.inc
               }
             }
           })
         }
       }
+      tsvWriters.values.foreach { tsvWriter => tsvWriter.flush }
     }
-    countPrintWriter.println(s"$ontologyName\t${counter.get}")
-    countPrintWriter.flush()
+    tsvWriters.values.foreach { tsvWriter => tsvWriter.close() }
   }
 
-  Sinker.printWriterFromFile("counts.txt").autoClose { printWriter =>
-    Ontology.names.foreach { ontologyName =>
-      run(printWriter, ontologyName)
-    }
-  }
+  run(Ontology.names)
 }
