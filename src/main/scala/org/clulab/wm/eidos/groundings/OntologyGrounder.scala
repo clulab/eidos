@@ -213,6 +213,9 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   def getModifierMentions(synHeadWord: String, mention: Mention): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
+
+    // FIXME: do we need VPs too?
+    // FIXME: issue with  multiple copies of the same head word, e.g. "price of oil increase price of transportation"
     val rule = CompositionalGrounder.ruleTemplates.replace(CompositionalGrounder.SYN_HEAD_WORD,
         OdinUtils.escapeExactStringMatcher(synHeadWord))
     val engine = ExtractorEngine(rule)
@@ -246,18 +249,18 @@ object CompositionalGrounder {
   val ruleTemplates: String =
       s"""
         | - name: AllWords
-        |   label: Chunk
+        |   label: PotentialModifier
         |   priority: 1
         |   type: token
         |   pattern: |
-        |      [chunk=/NP$$/ & !word=$SYN_HEAD_WORD & !tag=/DT|JJ|CC/]+
+        |      [chunk=/NP$$/ & !word=$SYN_HEAD_WORD & !tag=/DT|JJ|CC/]
         |
         | - name: SegmentConcept
         |   label: InternalModifier
         |   priority: 2
         |   pattern: |
         |      trigger = $SYN_HEAD_WORD
-        |      modifier: Chunk+ = >/^(compound|nmod_of|nmod_to|nmod_for|nmod_such_as)/{0,2} >/amod|compound/?
+        |      modifier: PotentialModifier+ = >/^(compound|nmod_of|nmod_to|nmod_for|nmod_such_as)/{0,2} >/amod|compound/?
           """.stripMargin
 }
 
