@@ -5,6 +5,7 @@
     "Dependency" : "https://w3id.org/wm/cag/dependency",
     "Document" : "https://w3id.org/wm/cag/document",
     "Extraction" : "https://w3id.org/wm/cag/extraction",
+    "GeoLocation" : "https://w3id.org/wm/cag/geolocation",
     "Grounding" : "https://w3id.org/wm/cag/grounding",
     "Groundings" : "https://w3id.org/wm/cag/groundings",
     "Interval" : "https://w3id.org/wm/cag/interval",
@@ -18,12 +19,12 @@
   "documents" : [ {
     "@type" : "Document",
     "@id" : "_:Document_1",
-    "title" : "test.txt",
-    "text" : "The oil supply caused conflict in Sudan.\nThe prices of oil caused conflict in Ethiopia.\nConflict caused an increase in the transportation price of fresh water.\nFighting caused an increase in the cost of transportation in Jonglei State.\nArmed clashes caused an increase in transportation demand in Jonglei State.\n",
+    "id" : "test.txt",
+    "text" : "The oil supply caused civil unrest in Sudan.\nThe prices of oil caused conflict in Ethiopia.\nConflict caused an increase in the transportation price of fresh water.\nFighting caused an increase in the cost of transportation in Jonglei State.\nArmed clashes caused a decrease in the supply of educational materials in Jonglei State.\n\nThe primary reasons for moving were insecurity, lack of food, and poor access to services such as healthcare and education.\nThe gap is mainly attributable to lack of adequate local construction materials.\nRefugees continue to report the fear of indiscriminate killings by the government forces as their main reason of flight.\n",
     "sentences" : [ {
       "@type" : "Sentence",
       "@id" : "_:Sentence_1",
-      "text" : "The oil supply caused conflict in Sudan .",
+      "text" : "The oil supply caused civil unrest in Sudan .",
       "words" : [ {
         "@type" : "Word",
         "@id" : "_:Word_1",
@@ -61,7 +62,7 @@
         "@type" : "Word",
         "@id" : "_:Word_4",
         "text" : "caused",
-        "tag" : "VBD",
+        "tag" : "VBN",
         "entity" : "O",
         "startOffset" : 15,
         "endOffset" : 21,
@@ -71,44 +72,55 @@
       }, {
         "@type" : "Word",
         "@id" : "_:Word_5",
-        "text" : "conflict",
-        "tag" : "NN",
+        "text" : "civil",
+        "tag" : "JJ",
         "entity" : "O",
         "startOffset" : 22,
-        "endOffset" : 30,
-        "lemma" : "conflict",
+        "endOffset" : 27,
+        "lemma" : "civil",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
         "@id" : "_:Word_6",
+        "text" : "unrest",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 28,
+        "endOffset" : 34,
+        "lemma" : "unrest",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_7",
         "text" : "in",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 31,
-        "endOffset" : 33,
+        "startOffset" : 35,
+        "endOffset" : 37,
         "lemma" : "in",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_7",
+        "@id" : "_:Word_8",
         "text" : "Sudan",
         "tag" : "NNP",
         "entity" : "LOCATION",
-        "startOffset" : 34,
-        "endOffset" : 39,
+        "startOffset" : 38,
+        "endOffset" : 43,
         "lemma" : "Sudan",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_8",
+        "@id" : "_:Word_9",
         "text" : ".",
         "tag" : ".",
         "entity" : "O",
-        "startOffset" : 39,
-        "endOffset" : 40,
+        "startOffset" : 43,
+        "endOffset" : 44,
         "lemma" : ".",
         "chunk" : "O",
         "norm" : "O"
@@ -146,7 +158,7 @@
           "@id" : "_:Word_4"
         },
         "destination" : {
-          "@id" : "_:Word_5"
+          "@id" : "_:Word_6"
         },
         "relation" : "dobj"
       }, {
@@ -155,7 +167,7 @@
           "@id" : "_:Word_4"
         },
         "destination" : {
-          "@id" : "_:Word_7"
+          "@id" : "_:Word_8"
         },
         "relation" : "nmod_in"
       }, {
@@ -164,16 +176,25 @@
           "@id" : "_:Word_4"
         },
         "destination" : {
-          "@id" : "_:Word_8"
+          "@id" : "_:Word_9"
         },
         "relation" : "punct"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_7"
+          "@id" : "_:Word_6"
         },
         "destination" : {
-          "@id" : "_:Word_6"
+          "@id" : "_:Word_5"
+        },
+        "relation" : "amod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_8"
+        },
+        "destination" : {
+          "@id" : "_:Word_7"
         },
         "relation" : "case"
       } ]
@@ -183,100 +204,100 @@
       "text" : "The prices of oil caused conflict in Ethiopia .",
       "words" : [ {
         "@type" : "Word",
-        "@id" : "_:Word_9",
+        "@id" : "_:Word_10",
         "text" : "The",
         "tag" : "DT",
         "entity" : "O",
-        "startOffset" : 41,
-        "endOffset" : 44,
+        "startOffset" : 45,
+        "endOffset" : 48,
         "lemma" : "the",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_10",
+        "@id" : "_:Word_11",
         "text" : "prices",
         "tag" : "NNS",
         "entity" : "B-Property",
-        "startOffset" : 45,
-        "endOffset" : 51,
+        "startOffset" : 49,
+        "endOffset" : 55,
         "lemma" : "price",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_11",
+        "@id" : "_:Word_12",
         "text" : "of",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 52,
-        "endOffset" : 54,
+        "startOffset" : 56,
+        "endOffset" : 58,
         "lemma" : "of",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_12",
+        "@id" : "_:Word_13",
         "text" : "oil",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 55,
-        "endOffset" : 58,
+        "startOffset" : 59,
+        "endOffset" : 62,
         "lemma" : "oil",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_13",
+        "@id" : "_:Word_14",
         "text" : "caused",
         "tag" : "VBD",
         "entity" : "O",
-        "startOffset" : 59,
-        "endOffset" : 65,
+        "startOffset" : 63,
+        "endOffset" : 69,
         "lemma" : "cause",
         "chunk" : "B-VP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_14",
+        "@id" : "_:Word_15",
         "text" : "conflict",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 66,
-        "endOffset" : 74,
+        "startOffset" : 70,
+        "endOffset" : 78,
         "lemma" : "conflict",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_15",
+        "@id" : "_:Word_16",
         "text" : "in",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 75,
-        "endOffset" : 77,
+        "startOffset" : 79,
+        "endOffset" : 81,
         "lemma" : "in",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_16",
+        "@id" : "_:Word_17",
         "text" : "Ethiopia",
         "tag" : "NNP",
         "entity" : "LOCATION",
-        "startOffset" : 78,
-        "endOffset" : 86,
+        "startOffset" : 82,
+        "endOffset" : 90,
         "lemma" : "Ethiopia",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_17",
+        "@id" : "_:Word_18",
         "text" : ".",
         "tag" : ".",
         "entity" : "O",
-        "startOffset" : 86,
-        "endOffset" : 87,
+        "startOffset" : 90,
+        "endOffset" : 91,
         "lemma" : ".",
         "chunk" : "O",
         "norm" : "O"
@@ -284,73 +305,73 @@
       "dependencies" : [ {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_12"
+          "@id" : "_:Word_13"
         },
         "destination" : {
-          "@id" : "_:Word_11"
+          "@id" : "_:Word_12"
         },
         "relation" : "case"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_13"
+          "@id" : "_:Word_14"
         },
         "destination" : {
-          "@id" : "_:Word_14"
+          "@id" : "_:Word_15"
         },
         "relation" : "dobj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_13"
+          "@id" : "_:Word_14"
         },
         "destination" : {
-          "@id" : "_:Word_16"
+          "@id" : "_:Word_17"
         },
         "relation" : "nmod_in"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_13"
+          "@id" : "_:Word_14"
         },
         "destination" : {
-          "@id" : "_:Word_17"
+          "@id" : "_:Word_18"
         },
         "relation" : "punct"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_13"
+          "@id" : "_:Word_14"
         },
         "destination" : {
-          "@id" : "_:Word_10"
+          "@id" : "_:Word_11"
         },
         "relation" : "nsubj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_16"
+          "@id" : "_:Word_17"
         },
         "destination" : {
-          "@id" : "_:Word_15"
+          "@id" : "_:Word_16"
         },
         "relation" : "case"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_10"
+          "@id" : "_:Word_11"
         },
         "destination" : {
-          "@id" : "_:Word_12"
+          "@id" : "_:Word_13"
         },
         "relation" : "nmod_of"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_10"
+          "@id" : "_:Word_11"
         },
         "destination" : {
-          "@id" : "_:Word_9"
+          "@id" : "_:Word_10"
         },
         "relation" : "det"
       } ]
@@ -360,133 +381,133 @@
       "text" : "Conflict caused an increase in the transportation price of fresh water .",
       "words" : [ {
         "@type" : "Word",
-        "@id" : "_:Word_18",
+        "@id" : "_:Word_19",
         "text" : "Conflict",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 88,
-        "endOffset" : 96,
+        "startOffset" : 92,
+        "endOffset" : 100,
         "lemma" : "conflict",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_19",
+        "@id" : "_:Word_20",
         "text" : "caused",
         "tag" : "VBD",
         "entity" : "O",
-        "startOffset" : 97,
-        "endOffset" : 103,
+        "startOffset" : 101,
+        "endOffset" : 107,
         "lemma" : "cause",
         "chunk" : "B-VP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_20",
+        "@id" : "_:Word_21",
         "text" : "an",
         "tag" : "DT",
         "entity" : "O",
-        "startOffset" : 104,
-        "endOffset" : 106,
+        "startOffset" : 108,
+        "endOffset" : 110,
         "lemma" : "a",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_21",
+        "@id" : "_:Word_22",
         "text" : "increase",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 107,
-        "endOffset" : 115,
+        "startOffset" : 111,
+        "endOffset" : 119,
         "lemma" : "increase",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_22",
+        "@id" : "_:Word_23",
         "text" : "in",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 116,
-        "endOffset" : 118,
+        "startOffset" : 120,
+        "endOffset" : 122,
         "lemma" : "in",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_23",
+        "@id" : "_:Word_24",
         "text" : "the",
         "tag" : "DT",
         "entity" : "O",
-        "startOffset" : 119,
-        "endOffset" : 122,
+        "startOffset" : 123,
+        "endOffset" : 126,
         "lemma" : "the",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_24",
+        "@id" : "_:Word_25",
         "text" : "transportation",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 123,
-        "endOffset" : 137,
+        "startOffset" : 127,
+        "endOffset" : 141,
         "lemma" : "transportation",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_25",
+        "@id" : "_:Word_26",
         "text" : "price",
         "tag" : "NN",
         "entity" : "B-Property",
-        "startOffset" : 138,
-        "endOffset" : 143,
+        "startOffset" : 142,
+        "endOffset" : 147,
         "lemma" : "price",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_26",
+        "@id" : "_:Word_27",
         "text" : "of",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 144,
-        "endOffset" : 146,
+        "startOffset" : 148,
+        "endOffset" : 150,
         "lemma" : "of",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_27",
+        "@id" : "_:Word_28",
         "text" : "fresh",
         "tag" : "JJ",
         "entity" : "O",
-        "startOffset" : 147,
-        "endOffset" : 152,
+        "startOffset" : 151,
+        "endOffset" : 156,
         "lemma" : "fresh",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_28",
+        "@id" : "_:Word_29",
         "text" : "water",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 153,
-        "endOffset" : 158,
+        "startOffset" : 157,
+        "endOffset" : 162,
         "lemma" : "water",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_29",
+        "@id" : "_:Word_30",
         "text" : ".",
         "tag" : ".",
         "entity" : "O",
-        "startOffset" : 158,
-        "endOffset" : 159,
+        "startOffset" : 162,
+        "endOffset" : 163,
         "lemma" : ".",
         "chunk" : "O",
         "norm" : "O"
@@ -494,100 +515,100 @@
       "dependencies" : [ {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_25"
+          "@id" : "_:Word_26"
         },
         "destination" : {
-          "@id" : "_:Word_23"
+          "@id" : "_:Word_24"
         },
         "relation" : "det"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_25"
+          "@id" : "_:Word_26"
         },
         "destination" : {
-          "@id" : "_:Word_24"
+          "@id" : "_:Word_25"
         },
         "relation" : "compound"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_25"
+          "@id" : "_:Word_26"
         },
         "destination" : {
-          "@id" : "_:Word_28"
+          "@id" : "_:Word_29"
         },
         "relation" : "nmod_of"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_25"
-        },
-        "destination" : {
-          "@id" : "_:Word_22"
-        },
-        "relation" : "case"
-      }, {
-        "@type" : "Dependency",
-        "source" : {
-          "@id" : "_:Word_28"
-        },
-        "destination" : {
           "@id" : "_:Word_26"
         },
+        "destination" : {
+          "@id" : "_:Word_23"
+        },
         "relation" : "case"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_28"
+          "@id" : "_:Word_29"
         },
         "destination" : {
           "@id" : "_:Word_27"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_29"
+        },
+        "destination" : {
+          "@id" : "_:Word_28"
         },
         "relation" : "amod"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_19"
+          "@id" : "_:Word_20"
         },
         "destination" : {
-          "@id" : "_:Word_29"
+          "@id" : "_:Word_30"
         },
         "relation" : "punct"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_19"
+          "@id" : "_:Word_20"
         },
         "destination" : {
-          "@id" : "_:Word_18"
+          "@id" : "_:Word_19"
         },
         "relation" : "nsubj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_19"
+          "@id" : "_:Word_20"
         },
         "destination" : {
-          "@id" : "_:Word_21"
+          "@id" : "_:Word_22"
         },
         "relation" : "dobj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_21"
+          "@id" : "_:Word_22"
         },
         "destination" : {
-          "@id" : "_:Word_25"
+          "@id" : "_:Word_26"
         },
         "relation" : "nmod_in"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_21"
+          "@id" : "_:Word_22"
         },
         "destination" : {
-          "@id" : "_:Word_20"
+          "@id" : "_:Word_21"
         },
         "relation" : "det"
       } ]
@@ -597,144 +618,144 @@
       "text" : "Fighting caused an increase in the cost of transportation in Jonglei State .",
       "words" : [ {
         "@type" : "Word",
-        "@id" : "_:Word_30",
+        "@id" : "_:Word_31",
         "text" : "Fighting",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 160,
-        "endOffset" : 168,
+        "startOffset" : 164,
+        "endOffset" : 172,
         "lemma" : "fighting",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_31",
+        "@id" : "_:Word_32",
         "text" : "caused",
         "tag" : "VBD",
         "entity" : "O",
-        "startOffset" : 169,
-        "endOffset" : 175,
+        "startOffset" : 173,
+        "endOffset" : 179,
         "lemma" : "cause",
         "chunk" : "B-VP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_32",
+        "@id" : "_:Word_33",
         "text" : "an",
         "tag" : "DT",
         "entity" : "O",
-        "startOffset" : 176,
-        "endOffset" : 178,
+        "startOffset" : 180,
+        "endOffset" : 182,
         "lemma" : "a",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_33",
+        "@id" : "_:Word_34",
         "text" : "increase",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 179,
-        "endOffset" : 187,
+        "startOffset" : 183,
+        "endOffset" : 191,
         "lemma" : "increase",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_34",
+        "@id" : "_:Word_35",
         "text" : "in",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 188,
-        "endOffset" : 190,
+        "startOffset" : 192,
+        "endOffset" : 194,
         "lemma" : "in",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_35",
+        "@id" : "_:Word_36",
         "text" : "the",
         "tag" : "DT",
         "entity" : "O",
-        "startOffset" : 191,
-        "endOffset" : 194,
+        "startOffset" : 195,
+        "endOffset" : 198,
         "lemma" : "the",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_36",
+        "@id" : "_:Word_37",
         "text" : "cost",
         "tag" : "NN",
         "entity" : "B-Property",
-        "startOffset" : 195,
-        "endOffset" : 199,
+        "startOffset" : 199,
+        "endOffset" : 203,
         "lemma" : "cost",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_37",
+        "@id" : "_:Word_38",
         "text" : "of",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 200,
-        "endOffset" : 202,
+        "startOffset" : 204,
+        "endOffset" : 206,
         "lemma" : "of",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_38",
+        "@id" : "_:Word_39",
         "text" : "transportation",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 203,
-        "endOffset" : 217,
+        "startOffset" : 207,
+        "endOffset" : 221,
         "lemma" : "transportation",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_39",
+        "@id" : "_:Word_40",
         "text" : "in",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 218,
-        "endOffset" : 220,
+        "startOffset" : 222,
+        "endOffset" : 224,
         "lemma" : "in",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_40",
+        "@id" : "_:Word_41",
         "text" : "Jonglei",
         "tag" : "NNP",
-        "entity" : "LOCATION",
-        "startOffset" : 221,
-        "endOffset" : 228,
+        "entity" : "B-Location",
+        "startOffset" : 225,
+        "endOffset" : 232,
         "lemma" : "Jonglei",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_41",
+        "@id" : "_:Word_42",
         "text" : "State",
         "tag" : "NNP",
-        "entity" : "LOCATION",
-        "startOffset" : 229,
-        "endOffset" : 234,
+        "entity" : "I-Location",
+        "startOffset" : 233,
+        "endOffset" : 238,
         "lemma" : "State",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_42",
+        "@id" : "_:Word_43",
         "text" : ".",
         "tag" : ".",
         "entity" : "O",
-        "startOffset" : 234,
-        "endOffset" : 235,
+        "startOffset" : 238,
+        "endOffset" : 239,
         "lemma" : ".",
         "chunk" : "O",
         "norm" : "O"
@@ -742,245 +763,286 @@
       "dependencies" : [ {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_38"
-        },
-        "destination" : {
-          "@id" : "_:Word_37"
-        },
-        "relation" : "case"
-      }, {
-        "@type" : "Dependency",
-        "source" : {
-          "@id" : "_:Word_41"
-        },
-        "destination" : {
           "@id" : "_:Word_39"
         },
+        "destination" : {
+          "@id" : "_:Word_38"
+        },
         "relation" : "case"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_41"
+          "@id" : "_:Word_42"
         },
         "destination" : {
           "@id" : "_:Word_40"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_42"
+        },
+        "destination" : {
+          "@id" : "_:Word_41"
         },
         "relation" : "compound"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_31"
+          "@id" : "_:Word_32"
         },
         "destination" : {
-          "@id" : "_:Word_42"
+          "@id" : "_:Word_43"
         },
         "relation" : "punct"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_31"
+          "@id" : "_:Word_32"
         },
         "destination" : {
-          "@id" : "_:Word_30"
+          "@id" : "_:Word_31"
         },
         "relation" : "nsubj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_31"
+          "@id" : "_:Word_32"
         },
         "destination" : {
-          "@id" : "_:Word_33"
+          "@id" : "_:Word_34"
         },
         "relation" : "dobj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_33"
+          "@id" : "_:Word_34"
         },
         "destination" : {
-          "@id" : "_:Word_32"
+          "@id" : "_:Word_33"
         },
         "relation" : "det"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_33"
+          "@id" : "_:Word_34"
         },
         "destination" : {
-          "@id" : "_:Word_36"
+          "@id" : "_:Word_37"
         },
         "relation" : "nmod_in"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_36"
+          "@id" : "_:Word_37"
         },
         "destination" : {
-          "@id" : "_:Word_38"
+          "@id" : "_:Word_39"
         },
         "relation" : "nmod_of"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_36"
+          "@id" : "_:Word_37"
         },
         "destination" : {
-          "@id" : "_:Word_41"
+          "@id" : "_:Word_42"
         },
         "relation" : "nmod_in"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_36"
+          "@id" : "_:Word_37"
         },
         "destination" : {
-          "@id" : "_:Word_34"
+          "@id" : "_:Word_35"
         },
         "relation" : "case"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_36"
+          "@id" : "_:Word_37"
         },
         "destination" : {
-          "@id" : "_:Word_35"
+          "@id" : "_:Word_36"
         },
         "relation" : "det"
+      } ],
+      "geolocs" : [ {
+        "@type" : "GeoLocation",
+        "@id" : "_:GeoLocation_1",
+        "startOffset" : 225,
+        "endOffset" : 238,
+        "text" : "Jonglei State",
+        "geoID" : "408662"
       } ]
     }, {
       "@type" : "Sentence",
       "@id" : "_:Sentence_5",
-      "text" : "Armed clashes caused an increase in transportation demand in Jonglei State .",
+      "text" : "Armed clashes caused a decrease in the supply of educational materials in Jonglei State .",
       "words" : [ {
         "@type" : "Word",
-        "@id" : "_:Word_43",
+        "@id" : "_:Word_44",
         "text" : "Armed",
         "tag" : "VBN",
         "entity" : "O",
-        "startOffset" : 236,
-        "endOffset" : 241,
+        "startOffset" : 240,
+        "endOffset" : 245,
         "lemma" : "arm",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_44",
+        "@id" : "_:Word_45",
         "text" : "clashes",
         "tag" : "NNS",
         "entity" : "O",
-        "startOffset" : 242,
-        "endOffset" : 249,
+        "startOffset" : 246,
+        "endOffset" : 253,
         "lemma" : "clash",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_45",
+        "@id" : "_:Word_46",
         "text" : "caused",
         "tag" : "VBD",
         "entity" : "O",
-        "startOffset" : 250,
-        "endOffset" : 256,
+        "startOffset" : 254,
+        "endOffset" : 260,
         "lemma" : "cause",
         "chunk" : "B-VP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_46",
-        "text" : "an",
+        "@id" : "_:Word_47",
+        "text" : "a",
         "tag" : "DT",
         "entity" : "O",
-        "startOffset" : 257,
-        "endOffset" : 259,
+        "startOffset" : 261,
+        "endOffset" : 262,
         "lemma" : "a",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_47",
-        "text" : "increase",
+        "@id" : "_:Word_48",
+        "text" : "decrease",
         "tag" : "NN",
         "entity" : "O",
-        "startOffset" : 260,
-        "endOffset" : 268,
-        "lemma" : "increase",
-        "chunk" : "I-NP",
-        "norm" : "O"
-      }, {
-        "@type" : "Word",
-        "@id" : "_:Word_48",
-        "text" : "in",
-        "tag" : "IN",
-        "entity" : "O",
-        "startOffset" : 269,
+        "startOffset" : 263,
         "endOffset" : 271,
-        "lemma" : "in",
-        "chunk" : "B-PP",
+        "lemma" : "decrease",
+        "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
         "@id" : "_:Word_49",
-        "text" : "transportation",
-        "tag" : "NN",
-        "entity" : "O",
-        "startOffset" : 272,
-        "endOffset" : 286,
-        "lemma" : "transportation",
-        "chunk" : "B-NP",
-        "norm" : "O"
-      }, {
-        "@type" : "Word",
-        "@id" : "_:Word_50",
-        "text" : "demand",
-        "tag" : "NN",
-        "entity" : "O",
-        "startOffset" : 287,
-        "endOffset" : 293,
-        "lemma" : "demand",
-        "chunk" : "I-NP",
-        "norm" : "O"
-      }, {
-        "@type" : "Word",
-        "@id" : "_:Word_51",
         "text" : "in",
         "tag" : "IN",
         "entity" : "O",
-        "startOffset" : 294,
-        "endOffset" : 296,
+        "startOffset" : 272,
+        "endOffset" : 274,
         "lemma" : "in",
         "chunk" : "B-PP",
         "norm" : "O"
       }, {
         "@type" : "Word",
+        "@id" : "_:Word_50",
+        "text" : "the",
+        "tag" : "DT",
+        "entity" : "O",
+        "startOffset" : 275,
+        "endOffset" : 278,
+        "lemma" : "the",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_51",
+        "text" : "supply",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 279,
+        "endOffset" : 285,
+        "lemma" : "supply",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
         "@id" : "_:Word_52",
+        "text" : "of",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 286,
+        "endOffset" : 288,
+        "lemma" : "of",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_53",
+        "text" : "educational",
+        "tag" : "JJ",
+        "entity" : "O",
+        "startOffset" : 289,
+        "endOffset" : 300,
+        "lemma" : "educational",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_54",
+        "text" : "materials",
+        "tag" : "NNS",
+        "entity" : "O",
+        "startOffset" : 301,
+        "endOffset" : 310,
+        "lemma" : "material",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_55",
+        "text" : "in",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 311,
+        "endOffset" : 313,
+        "lemma" : "in",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_56",
         "text" : "Jonglei",
         "tag" : "NNP",
-        "entity" : "LOCATION",
-        "startOffset" : 297,
-        "endOffset" : 304,
+        "entity" : "B-Location",
+        "startOffset" : 314,
+        "endOffset" : 321,
         "lemma" : "Jonglei",
         "chunk" : "B-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_53",
+        "@id" : "_:Word_57",
         "text" : "State",
         "tag" : "NNP",
-        "entity" : "LOCATION",
-        "startOffset" : 305,
-        "endOffset" : 310,
+        "entity" : "I-Location",
+        "startOffset" : 322,
+        "endOffset" : 327,
         "lemma" : "State",
         "chunk" : "I-NP",
         "norm" : "O"
       }, {
         "@type" : "Word",
-        "@id" : "_:Word_54",
+        "@id" : "_:Word_58",
         "text" : ".",
         "tag" : ".",
         "entity" : "O",
-        "startOffset" : 310,
-        "endOffset" : 311,
+        "startOffset" : 327,
+        "endOffset" : 328,
         "lemma" : ".",
         "chunk" : "O",
         "norm" : "O"
@@ -988,102 +1050,1266 @@
       "dependencies" : [ {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_44"
+          "@id" : "_:Word_57"
         },
         "destination" : {
-          "@id" : "_:Word_43"
+          "@id" : "_:Word_55"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_57"
+        },
+        "destination" : {
+          "@id" : "_:Word_56"
+        },
+        "relation" : "compound"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_45"
+        },
+        "destination" : {
+          "@id" : "_:Word_44"
         },
         "relation" : "amod"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_45"
+          "@id" : "_:Word_46"
         },
         "destination" : {
-          "@id" : "_:Word_54"
+          "@id" : "_:Word_58"
         },
         "relation" : "punct"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_45"
+          "@id" : "_:Word_46"
         },
         "destination" : {
-          "@id" : "_:Word_44"
+          "@id" : "_:Word_45"
         },
         "relation" : "nsubj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_45"
+          "@id" : "_:Word_46"
         },
         "destination" : {
-          "@id" : "_:Word_47"
+          "@id" : "_:Word_48"
         },
         "relation" : "dobj"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_47"
+          "@id" : "_:Word_48"
         },
         "destination" : {
-          "@id" : "_:Word_46"
+          "@id" : "_:Word_47"
         },
         "relation" : "det"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_47"
-        },
-        "destination" : {
-          "@id" : "_:Word_50"
-        },
-        "relation" : "nmod_in"
-      }, {
-        "@type" : "Dependency",
-        "source" : {
-          "@id" : "_:Word_47"
-        },
-        "destination" : {
-          "@id" : "_:Word_53"
-        },
-        "relation" : "nmod_in"
-      }, {
-        "@type" : "Dependency",
-        "source" : {
-          "@id" : "_:Word_50"
-        },
-        "destination" : {
           "@id" : "_:Word_48"
-        },
-        "relation" : "case"
-      }, {
-        "@type" : "Dependency",
-        "source" : {
-          "@id" : "_:Word_50"
-        },
-        "destination" : {
-          "@id" : "_:Word_49"
-        },
-        "relation" : "compound"
-      }, {
-        "@type" : "Dependency",
-        "source" : {
-          "@id" : "_:Word_53"
         },
         "destination" : {
           "@id" : "_:Word_51"
         },
+        "relation" : "nmod_in"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_51"
+        },
+        "destination" : {
+          "@id" : "_:Word_49"
+        },
         "relation" : "case"
       }, {
         "@type" : "Dependency",
         "source" : {
-          "@id" : "_:Word_53"
+          "@id" : "_:Word_51"
+        },
+        "destination" : {
+          "@id" : "_:Word_50"
+        },
+        "relation" : "det"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_51"
+        },
+        "destination" : {
+          "@id" : "_:Word_54"
+        },
+        "relation" : "nmod_of"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_54"
+        },
+        "destination" : {
+          "@id" : "_:Word_57"
+        },
+        "relation" : "nmod_in"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_54"
         },
         "destination" : {
           "@id" : "_:Word_52"
         },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_54"
+        },
+        "destination" : {
+          "@id" : "_:Word_53"
+        },
+        "relation" : "amod"
+      } ],
+      "geolocs" : [ {
+        "@type" : "GeoLocation",
+        "@id" : "_:GeoLocation_2",
+        "startOffset" : 314,
+        "endOffset" : 327,
+        "text" : "Jonglei State",
+        "geoID" : "408662"
+      } ]
+    }, {
+      "@type" : "Sentence",
+      "@id" : "_:Sentence_6",
+      "text" : "The primary reasons for moving were insecurity , lack of food , and poor access to services such as healthcare and education .",
+      "words" : [ {
+        "@type" : "Word",
+        "@id" : "_:Word_59",
+        "text" : "The",
+        "tag" : "DT",
+        "entity" : "O",
+        "startOffset" : 330,
+        "endOffset" : 333,
+        "lemma" : "the",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_60",
+        "text" : "primary",
+        "tag" : "JJ",
+        "entity" : "O",
+        "startOffset" : 334,
+        "endOffset" : 341,
+        "lemma" : "primary",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_61",
+        "text" : "reasons",
+        "tag" : "NNS",
+        "entity" : "O",
+        "startOffset" : 342,
+        "endOffset" : 349,
+        "lemma" : "reason",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_62",
+        "text" : "for",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 350,
+        "endOffset" : 353,
+        "lemma" : "for",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_63",
+        "text" : "moving",
+        "tag" : "VBG",
+        "entity" : "O",
+        "startOffset" : 354,
+        "endOffset" : 360,
+        "lemma" : "move",
+        "chunk" : "B-VP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_64",
+        "text" : "were",
+        "tag" : "VBD",
+        "entity" : "O",
+        "startOffset" : 361,
+        "endOffset" : 365,
+        "lemma" : "be",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_65",
+        "text" : "insecurity",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 366,
+        "endOffset" : 376,
+        "lemma" : "insecurity",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_66",
+        "text" : ",",
+        "tag" : ",",
+        "entity" : "O",
+        "startOffset" : 376,
+        "endOffset" : 377,
+        "lemma" : ",",
+        "chunk" : "O",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_67",
+        "text" : "lack",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 378,
+        "endOffset" : 382,
+        "lemma" : "lack",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_68",
+        "text" : "of",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 383,
+        "endOffset" : 385,
+        "lemma" : "of",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_69",
+        "text" : "food",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 386,
+        "endOffset" : 390,
+        "lemma" : "food",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_70",
+        "text" : ",",
+        "tag" : ",",
+        "entity" : "O",
+        "startOffset" : 390,
+        "endOffset" : 391,
+        "lemma" : ",",
+        "chunk" : "O",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_71",
+        "text" : "and",
+        "tag" : "CC",
+        "entity" : "O",
+        "startOffset" : 392,
+        "endOffset" : 395,
+        "lemma" : "and",
+        "chunk" : "O",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_72",
+        "text" : "poor",
+        "tag" : "JJ",
+        "entity" : "B-Quantifier",
+        "startOffset" : 396,
+        "endOffset" : 400,
+        "lemma" : "poor",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_73",
+        "text" : "access",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 401,
+        "endOffset" : 407,
+        "lemma" : "access",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_74",
+        "text" : "to",
+        "tag" : "TO",
+        "entity" : "O",
+        "startOffset" : 408,
+        "endOffset" : 410,
+        "lemma" : "to",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_75",
+        "text" : "services",
+        "tag" : "NNS",
+        "entity" : "O",
+        "startOffset" : 411,
+        "endOffset" : 419,
+        "lemma" : "service",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_76",
+        "text" : "such",
+        "tag" : "JJ",
+        "entity" : "O",
+        "startOffset" : 420,
+        "endOffset" : 424,
+        "lemma" : "such",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_77",
+        "text" : "as",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 425,
+        "endOffset" : 427,
+        "lemma" : "as",
+        "chunk" : "I-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_78",
+        "text" : "healthcare",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 428,
+        "endOffset" : 438,
+        "lemma" : "healthcare",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_79",
+        "text" : "and",
+        "tag" : "CC",
+        "entity" : "O",
+        "startOffset" : 439,
+        "endOffset" : 442,
+        "lemma" : "and",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_80",
+        "text" : "education",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 443,
+        "endOffset" : 452,
+        "lemma" : "education",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_81",
+        "text" : ".",
+        "tag" : ".",
+        "entity" : "O",
+        "startOffset" : 452,
+        "endOffset" : 453,
+        "lemma" : ".",
+        "chunk" : "O",
+        "norm" : "O"
+      } ],
+      "dependencies" : [ {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_73"
+        },
+        "destination" : {
+          "@id" : "_:Word_75"
+        },
+        "relation" : "nmod_to"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_73"
+        },
+        "destination" : {
+          "@id" : "_:Word_72"
+        },
+        "relation" : "amod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_75"
+        },
+        "destination" : {
+          "@id" : "_:Word_74"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_75"
+        },
+        "destination" : {
+          "@id" : "_:Word_78"
+        },
+        "relation" : "nmod_such_as"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_75"
+        },
+        "destination" : {
+          "@id" : "_:Word_80"
+        },
+        "relation" : "nmod_such_as"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_76"
+        },
+        "destination" : {
+          "@id" : "_:Word_77"
+        },
+        "relation" : "mwe"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_78"
+        },
+        "destination" : {
+          "@id" : "_:Word_76"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_78"
+        },
+        "destination" : {
+          "@id" : "_:Word_79"
+        },
+        "relation" : "cc"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_78"
+        },
+        "destination" : {
+          "@id" : "_:Word_80"
+        },
+        "relation" : "conj_and"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_61"
+        },
+        "destination" : {
+          "@id" : "_:Word_59"
+        },
+        "relation" : "det"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_61"
+        },
+        "destination" : {
+          "@id" : "_:Word_60"
+        },
+        "relation" : "amod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_61"
+        },
+        "destination" : {
+          "@id" : "_:Word_63"
+        },
+        "relation" : "nmod_for"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_63"
+        },
+        "destination" : {
+          "@id" : "_:Word_62"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_73"
+        },
+        "relation" : "conj_and"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_61"
+        },
+        "relation" : "nsubj"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_64"
+        },
+        "relation" : "cop"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_81"
+        },
+        "relation" : "punct"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_66"
+        },
+        "relation" : "punct"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_67"
+        },
+        "relation" : "conj_and"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_70"
+        },
+        "relation" : "punct"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_65"
+        },
+        "destination" : {
+          "@id" : "_:Word_71"
+        },
+        "relation" : "cc"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_67"
+        },
+        "destination" : {
+          "@id" : "_:Word_69"
+        },
+        "relation" : "nmod_of"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_69"
+        },
+        "destination" : {
+          "@id" : "_:Word_68"
+        },
+        "relation" : "case"
+      } ]
+    }, {
+      "@type" : "Sentence",
+      "@id" : "_:Sentence_7",
+      "text" : "The gap is mainly attributable to lack of adequate local construction materials .",
+      "words" : [ {
+        "@type" : "Word",
+        "@id" : "_:Word_82",
+        "text" : "The",
+        "tag" : "DT",
+        "entity" : "O",
+        "startOffset" : 454,
+        "endOffset" : 457,
+        "lemma" : "the",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_83",
+        "text" : "gap",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 458,
+        "endOffset" : 461,
+        "lemma" : "gap",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_84",
+        "text" : "is",
+        "tag" : "VBZ",
+        "entity" : "O",
+        "startOffset" : 462,
+        "endOffset" : 464,
+        "lemma" : "be",
+        "chunk" : "B-VP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_85",
+        "text" : "mainly",
+        "tag" : "RB",
+        "entity" : "O",
+        "startOffset" : 465,
+        "endOffset" : 471,
+        "lemma" : "mainly",
+        "chunk" : "B-ADJP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_86",
+        "text" : "attributable",
+        "tag" : "JJ",
+        "entity" : "O",
+        "startOffset" : 472,
+        "endOffset" : 484,
+        "lemma" : "attributable",
+        "chunk" : "I-ADJP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_87",
+        "text" : "to",
+        "tag" : "TO",
+        "entity" : "O",
+        "startOffset" : 485,
+        "endOffset" : 487,
+        "lemma" : "to",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_88",
+        "text" : "lack",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 488,
+        "endOffset" : 492,
+        "lemma" : "lack",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_89",
+        "text" : "of",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 493,
+        "endOffset" : 495,
+        "lemma" : "of",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_90",
+        "text" : "adequate",
+        "tag" : "JJ",
+        "entity" : "B-Quantifier",
+        "startOffset" : 496,
+        "endOffset" : 504,
+        "lemma" : "adequate",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_91",
+        "text" : "local",
+        "tag" : "JJ",
+        "entity" : "O",
+        "startOffset" : 505,
+        "endOffset" : 510,
+        "lemma" : "local",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_92",
+        "text" : "construction",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 511,
+        "endOffset" : 523,
+        "lemma" : "construction",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_93",
+        "text" : "materials",
+        "tag" : "NNS",
+        "entity" : "O",
+        "startOffset" : 524,
+        "endOffset" : 533,
+        "lemma" : "material",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_94",
+        "text" : ".",
+        "tag" : ".",
+        "entity" : "O",
+        "startOffset" : 533,
+        "endOffset" : 534,
+        "lemma" : ".",
+        "chunk" : "O",
+        "norm" : "O"
+      } ],
+      "dependencies" : [ {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_83"
+        },
+        "destination" : {
+          "@id" : "_:Word_82"
+        },
+        "relation" : "det"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_86"
+        },
+        "destination" : {
+          "@id" : "_:Word_83"
+        },
+        "relation" : "nsubj"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_86"
+        },
+        "destination" : {
+          "@id" : "_:Word_84"
+        },
+        "relation" : "cop"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_86"
+        },
+        "destination" : {
+          "@id" : "_:Word_85"
+        },
+        "relation" : "advmod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_86"
+        },
+        "destination" : {
+          "@id" : "_:Word_88"
+        },
+        "relation" : "nmod_to"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_86"
+        },
+        "destination" : {
+          "@id" : "_:Word_94"
+        },
+        "relation" : "punct"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_88"
+        },
+        "destination" : {
+          "@id" : "_:Word_87"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_88"
+        },
+        "destination" : {
+          "@id" : "_:Word_93"
+        },
+        "relation" : "nmod_of"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_93"
+        },
+        "destination" : {
+          "@id" : "_:Word_89"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_93"
+        },
+        "destination" : {
+          "@id" : "_:Word_90"
+        },
+        "relation" : "amod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_93"
+        },
+        "destination" : {
+          "@id" : "_:Word_91"
+        },
+        "relation" : "amod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_93"
+        },
+        "destination" : {
+          "@id" : "_:Word_92"
+        },
         "relation" : "compound"
+      } ]
+    }, {
+      "@type" : "Sentence",
+      "@id" : "_:Sentence_8",
+      "text" : "Refugees continue to report the fear of indiscriminate killings by the government forces as their main reason of flight .",
+      "words" : [ {
+        "@type" : "Word",
+        "@id" : "_:Word_95",
+        "text" : "Refugees",
+        "tag" : "NNS",
+        "entity" : "O",
+        "startOffset" : 535,
+        "endOffset" : 543,
+        "lemma" : "refugee",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_96",
+        "text" : "continue",
+        "tag" : "VBP",
+        "entity" : "O",
+        "startOffset" : 544,
+        "endOffset" : 552,
+        "lemma" : "continue",
+        "chunk" : "B-VP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_97",
+        "text" : "to",
+        "tag" : "TO",
+        "entity" : "O",
+        "startOffset" : 553,
+        "endOffset" : 555,
+        "lemma" : "to",
+        "chunk" : "I-VP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_98",
+        "text" : "report",
+        "tag" : "VB",
+        "entity" : "O",
+        "startOffset" : 556,
+        "endOffset" : 562,
+        "lemma" : "report",
+        "chunk" : "I-VP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_99",
+        "text" : "the",
+        "tag" : "DT",
+        "entity" : "O",
+        "startOffset" : 563,
+        "endOffset" : 566,
+        "lemma" : "the",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_100",
+        "text" : "fear",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 567,
+        "endOffset" : 571,
+        "lemma" : "fear",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_101",
+        "text" : "of",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 572,
+        "endOffset" : 574,
+        "lemma" : "of",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_102",
+        "text" : "indiscriminate",
+        "tag" : "JJ",
+        "entity" : "O",
+        "startOffset" : 575,
+        "endOffset" : 589,
+        "lemma" : "indiscriminate",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_103",
+        "text" : "killings",
+        "tag" : "NNS",
+        "entity" : "O",
+        "startOffset" : 590,
+        "endOffset" : 598,
+        "lemma" : "killing",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_104",
+        "text" : "by",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 599,
+        "endOffset" : 601,
+        "lemma" : "by",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_105",
+        "text" : "the",
+        "tag" : "DT",
+        "entity" : "O",
+        "startOffset" : 602,
+        "endOffset" : 605,
+        "lemma" : "the",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_106",
+        "text" : "government",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 606,
+        "endOffset" : 616,
+        "lemma" : "government",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_107",
+        "text" : "forces",
+        "tag" : "NNS",
+        "entity" : "O",
+        "startOffset" : 617,
+        "endOffset" : 623,
+        "lemma" : "force",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_108",
+        "text" : "as",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 624,
+        "endOffset" : 626,
+        "lemma" : "as",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_109",
+        "text" : "their",
+        "tag" : "PRP$",
+        "entity" : "O",
+        "startOffset" : 627,
+        "endOffset" : 632,
+        "lemma" : "they",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_110",
+        "text" : "main",
+        "tag" : "JJ",
+        "entity" : "O",
+        "startOffset" : 633,
+        "endOffset" : 637,
+        "lemma" : "main",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_111",
+        "text" : "reason",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 638,
+        "endOffset" : 644,
+        "lemma" : "reason",
+        "chunk" : "I-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_112",
+        "text" : "of",
+        "tag" : "IN",
+        "entity" : "O",
+        "startOffset" : 645,
+        "endOffset" : 647,
+        "lemma" : "of",
+        "chunk" : "B-PP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_113",
+        "text" : "flight",
+        "tag" : "NN",
+        "entity" : "O",
+        "startOffset" : 648,
+        "endOffset" : 654,
+        "lemma" : "flight",
+        "chunk" : "B-NP",
+        "norm" : "O"
+      }, {
+        "@type" : "Word",
+        "@id" : "_:Word_114",
+        "text" : ".",
+        "tag" : ".",
+        "entity" : "O",
+        "startOffset" : 654,
+        "endOffset" : 655,
+        "lemma" : ".",
+        "chunk" : "O",
+        "norm" : "O"
+      } ],
+      "dependencies" : [ {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_96"
+        },
+        "destination" : {
+          "@id" : "_:Word_95"
+        },
+        "relation" : "nsubj"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_96"
+        },
+        "destination" : {
+          "@id" : "_:Word_98"
+        },
+        "relation" : "xcomp"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_96"
+        },
+        "destination" : {
+          "@id" : "_:Word_114"
+        },
+        "relation" : "punct"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_98"
+        },
+        "destination" : {
+          "@id" : "_:Word_100"
+        },
+        "relation" : "dobj"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_98"
+        },
+        "destination" : {
+          "@id" : "_:Word_95"
+        },
+        "relation" : "nsubj:xsubj"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_98"
+        },
+        "destination" : {
+          "@id" : "_:Word_111"
+        },
+        "relation" : "nmod_as"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_98"
+        },
+        "destination" : {
+          "@id" : "_:Word_97"
+        },
+        "relation" : "mark"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_100"
+        },
+        "destination" : {
+          "@id" : "_:Word_99"
+        },
+        "relation" : "det"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_100"
+        },
+        "destination" : {
+          "@id" : "_:Word_103"
+        },
+        "relation" : "nmod_of"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_103"
+        },
+        "destination" : {
+          "@id" : "_:Word_101"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_103"
+        },
+        "destination" : {
+          "@id" : "_:Word_102"
+        },
+        "relation" : "amod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_103"
+        },
+        "destination" : {
+          "@id" : "_:Word_107"
+        },
+        "relation" : "nmod_by"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_107"
+        },
+        "destination" : {
+          "@id" : "_:Word_104"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_107"
+        },
+        "destination" : {
+          "@id" : "_:Word_105"
+        },
+        "relation" : "det"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_107"
+        },
+        "destination" : {
+          "@id" : "_:Word_106"
+        },
+        "relation" : "compound"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_111"
+        },
+        "destination" : {
+          "@id" : "_:Word_108"
+        },
+        "relation" : "case"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_111"
+        },
+        "destination" : {
+          "@id" : "_:Word_109"
+        },
+        "relation" : "nmod:poss"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_111"
+        },
+        "destination" : {
+          "@id" : "_:Word_110"
+        },
+        "relation" : "amod"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_111"
+        },
+        "destination" : {
+          "@id" : "_:Word_113"
+        },
+        "relation" : "nmod_of"
+      }, {
+        "@type" : "Dependency",
+        "source" : {
+          "@id" : "_:Word_113"
+        },
+        "destination" : {
+          "@id" : "_:Word_112"
+        },
+        "relation" : "case"
       } ]
     } ]
   } ],
@@ -1098,85 +2324,106 @@
     "canonicalName" : "oil supply",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/fossil_fuels",
-        "value" : 0.7903504967689514
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/price/oil price",
-        "value" : 0.7873860001564026
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/supply/food supply",
-        "value" : 0.7833852767944336
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/fuel",
-        "value" : 0.7556951642036438
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/transaction/oil transaction",
-        "value" : 0.7122425436973572
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/water_shortage",
-        "value" : 0.66042560338974
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/demand/food demand",
-        "value" : 0.6376460790634155
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure/electrical",
-        "value" : 0.6161885857582092
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/water_management",
-        "value" : 0.6134604215621948
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/food_water_and_nutrition/water_management",
-        "value" : 0.6134604215621948
-      } ]
-    }, {
-      "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/fossil_fuels",
-        "value" : 0.8073521852493286
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/fuel",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/economic_and_commerce/economic activity/market/fuel",
         "value" : 0.7797641158103943
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide food",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels",
+        "value" : 0.7772127389907837
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/provision of goods and services/provide food",
         "value" : 0.614199161529541
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide delivery kit",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/provision of goods and services/provide delivery kit",
         "value" : 0.6137847304344177
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/education/educational_materials",
-        "value" : 0.6070985794067383
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/education/educational_materials",
+        "value" : 0.5884547233581543
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
-      "category" : "process"
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/management/storage",
+        "value" : 0.527940571308136
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/economic/consumption",
+        "value" : 0.5112215280532837
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/access/shortage",
+        "value" : 0.5007652640342712
+      } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
       "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/property/supply",
+        "ontologyConcept" : "wm_compositional/property/supply",
         "value" : 1.0
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/",
+        "value" : 0.84922856092453
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel",
+        "value" : 0.8441793322563171
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price",
+        "value" : 0.8253865838050842
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction",
+        "value" : 0.8253546357154846
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply",
+        "value" : 0.7920504212379456
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/environmental/natural_resources/fossil_fuels",
+        "value" : 0.7789891958236694
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/water_treatment_of_piped_water_supply",
+        "value" : 0.7635266780853271
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/water_access",
+        "value" : 0.703174889087677
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/water_trucking",
+        "value" : 0.663218080997467
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/electrical",
+        "value" : 0.6485405564308167
       } ]
     } ],
     "provenance" : [ {
@@ -1204,15 +2451,19 @@
     "type" : "relation",
     "subtype" : "causation",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
-    "text" : "oil supply caused conflict",
+    "text" : "oil supply caused civil unrest",
     "rule" : "ported_syntax_1_verb-Causal",
-    "canonicalName" : "oil supply cause conflict",
+    "canonicalName" : "oil supply cause civil unrest",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm"
+      "name" : "wm_compositional",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
     }, {
       "@type" : "Groundings",
-      "name" : "wm_compositional"
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z"
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -1222,7 +2473,7 @@
       "documentCharPositions" : [ {
         "@type" : "Interval",
         "start" : 4,
-        "end" : 29
+        "end" : 33
       } ],
       "sentence" : {
         "@id" : "_:Sentence_1"
@@ -1230,7 +2481,7 @@
       "sentenceWordPositions" : [ {
         "@type" : "Interval",
         "start" : 2,
-        "end" : 5
+        "end" : 6
       } ]
     } ],
     "trigger" : {
@@ -1275,86 +2526,103 @@
     "type" : "concept",
     "subtype" : "entity",
     "labels" : [ "Concept", "Entity" ],
-    "text" : "conflict",
+    "text" : "civil unrest",
     "rule" : "simple-np",
-    "canonicalName" : "conflict",
+    "canonicalName" : "civil unrest",
     "groundings" : [ {
-      "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
-        "value" : 0.8189831376075745
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.7131220102310181
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
-        "value" : 0.6863936185836792
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
-        "value" : 0.6633585691452026
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/health/sexual violence management",
-        "value" : 0.6568310260772705
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
-        "value" : 0.6533344984054565
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demostrate",
-        "value" : 0.6487948894500732
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_crisis",
-        "value" : 0.6055613160133362
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/threat/physical_insecurity",
-        "value" : 0.5905641317367554
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/terrorism",
-        "value" : 0.5719400644302368
-      } ]
-    }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/hostility",
-        "value" : 0.7987789511680603
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate",
+        "value" : 0.7132673263549805
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.7131220102310181
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.6959866285324097
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/war",
-        "value" : 0.6738072037696838
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.6535491347312927
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/health/sexual violence management",
-        "value" : 0.6568310260772705
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/crisis_and_disaster/crisis/",
+        "value" : 0.6231445670127869
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/physical_insecurity",
-        "value" : 0.6495411396026611
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/war",
+        "value" : 0.6220073699951172
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
-      "category" : "process"
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/",
+        "value" : 0.5751546621322632
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/economic/",
+        "value" : 0.5002073645591736
+      } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
-      "category" : "property"
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demonstrate",
+        "value" : 0.8567649126052856
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.800423800945282
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
+        "value" : 0.7899664044380188
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
+        "value" : 0.7340253591537476
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/",
+        "value" : 0.687183678150177
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/tension",
+        "value" : 0.6799411773681641
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/",
+        "value" : 0.6538735628128052
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/peacekeeping_and_security/conflict_mediation_and_political_dialogue",
+        "value" : 0.629353404045105
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis",
+        "value" : 0.6194472908973694
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/",
+        "value" : 0.615805447101593
+      } ]
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -1364,7 +2632,7 @@
       "documentCharPositions" : [ {
         "@type" : "Interval",
         "start" : 22,
-        "end" : 29
+        "end" : 33
       } ],
       "sentence" : {
         "@id" : "_:Sentence_1"
@@ -1372,7 +2640,7 @@
       "sentenceWordPositions" : [ {
         "@type" : "Interval",
         "start" : 5,
-        "end" : 5
+        "end" : 6
       } ]
     } ]
   }, {
@@ -1386,73 +2654,93 @@
     "canonicalName" : "oil",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/fossil_fuels",
-        "value" : 0.8073521852493286
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/price/oil price",
-        "value" : 0.8012329936027527
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/fuel",
-        "value" : 0.7797641158103943
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/transaction/oil transaction",
-        "value" : 0.7608840465545654
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/water_shortage",
-        "value" : 0.5230116248130798
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/water",
-        "value" : 0.501885712146759
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure/water",
-        "value" : 0.501885712146759
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/agriculture/crop",
-        "value" : 0.5001606941223145
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure/electrical",
-        "value" : 0.4896186590194702
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/water_management",
-        "value" : 0.47891777753829956
-      } ]
-    }, {
-      "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/fossil_fuels",
-        "value" : 0.8073521852493286
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/economic_and_commerce/economic activity/market/fuel",
+        "value" : 0.7797641158103943
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/fuel",
-        "value" : 0.7797641158103943
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels",
+        "value" : 0.7772127389907837
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/economic_and_commerce/economic activity/market/",
+        "value" : 0.5898533463478088
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/infrastructure/water",
+        "value" : 0.5259929299354553
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/environment/natural_resources/water_commodity",
+        "value" : 0.5248317122459412
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
-      "category" : "process"
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
       "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/property/price",
+        "ontologyConcept" : "wm_compositional/property/price",
         "value" : 1.0
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/fuel",
+        "value" : 0.8618054389953613
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/oil_price",
+        "value" : 0.8399707674980164
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/transaction/oil_transaction",
+        "value" : 0.8293886184692383
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/environmental/natural_resources/fossil_fuels",
+        "value" : 0.7772127389907837
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/water_access",
+        "value" : 0.5649468302726746
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/water_treatment_of_piped_water_supply",
+        "value" : 0.5573120713233948
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/environmental/natural_resources/water_bodies",
+        "value" : 0.5158358216285706
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply",
+        "value" : 0.5110266208648682
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/health_and_life/living_condition/water_safety",
+        "value" : 0.5101750493049622
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/agriculture/crop_production",
+        "value" : 0.4923405647277832
       } ]
     } ],
     "provenance" : [ {
@@ -1462,8 +2750,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 45,
-        "end" : 57
+        "start" : 49,
+        "end" : 61
       } ],
       "sentence" : {
         "@id" : "_:Sentence_2"
@@ -1490,10 +2778,14 @@
     "canonicalName" : "oil cause conflict",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm"
+      "name" : "wm_compositional",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
     }, {
       "@type" : "Groundings",
-      "name" : "wm_compositional"
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z"
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -1502,8 +2794,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 45,
-        "end" : 73
+        "start" : 49,
+        "end" : 77
       } ],
       "sentence" : {
         "@id" : "_:Sentence_2"
@@ -1524,8 +2816,8 @@
         },
         "documentCharPositions" : [ {
           "@type" : "Interval",
-          "start" : 59,
-          "end" : 64
+          "start" : 63,
+          "end" : 68
         } ],
         "sentence" : {
           "@id" : "_:Sentence_2"
@@ -1561,81 +2853,98 @@
     "canonicalName" : "conflict",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
-        "value" : 0.8189831376075745
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.7131220102310181
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
-        "value" : 0.6863936185836792
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
-        "value" : 0.6633585691452026
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/health/sexual violence management",
-        "value" : 0.6568310260772705
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
-        "value" : 0.6533344984054565
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demostrate",
-        "value" : 0.6487948894500732
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_crisis",
-        "value" : 0.6055613160133362
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/threat/physical_insecurity",
-        "value" : 0.5905641317367554
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/terrorism",
-        "value" : 0.5719400644302368
-      } ]
-    }, {
-      "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/hostility",
-        "value" : 0.7987789511680603
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/",
+        "value" : 1.0000001192092896
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.7131220102310181
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/indicator_and_reported_property/conflict/",
+        "value" : 1.0000001192092896
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/war",
-        "value" : 0.6738072037696838
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.7909461855888367
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/health/sexual violence management",
-        "value" : 0.6568310260772705
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.7395507097244263
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/physical_insecurity",
-        "value" : 0.6495411396026611
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/war",
+        "value" : 0.7033176422119141
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
-      "category" : "process"
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/",
+        "value" : 1.0000001192092896
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/economic/",
+        "value" : 0.5331405997276306
+      } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
-      "category" : "property"
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/",
+        "value" : 1.0000001192092896
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/peacekeeping_and_security/conflict_mediation_and_political_dialogue",
+        "value" : 0.8182758092880249
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
+        "value" : 0.7788112163543701
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.7487500309944153
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
+        "value" : 0.7369949817657471
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/peacekeeping_and_security/community_level_conflict_resolution",
+        "value" : 0.7317295670509338
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/tension",
+        "value" : 0.713008463382721
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demonstrate",
+        "value" : 0.6988435387611389
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/threat/physical_insecurity",
+        "value" : 0.6637685894966125
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/",
+        "value" : 0.617794930934906
+      } ]
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -1644,8 +2953,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 66,
-        "end" : 73
+        "start" : 70,
+        "end" : 77
       } ],
       "sentence" : {
         "@id" : "_:Sentence_2"
@@ -1667,81 +2976,98 @@
     "canonicalName" : "conflict",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
-        "value" : 0.8189831376075745
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.7131220102310181
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
-        "value" : 0.6863936185836792
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
-        "value" : 0.6633585691452026
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/health/sexual violence management",
-        "value" : 0.6568310260772705
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
-        "value" : 0.6533344984054565
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demostrate",
-        "value" : 0.6487948894500732
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_crisis",
-        "value" : 0.6055613160133362
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/threat/physical_insecurity",
-        "value" : 0.5905641317367554
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/terrorism",
-        "value" : 0.5719400644302368
-      } ]
-    }, {
-      "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/hostility",
-        "value" : 0.7987789511680603
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/",
+        "value" : 1.0000001192092896
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.7131220102310181
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/indicator_and_reported_property/conflict/",
+        "value" : 1.0000001192092896
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/war",
-        "value" : 0.6738072037696838
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.7909461855888367
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/health/sexual violence management",
-        "value" : 0.6568310260772705
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.7395507097244263
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/physical_insecurity",
-        "value" : 0.6495411396026611
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/war",
+        "value" : 0.7033176422119141
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
-      "category" : "process"
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/",
+        "value" : 1.0000001192092896
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/economic/",
+        "value" : 0.5331405997276306
+      } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
-      "category" : "property"
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/",
+        "value" : 1.0000001192092896
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/peacekeeping_and_security/conflict_mediation_and_political_dialogue",
+        "value" : 0.8182758092880249
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
+        "value" : 0.7788112163543701
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.7487500309944153
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
+        "value" : 0.7369949817657471
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/peacekeeping_and_security/community_level_conflict_resolution",
+        "value" : 0.7317295670509338
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/tension",
+        "value" : 0.713008463382721
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demonstrate",
+        "value" : 0.6988435387611389
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/threat/physical_insecurity",
+        "value" : 0.6637685894966125
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/",
+        "value" : 0.617794930934906
+      } ]
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -1750,8 +3076,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 88,
-        "end" : 95
+        "start" : 92,
+        "end" : 99
       } ],
       "sentence" : {
         "@id" : "_:Sentence_3"
@@ -1770,13 +3096,17 @@
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
     "text" : "Conflict caused an increase in the transportation price of fresh water",
     "rule" : "ported_syntax_1_verb-Causal",
-    "canonicalName" : "conflict cause transportation water",
+    "canonicalName" : "conflict cause transportation fresh water",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm"
+      "name" : "wm_compositional",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
     }, {
       "@type" : "Groundings",
-      "name" : "wm_compositional"
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z"
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -1785,8 +3115,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 88,
-        "end" : 157
+        "start" : 92,
+        "end" : 161
       } ],
       "sentence" : {
         "@id" : "_:Sentence_3"
@@ -1807,8 +3137,8 @@
         },
         "documentCharPositions" : [ {
           "@type" : "Interval",
-          "start" : 97,
-          "end" : 102
+          "start" : 101,
+          "end" : 106
         } ],
         "sentence" : {
           "@id" : "_:Sentence_3"
@@ -1841,85 +3171,117 @@
     "labels" : [ "Concept", "Entity" ],
     "text" : "transportation price of fresh water",
     "rule" : "simple-np++Increase_ported_syntax_1_noun++gazetteer",
-    "canonicalName" : "transportation water",
+    "canonicalName" : "transportation fresh water",
     "groundings" : [ {
-      "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/water",
-        "value" : 0.7923759818077087
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure/water",
-        "value" : 0.7923759818077087
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/water_management",
-        "value" : 0.7828119993209839
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/food_water_and_nutrition/water_management",
-        "value" : 0.7828119993209839
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/water_shortage",
-        "value" : 0.7581638693809509
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/food_water_and_nutrition/water_security",
-        "value" : 0.747452437877655
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/movement/movement/transport",
-        "value" : 0.6721832752227783
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/food_water_and_nutrition/water_insecurity",
-        "value" : 0.6546334624290466
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/supply/food supply",
-        "value" : 0.6360917687416077
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/fossil_fuels",
-        "value" : 0.6296642422676086
-      } ]
-    }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/water_bodies",
-        "value" : 0.6525750756263733
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/environment/natural_resources/water_commodity",
+        "value" : 0.9322416186332703
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/infrastructure/water",
-        "value" : 0.6486825942993164
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/infrastructure/water",
+        "value" : 0.9288043975830078
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/goods",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/environment/natural_resources/water_bodies",
+        "value" : 0.9210660457611084
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/economic_and_commerce/economic activity/goods",
         "value" : 0.6407041549682617
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/agriculture/irrigation",
+        "value" : 0.6316975355148315
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
       "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/process/transportation/transportation",
+        "ontologyConcept" : "wm_compositional/process/transportation/",
         "value" : 1.0
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/transportation/transportation",
+        "value" : 1.0
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/transportation/shipping",
+        "value" : 0.5836553573608398
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/environment/pollution",
+        "value" : 0.5259280800819397
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/access/access",
+        "value" : 0.5080073475837708
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
       "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/property/price",
+        "ontologyConcept" : "wm_compositional/property/price",
         "value" : 1.0
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/water_access",
+        "value" : 0.8606413006782532
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/health_and_life/living_condition/water_safety",
+        "value" : 0.8306601643562317
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/water_trucking",
+        "value" : 0.81130051612854
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/water_treatment_of_piped_water_supply",
+        "value" : 0.8055776953697205
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/environmental/natural_resources/water_bodies",
+        "value" : 0.7946214079856873
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/provision_of_water_for_livestock",
+        "value" : 0.7482280731201172
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/point_of_use_water_treatment_at_household_level",
+        "value" : 0.7348158359527588
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply",
+        "value" : 0.6938570141792297
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/food_security/food_utilization",
+        "value" : 0.6936236619949341
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/food_security/food_availability",
+        "value" : 0.6920202374458313
       } ]
     } ],
     "provenance" : [ {
@@ -1929,8 +3291,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 123,
-        "end" : 157
+        "start" : 127,
+        "end" : 161
       } ],
       "sentence" : {
         "@id" : "_:Sentence_3"
@@ -1952,8 +3314,8 @@
         },
         "documentCharPositions" : [ {
           "@type" : "Interval",
-          "start" : 107,
-          "end" : 114
+          "start" : 111,
+          "end" : 118
         } ],
         "sentence" : {
           "@id" : "_:Sentence_3"
@@ -1980,69 +3342,98 @@
     "canonicalName" : "fighting",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
-        "value" : 0.7372051477432251
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
-        "value" : 0.7364505529403687
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
-        "value" : 0.7275196313858032
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demostrate",
-        "value" : 0.7177658677101135
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
-        "value" : 0.6912522912025452
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.5663503408432007
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/health/sexual violence management",
-        "value" : 0.45817336440086365
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/terrorism",
-        "value" : 0.4408392608165741
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/crisis_and_disaster/fire",
-        "value" : 0.4281642735004425
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/condition/food_insecurity",
-        "value" : 0.4145679175853729
-      } ]
-    }, {
-      "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/war",
-        "value" : 0.7284929752349854
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/war",
+        "value" : 0.727948784828186
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/hostility",
-        "value" : 0.6883506178855896
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.7013358473777771
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate",
+        "value" : 0.5711864829063416
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.5655021667480469
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/",
+        "value" : 0.5416794419288635
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
-      "category" : "process"
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/attack",
+        "value" : 0.5774518847465515
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/",
+        "value" : 0.5416794419288635
+      } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
-      "category" : "property"
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
+        "value" : 0.7517204880714417
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
+        "value" : 0.724676251411438
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
+        "value" : 0.6880490183830261
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demonstrate",
+        "value" : 0.5711909532546997
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.556574285030365
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/",
+        "value" : 0.5416794419288635
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/terrorism",
+        "value" : 0.5416477918624878
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
+        "value" : 0.5207052826881409
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/tension",
+        "value" : 0.5042725205421448
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/threat/",
+        "value" : 0.4989061951637268
+      } ]
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -2051,8 +3442,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 160,
-        "end" : 167
+        "start" : 164,
+        "end" : 171
       } ],
       "sentence" : {
         "@id" : "_:Sentence_4"
@@ -2074,10 +3465,14 @@
     "canonicalName" : "fighting cause transportation",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm"
+      "name" : "wm_compositional",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
     }, {
       "@type" : "Groundings",
-      "name" : "wm_compositional"
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z"
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -2086,8 +3481,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 160,
-        "end" : 233
+        "start" : 164,
+        "end" : 237
       } ],
       "sentence" : {
         "@id" : "_:Sentence_4"
@@ -2108,8 +3503,8 @@
         },
         "documentCharPositions" : [ {
           "@type" : "Interval",
-          "start" : 169,
-          "end" : 174
+          "start" : 173,
+          "end" : 178
         } ],
         "sentence" : {
           "@id" : "_:Sentence_4"
@@ -2145,82 +3540,110 @@
     "canonicalName" : "transportation",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/movement/movement/transport",
-        "value" : 0.7263564467430115
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure/transportation/travel",
-        "value" : 0.5566573143005371
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/livelihood",
-        "value" : 0.5385079383850098
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide veterinary service",
-        "value" : 0.5257271528244019
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide food",
-        "value" : 0.518187940120697
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure/road",
-        "value" : 0.5163169503211975
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/demand/food demand",
-        "value" : 0.4975869655609131
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure/transportation/shipping",
-        "value" : 0.49568626284599304
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/supply/food supply",
-        "value" : 0.49557244777679443
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/environment/natural_resources/water_management",
-        "value" : 0.49372804164886475
-      } ]
-    }, {
-      "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/revenue",
-        "value" : 0.663835346698761
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/economic_and_commerce/economic activity/market/revenue",
+        "value" : 0.6635595560073853
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/goods",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/economic_and_commerce/economic activity/goods",
         "value" : 0.6407041549682617
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide cash",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/provision of goods and services/provide cash",
         "value" : 0.6287137269973755
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/provision of goods and services/provide delivery kit",
+        "value" : 0.595978319644928
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/infrastructure/",
+        "value" : 0.5879144668579102
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
       "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/process/transportation/transportation",
+        "ontologyConcept" : "wm_compositional/process/transportation/",
         "value" : 1.0
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/transportation/transportation",
+        "value" : 1.0
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/transportation/shipping",
+        "value" : 0.5836553573608398
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/access/access",
+        "value" : 0.5080073475837708
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
       "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/property/price",
+        "ontologyConcept" : "wm_compositional/property/price",
         "value" : 1.0
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/transportation/",
+        "value" : 1.0
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/movement/transport",
+        "value" : 0.838717520236969
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/transportation/travel",
+        "value" : 0.8151655793190002
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation",
+        "value" : 0.7195468544960022
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/water_trucking",
+        "value" : 0.6627870798110962
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/construction_of_infrastructure/",
+        "value" : 0.6226110458374023
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/housing_provision_leasing_or_rental_services",
+        "value" : 0.618801474571228
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/transportation/shipping",
+        "value" : 0.6107121706008911
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/institutional_support/capacity_building_of_medical_staff",
+        "value" : 0.6079421043395996
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/",
+        "value" : 0.5837317109107971
       } ]
     } ],
     "provenance" : [ {
@@ -2230,8 +3653,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 195,
-        "end" : 233
+        "start" : 199,
+        "end" : 237
       } ],
       "sentence" : {
         "@id" : "_:Sentence_4"
@@ -2253,8 +3676,8 @@
         },
         "documentCharPositions" : [ {
           "@type" : "Interval",
-          "start" : 179,
-          "end" : 186
+          "start" : 183,
+          "end" : 190
         } ],
         "sentence" : {
           "@id" : "_:Sentence_4"
@@ -2269,6 +3692,13 @@
       "@type" : "State",
       "type" : "PROP",
       "text" : "cost"
+    }, {
+      "@type" : "State",
+      "type" : "LocationExp",
+      "text" : "Jonglei State",
+      "value" : {
+        "@id" : "_:GeoLocation_1"
+      }
     } ]
   }, {
     "@type" : "Extraction",
@@ -2281,81 +3711,102 @@
     "canonicalName" : "arm clash",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
-        "value" : 0.6245049238204956
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
-        "value" : 0.6094902753829956
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demostrate",
-        "value" : 0.59409499168396
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
-        "value" : 0.5929602980613708
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
-        "value" : 0.592644214630127
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
-        "value" : 0.4884277284145355
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/condition/tension",
-        "value" : 0.44700098037719727
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide moving of houseHolds",
-        "value" : 0.40144267678260803
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/institutional support/protection/capacity building human right",
-        "value" : 0.39922788739204407
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/crisis_and_disaster/fire",
-        "value" : 0.37094464898109436
-      } ]
-    }, {
-      "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/demonstrate",
-        "value" : 0.7260000109672546
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.7549048662185669
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/hostility",
-        "value" : 0.7183563709259033
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate",
+        "value" : 0.7130364179611206
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/hostility",
-        "value" : 0.6440162062644958
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.7068078517913818
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/war",
-        "value" : 0.6354957818984985
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/war",
+        "value" : 0.6523441076278687
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/security/conflict/war",
-        "value" : 0.6348779201507568
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/war",
+        "value" : 0.6358098983764648
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
-      "category" : "process"
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/",
+        "value" : 0.6099425554275513
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/abduction",
+        "value" : 0.5806298851966858
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/attack",
+        "value" : 0.5514281988143921
+      } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
-      "category" : "property"
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
+        "value" : 0.5871100425720215
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demonstrate",
+        "value" : 0.566006064414978
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
+        "value" : 0.5515186786651611
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
+        "value" : 0.5411093235015869
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/tension",
+        "value" : 0.4892939329147339
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.4882913827896118
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
+        "value" : 0.4657766819000244
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/health_and_life/injury",
+        "value" : 0.4595198333263397
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/cross_border_trade/",
+        "value" : 0.4369796812534332
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/terrorism",
+        "value" : 0.43638554215431213
+      } ]
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -2364,8 +3815,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 236,
-        "end" : 248
+        "start" : 240,
+        "end" : 252
       } ],
       "sentence" : {
         "@id" : "_:Sentence_5"
@@ -2382,15 +3833,19 @@
     "type" : "relation",
     "subtype" : "causation",
     "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
-    "text" : "Armed clashes caused an increase in transportation demand",
+    "text" : "Armed clashes caused a decrease in the supply of educational materials in Jonglei State",
     "rule" : "ported_syntax_1_verb-Causal",
-    "canonicalName" : "arm clash cause transportation demand",
+    "canonicalName" : "arm clash cause supply educational material",
     "groundings" : [ {
       "@type" : "Groundings",
-      "name" : "wm"
+      "name" : "wm_compositional",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
     }, {
       "@type" : "Groundings",
-      "name" : "wm_compositional"
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z"
     } ],
     "provenance" : [ {
       "@type" : "Provenance",
@@ -2399,8 +3854,8 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 236,
-        "end" : 292
+        "start" : 240,
+        "end" : 326
       } ],
       "sentence" : {
         "@id" : "_:Sentence_5"
@@ -2408,7 +3863,7 @@
       "sentenceWordPositions" : [ {
         "@type" : "Interval",
         "start" : 1,
-        "end" : 8
+        "end" : 14
       } ]
     } ],
     "trigger" : {
@@ -2421,8 +3876,8 @@
         },
         "documentCharPositions" : [ {
           "@type" : "Interval",
-          "start" : 250,
-          "end" : 255
+          "start" : 254,
+          "end" : 259
         } ],
         "sentence" : {
           "@id" : "_:Sentence_5"
@@ -2453,87 +3908,111 @@
     "type" : "concept",
     "subtype" : "entity",
     "labels" : [ "Concept", "Entity" ],
-    "text" : "transportation demand",
-    "rule" : "simple-np++Increase_ported_syntax_1_noun",
-    "canonicalName" : "transportation demand",
+    "text" : "supply of educational materials in Jonglei State",
+    "rule" : "simple-np++Decrease_ported_syntax_1_noun++gazetteer",
+    "canonicalName" : "supply educational material",
     "groundings" : [ {
-      "@type" : "Groundings",
-      "name" : "wm",
-      "values" : [ {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/demand/food demand",
-        "value" : 0.7868065237998962
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/livelihood",
-        "value" : 0.6699081659317017
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/movement/movement/transport",
-        "value" : 0.6532465219497681
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/supply/food supply",
-        "value" : 0.6319292187690735
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide food",
-        "value" : 0.6273788809776306
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide veterinary service",
-        "value" : 0.6164257526397705
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide cash",
-        "value" : 0.613844633102417
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/access/food_shortage",
-        "value" : 0.6129701137542725
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/intervention/provision of goods and services/provide moving of houseHolds",
-        "value" : 0.6093207001686096
-      }, {
-        "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/price/food_price",
-        "value" : 0.6054637432098389
-      } ]
-    }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/concept",
       "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/labor_market",
-        "value" : 0.6713355183601379
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/infrastructure/construction_materials",
+        "value" : 0.8033739328384399
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/goods",
-        "value" : 0.6407041549682617
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/education/educational_materials",
+        "value" : 0.7134394645690918
       }, {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic activity/market/revenue",
-        "value" : 0.6085221767425537
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/provision of goods and services/provide food",
+        "value" : 0.614199161529541
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/provision of goods and services/provide delivery kit",
+        "value" : 0.6137847304344177
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/education/educational_materials",
+        "value" : 0.5884547233581543
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/process",
       "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/process/transportation/transportation",
-        "value" : 1.0
+        "ontologyConcept" : "wm_compositional/process/management/storage",
+        "value" : 0.527940571308136
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/economic/consumption",
+        "value" : 0.5112215280532837
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/access/shortage",
+        "value" : 0.5007652640342712
       } ]
     }, {
       "@type" : "Groundings",
       "name" : "wm_compositional/property",
       "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
       "values" : [ {
         "@type" : "Grounding",
-        "ontologyConcept" : "wm/property/demand",
+        "ontologyConcept" : "wm_compositional/property/supply",
         "value" : 1.0
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/educational/educational_materials",
+        "value" : 0.8873186111450195
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/institutional_support/providing_educational_materials",
+        "value" : 0.8794764876365662
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/construction_materials",
+        "value" : 0.804180920124054
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/household_solid_waste_management",
+        "value" : 0.7526739835739136
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/",
+        "value" : 0.7510514259338379
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/free_food_distribution",
+        "value" : 0.7461399435997009
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/supply/food_supply",
+        "value" : 0.7309525609016418
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/educational/",
+        "value" : 0.7277262210845947
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/provision_of_non_formal_education",
+        "value" : 0.7222213745117188
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/food_for_assets",
+        "value" : 0.7211114764213562
       } ]
     } ],
     "provenance" : [ {
@@ -2543,22 +4022,22 @@
       },
       "documentCharPositions" : [ {
         "@type" : "Interval",
-        "start" : 272,
-        "end" : 292
+        "start" : 279,
+        "end" : 326
       } ],
       "sentence" : {
         "@id" : "_:Sentence_5"
       },
       "sentenceWordPositions" : [ {
         "@type" : "Interval",
-        "start" : 7,
-        "end" : 8
+        "start" : 8,
+        "end" : 14
       } ]
     } ],
     "states" : [ {
       "@type" : "State",
-      "type" : "INC",
-      "text" : "increase",
+      "type" : "DEC",
+      "text" : "decrease",
       "provenance" : [ {
         "@type" : "Provenance",
         "document" : {
@@ -2566,8 +4045,8 @@
         },
         "documentCharPositions" : [ {
           "@type" : "Interval",
-          "start" : 260,
-          "end" : 267
+          "start" : 263,
+          "end" : 270
         } ],
         "sentence" : {
           "@id" : "_:Sentence_5"
@@ -2577,6 +4056,685 @@
           "start" : 5,
           "end" : 5
         } ]
+      } ]
+    }, {
+      "@type" : "State",
+      "type" : "LocationExp",
+      "text" : "Jonglei State",
+      "value" : {
+        "@id" : "_:GeoLocation_2"
+      }
+    } ]
+  }, {
+    "@type" : "Extraction",
+    "@id" : "_:Extraction_16",
+    "type" : "concept",
+    "subtype" : "entity",
+    "labels" : [ "Concept", "Entity" ],
+    "text" : "gap",
+    "rule" : "simple-np",
+    "canonicalName" : "gap",
+    "groundings" : [ {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/concept",
+      "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/process",
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/property",
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/trend",
+        "value" : 0.533247172832489
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/budget",
+        "value" : 0.5168347954750061
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/provision_of_credit_and_training_for_income_generation",
+        "value" : 0.49647313356399536
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/construction_of_infrastructure/building_long_term_roads",
+        "value" : 0.49470773339271545
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/competition",
+        "value" : 0.4844343960285187
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/building_construction/creation_of_temporary_water_points",
+        "value" : 0.47515079379081726
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/crisis_and_disaster/economic/economic_crisis",
+        "value" : 0.47244417667388916
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/labor_market",
+        "value" : 0.45816749334335327
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/cost_of_transportation",
+        "value" : 0.45761367678642273
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/tension",
+        "value" : 0.4531686007976532
+      } ]
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "documentCharPositions" : [ {
+        "@type" : "Interval",
+        "start" : 458,
+        "end" : 460
+      } ],
+      "sentence" : {
+        "@id" : "_:Sentence_7"
+      },
+      "sentenceWordPositions" : [ {
+        "@type" : "Interval",
+        "start" : 2,
+        "end" : 2
+      } ]
+    } ]
+  }, {
+    "@type" : "Extraction",
+    "@id" : "_:Extraction_17",
+    "type" : "relation",
+    "subtype" : "causation",
+    "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
+    "text" : "gap is mainly attributable to lack of adequate local construction materials",
+    "rule" : "attributable-to-Causal",
+    "canonicalName" : "gap attributable local construction material",
+    "groundings" : [ {
+      "@type" : "Groundings",
+      "name" : "wm_compositional",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z"
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "documentCharPositions" : [ {
+        "@type" : "Interval",
+        "start" : 458,
+        "end" : 532
+      } ],
+      "sentence" : {
+        "@id" : "_:Sentence_7"
+      },
+      "sentenceWordPositions" : [ {
+        "@type" : "Interval",
+        "start" : 2,
+        "end" : 12
+      } ]
+    } ],
+    "trigger" : {
+      "@type" : "Trigger",
+      "text" : "attributable",
+      "provenance" : [ {
+        "@type" : "Provenance",
+        "document" : {
+          "@id" : "_:Document_1"
+        },
+        "documentCharPositions" : [ {
+          "@type" : "Interval",
+          "start" : 472,
+          "end" : 483
+        } ],
+        "sentence" : {
+          "@id" : "_:Sentence_7"
+        },
+        "sentenceWordPositions" : [ {
+          "@type" : "Interval",
+          "start" : 5,
+          "end" : 5
+        } ]
+      } ]
+    },
+    "arguments" : [ {
+      "@type" : "Argument",
+      "type" : "source",
+      "value" : {
+        "@id" : "_:Extraction_18"
+      }
+    }, {
+      "@type" : "Argument",
+      "type" : "destination",
+      "value" : {
+        "@id" : "_:Extraction_16"
+      }
+    } ]
+  }, {
+    "@type" : "Extraction",
+    "@id" : "_:Extraction_18",
+    "type" : "concept",
+    "subtype" : "entity",
+    "labels" : [ "Concept", "Entity" ],
+    "text" : "lack of adequate local construction materials",
+    "rule" : "gazetteer++simple-np++quantification2++Decrease_ported_syntax_1_noun",
+    "canonicalName" : "local construction material",
+    "groundings" : [ {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/concept",
+      "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/infrastructure/construction_materials",
+        "value" : 0.8521676659584045
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/infrastructure/construction_materials",
+        "value" : 0.8033739328384399
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/education/educational_materials",
+        "value" : 0.7134394645690918
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/physical_insecurity",
+        "value" : 0.6745942831039429
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/health_and_life/basic_needs",
+        "value" : 0.637018084526062
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/process",
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/agriculture/failure",
+        "value" : 0.5728974938392639
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/access/shortage",
+        "value" : 0.5623024106025696
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/property",
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/property/supply",
+        "value" : 1.0
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/construction_materials",
+        "value" : 0.9098222255706787
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/construction_of_infrastructure/",
+        "value" : 0.7436813116073608
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/institutional_support/providing_educational_materials",
+        "value" : 0.7420390844345093
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/household_solid_waste_management",
+        "value" : 0.7321394681930542
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/building_construction/",
+        "value" : 0.7305731773376465
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/educational/educational_materials",
+        "value" : 0.7137550711631775
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/building_construction/construction_of_prefabricated_buildings",
+        "value" : 0.7004413604736328
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/food_for_work",
+        "value" : 0.6924424171447754
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/building_construction/creation_of_temporary_water_points",
+        "value" : 0.6828302145004272
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/free_food_distribution",
+        "value" : 0.6708973050117493
+      } ]
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "documentCharPositions" : [ {
+        "@type" : "Interval",
+        "start" : 488,
+        "end" : 532
+      } ],
+      "sentence" : {
+        "@id" : "_:Sentence_7"
+      },
+      "sentenceWordPositions" : [ {
+        "@type" : "Interval",
+        "start" : 7,
+        "end" : 12
+      } ]
+    } ],
+    "states" : [ {
+      "@type" : "State",
+      "type" : "DEC",
+      "text" : "lack",
+      "provenance" : [ {
+        "@type" : "Provenance",
+        "document" : {
+          "@id" : "_:Document_1"
+        },
+        "documentCharPositions" : [ {
+          "@type" : "Interval",
+          "start" : 488,
+          "end" : 491
+        } ],
+        "sentence" : {
+          "@id" : "_:Sentence_7"
+        },
+        "sentenceWordPositions" : [ {
+          "@type" : "Interval",
+          "start" : 7,
+          "end" : 7
+        } ]
+      } ]
+    }, {
+      "@type" : "State",
+      "type" : "QUANT",
+      "text" : "adequate",
+      "provenance" : [ {
+        "@type" : "Provenance",
+        "document" : {
+          "@id" : "_:Document_1"
+        },
+        "documentCharPositions" : [ {
+          "@type" : "Interval",
+          "start" : 496,
+          "end" : 503
+        } ],
+        "sentence" : {
+          "@id" : "_:Sentence_7"
+        },
+        "sentenceWordPositions" : [ {
+          "@type" : "Interval",
+          "start" : 9,
+          "end" : 9
+        } ]
+      } ]
+    } ]
+  }, {
+    "@type" : "Extraction",
+    "@id" : "_:Extraction_19",
+    "type" : "relation",
+    "subtype" : "causation",
+    "labels" : [ "Causal", "DirectedRelation", "EntityLinker", "Event" ],
+    "text" : "report the fear of indiscriminate killings by the government forces as their main reason of flight",
+    "rule" : "report-as-reason-Causal",
+    "canonicalName" : "report fear indiscriminate killing government force main reason flight",
+    "groundings" : [ {
+      "@type" : "Groundings",
+      "name" : "wm_compositional",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z"
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "documentCharPositions" : [ {
+        "@type" : "Interval",
+        "start" : 556,
+        "end" : 653
+      } ],
+      "sentence" : {
+        "@id" : "_:Sentence_8"
+      },
+      "sentenceWordPositions" : [ {
+        "@type" : "Interval",
+        "start" : 4,
+        "end" : 19
+      } ]
+    } ],
+    "trigger" : {
+      "@type" : "Trigger",
+      "text" : "report",
+      "provenance" : [ {
+        "@type" : "Provenance",
+        "document" : {
+          "@id" : "_:Document_1"
+        },
+        "documentCharPositions" : [ {
+          "@type" : "Interval",
+          "start" : 556,
+          "end" : 561
+        } ],
+        "sentence" : {
+          "@id" : "_:Sentence_8"
+        },
+        "sentenceWordPositions" : [ {
+          "@type" : "Interval",
+          "start" : 4,
+          "end" : 4
+        } ]
+      } ]
+    },
+    "arguments" : [ {
+      "@type" : "Argument",
+      "type" : "source",
+      "value" : {
+        "@id" : "_:Extraction_20"
+      }
+    }, {
+      "@type" : "Argument",
+      "type" : "destination",
+      "value" : {
+        "@id" : "_:Extraction_21"
+      }
+    } ]
+  }, {
+    "@type" : "Extraction",
+    "@id" : "_:Extraction_20",
+    "type" : "concept",
+    "subtype" : "entity",
+    "labels" : [ "Concept", "Entity" ],
+    "text" : "fear of indiscriminate killings by the government forces",
+    "rule" : "simple-np",
+    "canonicalName" : "fear indiscriminate killing government force",
+    "groundings" : [ {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/concept",
+      "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/physical_insecurity",
+        "value" : 0.6938655972480774
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.6313188672065735
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/war",
+        "value" : 0.6201372146606445
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.5909736156463623
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility",
+        "value" : 0.588872492313385
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/process",
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/abduction",
+        "value" : 0.6051061153411865
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/migration/emigration",
+        "value" : 0.5550803542137146
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/conflict/",
+        "value" : 0.5314298272132874
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/property",
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/hostility",
+        "value" : 0.8097543120384216
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/war",
+        "value" : 0.7918712496757507
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/attack",
+        "value" : 0.7682660222053528
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/political/political_instability",
+        "value" : 0.7524387836456299
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/demonstrate",
+        "value" : 0.7451358437538147
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/terrorism",
+        "value" : 0.7299901843070984
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/government/",
+        "value" : 0.7291662693023682
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/criminal/crime",
+        "value" : 0.7136833071708679
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/strike",
+        "value" : 0.7100282311439514
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/conflict/tension",
+        "value" : 0.6997011303901672
+      } ]
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "documentCharPositions" : [ {
+        "@type" : "Interval",
+        "start" : 567,
+        "end" : 622
+      } ],
+      "sentence" : {
+        "@id" : "_:Sentence_8"
+      },
+      "sentenceWordPositions" : [ {
+        "@type" : "Interval",
+        "start" : 6,
+        "end" : 13
+      } ]
+    } ]
+  }, {
+    "@type" : "Extraction",
+    "@id" : "_:Extraction_21",
+    "type" : "concept",
+    "subtype" : "entity",
+    "labels" : [ "Concept", "Entity" ],
+    "text" : "main reason of flight",
+    "rule" : "simple-np",
+    "canonicalName" : "main reason flight",
+    "groundings" : [ {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/concept",
+      "category" : "concept",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/health_and_life/basic_needs",
+        "value" : 0.6611465215682983
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/institutional support/protection/capacity building human right",
+        "value" : 0.5824563503265381
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/crisis_and_disaster/crisis/weather_issue/",
+        "value" : 0.5509898066520691
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/intervention/provision of goods and services/provide moving of houseHolds",
+        "value" : 0.5440548658370972
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/concept/causal_factor/entity/person_and_group/",
+        "value" : 0.5403702259063721
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/process",
+      "category" : "process",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/migration/emigration",
+        "value" : 0.5780657529830933
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/migration/immigration",
+        "value" : 0.560571014881134
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm_compositional/process/migration/emigration",
+        "value" : 0.5463149547576904
+      } ]
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_compositional/property",
+      "category" : "property",
+      "version" : "deb89529e8d19f152ddaae2fc18ff476ea45715c",
+      "versionDate" : "2019-12-14T20:28:41Z"
+    }, {
+      "@type" : "Groundings",
+      "name" : "wm_flattened",
+      "version" : "87c0acf615936fa8ee078bfc81e1f5b39a3d35e2",
+      "versionDate" : "2019-12-12T17:02:39Z",
+      "values" : [ {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/teaching,_training_and_public_awareness/training_of_community_sourced_emergency_or_temporary_teachers",
+        "value" : 0.6407299041748047
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/building_construction/creation_of_temporary_water_points",
+        "value" : 0.6354658603668213
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/information_services/food_security_or_famine_early_warning_system",
+        "value" : 0.6334162950515747
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/road_access",
+        "value" : 0.6329375505447388
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/construction_of_infrastructure/building_long_term_roads",
+        "value" : 0.6281513571739197
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/health_and_life/basic_needs",
+        "value" : 0.6257357597351074
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/social_and_political/migration/immigration",
+        "value" : 0.6219676733016968
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/institutional_support/capacity_building_of_national_authorities_on_human_rights",
+        "value" : 0.617826521396637
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/access/infrastructure_access/transportation/travel",
+        "value" : 0.6155667304992676
+      }, {
+        "@type" : "Grounding",
+        "ontologyConcept" : "wm/concept/causal_factor/interventions/provision_of_goods_and_services/point_of_use_water_treatment_at_household_level",
+        "value" : 0.6117792725563049
+      } ]
+    } ],
+    "provenance" : [ {
+      "@type" : "Provenance",
+      "document" : {
+        "@id" : "_:Document_1"
+      },
+      "documentCharPositions" : [ {
+        "@type" : "Interval",
+        "start" : 633,
+        "end" : 653
+      } ],
+      "sentence" : {
+        "@id" : "_:Sentence_8"
+      },
+      "sentenceWordPositions" : [ {
+        "@type" : "Interval",
+        "start" : 16,
+        "end" : 19
       } ]
     } ]
   } ]
