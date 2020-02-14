@@ -39,7 +39,9 @@ libraryDependencies ++= {
     "org.apache.lucene" % "lucene-core"             % luceneVer,
     "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
     "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
-    "org.apache.lucene" % "lucene-grouping"         % luceneVer
+    "org.apache.lucene" % "lucene-grouping"         % luceneVer,
+    "com.lihaoyi"   %% "ujson"                    % "0.7.1",
+    "com.lihaoyi"   %% "upickle"                  % "0.7.1",
   )
 }
 

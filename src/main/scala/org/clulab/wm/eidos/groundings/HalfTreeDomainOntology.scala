@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 import java.util.{Collection => JCollection, Map => JMap}
 
-import com.github.clulab.eidos.Version
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
@@ -18,7 +17,7 @@ import scala.collection.mutable
 import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
-abstract class OntologyNode extends Serializable {
+abstract class HalfOntologyNode extends Serializable {
   // Much of the extra code here is to avoid the root node having a parent of null.
 
   // There can already be a / in any of the stages of the route that must be escaped.
@@ -28,10 +27,10 @@ abstract class OntologyNode extends Serializable {
           .replace(DomainOntology.ESCAPE, DomainOntology.ESCAPED_ESCAPE)
           .replace(DomainOntology.SEPARATOR, DomainOntology.ESCAPED_SEPARATOR)
 
-  def parents(parent: OntologyParentNode): Seq[OntologyParentNode] = parent +: parent.parents
+  def parents(parent: HalfOntologyParentNode): Seq[HalfOntologyParentNode] = parent +: parent.parents
 
   def fullName: String
-  def parents: Seq[OntologyParentNode]
+  def parents: Seq[HalfOntologyParentNode]
   def escaped: String
 
   override def toString: String = fullName
@@ -39,19 +38,21 @@ abstract class OntologyNode extends Serializable {
   def branch: Option[String]
 
   def isRoot: Boolean = false
+
+  def isLeaf: Boolean = false
 }
 
 @SerialVersionUID(1000L)
-abstract class OntologyParentNode extends OntologyNode {
+abstract class HalfOntologyParentNode extends HalfOntologyNode {
   def isParentRoot: Boolean
 }
 
 @SerialVersionUID(1000L)
-class OntologyRootNode extends OntologyParentNode {
+class HalfOntologyRootNode extends HalfOntologyParentNode {
 
   override def fullName: String = ""
 
-  override def parents: Seq[OntologyParentNode] = Seq.empty
+  override def parents: Seq[HalfOntologyParentNode] = Seq.empty
 
   override def escaped: String = ""
 
@@ -62,12 +63,12 @@ class OntologyRootNode extends OntologyParentNode {
   def isParentRoot: Boolean = false
 }
 
-class OntologyBranchNode(val nodeName: String, val parent: OntologyParentNode) extends OntologyParentNode {
+class HalfOntologyBranchNode(val nodeName: String, val parent: HalfOntologyParentNode) extends HalfOntologyParentNode {
 
   override def fullName: String = parent.fullName + escaped+ DomainOntology.SEPARATOR
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
-  override def parents: Seq[OntologyParentNode] = parents(parent)
+  override def parents: Seq[HalfOntologyParentNode] = parents(parent)
 
   override def escaped: String = escaped(nodeName)
 
@@ -81,15 +82,15 @@ class OntologyBranchNode(val nodeName: String, val parent: OntologyParentNode) e
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(
+class HalfOntologyLeafNode(
   val nodeName: String,
-  val parent: OntologyParentNode,
+  val parent: HalfOntologyParentNode,
   polarity: Float,
   /*names: Seq[String],*/
   examples: Option[Array[String]] = None,
   descriptions: Option[Array[String]] = None,
   val patterns: Option[Array[Regex]] = None
-) extends OntologyNode with Namer {
+) extends HalfOntologyNode with Namer {
 
   def name: String = fullName
 
@@ -103,13 +104,15 @@ class OntologyLeafNode(
   override def toString: String = fullName + " = " + values.toList
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
-  override def parents: Seq[OntologyParentNode] = parents(parent)
+  override def parents: Seq[HalfOntologyParentNode] = parents(parent)
 
   override def escaped: String = escaped(nodeName)
+
+  override def isLeaf: Boolean = true
 }
 
 @SerialVersionUID(1000L)
-class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode], override val version: Option[String], override val date: Option[ZonedDateTime]) extends DomainOntology with Serializable {
+class HalfTreeDomainOntology(val ontologyNodes: Array[HalfOntologyLeafNode], override val version: Option[String], override val date: Option[ZonedDateTime]) extends DomainOntology with Serializable {
 
   def size: Integer = ontologyNodes.length
 
@@ -117,18 +120,20 @@ class TreeDomainOntology(val ontologyNodes: Array[OntologyLeafNode], override va
 
   def getValues(n: Integer): Array[String] = ontologyNodes(n).values
 
+  def isLeaf(n: Integer): Boolean = ontologyNodes(n).isLeaf
+
   def getPatterns(n: Integer): Option[Array[Regex]] = ontologyNodes(n).patterns
 
-  def getNode(n: Integer): OntologyLeafNode = ontologyNodes(n)
+  def getNode(n: Integer): HalfOntologyLeafNode = ontologyNodes(n)
 
-  def getParents(n: Integer): Seq[OntologyParentNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
+  def getParents(n: Integer): Seq[HalfOntologyParentNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
 
   def save(filename: String): Unit = {
     Serializer.save(this, filename)
   }
 }
 
-object TreeDomainOntology {
+object HalfTreeDomainOntology {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val FIELD = "OntologyNode"
@@ -138,25 +143,25 @@ object TreeDomainOntology {
   val POLARITY = "polarity"
   val PATTERN = "pattern"
 
-  def load(path: String): TreeDomainOntology = {
+  def load(path: String): HalfTreeDomainOntology = {
     logger.info(s"Loading serialized Ontology from $path")
-    val domainOntology = FileUtils.load[TreeDomainOntology](path, this)
+    val domainOntology = FileUtils.load[HalfTreeDomainOntology](path, this)
     logger.info("Serialized Ontology successfully loaded.")
     domainOntology
   }
 
   // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
-  class TreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean) {
+  class HalfTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean) {
 
-    def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): TreeDomainOntology =
+    def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): HalfTreeDomainOntology =
         buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
 
-    def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): TreeDomainOntology = {
+    def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): HalfTreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(yamlText).asInstanceOf[JCollection[Any]].asScala.toSeq
-      val ontologyNodes = parseOntology(new OntologyRootNode, yamlNodes)
+      val ontologyNodes = parseOntology(new HalfOntologyRootNode, yamlNodes)
 
-      new TreeDomainOntology(ontologyNodes.toArray, versionOpt, dateOpt)
+      new HalfTreeDomainOntology(ontologyNodes.toArray, versionOpt, dateOpt)
     }
 
     protected def realFiltered(text: String): Seq[String] = {
@@ -194,16 +199,16 @@ object TreeDomainOntology {
       name.replace('_', ' ')
     }
 
-    protected def parseOntology(parent: OntologyParentNode, yamlNodes: mutable.Map[String, JCollection[Any]]): OntologyLeafNode = {
+    protected def parseOntology(parent: HalfOntologyParentNode, yamlNodes: mutable.Map[String, JCollection[Any]]): HalfOntologyLeafNode = {
       /* We're going without the names for now. */
-      val name = yamlNodes(TreeDomainOntology.NAME).asInstanceOf[String]
+      val name = yamlNodes(HalfTreeDomainOntology.NAME).asInstanceOf[String]
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
-      val examples = yamlNodesToStrings(yamlNodes, TreeDomainOntology.EXAMPLES)
-      val descriptions: Option[Array[String]] = yamlNodesToStrings(yamlNodes, TreeDomainOntology.DESCRIPTION)
+      val examples = yamlNodesToStrings(yamlNodes, HalfTreeDomainOntology.EXAMPLES)
+      val descriptions: Option[Array[String]] = yamlNodesToStrings(yamlNodes, HalfTreeDomainOntology.DESCRIPTION)
       // The incoming polarity can now be Int or Double.  We will store either one as a Float.
       val polarity = {
         // There's something wrong with this type system, obviously.  This is legacy code.
-        val yamlNodesOpt: Option[JCollection[Any]] = yamlNodes.get(TreeDomainOntology.POLARITY)
+        val yamlNodesOpt: Option[JCollection[Any]] = yamlNodes.get(HalfTreeDomainOntology.POLARITY)
 
         yamlNodesOpt.map { yamlNode: Any =>
           yamlNode match {
@@ -213,30 +218,30 @@ object TreeDomainOntology {
           }
         }.getOrElse(1.0f) // positive by default
       }
-      val patterns: Option[Array[Regex]] = yamlNodesToRegexes(yamlNodes, TreeDomainOntology.PATTERN)
+      val patterns: Option[Array[Regex]] = yamlNodesToRegexes(yamlNodes, HalfTreeDomainOntology.PATTERN)
 
       /*val filteredNames = names.flatMap(filtered)*/
       val filteredExamples = examples.map(_.flatMap(filtered))
       val filteredDescriptions = descriptions.map(_.flatMap(filtered))
 
-      val res = new OntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
+      val res = new HalfOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
       res
     }
 
-    protected def parseOntology(parent: OntologyParentNode, yamlNodes: Seq[Any]): Seq[OntologyLeafNode] = {
+    protected def parseOntology(parent: HalfOntologyParentNode, yamlNodes: Seq[Any]): Seq[HalfOntologyLeafNode] = {
       yamlNodes.flatMap { yamlNode =>
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala
         val key: String = map.keys.head
 
-        if (key == TreeDomainOntology.FIELD)
+        if (key == HalfTreeDomainOntology.FIELD)
           Seq(parseOntology(parent, map))
         else {
           // This is to account for leafless branches.
           val yamlNodesOpt = Option(map(key).asScala)
           if (yamlNodesOpt.nonEmpty) // foreach does not work well here.
-            parseOntology(new OntologyBranchNode(key, parent), yamlNodesOpt.get.toSeq)
+            parseOntology(new HalfOntologyBranchNode(key, parent), yamlNodesOpt.get.toSeq)
           else
             Seq.empty
         }

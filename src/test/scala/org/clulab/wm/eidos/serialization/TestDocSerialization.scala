@@ -105,7 +105,7 @@ class TestDocSerialization extends Test {
         val jldCorpus = new JLDEidosCorpus(corpus)
         val jValue = jldCorpus.serialize()
         val json = stringify(jValue, pretty = true)
-        val copy = new JLDDeserializer().deserialize(json, reader.postProcessors)
+        val copy = new JLDDeserializer().deserialize(json)
 
         copy should not be (None)
 //        copy should be (original)

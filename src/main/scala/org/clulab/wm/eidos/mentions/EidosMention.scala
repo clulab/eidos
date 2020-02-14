@@ -77,7 +77,7 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
 }
 
 object EidosMention {
-  protected val NO_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
+  val NO_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
 
   def newEidosMention(odinMention: Mention, mentionMapper: MentionMapper): EidosMention = {
     odinMention match {
