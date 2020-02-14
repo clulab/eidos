@@ -69,7 +69,8 @@ object DumpOntologyTextTriggerScore extends App {
       val tsvWriter = new TsvUtils.TsvWriter(printWriter)
 
       tsvWriter.printlnExcel("ontologyName", "relevance", "text", "description")
-      StringUtils.afterFirst(ontologyName, ':') -> tsvWriter
+      // Variables are apparently case insensitive, so standardize on lowercase.
+      StringUtils.afterFirst(ontologyName, ':').toLowerCase -> tsvWriter
     }.toMap
     // There seem to be multiple events of the same kind in the same sentence.
     // The query delivers them in order, so this is essentially implements DISTINCT.
@@ -90,18 +91,23 @@ object DumpOntologyTextTriggerScore extends App {
               val text = querySolution.getLiteral("text").getString
               val description = querySolution.getLiteral("description").getString
               val row = Row(ontologyName, relevance, text, description)
+              val lowerOntologyName = ontologyName.toLowerCase
 
-              if (shortTermMemories(ontologyName).isDifferent(row)) {
-                val tsvWriter = tsvWriters(ontologyName)
+              if (shortTermMemories.contains(lowerOntologyName)) {
+                if (shortTermMemories(lowerOntologyName).isDifferent(row)) {
+                  val tsvWriter = tsvWriters(lowerOntologyName)
 
-                tsvWriter.printlnExcel(ontologyName, relevance.toString, text, description)
-                counter.inc
+                  tsvWriter.printlnExcel(ontologyName, relevance.toString, text, description)
+                  counter.inc
+                }
               }
+              else
+                println(row)
             }
           })
         }
+        tsvWriters.values.foreach { tsvWriter => tsvWriter.flush }
       }
-      tsvWriters.values.foreach { tsvWriter => tsvWriter.flush }
     }
     tsvWriters.values.foreach { tsvWriter => tsvWriter.close() }
   }
