@@ -182,16 +182,18 @@ object DumpCauseEffectData extends App {
         val subjectSource = querySolution.getResource("subjectSource").getLocalName
         val sentenceType = querySolution.getResource("sentenceType").getLocalName
         val namespace = querySolution.getResource("sentenceType").getNameSpace
-        if (namespace != "http://ontology.causeex.com/ontology/odps/Event#")
-          println(namespace)
         val sentenceTrigger = querySolution.getLiteral("sentenceTrigger").getString
         val sentenceConfidence = querySolution.getLiteral("sentenceConfidence").getDouble
 
-        val sentenceRow = Row.getOrNew(rowMap, sentenceType)
-        sentenceRow.counters(Topic.Sentence).inc
-        sentenceRow.tsvWriters(Topic.Sentence).println(subjectSource,
-          sentenceType, sentenceTrigger, sentenceConfidence.toString,
-        )
+        // Some of the sentences are an Actor rather than an Event.
+        if (namespace == "http://ontology.causeex.com/ontology/odps/Event#") {
+          val sentenceRow = Row.getOrNew(rowMap, sentenceType)
+
+          sentenceRow.counters(Topic.Sentence).inc
+          sentenceRow.tsvWriters(Topic.Sentence).println(subjectSource,
+            sentenceType, sentenceTrigger, sentenceConfidence.toString,
+          )
+        }
       }
     })
   }
