@@ -51,7 +51,7 @@ object DumpCauseEffectData extends App {
     tsvWriter
   }
 
-  class Row(ontologyName: String) {
+  class Row(val ontologyName: String) {
     val counters: Map[Topic.Value, Counter] = Map(
       Topic.Sentence -> Counter(),
       Topic.Cause -> Counter(),
@@ -105,7 +105,7 @@ object DumpCauseEffectData extends App {
       |        gc:numeric_confidence ?effectConfidence.
       |}
       |
-      |LIMIT 10
+      |#LIMIT 10
       |""".stripMargin
 
   def runCauseEffect(rowMap: mutable.Map[String, Row], connection: RDFConnection, datasetName: String): Unit = {
@@ -114,14 +114,20 @@ object DumpCauseEffectData extends App {
     connection.queryResultSet(query, { resultSet =>
       while (resultSet.hasNext) {
         val querySolution = resultSet.next
-        val subjectSource = querySolution.getResource("subjectSource").getURI
+        val subjectSource = querySolution.getResource("subjectSource").getLocalName
         val subjectConfidence = querySolution.getLiteral("subjectConfidence").getDouble
 
         val causeType = querySolution.getResource("causeType").getLocalName
+        val causeNamespace = querySolution.getResource("causeType").getNameSpace
+        if (causeNamespace != "http://ontology.causeex.com/ontology/odps/Event#")
+          println(causeNamespace)
         val causeTrigger = querySolution.getLiteral("causeTrigger").getString
         val causeConfidence = querySolution.getLiteral("causeConfidence").getDouble
 
         val effectType = querySolution.getResource("effectType").getLocalName
+        val effectNamespace = querySolution.getResource("effectType").getNameSpace
+        if (effectNamespace != "http://ontology.causeex.com/ontology/odps/Event#")
+          println(effectNamespace)
         val effectTrigger = querySolution.getLiteral("effectTrigger").getString
         val effectConfidence = querySolution.getLiteral("effectConfidence").getDouble
 
@@ -158,13 +164,13 @@ object DumpCauseEffectData extends App {
       |        causal:has_effect ?effect.
       |    ?sentence dp:sourced_from ?subjectSource;
       |        a ?sentenceType;
-      |        dp:text_value ?sentenceTrigger;
       |        gc:numeric_confidence ?sentenceConfidence.
+      |    ?subjectSource dp:text_value ?sentenceTrigger.
       |
       |    FILTER(?sentence != ?cause && ?sentence != ?effect && ?sentenceType != causal:CausalAssertion).
       |}
       |
-      |LIMIT 10
+      |#LIMIT 10
       |""".stripMargin
 
   def runSentence(rowMap: mutable.Map[String, Row], connection: RDFConnection, datasetName: String): Unit = {
@@ -173,8 +179,11 @@ object DumpCauseEffectData extends App {
     connection.queryResultSet(query, { resultSet =>
       while (resultSet.hasNext) {
         val querySolution = resultSet.next
-        val subjectSource = querySolution.getResource("subjectSource").getURI
+        val subjectSource = querySolution.getResource("subjectSource").getLocalName
         val sentenceType = querySolution.getResource("sentenceType").getLocalName
+        val namespace = querySolution.getResource("sentenceType").getNameSpace
+        if (namespace != "http://ontology.causeex.com/ontology/odps/Event#")
+          println(namespace)
         val sentenceTrigger = querySolution.getLiteral("sentenceTrigger").getString
         val sentenceConfidence = querySolution.getLiteral("sentenceConfidence").getDouble
 
@@ -188,7 +197,7 @@ object DumpCauseEffectData extends App {
   }
 
   def run(): Unit = {
-    new TsvWriter(Sinker.printWriterFromFile("../sparql/counts.txt")).autoClose { countWriter =>
+    new TsvWriter(Sinker.printWriterFromFile("../sparql/texts/counts.tsv")).autoClose { countWriter =>
       val rowMap: mutable.Map[String, Row] = mutable.Map.empty
 
       countWriter.println("event", "sentence", "cause", "effect")
@@ -201,7 +210,7 @@ object DumpCauseEffectData extends App {
       rowMap.foreach { case (ontologyName: String, row: Row) =>
         row.closeAll()
         countWriter.println(
-          ontologyName,
+          row.ontologyName,
           row.counters(Topic.Sentence).get.toString,
           row.counters(Topic.Cause).get.toString,
           row.counters(Topic.Effect).get.toString
