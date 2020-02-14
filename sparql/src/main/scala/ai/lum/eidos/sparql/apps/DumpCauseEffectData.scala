@@ -31,7 +31,7 @@ object DumpCauseEffectData extends App {
   }
 
   def mkFile(ontologyName: String, subtype: String): File = {
-    new File(s"../sparql/texts/$subtype" + StringUtils.afterFirst(ontologyName, ':') + ".tsv")
+    new File(s"../sparql/texts/$subtype/" + StringUtils.afterFirst(ontologyName, ':') + ".tsv")
   }
 
   case class CountAndTsvWriter(counter: Counter, tsvWriter: TsvWriter)
@@ -70,13 +70,10 @@ object DumpCauseEffectData extends App {
 
   object Row {
 
-    def getOrNew(rowMap: mutable.Map[String, Row], lowerOntologyName: String): Row = {
-      rowMap.get(lowerOntologyName).getOrElse {
-        val row = new Row(lowerOntologyName)
-        rowMap(lowerOntologyName) = row
+    def getOrNew(rowMap: mutable.Map[String, Row], ontologyName: String): Row = {
+      val lowerOntologyName = ontologyName.toLowerCase
 
-        row
-      }
+      rowMap.getOrElseUpdate(lowerOntologyName, new Row(ontologyName))
     }
   }
 
@@ -115,7 +112,7 @@ object DumpCauseEffectData extends App {
     val query = mkCauseEffectQuery(datasetName)
 
     connection.queryResultSet(query, { resultSet =>
-      while (resultSet.hasNext()) {
+      while (resultSet.hasNext) {
         val querySolution = resultSet.next
         val subjectSource = querySolution.getResource("subjectSource").getURI
         val subjectConfidence = querySolution.getLiteral("subjectConfidence").getDouble
@@ -129,7 +126,7 @@ object DumpCauseEffectData extends App {
         val effectConfidence = querySolution.getLiteral("effectConfidence").getDouble
 
         Array((Topic.Cause, causeType), (Topic.Effect, effectType)).foreach { case (topic: Topic.Value, subtype: String) =>
-          val row = Row.getOrNew(rowMap, subtype.toLowerCase)
+          val row = Row.getOrNew(rowMap, subtype)
 
           row.counters(topic).inc
           row.tsvWriters(topic).println(subjectSource, subjectConfidence.toString,
@@ -174,14 +171,14 @@ object DumpCauseEffectData extends App {
     val query = mkSentenceQuery(datasetName)
 
     connection.queryResultSet(query, { resultSet =>
-      while (resultSet.hasNext()) {
+      while (resultSet.hasNext) {
         val querySolution = resultSet.next
         val subjectSource = querySolution.getResource("subjectSource").getURI
         val sentenceType = querySolution.getResource("sentenceType").getLocalName
         val sentenceTrigger = querySolution.getLiteral("sentenceTrigger").getString
         val sentenceConfidence = querySolution.getLiteral("sentenceConfidence").getDouble
 
-        val sentenceRow = Row.getOrNew(rowMap, sentenceType.toLowerCase)
+        val sentenceRow = Row.getOrNew(rowMap, sentenceType)
         sentenceRow.counters(Topic.Sentence).inc
         sentenceRow.tsvWriters(Topic.Sentence).println(subjectSource,
           sentenceType, sentenceTrigger, sentenceConfidence.toString,
@@ -191,7 +188,7 @@ object DumpCauseEffectData extends App {
   }
 
   def run(): Unit = {
-    val countWriter = new TsvWriter(Sinker.printWriterFromFile("../sparql/counts.txt")).autoClose { countWriter =>
+    new TsvWriter(Sinker.printWriterFromFile("../sparql/counts.txt")).autoClose { countWriter =>
       val rowMap: mutable.Map[String, Row] = mutable.Map.empty
 
       countWriter.println("event", "sentence", "cause", "effect")
@@ -202,7 +199,7 @@ object DumpCauseEffectData extends App {
         }
       }
       rowMap.foreach { case (ontologyName: String, row: Row) =>
-        row.closeAll
+        row.closeAll()
         countWriter.println(
           ontologyName,
           row.counters(Topic.Sentence).get.toString,

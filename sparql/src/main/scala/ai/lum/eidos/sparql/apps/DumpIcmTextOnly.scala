@@ -76,7 +76,7 @@ object DumpIcmTextOnly extends App {
           val query = mkQuery(datasetName, ontologyName)
 
           connection.queryResultSet(query, { resultSet =>
-            while (resultSet.hasNext()) {
+            while (resultSet.hasNext) {
               val querySolution = resultSet.next
               val text = querySolution.getLiteral("text").getString
 

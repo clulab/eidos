@@ -82,7 +82,7 @@ object DumpIcmTextData extends App {
           val query = mkQuery(datasetName)
 
           connection.queryResultSet(query, { resultSet =>
-            while (resultSet.hasNext()) {
+            while (resultSet.hasNext) {
               val querySolution = resultSet.next
               val ontologyName = querySolution.getResource("ontologyName").getLocalName
               val relevance = querySolution.getLiteral("relevance").getDouble
@@ -103,7 +103,7 @@ object DumpIcmTextData extends App {
             }
           })
         }
-        tsvWriters.values.foreach { tsvWriter => tsvWriter.flush }
+        tsvWriters.values.foreach { tsvWriter => tsvWriter.flush() }
       }
     }
     tsvWriters.values.foreach { tsvWriter => tsvWriter.close() }
