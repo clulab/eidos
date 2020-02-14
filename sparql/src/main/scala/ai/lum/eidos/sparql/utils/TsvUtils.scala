@@ -39,11 +39,15 @@ object TsvUtils {
 
   }
 
-  class TsvWriter(printWriter: PrintWriter) {
+  class TsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) {
 
-    def println(strings: String*): Unit = printWriter.println(strings.map(escape).mkString(separatorString))
+    def println(strings: String*): Unit = {
+      val escapedStrings =
+          if (isExcel) strings.map(escapeExcel)
+          else strings.map(escape)
 
-    def printlnExcel(strings: String*): Unit = printWriter.println(strings.map(escapeExcel).mkString(separatorString))
+      printWriter.println(escapedStrings.mkString(separatorString))
+    }
 
     def close(): Unit = printWriter.close()
 

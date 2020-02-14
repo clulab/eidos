@@ -1,6 +1,6 @@
 package ai.lum.eidos.sparql.data
 
-object Ontology {
+object IcmOntology {
   val names = Array(
     "icm:AbilityToAddressBasicNeeds",
     "icm:AbilityToAddressIdentityBasedBasicNeeds",

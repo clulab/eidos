@@ -4,7 +4,7 @@ import java.io.File
 import java.io.PrintWriter
 
 import ai.lum.eidos.sparql.data.Dataset
-import ai.lum.eidos.sparql.data.Ontology
+import ai.lum.eidos.sparql.data.IcmOntology
 import ai.lum.eidos.sparql.utils.Closer.AutoCloser
 import ai.lum.eidos.sparql.utils.Counter
 import ai.lum.eidos.sparql.utils.ShortTermMemory
@@ -13,7 +13,7 @@ import ai.lum.eidos.sparql.utils.StringUtils
 import org.apache.jena.rdfconnection.RDFConnection
 import org.apache.jena.rdfconnection.RDFConnectionFuseki
 
-object DumpOntologyText extends App {
+object DumpIcmTextOnly extends App {
   val host = "http://localhost:3030"
 
   def mkConnection(datasetName: String): RDFConnection = {
@@ -29,13 +29,12 @@ object DumpOntologyText extends App {
     // Be careful: fhe stripMargin only works correctly if the variables being
     // substituted in do not contains characters that look like margins themselves.
     s"""
-      |PREFIX prov: <http://ontology.causeex.com/ontology/odps/DataProvenance#>
       |PREFIX event: <http://ontology.causeex.com/ontology/odps/Event#>
-      |PREFIX gc: <http://ontology.causeex.com/ontology/odps/GeneralConcepts#>
-      |PREFIX icm: <http://ontology.causeex.com/ontology/odps/ICM#>
-      |PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      |PREFIX lcc: <http://www.languagecomputer.com/lcc#>
-      |PREFIX src: <http://graph.causeex.com/documents/sources#>
+      |PREFIX    gc: <http://ontology.causeex.com/ontology/odps/GeneralConcepts#>
+      |PREFIX   icm: <http://ontology.causeex.com/ontology/odps/ICM#>
+      |PREFIX  prov: <http://ontology.causeex.com/ontology/odps/DataProvenance#>
+      |
+      |PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       |
       |SELECT ?text
       |FROM <$host/$datasetName/data/$datasetName>
@@ -95,7 +94,7 @@ object DumpOntologyText extends App {
   }
 
   Sinker.printWriterFromFile("counts.txt").autoClose { printWriter =>
-    Ontology.names.foreach { ontologyName =>
+    IcmOntology.names.foreach { ontologyName =>
       run(printWriter, ontologyName)
     }
   }
