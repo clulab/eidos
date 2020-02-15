@@ -22,7 +22,7 @@ class TestDoc7 extends EnglishTest {
 
     val conflict = NodeSpec("nearly four years of civil conflict")
     val food = NodeSpec("food", Quant("scarce", "most"))
-    val hunger = NodeSpec("hunger", Quant("life-threatening"))
+    val hunger = NodeSpec("life-threatening hunger", Quant("life-threatening"))
     val leanSeason = NodeSpec("lean season")
 
     behavior of "TestDoc7 Paragraph 1"
@@ -82,7 +82,7 @@ class TestDoc7 extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val conflict = NodeSpec("conflict", Quant("ongoing"))
+    val conflict = NodeSpec("ongoing conflict", Quant("ongoing"))
     val foodInsecurity = NodeSpec("levels of acute food insecurity")
     val starvation = NodeSpec("starvation", Quant("evident"))
     val destitution = NodeSpec("destitution", Quant("evident"))
@@ -114,7 +114,7 @@ class TestDoc7 extends EnglishTest {
   
     val tester = new GraphTester(text)
 
-    val refugees = NodeSpec("2.4 million refugees", Quant("approximately"), TimEx("January 2017"))
+    val refugees = NodeSpec("approximately 2.4 million refugees", Quant("approximately"), TimEx("January 2017"))
     val insecurity = NodeSpec("Widespread insecurity", Inc("Widespread"))
     val communities = NodeSpec("communities")
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disrupt"))
