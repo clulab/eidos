@@ -15,6 +15,8 @@ import org.apache.jena.rdfconnection.RDFConnectionFuseki
 object DumpIcmTextData extends App {
   val host = "http://localhost:3030"
 
+  val outputDir = args(1)
+
   def mkConnection(datasetName: String): RDFConnection = {
     val endpoint = s"$host/$datasetName/query"
     val builder = RDFConnectionFuseki
@@ -55,7 +57,7 @@ object DumpIcmTextData extends App {
       |""".stripMargin
 
   def mkFile(ontologyName: String): File = {
-    new File("../sparql/texts/" + StringUtils.afterFirst(ontologyName, ':') + ".tsv")
+    new File(s"$outputDir/" + StringUtils.afterFirst(ontologyName, ':') + ".tsv")
   }
 
   case class Row(ontologyName: String, relevance: Double, text: String, description: String)

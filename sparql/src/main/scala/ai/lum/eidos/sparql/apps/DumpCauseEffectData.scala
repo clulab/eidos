@@ -16,6 +16,9 @@ import scala.collection.mutable
 object DumpCauseEffectData extends App {
   val host = "http://localhost:3030"
 
+  val outputDir = args(0)
+  val countFilename = args(1)
+
   def mkConnection(datasetName: String): RDFConnection = {
     val endpoint = s"$host/$datasetName/query"
     val builder = RDFConnectionFuseki
@@ -31,7 +34,7 @@ object DumpCauseEffectData extends App {
   }
 
   def mkFile(ontologyName: String, subtype: String): File = {
-    new File(s"../sparql/texts/$subtype/" + StringUtils.afterFirst(ontologyName, ':') + ".tsv")
+    new File(s"$outputDir/$subtype/" + StringUtils.afterFirst(ontologyName, ':') + ".tsv")
   }
 
   case class CountAndTsvWriter(counter: Counter, tsvWriter: TsvWriter)
@@ -66,6 +69,8 @@ object DumpCauseEffectData extends App {
     def closeAll(): Unit = {
       tsvWriters.values.foreach(_.close())
     }
+
+    def total: Int = counters.values.foldLeft(0) { case (subtotal: Int, counter: Counter) => subtotal + counter.get}
   }
 
   object Row {
@@ -198,24 +203,25 @@ object DumpCauseEffectData extends App {
     })
   }
 
-  def run(): Unit = {
-    new TsvWriter(Sinker.printWriterFromFile("../sparql/texts/counts.tsv")).autoClose { countWriter =>
+  def run(countFilename: String): Unit = {
+    new TsvWriter(Sinker.printWriterFromFile(countFilename)).autoClose { countWriter =>
       val rowMap: mutable.Map[String, Row] = mutable.Map.empty
 
-      countWriter.println("event", "sentence", "cause", "effect")
+      countWriter.println("event", "sentence", "cause", "effect", "total")
       Dataset.names.foreach { datasetName =>
         mkConnection(datasetName).autoClose { connection =>
           runCauseEffect(rowMap, connection, datasetName)
           runSentence(rowMap, connection, datasetName)
         }
       }
-      rowMap.foreach { case (ontologyName: String, row: Row) =>
+      rowMap.foreach { case (_, row: Row) =>
         row.closeAll()
         countWriter.println(
           row.ontologyName,
           row.counters(Topic.Sentence).get.toString,
           row.counters(Topic.Cause).get.toString,
-          row.counters(Topic.Effect).get.toString
+          row.counters(Topic.Effect).get.toString,
+          row.total.toString
         )
       }
     }

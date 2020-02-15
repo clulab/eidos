@@ -16,6 +16,9 @@ import org.apache.jena.rdfconnection.RDFConnectionFuseki
 object DumpIcmTextOnly extends App {
   val host = "http://localhost:3030"
 
+  val outputDir = args(0)
+  val countFilename = args(1)
+
   def mkConnection(datasetName: String): RDFConnection = {
     val endpoint = s"$host/$datasetName/query"
     val builder = RDFConnectionFuseki
@@ -53,7 +56,7 @@ object DumpIcmTextOnly extends App {
       |""".stripMargin
 
   def mkFile(ontologyName: String): File = {
-    new File("./texts/" + StringUtils.afterFirst(ontologyName, ':') + ".txt")
+    new File(s"$outputDir/" + StringUtils.afterFirst(ontologyName, ':') + ".txt")
   }
 
   // Make sure the text stays on one line and can be used in tsv file.
@@ -93,7 +96,7 @@ object DumpIcmTextOnly extends App {
     countPrintWriter.flush()
   }
 
-  Sinker.printWriterFromFile("counts.txt").autoClose { printWriter =>
+  Sinker.printWriterFromFile(countFilename).autoClose { printWriter =>
     IcmOntology.names.foreach { ontologyName =>
       run(printWriter, ontologyName)
     }
