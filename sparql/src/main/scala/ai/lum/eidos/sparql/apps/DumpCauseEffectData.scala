@@ -41,7 +41,7 @@ object DumpCauseEffectData extends App {
 
   def mkTsvWriter(ontologyName: String, subtype: String, isSentence: Boolean = false): TsvWriter = {
     val file = mkFile(ontologyName, subtype)
-    val printWriter = Sinker.printWriterFromFile(file)
+    val printWriter = Sinker.printWriterFromFile(file, false)
     val tsvWriter = new TsvWriter(printWriter)
 
     if (isSentence)
@@ -139,7 +139,7 @@ object DumpCauseEffectData extends App {
         Array((Topic.Cause, causeType), (Topic.Effect, effectType)).foreach { case (topic: Topic.Value, subtype: String) =>
           val row = Row.getOrNew(rowMap, subtype)
 
-          row.counters(topic).inc
+          row.counters(topic).inc()
           row.tsvWriters(topic).println(subjectSource, subjectConfidence.toString,
             causeType, causeTrigger, causeConfidence.toString,
             effectType, effectTrigger, effectConfidence.toString
@@ -194,7 +194,7 @@ object DumpCauseEffectData extends App {
         if (namespace == "http://ontology.causeex.com/ontology/odps/Event#") {
           val sentenceRow = Row.getOrNew(rowMap, sentenceType)
 
-          sentenceRow.counters(Topic.Sentence).inc
+          sentenceRow.counters(Topic.Sentence).inc()
           sentenceRow.tsvWriters(Topic.Sentence).println(subjectSource,
             sentenceType, sentenceTrigger, sentenceConfidence.toString,
           )
@@ -227,5 +227,5 @@ object DumpCauseEffectData extends App {
     }
   }
 
-  run()
+  run(countFilename)
 }

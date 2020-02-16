@@ -1,9 +1,10 @@
 package ai.lum.eidos.sparql.utils
 
+// This is borrowed from sparql as well.
 class Counter(protected var value: Int, step: Int) {
 
-  def inc: Int = {
-    value += step
+  def inc(increment: Int = 1) = {
+    value += (increment * step)
     value
   }
 

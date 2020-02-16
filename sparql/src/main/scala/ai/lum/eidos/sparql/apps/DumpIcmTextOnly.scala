@@ -69,7 +69,7 @@ object DumpIcmTextOnly extends App {
   def run(countPrintWriter: PrintWriter, ontologyName: String): Unit = {
     val counter = Counter()
 
-    Sinker.printWriterFromFile(mkFile(ontologyName)).autoClose { printWriter =>
+    Sinker.printWriterFromFile(mkFile(ontologyName), false).autoClose { printWriter =>
       // There seem to be multiple events of the same kind in the same sentence.
       // The query delivers them in order, so this is essentially implements DISTINCT.
       val shortTermMemory = ShortTermMemory[String]
@@ -85,7 +85,7 @@ object DumpIcmTextOnly extends App {
 
               if (shortTermMemory.isDifferent(text)) {
                 printWriter.println(escape(text))
-                counter.inc
+                counter.inc()
               }
             }
           })

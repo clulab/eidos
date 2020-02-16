@@ -65,7 +65,7 @@ object DumpIcmTextData extends App {
   def run(ontologyNames: Array[String]): Unit = {
 
     val tsvWriters = ontologyNames.map { ontologyName =>
-      val printWriter = Sinker.printWriterFromFile(mkFile(ontologyName))
+      val printWriter = Sinker.printWriterFromFile(mkFile(ontologyName), false)
       val tsvWriter = new TsvUtils.TsvWriter(printWriter)
 
       tsvWriter.println("ontologyName", "relevance", "text", "description")
