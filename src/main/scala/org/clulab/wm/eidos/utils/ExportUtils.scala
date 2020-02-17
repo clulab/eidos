@@ -15,6 +15,7 @@ object ExportUtils {
     exporterString match {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
       case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
+      case "groundingEval" => GroundingEvalExporter(filename + ".groundingEval.tsv", reader, filename, groundAs, topN)
       case "serialized" => SerializedExporter(filename)
       case "grounding" => GroundingExporter(FileUtils.printWriterFromFile(filename + ".ground.tsv"), reader, groundAs)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")

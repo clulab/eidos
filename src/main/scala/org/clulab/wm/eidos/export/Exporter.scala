@@ -32,6 +32,58 @@ case class JSONLDExporter(filename: String, reader: EidosSystem) extends Exporte
   }
 }
 
+// Will use this for building tsv for grounding evaluation framework
+case class GroundingEvalExporter(outFilename: String, reader: EidosSystem, filename: String, groundAs: Seq[String], topN: Int) extends Exporter {
+
+  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+    FileUtils.printWriterFromFile(outFilename).autoClose { pw =>
+      pw.println(header())
+      annotatedDocuments.foreach(printTableRows(_, pw, filename, reader))
+    }
+  }
+
+  def header(): String = {
+    val factors = Seq("A", "B").flatMap { factor =>
+      groundAs.map { namespace =>
+        s"Factor $factor top${topN}_${namespace.toUpperCase}Ontology"
+      }
+    }.mkString("\t")
+
+    "Source\tSystem\tSentence ID\tFactor A Text\tFactor A Normalization\t" +
+      "Factor B Text\tFactor B Normalization\tEvidence\t" +
+      factors
+  }
+
+  def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, filename: String, reader: EidosSystem): Unit = {
+    val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
+    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.components.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
+
+    for {
+      mention <- mentionsToPrint
+
+      source = filename
+      system = "Eidos"
+      sentence_id = mention.odinMention.sentence
+
+      // For now, only put EidosEventMentions in the mitre tsv
+      if mention.isInstanceOf[EidosEventMention]
+      cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
+      factor_a_info = EntityInfo(cause, groundAs)
+
+      effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
+      factor_b_info = EntityInfo(effect, groundAs)
+
+      evidence = ExportUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
+
+      row = source + "\t" + system + "\t" + sentence_id + "\t" +
+        factor_a_info.toTSV + "\t" +
+        factor_b_info.toTSV + "\t" +
+        evidence + "\t" + factor_a_info.groundingToTSV + "\t" +
+        factor_b_info.groundingToTSV + "\n"
+    } pw.print(row)
+  }
+}
+
 case class MitreExporter(outFilename: String, reader: EidosSystem, filename: String, groundAs: Seq[String], topN: Int) extends Exporter {
 
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
@@ -174,14 +226,14 @@ object SerializedMentions {
 case class EntityInfo(m: EidosMention, groundAs: Seq[String], topN: Int = 5, delim: String = ", ") {
   val text: String = m.odinMention.text
   val norm: String = getBaseGroundingString(m)
-  val modifier: String = ExportUtils.getModifier(m)
-  val polarity: String = ExportUtils.getPolarity(m)
+//  val modifier: String = ExportUtils.getModifier(m)
+//  val polarity: String = ExportUtils.getPolarity(m)
   val groundingStrings: Seq[String] = groundAs.map { namespace =>
     getGroundingsString(m, namespace, topN, delim)
   }
 
 
-  def toTSV: String = Seq(text, norm, modifier, polarity).map(_.normalizeSpace).mkString("\t")
+  def toTSV: String = Seq(text, norm).map(_.normalizeSpace).mkString("\t")
 
   def groundingToTSV: String = groundingStrings.map(_.normalizeSpace).mkString("\t")
 }
