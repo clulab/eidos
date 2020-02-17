@@ -45,7 +45,7 @@ case class GroundingEvalExporter(outFilename: String, reader: EidosSystem, filen
   def header(): String = {
     val factors = Seq("A", "B").flatMap { factor =>
       groundAs.map { namespace =>
-        s"Factor $factor top${topN}_${namespace.toUpperCase}Ontology"
+        s"Factor $factor top${topN}_${namespace.toUpperCase} Ontology"
       }
     }.mkString("\t")
 
@@ -75,10 +75,13 @@ case class GroundingEvalExporter(outFilename: String, reader: EidosSystem, filen
 
       evidence = ExportUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
 
-      row = source + "\t" + system + "\t" + sentence_id + "\t" +
+      row = source + "\t" +
+        system + "\t" +
+        sentence_id + "\t" +
         factor_a_info.toTSV + "\t" +
         factor_b_info.toTSV + "\t" +
-        evidence + "\t" + factor_a_info.groundingToTSV + "\t" +
+        evidence + "\t" +
+        factor_a_info.groundingToTSV + "\t" +
         factor_b_info.groundingToTSV + "\n"
     } pw.print(row)
   }
