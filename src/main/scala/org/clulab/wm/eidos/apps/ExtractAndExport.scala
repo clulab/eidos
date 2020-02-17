@@ -24,10 +24,10 @@ object ExtractAndExport extends App with Configured {
   val inputExtension = getArgString("apps.inputFileExtension", None)
   val exportAs = getArgStrings("apps.exportAs", None)
   val groundAs = getArgStrings("apps.groundAs", None)
-  val groundedAs = groundAs.flatMap { format =>
-    format match {
+  val groundedAs = groundAs.flatMap { grounder =>
+    grounder match {
       case "wm_compositional" =>
-        CompositionalGrounder.branches.map { subformat => format + "/" + subformat }
+        CompositionalGrounder.branches.map { branch => grounder + "/" + branch }
       case other => Seq(other)
     }
   }
