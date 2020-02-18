@@ -11,7 +11,7 @@ import org.clulab.odin.EventMention
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
+import org.clulab.wm.eidos.actions.{CorefHandler, MigrationHandler}
 import org.clulab.wm.eidos.attachments.CountModifier._
 import org.clulab.wm.eidos.attachments.CountUnit._
 import org.clulab.wm.eidos.expansion.Expander
@@ -176,7 +176,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         val oldGroupArg = mention.arguments("group").head //getting the group arg from the original event
         val newGroupArg = oldGroupArg.withAttachment(countAttachment) //copying the old one but with the newly-found attachments
         val newArgs = mention.arguments ++ Map("group" -> Seq(newGroupArg)) //creating the new set of args by taking the original event arguments and adding the new group argument
-        val withNewArg = MigrationUtils.copyWithNewArgs(mention, newArgs, Some("withGroupNormalized")) //creating the new event argument with the new set of arguments
+        val withNewArg = MigrationHandler.copyWithNewArgs(mention, newArgs, Some("withGroupNormalized")) //creating the new event argument with the new set of arguments
 
         withNewArg
       }.getOrElse(mention)
