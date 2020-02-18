@@ -4,7 +4,6 @@ import java.io.File
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps.ExtractFromDirectory.config
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
@@ -19,8 +18,6 @@ import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object ExtractDartMetaFromDirectory extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -34,7 +31,7 @@ object ExtractDartMetaFromDirectory extends App {
   val converter = DartZipMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
@@ -53,10 +50,6 @@ object ExtractDartMetaFromDirectory extends App {
     timer.stop()
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
-
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
       try {

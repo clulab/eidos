@@ -18,8 +18,6 @@ import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object ExtractDartMetaFromDirectoryES extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -33,7 +31,7 @@ object ExtractDartMetaFromDirectoryES extends App {
   val converter = DartEsMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
@@ -52,10 +50,6 @@ object ExtractDartMetaFromDirectoryES extends App {
     timer.stop()
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
-
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
       try {
