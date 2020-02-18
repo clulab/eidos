@@ -43,14 +43,14 @@ object GenerateGoldGroundingTSV extends App {
 
     val row1 =
       index + "\t" +
-      sentence.slice(0,sentence.length()-1) + "\t" +
+      sentence.trim() + "\t" +
       cause + "\t" +
       (causeStartOffset,causeEndOffset) + "\t" +
       flatGrounding + "\t" +
       compositionalGrounding + "\n"
 
     val row2 = index + "\t" +
-      sentence.slice(0,sentence.length()-1) + "\t" +
+      sentence.trim + "\t" +
       effect + "\t" +
       (effectStartOffset,effectEndOffset) + "\t" +
       flatGrounding + "\t" +
