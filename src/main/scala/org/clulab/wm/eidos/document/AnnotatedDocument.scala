@@ -4,6 +4,10 @@ import org.clulab.odin.Mention
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.mentions.EidosMention
 
+trait PreProcessing {
+  def process(odinMentions: Seq[Mention]): Seq[Mention]
+}
+
 trait PostProcessing {
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument
 }

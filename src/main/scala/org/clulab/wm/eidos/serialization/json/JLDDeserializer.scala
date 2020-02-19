@@ -20,7 +20,7 @@ import org.clulab.wm.eidos.attachments.CountAttachment
 import org.clulab.wm.eidos.attachments.CountModifier
 import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.actions.MigrationUtils
+import org.clulab.wm.eidos.actions.MigrationHandler
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
@@ -570,7 +570,7 @@ class JLDDeserializer {
     def newEventMention(labels: Seq[String], tokenInterval: Interval, trigger: TextBoundMention,
         arguments: Map[String, Seq[Mention]], paths: Map[String, Map[Mention, SynPath]], sentence: Int,
         document: Document, keep: Boolean, foundBy: String, attachments: Set[Attachment]): EventMention = {
-      if (MigrationUtils.needsCrossSentence(sentence, Some(trigger.sentence), arguments))
+      if (MigrationHandler.needsCrossSentence(sentence, Some(trigger.sentence), arguments))
         new CrossSentenceEventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
       else
         new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
