@@ -45,24 +45,58 @@ class OntologyHandler(
     annotatedDocument
   }
 
-  def reground(sentenceText: String, interval: Interval): OntologyAliases.OntologyGroundings = {
-    // This is assuming that there is just just one sentence and the interval falls within it.
-    // This is not always the case.
-    val document = sentencesExtractor.extractDocument(sentenceText)
-    assert(document.sentences.length == 1)
-    val sentence = document.sentences.head
-    val tokenStart =sentence.startOffsets.indexWhere { startOffset => startOffset <= interval.start }
-    val tokenEnd = sentence.endOffsets.size - 1 - sentence.endOffsets.reverse.indexWhere { endOffset => interval.end <= endOffset}
-    assert(0 <= tokenStart && tokenStart < sentence.endOffsets.size)
-    assert(0 <= tokenEnd && tokenEnd <= sentence.endOffsets.size)
-    val tokenInterval = Interval(tokenStart, tokenEnd)
-    val odinMention = new TextBoundMention(label = "", tokenInterval, 0, document, keep = true, foundBy = "")
-    val eidosMentions = EidosMention.asEidosMentions(Seq(odinMention))
-    assert(eidosMentions.size == 1)
-    val eidosMention = eidosMentions.head
 
-    process(eidosMention)
-    eidosMention.grounding
+  def reground(sentenceText: String, interval: Interval): OntologyAliases.OntologyGroundings = {
+    // This is assuming that there is just one sentence and the interval falls within it.  That may
+    // not always be the case, especially as information may have originated with a different reader.
+    // Furthermore, the interval may not align exactly with our tokenization of the sentence.  This
+    // method expands the interval to use up entire tokens.  It is not valid to say that the interval
+    // starts or stops on whitespace between tokens/words.
+
+    def containsStart(interval: Interval, start: Int): Boolean =
+        interval.start <= start && start < interval.end
+
+    def containsEnd(interval: Interval, end: Int): Boolean =
+        // This assumes non-empty intervals.  Otherwise one could have [0, 0), [0, n), etc.
+        // Words generally cannot be empty, so this is a good bet.
+        interval.start <= end && end <= interval.end
+
+    try {
+      val fullInterval = Interval(0, sentenceText.length) // Use entire length for exclusive end.
+      require(interval.start <= interval.end)
+      require(containsStart(fullInterval, interval.start))
+      require(containsEnd(fullInterval, interval.end))
+
+      val document = sentencesExtractor.extractDocument(sentenceText)
+      assert(document.sentences.length == 1)
+
+      val sentence = document.sentences.head
+      val tokenIntervals = sentence.startOffsets.zip(sentence.endOffsets).map { case (start, end) => Interval(start, end) }
+
+      val tokenStart = tokenIntervals.indexWhere { tokenInterval => containsStart(tokenInterval, interval.start) }
+      assert(tokenStart >= 0)
+
+      val tokenEnd = tokenIntervals.indexWhere { tokenInterval => containsEnd(tokenInterval, interval.end) }
+      assert(tokenEnd >= 0)
+
+      val tokenInterval = Interval(tokenStart, tokenEnd + 1) // Add one to make it exclusive.
+      val odinMention = new TextBoundMention(EidosOntologyGrounder.GROUNDABLE, tokenInterval, sentence = 0, document, keep = true, foundBy = "OntologyHandler.reground")
+
+      val eidosMentions = EidosMention.asEidosMentions(Seq(odinMention))
+      assert(eidosMentions.size == 1)
+
+      val eidosMention = eidosMentions.head
+
+      process(eidosMention)
+      eidosMention.grounding
+    }
+    catch {
+      case throwable: Throwable =>
+        val ontologyGroundings: OntologyAliases.OntologyGroundings = Map.empty
+
+        OntologyHandler.logger.error(s"Regrounding of '$sentenceText' on interval [${interval.start}-${interval.end}) was not possible ", throwable)
+        ontologyGroundings
+    }
   }
 
   def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10, isAlreadyCanonicalized: Boolean = true): Array[Array[(String, Float)]] = {

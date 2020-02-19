@@ -1,7 +1,9 @@
 package org.clulab.wm.eidos.apps
 
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyGrounder
+import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Sourcer
@@ -12,8 +14,8 @@ object GroundCanonicalNames extends App {
 
   class Grounder {
     val name = "wm"
-    protected val ontologyGrounder: OntologyGrounder =
-        new EidosSystem().components.ontologyHandler.ontologyGrounders.find(_.name == name).get
+    protected val ontologyHandler: OntologyHandler = new EidosSystem().components.ontologyHandler
+    protected val ontologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
       0.until(domainOntology.size).map { index =>
@@ -39,6 +41,24 @@ object GroundCanonicalNames extends App {
       nameAndValueOpt.map { case (name, value) =>
         (name, value, nameToIsLeaf(name))
       }
+    }
+
+    def ground(text: String, canonicalName: String): Option[(String, Float, Boolean)] = {
+      val canonicalNameParts = canonicalName.split(' ')
+      val start = text.toLowerCase.indexOf(canonicalNameParts.head.toLowerCase)
+      val stop = text.toLowerCase.indexOf(canonicalNameParts.last.toLowerCase, start)
+      if (start >= 0 && stop >= 0) {
+        val groundings = ontologyHandler.reground(text, Interval(start, stop + canonicalNameParts.last.length))
+
+        if (groundings.nonEmpty && groundings.head._2.nonEmpty) {
+          val (namer, value) = groundings.head._2.headOption.get
+
+          Some((namer.name, value, false))
+        }
+        else None
+      }
+      else
+        None
     }
   }
 
