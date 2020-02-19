@@ -2,12 +2,14 @@ package org.clulab.wm.eidos.groundings
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+import org.clulab.odin.TextBoundMention
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -19,26 +21,48 @@ class OntologyHandler(
   val includeParents: Boolean
 ) extends PostProcessing {
 
+  protected def process(eidosMention: EidosMention): Unit = {
+    // If any of the grounders needs their own version, they'll have to make it themselves.
+    eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
+
+    val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
+      val name: String = ontologyGrounder.name
+      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold= Option(0.5f))
+      val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
+        OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
+      }
+
+      nameAndOntologyGroundings
+    }.toMap
+
+    eidosMention.grounding = ontologyGroundings
+  }
+
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
     annotatedDocument.allEidosMentions.foreach { eidosMention =>
-      // If any of the grounders needs their own version, they'll have to make it themselves.
-      eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
-
-      val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
-        val name: String = ontologyGrounder.name
-        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold= Option(0.5f))
-        val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
-          val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
-
-          newName -> ontologyGrounding
-        }
-
-        nameAndOntologyGroundings
-      }.toMap
-
-      eidosMention.grounding = ontologyGroundings
+      process(eidosMention)
     }
     annotatedDocument
+  }
+
+  def reground(sentenceText: String, interval: Interval): OntologyAliases.OntologyGroundings = {
+    // This is assuming that there is just just one sentence and the interval falls within it.
+    // This is not always the case.
+    val document = sentencesExtractor.extractDocument(sentenceText)
+    assert(document.sentences.length == 1)
+    val sentence = document.sentences.head
+    val tokenStart =sentence.startOffsets.indexWhere { startOffset => startOffset <= interval.start }
+    val tokenEnd = sentence.endOffsets.size - 1 - sentence.endOffsets.reverse.indexWhere { endOffset => interval.end <= endOffset}
+    assert(0 <= tokenStart && tokenStart < sentence.endOffsets.size)
+    assert(0 <= tokenEnd && tokenEnd <= sentence.endOffsets.size)
+    val tokenInterval = Interval(tokenStart, tokenEnd)
+    val odinMention = new TextBoundMention(label = "", tokenInterval, 0, document, keep = true, foundBy = "")
+    val eidosMentions = EidosMention.asEidosMentions(Seq(odinMention))
+    assert(eidosMentions.size == 1)
+    val eidosMention = eidosMentions.head
+
+    process(eidosMention)
+    eidosMention.grounding
   }
 
   def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10, isAlreadyCanonicalized: Boolean = true): Array[Array[(String, Float)]] = {
@@ -139,4 +163,8 @@ object OntologyHandler {
   def serializedPath(name: String, dir: String, includeParents: Boolean): String =
     if (includeParents) s"$dir/$name.fast.serialized"
     else s"$dir/$name.serialized"
+
+  def mkBranchName(ontologyName: String, branchNameOpt: Option[String]): String = {
+    ontologyName + branchNameOpt.map { branch => "/" + branch }.getOrElse("")
+  }
 }
