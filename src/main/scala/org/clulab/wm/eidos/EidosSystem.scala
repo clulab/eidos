@@ -6,9 +6,6 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils._
-import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.actions.MigrationHandler
@@ -31,31 +28,32 @@ class EidosSystem(val components: EidosComponents) {
 
   // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
   // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
-  val postProcessors: Seq[PostProcessing] = Seq(components.ontologyHandler)
+  protected def mkPostProcessors(options: EidosSystem.Options): Seq[PostProcessing] = Seq(components.ontologyHandler)
+
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
   // ---------------------------------------------------------------------------------------------
 
   def annotateDoc(doc: Document): Document = {
-    // It is assumed and not verified that the document _has_not_ already been annotated.
+    // It is assumed and not verified that the document has _not_ already been annotated.
     components.proc.annotate(doc)
     doc
   }
 
   // Annotate the text using a Processor and then populate lexicon labels
   def annotate(text: String): Document = {
-    val tokenized = components.proc.mkDocument(text, keepText = true) // Formerly keepText, must now be true
-    val annotated = annotateDoc(tokenized)
+    val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // Formerly keepText, must now be true
+    val annotatedDoc = annotateDoc(tokenizedDoc)
 
-    annotated
+    annotatedDoc
   }
 
   // ---------------------------------------------------------------------------------------------
   //                                 Extraction Methods
   // ---------------------------------------------------------------------------------------------
 
-  def extractFrom(doc: Document): Vector[Mention] = {
+  def extractMentionsFrom(doc: Document): Vector[Mention] = {
 
     def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
       val extractedEvents = components.engine.extractFrom(doc, state).toVector
@@ -81,8 +79,8 @@ class EidosSystem(val components: EidosComponents) {
     events
   }
 
-  def postProcess(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
-    val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
+  def postProcess(annotatedDocument: AnnotatedDocument, options: EidosSystem.Options): AnnotatedDocument = {
+    val lastAnnotatedDocument = mkPostProcessors(options).foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
       postProcessor.process(nextAnnotatedDocument)
     }
 
@@ -90,20 +88,16 @@ class EidosSystem(val components: EidosComponents) {
   }
 
   // MAIN PIPELINE METHOD if given doc
-  def extractFromDoc(
-      doc: Document,
-      cagRelevantOnly: Boolean = true,
-      dctOpt: Option[DCT] = None,
-      id: Option[String] = None): AnnotatedDocument = {
+  def extractFromDoc(doc: Document, options: EidosSystem.Options, metadata: EidosSystem.Metadata): AnnotatedDocument = {
     // It is assumed and not verified that the document _has_ already been annotated.
     // Prepare the document here for further extraction.
     require(doc.text.isDefined)
-    doc.id = id
-    dctOpt.foreach { dct =>
+    doc.id = metadata.idOpt
+    metadata.dctOpt.foreach { dct =>
       DctDocumentAttachment.setDct(doc, dct)
     }
-    // Extract Mentions
-    val odinMentions = extractFrom(doc)
+    val odinMentions = extractMentionsFrom(doc)
+
     // Expand the Concepts that have a modified state if they are not part of a causal event
     val afterExpandingConcepts = components.conceptExpander.expand(odinMentions)
     val mentionsAndNestedArgs = {
@@ -124,7 +118,7 @@ class EidosSystem(val components: EidosComponents) {
     }
     //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
     val cagRelevant =
-        if (cagRelevantOnly) components.stopwordManager.keepCAGRelevant(mentionsAndNestedArgs)
+        if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(mentionsAndNestedArgs)
         else mentionsAndNestedArgs
     // TODO: handle hedging and negation...
 
@@ -133,35 +127,42 @@ class EidosSystem(val components: EidosComponents) {
     val afterMigration = components.migrationHandler.processMigrationEvents(afterNegation)
     val annotatedDocument = AnnotatedDocument(doc, afterMigration)
 
-    postProcess(annotatedDocument)
+    postProcess(annotatedDocument, options)
   }
 
-  def newDct(dctStringOpt: Option[String]): Option[DCT] = {
-    val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- components.timeNormFinderOpt) yield {
-      val dctOpt = timeNormFinder.parseDctString(dctString)
-      if (dctOpt.isEmpty)
-        EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
-      dctOpt
-    }
-    dctOpt.flatten
+  // Legacy version
+  def extractFromDoc(
+    doc: Document,
+    cagRelevantOnly: Boolean = true,
+    dctOpt: Option[DCT] = None,
+    id: Option[String] = None
+  ): AnnotatedDocument = {
+    extractFromDoc(doc, EidosSystem.Options(cagRelevantOnly), EidosSystem.Metadata(dctOpt, id))
   }
 
   // MAIN PIPELINE METHOD if given text
+  def extractFromText(text: String, options: EidosSystem.Options, metadata: EidosSystem.Metadata): AnnotatedDocument = {
+    val doc = annotate(text)
+    extractFromDoc(doc, options, metadata)
+  }
+
+  // Legacy versions
   def extractFromText(
-      text: String,
-      cagRelevantOnly: Boolean = true,
-      dctString: Option[String] = None,
-      id: Option[String] = None): AnnotatedDocument = {
-    extractFromTextWithDct(text, cagRelevantOnly, newDct(dctString), id)
+    text: String,
+    cagRelevantOnly: Boolean = true,
+    dctString: Option[String] = None,
+    id: Option[String] = None
+  ): AnnotatedDocument = {
+    extractFromText(text, EidosSystem.Options(cagRelevantOnly), EidosSystem.Metadata(this, dctString, id))
   }
 
   def extractFromTextWithDct(
-      text: String,
-      cagRelevantOnly: Boolean = true,
-      dct: Option[DCT] = None,
-      id: Option[String] = None): AnnotatedDocument = {
-    val document = annotate(text)
-    extractFromDoc(document, cagRelevantOnly, dct, id)
+    text: String,
+    cagRelevantOnly: Boolean = true,
+    dct: Option[DCT] = None,
+    id: Option[String] = None
+  ): AnnotatedDocument = {
+    extractFromText(text, EidosSystem.Options(cagRelevantOnly), EidosSystem.Metadata(dct, id))
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -208,4 +209,38 @@ object EidosSystem {
 
   // Turn off warnings from this class.
   edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
+
+  class Options(val cagRelevantOnly: Boolean) {
+  }
+
+  object Options {
+
+    def apply(cagRelevantOnly: Boolean): Options = new Options(cagRelevantOnly)
+  }
+
+  class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String]) {
+  }
+
+  object Metadata {
+
+    protected def newDct(eidosSystem: EidosSystem, dctStringOpt: Option[String]): Option[DCT] = {
+      val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- eidosSystem.components.timeNormFinderOpt) yield {
+        val dctOpt = timeNormFinder.parseDctString(dctString)
+        if (dctOpt.isEmpty)
+          EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
+        dctOpt
+      }
+      dctOpt.flatten
+    }
+
+    def apply(eidosSystem: EidosSystem, dctStringOpt: Option[String], idOpt: Option[String]): Metadata = {
+      val dctOpt = newDct(eidosSystem, dctStringOpt)
+
+      new Metadata(dctOpt, idOpt)
+    }
+
+    def apply(dctOpt: Option[DCT], idOpt: Option[String]): Metadata = {
+      new Metadata(dctOpt, idOpt)
+    }
+  }
 }
