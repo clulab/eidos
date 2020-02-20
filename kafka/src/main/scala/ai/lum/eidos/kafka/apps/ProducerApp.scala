@@ -1,8 +1,8 @@
-package ai.lum.eidos.sparql.apps
+package ai.lum.eidos.kafka.apps
 
 import java.util.Properties
 
-import ai.lum.eidos.sparql.producer.ExampleProducer
+import ai.lum.eidos.kafka.producer.ExampleProducer
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext

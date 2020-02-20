@@ -1,16 +1,14 @@
-package ai.lum.eidos.sparql.producer
+package ai.lum.eidos.kafka.producer
 
 import java.util.Properties
 
-import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.Serdes
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future // this is built in in scala 2.13
 
-class ExampleStream(topic: String, bootstrapServers: String)(implicit executionContext: ExecutionContext) {
+class ExampleProducer(topic: String, bootstrapServers: String)(implicit executionContext: ExecutionContext) {
   protected val producer: KafkaProducer[String, String] = {
     val kafkaProps: Properties = {
       val serializer = Serdes.String().serializer
