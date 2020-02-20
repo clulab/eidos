@@ -10,7 +10,7 @@ import org.apache.kafka.common.serialization.Serdes
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future // this is built in in scala 2.13
 
-class ExampleStream(topic: String, bootstrapServers: String)(implicit executionContext: ExecutionContext) {
+class ExampleStream(topic: String, bootstrapServers: String)(executionContext: ExecutionContext) {
   protected val producer: KafkaProducer[String, String] = {
     val kafkaProps: Properties = {
       val serializer = Serdes.String().serializer
@@ -28,6 +28,6 @@ class ExampleStream(topic: String, bootstrapServers: String)(implicit executionC
   def send(key: String, value: String): Future[RecordMetadata] = {
     val message = new ProducerRecord[String, String](topic, key, value)
 
-    Future(producer.send(message).get)
+    Future(producer.send(message).get)(executionContext)
   }
 }

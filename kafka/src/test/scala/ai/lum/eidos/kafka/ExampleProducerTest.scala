@@ -10,8 +10,8 @@ import org.scalatest.Matchers
 import scala.concurrent.ExecutionContext
 
 class ExampleProducerTest extends FlatSpec with EmbeddedKafka with Matchers {
-  implicit val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
-  implicit val (serializer, deserializer) = {
+  val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
+  val (serializer, deserializer) = {
     val serdes = Serdes.String()
 
     (serdes.serializer(), serdes.deserializer())
@@ -26,7 +26,7 @@ class ExampleProducerTest extends FlatSpec with EmbeddedKafka with Matchers {
   val producer: ExampleProducer = {
       val testKafkaUrl = s"localhost:${kafkaPort}"
 
-      new ExampleProducer(testTopic, testKafkaUrl)
+      new ExampleProducer(testTopic, testKafkaUrl)(executionContext)
   }
 
   "Example producer" should "successfully send a message" in {
@@ -36,7 +36,8 @@ class ExampleProducerTest extends FlatSpec with EmbeddedKafka with Matchers {
     withRunningKafka {
       producer.send(testKey, testValue)
 
-      val actual: (String, String) = consumeFirstKeyedMessageFrom(topic = testTopic, autoCommit = true)
+      val actual: (String, String) =
+          consumeFirstKeyedMessageFrom(topic = testTopic, autoCommit = true)(config, deserializer, deserializer)
       actual._1 shouldBe testKey
       actual._2 shouldBe testValue
     }
