@@ -93,7 +93,7 @@ object ExtractMetaFromDirectoryWithId extends App {
           val documentCreationTime = EidosMetaUtils.getDocumentCreationTime(json)
           val documentTitle = EidosMetaUtils.getDocumentTitle(json)
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromText(text, dctString = documentCreationTime))
+          val annotatedDocuments = Seq(reader.extractFromText(text, dctStringOpt = documentCreationTime))
           annotatedDocuments.head.document.id = Some(id)
           // 4. Convert to JSON
           val corpus = new JLDCorpus(annotatedDocuments)

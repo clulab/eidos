@@ -235,7 +235,7 @@ class TestJLDSerializer extends ExtractionTest {
   if (useTimeNorm) {
     it should "serialize DCTs" in {
       val json = serialize(Seq( {
-        val annotatedDocument = ieSystem.extractFromText("There's not much text here", dctString = Some("2018-10-04"))
+        val annotatedDocument = ieSystem.extractFromText("There's not much text here", dctStringOpt = Some("2018-10-04"))
 
         annotatedDocument.document.id = Some("This is a test of DCT")
         annotatedDocument
