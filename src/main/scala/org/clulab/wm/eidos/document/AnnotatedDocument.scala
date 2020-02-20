@@ -4,10 +4,6 @@ import org.clulab.odin.Mention
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.mentions.EidosMention
 
-trait PreProcessing {
-  def process(odinMentions: Seq[Mention]): Seq[Mention]
-}
-
 trait PostProcessing {
   def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument
 }
@@ -22,6 +18,7 @@ class AnnotatedDocument(val document: Document, val odinMentions: Seq[Mention], 
 }
 
 object AnnotatedDocument {
+  type PreProcessing = Seq[Mention] => Seq[Mention]
   type Corpus = Seq[AnnotatedDocument]
 
   def apply(document: Document, odinMentions: Seq[Mention]) = new AnnotatedDocument(document, odinMentions)

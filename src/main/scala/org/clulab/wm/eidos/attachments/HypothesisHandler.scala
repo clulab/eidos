@@ -19,6 +19,8 @@ class HypothesisHandler(hintsFile: String) {
   // These are the words that hint a hypothesis going on
   protected val hints = FileUtils.getCommentedTextSetFromResource(hintsFile)
 
+  def detectHypotheses(mentions: Seq[Mention]): Seq[Mention] = detectHypotheses(mentions, State(mentions))
+
   def detectHypotheses(mentions: Seq[Mention], state: State): Seq[Mention] = mentions.map(addAnyHedging)
 
   // Recursive function that helps us get the words outside the event

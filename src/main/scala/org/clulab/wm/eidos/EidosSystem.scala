@@ -5,18 +5,17 @@ import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
-import org.clulab.wm.eidos.actions.MigrationHandler
-
-import scala.annotation.tailrec
+import org.clulab.wm.eidos.document.AnnotatedDocument.PreProcessing
+import org.clulab.wm.eidos.document.Metadata
+import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 
 /**
   * A system for text processing and information extraction
   */
 class EidosSystem(val components: EidosComponents) {
-  // The constructor below will take cheap to update values from the config, but expensive
+  // The constructor below will take cheap-to-update values from the config, but expensive
   // values from eidosSystem.components, if present  It is the new reload().
   def this(config: Config, eidosSystemOpt: Option[EidosSystem] = None) =
       this(new EidosComponentsBuilder().add(config, eidosSystemOpt.map(_.components)).build())
@@ -25,11 +24,7 @@ class EidosSystem(val components: EidosComponents) {
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   protected val debug = true
-
-  // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
-  // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
-  protected def mkPostProcessors(options: EidosSystem.Options): Seq[PostProcessing] = Seq(components.ontologyHandler)
-
+  protected def nestedArgumentExpander = new NestedArgumentExpander
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
@@ -79,55 +74,67 @@ class EidosSystem(val components: EidosComponents) {
     events
   }
 
-  def postProcess(annotatedDocument: AnnotatedDocument, options: EidosSystem.Options): AnnotatedDocument = {
-    val lastAnnotatedDocument = mkPostProcessors(options).foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
-      postProcessor.process(nextAnnotatedDocument)
+  def preProcess(preProcessors: Seq[PreProcessing], odinMentions: Seq[Mention]): Seq[Mention] = {
+    val lastOdinMentions = preProcessors.foldLeft(odinMentions) { (prevOdinMentions, preProcessor) =>
+      val nextOdinMentions = preProcessor(prevOdinMentions)
+
+      nextOdinMentions // debug here
+    }
+
+    lastOdinMentions
+  }
+
+  def postProcess(postProcessors: Seq[PostProcessing], annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (prevAnnotatedDocument, postProcessor) =>
+      val nextAnnotatedDocument = postProcessor.process(prevAnnotatedDocument)
+
+      nextAnnotatedDocument // debug here
     }
 
     lastAnnotatedDocument
   }
 
-  // MAIN PIPELINE METHOD if given doc
-  def extractFromDoc(doc: Document, options: EidosSystem.Options, metadata: EidosSystem.Metadata): AnnotatedDocument = {
-    // It is assumed and not verified that the document _has_ already been annotated.
-    // Prepare the document here for further extraction.
-    require(doc.text.isDefined)
-    doc.id = metadata.idOpt
-    metadata.dctOpt.foreach { dct =>
-      DctDocumentAttachment.setDct(doc, dct)
-    }
+  // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
+  // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
+  protected def mkPostProcessors(options: EidosSystem.Options): Seq[PostProcessing] = Seq(
+    components.ontologyHandler
+  )
+
+  protected def mkPreProcessors(options: EidosSystem.Options): Seq[PreProcessing] = {
+    Seq(
+      (odinMentions: Seq[Mention]) => { components.conceptExpander.expand(odinMentions) },
+      (odinMentions: Seq[Mention]) => { nestedArgumentExpander.traverse(odinMentions) },
+      (odinMentions: Seq[Mention]) => {
+        // This exception is dependent on runtime options.
+        if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(odinMentions)
+        else odinMentions
+      },
+      (odinMentions: Seq[Mention]) => { components.hedgingHandler.detectHypotheses(odinMentions) },
+      (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) },
+      (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) }
+    )
+  }
+
+  // This could be used with more dynamically configured processors, especially if made public.
+  protected def extractFromDoc(doc: Document, preProcessors: Seq[PreProcessing], postProcessors: Seq[PostProcessing]): AnnotatedDocument = {
     val odinMentions = extractMentionsFrom(doc)
+    val preProcessedMentions = preProcess(preProcessors, odinMentions)
+    val annotatedDocument = AnnotatedDocument(doc, preProcessedMentions)
+    val postProcessedDocument = postProcess(postProcessors, annotatedDocument)
 
-    // Expand the Concepts that have a modified state if they are not part of a causal event
-    val afterExpandingConcepts = components.conceptExpander.expand(odinMentions)
-    val mentionsAndNestedArgs = {
-      // Dig in and get any Mentions that currently exist only as arguments, so that they get to be part of the state
-      @tailrec
-      def traverse(ms: Seq[Mention], results: Seq[Mention], seen: Set[Mention]): Seq[Mention] = {
-        ms match {
-          case Nil => results
-          case m +: rest if !seen.contains(m) =>
-            //DisplayUtils.shortDisplay(m)
-            val args = m.arguments.values.flatten
-            traverse(rest ++ args, m +: results, seen + m)
-          case m +: rest => traverse(rest, results, seen)
-        }
-      }
+    postProcessedDocument
+  }
 
-      traverse(afterExpandingConcepts, Seq.empty, Set.empty)
-    }
-    //println(s"\nodinMentions() -- entities : \n\t${odinMentions.map(m => m.text).sorted.mkString("\n\t")}")
-    val cagRelevant =
-        if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(mentionsAndNestedArgs)
-        else mentionsAndNestedArgs
-    // TODO: handle hedging and negation...
+  // MAIN PIPELINE METHOD if given doc
+  def extractFromDoc(doc: Document, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
+    // It is assumed and not verified that the document _has_ already been annotated.
+    require(doc.text.isDefined)
+    metadata.attachToDoc(doc)
 
-    val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
-    val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val afterMigration = components.migrationHandler.processMigrationEvents(afterNegation)
-    val annotatedDocument = AnnotatedDocument(doc, afterMigration)
+    val preProcessors = mkPreProcessors(options)
+    val postProcessors = mkPostProcessors(options)
 
-    postProcess(annotatedDocument, options)
+    extractFromDoc(doc, preProcessors, postProcessors)
   }
 
   // Legacy version
@@ -135,13 +142,13 @@ class EidosSystem(val components: EidosComponents) {
     doc: Document,
     cagRelevantOnly: Boolean = true,
     dctOpt: Option[DCT] = None,
-    id: Option[String] = None
+    idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromDoc(doc, EidosSystem.Options(cagRelevantOnly), EidosSystem.Metadata(dctOpt, id))
+    extractFromDoc(doc, EidosSystem.Options(cagRelevantOnly), Metadata(dctOpt, idOpt))
   }
 
   // MAIN PIPELINE METHOD if given text
-  def extractFromText(text: String, options: EidosSystem.Options, metadata: EidosSystem.Metadata): AnnotatedDocument = {
+  def extractFromText(text: String, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
     val doc = annotate(text)
     extractFromDoc(doc, options, metadata)
   }
@@ -150,19 +157,19 @@ class EidosSystem(val components: EidosComponents) {
   def extractFromText(
     text: String,
     cagRelevantOnly: Boolean = true,
-    dctString: Option[String] = None,
-    id: Option[String] = None
+    dctStringOpt: Option[String] = None,
+    idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromText(text, EidosSystem.Options(cagRelevantOnly), EidosSystem.Metadata(this, dctString, id))
+    extractFromText(text, EidosSystem.Options(cagRelevantOnly), Metadata(this, dctStringOpt, idOpt))
   }
 
   def extractFromTextWithDct(
     text: String,
     cagRelevantOnly: Boolean = true,
-    dct: Option[DCT] = None,
-    id: Option[String] = None
+    dctOpt: Option[DCT] = None,
+    idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromText(text, EidosSystem.Options(cagRelevantOnly), EidosSystem.Metadata(dct, id))
+    extractFromText(text, EidosSystem.Options(cagRelevantOnly), Metadata(dctOpt, idOpt))
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -216,31 +223,5 @@ object EidosSystem {
   object Options {
 
     def apply(cagRelevantOnly: Boolean): Options = new Options(cagRelevantOnly)
-  }
-
-  class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String]) {
-  }
-
-  object Metadata {
-
-    protected def newDct(eidosSystem: EidosSystem, dctStringOpt: Option[String]): Option[DCT] = {
-      val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- eidosSystem.components.timeNormFinderOpt) yield {
-        val dctOpt = timeNormFinder.parseDctString(dctString)
-        if (dctOpt.isEmpty)
-          EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
-        dctOpt
-      }
-      dctOpt.flatten
-    }
-
-    def apply(eidosSystem: EidosSystem, dctStringOpt: Option[String], idOpt: Option[String]): Metadata = {
-      val dctOpt = newDct(eidosSystem, dctStringOpt)
-
-      new Metadata(dctOpt, idOpt)
-    }
-
-    def apply(dctOpt: Option[DCT], idOpt: Option[String]): Metadata = {
-      new Metadata(dctOpt, idOpt)
-    }
   }
 }
