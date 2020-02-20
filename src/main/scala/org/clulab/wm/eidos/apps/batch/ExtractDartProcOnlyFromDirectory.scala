@@ -18,8 +18,6 @@ import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
 import org.clulab.serialization.json.DocOps
 import org.clulab.wm.eidos.utils.StringUtils
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object ExtractDartProcOnlyFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
@@ -30,7 +28,7 @@ object ExtractDartProcOnlyFromDirectory extends App {
   val converter = DartEsMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
@@ -49,10 +47,6 @@ object ExtractDartProcOnlyFromDirectory extends App {
     timer.stop()
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
-
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
       try {

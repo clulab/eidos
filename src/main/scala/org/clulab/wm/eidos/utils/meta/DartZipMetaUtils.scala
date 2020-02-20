@@ -28,6 +28,12 @@ object DartZipMetaUtils {
     dateFormat
   }
 
+  def getDartText(json: Option[JValue]): Option[String] = {
+    json.flatMap { json =>
+      (json \ "extracted_text").extractOpt[String]
+    }
+  }
+
   def getDartDocumentTitle(json: Option[JValue]): Option[String] = {
     json.flatMap { json =>
       (json \ "extracted_metadata" \ "Title").extractOpt[String]

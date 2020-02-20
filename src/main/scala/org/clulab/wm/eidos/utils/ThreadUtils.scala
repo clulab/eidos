@@ -2,6 +2,9 @@ package org.clulab.wm.eidos.utils
 
 import scala.collection.parallel.ForkJoinTasks
 
+import scala.collection.parallel.ForkJoinTaskSupport
+import scala.collection.parallel.ParSeq
+
 // For Scala 2.11, this is required.
 //import scala.concurrent.forkjoin.ForkJoinPool
 
@@ -25,5 +28,14 @@ object ThreadUtils {
 
     // For the record, this is the standard version
     //new ForkJoinPool(threads)
+  }
+
+  def parallelize[T](seq: Seq[T], threads: Int): ParSeq[T] = {
+    val forkJoinPool = newForkJoinPool(threads)
+    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
+    val parSeq = seq.par
+
+    parSeq.tasksupport = forkJoinTaskSupport
+    parSeq
   }
 }
