@@ -26,6 +26,14 @@ class ExampleProducer(topic: String, bootstrapServers: String)(executionContext:
   def send(key: String, value: String): Future[RecordMetadata] = {
     val message = new ProducerRecord[String, String](topic, key, value)
 
-    Future(producer.send(message).get)(executionContext)
+    // Why does it need to be this complicated?
+    Future {
+      println(s"Message $key is going to sleep...")
+      Thread.sleep(2000)
+      println(s"Message $key is waking up...")
+      val result = producer.send(message).get
+      println(s"Message $key result is ready...")
+      result
+    }(executionContext)
   }
 }

@@ -34,12 +34,16 @@ class ExampleProducerTest extends FlatSpec with EmbeddedKafka with Matchers {
     val testValue = "my-test-value"
 
     withRunningKafka {
-      producer.send(testKey, testValue)
+      producer.send(testKey + " 0", testValue)
+      producer.send(testKey + " 1", testValue)
 
-      val actual: (String, String) =
-          consumeFirstKeyedMessageFrom(topic = testTopic, autoCommit = true)(config, deserializer, deserializer)
-      actual._1 shouldBe testKey
-      actual._2 shouldBe testValue
+      val actuals: List[(String, String)] =
+        consumeNumberKeyedMessagesFrom(topic = testTopic, 2, autoCommit = true)(config, deserializer, deserializer)
+
+      actuals.zipWithIndex.foreach { case (actual, index) =>
+        actual._1 shouldBe testKey + " " + index
+        actual._2 shouldBe testValue
+      }
     }
   }
 }
