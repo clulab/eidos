@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Random, Success}
 
 object ProducerApp {
-  implicit protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
+  protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
   protected val TARGET_TOPIC = "target.topic"
   protected val KAFKA_URL = "kafka.url"
 
@@ -24,7 +24,7 @@ object ProducerApp {
   protected val producer: ExampleProducer = new ExampleProducer(
     DEFAULT_PROPS.getProperty(TARGET_TOPIC),
     DEFAULT_PROPS.getProperty(KAFKA_URL)
-  )
+  )(executionContext)
 
   def main(args: Array[String]): Unit = {
     val random = new Random()
@@ -36,7 +36,7 @@ object ProducerApp {
       producer.send(key.toString, random.nextString(10)).onComplete {
         case Success(value) => LOG.info(s"message sent successfully: $value")
         case Failure(exception) => exception.printStackTrace()
-      }
+      }(executionContext)
       key += 1
     }
   }

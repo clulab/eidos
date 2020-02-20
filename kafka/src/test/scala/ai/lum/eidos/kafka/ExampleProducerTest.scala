@@ -1,9 +1,11 @@
-package com.twosixlabs.eidos
+package ai.lum.eidos.kafka
 
-import ai.lum.eidos.sparql.producer.ExampleProducer
-import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import ai.lum.eidos.kafka.producer.ExampleProducer
+import net.manub.embeddedkafka.EmbeddedKafka
+import net.manub.embeddedkafka.EmbeddedKafkaConfig
 import org.apache.kafka.common.serialization.Serdes
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
 
 import scala.concurrent.ExecutionContext
 
