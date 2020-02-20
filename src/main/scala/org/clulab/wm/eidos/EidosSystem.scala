@@ -36,7 +36,7 @@ class EidosSystem(val components: EidosComponents) {
     doc
   }
 
-  // Annotate the text using a Processor and then populate lexicon labels
+  // Annotate the text using a Processor and then populate lexicon labels.
   def annotate(text: String): Document = {
     val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // Formerly keepText, must now be true
     val annotatedDoc = annotateDoc(tokenizedDoc)
@@ -48,27 +48,28 @@ class EidosSystem(val components: EidosComponents) {
   //                                 Extraction Methods
   // ---------------------------------------------------------------------------------------------
 
-  def extractMentionsFrom(doc: Document): Vector[Mention] = {
+  def extractMentionsFrom(doc: Document): Seq[Mention] = {
 
-    def extractEventsFrom(doc: Document, state: State): Vector[Mention] = {
-      val extractedEvents = components.engine.extractFrom(doc, state).toVector
-      val mostCompleteEvents = components.actions.keepMostCompleteEvents(extractedEvents, State(extractedEvents)).toVector
+    def extractMentions(state: State): Seq[Mention] = {
+      val extractedEvents = components.engine.extractFrom(doc, state)
+      val mostCompleteEvents = components.actions.keepMostCompleteEvents(extractedEvents, State(extractedEvents))
 
       mostCompleteEvents
     }
 
     require(doc.text.isDefined)
-    // Prepare the initial state -- if you are using the entity finder then it contains the found entities,
-    // else it is empty
+    // Prepare the initial state.  If you are using the entity finder, then it contains the found entities;
+    // otherwise, it is empty.
     val initialState = components.entityFinders.foldLeft(new State()) { (state, entityFinder) =>
       val mentions = entityFinder.find(doc, state)
+
       state.updated(mentions)
     }
 
-    // Run the main extraction engine, pre-populated with the initial state
-    val events = extractEventsFrom(doc, initialState).distinct
+    // Run the main extraction engine, pre-populated with the initial state.
+    val events = extractMentions(initialState).distinct
     // Note -- in main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
-    // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports
+    // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
     //val cagRelevant = keepCAGRelevant(events)
 
     events
