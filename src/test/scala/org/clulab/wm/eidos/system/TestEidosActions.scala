@@ -144,7 +144,7 @@ class TestEidosActions extends ExtractionTest {
 //  }
 
 //  // fixme: do we want a default here for "english" ???
-  class TestEidosActions extends EidosActions(None, None) {
+  class TestEidosActions extends EidosActions(None, None, true) {
     // Relax some protected functions for testing
 
     override def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] =
