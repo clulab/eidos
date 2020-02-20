@@ -2,6 +2,7 @@ package ai.lum.eidos.kafka.producer
 
 import java.util.Properties
 
+import ai.lum.eidos.kafka.utils.PropertiesBuilder
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.Serdes
 
@@ -10,17 +11,17 @@ import scala.concurrent.Future // this is built in in scala 2.13
 
 class ExampleProducer(topic: String, bootstrapServers: String)(executionContext: ExecutionContext) {
   protected val producer: KafkaProducer[String, String] = {
-    val kafkaProps: Properties = {
+    val properties = {
       val serializer = Serdes.String().serializer
-      val props = new Properties()
 
-      props.put("bootstrap.servers", bootstrapServers)
-      props.put("key.serializer", serializer.getClass.getName)
-      props.put("value.serializer", serializer.getClass.getName)
-      props
+      PropertiesBuilder()
+          .put("bootstrap.servers", bootstrapServers)
+          .put("key.serializer", serializer.getClass.getName)
+          .put("value.serializer", serializer.getClass.getName)
+          .get
     }
 
-    new KafkaProducer[String, String](kafkaProps)
+    new KafkaProducer[String, String](properties)
   }
 
   def send(key: String, value: String): Future[RecordMetadata] = {
