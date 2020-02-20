@@ -43,6 +43,10 @@ object GroundCanonicalNames extends App {
       }
     }
 
+    // This method is not actually used in the program.  It only attempts to find the start and stop
+    // of the canonicalName in the text in order to exercise/demonstrate the reground functionality of
+    // the ontologyHandler (when some of the code below is changed).  Normally the ground method
+    // above is used and that only for experimentation itself.
     def ground(text: String, canonicalName: String): Option[(String, Float, Boolean)] = {
       val canonicalNameParts = canonicalName.split(' ')
       val start = text.toLowerCase.indexOf(canonicalNameParts.head.toLowerCase)
