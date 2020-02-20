@@ -22,15 +22,14 @@ object ExtractDartMetaFromDirectory extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val inputDir = args(0)
-  val metaDir = args(1)
-  val outputDir = args(2)
-  val timeFile = args(3)
-  val threads = args(4).toInt
+  val outputDir = args(1)
+  val timeFile = args(2)
+  val threads = args(3).toInt
 
   val doneDir = inputDir + "/done"
   val converter = DartZipMetaUtils.convertTextToMeta _
 
-  val files = findFiles(inputDir, "txt")
+  val files = findFiles(inputDir, "json")
   val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
@@ -58,8 +57,8 @@ object ExtractDartMetaFromDirectory extends App {
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
           // 2. Get the input file contents
-          val text = FileUtils.getTextFromFile(file)
-          val json = DartZipMetaUtils.getMetaData(converter, metaDir, file)
+          val json = DartZipMetaUtils.getMetaData(file)
+          val text = DartZipMetaUtils.getDartText(json).get
           val documentCreationTime = DartZipMetaUtils.getDocumentCreationTime(json)
           val documentId = DartZipMetaUtils.getDartDocumentId(json)
           val documentTitle = DartZipMetaUtils.getDartDocumentTitle(json)
