@@ -281,7 +281,7 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
 }
 
 object EidosOntologyGrounder {
-  protected val                 GROUNDABLE = "Entity"
+            val                 GROUNDABLE = "Entity"
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
   protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
