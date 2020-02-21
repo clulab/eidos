@@ -5,24 +5,69 @@ import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
-import org.clulab.wm.eidos.document.AnnotatedDocument.PreProcessing
 import org.clulab.wm.eidos.document.Metadata
+import org.clulab.wm.eidos.mentions.EidosMention
 
 /**
-  * A system for text processing and information extraction
-  */
+ * A system for text processing and information extraction
+ *
+ * Eidos accepts text, uses the processors project (via a modified EidosProcessor) to tokenize and annotate
+ * it into a Document, tasks an engine from the odin project to extract Mentions from it with the help of local
+ * Actions and Finders, repeatedly refines the odin mentions with OdinRefiners, converts them into EidosMentions,
+ * refines those with EidosRefiners, and finally incorporates them into an AnnotatedDocument.
+ *
+ * OdinRefiners is a collection of functions that each refines (convert, transform, modifies) a Seq[Mention]
+ * (odin Mentions) to another Seq[Mention] which will be fed into the next refiner.
+ *
+ * EidosRefiners do the same, but with EidosMentions: Seq[EidosMention] => Seq[EidosMention].
+ *
+ * The collections of refiners form a pipeline which can be configured at runtime or even be supplied to
+ * Eidos from elsewhere.
+ */
 class EidosSystem(val components: EidosComponents) {
-  // The constructor below will take cheap-to-update values from the config, but expensive
+  // The "copy constructor" below will take cheap-to-update values from the config, but expensive
   // values from eidosSystem.components, if present  It is the new reload().
   def this(config: Config, eidosSystemOpt: Option[EidosSystem] = None) =
-      this(new EidosComponentsBuilder().add(config, eidosSystemOpt.map(_.components)).build())
+      this(new EidosComponentsBuilder(EidosSystem.PREFIX).add(config, eidosSystemOpt.map(_.components)).build())
   def this() = this(EidosSystem.defaultConfig)
   // Python now uses the default, empty constructor above, but the line below remains for documentation purposes.
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
+  protected val emptyState = new State() // Keep this around for reuse.
   protected val debug = true
+
+  // This abbreviated collection is used in a couple of apps that do not need the entire pipeline.
+  // Note: In main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
+  // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
+  // val cagRelevant = keepCAGRelevant(events)
+  protected val headOdinRefiners = Seq(
+    (odinMentions: Seq[Mention]) => { components.actions.keepMostCompleteEvents(odinMentions) },
+    (odinMentions: Seq[Mention]) => { odinMentions.distinct }
+  )
+
+  // This is the pipeline for odin Mentions.
+  protected def mkOdinRefiners(options: EidosSystem.Options): Seq[EidosSystem.OdinRefiner] = {
+    val tailOdinRefiners = Seq(
+      (odinMentions: Seq[Mention]) => { components.conceptExpander.expand(odinMentions) },
+      (odinMentions: Seq[Mention]) => { components.nestedArgumentExpander.traverse(odinMentions) },
+      (odinMentions: Seq[Mention]) => {
+        // This exception is dependent on runtime options.
+        if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(odinMentions)
+        else odinMentions
+      },
+      (odinMentions: Seq[Mention]) => { components.hedgingHandler.detectHypotheses(odinMentions) },
+      (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) },
+      (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) }
+    )
+
+    headOdinRefiners ++ tailOdinRefiners
+  }
+
+  // This is the pipeline for EidosMentions.
+  protected def mkEidosRefiners(options: EidosSystem.Options): Seq[EidosSystem.EidosRefiner] = Seq(
+    (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) }
+  )
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
@@ -36,7 +81,7 @@ class EidosSystem(val components: EidosComponents) {
 
   // Annotate the text using a Processor and then populate lexicon labels.
   def annotate(text: String): Document = {
-    val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // Formerly keepText, must now be true
+    val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // This must now be true.
     val annotatedDoc = annotateDoc(tokenizedDoc)
 
     annotatedDoc
@@ -51,90 +96,58 @@ class EidosSystem(val components: EidosComponents) {
 
     // Prepare the initial state.  If you are using the entity finder, then it
     // contains the found entities; otherwise, it is empty.
-    val initialState = components.entityFinders.foldLeft(new State()) { (state, entityFinder) =>
+    val initialState = components.entityFinders.foldLeft(emptyState) { (state, entityFinder) =>
       val mentions = entityFinder.find(doc, state)
 
       state.updated(mentions)
     }
 
-    components.engine.extractFrom(doc, initialState)
+    // It is believed that toVector is required to avoid some race conditions within the engine.
+    // The engine's extractFrom returns a Seq which may involve delayed evaluation.
+    components.engine.extractFrom(doc, initialState).toVector
   }
-
-  // This abbreviated collection is used in a couple of apps that do not need the entire pipeline.
-  // Note: In main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
-  // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
-  // val cagRelevant = keepCAGRelevant(events)
-  protected val initialPreProcessors = Seq(
-    (odinMentions: Seq[Mention]) => { components.actions.keepMostCompleteEvents(odinMentions) },
-    (odinMentions: Seq[Mention]) => { odinMentions.distinct }
-  )
 
   def extractMentionsFrom(doc: Document): Seq[Mention] = {
     val odinMentions = mkMentions(doc)
 
-    preProcess(initialPreProcessors, odinMentions)
+    refineOdinMentions(headOdinRefiners, odinMentions)
   }
 
-  def preProcess(preProcessors: Seq[PreProcessing], odinMentions: Seq[Mention]): Seq[Mention] = {
-    val lastOdinMentions = preProcessors.foldLeft(odinMentions) { (prevOdinMentions, preProcessor) =>
-      val nextOdinMentions = preProcessor(prevOdinMentions)
+  protected def refine[T](refiners: Seq[EidosSystem.Refiner[T]], mentions: Seq[T]): Seq[T] = {
+    val lastMentions = refiners.foldLeft(mentions) { (prevMentions, refiner) =>
+      val nextMentions = refiner(prevMentions)
 
-      nextOdinMentions // inspect here
+      nextMentions // inspect here
     }
 
-    lastOdinMentions
+    lastMentions
   }
 
-  def postProcess(postProcessors: Seq[PostProcessing], annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
-    val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (prevAnnotatedDocument, postProcessor) =>
-      val nextAnnotatedDocument = postProcessor.postProcess(prevAnnotatedDocument)
+  def refineOdinMentions(odinRefiners: Seq[EidosSystem.OdinRefiner], odinMentions: Seq[Mention]): Seq[Mention] =
+      refine[Mention](odinRefiners, odinMentions)
 
-      nextAnnotatedDocument // inspect here
-    }
+  def refineEidosMentions(eidosRefiners: Seq[EidosSystem.EidosRefiner], eidosMentions: Seq[EidosMention]): Seq[EidosMention] =
+      refine[EidosMention](eidosRefiners, eidosMentions)
 
-    lastAnnotatedDocument
-  }
-
-  // Grounding is the first PostProcessing step(s) and it is pre-configured in Eidos.  Other things can take
-  // the resulting AnnotatedDocument and post-process it further.  They are not yet integrated into Eidos.
-  protected def mkPostProcessors(options: EidosSystem.Options): Seq[PostProcessing] = Seq(
-    components.ontologyHandler
-  )
-
-  protected def mkPreProcessors(options: EidosSystem.Options): Seq[PreProcessing] = {
-    initialPreProcessors ++
-    Seq(
-      (odinMentions: Seq[Mention]) => { components.conceptExpander.expand(odinMentions) },
-      (odinMentions: Seq[Mention]) => { components.nestedArgumentExpander.traverse(odinMentions) },
-      (odinMentions: Seq[Mention]) => {
-        // This exception is dependent on runtime options.
-        if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(odinMentions)
-        else odinMentions
-      },
-      (odinMentions: Seq[Mention]) => { components.hedgingHandler.detectHypotheses(odinMentions) },
-      (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) },
-      (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) }
-    )
-  }
-
-  // This could be used with more dynamically configured processors, especially if made public.
-  protected def extractFromDoc(doc: Document, preProcessors: Seq[PreProcessing], postProcessors: Seq[PostProcessing]): AnnotatedDocument = {
+  // This could be used with more dynamically configured refiners, especially if made public.
+  protected def extractFromDoc(doc: Document, odinRefiners: Seq[EidosSystem.OdinRefiner],
+      eidosRefiners: Seq[EidosSystem.EidosRefiner]): AnnotatedDocument = {
     val odinMentions = mkMentions(doc)
-    val preProcessedMentions = preProcess(preProcessors, odinMentions)
-    val annotatedDocument = AnnotatedDocument(doc, preProcessedMentions)
-    val postProcessedDocument = postProcess(postProcessors, annotatedDocument)
+    val refinedOdinMentions = refineOdinMentions(odinRefiners, odinMentions)
+    val eidosMentions = EidosMention.asEidosMentions(refinedOdinMentions)
+    val refinedEidosMentions = refineEidosMentions(eidosRefiners, eidosMentions)
+    val annotatedDocument = AnnotatedDocument(doc, refinedEidosMentions)
 
-    postProcessedDocument
+    annotatedDocument
   }
 
   // MAIN PIPELINE METHOD if given doc
   def extractFromDoc(doc: Document, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
-    // These could be organized in advance based on what we know about available options.
-    val preProcessors = mkPreProcessors(options)
-    val postProcessors = mkPostProcessors(options)
+    val odinRefiners = mkOdinRefiners(options)
+    val eidosRefiners = mkEidosRefiners(options)
 
     metadata.attachToDoc(doc)
-    extractFromDoc(doc, preProcessors, postProcessors)
+    extractFromDoc(doc, odinRefiners, eidosRefiners)
   }
 
   // Legacy version
@@ -184,12 +197,13 @@ class EidosSystem(val components: EidosComponents) {
 }
 
 object EidosSystem {
+  type Refiner[T] = Seq[T] => Seq[T]
+  type OdinRefiner = Refiner[Mention]
+  type EidosRefiner = Refiner[EidosMention]
+
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val PREFIX = "EidosSystem"
-
-  val EXPAND_SUFFIX = "expandParams"
-  val SPLIT_SUFFIX = "splitAtCC"
+  protected val PREFIX = "EidosSystem"
 
   // Taxonomy relations that should make it to final causal analysis graph
   val CAUSAL_LABEL = "Causal"
@@ -201,17 +215,9 @@ object EidosSystem {
   // Taxonomy relations for other uses
   val RELATION_LABEL = "EntityLinker"
 
-  // Stateful Labels used by webapp
-  val INC_LABEL_AFFIX = "-Inc"
-  val DEC_LABEL_AFFIX = "-Dec"
-  val QUANT_LABEL_AFFIX = "-Quant"
-  val NER_OUTSIDE = "O"
-  // Provenance info for sameAs scoring
-  val SAME_AS_METHOD = "simple-w2v"
-
   // CAG filtering
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
-  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
+  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL) // StopwordManager
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 

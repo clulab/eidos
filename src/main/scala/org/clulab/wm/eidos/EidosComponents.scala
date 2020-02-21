@@ -37,7 +37,7 @@ case class EidosComponents(
   lazy val language: String = proc.language
 }
 
-class EidosComponentsBuilder {
+class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var procOpt: Option[EidosProcessor] = None
   var negationHandlerOpt: Option[NegationHandler] = None
   var migrationHandlerOpt: Option[MigrationHandler] = None
@@ -60,7 +60,7 @@ class EidosComponentsBuilder {
 
     EidosComponentsBuilder.logger.info((if (reloading) "Reloading" else "Loading") + " config...")
 
-    val eidosConf: Config = config[Config](EidosSystem.PREFIX)
+    val eidosConf: Config = config[Config](eidosSystemPrefix)
 
     if (reloading) {
       // When reloading, the expensive things and those required to make them are borrowed from previous components.
@@ -109,7 +109,7 @@ class EidosComponentsBuilder {
     }
 
     // Entity Finders can be used to preload entities into the odin state, their use is optional.
-    entityFindersOpt = Some(Finder.fromConfig(EidosSystem.PREFIX + ".entityFinders", config))
+    entityFindersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".entityFinders", config))
     conceptExpanderOpt = {
       // Expander for expanding the bare events
       val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")

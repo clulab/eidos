@@ -4,10 +4,11 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -17,10 +18,10 @@ class OntologyHandler(
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer,
   val includeParents: Boolean
-) extends PostProcessing {
+) {
 
-  def postProcess(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
-    annotatedDocument.allEidosMentions.foreach { eidosMention =>
+  def ground(eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
+    EidosMention.findReachableEidosMentions(eidosMentions).foreach { eidosMention =>
       // If any of the grounders needs their own version, they'll have to make it themselves.
       eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
 
@@ -38,7 +39,7 @@ class OntologyHandler(
 
       eidosMention.grounding = ontologyGroundings
     }
-    annotatedDocument
+    eidosMentions
   }
 
   def reground(name: String = "Custom", ontologyYaml: String, texts: Seq[String], filter: Boolean = true, topk: Int = 10, isAlreadyCanonicalized: Boolean = true): Array[Array[(String, Float)]] = {

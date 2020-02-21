@@ -29,6 +29,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
@@ -164,7 +165,8 @@ class TestJLDSerializer extends ExtractionTest {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions)
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions)
+      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextEidosMentions)
 
       nextAnnotatedDocument
     }
@@ -335,8 +337,9 @@ class TestJLDSerializer extends ExtractionTest {
 
     val fullMention = attachments.foldLeft(emptyMention) { case (textBoundMention, attachment) => textBoundMention.newWithAttachment(attachment)}
     val odinMentions = Seq(fullMention)
-    val annotatedDocument2 = AnnotatedDocument(document, odinMentions)
-    val json = serialize(Seq(annotatedDocument2))
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val annotatedDocument = AnnotatedDocument(document, eidosMentions)
+    val json = serialize(Seq(annotatedDocument))
 
     inspect(json)
     json should not be empty

@@ -34,6 +34,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   type CountModifierAndProvenanceOpt = (CountModifier.Value, Option[Provenance])
   type NumberArg = (Int, Int, Double) // start, end, value
 
+  protected val emptyState = new State()
+
   /*
       Global Action -- performed after each round in Odin
   */
@@ -405,8 +407,10 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     argTokenInterval(m).length
   }
 
+  def keepMostCompleteEvents(ms: Seq[Mention]): Seq[Mention] = keepMostCompleteEvents(ms, emptyState)
+
   // Remove incomplete Mentions
-  def keepMostCompleteEvents(ms: Seq[Mention], state: State = new State()): Seq[Mention] = {
+  def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
     val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
     // Filter out duplicate (or subsumed) events.  Strict containment used -- i.e. simply overlapping args is not
     // enough to be filtered out here.
