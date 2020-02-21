@@ -28,6 +28,7 @@ case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[SingleOntologyGrounding] = grounding.headOption
   def headName: Option[String] = headOption.map(_._1.name)
+  def groundingsWithout(avoid:String): MultipleOntologyGrounding = grounding.filterNot(_._1.name.contains(avoid))
 }
 
 trait OntologyGrounder {

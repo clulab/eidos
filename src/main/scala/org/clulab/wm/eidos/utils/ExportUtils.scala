@@ -17,6 +17,7 @@ object ExportUtils {
       case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
       case "serialized" => SerializedExporter(filename)
       case "grounding" => GroundingExporter(FileUtils.printWriterFromFile(filename + ".ground.tsv"), reader, groundAs)
+      case "wordcloud" => WordCloudExporter(filename + ".wordCloud.tsv")
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }

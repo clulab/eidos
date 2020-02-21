@@ -7,7 +7,9 @@ import org.clulab.odin.{EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.{Decrease, Increase}
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.groundings.{DomainOntology, EidosOntologyGrounder, OntologyGrounding, OntologyHandler}
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
@@ -153,7 +155,56 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
 
 }
 
+case class WordCloudExporter(filename: String) extends Exporter {
+  def poorMansIndra(cause: EidosMention, effect: EidosMention): String = {
+    def numDec(em: EidosMention): Int = em.odinMention.attachments.collect{case dec: Decrease => dec}.size
+    def numInc(em: EidosMention): Int = em.odinMention.attachments.collect{case inc: Increase => inc}.size
 
+    val effectPolarity = if (numDec(effect) > numInc(effect)) -1 else 1
+    val causePolarity = if (numDec(cause) > numInc(cause)) -1 else 1
+
+    if (effectPolarity * causePolarity > 0) "PROMOTE" else "INHIBIT"
+  }
+
+  // TODO: make sure the docs are good, real, intervention docs
+  // TODO: weight the words more smartly (tfidf, extraction confidence, etc)
+  // TODO: use concreteness norms to weight
+  // TODO: only heads
+  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+    val causalMentions = annotatedDocuments
+      .flatMap(ad => ad.eidosMentions)
+      .filter(_.label == EidosSystem.CAUSAL_LABEL)
+    val causesAndGroundedEffect = for {
+      cm <- causalMentions
+      _ = println(cm.odinMention.text)
+      args = cm.eidosArguments
+      causeOpt = args.get("cause")
+      effectOpt = args.get("effect")
+      if (causeOpt.isDefined && effectOpt.isDefined)
+      cause = causeOpt.get.head
+      effect = effectOpt.get.head
+      causeCanonicalText = cause.canonicalName
+      effectGrounding = effect.grounding.get(EidosOntologyGrounder.PRIMARY_NAMESPACE) // get the groundings
+        .map(_.groundingsWithout("interventions"))   // exclude interventions bc we're bad at grounding to them
+      if effectGrounding.isDefined
+      effectGroundingHead = effectGrounding.get.headOption
+      if effectGroundingHead.isDefined
+      effectDirection = poorMansIndra(cause, effect)
+      // TODO: currently only making for top 1 grounding that isn't an intervention...
+      // in the future, we may want to expand to include top 2 etc.
+    } yield (causeCanonicalText, effectGroundingHead.get._1.name, effectDirection)
+
+    val pw = FileUtils.printWriterFromFile(filename)
+    // header
+    pw.println("CAUSE TEXT\tEFFECT GROUNDING\tDIRECTION")
+    // print the info
+    for ((cause, effect, direction) <- causesAndGroundedEffect) {
+      val causeStripped = cause.replaceAll("[\t\n]", " ")
+      pw.println(s"$causeStripped\t$effect\t$direction")
+    }
+    pw.close()
+  }
+}
 
 case class SerializedExporter(filename: String) extends Exporter {
 
