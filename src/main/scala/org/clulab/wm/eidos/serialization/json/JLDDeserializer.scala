@@ -802,7 +802,7 @@ class JLDDeserializer {
 
   def addEidosExtras2(annotatedDocument: AnnotatedDocument, postProcessors: Seq[PostProcessing]): AnnotatedDocument = {
     val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
-      postProcessor.process(nextAnnotatedDocument)
+      postProcessor.postProcess(nextAnnotatedDocument)
     }
 
     lastAnnotatedDocument

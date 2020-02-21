@@ -106,12 +106,12 @@ class TestGrounding extends EnglishTest {
       val causeTBM = causeIntervals.map( x =>
         new TextBoundMention(label="Entity", x, 0, doc, true, "FakeRule") )
       val causeAD = causeTBM.map( x => AnnotatedDocument(doc, Seq(x)) )
-      val cause = causeAD.map( x => ieSystem.components.ontologyHandler.process(x).eidosMentions.head)
+      val cause = causeAD.map( x => ieSystem.components.ontologyHandler.postProcess(x).eidosMentions.head)
 
       val effectTBM = effectIntervals.map( x =>
         new TextBoundMention(label="Entity", x, 0, doc, true, "FakeRule") )
       val effectAD = effectTBM.map( x => AnnotatedDocument(doc, Seq(x)) )
-      val effect = effectAD.map( x => ieSystem.components.ontologyHandler.process(x).eidosMentions.head)
+      val effect = effectAD.map( x => ieSystem.components.ontologyHandler.postProcess(x).eidosMentions.head)
 
       val returned = (cause, effect)
       returned

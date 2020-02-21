@@ -406,7 +406,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   }
 
   // Remove incomplete Mentions
-  def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
+  def keepMostCompleteEvents(ms: Seq[Mention], state: State = new State()): Seq[Mention] = {
     val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
     // Filter out duplicate (or subsumed) events.  Strict containment used -- i.e. simply overlapping args is not
     // enough to be filtered out here.

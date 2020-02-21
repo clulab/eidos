@@ -9,7 +9,6 @@ import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.document.AnnotatedDocument.PreProcessing
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 
 /**
   * A system for text processing and information extraction
@@ -24,7 +23,6 @@ class EidosSystem(val components: EidosComponents) {
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
   protected val debug = true
-  protected def nestedArgumentExpander = new NestedArgumentExpander
 
   // ---------------------------------------------------------------------------------------------
   //                                 Annotation Methods
@@ -48,38 +46,40 @@ class EidosSystem(val components: EidosComponents) {
   //                                 Extraction Methods
   // ---------------------------------------------------------------------------------------------
 
-  def extractMentionsFrom(doc: Document): Seq[Mention] = {
-
-    def extractMentions(state: State): Seq[Mention] = {
-      val extractedEvents = components.engine.extractFrom(doc, state)
-      val mostCompleteEvents = components.actions.keepMostCompleteEvents(extractedEvents, State(extractedEvents))
-
-      mostCompleteEvents
-    }
-
+  protected def mkMentions(doc: Document): Seq[Mention] = {
     require(doc.text.isDefined)
-    // Prepare the initial state.  If you are using the entity finder, then it contains the found entities;
-    // otherwise, it is empty.
+
+    // Prepare the initial state.  If you are using the entity finder, then it
+    // contains the found entities; otherwise, it is empty.
     val initialState = components.entityFinders.foldLeft(new State()) { (state, entityFinder) =>
       val mentions = entityFinder.find(doc, state)
 
       state.updated(mentions)
     }
 
-    // Run the main extraction engine, pre-populated with the initial state.
-    val events = extractMentions(initialState).distinct
-    // Note -- in main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
-    // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
-    //val cagRelevant = keepCAGRelevant(events)
+    components.engine.extractFrom(doc, initialState)
+  }
 
-    events
+  // This abbreviated collection is used in a couple of apps that do not need the entire pipeline.
+  // Note: In main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
+  // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
+  // val cagRelevant = keepCAGRelevant(events)
+  protected val initialPreProcessors = Seq(
+    (odinMentions: Seq[Mention]) => { components.actions.keepMostCompleteEvents(odinMentions) },
+    (odinMentions: Seq[Mention]) => { odinMentions.distinct }
+  )
+
+  def extractMentionsFrom(doc: Document): Seq[Mention] = {
+    val odinMentions = mkMentions(doc)
+
+    preProcess(initialPreProcessors, odinMentions)
   }
 
   def preProcess(preProcessors: Seq[PreProcessing], odinMentions: Seq[Mention]): Seq[Mention] = {
     val lastOdinMentions = preProcessors.foldLeft(odinMentions) { (prevOdinMentions, preProcessor) =>
       val nextOdinMentions = preProcessor(prevOdinMentions)
 
-      nextOdinMentions // debug here
+      nextOdinMentions // inspect here
     }
 
     lastOdinMentions
@@ -87,9 +87,9 @@ class EidosSystem(val components: EidosComponents) {
 
   def postProcess(postProcessors: Seq[PostProcessing], annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
     val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (prevAnnotatedDocument, postProcessor) =>
-      val nextAnnotatedDocument = postProcessor.process(prevAnnotatedDocument)
+      val nextAnnotatedDocument = postProcessor.postProcess(prevAnnotatedDocument)
 
-      nextAnnotatedDocument // debug here
+      nextAnnotatedDocument // inspect here
     }
 
     lastAnnotatedDocument
@@ -102,9 +102,10 @@ class EidosSystem(val components: EidosComponents) {
   )
 
   protected def mkPreProcessors(options: EidosSystem.Options): Seq[PreProcessing] = {
+    initialPreProcessors ++
     Seq(
       (odinMentions: Seq[Mention]) => { components.conceptExpander.expand(odinMentions) },
-      (odinMentions: Seq[Mention]) => { nestedArgumentExpander.traverse(odinMentions) },
+      (odinMentions: Seq[Mention]) => { components.nestedArgumentExpander.traverse(odinMentions) },
       (odinMentions: Seq[Mention]) => {
         // This exception is dependent on runtime options.
         if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(odinMentions)
@@ -118,7 +119,7 @@ class EidosSystem(val components: EidosComponents) {
 
   // This could be used with more dynamically configured processors, especially if made public.
   protected def extractFromDoc(doc: Document, preProcessors: Seq[PreProcessing], postProcessors: Seq[PostProcessing]): AnnotatedDocument = {
-    val odinMentions = extractMentionsFrom(doc)
+    val odinMentions = mkMentions(doc)
     val preProcessedMentions = preProcess(preProcessors, odinMentions)
     val annotatedDocument = AnnotatedDocument(doc, preProcessedMentions)
     val postProcessedDocument = postProcess(postProcessors, annotatedDocument)
@@ -128,13 +129,11 @@ class EidosSystem(val components: EidosComponents) {
 
   // MAIN PIPELINE METHOD if given doc
   def extractFromDoc(doc: Document, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
-    // It is assumed and not verified that the document _has_ already been annotated.
-    require(doc.text.isDefined)
-    metadata.attachToDoc(doc)
-
+    // These could be organized in advance based on what we know about available options.
     val preProcessors = mkPreProcessors(options)
     val postProcessors = mkPostProcessors(options)
 
+    metadata.attachToDoc(doc)
     extractFromDoc(doc, preProcessors, postProcessors)
   }
 
@@ -151,6 +150,7 @@ class EidosSystem(val components: EidosComponents) {
   // MAIN PIPELINE METHOD if given text
   def extractFromText(text: String, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
     val doc = annotate(text)
+
     extractFromDoc(doc, options, metadata)
   }
 
@@ -177,7 +177,7 @@ class EidosSystem(val components: EidosComponents) {
   //                                 Helper Methods
   // ---------------------------------------------------------------------------------------------
 
-  protected def debugPrint(str: String): Unit = if (debug) EidosSystem.logger.debug(str)
+  protected def debugPrint(message: String): Unit = if (debug) EidosSystem.logger.debug(message)
 
   protected def debugMentions(mentions: Seq[Mention]): Unit =
       mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))

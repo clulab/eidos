@@ -5,7 +5,7 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.mentions.EidosMention
 
 trait PostProcessing {
-  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument
+  def postProcess(annotatedDocument: AnnotatedDocument): AnnotatedDocument
 }
 
 // The odinMentions are probably "surface" mentions, not all the reachable mentions.

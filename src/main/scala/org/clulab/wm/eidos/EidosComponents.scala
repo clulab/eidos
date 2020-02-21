@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.expansion.ConceptExpander
 import org.clulab.wm.eidos.expansion.Expander
+import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.utils._
@@ -26,7 +27,8 @@ case class EidosComponents(
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
   entityFinders: Seq[Finder],
-  conceptExpander: ConceptExpander
+  conceptExpander: ConceptExpander,
+  nestedArgumentExpander: NestedArgumentExpander
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -46,6 +48,7 @@ class EidosComponentsBuilder {
   var hedgingHandlerOpt: Option[HypothesisHandler] = None
   var entityFindersOpt: Option[Seq[Finder]] = None
   var conceptExpanderOpt: Option[ConceptExpander] = None
+  var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
 
   def add(config: Config): Unit = add(config, None)
 
@@ -117,6 +120,7 @@ class EidosComponentsBuilder {
         EidosComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
       Some(new ConceptExpander(expander, keepStatefulConcepts))
     }
+    nestedArgumentExpanderOpt = Some(new NestedArgumentExpander)
     this
   }
 
@@ -131,7 +135,8 @@ class EidosComponentsBuilder {
       engineOpt.get,
       hedgingHandlerOpt.get,
       entityFindersOpt.get,
-      conceptExpanderOpt.get
+      conceptExpanderOpt.get,
+      nestedArgumentExpanderOpt.get
     )
   }
 }

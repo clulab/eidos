@@ -19,7 +19,7 @@ class OntologyHandler(
   val includeParents: Boolean
 ) extends PostProcessing {
 
-  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+  def postProcess(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
     annotatedDocument.allEidosMentions.foreach { eidosMention =>
       // If any of the grounders needs their own version, they'll have to make it themselves.
       eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
