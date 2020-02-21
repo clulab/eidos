@@ -302,12 +302,12 @@ class TestJLDSerializer extends ExtractionTest {
   println("It did not test used geo expressions")
 
   it should "serialize all kinds of attachments" in {
-    val annotatedDocument = newTitledAnnotatedDocument(
+    val annotatedDocument1 = newTitledAnnotatedDocument(
         "Since the beginning of September 2016, almost 40,000 refugees arrived daily in Ethiopia from South Sudan as of mid-November.",
         "This includes a migration event"
     )
-    val document = annotatedDocument.document
-    val mention = annotatedDocument.odinMentions(2)
+    val document = annotatedDocument1.document
+    val mention = annotatedDocument1.odinMentions(2)
     val textBoundMention = mention.asInstanceOf[TextBoundMention]
     val emptyMention = textBoundMention.newWithoutAttachment(mention.attachments.head)
 
@@ -338,8 +338,8 @@ class TestJLDSerializer extends ExtractionTest {
     val fullMention = attachments.foldLeft(emptyMention) { case (textBoundMention, attachment) => textBoundMention.newWithAttachment(attachment)}
     val odinMentions = Seq(fullMention)
     val eidosMentions = EidosMention.asEidosMentions(odinMentions)
-    val annotatedDocument = AnnotatedDocument(document, eidosMentions)
-    val json = serialize(Seq(annotatedDocument))
+    val annotatedDocument2 = AnnotatedDocument(document, eidosMentions)
+    val json = serialize(Seq(annotatedDocument2))
 
     inspect(json)
     json should not be empty
