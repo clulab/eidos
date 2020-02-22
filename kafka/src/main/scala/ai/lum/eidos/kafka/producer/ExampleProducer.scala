@@ -1,7 +1,5 @@
 package ai.lum.eidos.kafka.producer
 
-import java.util.Properties
-
 import ai.lum.eidos.kafka.utils.PropertiesBuilder
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.Serdes
