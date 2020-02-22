@@ -9,7 +9,7 @@ resolvers += "kafka" at "https://mvnrepository.com"
 
 libraryDependencies ++= {
   val        json4sVersion = "3.5.2"
-  val         kafkaVersion = "2.2.1"
+  val         kafkaVersion = "2.4.0"
   val     scalaTestVersion = "3.0.5"
   val embeddedKafkaVersion = "2.2.0"
 
@@ -24,9 +24,10 @@ libraryDependencies ++= {
     "org.json4s"                 %% "json4s-core"       % json4sVersion,
     "org.json4s"                 %% "json4s-jackson"    % json4sVersion,
     // jena
-    "org.apache.kafka"           %% "kafka"             % kafkaVersion,
-    "org.apache.kafka"            % "kafka-clients"     % kafkaVersion,
-    "org.apache.kafka"            % "kafka-streams"     % kafkaVersion,
+    "org.apache.kafka"           %% "kafka"               % kafkaVersion,
+    "org.apache.kafka"            % "kafka-clients"       % kafkaVersion,
+    "org.apache.kafka"            % "kafka-streams"       % kafkaVersion,
+    "org.apache.kafka"           %% "kafka-streams-scala" % kafkaVersion,
 
     "io.github.embeddedkafka"    %% "embedded-kafka"    % embeddedKafkaVersion % Test,
     "jakarta.ws.rs"               % "jakarta.ws.rs-api" % "2.1.2" % Test
