@@ -1,7 +1,11 @@
 package org.clulab.wm.eidos.apps
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyHandler}
 import java.io.PrintWriter
+
 import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.struct.Interval
+import org.clulab.wm.eidos.EidosSystem
 
 object GenerateGoldGroundingTSV extends App {
 
@@ -55,7 +59,7 @@ object GenerateGoldGroundingTSV extends App {
   val kgPattern = " kg"
   val kgPatternReplaced = "kg"
 
-  for (entry <- lines) {
+  for (entry <- lines.take(1)) {
     val line = entry.split("\t")
 
     val index = line(0)
@@ -101,7 +105,9 @@ object GenerateGoldGroundingTSV extends App {
 //    val cause = proc.annotate(line(4)).sentences.head.words.mkString(" ")
     val causeStartOffset = sentence indexOf cause
     val causeEndOffset = causeStartOffset+cause.length
-    val causeOffset = if (causeStartOffset != -1) (causeStartOffset,causeEndOffset) else "BAD OFFSETS!"
+//    val causeOffset = if (causeStartOffset != -1) (causeStartOffset,causeEndOffset) else "BAD OFFSETS!"
+    val causeOffset: Interval = Interval(causeStartOffset,causeEndOffset)
+
 
     val effect = line(11)
     // do all de-tokenizations here
@@ -124,28 +130,70 @@ object GenerateGoldGroundingTSV extends App {
 //    val effect = proc.annotate(line(11)).sentences.head.words.mkString(" ")
     val effectStartOffset = sentence indexOf effect
     val effectEndOffset = effectStartOffset+cause.length
-    val effectOffset = if (effectStartOffset != -1) (effectStartOffset,effectEndOffset) else "BAD OFFSETS!"
+//    val effectOffset = if (effectStartOffset != -1) (effectStartOffset,effectEndOffset) else "BAD OFFSETS!"
+    val effectOffset: Interval = Interval(effectStartOffset,effectEndOffset)
 
-    val flatGrounding = "TBD"
-    val compositionalGrounding = "TBD"
+    val ontologyHandler: OntologyHandler = new
+        EidosSystem().components.ontologyHandler
+
+//    val compOntologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == "wm_compositional").get
+
+//    val flatGrounding1 = if (causeStartOffset != 1) ontologyHandler.reground(cause,causeOffset) else None
+    val flatGrounding1 = ontologyHandler.reground(sentence,causeOffset)
+    val compositionalGrounding1 = "TBD"
+    println("FLAT:")
+    println(flatGrounding1)
+    println(flatGrounding1.head)
+    println(flatGrounding1.head._2)
+    println(flatGrounding1.head._2.grounding)
+    println(flatGrounding1.head._2.grounding.head)
+    
+    println("\nCOMPOSITIONAL:")
+    val compGrounding = flatGrounding1.tail
+//    val propertyGrounding = flatGrounding1.tail("wm_compositional/property").grounding
+//    val processGrounding = flatGrounding1.tail("wm_compositional/process").grounding.head
+//    val conceptGrounding = flatGrounding1.tail("wm_compositional/concept")
+
+    println(compGrounding)
+//    println(propertyGrounding)
+//    println(processGrounding)
+//    println(conceptGrounding)
 
     val row1 =
       index + "\t" +
-      sentence.trim() + "\t" +
-      cause + "\t" +
-      causeOffset + "\t" +
-      flatGrounding + "\t" +
-      compositionalGrounding + "\n"
-
-    val row2 = index + "\t" +
-      sentence.trim + "\t" +
-      effect + "\t" +
-      effectOffset + "\t" +
-      flatGrounding + "\t" +
-      compositionalGrounding + "\n"
+        sentence.trim() + "\t" +
+        cause + "\t" +
+        causeOffset + "\t" +
+        flatGrounding1 + "\t" +
+        compositionalGrounding1 + "\n"
 
     pw.print(row1)
-    pw.print(row2)
+
+//    val flatGrounding1 = OntologyHandler.reground(causeOffset)
+//    val compositionalGrounding1 = "TBD"
+
+//    val flatGrounding2 = OntologyHandler.
+//    val compositionalGrounding2 = "TBD"
+
+
+
+//    val row1 =
+//      index + "\t" +
+//      sentence.trim() + "\t" +
+//      cause + "\t" +
+//      causeOffset + "\t" +
+//      flatGrounding1 + "\t" +
+//      compositionalGrounding1 + "\n"
+
+//    val row2 = index + "\t" +
+//      sentence.trim + "\t" +
+//      effect + "\t" +
+//      effectOffset + "\t" +
+//      flatGrounding2 + "\t" +
+//      compositionalGrounding2 + "\n"
+
+//    pw.print(row1)
+//    pw.print(row2)
   }
   pw.close()
 
