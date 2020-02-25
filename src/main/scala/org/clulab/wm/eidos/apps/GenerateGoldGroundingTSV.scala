@@ -64,9 +64,8 @@ object GenerateGoldGroundingTSV extends App {
   val funkyTokenPatternReplaced = "*"
   val kgPattern = " kg"
   val kgPatternReplaced = "kg"
-
-  val ontologyHandler: OntologyHandler = new
-      EidosSystem().components.ontologyHandler
+  val eidosSystem = new EidosSystem()
+  val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandler
 
   for (entry <- lines) {
     val line = entry.split("\t")
@@ -149,8 +148,12 @@ object GenerateGoldGroundingTSV extends App {
     if (causeStartOffset != -1) {
 //      println("Length:\t"+sentence.length())
 //      println("causeOffset:\t"+causeOffset)
-      val allGroundings = ontologyHandler.reground(sentence, causeOffset)
 
+      val annotatedDocument = eidosSystem.extractFromText(sentence) // Hope that the same options are used this time as were used initially.
+      val eidosMentions = annotatedDocument.eidosMentions
+      val eidosMentionOpt = eidosMentions.find { eidosMention => true } // Fill this in
+      val eidosMention = eidosMentionOpt.get // Do something if this fails
+      val allGroundings = eidosMention.grounding
       val flatGroundings = allGroundings("wm_flattened")
       val flatName = flatGroundings.headOption.get._1.name
       val flatScore = flatGroundings.headOption.get._2
