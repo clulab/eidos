@@ -401,7 +401,7 @@ object JLDTrigger {
   val typename = "Trigger"
 }
 
-abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, val eidosMention: EidosMention,
+abstract class JLDExtraction(serializer: JLDSerializer, val typeString: String, val subtypeString: String, val eidosMention: EidosMention,
     countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
     extends JLDObject(serializer, JLDExtraction.typename, eidosMention) {
 
