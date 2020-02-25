@@ -16,9 +16,8 @@ import org.slf4j.LoggerFactory
 
 import scala.util.matching.Regex
 
-class TableOntologyRow(val path: String, examples: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None) {
-  val values: Array[String] = examples.getOrElse(Array.empty)
-}
+@SerialVersionUID(1000L)
+class TableOntologyRow(val path: String, val values: Array[String] = Array.empty, val patterns: Option[Array[Regex]] = None)
 
 @SerialVersionUID(1000L)
 class TableDomainOntology(val tableOntologyRows: Array[TableOntologyRow], override val version: Option[String], override val date: Option[ZonedDateTime]) extends DomainOntology with Serializable {
@@ -85,14 +84,15 @@ object TableDomainOntology {
       }.toMap
       val emptyNodes = nodeMap.values.find { node => node._1.isEmpty || node._2.isEmpty }
       println(emptyNodes)
+      // Since the path is here, each file must have one
       val tableOntologyRows = nodeMap.map { case (nodeName, (exampleFileOpt, patternFileOpt)) =>
-        val examples = exampleFileOpt.map { exampleFile =>
-          Sourcer.sourceFromFile(exampleFile).autoClose {source =>
-            // TODO: The path will be in the first line
-            source.getLines.map  { example =>
-              filtered(example)
-            }.toArray
-          }.flatten
+        val (path, examples) = Sourcer.sourceFromFile(exampleFileOpt.get).autoClose {source =>
+          val lines = source.getLines
+          val path = lines.take(1).toString
+          val examples = lines.drop(1).flatMap { example =>
+            filtered(example)
+          }.toArray
+          (path, examples)
         }
         val patterns = patternFileOpt.map { patternFile =>
           Sourcer.sourceFromFile(patternFile).autoClose {source =>
@@ -102,7 +102,7 @@ object TableDomainOntology {
           }
         }
 
-        new TableOntologyRow(nodeName, examples, patterns)
+        new TableOntologyRow(path, examples, patterns)
       }.toArray
       new TableDomainOntology(tableOntologyRows, None, None)
     }
