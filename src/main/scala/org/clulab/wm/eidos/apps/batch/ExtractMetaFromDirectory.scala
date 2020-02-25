@@ -12,8 +12,6 @@ import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object ExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val metaDir = args(1)
@@ -24,7 +22,7 @@ object ExtractMetaFromDirectory extends App {
   val converter = EidosMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = ThreadUtils.parallelize(files, 8)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
@@ -39,10 +37,6 @@ object ExtractMetaFromDirectory extends App {
     timer.stop()
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
-
-    val forkJoinPool = ThreadUtils.newForkJoinPool(8)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
       try {

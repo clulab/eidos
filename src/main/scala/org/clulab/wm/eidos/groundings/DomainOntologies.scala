@@ -7,8 +7,9 @@ import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Version => AwayVersion}
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
-import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
@@ -36,21 +37,44 @@ object DomainOntologies {
       (None, None)
   }
 
-  def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false): DomainOntology = {
+  def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor,
+      canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false,
+      includeParents: Boolean = false): DomainOntology = {
 
-    if (useCache) {
-      logger.info(s"Processing cached yml ontology $serializedPath...")
-      CompactDomainOntology.load(serializedPath)
+    // As coded below, when parents are included, the FullTreeDomainOntology is being used.
+    // The faster loading version is the FastDomainOntology.
+    // If parents are not included, as had traditionally been the case, the HalfTreeDomainOntology suffices.
+    // Being smaller and faster, it is preferred.  The faster loading counterpart is CompactDomainOntology.
+    if (includeParents) {
+      if (useCache) {
+        logger.info(s"Processing cached yml ontology with parents from $serializedPath...")
+        FastDomainOntology.load(serializedPath)
+      }
+      else {
+        logger.info(s"Processing yml ontology with parents from $ontologyPath...")
+        val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
+        new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+      }
     }
     else {
-      logger.info(s"Processing yml ontology $ontologyPath...")
-      val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
-      new TreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+      if (useCache) {
+        logger.info(s"Processing cached yml ontology without parents from $serializedPath...")
+        CompactDomainOntology.load(serializedPath)
+      }
+      else {
+        logger.info(s"Processing yml ontology without parents from $ontologyPath...")
+        val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
+        new HalfTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+      }
     }
   }
 
-  def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean): DomainOntology = {
-    val ontSerializedPath: String = serializedPath(name, cacheDir)
-    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
+  def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
+      canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean,
+      includeParents: Boolean): DomainOntology = {
+    val ontSerializedPath: String = serializedPath(name, cacheDir, includeParents)
+
+    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true,
+        useCache = useCached, includeParents = includeParents)
   }
 }

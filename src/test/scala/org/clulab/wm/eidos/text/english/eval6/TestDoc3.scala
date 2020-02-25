@@ -52,7 +52,7 @@ class TestDoc3 extends EnglishTest {
     val rainfall = NodeSpec("rainfall", Inc("heavy"), Quant("well above average"), Quant("persistently heavy"), TimEx("past month"))
     val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Inc("favorable"))
     val flooding = NodeSpec("potential for flooding")
-    val rainfall2 = NodeSpec("rainfall", Quant("Average to above-average"), Inc("above-average"))
+    val rainfall2 = NodeSpec("above-average rainfall", Quant("Average to above-average"), Inc("above-average"))
     val rainfall3 = NodeSpec("rainfall", Quant("below average"))
 
     behavior of "TestDoc3 Paragraph 2"
@@ -128,7 +128,7 @@ class TestDoc3 extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val rainfall1 = NodeSpec("rainfall", Quant("average to above average"), TimEx("July"))
+    val rainfall1 = NodeSpec("rainfall in July", Quant("average to above average"), TimEx("July"))
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Inc("favorable"), Quant("favorable"))
     val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Inc("favorable"))
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight"), TimEx("July"), TimEx("previous month")) // todo (temporal?): really should capture the "compared to the previous month"...
@@ -173,7 +173,7 @@ class TestDoc3 extends EnglishTest {
     val tester = new GraphTester(text)
 
     // To get "q1 to q2" as a quantifier, add rule to entityQuantification.yml
-    val rainfall = NodeSpec("rainfall", Inc("heavy"), Quant("Moderate to heavy"))
+    val rainfall = NodeSpec("heavy rainfall", Inc("heavy"), Quant("Moderate to heavy"))
     val rainfall2 = NodeSpec("rains in the Ethiopian highlands", Quant("Persistent heavy"))
     val soils = NodeSpec("soils", Quant("saturated", "highly"))
     val flood = NodeSpec("flooding in flood-prone areas")
@@ -204,7 +204,7 @@ class TestDoc3 extends EnglishTest {
     val tester = new GraphTester(text)
 
     // Nodes here
-    val rainfall = NodeSpec("Rainfall", Dec("deficits"))
+    val rainfall = NodeSpec("Rainfall deficits", Dec("deficits"))
     val season = NodeSpec("late start to the season")
     val drySpell = NodeSpec("extended dry spells")
     val cropYield = NodeSpec("reduced crop yields", Dec("reduced"))
@@ -346,7 +346,7 @@ class TestDoc3 extends EnglishTest {
     // Nodes here
     val rainfall = NodeSpec("Karan/Xagaa seasonal rains", Quant("light"), Quant("below average")) //Note: Looks like a conj .. so keeping 2 quants
     val pasture = NodeSpec("Pasture", Dec("decline"))
-    val water = NodeSpec("water resources", Dec("decline"))
+    val water = NodeSpec("Pasture and water resources", Dec("decline"))
 
     behavior of "TestDoc3 Paragraph 10"
 
@@ -536,7 +536,7 @@ class TestDoc3 extends EnglishTest {
     // Nodes here
     val rainfall = NodeSpec("rainfall season", Inc("above"), Quant("above average"))
 
-    val vegetation2 = NodeSpec("vegetation conditions", Inc("above-average"), Quant("above-average")) // Increase??
+    val vegetation2 = NodeSpec("above-average vegetation conditions in parts of Ta'izz and Ibb governorates", Inc("above-average"), Quant("above-average")) // Increase??
 
     val rainfallForecasts = NodeSpec("short-and long-term rainfall forecasts", Quant("favorable"), Inc("favorable"), Dec("short-and"))
     val agriculturalAreas = NodeSpec("agricultural areas of the western and central highlands", Inc("favorable"))
@@ -632,7 +632,7 @@ class TestDoc3 extends EnglishTest {
     val tester = new GraphTester(text)
 
     // Nodes here
-    val rainfall = NodeSpec("rains", Quant("light to moderate"))
+    val rainfall = NodeSpec("moderate rains", Quant("light to moderate"))
 
     behavior of "TestDoc3 Paragraph 16"
 

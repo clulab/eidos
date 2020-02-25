@@ -14,10 +14,10 @@ object OdinUtils {
   // Furthermore, text needs to stay on a single line, so also translate \n and \r.
   def escapeExactStringMatcher(string: String): String = {
     val escaped = string
-        .replaceAllLiterally("\\", "\\\\")
-        .replaceAllLiterally("\"", "\\\"")
-        .replaceAllLiterally("\n", "\\n")
-        .replaceAllLiterally("\r", "\\r")
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
 
     '"' + escaped + '"'
   }
