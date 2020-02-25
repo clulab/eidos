@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.TableDomainOntology.TableDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
@@ -76,5 +77,11 @@ object DomainOntologies {
 
     DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true,
         useCache = useCached, includeParents = includeParents)
+  }
+
+  def mkTableDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
+      canonicalizer: Canonicalizer): DomainOntology = {
+    new TableDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter = true)
+        .build(name, ontologyPath)
   }
 }

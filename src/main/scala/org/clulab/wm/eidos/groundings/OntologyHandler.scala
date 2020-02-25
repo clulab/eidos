@@ -178,8 +178,17 @@ object OntologyHandler {
 
           grounder
         }
+        val tableOntologyNames: List[String] = config[List[String]]("table_ontologies")
+        val tableOntologyGrounders: Seq[OntologyGrounder] =  tableOntologyNames.map { ontologyName =>
+          val path: String = config[String](ontologyName)
+          val domainOntology = DomainOntologies.mkTableDomainOntology(ontologyName, path, proc, canonicalizer)
+          val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
 
-        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer, includeParents)
+          grounder
+        }
+
+
+        new OntologyHandler(ontologyGrounders ++ tableOntologyGrounders, eidosWordToVec, proc, canonicalizer, includeParents)
       case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer, includeParents)
      case _ => ???
     }
