@@ -116,7 +116,8 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
       "Effect Score",
       "Relation Score",
       "Annotator",
-      "Evidence"
+      "Evidence",
+      "Comments"
     )
     headerRow.mkString(",")
   }
@@ -156,7 +157,9 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
         "", // effect grounding score
         "", // relation score
         "", // annotator
-        evidence)
+        evidence,
+        "", // comments
+      )
 
       escaped = row.map(_.escapeCsv)
 
