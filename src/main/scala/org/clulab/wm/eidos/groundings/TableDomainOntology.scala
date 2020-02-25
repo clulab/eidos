@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidos.utils.PassThruNamer
 import org.clulab.wm.eidos.utils.Sourcer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
@@ -15,12 +16,8 @@ import org.slf4j.LoggerFactory
 
 import scala.util.matching.Regex
 
-class TableOntologyRow(val nodeName: String, example: Option[Array[String]] = None, pattern: Option[Array[Regex]] = None) {
-  val values: Array[String] = null
-
-  val patterns: Option[Array[Regex]] = null
-
-  val namer: Namer = null
+class TableOntologyRow(val path: String, examples: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None) {
+  val values: Array[String] = examples.getOrElse(Array.empty)
 }
 
 @SerialVersionUID(1000L)
@@ -28,13 +25,13 @@ class TableDomainOntology(val tableOntologyRows: Array[TableOntologyRow], overri
 
   def size: Integer = tableOntologyRows.length
 
-  def getNamer(n: Integer): Namer = tableOntologyRows(n).namer
+  def getNamer(n: Integer): Namer = new PassThruNamer(tableOntologyRows(n).path)
 
   def getValues(n: Integer): Array[String] = tableOntologyRows(n).values
 
   def getPatterns(n: Integer): Option[Array[Regex]] = tableOntologyRows(n).patterns
 
-  def isLeaf(n: Integer): Boolean = false // How to get rid of this?
+  def isLeaf(n: Integer): Boolean = true
 
   def save(filename: String): Unit = {
     Serializer.save(this, filename)
