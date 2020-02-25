@@ -21,7 +21,13 @@ object GenerateGoldGroundingTSV extends App {
     "Entity\t" +
     "Character Offsets\t" +
     "GOLD Flat Grounding\t" +
-    "GOLD Compositional Grounding"
+    "GOLD Flat Grounding Score\t" +
+    "GOLD Concept Grounding\t" +
+    "GOLD Concept Score\t" +
+    "GOLD Process Grounding\t" +
+    "GOLD Process Score\t" +
+    "GOLD Property Grounding\t" +
+    "GOLD Property Score"
 
   val pw = new PrintWriter(outFilename)
   pw.println(header)
@@ -59,13 +65,14 @@ object GenerateGoldGroundingTSV extends App {
   val kgPattern = " kg"
   val kgPatternReplaced = "kg"
 
-  for (entry <- lines.take(1)) {
+  val ontologyHandler: OntologyHandler = new
+      EidosSystem().components.ontologyHandler
+
+  for (entry <- lines) {
     val line = entry.split("\t")
 
     val index = line(0)
 
-//    val sentence = line(18)
-//    val sentence = proc.annotate(line(18)).sentences.head.words.mkString(" ")
     val sentence = line(18)
     // do all de-tokenizations here
     // FIXME: could probably done way, way better
@@ -105,7 +112,6 @@ object GenerateGoldGroundingTSV extends App {
 //    val cause = proc.annotate(line(4)).sentences.head.words.mkString(" ")
     val causeStartOffset = sentence indexOf cause
     val causeEndOffset = causeStartOffset+cause.length
-//    val causeOffset = if (causeStartOffset != -1) (causeStartOffset,causeEndOffset) else "BAD OFFSETS!"
     val causeOffset: Interval = Interval(causeStartOffset,causeEndOffset)
 
 
@@ -129,72 +135,119 @@ object GenerateGoldGroundingTSV extends App {
 
 //    val effect = proc.annotate(line(11)).sentences.head.words.mkString(" ")
     val effectStartOffset = sentence indexOf effect
-    val effectEndOffset = effectStartOffset+cause.length
-//    val effectOffset = if (effectStartOffset != -1) (effectStartOffset,effectEndOffset) else "BAD OFFSETS!"
+    val effectEndOffset = effectStartOffset+effect.length
     val effectOffset: Interval = Interval(effectStartOffset,effectEndOffset)
 
-    val ontologyHandler: OntologyHandler = new
-        EidosSystem().components.ontologyHandler
+//    val ontologyHandler: OntologyHandler = new
+//        EidosSystem().components.ontologyHandler
 
 //    val compOntologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == "wm_compositional").get
 
-//    val flatGrounding1 = if (causeStartOffset != 1) ontologyHandler.reground(cause,causeOffset) else None
-    val flatGrounding1 = ontologyHandler.reground(sentence,causeOffset)
-    val compositionalGrounding1 = "TBD"
-    println("FLAT:")
-    println(flatGrounding1)
-    println(flatGrounding1.head)
-    println(flatGrounding1.head._2)
-    println(flatGrounding1.head._2.grounding)
-    println(flatGrounding1.head._2.grounding.head)
-    
-    println("\nCOMPOSITIONAL:")
-    val compGrounding = flatGrounding1.tail
-//    val propertyGrounding = flatGrounding1.tail("wm_compositional/property").grounding
-//    val processGrounding = flatGrounding1.tail("wm_compositional/process").grounding.head
-//    val conceptGrounding = flatGrounding1.tail("wm_compositional/concept")
+//    println("Index:\t"+ index)
+//    println("Sentence:\t"+sentence)
+//    println("Length:\t"+sentence.length())
+    if (causeStartOffset != -1) {
+//      println("Length:\t"+sentence.length())
+//      println("causeOffset:\t"+causeOffset)
+      val allGroundings = ontologyHandler.reground(sentence, causeOffset)
 
-    println(compGrounding)
-//    println(propertyGrounding)
-//    println(processGrounding)
-//    println(conceptGrounding)
+      val flatGroundings = allGroundings("wm_flattened")
+      val flatName = flatGroundings.headOption.get._1.name
+      val flatScore = flatGroundings.headOption.get._2
 
-    val row1 =
-      index + "\t" +
+      val conceptGroundings = allGroundings("wm_compositional/concept")
+      val conceptName = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._1.name else None
+      val conceptScore = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._2 else None
+
+      val processGroundings = allGroundings("wm_compositional/process")
+      val processName = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._1.name else None
+      val processScore = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._2 else None
+
+      val propertyGroundings = allGroundings("wm_compositional/property")
+      val propertyName = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._1.name else None
+
+      val propertyScore = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._2 else None
+
+      //    println("FLAT:")
+      //    println(flatGroundings.headOption.get._1)
+      //
+      //    println("\nCONCEPT:")
+      //    println(conceptGroundings.headOption.get._1)
+      //
+      //    println("\nPROCESS:")
+      //    println(processGroundings.headOption.get._1)
+      //
+      //    println("\nPROPERTY:")
+      //    println(propertyGroundings.headOption.get._1)
+
+      val row1 =
+        index + "\t" +
         sentence.trim() + "\t" +
         cause + "\t" +
         causeOffset + "\t" +
-        flatGrounding1 + "\t" +
-        compositionalGrounding1 + "\n"
+        flatName + "\t" +
+        flatScore + "\t" +
+        conceptName + "\t" +
+        conceptScore + "\t" +
+        processName + "\t" +
+        processScore + "\t" +
+        propertyName + "\t" +
+        propertyScore + "\n"
 
-    pw.print(row1)
+      pw.print(row1)
+    }
 
-//    val flatGrounding1 = OntologyHandler.reground(causeOffset)
-//    val compositionalGrounding1 = "TBD"
+    if (effectStartOffset != -1) {
+//      println("Length:\t"+sentence.length())
+//      println("effectOffset:\t"+effectOffset)
 
-//    val flatGrounding2 = OntologyHandler.
-//    val compositionalGrounding2 = "TBD"
+      val allGroundings = ontologyHandler.reground(sentence, effectOffset)
 
+      val flatGroundings = allGroundings("wm_flattened")
+      val flatName = if (flatGroundings.headOption.isDefined) flatGroundings.headOption.get._1.name else None
+      val flatScore = if(flatGroundings.headOption.isDefined) flatGroundings.headOption.get._2 else None
 
+      val conceptGroundings = allGroundings("wm_compositional/concept")
+      val conceptName = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._1.name else None
+      val conceptScore = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._2 else None
 
-//    val row1 =
-//      index + "\t" +
-//      sentence.trim() + "\t" +
-//      cause + "\t" +
-//      causeOffset + "\t" +
-//      flatGrounding1 + "\t" +
-//      compositionalGrounding1 + "\n"
+      val processGroundings = allGroundings("wm_compositional/process")
+      val processName = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._1.name else None
+      val processScore = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._2 else None
 
-//    val row2 = index + "\t" +
-//      sentence.trim + "\t" +
-//      effect + "\t" +
-//      effectOffset + "\t" +
-//      flatGrounding2 + "\t" +
-//      compositionalGrounding2 + "\n"
+      val propertyGroundings = allGroundings("wm_compositional/property")
+      val propertyName = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._1.name else None
 
-//    pw.print(row1)
-//    pw.print(row2)
+      val propertyScore = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._2 else None
+
+      //    println("FLAT:")
+      //    println(flatGroundings.headOption.get._1)
+      //
+      //    println("\nCONCEPT:")
+      //    println(conceptGroundings.headOption.get._1)
+      //
+      //    println("\nPROCESS:")
+      //    println(processGroundings.headOption.get._1)
+      //
+      //    println("\nPROPERTY:")
+      //    println(propertyGroundings.headOption.get._1)
+
+      val row2 =
+        index + "\t" +
+        sentence.trim() + "\t" +
+        effect + "\t" +
+        effectOffset + "\t" +
+        flatName + "\t" +
+        flatScore + "\t" +
+        conceptName + "\t" +
+        conceptScore + "\t" +
+        processName + "\t" +
+        processScore + "\t" +
+        propertyName + "\t" +
+        propertyScore + "\n"
+
+      pw.print(row2)
+    }
   }
   pw.close()
-
 }
