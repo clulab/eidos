@@ -153,6 +153,7 @@ object OntologyHandler {
     val canonicalizer = new Canonicalizer(stopwordManager)
     val cacheDir: String = config[String]("cacheDir")
     val useCached: Boolean = config[Boolean]("useCache")
+    val useCacheForW2V: Boolean = config[Boolean]("useCacheForW2V")
     val includeParents: Boolean = config[Boolean]("includeParents")
     val eidosWordToVec: EidosWordToVec = {
       // This isn't intended to be (re)loadable.  This only happens once.
@@ -162,7 +163,7 @@ object OntologyHandler {
         config[String]("wordToVecPath"),
         config[Int]("topKNodeGroundings"),
         cacheDir,
-        useCached
+        useCacheForW2V
       )
     }
     // Load enabled ontologies
