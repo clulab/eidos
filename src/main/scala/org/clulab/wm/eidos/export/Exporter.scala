@@ -97,11 +97,11 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
 case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     // Header
-    pw.println(header(topN))
+    pw.println(header)
     annotatedDocuments.foreach(printTableRows(_, pw, reader))
   }
 
-  def header(topN: Int = 5): String = {
+  def header: String = {
     val headerRow = Seq(
       "DocID",
       "Sentence ID",
