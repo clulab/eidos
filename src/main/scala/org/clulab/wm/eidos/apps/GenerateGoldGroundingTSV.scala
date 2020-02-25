@@ -16,6 +16,7 @@ object GenerateGoldGroundingTSV extends App {
 
   var outFilename = "compositionalGrounderTestDoc/gold_groundings.tsv"
   val header =
+    "GOLD Annotated?\t" +
     "Index\t" +
     "Sentence\t" +
     "Entity\t" +
@@ -67,6 +68,7 @@ object GenerateGoldGroundingTSV extends App {
 
   val ontologyHandler: OntologyHandler = new
       EidosSystem().components.ontologyHandler
+  val ieSystem = new EidosSystem()
 
   for (entry <- lines) {
     val line = entry.split("\t")
@@ -138,18 +140,16 @@ object GenerateGoldGroundingTSV extends App {
     val effectEndOffset = effectStartOffset+effect.length
     val effectOffset: Interval = Interval(effectStartOffset,effectEndOffset)
 
-//    val ontologyHandler: OntologyHandler = new
-//        EidosSystem().components.ontologyHandler
-
-//    val compOntologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == "wm_compositional").get
+    val document = ieSystem.annotate(sentence)
 
 //    println("Index:\t"+ index)
 //    println("Sentence:\t"+sentence)
 //    println("Length:\t"+sentence.length())
+
     if (causeStartOffset != -1) {
 //      println("Length:\t"+sentence.length())
 //      println("causeOffset:\t"+causeOffset)
-      val allGroundings = ontologyHandler.reground(sentence, causeOffset)
+      val allGroundings = ontologyHandler.reground(sentence, causeOffset, document)
 
       val flatGroundings = allGroundings("wm_flattened")
       val flatName = flatGroundings.headOption.get._1.name
@@ -181,6 +181,7 @@ object GenerateGoldGroundingTSV extends App {
       //    println(propertyGroundings.headOption.get._1)
 
       val row1 =
+        "" + "\t" +
         index + "\t" +
         sentence.trim() + "\t" +
         cause + "\t" +
@@ -201,7 +202,7 @@ object GenerateGoldGroundingTSV extends App {
 //      println("Length:\t"+sentence.length())
 //      println("effectOffset:\t"+effectOffset)
 
-      val allGroundings = ontologyHandler.reground(sentence, effectOffset)
+      val allGroundings = ontologyHandler.reground(sentence, effectOffset, document)
 
       val flatGroundings = allGroundings("wm_flattened")
       val flatName = if (flatGroundings.headOption.isDefined) flatGroundings.headOption.get._1.name else None
@@ -233,6 +234,7 @@ object GenerateGoldGroundingTSV extends App {
       //    println(propertyGroundings.headOption.get._1)
 
       val row2 =
+        "" + "\t" +
         index + "\t" +
         sentence.trim() + "\t" +
         effect + "\t" +
