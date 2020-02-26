@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
+import java.io.File
 import java.time.ZonedDateTime
 
 import org.clulab.utils.Serializer
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory
 import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
-class TableOntologyRow(val path: String, val values: Array[String] = Array.empty, val patterns: Option[Array[Regex]] = None)
+class TableOntologyRow(val path: String, val values: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None)
 
 @SerialVersionUID(1000L)
 class TableDomainOntology(val tableOntologyRows: Array[TableOntologyRow], override val version: Option[String], override val date: Option[ZonedDateTime]) extends DomainOntology with Serializable {
@@ -26,7 +27,7 @@ class TableDomainOntology(val tableOntologyRows: Array[TableOntologyRow], overri
 
   def getNamer(n: Integer): Namer = new PassThruNamer(tableOntologyRows(n).path)
 
-  def getValues(n: Integer): Array[String] = tableOntologyRows(n).values
+  def getValues(n: Integer): Array[String] = tableOntologyRows(n).values.getOrElse(Array.empty)
 
   def getPatterns(n: Integer): Option[Array[Regex]] = tableOntologyRows(n).patterns
 
@@ -60,12 +61,11 @@ object TableDomainOntology {
 
     protected val filtered: String => Seq[String] = if (filter) realFiltered else fakeFiltered
 
-    def build(name: String, ontologyPath: String): TableDomainOntology = {
-      val exampleFiles = FileUtils.findFiles(ontologyPath + "/examples", "txt").toSeq
+    def sanityCheck(exampleFiles: Seq[File], patternFiles: Seq[File]): Unit = {
       val exampleNames = exampleFiles.map { file => StringUtils.beforeLast(file.getName, '.') }
       if (exampleNames.distinct.size != exampleNames.size)
         println("Something is wrong")
-      val patternFiles = FileUtils.findFiles(ontologyPath + "/patterns", "txt").toSeq
+
       val patternNames = patternFiles.map { file => StringUtils.beforeLast(file.getName, '_') }
       if (patternNames.distinct.size != patternNames.size) {
         println("Something is wrong")
@@ -75,34 +75,55 @@ object TableDomainOntology {
         }
         println(repeats)
       }
-      val allNodeNames = (exampleNames ++ patternNames).distinct
-      val nodeMap = allNodeNames.map { nodeName =>
-        val exampleFileOpt = exampleFiles.find { file => file.getName == nodeName + ".txt" }
-        val patternFileOpt = patternFiles.find { file => file.getName == nodeName + "_pattern.txt" }
+    }
 
-        nodeName -> (exampleFileOpt, patternFileOpt)
+    def readFile(fileOpt: Option[File]): (Option[Array[String]], Option[Array[String]]) = {
+      fileOpt.map { file =>
+        Sourcer.sourceFromFile(file).autoClose { source =>
+          val lines = source.getLines.toArray
+          val paths = lines
+              .takeWhile { line => println(line); line.startsWith("# ") }
+              .map { line => StringUtils.afterFirst(line, ' ') }
+          assert(paths.length > 0)
+          val values = lines
+              .drop(paths.size)
+              .map { example => println(example); example }
+          (Some(paths), if (values.nonEmpty) Some(values) else None)
+        }
+      }.getOrElse((None, None))
+    }
+
+    def build(name: String, ontologyPath: String): TableDomainOntology = {
+      val exampleFiles = FileUtils.findFiles(ontologyPath + "/examples", "txt")
+      val exampleNamesMap = exampleFiles.map { file =>
+        StringUtils.beforeLast(file.getName, '.') -> file
       }.toMap
-      val emptyNodes = nodeMap.values.find { node => node._1.isEmpty || node._2.isEmpty }
-      println(emptyNodes)
-      // Since the path is here, each file must have one
-      val tableOntologyRows = nodeMap.map { case (nodeName, (exampleFileOpt, patternFileOpt)) =>
-        val (path, examples) = Sourcer.sourceFromFile(exampleFileOpt.get).autoClose {source =>
-          val lines = source.getLines
-          val path = lines.take(1).toString
-          val examples = lines.drop(1).flatMap { example =>
-            filtered(example)
-          }.toArray
-          (path, examples)
-        }
-        val patterns = patternFileOpt.map { patternFile =>
-          Sourcer.sourceFromFile(patternFile).autoClose {source =>
-            source.getLines.map  { pattern =>
-              s"(?i)$pattern".r
-            }.toArray
-          }
-        }
+      val patternFiles = FileUtils.findFiles(ontologyPath + "/patterns", "txt")
+      val patternNamesMap = patternFiles.map { file =>
+        StringUtils.beforeLast(file.getName, '_') -> file
+      }.toMap
+      sanityCheck(exampleFiles, patternFiles)
 
-        new TableOntologyRow(path, examples, patterns)
+      val allNodeNames = (exampleNamesMap.keys ++ patternNamesMap.keys).toSeq.distinct
+      val tableOntologyRows = allNodeNames.flatMap { nodeName =>
+        val exampleFileOpt = exampleNamesMap.get(nodeName)
+        val patternFileOpt = patternNamesMap.get(nodeName)
+        val (examplePathsOpt, exampleLinesOpt) = readFile(exampleFileOpt)
+        val examplesOpt = exampleLinesOpt.map { lines => lines.flatMap(filtered) }
+        val (patternPathsOpt, patternLinesOpt) = readFile(patternFileOpt)
+        val patternsOpt = patternLinesOpt.map { lines => lines.map { line => s"(?i)$line".r } }
+
+        if (examplePathsOpt.isDefined && patternPathsOpt.isDefined)
+          if (examplePathsOpt.get.zip(patternPathsOpt.get).exists { case (left, right) => left != right })
+            println("The paths don't match!")
+        if (examplePathsOpt.isEmpty && patternPathsOpt.isEmpty)
+          println("It shouldn't be here!")
+
+        val paths = examplePathsOpt.getOrElse(patternPathsOpt.get)
+
+        paths.map { path =>
+          new TableOntologyRow(path, examplesOpt, patternsOpt)
+        }
       }.toArray
       new TableDomainOntology(tableOntologyRows, None, None)
     }
