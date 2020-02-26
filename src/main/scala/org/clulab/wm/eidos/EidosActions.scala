@@ -34,6 +34,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   type CountModifierAndProvenanceOpt = (CountModifier.Value, Option[Provenance])
   type NumberArg = (Int, Int, Double) // start, end, value
 
+  protected val emptyState = new State()
+
   /*
       Global Action -- performed after each round in Odin
   */
@@ -407,6 +409,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     //val allArgMentions = m.arguments.values.toSeq.flatten.map(mention => mention.attachments.size)
     argTokenInterval(m).length
   }
+
+  def keepMostCompleteEvents(ms: Seq[Mention]): Seq[Mention] = keepMostCompleteEvents(ms, emptyState)
 
   // Remove incomplete Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {

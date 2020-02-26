@@ -5,7 +5,7 @@ import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
@@ -19,32 +19,26 @@ class OntologyHandler(
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer,
   val includeParents: Boolean
-) extends PostProcessing {
+) {
 
-  protected def process(eidosMention: EidosMention): Unit = {
-    // If any of the grounders needs their own version, they'll have to make it themselves.
-    eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
+  def ground(eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
+    EidosMention.findReachableEidosMentions(eidosMentions).foreach { eidosMention =>
+      eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
 
-    val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
-      val name: String = ontologyGrounder.name
-      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold= Option(0.5f))
-      val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
-        OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
-      }
+      val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
+        val name: String = ontologyGrounder.name
+        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold = Option(0.5f))
+        val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
+          OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
+        }
 
-      nameAndOntologyGroundings
-    }.toMap
+        nameAndOntologyGroundings
+      }.toMap
 
-    eidosMention.grounding = ontologyGroundings
-  }
-
-  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
-    annotatedDocument.allEidosMentions.foreach { eidosMention =>
-      process(eidosMention)
+      eidosMention.grounding = ontologyGroundings
     }
-    annotatedDocument
+    eidosMentions
   }
-
 
   def reground(sentenceText: String, interval: Interval): OntologyAliases.OntologyGroundings = {
     // This is assuming that there is just one sentence and the interval falls within it.  That may
@@ -87,7 +81,7 @@ class OntologyHandler(
 
       val eidosMention = eidosMentions.head
 
-      process(eidosMention)
+      ground(eidosMentions)
       eidosMention.grounding
     }
     catch {

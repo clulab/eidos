@@ -51,7 +51,7 @@ object WMseed extends App with LazyLogging {
     val doc = proc.annotate(text)
 
     // extract mentions from annotated document
-    val mentions = extractor.extractFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    val mentions = extractor.extractMentionsFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
 
     // debug display the mentions
     displayMentions(mentions, doc)
