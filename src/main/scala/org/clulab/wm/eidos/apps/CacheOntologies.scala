@@ -21,7 +21,7 @@ object CacheOntologies extends App {
 
   new File(cacheDir).mkdirs()
 
-  def removeGeoNorms(): Unit = {
+  def replaceGeoNorms(): Unit = {
     val cacheManager = new GeoNormFinder.CacheManager(config[Config]("geonorm"))
 
     cacheManager.rmCache()
@@ -94,8 +94,8 @@ object CacheOntologies extends App {
   }
 
   // Comment these in and out as required.
+  replaceGeoNorms() // This should go first before EidosSystem is created.
   cacheWord2Vec()
   safeCacheOntologies()
-  removeGeoNorms()
   updateIndicatorMappings()
 }
