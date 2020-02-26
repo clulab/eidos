@@ -27,7 +27,7 @@ class OntologyHandler(
 
       val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
         val name: String = ontologyGrounder.name
-        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold= Option(0.5f))
+        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold = Option(0.5f))
         val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
           OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
         }
@@ -81,7 +81,7 @@ class OntologyHandler(
 
       val eidosMention = eidosMentions.head
 
-      process(eidosMention)
+      ground(eidosMentions)
       eidosMention.grounding
     }
     catch {
