@@ -10,19 +10,15 @@ import org.clulab._
 
 import scala.annotation.tailrec
 
-class MigrationHandler(keepMigrationEvents: Boolean) {
+class MigrationHandler {
 
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
-    if (keepMigrationEvents) {
-      // partition to get the migration events
-      val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
+    // partition to get the migration events
+    val (migrationEvents, other) = mentions.partition(_ matches EidosSystem.MIGRATION_LABEL)
 
-      // todo: backoff times and locations -- use the normalization apis
-      // todo: combine times (timeStart/timeEnd)
-      resolveGenericLocation(assembleFragmentsNew(migrationEvents)) ++ other
-    }
-    else
-      mentions // Don't find them in the first place.
+    // todo: backoff times and locations -- use the normalization apis
+    // todo: combine times (timeStart/timeEnd)
+    resolveGenericLocation(assembleFragmentsNew(migrationEvents)) ++ other
   }
 
   // combine events with shared arguments AND combine events in close proximity with complementary arguments
@@ -265,7 +261,7 @@ class MigrationHandler(keepMigrationEvents: Boolean) {
 
 object MigrationHandler {
 
-  def apply(keepMigrationEvents: Boolean): MigrationHandler = new MigrationHandler(keepMigrationEvents)
+  def apply(): MigrationHandler = new MigrationHandler
 
   protected def needsCrossSentence(mention: Mention, args: Map[String, Seq[Mention]]): Boolean = {
     val triggerSentenceOpt = mention match {

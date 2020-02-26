@@ -85,11 +85,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get))
     }
 
-    migrationHandlerOpt = {
-      val keepMigrationEvents = eidosConf[Boolean]("keepMigrationEvents")
-
-      Some(MigrationHandler(keepMigrationEvents))
-    }
+    migrationHandlerOpt = Some(MigrationHandler())
     actionsOpt = Some(EidosActions.fromConfig(config[Config]("actions")))
     engineOpt = { // ODIN component
       val masterRulesPath: String = eidosConf[String]("masterRulesPath")

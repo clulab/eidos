@@ -27,7 +27,7 @@ import scala.util.Try
 
 //TODO: need to add polarity flipping
 
-class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler]) extends Actions with LazyLogging {
+class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler], keepMigrationEvents: Boolean) extends Actions with LazyLogging {
   type Provenance = (String, Int, Int) // text, startOffset, endOffset
   type CountAndProvenance = (Double, Provenance)
   type CountUnitAndProvenanceOpt = (CountUnit.Value, Option[Provenance])
@@ -40,8 +40,11 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    val afterMigration =
+        if (keepMigrationEvents) mentions
+        else mentions.filterNot { migration => migration matches EidosSystem.MIGRATION_LABEL }
     // Expand mentions, if enabled
-    val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
+    val expanded = expansionHandler.map(_.expand(afterMigration, state)).getOrElse(afterMigration)
     // Merge attachments
     val merged = mergeAttachments(expanded, state.updated(expanded))
     // Keep only the most complete version of any given Mention
@@ -624,10 +627,11 @@ object EidosActions extends Actions {
   def fromConfig(config: Config): EidosActions = {
     val useCoref: Boolean = config[Boolean]("useCoref")
     val corefHandler = if (useCoref) Some(CorefHandler.fromConfig(config)) else None
+    val keepMigrationEvents = config[Boolean]("keepMigrationEvents")
 
     val useExpansion: Boolean = config[Boolean]("useExpansion")
     val expansionHandler = if (useExpansion) Some(Expander.fromConfig(config[Config]("expander"))) else None
 
-    new EidosActions(expansionHandler, corefHandler)
+    new EidosActions(expansionHandler, corefHandler, keepMigrationEvents)
   }
 }

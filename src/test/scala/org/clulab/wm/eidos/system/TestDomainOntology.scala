@@ -63,11 +63,11 @@ class TestDomainOntology extends Test {
 
   val baseDir = "/org/clulab/wm/eidos/english/ontologies"
   val config = ConfigFactory.load("eidos")
-      .withValue("EidosSystem.useW2V", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
+      .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
   val reader = new EidosSystem(config)
   val proc = reader.components.proc
   val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
-  val useCache = config[Boolean]("ontologies.useCache")
+  val useCacheForOntologies = config[Boolean]("ontologies.useCacheForOntologies")
   val includeParents = config[Boolean]("ontologies.includeParents")
   val filter = true
 
@@ -93,7 +93,7 @@ class TestDomainOntology extends Test {
 
     it should "load and not have duplicates" in {
       val newOntology = Timer.time(s"Load $name without cache") {
-        DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCache = false, includeParents)
+        DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies = false, includeParents)
       }
       hasDuplicates(name, newOntology) should be (false)
 
@@ -106,9 +106,9 @@ class TestDomainOntology extends Test {
       hasDuplicates(name, newerOntology) should be (false)
       matches(newOntology, newerOntology)
 
-      if (useCache) {
+      if (useCacheForOntologies) {
         val newestOntology = Timer.time(s"Load $name from cache") {
-          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCache = true, includeParents)
+          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCacheForOntologies = true, includeParents)
         }
 
         show3(newOntology, newerOntology, newestOntology)
