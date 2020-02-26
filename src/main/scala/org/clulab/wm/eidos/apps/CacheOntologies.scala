@@ -17,8 +17,8 @@ object CacheOntologies extends App {
   val config = ConfigFactory.load("eidos")
   val includeParents: Boolean = config[Boolean]("ontologies.includeParents")
   // Since here we want to cache the current, we can't load from cached:
-  assert(config[Boolean]("ontologies.useCache") == false, "To use CacheOntologies, you must set ontologies.useCache = false")
-  assert(config[Boolean]("ontologies.useW2V") == true, "To use CacheOntologies, you must set useW2V = true")
+  assert(config[Boolean]("ontologies.useCacheForOntologies") == false, "To use CacheOntologies, you must set ontologies.useCacheForOntologies = false")
+  assert(config[Boolean]("ontologies.useGrounding") == true, "To use CacheOntologies, you must set useGrounding = true")
   assert(config[Boolean]("ontologies.useCacheForW2V") == true, "To use CacheOntologies, you must set useCacheForW2V = false")
 
   def removeGeoNorms(): Unit = {

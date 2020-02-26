@@ -878,7 +878,7 @@ class TestJLDDeserializer extends ExtractionTest {
   testCrossSentenceEventMention()
 
   // Do not run this last test on Travis, but instead periodically on a real corpus
-  // with all options enabled (useW2V, useTimeNorm, useGeoNorm, etc.)
+  // with all options enabled (useGrounding, useTimeNorm, useGeoNorm, etc.)
 //  testTextFiles("../corpora/Doc52/txt")
 //  testJsonldFiles("../jsonldtmp")
 }
