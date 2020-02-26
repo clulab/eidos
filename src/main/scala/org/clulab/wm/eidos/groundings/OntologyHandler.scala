@@ -152,17 +152,18 @@ object OntologyHandler {
   def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager): OntologyHandler = {
     val canonicalizer = new Canonicalizer(stopwordManager)
     val cacheDir: String = config[String]("cacheDir")
-    val useCached: Boolean = config[Boolean]("useCache")
+    val useCacheForOntologies: Boolean = config[Boolean]("useCacheForOntologies")
+    val useCacheForW2V: Boolean = config[Boolean]("useCacheForW2V")
     val includeParents: Boolean = config[Boolean]("includeParents")
     val eidosWordToVec: EidosWordToVec = {
       // This isn't intended to be (re)loadable.  This only happens once.
       OntologyHandler.logger.info("Loading W2V...")
       EidosWordToVec(
-        config[Boolean]("useW2V"),
+        config[Boolean]("useGrounding"),
         config[String]("wordToVecPath"),
         config[Int]("topKNodeGroundings"),
         cacheDir,
-        useCached
+        useCacheForW2V
       )
     }
     // Load enabled ontologies
@@ -173,7 +174,7 @@ object OntologyHandler {
         val ontologyGrounders: Seq[OntologyGrounder] = ontologyNames.map { ontologyName =>
           val path: String = config[String](ontologyName)
           val domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
-              useCached, includeParents)
+              useCacheForOntologies, includeParents)
           val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
 
           grounder
