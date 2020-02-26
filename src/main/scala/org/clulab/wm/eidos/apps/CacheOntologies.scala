@@ -13,13 +13,13 @@ import org.clulab.wm.eidos.groundings.FastDomainOntology.FastDomainOntologyBuild
 import org.clulab.wm.eidos.groundings._
 
 object CacheOntologies extends App {
-
   val config = ConfigFactory.load("eidos")
   val includeParents: Boolean = config[Boolean]("ontologies.includeParents")
-  // Since here we want to cache the current, we can't load from cached:
-  assert(config[Boolean]("ontologies.useCacheForOntologies") == false, "To use CacheOntologies, you must set ontologies.useCacheForOntologies = false")
-  assert(config[Boolean]("ontologies.useGrounding") == true, "To use CacheOntologies, you must set useGrounding = true")
-  assert(config[Boolean]("ontologies.useCacheForW2V") == true, "To use CacheOntologies, you must set useCacheForW2V = false")
+  val cacheDir: String = config[String]("ontologies.cacheDir")
+  // Not all operations require the reader, so hedge your bets.
+  lazy val reader = new EidosSystem(config)
+
+  new File(cacheDir).mkdirs()
 
   def removeGeoNorms(): Unit = {
     val cacheManager = new GeoNormFinder.CacheManager(config[Config]("geonorm"))
@@ -27,11 +27,6 @@ object CacheOntologies extends App {
     cacheManager.rmCache()
     cacheManager.mkCache(replaceOnUnzip = true)
   }
-
-  val reader = new EidosSystem(config)
-  val cacheDir: String = config[String]("ontologies.cacheDir")
-
-  new File(cacheDir).mkdirs()
 
   def cacheOntologies(): Unit = {
     val ontologyGrounders: Seq[OntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders
@@ -70,6 +65,7 @@ object CacheOntologies extends App {
   }
 
   def cacheWord2Vec(): Unit = {
+    // This rereads the resource, so it should not matter where EidosSystem got its copy.
     val filenameIn = config[String]("ontologies.wordToVecPath")
     val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn)
     println(s"Saving vectors to $filenameOut...")
@@ -85,8 +81,21 @@ object CacheOntologies extends App {
     OntologyMapper.mapIndicators(reader, outputFile, topN)
   }
 
-  removeGeoNorms()
-  cacheOntologies()
+  def safeCacheOntologies(): Unit = {
+    // When not grounding, neither ontologies nor vectors should be loaded at all.  Require grounding, thus.
+    assert(config[Boolean]("ontologies.useGrounding") == true, "To use CacheOntologies, you must set useGrounding = true")
+    // Since here we want to cache the current versions, we can't load from cached in case they aren't current.
+    assert(config[Boolean]("ontologies.useCacheForOntologies") == false, "To use CacheOntologies, you must set ontologies.useCacheForOntologies = false")
+    // Relax this following requirement.  We often recache the vectors, even if the data has not changed.
+    // This strategy may change in important ways if we use the ontologies during the filtering of the vectors.
+    // assert(config[Boolean]("ontologies.useCacheForW2V") == true, "To use CacheOntologies, you must set useCacheForW2V = false")
+
+    cacheOntologies()
+  }
+
+  // Comment these in and out as required.
   cacheWord2Vec()
+  safeCacheOntologies()
+  removeGeoNorms()
   updateIndicatorMappings()
 }
