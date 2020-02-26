@@ -8,6 +8,7 @@ import org.clulab.serialization.json.stringify
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
@@ -93,66 +94,79 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
   }
 }
 
-case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq[String]) extends Exporter {
+case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     // Header
-    pw.println(header())
+    pw.println(header)
     annotatedDocuments.foreach(printTableRows(_, pw, reader))
   }
 
-  def header(): String = {
-    "Sentence ID\t" +
-      "Factor A SCORE\t" +
-      "Factor A Text\t" +
-      "Factor A Rank 1\t" +
-      "Factor A Rank 2\t" +
-      "Factor A Rank 3\t" +
-      "Factor A Rank 4\t" +
-      "Factor A Rank 5\t" +
-      "Factor B SCORE\t" +
-      "Factor B Text\t" +
-      "Factor B Rank 1\t" +
-      "Factor B Rank 2\t" +
-      "Factor B Rank 3\t" +
-      "Factor B Rank 4\t" +
-      "Factor B Rank 5\t" +
-      "Evidence"
+  def header: String = {
+    val headerRow = Seq(
+      "DocID",
+      "Sentence ID",
+      "Cause Text",
+      "Cause Canonical Name",
+      "TopN Groundings",
+      "Cause Score",
+      "Direction",
+      "Effect Text",
+      "Effect Canonical Name",
+      "TopN Groundings",
+      "Effect Score",
+      "Relation Score",
+      "Annotator",
+      "Evidence",
+      "Comments"
+    )
+    headerRow.mkString(",")
   }
 
   def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, reader: EidosSystem): Unit = {
-    val allOdinMentions = annotatedDocument.eidosMentions.map(_.odinMention)
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.components.stopwordManager.releventEdge(m.odinMention, State(allOdinMentions)))
+    val causalMentions = annotatedDocument.eidosMentions.filter(m => m.label == EidosSystem.CAUSAL_LABEL)
 
     for {
-      mention <- mentionsToPrint
+      mention <- causalMentions
 
-      sentence_id = mention.odinMention.sentence
+      sentenceId = mention.odinMention.sentence
+      docID = mention.odinMention.document.id.getOrElse("NONE")
 
-      // For now, only put EidosEventMentions in the mitre tsv
-      if mention.isInstanceOf[EidosEventMention]
-      cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
-      factor_a_info = EntityInfo(cause, groundAs, topN = 5, delim = "\t")
-      factor_a_groundings = factor_a_info.groundingStrings.head // five in a row, tab-separated
+      // For now, only put EidosEventMentions in the eval
+      cause <- mention.eidosArguments("cause")
+      causeInfo = EntityInfo(cause, groundAs, topN, delim = "\n")
+      causeGroundings = causeInfo.groundingStrings.head // topN in a row, tab-separated
 
-      effect <- mention.asInstanceOf[EidosEventMention].eidosArguments("effect")
-      factor_b_info = EntityInfo(effect, groundAs, topN = 5, delim = "\t")
-      factor_b_groundings = factor_b_info.groundingStrings.head // five in a row, tab-separated
+      effect <- mention.eidosArguments("effect")
+      effectInfo = EntityInfo(effect, groundAs, topN, delim = "\n")
+      effectGroundings = effectInfo.groundingStrings.head // topN in a row, tab-separated
 
-      evidence = ExportUtils.removeTabAndNewline(mention.odinMention.sentenceObj.getSentenceText.trim)
+      direction = ExportUtils.poorMansIndra(cause, effect)
+      evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
 
-      row = sentence_id + "\t" +
-        "\t" + // score
-        factor_a_info.text + "\t" +
-        factor_a_groundings + "\t" +
-        "\t" + // score
-        factor_b_info.text + "\t" +
-        factor_b_groundings + "\t" +
-        evidence
-    } pw.println(row)
+      row = Seq(
+        docID,
+        sentenceId.toString,
+        causeInfo.text.normalizeSpace,
+        causeInfo.canonicalName.normalizeSpace,
+        causeGroundings,
+        "", // cause grounding score
+        direction,
+        effectInfo.text.normalizeSpace,
+        effectInfo.canonicalName.normalizeSpace,
+        effectGroundings,
+        "", // effect grounding score
+        "", // relation score
+        "", // annotator
+        evidence,
+        "", // comments
+      )
+
+      escaped = row.map(_.escapeCsv)
+
+    } pw.println(escaped.mkString(","))
   }
 
 }
-
 
 
 case class SerializedExporter(filename: String) extends Exporter {
@@ -171,8 +185,13 @@ object SerializedMentions {
   def load(filename: String): Seq[Mention] = Serializer.load[SerializedMentions](filename).mentions
 }
 
-case class EntityInfo(m: EidosMention, groundAs: Seq[String], topN: Int = 5, delim: String = ", ") {
+case class EntityInfo(
+    m: EidosMention,
+    groundAs: Seq[String] = Seq(EidosOntologyGrounder.PRIMARY_NAMESPACE),
+    topN: Int = 5,
+    delim: String = ", ") {
   val text: String = m.odinMention.text
+  val canonicalName: String = m.canonicalName
   val norm: String = getBaseGroundingString(m)
   val modifier: String = ExportUtils.getModifier(m)
   val polarity: String = ExportUtils.getPolarity(m)

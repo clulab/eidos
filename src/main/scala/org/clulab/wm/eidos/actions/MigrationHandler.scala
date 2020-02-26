@@ -10,7 +10,7 @@ import org.clulab._
 
 import scala.annotation.tailrec
 
-object MigrationUtils {
+class MigrationHandler {
 
   def processMigrationEvents(mentions: Seq[Mention]): Seq[Mention] = {
     // partition to get the migration events
@@ -22,7 +22,7 @@ object MigrationUtils {
   }
 
   // combine events with shared arguments AND combine events in close proximity with complementary arguments
-  def assembleFragmentsNew(mentions: Seq[Mention]): Seq[Mention] = {
+  protected def assembleFragmentsNew(mentions: Seq[Mention]): Seq[Mention] = {
 
     def findMerges(mentions: Seq[Mention]): (Array[Boolean], IndexedSeq[(Int, Int)]) = {
       val used = Array.fill(mentions.length)(false)
@@ -62,7 +62,7 @@ object MigrationUtils {
             rightToRightAndLeftIndexMap(rightIndex).map { case (rightIndex, leftIndex) =>
               val newArgs = mergeArgs(mentions(leftIndex), mentions(rightIndex))
               // This will have the sentence of the mention at rightIndex, so that sentence order is maintained.
-              val copy = copyWithNewArgs(mentions(rightIndex), newArgs)
+              val copy = MigrationHandler.copyWithNewArgs(mentions(rightIndex), newArgs)
 
               copy
             }
@@ -93,7 +93,7 @@ object MigrationUtils {
   }
 
   // given two event mentions, checks if they can be merged
-  def isMergeable(mention1: Mention, mention2: Mention): Boolean = {
+  protected def isMergeable(mention1: Mention, mention2: Mention): Boolean = {
     // Don't construct the entire intersection just to find out whether or not it would be empty,
     // at least for small collections when this is repeatedly done.
     def intersects[T](left: Seq[T], right: Seq[T]): Boolean = left.exists(right.contains)
@@ -121,13 +121,13 @@ object MigrationUtils {
     )
   }
 
-  val bothPattern: Pattern = Pattern.compile(".*[\\dA-Z]+.*")
+  protected val bothPattern: Pattern = Pattern.compile(".*[\\dA-Z]+.*")
 
   /*
   checks if both of the overlapping args are specific (AND are not the same arg because if they are the same argument,
   their...`specificity status` will be the same)
    */
-  def bothSpecific(mention1: Mention, mention2: Mention): Boolean = {
+  protected def bothSpecific(mention1: Mention, mention2: Mention): Boolean = {
     val overlappingArgNames = mention1.arguments.keys.toList.intersect(mention2.arguments.keys.toList)
 
     overlappingArgNames.exists { argName =>
@@ -148,7 +148,7 @@ object MigrationUtils {
 
   // returns mentions in the order they appear in the document (based on sent index and tokenInterval of the mention)
   //todo: may go to mention utils
-  def orderMentions(mentions: Seq[Mention]): Seq[Mention] = {
+  protected def orderMentions(mentions: Seq[Mention]): Seq[Mention] = {
     mentions.sortWith { (left: Mention, right: Mention) =>
       if (left.sentence != right.sentence)
         left.sentence < right.sentence
@@ -159,11 +159,11 @@ object MigrationUtils {
     }
   }
 
-  val mergePattern: Pattern = Pattern.compile(".*[A-Z\\d+].*")
+  protected val mergePattern: Pattern = Pattern.compile(".*[A-Z\\d+].*")
 
   // merges args of two mentions in such a way as to hopefully return the more specific arg in case of an overlap
   // If the two are equally good, favor the first.
-  def mergeArgs(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
+  protected def mergeArgs(mention1: Mention, mention2: Mention): Map[String, Seq[Mention]] = {
     val unionKeys = mention1.arguments.keys.toList.union(mention2.arguments.keys.toList)
     val newArgs = unionKeys.map { key =>
       val mentionsOpt1 = mention1.arguments.get(key)
@@ -194,7 +194,7 @@ object MigrationUtils {
   if there is a generic location mention in the migration event, try to resolve it to the nearest previous specific location
   (for now, specific == has an attachment)
    */
-  def resolveGenericLocation(mentions: Seq[Mention]): Seq[Mention] = {
+  protected def resolveGenericLocation(mentions: Seq[Mention]): Seq[Mention] = {
     val orderedMentions = orderMentions(mentions)
     val resolvedMentions = orderedMentions.zipWithIndex.map { case (mention, index) =>
       val argNameOpt = getGenericLocArgName(mention)
@@ -218,7 +218,7 @@ object MigrationUtils {
 
         //the new mention will be the copy of the current mention with the arguments including the newly-created
         //corefMention instead of the original generic location (the name of the arg is the same the generic location had)
-        copyWithNewArgs(mention, mention.arguments ++ Map(argName -> Seq(corefMention)))
+        MigrationHandler.copyWithNewArgs(mention, mention.arguments ++ Map(argName -> Seq(corefMention)))
       }
 
       newMentionOpt.getOrElse(mention)
@@ -232,7 +232,7 @@ object MigrationUtils {
   finds the nearest previous event that contains a specific location argument with the same argName (for now, specific ==
   has an attachment)
    */
-  def findPrevGeoloc(orderedMentions: Seq[Mention], argName: String, order: Int): Option[Mention] = {
+  protected def findPrevGeoloc(orderedMentions: Seq[Mention], argName: String, order: Int): Option[Mention] = {
     val mentionOpt = orderedMentions.slice(0, order + 1).reverse.find { mention =>
       val argumentsOpt = mention.arguments.get(argName)
       val nonEmptyOpt = argumentsOpt.map(_.head.attachments.nonEmpty)
@@ -244,7 +244,7 @@ object MigrationUtils {
   }
 
   // given a mention, returns the argName of the argument that contains a generic location
-  def getGenericLocArgName(mention: Mention): Option[String] = {
+  protected def getGenericLocArgName(mention: Mention): Option[String] = {
     //look through the args; if arg contains a generic location, return the name of that arg
     val argumentOpt: Option[(String, Seq[Mention])] = mention.arguments.find(containsGenericLocation)
 
@@ -252,11 +252,33 @@ object MigrationUtils {
   }
 
   // todo: revise the list
-  val genericLocations: Seq[String] = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
+  protected val genericLocations: Seq[String] = Seq("country", "countries", "area", "areas", "camp", "camps", "settlement", "site")
 
   // given a complete argument (argName -> Mention), checks if it has an argument that is a generic location; todo: revise the list
-  def containsGenericLocation(arg: (String, Seq[Mention])): Boolean =
+  protected def containsGenericLocation(arg: (String, Seq[Mention])): Boolean =
       arg._2.exists(mention => genericLocations.contains(mention.text))
+}
+
+object MigrationHandler {
+
+  def apply(): MigrationHandler = new MigrationHandler
+
+  protected def needsCrossSentence(mention: Mention, args: Map[String, Seq[Mention]]): Boolean = {
+    val triggerSentenceOpt = mention match {
+      case mention: EventMention => Some(mention.trigger.sentence)
+      case _: Mention => None
+    }
+
+    needsCrossSentence(mention.sentence, triggerSentenceOpt, args)
+  }
+
+  def needsCrossSentence(sentence: Int, triggerSentenceOpt: Option[Int], args: Map[String, Seq[Mention]]): Boolean = {
+    val needsCrossSentenceForArgs = args.values.exists { mentions: Seq[Mention] => mentions.exists(_.sentence != sentence) }
+    val needsCrossSentenceForTrigger = triggerSentenceOpt.exists { triggerSentence => triggerSentence != sentence }
+    val needsCrossSentence = needsCrossSentenceForArgs || needsCrossSentenceForTrigger
+
+    needsCrossSentence
+  }
 
   protected def newWithinSentenceMention(mention: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String], mkNewInterval: Boolean): Mention = {
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${mention.foundBy}_${foundByAffix.get}" else mention.foundBy
@@ -289,25 +311,6 @@ object MigrationUtils {
     newMention
   }
 
-  def needsCrossSentence(sentence: Int, triggerSentenceOpt: Option[Int], args: Map[String, Seq[Mention]]): Boolean = {
-    val needsCrossSentenceForArgs = args.values.exists { mentions: Seq[Mention] => mentions.exists(_.sentence != sentence) }
-    val needsCrossSentenceForTrigger = triggerSentenceOpt
-        .map { triggerSentence => triggerSentence != sentence }
-        .getOrElse(false)
-    val needsCrossSentence = needsCrossSentenceForArgs || needsCrossSentenceForTrigger
-
-    needsCrossSentence
-  }
-
-  def needsCrossSentence(mention: Mention, args: Map[String, Seq[Mention]]): Boolean = {
-    val triggerSentenceOpt = mention match {
-      case mention: EventMention => Some(mention.trigger.sentence)
-      case _: Mention => None
-    }
-
-    needsCrossSentence(mention.sentence, triggerSentenceOpt, args)
-  }
-
   //todo: place elsewhere --> mention utils
   //todo: is it generalizeable enough?
   def copyWithNewArgs(mention: Mention, newArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
@@ -317,8 +320,8 @@ object MigrationUtils {
       val trigger = mention.asInstanceOf[EventMention].trigger // This conversion doesn't seem to be a given!
 
       new CrossSentenceEventMention(labels = mention.labels, trigger,
-          arguments = newArgs, Map.empty, mention.sentence, mention.document, keep = true,
-          foundBy = mention.foundBy + "++crossSentActions", attachments = mention.attachments)
+        arguments = newArgs, Map.empty, mention.sentence, mention.document, keep = true,
+        foundBy = mention.foundBy + "++crossSentActions", attachments = mention.attachments)
     }
     else
       newWithinSentenceMention(mention, newArgs, foundByAffix, mkNewInterval)

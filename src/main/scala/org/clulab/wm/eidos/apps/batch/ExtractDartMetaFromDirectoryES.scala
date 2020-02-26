@@ -18,8 +18,6 @@ import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object ExtractDartMetaFromDirectoryES extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -33,7 +31,7 @@ object ExtractDartMetaFromDirectoryES extends App {
   val converter = DartEsMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
@@ -53,10 +51,6 @@ object ExtractDartMetaFromDirectoryES extends App {
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
-
     parFiles.foreach { file =>
       try {
         // 1. Open corresponding output file
@@ -71,7 +65,7 @@ object ExtractDartMetaFromDirectoryES extends App {
           val documentTitle = DartEsMetaUtils.getDartDocumentTitle(json)
           val documentLocation = DartEsMetaUtils.getDartDocumentLocation(json)
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dct = documentCreationTime, id = documentId))
+          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dctOpt = documentCreationTime, idOpt = documentId))
           documentTitle.foreach { documentTitle => TitleDocumentAttachment.setTitle(annotatedDocuments.head.document, documentTitle) }
           documentLocation.foreach { documentLocation => LocationDocumentAttachment.setLocation(annotatedDocuments.head.document, documentLocation) }
           // 4. Convert to JSON

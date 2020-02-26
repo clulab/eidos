@@ -12,8 +12,6 @@ import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object ExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val metaDir = args(1)
@@ -24,7 +22,7 @@ object ExtractMetaFromDirectory extends App {
   val converter = EidosMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = ThreadUtils.parallelize(files, 8)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
@@ -40,10 +38,6 @@ object ExtractMetaFromDirectory extends App {
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
-    val forkJoinPool = ThreadUtils.newForkJoinPool(8)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
-
     parFiles.foreach { file =>
       try {
         // 1. Open corresponding output file
@@ -56,7 +50,7 @@ object ExtractMetaFromDirectory extends App {
           val documentCreationTime = EidosMetaUtils.getDocumentCreationTime(json)
           val documentTitle = EidosMetaUtils.getDocumentTitle(json)
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromText(text, dctString = documentCreationTime))
+          val annotatedDocuments = Seq(reader.extractFromText(text, dctStringOpt = documentCreationTime))
           annotatedDocuments.head.document.id = documentTitle
           // 4. Convert to JSON
           val corpus = new JLDCorpus(annotatedDocuments)

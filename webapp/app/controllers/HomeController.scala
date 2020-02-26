@@ -661,13 +661,16 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 }
 
 object HomeController {
+  val INC_LABEL_AFFIX = "-Inc"
+  val DEC_LABEL_AFFIX = "-Dec"
+  val QUANT_LABEL_AFFIX = "-Quant"
 
   // fixme: ordering/precedence...
   def statefulRepresentation(m: Mention): Mention = {
     val stateAffix = m.attachments match {
-      case inc if inc.exists(a => a.isInstanceOf[Increase]) => EidosSystem.INC_LABEL_AFFIX
-      case dec if dec.exists(a => a.isInstanceOf[Decrease]) => EidosSystem.DEC_LABEL_AFFIX
-      case quant if quant.exists(a => a.isInstanceOf[Quantification]) => EidosSystem.QUANT_LABEL_AFFIX
+      case inc if inc.exists(a => a.isInstanceOf[Increase]) => INC_LABEL_AFFIX
+      case dec if dec.exists(a => a.isInstanceOf[Decrease]) => DEC_LABEL_AFFIX
+      case quant if quant.exists(a => a.isInstanceOf[Quantification]) => QUANT_LABEL_AFFIX
       case _ => ""
     }
 
