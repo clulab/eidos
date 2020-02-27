@@ -5,7 +5,10 @@ organization := "al.lum"
 scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
-resolvers += "kafka" at "https://mvnrepository.com"
+resolvers ++= Seq(
+  "kafka" at "https://mvnrepository.com",
+  "jitpack" at "https://jitpack.io"
+)
 
 libraryDependencies ++= {
   val        json4sVersion = "3.5.2"
