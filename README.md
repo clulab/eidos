@@ -435,7 +435,7 @@ The large vector file used for this purpose is declared as a library dependency 
 installed automatically.  One disadvantage of these settings is that the program will start
 up more slowly and require extra memory.  One way to avoid this is to turn off grounding by
 setting `useGrounding` to `false`.  If you want to be relatively fast and still ground,
-follow instructions below for optimizing to create cached versions of these files and then
+follow instructions below for [optimizing](#optimizing) to create cached versions of these files and then
 turn on the two values `useCacheForOntologies` and `useCacheForW2V`.
 
 Two previous settings are no longer used:
