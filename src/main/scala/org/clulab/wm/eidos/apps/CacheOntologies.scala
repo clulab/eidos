@@ -65,11 +65,17 @@ object CacheOntologies extends App {
   }
 
   def cacheWord2Vec(): Unit = {
-    // This rereads the resource, so it should not matter where EidosSystem got its copy.
     val filenameIn = config[String]("ontologies.wordToVecPath")
     val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn)
     println(s"Saving vectors to $filenameOut...")
-    val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
+    val word2Vec = reader.components.ontologyHandler.wordToVec match {
+      case realWordToVec: RealWordToVec =>
+        if (!config[Boolean]("ontologies.useCacheForW2V"))
+          realWordToVec.w2v // It wasn't cached, so we must have an up-to-date version.
+        else
+          CompactWord2Vec(filenameIn, resource = true, cached = false)
+      case _ =>  CompactWord2Vec(filenameIn, resource = true, cached = false)
+    }
     word2Vec.save(filenameOut)
     println(s"Finished serializing vectors.")
   }

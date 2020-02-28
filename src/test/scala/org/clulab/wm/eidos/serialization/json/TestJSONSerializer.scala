@@ -30,7 +30,8 @@ import org.json4s.JValue
 import org.json4s.jackson.JsonMethods
 
 class TestJSONSerializer extends Test {
-  val reader = new EidosSystem()
+  val config = this.defaultConfig
+  val reader = new EidosSystem(config)
 
   behavior of "JSONSerializer"
 

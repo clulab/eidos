@@ -9,7 +9,10 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
-resolvers += "jitpack" at "https://jitpack.io"
+resolvers ++= Seq(
+  "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies
+  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d
+)
 
 libraryDependencies ++= {
   val    procVer = "7.5.4"
@@ -24,6 +27,7 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-modelscorenlp" % procVer,
     "org.clulab"                 %% "geonorm"                  % "0.9.7",
     "org.clulab"                 %% "timenorm"                 % "1.0.4",
+    "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
     "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
     "commons-io"                  % "commons-io"               % "2.5",

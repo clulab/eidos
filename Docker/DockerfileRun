@@ -33,11 +33,6 @@ RUN apt-get update && apt-get install sbt -y
 # Clone the Eidos repo
 RUN git clone https://github.com/clulab/eidos.git
 WORKDIR /eidos
-RUN wget https://s3.amazonaws.com/world-modelers/data/vectors.txt
-RUN mv vectors.txt src/main/resources/org/clulab/wm/eidos/english/w2v/
-RUN sed -i 's/useW2V = false/useW2V = true/' src/main/resources/eidos.conf
-RUN sed -i 's/useW2V = false/useW2V = true/' src/main/resources/reference.conf
-RUN sed -i 's/glove.840B.300d.txt/vectors.txt/' src/main/resources/eidos.conf
 RUN ["bash", "-c", "echo -e '\nplay.filters.hosts {allowed = [\".:9000\"]}' >> ./webapp/conf/application.conf"]
 RUN sbt assembly
 
