@@ -16,7 +16,7 @@ import collection.JavaConverters._
 
 class TestCachedDomainOntology extends Test {
   val ontologies: Iterable[String] = Seq("one", "two")
-  val config: Config = ConfigFactory.load(EidosSystem.defaultConfig)
+  val config: Config = ConfigFactory.load(this.defaultConfig)
       .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Vectors are not necessary."))
       .withValue("ontologies.ontologies", ConfigValueFactory.fromIterable(Seq.empty[String].asJava, "Preloaded ontologies are not necessary."))
   val baseDir = "/org/clulab/wm/eidos/english/ontologies"
