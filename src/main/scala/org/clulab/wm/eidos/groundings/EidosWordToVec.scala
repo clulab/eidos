@@ -5,7 +5,6 @@ import java.io.File
 import org.clulab.embeddings.word2vec.CompactWord2Vec
 import org.clulab.embeddings.word2vec.Word2Vec
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.utils.FileBuilder
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -87,7 +86,7 @@ object EidosWordToVec {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def makeCachedFilename(path: String, file: String): String =
-      FileBuilder(new File(file)).changeDir(path).appendName(".serialized").get.getPath
+      path + "/" + file.split('/').last + ".serialized"
 
   def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
     if (enabled) {

@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileBuilder
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.meta.CluText
@@ -124,7 +124,7 @@ object ExtractCluMetaFromDirectoryFiltered extends App {
           fos.getFD.sync()
         }
         // Now move the file to directory done
-        val newFile = FileBuilder(file).changeDir(doneDir).get
+        val newFile = FileEditor(file).setDir(doneDir).get
         file.renameTo(newFile)
       }
       catch {

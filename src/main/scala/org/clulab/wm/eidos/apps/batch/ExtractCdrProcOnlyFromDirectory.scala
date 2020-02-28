@@ -11,7 +11,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.serialization.json.DocOps
-import org.clulab.wm.eidos.utils.FileBuilder
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.meta.CdrText
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -62,7 +62,7 @@ object ExtractCdrProcOnlyFromDirectory extends App {
           val json = document.jsonAST
           // Only do the processors part
           // 5. Write to output file
-          val path = FileBuilder(file).changeDir(outputDir).changeExt("json").get
+          val path = FileEditor(file).setDir(outputDir).setExt("json").get
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(stringify(json, pretty = true))
           }

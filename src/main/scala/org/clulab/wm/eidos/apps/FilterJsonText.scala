@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.apps
 import java.io.File
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileBuilder
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StringUtils
 import org.json4s.DefaultFormats
@@ -18,7 +18,7 @@ object FilterJsonText extends App {
     def filter(jValue: JValue, inputFile: File): Unit = {
       val jString: JValue = jValue \ "extracted_text"
       val text: String = jString.extract[String]
-      val path = FileBuilder(inputFile).changeDir(outputDir).changeExt("txt").get
+      val path = FileEditor(inputFile).setDir(outputDir).setExt("txt").get
 
       FileUtils.printWriterFromFile(path).autoClose { pw =>
         pw.println(text)

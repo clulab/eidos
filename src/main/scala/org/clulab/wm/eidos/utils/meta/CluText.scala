@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.utils.FileBuilder
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StringUtils
 import org.json4s.DefaultFormats
@@ -108,15 +108,15 @@ object CluText {
   def convertTextToMeta17k(textFile: File, metaDir: String): File = {
     val newName = StringUtils.afterLast(textFile.getName, '_')
 
-    FileBuilder(textFile).changeDir(metaDir).changeName(newName).changeExt("json").get
+    FileEditor(textFile).setDir(metaDir).setName(newName).setExt("json").get
   }
 
   def convertTextToMeta(textFile: File, metaDir: String): File = {
-    FileBuilder(textFile).changeDir(metaDir).changeExt("json").get
+    FileEditor(textFile).setDir(metaDir).setExt("json").get
   }
 
   def convertTextToJsonld(textFile: File, jsonldDir: String): File = {
-    FileBuilder(textFile).changeDir(jsonldDir).changeExt("jsonld").get
+    FileEditor(textFile).setDir(jsonldDir).setExt("jsonld").get
   }
 
   protected def getMetaValue(json: JValue, name: String): Option[String] = {

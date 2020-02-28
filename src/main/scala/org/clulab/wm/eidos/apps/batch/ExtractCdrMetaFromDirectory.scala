@@ -7,7 +7,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileBuilder
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
@@ -63,12 +63,12 @@ object ExtractCdrMetaFromDirectory extends App {
           val corpus = new JLDCorpus(annotatedDocument)
           val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
           // 5. Write to output file
-          val path = FileBuilder(file).changeDir(outputDir).changeExt("jsonld").get
+          val path = FileEditor(file).setDir(outputDir).setExt("jsonld").get
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(stringify(mentionsJSONLD, pretty = true))
           }
           // Now move the file to directory done
-          val newFile = FileBuilder(file).changeDir(doneDir).get
+          val newFile = FileEditor(file).setDir(doneDir).get
           file.renameTo(newFile)
 
           text.length

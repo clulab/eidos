@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.apps.batch
 import java.io.File
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileBuilder
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StringUtils
 import org.clulab.wm.eidos.utils.meta.CluText
@@ -20,7 +20,7 @@ object SeparateCdrTextFromDirectory extends App {
       println(s"Extracting from ${inputFile.getName}")
       val jString: JValue = jValue \ "extracted_text"
       val text: String = jString.extract[String]
-      val outputFile = FileBuilder(inputFile).changeDir(outputDir).changeExt("txt").get
+      val outputFile = FileEditor(inputFile).setDir(outputDir).setExt("txt").get
 
       FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
         printWriter.print(text)

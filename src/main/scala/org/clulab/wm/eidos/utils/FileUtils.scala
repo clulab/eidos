@@ -144,8 +144,8 @@ object FileUtils {
           // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
           // Instead, make a new temporary file each time and delete it afterwards.
           val tmpFile = File.createTempFile(
-            StringUtils.afterLast(resourcePath, '/') + '-', // Help identify the file later.
-            "." + StringUtils.afterLast(resourcePath, '.') // Keep extension for good measure.
+            getName(resourcePath) + '-', // Help identify the file later.
+            getExt(resourcePath) // Keep extension for good measure.
           )
 
           try {
@@ -211,7 +211,15 @@ object FileUtils {
     }
   }
 
-  def replaceNameExtension(file: File, newExtension: String): String = {
+  protected def replaceNameExtension(file: File, newExtension: String): String = {
     StringUtils.beforeLast(file.getName, '.') + newExtension
+  }
+
+  protected def getName(filename: String): String = {
+    StringUtils.afterLast(filename, '/')
+  }
+
+  protected def getExt(filename: String): String = {
+    "." + StringUtils.afterLast(filename, '.')
   }
 }

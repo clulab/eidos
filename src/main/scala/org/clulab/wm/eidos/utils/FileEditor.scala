@@ -1,34 +1,37 @@
 package org.clulab.wm.eidos.utils
 
 import java.io.File
+import java.nio.file.Paths
 
-class FileBuilder(protected var file: File) {
-  import FileBuilder._
+class FileEditor(protected var file: File) {
+  import FileEditor._
 
   def get = file
 
-  def changeDir(dir: String): FileBuilder = {
+  def setDir(dir: String): FileEditor = {
     val name = file.getName
-    val newPath = dir + slashs + name
+    val newPath = Paths.get(dir, name).toString
 
     file = new File(newPath)
     this
   }
 
-  def changeName(name: String): FileBuilder = {
-    val pathOpt = Option(file.getParentFile).map(_.getPath + slashs).getOrElse("")
-    val newPath = pathOpt + name
+  def setName(name: String): FileEditor = {
+    val pathOpt = Option(file.getParentFile)
+    val newPath =
+        if (pathOpt.isDefined) Paths.get(pathOpt.get.getPath, name).toString
+        else name
 
     file = new File(newPath)
     this
   }
 
-  def appendName(name: String): FileBuilder = {
+  def incName(name: String): FileEditor = {
     file = new File(file.getPath + name)
     this
   }
 
-  def changeExt(ext: String): FileBuilder = {
+  def setExt(ext: String): FileEditor = {
     // Being an extension implies that it starts with a period, but don't add a second period,
     // because then it's not an extension but something else.
     val dottedExt = if (ext.startsWith(dots)) ext else dots + ext
@@ -41,11 +44,9 @@ class FileBuilder(protected var file: File) {
   }
 }
 
-object FileBuilder {
+object FileEditor {
   val dot = '.'
   val dots = dot.toString
-  val slash = '/'
-  val slashs = slash.toString
 
-  def apply(file: File): FileBuilder = new FileBuilder(file)
+  def apply(file: File): FileEditor = new FileEditor(file)
 }
