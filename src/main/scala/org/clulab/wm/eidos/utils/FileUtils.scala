@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.utils
 
 import java.io._
 import java.net.URL
-import java.nio.channels.Channels
 import java.nio.file.StandardCopyOption
 import java.nio.file.{Files, Path, Paths}
 import java.util.Collection
@@ -22,14 +21,15 @@ import scala.io.Source
 
 object FileUtils {
 
-  def appendingPrintWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, true)
+  def appendingPrintWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, append = true)
 
-  def appendingPrintWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, true)
+  def appendingPrintWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, append = true)
 
-  def printWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, false)
+  def printWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, append = false)
 
-  def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, false)
+  def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, append = false)
 
+  //
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)
     val filter = new FilenameFilter {
@@ -209,5 +209,9 @@ object FileUtils {
         }
       }
     }
+  }
+
+  def replaceNameExtension(file: File, newExtension: String): String = {
+    StringUtils.beforeLast(file.getName, '.') + newExtension
   }
 }

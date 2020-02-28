@@ -39,7 +39,6 @@ import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.ProvenanceMap
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.JArray
 
 import scala.collection.Seq
@@ -794,7 +793,7 @@ class TestJLDDeserializer extends ExtractionTest {
   }
 
   def testTextFiles(directoryName: String): Unit = {
-    val files = findFiles(directoryName, "txt")
+    val files = FileUtils.findFiles(directoryName, "txt")
 
     files.foreach { file =>
       val text = FileUtils.getTextFromFile(file)
@@ -804,7 +803,7 @@ class TestJLDDeserializer extends ExtractionTest {
   }
 
   def testJsonldFiles(directoryName: String): Unit = {
-    val files = findFiles(directoryName, "jsonld")
+    val files = FileUtils.findFiles(directoryName, "jsonld")
 
     files.foreach { file =>
       val oldText = FileUtils.getTextFromFile(file)
