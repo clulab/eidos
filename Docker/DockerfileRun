@@ -33,8 +33,6 @@ RUN apt-get update && apt-get install sbt -y
 # Clone the Eidos repo
 RUN git clone https://github.com/clulab/eidos.git
 WORKDIR /eidos
-RUN sed -i 's/useGrounding = false/useGrounding = true/' src/main/resources/eidos.conf
-RUN sed -i 's/useGrounding = false/useGrounding = true/' src/main/resources/reference.conf
 RUN ["bash", "-c", "echo -e '\nplay.filters.hosts {allowed = [\".:9000\"]}' >> ./webapp/conf/application.conf"]
 RUN sbt assembly
 
