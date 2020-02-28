@@ -7,10 +7,9 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
+import org.clulab.wm.eidos.utils.meta.CluText
 
-object FilteredExtractFromDirectory extends App {
+object ExtractCluFromDirectoryFiltered extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val intervals = Seq(
@@ -61,7 +60,7 @@ object FilteredExtractFromDirectory extends App {
     (100000, 199999),
     (200000, 299999)
   )
-  val files = findFiles(inputDir, "txt")
+  val files = FileUtils.findFiles(inputDir, "txt")
   val reader = new EidosSystem()
 
   intervals.foreach { interval =>
@@ -86,7 +85,7 @@ object FilteredExtractFromDirectory extends App {
         val corpus = new JLDCorpus(annotatedDocuments)
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
-        val path = EidosMetaUtils.convertTextToJsonld(filterOutputDir, file)
+        val path = CluText.convertTextToJsonld(file, filterOutputDir)
         FileUtils.printWriterFromFile(path).autoClose { pw =>
           pw.println(stringify(mentionsJSONLD, pretty = true))
         }

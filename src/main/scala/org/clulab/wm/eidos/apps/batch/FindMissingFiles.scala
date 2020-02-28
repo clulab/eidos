@@ -5,7 +5,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.JValue
 import org.json4s.JsonAST.JField
 import org.json4s.JsonAST.JObject
@@ -161,7 +160,7 @@ object FindMissingFiles extends App {
 //    (95000, 99999)
   )
 
-  val files = findFiles(inputDir, "txt")
+  val files = FileUtils.findFiles(inputDir, "txt")
 
   intervals.foreach { interval =>
     val min = interval._1

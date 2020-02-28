@@ -2,23 +2,21 @@ package org.clulab.wm.eidos.apps.batch
 
 import java.io.File
 
+import org.clulab.processors.Document
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
-import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
-import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
-import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
+import org.clulab.serialization.json.DocOps
+import org.clulab.wm.eidos.utils.FileBuilder
+import org.clulab.wm.eidos.utils.meta.CdrText
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object ExtractDartMetaFromDirectory extends App {
+object ExtractCdrProcOnlyFromDirectory extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val inputDir = args(0)
@@ -26,10 +24,8 @@ object ExtractDartMetaFromDirectory extends App {
   val timeFile = args(2)
   val threads = args(3).toInt
 
-  val doneDir = inputDir + "/done"
-  val converter = DartZipMetaUtils.convertTextToMeta _
-
-  val files = findFiles(inputDir, "json")
+//  val doneDir = inputDir + "/done"
+  val files = FileUtils.findFiles(inputDir, "json")
   val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
@@ -42,6 +38,7 @@ object ExtractDartMetaFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
+    val options = EidosSystem.Options()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
@@ -56,28 +53,22 @@ object ExtractDartMetaFromDirectory extends App {
         logger.info(s"Extracting from ${file.getName}")
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
-          // 2. Get the input file contents
-          val json = DartZipMetaUtils.getMetaData(file)
-          val text = DartZipMetaUtils.getDartText(json).get
-          val documentCreationTime = DartZipMetaUtils.getDocumentCreationTime(json)
-          val documentId = DartZipMetaUtils.getDartDocumentId(json)
-          val documentTitle = DartZipMetaUtils.getDartDocumentTitle(json)
-          val documentLocation = DartZipMetaUtils.getDartDocumentLocation(json)
+          // 2. Get the input file text and metadata
+          val eidosText = CdrText(file)
+          val text = eidosText.getText
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dctOpt = documentCreationTime, idOpt = documentId))
-          documentTitle.foreach { documentTitle => TitleDocumentAttachment.setTitle(annotatedDocuments.head.document, documentTitle) }
-          documentLocation.foreach { documentLocation => LocationDocumentAttachment.setLocation(annotatedDocuments.head.document, documentLocation) }
+          val document: Document = reader.annotate(text)
           // 4. Convert to JSON
-          val corpus = new JLDCorpus(annotatedDocuments)
-          val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+          val json = document.jsonAST
+          // Only do the processors part
           // 5. Write to output file
-          val path = DartZipMetaUtils.convertTextToJsonld(outputDir, file)
+          val path = FileBuilder(file).changeDir(outputDir).changeExt("json").get
           FileUtils.printWriterFromFile(path).autoClose { pw =>
-            pw.println(stringify(mentionsJSONLD, pretty = true))
+            pw.println(stringify(json, pretty = true))
           }
           // Now move the file to directory done
-          val newPath = doneDir + "/" + file.getName
-          file.renameTo(new File(newPath))
+//          val newPath = doneDir + "/" + file.getName
+//          file.renameTo(new File(newPath))
 
           text.length
         }
