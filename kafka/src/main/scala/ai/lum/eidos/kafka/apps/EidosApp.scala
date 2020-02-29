@@ -9,15 +9,15 @@ object EidosApp extends App {
   val threads = args(0).toInt
   val counter = Counter()
 
-  val exampleStream = new EidosStream(
+  val eidosStream = new EidosStream(
     counter,
     applicationId = "eidos-stream",
     bootstrapServers = "localhost:9092",
     inputTopic = "eidos-input",
     outputTopic = "eidos-output",
-    threads
+    threads // This can probably be done in a configuration file
   )
-  val streams = exampleStream.start()
+  val streams = eidosStream.start()
 
   sys.ShutdownHookThread {
     streams.close(Duration.ofSeconds(10))
