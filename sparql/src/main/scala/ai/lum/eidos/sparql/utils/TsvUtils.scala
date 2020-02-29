@@ -33,7 +33,7 @@ object TsvUtils {
 
   def stringln(strings: String*): String = strings.map(escape).mkString(separatorString)
 
-  def readln(line: String): Array[String] = line.split(separatorChar).map(unescape)
+  def readln(line: String): Array[String] = line.split(separatorChar.toString, -1).map(unescape)
 
   object TsvReader {
 
