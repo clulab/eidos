@@ -130,18 +130,20 @@ rules:
     example: "Conflict and economic decline have led to violence and displacement."
     pattern: |
       trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to /(${preps}|${noun_modifiers})/{,4}
-      cause: Entity = </advcl|ccomp/? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
+      effect: Entity = /nmod_(by|to)/ /(${preps}|${noun_modifiers})/{,4} (?! [mention=Time])
+      cause: Entity = /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2} (?! [mention=Time])
+#      cause: Entity = </advcl|ccomp/? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
 
-  - name: contribToSyntax1-${addlabel}
+  - name: leadToSyntax2-${addlabel}
     priority: ${rulepriority}
     label: ${label}
     action: ${ action }
-    example: "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
+    example: "Conflict and economic decline have led to violence and displacement."
     pattern: |
-      trigger = [lemma="contribute" & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to nmod_in [tag=/^N/] (${ conjunctions })? #/${noun_modifiers}/{,2} #
-      cause: Entity = nsubj nmod_in /${noun_modifiers}/{,2}
+      trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
+      effect: Entity = /nmod_to/ /(${preps}|${noun_modifiers})/{,4} (?! [mention=Time])
+      cause: Entity = nmod_by /${noun_modifiers}|${objects}|${preps}/{,2} (?! [mention=Time])
+
 
   - name: is_critical_to-${addlabel}
     priority: ${rulepriority}

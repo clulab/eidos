@@ -41,7 +41,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB|JJR/]
-      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|</acl|vmod/) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
