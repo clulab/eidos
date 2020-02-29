@@ -161,7 +161,7 @@ object DumpCauseEffectData extends App {
       |PREFIX   rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       |
       |SELECT ?subjectSource ?sentenceType ?sentenceTrigger ?sentenceConfidence
-      |FROM <http://localhost:3030/large01/data/large01>
+      |FROM <$host/$datasetName/data/$datasetName>
       |WHERE {
       |    ?subject a causal:CausalAssertion;
       |        dp:sourced_from ?subjectSource;
