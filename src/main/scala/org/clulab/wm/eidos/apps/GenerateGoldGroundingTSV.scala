@@ -15,6 +15,8 @@ object GenerateGoldGroundingTSV extends App {
   val lines: Array[String] = fileAsString.split("\n")
 
   var outFilename = "compositionalGrounderTestDoc/gold_groundings.tsv"
+  var rejectsFilename = "compositionalGrounderTestDoc/rejected_sentences.txt"
+
   val header =
     "GOLD Annotated?\t" +
     "Index\t" +
@@ -33,7 +35,10 @@ object GenerateGoldGroundingTSV extends App {
   val pw = new PrintWriter(outFilename)
   pw.println(header)
 
+  val pwRejects = new PrintWriter(rejectsFilename)
+
   val proc = new FastNLPProcessor()
+  pwRejects.println(lines.head)
 
   // Regex replacement patterns
   // Only needed if we try to de-tokenize
@@ -70,7 +75,7 @@ object GenerateGoldGroundingTSV extends App {
       EidosSystem().components.ontologyHandler
   val ieSystem = new EidosSystem()
 
-  for (entry <- lines) {
+  for (entry <- lines.tail) {
     val line = entry.split("\t")
 
     val index = line(0)
@@ -111,7 +116,6 @@ object GenerateGoldGroundingTSV extends App {
 //    cause = cause.replaceAll(funkyTokenPattern,funkyTokenPatternReplaced)
 //    cause = cause.replaceAll(kgPattern,kgPatternReplaced)
 
-//    val cause = proc.annotate(line(4)).sentences.head.words.mkString(" ")
     val causeStartOffset = sentence indexOf cause
     val causeEndOffset = causeStartOffset+cause.length
     val causeOffset: Interval = Interval(causeStartOffset,causeEndOffset)
@@ -135,20 +139,14 @@ object GenerateGoldGroundingTSV extends App {
 //    effect = effect.replaceAll(funkyTokenPattern,funkyTokenPatternReplaced)
 //    effect = effect.replaceAll(kgPattern,kgPatternReplaced)
 
-//    val effect = proc.annotate(line(11)).sentences.head.words.mkString(" ")
     val effectStartOffset = sentence indexOf effect
     val effectEndOffset = effectStartOffset+effect.length
     val effectOffset: Interval = Interval(effectStartOffset,effectEndOffset)
 
     val document = ieSystem.annotate(sentence)
 
-//    println("Index:\t"+ index)
-//    println("Sentence:\t"+sentence)
-//    println("Length:\t"+sentence.length())
-
     if (causeStartOffset != -1) {
-//      println("Length:\t"+sentence.length())
-//      println("causeOffset:\t"+causeOffset)
+
       val allGroundings = ontologyHandler.reground(sentence, causeOffset, document)
 
       val flatGroundings = allGroundings("wm_flattened")
@@ -165,27 +163,14 @@ object GenerateGoldGroundingTSV extends App {
 
       val propertyGroundings = allGroundings("wm_compositional/property")
       val propertyName = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._1.name else None
-
       val propertyScore = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._2 else None
-
-      //    println("FLAT:")
-      //    println(flatGroundings.headOption.get._1)
-      //
-      //    println("\nCONCEPT:")
-      //    println(conceptGroundings.headOption.get._1)
-      //
-      //    println("\nPROCESS:")
-      //    println(processGroundings.headOption.get._1)
-      //
-      //    println("\nPROPERTY:")
-      //    println(propertyGroundings.headOption.get._1)
 
       val row1 =
         "" + "\t" +
         index + "\t" +
         sentence.trim() + "\t" +
         cause + "\t" +
-        causeOffset + "\t" +
+        (causeOffset.start, causeOffset.end) + "\t" +
         flatName + "\t" +
         flatScore + "\t" +
         conceptName + "\t" +
@@ -197,10 +182,11 @@ object GenerateGoldGroundingTSV extends App {
 
       pw.print(row1)
     }
+    else {
+      pwRejects.print(line.mkString("\t")+"\n")
+    }
 
     if (effectStartOffset != -1) {
-//      println("Length:\t"+sentence.length())
-//      println("effectOffset:\t"+effectOffset)
 
       val allGroundings = ontologyHandler.reground(sentence, effectOffset, document)
 
@@ -218,27 +204,14 @@ object GenerateGoldGroundingTSV extends App {
 
       val propertyGroundings = allGroundings("wm_compositional/property")
       val propertyName = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._1.name else None
-
       val propertyScore = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._2 else None
-
-      //    println("FLAT:")
-      //    println(flatGroundings.headOption.get._1)
-      //
-      //    println("\nCONCEPT:")
-      //    println(conceptGroundings.headOption.get._1)
-      //
-      //    println("\nPROCESS:")
-      //    println(processGroundings.headOption.get._1)
-      //
-      //    println("\nPROPERTY:")
-      //    println(propertyGroundings.headOption.get._1)
 
       val row2 =
         "" + "\t" +
         index + "\t" +
         sentence.trim() + "\t" +
         effect + "\t" +
-        effectOffset + "\t" +
+        (effectOffset.start, effectOffset.end) + "\t" +
         flatName + "\t" +
         flatScore + "\t" +
         conceptName + "\t" +
@@ -250,6 +223,10 @@ object GenerateGoldGroundingTSV extends App {
 
       pw.print(row2)
     }
+    else {
+      pwRejects.print(line.mkString("\t")+"\n")
+    }
   }
   pw.close()
+  pwRejects.close()
 }
