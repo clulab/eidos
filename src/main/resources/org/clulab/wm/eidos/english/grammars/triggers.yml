@@ -1,4 +1,4 @@
-increase_triggers: "acceler|aggravat|aid|ameliorat|amplif|augment|boost|compound|doubl|deep|elev|enhanc|escalat|exacerbat|exorbitant|favorable|height|improv|increas|intens|maximiz|multipl(y|ie)|prolong|promot|rais|reactivat|restor|sav(e|ed|es|ing)$|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
+increase_triggers: "acceler|aggravat|ameliorat|amplif|augment|boost|compound|doubl|deep|elev|enhanc|escalat|exacerbat|exorbitant|favorable|height|improv|increas|intens|maximiz|multipl(y|ie)|prolong|promot|rais|reactivat|restor|sav(e|ed|es|ing)$|spark|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
 noncausal_increase_triggers: "above|above-average|better|climb|good|greater|heav|(highs?$)|highe(r|s)|rise|rising|(up)?surg(ed?|ing)$|upturn|widespread"
 create_triggers: "creat|generat|inspir|produce|prompt|provid"
 

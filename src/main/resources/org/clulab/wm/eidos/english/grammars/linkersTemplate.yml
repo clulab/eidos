@@ -55,17 +55,17 @@ rules:
         ([word=/(?i)^(${ trigger })/]/ ${ preps }/{,2})?
 
 
-  # Handles occurrence of prep_by when NOT passive voice
-  # misfires on "floods caused by rain"
-  - name: ported_syntax_1c_verb-${addlabel}
-    priority: ${ rulepriority }
-    example: "The water quality caused poverty by an increase in productivity."
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+#  # Handles occurrence of prep_by when NOT passive voice
+#  # misfires on "floods caused by rain"
+#  - name: ported_syntax_1c_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    example: "The water quality caused poverty by an increase in productivity."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
+#      cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+#      effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
 
   - name: advcl_by_verb-${addlabel}
     priority: ${ rulepriority }
@@ -74,7 +74,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = >advcl_by /${ conjunctions }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${objects}|${preps}/{,2})?
+      cause: Entity = >/(nmod|advcl)_by/ /${ conjunctions }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${objects}|${preps}/{,2})?
       effect: Entity = /${objects}/
 
   #Handles occurrence of prep_by when NOT passive voice
