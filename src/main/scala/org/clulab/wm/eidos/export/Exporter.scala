@@ -99,6 +99,9 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
     // Header
     pw.println(header)
     annotatedDocuments.foreach(printTableRows(_, pw, reader))
+    pw.flush()
+    pw.println()
+    pw.close()
   }
 
   def header: String = {
@@ -134,11 +137,11 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
       // For now, only put EidosEventMentions in the eval
       cause <- mention.eidosArguments("cause")
       causeInfo = EntityInfo(cause, groundAs, topN, delim = "\n")
-      causeGroundings = causeInfo.groundingStrings.head // topN in a row, tab-separated
+      causeGroundings = causeInfo.groundingStrings.head // topN in a row, newline separatec
 
       effect <- mention.eidosArguments("effect")
       effectInfo = EntityInfo(effect, groundAs, topN, delim = "\n")
-      effectGroundings = effectInfo.groundingStrings.head // topN in a row, tab-separated
+      effectGroundings = effectInfo.groundingStrings.head // topN in a row, newline separated
 
       direction = ExportUtils.poorMansIndra(cause, effect)
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
