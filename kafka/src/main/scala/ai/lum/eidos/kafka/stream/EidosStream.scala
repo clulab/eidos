@@ -1,6 +1,6 @@
 package ai.lum.eidos.kafka.stream
 
-import ai.lum.eidos.kafka.utils.Counter
+import ai.lum.eidos.kafka.utils.EidosSystem
 import ai.lum.eidos.kafka.utils.PropertiesBuilder
 import ai.lum.eidos.kafka.utils.TopologyBuilder
 import org.apache.kafka.streams.KafkaStreams

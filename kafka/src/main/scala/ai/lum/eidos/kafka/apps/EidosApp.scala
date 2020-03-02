@@ -3,14 +3,14 @@ package ai.lum.eidos.kafka.apps
 import java.time.Duration
 
 import ai.lum.eidos.kafka.stream.EidosStream
-import ai.lum.eidos.kafka.utils.Counter
+import ai.lum.eidos.kafka.utils.EidosSystem
 
 object EidosApp extends App {
   val threads = args(0).toInt
-  val counter = Counter()
+  val eidosSystem = new EidosSystem()
 
   val eidosStream = new EidosStream(
-    counter,
+    eidosSystem,
     applicationId = "eidos-stream",
     bootstrapServers = "localhost:9092",
     inputTopic = "eidos-input",
