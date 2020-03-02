@@ -7,6 +7,8 @@ import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
 
+// this app creates a spreadsheet to be filled in with gold groundings
+
 object GenerateGoldGroundingTSV extends App {
 
   // load tsv files from resources
@@ -37,7 +39,7 @@ object GenerateGoldGroundingTSV extends App {
 
   val pwRejects = new PrintWriter(rejectsFilename)
 
-  val proc = new FastNLPProcessor()
+//  val proc = new FastNLPProcessor()
   pwRejects.println(lines.head)
 
   // Regex replacement patterns
