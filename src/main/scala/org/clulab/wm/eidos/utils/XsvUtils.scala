@@ -44,11 +44,6 @@ class TsvReader() extends XsvReader(XsvUtils.tabChar) {
 }
 
 object TsvReader {
-  def unescape(text: String, separatorChar: Char): String = text
-      .replace("\\t", "\t")
-      .replace("\\r", "\r")
-      .replace("\\n", "\n")
-      .replace("\\\\", "\\")
 }
 
 class CsvReader() extends XsvReader(XsvUtils.commaChar) {
@@ -83,7 +78,7 @@ class TsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) extends XsvWr
 
   def stringlnExcel(strings: String*): String = {
     val quotedStrings = strings.map { string =>
-      val mustBeQuoted = TsvWriter.quoteableStrings.exists { separator: String =>
+      val mustBeQuoted = TsvWriter.quotableStrings.exists { separator: String =>
         string.contains(separator)
       }
 
@@ -106,7 +101,7 @@ object EscapePair {
 }
 
 object TsvWriter {
-  val quoteableStrings = Seq(
+  val quotableStrings = Seq(
     XsvUtils.nlChar.toString,
     XsvUtils.crChar.toString,
     XsvUtils.tabChar.toString,
