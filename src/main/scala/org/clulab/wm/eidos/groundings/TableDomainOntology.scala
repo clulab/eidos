@@ -80,15 +80,26 @@ object TableDomainOntology {
     def readFile(fileOpt: Option[File]): (Option[Array[String]], Option[Array[String]]) = {
       fileOpt.map { file =>
         Sourcer.sourceFromFile(file).autoClose { source =>
-          val lines = source.getLines.toArray
-          val paths = lines
-              .takeWhile { line => println(line); line.startsWith("# ") }
-              .map { line => StringUtils.afterFirst(line, ' ') }
-          assert(paths.length > 0)
-          val values = lines
-              .drop(paths.size)
-              .map { example => println(example); example }
-          (Some(paths), if (values.nonEmpty) Some(values) else None)
+          val paths = {
+            val lines = source.getLines.toArray
+            val paths = lines
+                .takeWhile { line => println(line); line.startsWith("# ") }
+                .map { line => StringUtils.afterFirst(line, ' ') }
+
+            assert(paths.length > 0)
+            paths
+          }
+          val values = {
+            val lines = source.reset.getLines.toArray
+            val values = lines.drop(paths.size)
+                .map { example => println(example); example }
+
+            values
+          }
+          // Sometimes files contain especially a blank trailing line.
+          val nonEmptyValues = values.filter(_.nonEmpty)
+
+          (Some(paths), if (values.nonEmpty) Some(nonEmptyValues) else None)
         }
       }.getOrElse((None, None))
     }
@@ -122,6 +133,8 @@ object TableDomainOntology {
         val paths = examplePathsOpt.getOrElse(patternPathsOpt.get)
 
         paths.map { path =>
+            if (examplesOpt.isDefined && examplesOpt.get.contains(""))
+              println("What happened?")
           new TableOntologyRow(path, examplesOpt, patternsOpt)
         }
       }.toArray

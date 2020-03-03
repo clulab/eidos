@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import java.io.File
 
+import org.clulab.wm.eidos.groundings.TableDomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Counter
 import org.clulab.wm.eidos.utils.FileUtils
@@ -15,7 +16,9 @@ object CullVectors extends App {
   val outputFile = new File(args(3))
   val limit = args(4).toInt
 
-  // There are some punctuation in here
+  // There are some punctuation in here such as -rrb- and -lrb-.
+  // Can these be compared to words in the sentence?
+  // They will not match with W2V though.
 
   val freqentWords = Sourcer.sourceFromFile(inFrequencyFile).autoClose { source =>
     source.getLines.take(limit).map { line =>
@@ -23,8 +26,15 @@ object CullVectors extends App {
     }.toSet
   }
 
-  // Read these from the ontology?
-  val reservedWords = Set("once", "upon", "a", "time")
+  val reservedWords = {
+    val tableDomainOntology = new TableDomainOntology.TableDomainOntologyBuilder(null, null, false)
+        .build("two_six", "../two_six")
+    val values = 0.until(tableDomainOntology.size).flatMap { index =>
+      tableDomainOntology.getValues(index)
+    }.toSet
+
+    values
+  }
 
   val (count, columns) = FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
     Sourcer.sourceFromFile(inVectorFile).autoClose { source =>
