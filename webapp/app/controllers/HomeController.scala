@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, PlayUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, MaaSUtils, PlayUtils}
 import play.api.mvc._
 import play.api.libs.json._
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
@@ -70,6 +70,23 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(jsonString).as(JSON)
   }
 
+  // -------------------------------------------
+  //      API entry points for MaaS
+  // -------------------------------------------
+
+  def mapNode: Action[AnyContent] = Action { request =>
+    val data = request.body.asJson.get.toString()
+    // Note -- topN can be exposed to the API if needed
+    Ok(MaaSUtils.mapNodeToPrimaryConcepts(ieSystem, data, topN = 10)).as(JSON)
+  }
+
+  def mapOntology: Action[AnyContent] = Action { request =>
+    val fileContents = request.body.asText.get
+    // Note -- topN can be exposed to the API if needed
+    Ok(MaaSUtils.mapOntology(ieSystem, "MaaS", fileContents, topN = 10)).as(JSON)
+  }
+
+
   // Entry method
   def parseText(text: String, cagRelevantOnly: Boolean): Action[AnyContent] = Action {
     val (doc, eidosMentions, groundedEntities) = processPlaySentence(ieSystem, text, cagRelevantOnly)
@@ -117,6 +134,47 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       Ok(parsed_output)
     }.getOrElse {
       BadRequest("Missing parameter [text]")
+    }
+  }
+
+  def reground: Action[JsValue] = Action(parse.json) { request =>
+
+    def extract(name: String): JsLookupResult = request.body \ name
+
+    try {
+      val name = extract("name").asOpt[String].getOrElse("Custom")
+      val ontologyYaml = extract("ontologyYaml").as[String]
+      val texts = extract("texts").as[JsArray].value.map { jsString =>
+        (jsString: @unchecked) match {
+          case JsString(text) => text
+        }
+      }
+      val filter = extract("filter").asOpt[Boolean].getOrElse(true)
+      val topk = extract("topk").asOpt[Int].getOrElse(10)
+      val isAlreadyCanonicalized = extract("isAlreadyCanonicalized").asOpt[Boolean].getOrElse(true)
+
+      try {
+        val ontologyHandler = ieSystem.components.ontologyHandler
+        val regroundings = ontologyHandler.reground(name, ontologyYaml, texts, filter, topk, isAlreadyCanonicalized)
+        val result = JsArray { regroundings.map { regrounding =>
+            JsArray { regrounding.map { case (grounding, score) =>
+                JsObject(Map(
+                  "grounding" -> JsString(grounding),
+                  "score" -> JsNumber(score.toDouble)
+                ))
+            }}
+        }}
+
+        Ok(result)
+      }
+      catch {
+        case throwable: Throwable =>
+          InternalServerError(JsString(s"The server couldn't handle it: ${throwable.getMessage}"))
+      }
+    }
+    catch {
+      case throwable: Throwable =>
+        BadRequest(JsString(s"The request seems to be bad: ${throwable.getMessage}"))
     }
   }
 

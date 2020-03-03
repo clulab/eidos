@@ -11,7 +11,7 @@ import org.clulab.wm.eidos.utils._
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.PostProcessing
 import org.slf4j.{Logger, LoggerFactory}
-import org.clulab.wm.eidos.actions.MigrationUtils.processMigrationEvents
+import org.clulab.wm.eidos.actions.MigrationHandler
 
 import scala.annotation.tailrec
 
@@ -130,7 +130,7 @@ class EidosSystem(val components: EidosComponents) {
 
     val afterHedging = components.hedgingHandler.detectHypotheses(cagRelevant, State(cagRelevant))
     val afterNegation = components.negationHandler.detectNegations(afterHedging)
-    val afterMigration = processMigrationEvents(afterNegation)
+    val afterMigration = components.migrationHandler.processMigrationEvents(afterNegation)
     val annotatedDocument = AnnotatedDocument(doc, afterMigration)
 
     postProcess(annotatedDocument)

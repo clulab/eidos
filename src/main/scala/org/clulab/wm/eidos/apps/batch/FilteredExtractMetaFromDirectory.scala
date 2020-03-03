@@ -18,8 +18,6 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object FilteredExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
@@ -90,12 +88,7 @@ object FilteredExtractMetaFromDirectory extends App {
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
     val files = allFiles.filter(filter)
-    val parFiles = files.par
-
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-
-    parFiles.tasksupport = forkJoinTaskSupport
+    val parFiles = ThreadUtils.parallelize(files, threads)
 
     parFiles.foreach { file =>
       try {

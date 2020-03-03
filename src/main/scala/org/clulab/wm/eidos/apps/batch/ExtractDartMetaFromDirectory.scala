@@ -4,7 +4,6 @@ import java.io.File
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps.ExtractFromDirectory.config
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
@@ -19,22 +18,19 @@ import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object ExtractDartMetaFromDirectory extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val inputDir = args(0)
-  val metaDir = args(1)
-  val outputDir = args(2)
-  val timeFile = args(3)
-  val threads = args(4).toInt
+  val outputDir = args(1)
+  val timeFile = args(2)
+  val threads = args(3).toInt
 
   val doneDir = inputDir + "/done"
   val converter = DartZipMetaUtils.convertTextToMeta _
 
-  val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val files = findFiles(inputDir, "json")
+  val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
@@ -54,10 +50,6 @@ object ExtractDartMetaFromDirectory extends App {
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
-
     parFiles.foreach { file =>
       try {
         // 1. Open corresponding output file
@@ -65,8 +57,8 @@ object ExtractDartMetaFromDirectory extends App {
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
           // 2. Get the input file contents
-          val text = FileUtils.getTextFromFile(file)
-          val json = DartZipMetaUtils.getMetaData(converter, metaDir, file)
+          val json = DartZipMetaUtils.getMetaData(file)
+          val text = DartZipMetaUtils.getDartText(json).get
           val documentCreationTime = DartZipMetaUtils.getDocumentCreationTime(json)
           val documentId = DartZipMetaUtils.getDartDocumentId(json)
           val documentTitle = DartZipMetaUtils.getDartDocumentTitle(json)

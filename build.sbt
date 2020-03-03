@@ -12,30 +12,33 @@ scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= {
-  val procVer = "7.5.4"
-  val luceneVer = "6.6.6"
+  val    procVer = "7.5.4"
+  val  luceneVer = "6.6.6"
+  val lihaoyiVer = "0.7.1"
 
   Seq(
-    "org.clulab"    %% "processors-main"          % procVer,
-    "org.clulab"    %% "processors-corenlp"       % procVer,
-    "org.clulab"    %% "processors-odin"          % procVer,
-    "org.clulab"    %% "processors-modelsmain"    % procVer,
-    "org.clulab"    %% "processors-modelscorenlp" % procVer,
-    "org.clulab"    %% "geonorm"                  % "0.9.7",
-    "org.clulab"    %% "timenorm"                 % "1.0.4",
-    "ai.lum"        %% "common"                   % "0.0.8",
-    "org.scalatest" %% "scalatest"                % "3.0.4" % "test",
-    "commons-io"    %  "commons-io"               % "2.5",
-    "com.typesafe"  %  "config"                   % "1.3.1",
-    "net.sf.saxon"  % "saxon-dom"                 % "8.7",
-    "org.slf4j"     % "slf4j-api"                 % "1.7.10",
-    "com.github.jsonld-java"     % "jsonld-java"    % "0.12.0",
-    "com.github.WorldModelers"   % "Ontologies"     % "master-SNAPSHOT",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
-    "org.apache.lucene" % "lucene-core"             % luceneVer,
-    "org.apache.lucene" % "lucene-analyzers-common" % luceneVer,
-    "org.apache.lucene" % "lucene-queryparser"      % luceneVer,
-    "org.apache.lucene" % "lucene-grouping"         % luceneVer
+    "org.clulab"                 %% "processors-main"          % procVer,
+    "org.clulab"                 %% "processors-corenlp"       % procVer,
+    "org.clulab"                 %% "processors-odin"          % procVer,
+    "org.clulab"                 %% "processors-modelsmain"    % procVer,
+    "org.clulab"                 %% "processors-modelscorenlp" % procVer,
+    "org.clulab"                 %% "geonorm"                  % "0.9.7",
+    "org.clulab"                 %% "timenorm"                 % "1.0.4",
+    "ai.lum"                     %% "common"                   % "0.0.8",
+    "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
+    "commons-io"                  % "commons-io"               % "2.5",
+    "com.typesafe"                % "config"                   % "1.3.1",
+    "net.sf.saxon"                % "saxon-dom"                % "8.7",
+    "org.slf4j"                   % "slf4j-api"                % "1.7.10",
+    "com.github.jsonld-java"      % "jsonld-java"              % "0.12.0",
+    "com.github.WorldModelers"    % "Ontologies"               % "master-SNAPSHOT",
+    "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",
+    "org.apache.lucene"           % "lucene-core"              % luceneVer,
+    "org.apache.lucene"           % "lucene-analyzers-common"  % luceneVer,
+    "org.apache.lucene"           % "lucene-queryparser"       % luceneVer,
+    "org.apache.lucene"           % "lucene-grouping"          % luceneVer,
+    "com.lihaoyi"                %% "ujson"                    % lihaoyiVer,
+    "com.lihaoyi"                %% "upickle"                  % lihaoyiVer
   )
 }
 

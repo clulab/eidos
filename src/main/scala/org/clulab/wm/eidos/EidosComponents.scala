@@ -4,6 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
+import org.clulab.wm.eidos.actions.MigrationHandler
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory
 case class EidosComponents(
   proc: EidosProcessor,
   negationHandler: NegationHandler,
+  migrationHandler: MigrationHandler,
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
   actions: EidosActions,
@@ -36,7 +38,7 @@ case class EidosComponents(
 class EidosComponentsBuilder {
   var procOpt: Option[EidosProcessor] = None
   var negationHandlerOpt: Option[NegationHandler] = None
-  var documentFilterOpt: Option[DocumentFilter] = None
+  var migrationHandlerOpt: Option[MigrationHandler] = None
   var stopwordManagerOpt: Option[StopwordManager] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
   var actionsOpt: Option[EidosActions] = None
@@ -76,12 +78,15 @@ class EidosComponentsBuilder {
         procOpt = Some(EidosProcessor(language, cutoff = 150))
         negationHandlerOpt = Some(NegationHandler(language))
       }
-      // Prunes sentences form the Documents to reduce noise/allow reasonable processing time
-      documentFilterOpt = Some(FilterByLength(procOpt.get, cutoff = 150))
       stopwordManagerOpt = Some(StopwordManager.fromConfig(config))
       ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get))
     }
 
+    migrationHandlerOpt = {
+      val keepMigrationEvents = eidosConf[Boolean]("keepMigrationEvents")
+
+      Some(MigrationHandler(keepMigrationEvents))
+    }
     actionsOpt = Some(EidosActions.fromConfig(config[Config]("actions")))
     engineOpt = { // ODIN component
       val masterRulesPath: String = eidosConf[String]("masterRulesPath")
@@ -119,6 +124,7 @@ class EidosComponentsBuilder {
     EidosComponents(
       procOpt.get,
       negationHandlerOpt.get,
+      migrationHandlerOpt.get,
       stopwordManagerOpt.get,
       ontologyHandlerOpt.get,
       actionsOpt.get,

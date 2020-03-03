@@ -17,7 +17,6 @@ import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 
 import scala.collection.mutable
-import scala.collection.parallel.ForkJoinTaskSupport
 
 object ExtractMetaFromDirectoryWithId extends App {
   val inputDir = args(0)
@@ -47,7 +46,7 @@ object ExtractMetaFromDirectoryWithId extends App {
   val converter = EidosMetaUtils.convertTextToMeta _
 
   val files = findFiles(inputDir, "txt")
-  val parFiles = files.par
+  val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
     val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
@@ -62,10 +61,6 @@ object ExtractMetaFromDirectoryWithId extends App {
     timer.stop()
 
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
-
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-    parFiles.tasksupport = forkJoinTaskSupport
 
     parFiles.foreach { file =>
       try {
