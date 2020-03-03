@@ -17,7 +17,7 @@ object ExportUtils {
       case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
       case "groundingEval" => GroundingEvalExporter(filename + ".groundingEval.tsv", reader, filename, groundAs, topN)
       case "serialized" => SerializedExporter(filename)
-      case "grounding" => GroundingExporter(FileUtils.printWriterFromFile(filename + ".ground.tsv"), reader, groundAs)
+      case "grounding" => GroundingExporter(FileUtils.printWriterFromFile(filename + ".ground.csv"), reader, groundAs, topN)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }
@@ -46,6 +46,16 @@ object ExportUtils {
     for (t <- decTriggers) sb.append(s"Decrease($t)")
 
     sb.mkString(", ")
+  }
+
+  def poorMansIndra(cause: EidosMention, effect: EidosMention): String = {
+    def numDec(em: EidosMention): Int = em.odinMention.attachments.collect{case dec: Decrease => dec}.size
+    def numInc(em: EidosMention): Int = em.odinMention.attachments.collect{case inc: Increase => inc}.size
+
+    val effectPolarity = if (numDec(effect) > numInc(effect)) -1 else 1
+    val causePolarity = if (numDec(cause) > numInc(cause)) -1 else 1
+
+    if (effectPolarity * causePolarity > 0) "PROMOTE" else "INHIBIT"
   }
 
   def removeTabAndNewline(s: String): String = s.replaceAll("(\\n|\\t)", " ")

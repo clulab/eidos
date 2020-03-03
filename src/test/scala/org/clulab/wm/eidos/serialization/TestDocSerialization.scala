@@ -19,7 +19,7 @@ import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 
 class TestDocSerialization extends Test {
-  val config: Config = EidosSystem.defaultConfig
+  val config: Config = this.defaultConfig // Do not use EidosSystem's defaultConfig!
   val reader: EidosSystem = new EidosSystem(config)
   val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
   val canonicalizer: Canonicalizer = reader.components.ontologyHandler.canonicalizer

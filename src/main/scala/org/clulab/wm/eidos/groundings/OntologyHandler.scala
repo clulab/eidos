@@ -5,8 +5,8 @@ import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.{EidosSystem, SentencesExtractor}
-import org.clulab.wm.eidos.document.{AnnotatedDocument, PostProcessing}
+import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
@@ -20,7 +20,26 @@ class OntologyHandler(
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer,
   val includeParents: Boolean
-) extends PostProcessing {
+) {
+
+  def ground(eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
+    EidosMention.findReachableEidosMentions(eidosMentions).foreach { eidosMention =>
+      eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
+
+      val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
+        val name: String = ontologyGrounder.name
+        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold = Option(0.5f))
+        val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
+          OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
+        }
+
+        nameAndOntologyGroundings
+      }.toMap
+
+      eidosMention.grounding = ontologyGroundings
+    }
+    eidosMentions
+  }
 
   protected def process(eidosMention: EidosMention): Unit = {
     // If any of the grounders needs their own version, they'll have to make it themselves.
@@ -45,6 +64,7 @@ class OntologyHandler(
     }
     annotatedDocument
   }
+
 
   def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundings = {
     // This is assuming that there is just one sentence and the interval falls within it.  That may
@@ -141,7 +161,7 @@ class OntologyHandler(
 
       val eidosMention = eidosMentions.head
 
-      process(eidosMention)
+      ground(eidosMentions)
       eidosMention.grounding
     }
     catch {
@@ -206,17 +226,18 @@ object OntologyHandler {
   def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager): OntologyHandler = {
     val canonicalizer = new Canonicalizer(stopwordManager)
     val cacheDir: String = config[String]("cacheDir")
-    val useCached: Boolean = config[Boolean]("useCache")
+    val useCacheForOntologies: Boolean = config[Boolean]("useCacheForOntologies")
+    val useCacheForW2V: Boolean = config[Boolean]("useCacheForW2V")
     val includeParents: Boolean = config[Boolean]("includeParents")
     val eidosWordToVec: EidosWordToVec = {
       // This isn't intended to be (re)loadable.  This only happens once.
       OntologyHandler.logger.info("Loading W2V...")
       EidosWordToVec(
-        config[Boolean]("useW2V"),
+        config[Boolean]("useGrounding"),
         config[String]("wordToVecPath"),
         config[Int]("topKNodeGroundings"),
         cacheDir,
-        useCached
+        useCacheForW2V
       )
     }
     // Load enabled ontologies
@@ -227,7 +248,7 @@ object OntologyHandler {
         val ontologyGrounders: Seq[OntologyGrounder] = ontologyNames.map { ontologyName =>
           val path: String = config[String](ontologyName)
           val domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
-              useCached, includeParents)
+              useCacheForOntologies, includeParents)
           val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
 
           grounder

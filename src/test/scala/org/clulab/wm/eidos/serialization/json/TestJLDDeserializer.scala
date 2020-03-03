@@ -53,7 +53,7 @@ class TestJLDDeserializer extends ExtractionTest {
 //    val documentCreationTime: Option[String] = Some("This is a test")
     val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
-      documentCreationTime, id = None)
+      documentCreationTime, idOpt = None)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
@@ -878,7 +878,7 @@ class TestJLDDeserializer extends ExtractionTest {
   testCrossSentenceEventMention()
 
   // Do not run this last test on Travis, but instead periodically on a real corpus
-  // with all options enabled (useW2V, useTimeNorm, useGeoNorm, etc.)
+  // with all options enabled (useGrounding, useTimeNorm, useGeoNorm, etc.)
 //  testTextFiles("../corpora/Doc52/txt")
 //  testJsonldFiles("../jsonldtmp")
 }
