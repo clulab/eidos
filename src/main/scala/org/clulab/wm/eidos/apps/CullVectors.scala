@@ -45,7 +45,9 @@ object CullVectors extends App {
       lines.foreach { line =>
         val word = StringUtils.beforeFirst(line, ' ')
 
-        if (reservedWords.contains(word) || freqentWords.contains(word) ||  freqentWords.contains(word.toLowerCase)) {
+        if (reservedWords.contains(word) || freqentWords.contains(word) ||
+            // Should reserved words be lowercased itself?  Assume they already are unless case is important.
+            reservedWords.contains(word.toLowerCase) || freqentWords.contains(word.toLowerCase)) {
           counter.inc()
           printWriter.println(line)
         }
