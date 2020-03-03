@@ -9,8 +9,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.First
 import org.clulab.wm.eidos.utils.StringUtils
-import org.clulab.wm.eidos.utils.TsvUtils
-import org.clulab.wm.eidos.utils.TsvUtils.TsvWriter
+import org.clulab.wm.eidos.utils.TsvReader
+import org.clulab.wm.eidos.utils.TsvWriter
 
 import scala.io.Source
 
@@ -266,14 +266,15 @@ object EvalOntologyGrounders extends App {
     new PrintWriter(outputFile, "UTF-8").autoClose { printWriter =>
       lazy val eidosSystem = new EidosSystem()
       val tsvWriter = new TsvWriter(printWriter)
+      val tsvReader = new TsvReader
       val first = First()
       val scores = new Scores
 
       source.getLines.foreach { line =>
-        val fields = TsvUtils.readln(line)
+        val fields = tsvReader.readln(line)
 
         if (first.isTrue) {
-          val newLine = TsvUtils.stringln(fields: _*)
+          val newLine = tsvWriter.stringln(fields: _*)
 
           if (line != newLine) throw new RuntimeException("The file doesn't seem to be formatted as expected.")
           else printWriter.println(line)

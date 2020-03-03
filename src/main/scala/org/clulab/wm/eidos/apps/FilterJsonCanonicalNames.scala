@@ -7,7 +7,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.TsvUtils.TsvWriter
+import org.clulab.wm.eidos.utils.TsvWriter
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JObject
@@ -16,11 +16,10 @@ import org.json4s.jackson.JsonMethods
 
 object FilterJsonCanonicalNames extends App {
 
-  class Filter(printWriter: PrintWriter) {
+  class Filter(tsvWriter: TsvWriter) {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
-    protected val writer = new TsvWriter(printWriter)
 
-    writer.println("file", "id", "text", "canonicalName")
+    tsvWriter.println("file", "id", "text", "canonicalName")
 
     def filter(jValue: JValue, inputFile: File): Unit = {
       val extractions: JValue = jValue \\ "extractions"
@@ -32,7 +31,7 @@ object FilterJsonCanonicalNames extends App {
             val text = (extraction \ "text").extract[String]
             val canonicalName = (extraction \ "canonicalName").extract[String]
 
-            writer.println(inputFile.getName, id, text, canonicalName)
+            tsvWriter.println(inputFile.getName, id, text, canonicalName)
           }
         case JObject(_) =>
         case _ => throw new RuntimeException(s"Unexpected extractions value: $extractions")
@@ -44,8 +43,8 @@ object FilterJsonCanonicalNames extends App {
   val extension = args(1)
   val outputFile = args(2)
 
-  Sinker.printWriterFromFile(outputFile).autoClose { printWriter =>
-    val filter = new Filter(printWriter)
+  new TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
+    val filter = new Filter(tsvWriter)
     val inputFiles = findFiles(inputDir, extension)
 
     inputFiles.sortBy(_.getName).foreach { inputFile =>
