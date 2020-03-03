@@ -17,7 +17,7 @@ object GenerateGoldGroundingTSV extends App {
   val lines: Array[String] = fileAsString.split("\n")
 
   var outFilename = "compositionalGrounderTestDoc/gold_groundings.tsv"
-  var rejectsFilename = "compositionalGrounderTestDoc/rejected_sentences.txt"
+  var rejectsFilename = "compositionalGrounderTestDoc/rejected_sentences.tsv"
 
   val header =
     "GOLD Annotated?\t" +
