@@ -116,7 +116,7 @@ class FullOntologyLeafNode(
 
   def branch: Option[String] = parent.branch
 
-  override def toString: String = fullName + " = " + values.toList
+  override def toString: String = fullName // + " = " + values.toList
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[FullOntologyParentNode] = parents(parentOpt.get)
