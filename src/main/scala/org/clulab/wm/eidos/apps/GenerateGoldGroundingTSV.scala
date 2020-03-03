@@ -25,6 +25,7 @@ object GenerateGoldGroundingTSV extends App {
     "Sentence\t" +
     "Entity\t" +
     "Character Offsets\t" +
+    "Cause/Effect\t" +
     "GOLD Flat Grounding\t" +
     "GOLD Flat Grounding Score\t" +
     "GOLD Concept Grounding\t" +
@@ -173,6 +174,7 @@ object GenerateGoldGroundingTSV extends App {
         sentence.trim() + "\t" +
         cause + "\t" +
         (causeOffset.start, causeOffset.end) + "\t" +
+        "cause" + "\t" +
         flatName + "\t" +
         flatScore + "\t" +
         conceptName + "\t" +
@@ -214,6 +216,7 @@ object GenerateGoldGroundingTSV extends App {
         sentence.trim() + "\t" +
         effect + "\t" +
         (effectOffset.start, effectOffset.end) + "\t" +
+        "effect" + "\t" +
         flatName + "\t" +
         flatScore + "\t" +
         conceptName + "\t" +
