@@ -17,11 +17,11 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 object EvalGroundings extends App {
 
   // load tsv file of annotated gold groundings
-  val originalFile = FileUtils.getTextFromFile("compositionalGrounderTestDoc/gold_groundings_annotated.tsv")
+  val originalFile = FileUtils.getTextFromFile("grounderEvalResources/gold_groundings_annotated.tsv")
   val fileAsString: String = originalFile.toString
   val lines: Array[String] = fileAsString.split("\n")
 
-  var outFilename = "compositionalGrounderTestDoc/groundingEval.tsv"
+  var outFilename = "grounderEvalResources/evaluation_results.tsv"
   val header =
       "Index\t" +
       "Sentence\t" +
@@ -100,19 +100,19 @@ object EvalGroundings extends App {
       val allGroundings = ontologyHandler.reground(sentence, interval, document)
 
       // get top 5 groundings for each grounder/branch
-      val top5flat = getTop5(allGroundings, "wm_flattened")
-      val top5concept = getTop5(allGroundings, "wm_compositional/concept")
-      val top5process = getTop5(allGroundings, "wm_compositional/process")
-      val top5property = getTop5(allGroundings, "wm_compositional/property")
+      val top5flat      = getTop5(allGroundings, "wm_flattened")
+      val top5concept   = getTop5(allGroundings, "wm_compositional/concept")
+      val top5process   = getTop5(allGroundings, "wm_compositional/process")
+      val top5property  = getTop5(allGroundings, "wm_compositional/property")
 
-      var flatCorrect = false
-      var conceptCorrect = false
-      var processCorrect = false
+      var flatCorrect     = false
+      var conceptCorrect  = false
+      var processCorrect  = false
       var propertyCorrect = false
 
-      var matchedFlat = "None"
-      var matchedConcept = "None"
-      var matchedProcess = "None"
+      var matchedFlat     = "None"
+      var matchedConcept  = "None"
+      var matchedProcess  = "None"
       var matchedProperty = "None"
 
 //      println("Sentence:\t"+index)
