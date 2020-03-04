@@ -67,6 +67,7 @@ object EidosAttachment {
         case Property.label => new Property(trigger, someQuantifications)
         case Hedging.label => new Hedging(trigger, someQuantifications)
         case Negation.label => new Negation(trigger, someQuantifications)
+        case TimeModifier.label => new TimeModifier(trigger, someQuantifications)
       }
     }
     .getOrElse {
@@ -624,6 +625,33 @@ object DCTime {
       left.text.compareTo(right.text)
   }
 }
+
+@SerialVersionUID(1L)
+class TimeModifier(trigger: String, quantifiers: Option[Seq[String]],
+                     triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+  extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDTriggeredAttachment(serializer, TimeModifier.kind)
+
+  override def toJson: JValue = toJson(TimeModifier.label)
+}
+
+object TimeModifier {
+  val label = "TimeModifier"
+  val kind = "TIMEMODIFIER"
+  val argument = "adverb"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new TimeModifier(trigger, quantifiers)
+
+  def apply(mention: Mention): TimeModifier = {
+    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
+
+    new TimeModifier(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+      attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
+  }
+}
+
 
 @SerialVersionUID(1L)
 class Score(val score: Double) extends EidosAttachment {
