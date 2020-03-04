@@ -11,9 +11,8 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
+import org.clulab.wm.eidos.utils.{CsvWriter, ExportUtils, FileUtils, MentionUtils}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.CsvWriter
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
 
 
@@ -73,8 +72,8 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
       factor_a_info = EntityInfo(cause, groundAs)
 
-      trigger = mention.odinMention.asInstanceOf[EventMention].trigger
-      relation_txt = ExportUtils.removeTabAndNewline(trigger.text)
+      trigger = MentionUtils.triggerOpt(mention).getOrElse("")
+      relation_txt = ExportUtils.removeTabAndNewline(trigger)
       relation_norm = mention.label // i.e., "Causal" or "Correlation"
       relation_modifier = ExportUtils.getModifier(mention) // prob none
 
@@ -114,7 +113,10 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
         "Relation Score",
         "Annotator",
         "Evidence",
-        "Comments"
+        "Comments",
+        "Trigger",
+        "Rule",
+        "Negated",
       )
       annotatedDocuments.foreach(printTableRows(_, csvWriter, reader))
       csvWriter.println()
@@ -139,7 +141,9 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       effectInfo = EntityInfo(effect, groundAs, topN, delim = "\n")
       effectGroundings = effectInfo.groundingStrings.head // topN in a row, newline separated
 
+      trigger = MentionUtils.triggerOpt(mention).getOrElse("")
       direction = ExportUtils.poorMansIndra(cause, effect)
+      negation = if (MentionUtils.hasNegation(mention)) "TRUE" else "false"
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
     } csvWriter.println(
       docID,
@@ -156,7 +160,10 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       "", // relation score
       "", // annotator
       evidence,
-      "" // comments
+      "" // comments,
+      trigger,
+      mention.odinMention.foundBy,
+      negation,
     )
   }
 }
