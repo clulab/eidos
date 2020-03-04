@@ -194,6 +194,8 @@ lazy val webapp = project
 
 lazy val elasticsearch = project
 
+lazy val sparql = project
+
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
   // See https://github.com/sbt/sbt-assembly.
