@@ -12,7 +12,8 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
       tag.startsWith("JJ")
 
 
-  def isCanonical(lemma: String, tag: String, ner: String): Boolean =
+  // Here we use the lemma because the stopwords etc are written against them
+  def isCanonicalLemma(lemma: String, tag: String, ner: String): Boolean =
       isContentTag(tag) &&
       !stopwordManaging.containsStopwordStrict(lemma) &&
       !StopwordManager.STOP_NER.contains(ner)
@@ -29,7 +30,7 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
     // Here we use words because the embeddings are expecting words
     val contentWords = for {
       i <- words.indices
-      if isCanonical(lemmas(i), tags(i), ners(i))
+      if isCanonicalLemma(lemmas(i), tags(i), ners(i))
       if !attachmentWords.contains(words(i))
     } yield words(i)
 
