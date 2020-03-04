@@ -79,8 +79,7 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]]) extend
   def find(doc: Document, initialState: State): Seq[Mention] = {
     val Some(text) = doc.text // Document must have a text.
     val mentions = for {(sentence, sentenceIndex) <- doc.sentences.zipWithIndex
-                        matches = sentence.lemmas.get.zipWithIndex.iterator.sliding(2, 1).filter(_(1)._1 == "season")
-                        m <- matches
+                        m <- sentence.lemmas.get.zipWithIndex.iterator.sliding(2, 1).filter(_.last._1 == "season")
                         seasonMention = closestMention(m, sentenceIndex, sentence.size, initialState)
                         if seasonMention.isDefined
     } yield {
