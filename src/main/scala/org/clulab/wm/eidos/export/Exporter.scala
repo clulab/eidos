@@ -13,6 +13,7 @@ import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.CsvWriter
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
 
 
@@ -94,38 +95,33 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
   }
 }
 
-case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
+case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
+
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
-    // Header
-    pw.println(header)
-    annotatedDocuments.foreach(printTableRows(_, pw, reader))
-    pw.flush()
-    pw.println()
-    pw.close()
+    new CsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { csvWriter =>
+      csvWriter.println(
+        "DocID",
+        "Sentence ID",
+        "Cause Text",
+        "Cause Canonical Name",
+        "TopN Groundings",
+        "Cause Score",
+        "Direction",
+        "Effect Text",
+        "Effect Canonical Name",
+        "TopN Groundings",
+        "Effect Score",
+        "Relation Score",
+        "Annotator",
+        "Evidence",
+        "Comments"
+      )
+      annotatedDocuments.foreach(printTableRows(_, csvWriter, reader))
+      csvWriter.println()
+    }
   }
 
-  def header: String = {
-    val headerRow = Seq(
-      "DocID",
-      "Sentence ID",
-      "Cause Text",
-      "Cause Canonical Name",
-      "TopN Groundings",
-      "Cause Score",
-      "Direction",
-      "Effect Text",
-      "Effect Canonical Name",
-      "TopN Groundings",
-      "Effect Score",
-      "Relation Score",
-      "Annotator",
-      "Evidence",
-      "Comments"
-    )
-    headerRow.mkString(",")
-  }
-
-  def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, reader: EidosSystem): Unit = {
+  def printTableRows(annotatedDocument: AnnotatedDocument, csvWriter: CsvWriter, reader: EidosSystem): Unit = {
     val causalMentions = annotatedDocument.eidosMentions.filter(m => m.label == EidosSystem.CAUSAL_LABEL)
 
     for {
@@ -145,30 +141,24 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
 
       direction = ExportUtils.poorMansIndra(cause, effect)
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
-
-      row = Seq(
-        docID,
-        sentenceId.toString,
-        causeInfo.text.normalizeSpace,
-        causeInfo.canonicalName.normalizeSpace,
-        causeGroundings,
-        "", // cause grounding score
-        direction,
-        effectInfo.text.normalizeSpace,
-        effectInfo.canonicalName.normalizeSpace,
-        effectGroundings,
-        "", // effect grounding score
-        "", // relation score
-        "", // annotator
-        evidence,
-        "", // comments
-      )
-
-      escaped = row.map(_.escapeCsv)
-
-    } pw.println(escaped.mkString(","))
+    } csvWriter.println(
+      docID,
+      sentenceId.toString,
+      causeInfo.text.normalizeSpace,
+      causeInfo.canonicalName.normalizeSpace,
+      causeGroundings,
+      "", // cause grounding score
+      direction,
+      effectInfo.text.normalizeSpace,
+      effectInfo.canonicalName.normalizeSpace,
+      effectGroundings,
+      "", // effect grounding score
+      "", // relation score
+      "", // annotator
+      evidence,
+      "" // comments
+    )
   }
-
 }
 
 
