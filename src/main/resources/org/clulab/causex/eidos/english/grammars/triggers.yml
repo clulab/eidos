@@ -1,0 +1,17 @@
+increase_triggers: "acceler|aggravat|aid|ameliorat|amplif|augment|boost|compound|doubl|deep|elev|enhanc|escalat|exacerbat|exorbitant|favorable|height|improv|increas|intens|maximiz|multipl(y|ie)|prolong|promot|rais|reactivat|restor|sav(e|ed|es|ing)$|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
+noncausal_increase_triggers: "above|above-average|better|climb|good|greater|heav|(highs?$)|highe(r|s)|provid|rise|rising|(up)?surg(ed?|ing)$|upturn|widespread"
+
+decrease_triggers: "abat|alleviat|attenu|abolish|abrog|arrest|block|collaps|constrain|curtail|(cuts?$)|cutting|damag|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|difficult|diminish|disrupt|down-reg|downreg|drain|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|hamper|hinder|limit|less|lower|minimiz|mitigat|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin|worse"
+
+noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|(fall$)|fail|(fell$)|inactiv|inadequate|knockdown|lack|loss|(lows?$)|plummet|poor|scarce|scarcity|shortage|shutdown"
+#advers|perturb|resist|
+
+# NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
+cause_triggers: "activat|allow|because|cataly|caus|contribut|driv|elicit|enabl|force|forcing|help|induc|(initiat[e|(ed)|(ing)]?$)|interconvert|lead|^led$|mediat|modulat|produc[e|i]|signal|synthes|trigger|underli"
+#nonavoid_causal_triggers: "produc[ei]$"
+reverse_direction_cause_triggers: "result|effect|consequence"
+
+affect_triggers: "affect|alter|(displaces?$)|chang|influenc|modifi|modify"
+nonavoid_affect_triggers: "impact"
+
+correlation_triggers: "associat|coincid|link|relat"

@@ -1,0 +1,24 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+rules:
+
+  - name: timeattachment1
+    priority: ${ rulepriority }
+    example: "reaching record levels in July."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      time: Time
+      entity: Entity = </^nmod/ >nmod_in?
+
+
+
+  - name: timeattachment2
+    priority: ${ rulepriority }
+    example: "Rainfall season has started this month."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      time: Time
+      entity: Entity = </^nmod/ >/^nsubj/
+

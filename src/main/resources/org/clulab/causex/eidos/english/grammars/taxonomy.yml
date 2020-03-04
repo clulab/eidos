@@ -1,0 +1,26 @@
+- Entity:
+  - Param
+  - Agrovoc
+  - Concept
+- Property
+- Quantifier
+- Event:
+  - HumanMigration
+  - EntityModifier:
+    - Quantification
+    - Increase
+    - Decrease
+    - Time
+    - Location:
+      - Location-NN
+      - Location-Expand
+  - EntityLinker:
+    - DirectedRelation:
+      - Causal
+      - IsA
+      - Coreference
+    - UndirectedRelation:
+      - Correlation
+      - SameAs
+- Avoid:
+  - Avoid-Strict

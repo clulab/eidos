@@ -1,0 +1,85 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+
+rules:
+# ------------------- Specific Decrease --------------------------
+
+  - name: Decrease_explicit_notpossible_1
+    priority: ${ rulepriority }
+    example: "... X has not been possible ..."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(possible|available)/ & tag=/JJ/ & outgoing=neg]
+      theme: Entity = /${agents}/
+      #quantifier:Quantifier? = ${quant_modifiers}
+
+  # Surely this can be made more generic, but it's a start
+  - name: Decrease_explicit_notoccuring_2
+    priority: ${ rulepriority }
+    example: "... X is no longer occurring ..."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = no longer [word=/(?i)^(occur)/]
+      theme: Entity = /${agents}/
+
+  # Surely this can be made more generic, but it's a start
+  - name: Decrease_explicit_limited-to-no
+    priority: ${ rulepriority }
+    example: "... X is no longer occurring ..."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(limit|little)/] to no
+      theme: Entity = <neg
+
+  - name: Decrease_explicit_neg_dep
+    priority: ${ rulepriority }
+    example: "... was no exchange of goods ..."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [incoming=neg]
+      theme: Entity = <neg
+
+  # Surely this can be made more generic, but it's a start
+  - name: Decrease_explicit_little_if_any
+    priority: ${ rulepriority }
+    example: "Currently, most crop cultivation  produces little if any marketable surplus."
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = little if any
+      theme: Entity = >nmod_if
+
+  - name: Decrease_explicit_brought_down
+    priority: ${ rulepriority }
+    example: "He said in order to boost intra-African trade , tariffs needed to be brought down "
+    label: Decrease
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=bring] down
+      theme: Entity = >/dobj|^nsubjpass/
+
+# ------------------- Specific Increase --------------------------
+
+  - name: increase_explicit_increaseup_1
+    priority: ${ rulepriority }
+    example: "We have started ramping up food and nutrition support, but much more is needed to keep things from deteriorating even further during the lean season"
+    label: Increase
+    action: ${ action }
+    pattern: |
+      trigger = [lemma=/^(ramp|turn)/] up
+      theme: Entity  = dobj compound?
+
+  - name: increase_explicit_doubled_1
+    priority: ${ rulepriority }
+    example: "prices have more than doubled"
+    label: Increase
+    action: ${ action }
+    pattern: |
+      trigger = (more than|almost|approximately) [lemma=/^(double|triple)/]
+      theme: Entity  = /${agents}/
+
+
