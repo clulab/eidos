@@ -26,16 +26,17 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
 
     val attachmentWords = odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
 
-    val contentLemmas = for {
-      i <- lemmas.indices
+    // Here we use words because the embeddings are expecting words
+    val contentWords = for {
+      i <- words.indices
       if isCanonical(lemmas(i), tags(i), ners(i))
       if !attachmentWords.contains(words(i))
-    } yield lemmas(i)
+    } yield words(i)
 
-    if (contentLemmas.isEmpty)
+    if (contentWords.isEmpty)
       words   // fixme -- better and cleaner backoff
     else
-      contentLemmas
+      contentWords
   }
 
   /**
