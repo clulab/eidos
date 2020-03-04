@@ -4,17 +4,13 @@
 # These *are* included when grounding eidos, but
 # not part of the "contentful" determination
 #
-access
 adult
 availability
 belief
-capacity
 child
 childhood
-consumption
 country
 cow
-diagnosis
 exposure
 family
 finding
@@ -27,7 +23,6 @@ human
 improvement
 incidence
 individual
-intervention
 lifestyle
 man
 mechanism
@@ -39,17 +34,12 @@ pastoralist
 patient
 people
 persistence
-policy
-program
 project
 proposal
 rat
 safety
 risk
 smallholder
-susceptibility
 symptom
 treatment
 woman
-work
-

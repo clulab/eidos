@@ -71,8 +71,6 @@ achievement
 activity
 addition
 adjustment
-administration
-agent
 aim
 algorithm
 alteration
@@ -82,7 +80,6 @@ attempt
 auc
 author
 authors
-barrier
 case
 category
 change
@@ -90,7 +87,6 @@ cohort
 combination
 concentration
 concept
-concern
 conclusion
 condition
 consequence
@@ -119,9 +115,7 @@ indication
 insight
 intake
 kind
-knowledge
 level
-manuscript
 measure
 measurement
 mg
@@ -151,10 +145,8 @@ sample
 series
 situation
 size
-state
 status
 step
-strategy
 study
 substance
 technique
