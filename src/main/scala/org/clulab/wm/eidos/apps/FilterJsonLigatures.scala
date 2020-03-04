@@ -6,7 +6,6 @@ import java.util.regex.Pattern
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.TsvUtils.TsvWriter
 import org.json4s.DefaultFormats
@@ -43,7 +42,7 @@ object FilterJsonLigatures extends App {
 
   Sinker.printWriterFromFile(outputFile).autoClose { printWriter =>
     val filter = new Filter(printWriter)
-    val inputFiles = findFiles(inputDir, extension)
+    val inputFiles = FileUtils.findFiles(inputDir, extension)
 
     inputFiles.sortBy(_.getName).foreach { inputFile =>
       val text = FileUtils.getTextFromFile(inputFile)

@@ -3,14 +3,15 @@ package org.clulab.wm.eidos.apps.batch
 import java.io.File
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidos.utils.meta.CluText
 import org.json4s.DefaultFormats
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods
 
-object FilterCdrExtractedText extends App {
+object SeparateCdrTextFromDirectory extends App {
 
   class Filter(outputDir: String) {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
@@ -19,7 +20,7 @@ object FilterCdrExtractedText extends App {
       println(s"Extracting from ${inputFile.getName}")
       val jString: JValue = jValue \ "extracted_text"
       val text: String = jString.extract[String]
-      val outputFile = new File(outputDir + "/" + StringUtils.beforeLast(inputFile.getName, '.')) + ".txt"
+      val outputFile = FileEditor(inputFile).setDir(outputDir).setExt("txt").get
 
       FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
         printWriter.print(text)
@@ -29,12 +30,12 @@ object FilterCdrExtractedText extends App {
 
   val inputDir = args(0)
   val outputDir = args(1)
-  val inputFiles = findFiles(inputDir, "json")
+  val inputFiles = FileUtils.findFiles(inputDir, "json")
   val filter = new Filter(outputDir)
 
   inputFiles.foreach { inputFile =>
-    val text = FileUtils.getTextFromFile(inputFile)
-    val json = JsonMethods.parse(text)
+    val json = CluText.getJValue(inputFile)
+
     filter.filter(inputFile, json)
   }
 }

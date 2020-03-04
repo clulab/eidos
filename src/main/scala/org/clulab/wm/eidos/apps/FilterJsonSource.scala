@@ -4,8 +4,8 @@ import java.io.File
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.StringUtils
 import org.json4s.DefaultFormats
 import org.json4s.JObject
@@ -23,7 +23,7 @@ object FilterJsonSource extends App {
       extractions match {
         case jObject: JObject =>
           val json = stringify(jObject, pretty = true)
-          val path = outputDir + "/" + inputFile.getName
+          val path = FileEditor(inputFile).setDir(outputDir).get
 
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(json)
@@ -37,7 +37,7 @@ object FilterJsonSource extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val filter = new Filter(outputDir)
-  val inputFiles = findFiles(inputDir, ".json")
+  val inputFiles = FileUtils.findFiles(inputDir, "json")
 
   inputFiles.sortBy(_.getName).foreach { inputFile =>
     val text = FileUtils.getTextFromFile(inputFile)

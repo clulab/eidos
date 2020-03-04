@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.apps
 import java.io.File
 
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JNothing
@@ -40,7 +39,7 @@ object FilterJsonExtractions extends App {
 
   val inputDir = args(0)
   val extension = args(1)
-  val inputFiles = findFiles(inputDir, extension)
+  val inputFiles = FileUtils.findFiles(inputDir, extension)
   val filter = new Filter()
 
   inputFiles.foreach { inputFile =>
