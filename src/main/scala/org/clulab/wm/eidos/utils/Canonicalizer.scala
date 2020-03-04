@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.odin.Mention
 import org.clulab.processors.Sentence
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 
@@ -19,20 +20,20 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
       !stopwordManaging.containsStopwordStrict(lemma) &&
       !StopwordManager.STOP_NER.contains(ner)
 
-  def canonicalWordsFromSentence(s: Sentence, attachmentWords: Set[String] = Set()): Seq[String] = {
+  def canonicalWordsFromSentence(s: Sentence, tokenInterval: Interval, attachmentWords: Set[String] = Set()): Seq[String] = {
     val words = s.words
     val lemmas = s.lemmas.get
     val tags = s.tags.get
     val ners = s.entities.get
     // Here we use words because the embeddings are expecting words
     val contentWords = for {
-      i <- words.indices
+      i <- tokenInterval.start until tokenInterval.end
       if isCanonicalLemma(lemmas(i), tags(i), ners(i))
       if !attachmentWords.contains(words(i))
     } yield words(i)
 
     if (contentWords.isEmpty)
-      words   // fixme -- better and cleaner backoff
+      words.slice(tokenInterval.start, tokenInterval.end)   // fixme -- better and cleaner backoff
     else
       contentWords
   }
@@ -40,7 +41,7 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
   // This is the filtering method for deciding what makes it into the canonical name and what doesn't.
   def canonicalTokensSimple(odinMention: Mention): Seq[String] = {
     val attachmentWords = odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
-    canonicalWordsFromSentence(odinMention.sentenceObj, attachmentWords)
+    canonicalWordsFromSentence(odinMention.sentenceObj, odinMention.tokenInterval, attachmentWords)
   }
 
   /**

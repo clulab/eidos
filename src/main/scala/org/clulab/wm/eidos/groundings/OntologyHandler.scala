@@ -106,7 +106,7 @@ class OntologyHandler(
       for {
         s <- sentencesExtractor.extractSentences(text)
         // FIXME: added a reminder here that we are NOT currently omitting attachment words in the regrounding!
-        word <- canonicalizer.canonicalWordsFromSentence(s, attachmentWords = Set())
+        word <- canonicalizer.canonicalWordsFromSentence(s, Interval(0, s.words.length), attachmentWords = Set())
       } yield word
     }
 
