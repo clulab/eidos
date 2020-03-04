@@ -65,7 +65,7 @@ object ExtractDartMetaFromDirectoryES extends App {
           val documentTitle = DartEsMetaUtils.getDartDocumentTitle(json)
           val documentLocation = DartEsMetaUtils.getDartDocumentLocation(json)
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dct = documentCreationTime, id = documentId))
+          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dctOpt = documentCreationTime, idOpt = documentId))
           documentTitle.foreach { documentTitle => TitleDocumentAttachment.setTitle(annotatedDocuments.head.document, documentTitle) }
           documentLocation.foreach { documentLocation => LocationDocumentAttachment.setLocation(annotatedDocuments.head.document, documentLocation) }
           // 4. Convert to JSON
