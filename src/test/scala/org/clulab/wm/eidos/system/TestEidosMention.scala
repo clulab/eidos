@@ -106,7 +106,7 @@ than in the corresponding period two years earlier.
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
     decrease.head.canonicalName = canonicalizer.canonicalize(decrease.head)
-    decrease.head.canonicalName should be ("seasonal rainfall decrease government policy")
+    decrease.head.canonicalName should be ("seasonal rainfall decreased government policy")
 
     // Since we filter out the text from attachments, "price" should be removed (Property attachment)
     val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")
