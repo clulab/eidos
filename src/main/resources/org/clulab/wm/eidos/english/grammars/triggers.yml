@@ -1,4 +1,4 @@
-increase_triggers: "acceler|aggravat|aid|ameliorat|amplif|augment|boost|compound|doubl|deep|elev|enhanc|escalat|exacerbat|exorbitant|favorable|height|improv|increas|intens|maximiz|multipl(y|ie)|prolong|promot|rais|reactivat|restor|sav(e|ed|es|ing)$|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
+increase_triggers: "acceler|aggravat|ameliorat|amplif|augment|boost|compound|doubl|deep|elev|enhanc|escalat|exacerbat|exorbitant|favorable|height|improv|increas|intens|maximiz|multipl(y|ie)|prolong|promot|rais|reactivat|restor|sav(e|ed|es|ing)$|spark|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
 noncausal_increase_triggers: "above|above-average|better|climb|good|greater|heav|(highs?$)|highe(r|s)|rise|rising|(up)?surg(ed?|ing)$|upturn|widespread"
 create_triggers: "creat|generat|inspir|produce|prompt|provid"
 
@@ -8,7 +8,7 @@ noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|dow
 #advers|perturb|resist|
 
 # NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
-cause_triggers: "activat|allow|because|cataly|caus|contribut|driv|elicit|enabl|force|forcing|help|induc|(initiat[e|(ed)|(ing)]?$)|interconvert|lead|^led$|mediat|modulat|produc[e|i]|signal|synthes|trigger|underli"
+cause_triggers: "activat|allow|because|cataly|caus|driv|elicit|enabl|force|forcing|induc|(initiat[e|(ed)|(ing)]?$)|interconvert|lead|^led$|mediat|modulat|produc[e|i]|signal|synthes|trigger|underli"
 #nonavoid_causal_triggers: "produc[ei]$"
 reverse_direction_cause_triggers: "result|effect|consequence"
 
