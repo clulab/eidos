@@ -4,7 +4,6 @@ import java.io.File
 import java.io.PrintWriter
 
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.TsvWriter
@@ -45,7 +44,7 @@ object FilterJsonCanonicalNames extends App {
 
   new TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
     val filter = new Filter(tsvWriter)
-    val inputFiles = findFiles(inputDir, extension)
+    val inputFiles = FileUtils.findFiles(inputDir, extension)
 
     inputFiles.sortBy(_.getName).foreach { inputFile =>
       val text = FileUtils.getTextFromFile(inputFile)

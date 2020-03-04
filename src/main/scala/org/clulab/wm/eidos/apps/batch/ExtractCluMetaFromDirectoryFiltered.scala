@@ -11,21 +11,22 @@ import java.nio.charset.StandardCharsets
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.ThreadUtils
-import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
+import org.clulab.wm.eidos.utils.meta.CluText
 
-object FilteredExtractMetaFromDirectory extends App {
+object ExtractCluMetaFromDirectoryFiltered extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val metaDir = args(2)
   val threads = args(3).toInt
 
   val doneDir = inputDir + "/done"
-  val converter = EidosMetaUtils.convertTextToMeta _ // 17k _
+  val converter = CluText.convertTextToMeta _ // 17k _
   val intervals = Seq(
     (0,     0),
     (1,   999),
@@ -74,8 +75,12 @@ object FilteredExtractMetaFromDirectory extends App {
     (100000, 199999),
     (200000, 299999)
   )
-  val allFiles = findFiles(inputDir, "txt")
-  val reader = new EidosSystem()
+  val allFiles = FileUtils.findFiles(inputDir, "txt")
+  val config = EidosSystem.defaultConfig
+  val reader = new EidosSystem(config)
+  val options = EidosSystem.Options()
+  // 0. Optionally include adjective grounding
+  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   intervals.foreach { interval =>
     val min = interval._1
@@ -95,18 +100,17 @@ object FilteredExtractMetaFromDirectory extends App {
         // 1. Open corresponding output file
         println(s"Extracting from ${file.getName}")
         // 2. Get the input file contents
-        val text = FileUtils.getTextFromFile(file)
-        val json = EidosMetaUtils.getMetaData(converter, metaDir, file)
-        val documentCreationTime = EidosMetaUtils.getDocumentCreationTime(json)
-        val documentTitle = EidosMetaUtils.getDocumentTitle(json)
+        val metafile = converter(file, metaDir)
+        val eidosText = CluText(reader, file, Option(metafile))
+        val text = eidosText.getText
+        val metadata = eidosText.getMetadata
         // 3. Extract causal mentions from the text
-        val annotatedDocuments = Seq(reader.extractFromText(text, dctStringOpt = documentCreationTime))
-        annotatedDocuments.head.document.id = documentTitle
+        val annotatedDocuments = Seq(reader.extractFromText(text, options, metadata))
         // 4. Convert to JSON
         val corpus = new JLDCorpus(annotatedDocuments)
         val mentionsJSONLD = corpus.serialize()
         // 5. Write to output file
-        val path = EidosMetaUtils.convertTextToJsonld(filterOutputDir, file)
+        val path = CluText.convertTextToJsonld(file, filterOutputDir)
 
         // This is done pedantically so that the FileOutputStream is accessible.
         val fos = new FileOutputStream(path)
@@ -120,8 +124,8 @@ object FilteredExtractMetaFromDirectory extends App {
           fos.getFD.sync()
         }
         // Now move the file to directory done
-        val newPath = doneDir + "/" + file.getName
-        file.renameTo(new File(newPath))
+        val newFile = FileEditor(file).setDir(doneDir).get
+        file.renameTo(newFile)
       }
       catch {
         case exception: SyncFailedException =>
