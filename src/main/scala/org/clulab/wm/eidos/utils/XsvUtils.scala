@@ -53,12 +53,13 @@ class CsvReader() extends XsvReader(XsvUtils.commaChar) {
 abstract class XsvWriter(printWriter: PrintWriter, separatorChar: Char) {
   protected val separatorString = separatorChar.toString
 
-  def quote(text: String): String = '"' + text.replace("\"", "\"\"") + '"'
+  def quote(text: String): String = "\"" + text.replace("\"", "\"\"") + "\""
 
   def stringln(strings: String*): String
 
   def println(strings: String*): Unit = {
-    printWriter.println(stringln(strings: _*))
+    printWriter.print(stringln(strings: _*))
+    printWriter.print("\n") // Force Unix line endings.
   }
 
   def close(): Unit = printWriter.close
@@ -78,12 +79,12 @@ class TsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) extends XsvWr
 
   def stringlnExcel(strings: String*): String = {
     val quotedStrings = strings.map { string =>
-      val mustBeQuoted = TsvWriter.quotableStrings.exists { separator: String =>
-        string.contains(separator)
-      }
+      val mustBeQuoted = TsvWriter.quotableStrings.exists { quotableString: String =>
+        string.contains(quotableString)
+      } || string.contains(XsvUtils.commaChar)
 
       if (mustBeQuoted) quote(string)
-      string
+      else string
     }
 
     quotedStrings.mkString(separatorString)
@@ -119,7 +120,7 @@ class CsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) extends XsvWr
       }
 
       if (mustBeQuoted) quote(string)
-      string
+      else string
     }
 
     quotedStrings.mkString(separatorString)
