@@ -49,7 +49,8 @@ object CullVectors extends App {
             // Should reserved words be lowercased itself?  Assume they already are unless case is important.
             reservedWords.contains(word.toLowerCase) || freqentWords.contains(word.toLowerCase)) {
           counter.inc()
-          printWriter.println(line)
+          printWriter.print(line)
+          printWriter.print("\n") // Insist on LF so that can manipulate right away.
         }
       }
       (counter.get, columns)
