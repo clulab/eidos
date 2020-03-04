@@ -196,14 +196,14 @@ case class EntityInfo(
   val text: String = m.odinMention.text
   val canonicalName: String = m.canonicalName
   val norm: String = getBaseGroundingString(m)
-  val modifier: String = ExportUtils.getModifier(m)
-  val polarity: String = ExportUtils.getPolarity(m)
+//  val modifier: String = ExportUtils.getModifier(m)
+//  val polarity: String = ExportUtils.getPolarity(m)
   val groundingStrings: Seq[String] = groundAs.map { namespace =>
     getGroundingsString(m, namespace, topN, delim)
   }
 
 
-  def toTSV: String = Seq(text, norm, modifier, polarity).map(_.normalizeSpace).mkString("\t")
+  def toTSV: String = Seq(text, norm).map(_.normalizeSpace).mkString("\t")
 
   def groundingToTSV: String = groundingStrings.map(_.normalizeSpace).mkString("\t")
 }
