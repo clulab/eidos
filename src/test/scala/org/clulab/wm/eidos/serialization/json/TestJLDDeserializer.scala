@@ -38,7 +38,6 @@ import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.ProvenanceMap
-import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.JArray
@@ -46,7 +45,7 @@ import org.json4s.JArray
 import scala.collection.Seq
 
 class TestJLDDeserializer extends ExtractionTest {
-  val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
@@ -54,17 +53,17 @@ class TestJLDDeserializer extends ExtractionTest {
 //    val documentCreationTime: Option[String] = Some("This is a test")
     val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
-      documentCreationTime, id = None)
+      documentCreationTime, idOpt = None)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
   }
 
-  def serialize(corpus: Corpus) = {
+  def serialize(corpus: Corpus): String = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
       val jValue = jldCorpus.serialize(adjectiveGrounder)
-      stringify(jValue, true)
+      stringify(jValue, pretty = true)
     }
     
     json
@@ -76,7 +75,7 @@ class TestJLDDeserializer extends ExtractionTest {
   behavior of "JLDDeserializer"
 
 
-  def testParts() = {
+  def testParts(): Unit = {
     it should "deserialize DCT from jsonld" in {
       val json = """
         |{
@@ -191,7 +190,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val wordDataValue = parse(json)
       val idAndWordData = new JLDDeserializer().deserializeWordData(wordDataValue)
       val id = idAndWordData.id
-      val wordData = idAndWordData.value
+//      val wordData = idAndWordData.value
 
       id should be("_:Word_19")
     }
@@ -210,7 +209,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |}""".stripMargin
       val wordMap = Map("_:Word_2" -> 2, "_:Word_1" -> 1)
       val dependencyValue = parse(json)
-      val dependency = new JLDDeserializer().deserializeDependency(dependencyValue, wordMap)
+      /*val dependency =*/ new JLDDeserializer().deserializeDependency(dependencyValue, wordMap)
     }
 
     it should "deserialize Sentence from jsonld" in {
@@ -332,7 +331,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |  } ]
         |} ]""".stripMargin
       val sentencesValue = parse(json)
-      val sentenceSpec = new JLDDeserializer().deserializeSentences(sentencesValue, Some(documentText))
+      /*val sentenceSpec =*/ new JLDDeserializer().deserializeSentences(sentencesValue, Some(documentText))
     }
 
     it should "deserialize Interval from jsonld" in {
@@ -373,7 +372,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val provenanceValue = parse(json)
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_35" -> 34))
-      val provenance = new JLDDeserializer().deserializeProvenance(Option(provenanceValue), documentMap, documentSentenceMap)
+      /*val provenance =*/ new JLDDeserializer().deserializeProvenance(Option(provenanceValue), documentMap, documentSentenceMap)
     }
 
     it should "deserialize Trigger from jsonld" in {
@@ -404,7 +403,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val triggerValue = Option(parse(json))
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_35" -> 0))
-      val provenanceOpt = new JLDDeserializer().deserializeTrigger(triggerValue, documentMap, documentSentenceMap)
+      /*val provenanceOpt =*/ new JLDDeserializer().deserializeTrigger(triggerValue, documentMap, documentSentenceMap)
     }
 
     it should "deserialize Extraction from jsonld" in {
@@ -418,6 +417,14 @@ class TestJLDDeserializer extends ExtractionTest {
         |  "text" : "conflict are also forcing many families to leave South Sudan for neighbouring countries",
         |  "rule" : "ported_syntax_1_verb-Causal",
         |  "canonicalName" : "conflict force leave",
+        |  "groundings" : [ {
+        |    "@type" : "Groundings",
+        |    "name" : "wm"
+        |  }, {
+        |    "@type" : "Groundings",
+        |    "name" : "wm_compositional/concept",
+        |    "category" : "concept"
+        |  } ],
         |  "provenance" : [ {
         |    "@type" : "Provenance",
         |    "document" : {
@@ -477,7 +484,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val extractionValue = parse(json)
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_7" -> 0))
-      val extraction = new JLDDeserializer().deserializeExtraction(extractionValue, documentMap, documentSentenceMap)
+      /*val extraction =*/ new JLDDeserializer().deserializeExtraction(extractionValue, documentMap, documentSentenceMap)
     }
 
     it should "deserialize Modifiers from jsonld" in {
@@ -511,7 +518,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val modifiersValue = parse(json).asInstanceOf[JArray]
       val documentMap: DocumentMap = Map("_:Document_1" -> null)
       val documentSentenceMap: DocumentSentenceMap = Map("_:Document_1" -> Map("_:Sentence_253" -> 0))
-      val (textsOpt, provenancesOpt) = new JLDDeserializer().deserializeModifiers(Option(modifiersValue), documentMap, documentSentenceMap)
+      /*val (textsOpt, provenancesOpt) =*/ new JLDDeserializer().deserializeModifiers(Option(modifiersValue), documentMap, documentSentenceMap)
     }
 
     it should "deserialize States from jsonld" in {
@@ -667,7 +674,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |  }
         |} ]""".stripMargin
       val argumentsValue = parse(json).asInstanceOf[JArray]
-      val argumentMap = new JLDDeserializer().deserializeArguments(Option(argumentsValue))
+      /*val argumentMap =*/ new JLDDeserializer().deserializeArguments(Option(argumentsValue))
     }
 
     it should "deserialize Mention from jsonld" in {
@@ -681,6 +688,22 @@ class TestJLDDeserializer extends ExtractionTest {
         |  "text" : "Prices",
         |  "rule" : "simple-np++property-lexiconner",
         |  "canonicalName" : "Prices",
+        |  "groundings" : [ {
+        |    "@type" : "Groundings",
+        |    "name" : "wm_compositional/concept",
+        |    "category" : "concept",
+        |    "version" : "359829afbe9bb5ba9af990121c1bd936a52e7a2e",
+        |    "versionDate" : "2019-02-24T01:21:07Z",
+        |    "values" : [ {
+        |      "@type" : "Grounding",
+        |      "ontologyConcept" : "wm_compositional/concept/causal_factor/economic_and_commerce/economic activity/market/revenue",
+        |      "value" : 0.5095548033714294
+        |    } ]
+        |  }, {
+        |    "@type" : "Groundings",
+        |    "name" : "wm_compositional/property",
+        |    "category" : "property"
+        |  } ],
         |  "provenance" : [ {
         |    "@type" : "Provenance",
         |    "document" : {
@@ -725,14 +748,13 @@ class TestJLDDeserializer extends ExtractionTest {
       val mentionMap: MentionMap = Map.empty
       val provenanceMap: ProvenanceMap = Map(Provenance(null, 480, Interval(0, 1)) -> "_:Extraction_1")
       val dctMap: DctMap = Map.empty
-      val mention = new JLDDeserializer().deserializeMention(extractionValue, extraction, mentionMap,
+      /*val mention =*/ new JLDDeserializer().deserializeMention(extractionValue, extraction, mentionMap,
         documentMap, documentSentenceMap, timexMap, geolocMap, provenanceMap, dctMap, countMap)
     }
   }
 
-  def testCrossSentenceEventMention() = {
+  def testCrossSentenceEventMention(): Unit = {
     it should "deserialize CrossSentenceEventMention from jsonld" in {
-      val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
 
       def serialize(original: AnnotatedDocument): String = {
         val corpus = Seq(original)
@@ -747,43 +769,62 @@ class TestJLDDeserializer extends ExtractionTest {
       val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
       val annotatedDocument = ieSystem.extractFromText(text)
       val json = serialize(annotatedDocument)
-      val copy = new JLDDeserializer().deserialize(json, ieSystem.postProcessors)
+      val copy = new JLDDeserializer().deserialize(json)
       val mentions = copy.head.odinMentions
 
       mentions.count(_.isInstanceOf[CrossSentenceEventMention]) should be(1)
     }
   }
 
-  def testCorpus(text: String, name: String) = {
+  def testCorpus(text: String, name: String): Unit = {
     it should "deserialize corpus " + name + " from jsonld" in {
-      val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
-
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, ieSystem.postProcessors)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')
       val newLineCount = newJson.count(_ == '\n')
 
       oldLineCount should be (newLineCount)
-      oldJson.size should be (newJson.size)
+      oldJson.length should be (newJson.length)
       oldJson should be (newJson)
     }
   }
 
-  def testFiles(directoryName: String): Unit = {
+  def testTextFiles(directoryName: String): Unit = {
     val files = findFiles(directoryName, "txt")
 
     files.foreach { file =>
       val text = FileUtils.getTextFromFile(file)
 
-      testCorpus(text, file.getName())
+      testCorpus(text, file.getName)
     }
   }
 
-  def testSentences() = {
+  def testJsonldFiles(directoryName: String): Unit = {
+    val files = findFiles(directoryName, "jsonld")
+
+    files.foreach { file =>
+      val oldText = FileUtils.getTextFromFile(file)
+      val oldCorpus = new JLDDeserializer().deserialize(oldText)
+      val newText = serialize(oldCorpus)
+      val newCorpus = new JLDDeserializer().deserialize(newText)
+      val newerText = serialize(newCorpus)
+
+      val oldCanonicalText = oldText.trim.replace("\r", "")
+      val newCanonicalText = newText.trim.replace("\r", "")
+      val newerCanonicalText = newerText.trim.replace("\r", "")
+
+      if (oldCanonicalText != newCanonicalText)
+        println("There was a first problem with " + file.getAbsolutePath)
+      if (newCanonicalText != newerCanonicalText)
+        println("There was a second problem with " + file.getAbsolutePath)
+    }
+  }
+
+  def testSentences(): Unit = {
     testCorpus(p1s1, "p1s1")
     testCorpus(p1s2, "p1s2")
     testCorpus(p1s3, "p1s3")
@@ -817,7 +858,7 @@ class TestJLDDeserializer extends ExtractionTest {
     testCorpus("", "noTextCorpus")
   }
 
-  def testParagraphs() = {
+  def testParagraphs(): Unit = {
     testCorpus(p1, "p1")
     testCorpus(p2, "p2")
     testCorpus(p3, "p3")
@@ -826,7 +867,7 @@ class TestJLDDeserializer extends ExtractionTest {
     testCorpus(p6, "p6")
   }
 
-  def testDocuments() = {
+  def testDocuments(): Unit = {
     testCorpus(fullText, "fullText")
   }
 
@@ -835,7 +876,9 @@ class TestJLDDeserializer extends ExtractionTest {
   testParagraphs()
   testDocuments()
   testCrossSentenceEventMention()
+
   // Do not run this last test on Travis, but instead periodically on a real corpus
-  // with all options enabled (useW2V, useTimeNorm, useGeoNorm, etc.)
-//  testFiles("../corpora/Doc52/txt")
+  // with all options enabled (useGrounding, useTimeNorm, useGeoNorm, etc.)
+//  testTextFiles("../corpora/Doc52/txt")
+//  testJsonldFiles("../jsonldtmp")
 }

@@ -17,12 +17,7 @@ class TestEntityFinder extends ExtractionTest {
     val text1 = "some economic blarged the recession."
     val mentions1 = extractMentions(text1)
     mentions1.exists(_.text == "economic") should be (false)
-
-    // Note -- this is a fake verb bc to test what the entityfinder is returning we don't want to trigger
-    // the argument expansion
-    val text2 = "some economic declines blarged the recession."
-    val mentions2 = extractMentions(text2)
-    mentions2.exists(_.text == "economic") should be (true)
+    
   }
 
 

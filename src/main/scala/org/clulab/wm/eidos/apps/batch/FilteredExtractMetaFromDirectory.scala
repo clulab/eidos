@@ -18,8 +18,6 @@ import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
 
-import scala.collection.parallel.ForkJoinTaskSupport
-
 object FilteredExtractMetaFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
@@ -90,12 +88,7 @@ object FilteredExtractMetaFromDirectory extends App {
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
     val files = allFiles.filter(filter)
-    val parFiles = files.par
-
-    val forkJoinPool = ThreadUtils.newForkJoinPool(threads)
-    val forkJoinTaskSupport = new ForkJoinTaskSupport(forkJoinPool)
-
-    parFiles.tasksupport = forkJoinTaskSupport
+    val parFiles = ThreadUtils.parallelize(files, threads)
 
     parFiles.foreach { file =>
       try {
@@ -107,7 +100,7 @@ object FilteredExtractMetaFromDirectory extends App {
         val documentCreationTime = EidosMetaUtils.getDocumentCreationTime(json)
         val documentTitle = EidosMetaUtils.getDocumentTitle(json)
         // 3. Extract causal mentions from the text
-        val annotatedDocuments = Seq(reader.extractFromText(text, dctString = documentCreationTime))
+        val annotatedDocuments = Seq(reader.extractFromText(text, dctStringOpt = documentCreationTime))
         annotatedDocuments.head.document.id = documentTitle
         // 4. Convert to JSON
         val corpus = new JLDCorpus(annotatedDocuments)

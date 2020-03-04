@@ -15,7 +15,7 @@ class TestDoc1 extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val trade1 = NodeSpec("Trade", Dec("decreased", "significantly"))
+    val trade1 = NodeSpec("Trade with Sudan", Dec("decreased", "significantly"))
     val trade2 = NodeSpec("Trade", Unmarked("mainly informal")) // todo: expand Unmarked() to handle quantifiers?
     val border = NodeSpec("border", Unmarked("closed"))
     val supply = NodeSpec("supply", Dec("cut"))

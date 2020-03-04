@@ -44,7 +44,7 @@ class TestConfig extends Test with Configured {
 
     val invalidOutgoing: List[String] = config[List[String]]("actions.expander.invalidOutgoing")
 
-    invalidOutgoing.contains("acl:relcl") should be (true)
+    invalidOutgoing.contains("^acl:relcl") should be (true)
     invalidOutgoing.contains("nmod:poss") should be (false)
     invalidOutgoing.contains("nmod_worsen") should be (true)
   }
@@ -57,7 +57,7 @@ class TestConfig extends Test with Configured {
     // These should actually come from reference.conf.
     val invalidOutgoing: List[String] = config[List[String]]("actions.expander.invalidOutgoing")
 
-    invalidOutgoing.contains("acl:relcl") should be (true)
+    invalidOutgoing.contains("^acl:relcl") should be (true)
     invalidOutgoing.contains("nmod:poss") should be (false)
     invalidOutgoing.contains("nmod_worsen") should be (true)
   }

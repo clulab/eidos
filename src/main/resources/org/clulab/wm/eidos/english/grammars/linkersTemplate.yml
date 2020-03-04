@@ -4,37 +4,27 @@ vars: org/clulab/wm/eidos/english/grammars/vars.yml
 rules:
 
 
-# ------------------- Previous Grammar Unsorted --------------------------
+  - name: ability_to_${addlabel}
+    priority: ${ rulepriority }
+    example: "These higher productivity birds have the potential to increase household income and provide sources of animal protein for consumption. "
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?! due to)# original rule had RB as possible tag
+      cause: Entity =
+        <acl_to [lemma=/ability|capacity|potential/] <dobj
+        # agents (i.e., noun subjects)
+        (${ agents })
+        # optionally you can follow specified modifiers
+        /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}|nmod_in|nmod_of/{,2}
+        # if you land on another trigger, you are then licensed to follow more preps
+        ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity =
+        # direct objects or things like xcomp
+        (${objects} | ${complements})
+
 
   #
-  # param is nominal subject of verb: "PARAM increases/decreases with _____ "
-  #
-#  - name: with-${addlabel}-1
-#    priority: ${rulepriority}
-#    label: ${label}
-#    action: ${ action }
-#    example: ""
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !outgoing=/dobj/]
-#      effect: Entity = <xcomp? nsubj
-#      cause: Entity = nmod_with /${ preps }/{,2}
-
-  #
-  # "subject increases/decreases Y with X "
-  #
-#  - name: with-${addlabel}-2
-#    priority: ${rulepriority}
-#    label: ${label}
-#    action: ${ action }
-#    example: ""
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & outgoing=/dobj/]
-#      effect: Entity = dobj
-#      cause: Entity = nmod_with /${ preps }/{,2}
-
-
-
-#
 # The rest of the rules here are PORTED FROM pos-reg_template.yml from REACH grammar
 # NB: These rules are mostly the same as the pos-reg rules, except that all instances of "auxtriggers" in the pattern trigger have been deleted.
 #

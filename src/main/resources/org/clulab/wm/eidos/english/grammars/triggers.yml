@@ -1,5 +1,6 @@
 increase_triggers: "acceler|aggravat|aid|ameliorat|amplif|augment|boost|compound|doubl|deep|elev|enhanc|escalat|exacerbat|exorbitant|favorable|height|improv|increas|intens|maximiz|multipl(y|ie)|prolong|promot|rais|reactivat|restor|sav(e|ed|es|ing)$|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
-noncausal_increase_triggers: "above|above-average|better|climb|good|greater|heav|(highs?$)|highe(r|s)|provid|rise|rising|(up)?surg(ed?|ing)$|upturn|widespread"
+noncausal_increase_triggers: "above|above-average|better|climb|good|greater|heav|(highs?$)|highe(r|s)|rise|rising|(up)?surg(ed?|ing)$|upturn|widespread"
+create_triggers: "creat|generat|inspir|produce|prompt|provid"
 
 decrease_triggers: "abat|alleviat|attenu|abolish|abrog|arrest|block|collaps|constrain|curtail|(cuts?$)|cutting|damag|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|difficult|diminish|disrupt|down-reg|downreg|drain|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|hamper|hinder|limit|less|lower|minimiz|mitigat|negat|nullifi|prevent|reduc|reliev|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin|worse"
 
