@@ -1,6 +1,6 @@
-taxonomy: org/clulab/wm/eidos/english/grammars/taxonomy.yml
+taxonomy: org/clulab/causex/eidos/english/grammars/taxonomy.yml
 
-vars: org/clulab/wm/eidos/english/grammars/triggers.yml
+vars: org/clulab/causex/eidos/english/grammars/triggers.yml
 
 rules:
   #Entities are found with EntityFinder! Not extracted here!
@@ -8,45 +8,45 @@ rules:
   #Events
 
   # Higher priority domain-specific events
-  - import: org/clulab/wm/eidos/english/grammars/context.yml
+  - import: org/clulab/causex/eidos/english/grammars/context.yml
     vars:
       rulepriority: "1"
 
-  - import: org/clulab/wm/eidos/english/grammars/migration.yml
+  - import: org/clulab/causex/eidos/english/grammars/migration.yml
     vars:
       rulepriority: "2"
       action: migrationActionFlow
       label: HumanMigration
 
   # Find the direct attachments of entities (e.g., quantification, temporal and geospatial context)
-  - import: org/clulab/wm/eidos/english/grammars/entityQuantification.yml
+  - import: org/clulab/causex/eidos/english/grammars/entityQuantification.yml
     vars:
       rulepriority: "2"
       action: applyAttachment #Should add quantifier to state of entity
       label: Quantification
 
-  - import: org/clulab/wm/eidos/english/grammars/temporalAttachment.yml
+  - import: org/clulab/causex/eidos/english/grammars/temporalAttachment.yml
     vars:
       rulepriority: "2"
       action: applyTimeAttachment #Should add time to state of entity
       label: Time
 
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
-  - import: org/clulab/wm/eidos/english/grammars/modifiersTemplate.yml
+  - import: org/clulab/causex/eidos/english/grammars/modifiersTemplate.yml
     vars:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Increase
       trigger: ${ increase_triggers }|${ noncausal_increase_triggers }
 
-  - import: org/clulab/wm/eidos/english/grammars/modifiersTemplate.yml
+  - import: org/clulab/causex/eidos/english/grammars/modifiersTemplate.yml
     vars:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Decrease
       trigger: ${ decrease_triggers }|${ noncausal_decrease_triggers }
 
-  - import: org/clulab/wm/eidos/english/grammars/explicitModifiers.yml
+  - import: org/clulab/causex/eidos/english/grammars/explicitModifiers.yml
     vars:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
@@ -54,7 +54,7 @@ rules:
 
 
   # ------------ Causal ------------
-  - import: org/clulab/wm/eidos/english/grammars/causal.yml
+  - import: org/clulab/causex/eidos/english/grammars/causal.yml
     vars:
       rulepriority: "6"
       addlabel: "Causal"
@@ -62,7 +62,7 @@ rules:
       action: pass
       trigger: ${cause_triggers} #|${increase_triggers}|${decrease_triggers}
 
-  - import: org/clulab/wm/eidos/english/grammars/linkersTemplate.yml
+  - import: org/clulab/causex/eidos/english/grammars/linkersTemplate.yml
     vars:
       rulepriority: "6"
       addlabel: "Causal"
@@ -70,7 +70,7 @@ rules:
       action: pass
       trigger: ${cause_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
 
-  - import: org/clulab/wm/eidos/english/grammars/reverse_direction_causal.yml
+  - import: org/clulab/causex/eidos/english/grammars/reverse_direction_causal.yml
     vars:
       rulepriority: "6"
       addlabel: "Causal"
@@ -79,7 +79,7 @@ rules:
       trigger: ${reverse_direction_cause_triggers}
 
   # ------------ ExplicitLinker ------------
-  - import: org/clulab/wm/eidos/english/grammars/explicitLinkers.yml
+  - import: org/clulab/causex/eidos/english/grammars/explicitLinkers.yml
     vars:
       rulepriority: "6"
       trigger: ${increase_triggers}|${decrease_triggers}
@@ -88,7 +88,7 @@ rules:
       #action: ? #
 
   # ------------ Correlation ------------
-  - import: org/clulab/wm/eidos/english/grammars/linkersTemplate.yml
+  - import: org/clulab/causex/eidos/english/grammars/linkersTemplate.yml
     vars:
       rulepriority: "6"
       addlabel: "Correlation"

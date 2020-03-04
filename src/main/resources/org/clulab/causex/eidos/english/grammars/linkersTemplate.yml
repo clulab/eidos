@@ -1,4 +1,4 @@
-vars: org/clulab/wm/eidos/english/grammars/vars.yml
+vars: org/clulab/causex/eidos/english/grammars/vars.yml
 
 
 rules:

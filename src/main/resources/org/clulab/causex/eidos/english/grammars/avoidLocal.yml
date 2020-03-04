@@ -1,6 +1,6 @@
-taxonomy: org/clulab/wm/eidos/english/grammars/entities/grammar/taxonomy.yml
+taxonomy: org/clulab/causex/eidos/english/grammars/entities/grammar/taxonomy.yml
 
-vars: org/clulab/wm/eidos/english/grammars/triggers.yml
+vars: org/clulab/causex/eidos/english/grammars/triggers.yml
 
 rules:
 
