@@ -164,19 +164,8 @@ object HalfTreeDomainOntology {
       new HalfTreeDomainOntology(ontologyNodes.toArray, versionOpt, dateOpt)
     }
 
-    protected def realFiltered(text: String): Seq[String] = {
-      val result = sentenceExtractor.extractSentences(text).flatMap { sentence =>
-        val lemmas: Array[String] = sentence.lemmas.get
-        val tags: Array[String] = sentence.tags.get
-        val ners: Array[String] = sentence.entities.get
-
-        for {
-          i <- lemmas.indices
-          if canonicalizer.isCanonicalLemma(lemmas(i), tags(i), ners(i))
-        } yield lemmas(i)
-      }
-      result // breakpoint
-    }
+    protected def realFiltered(text: String): Seq[String] =
+        DomainOntology.canonicalWordsFromSentence(sentenceExtractor, canonicalizer, text)
 
     protected def fakeFiltered(text: String): Seq[String] = text.split(" +")
 
