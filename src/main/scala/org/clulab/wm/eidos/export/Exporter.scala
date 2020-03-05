@@ -160,7 +160,7 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       "", // relation score
       "", // annotator
       evidence,
-      "" // comments,
+      "", // comments
       trigger,
       mention.odinMention.foundBy,
       negation,
