@@ -214,7 +214,7 @@ object FullTreeDomainOntology {
 
         for {
           i <- lemmas.indices
-          if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
+          if canonicalizer.isCanonicalLemma(lemmas(i), tags(i), ners(i))
         } yield lemmas(i)
       }
       result // breakpoint

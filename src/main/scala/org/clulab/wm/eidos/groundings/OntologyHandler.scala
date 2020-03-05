@@ -180,22 +180,14 @@ class OntologyHandler(
       topGroundings.map(gr => (gr._1.name, gr._2))
     }
 
+    // FIXME: the original canonicalization needed the attachment words,
+    //  here we would need to process the sentence further to get them...
     def recanonicalize(text: String): Seq[String] = {
-      val sentences = sentencesExtractor.extractSentences(text)
-
-      val contentLemmas = for {
-        s <- sentences
-        lemmas = s.lemmas.get
-        ners = s.entities.get
-        tags = s.tags.get
-        i <- lemmas.indices
-        if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
-      } yield lemmas(i)
-
-      if (contentLemmas.isEmpty)
-        sentences.flatMap(_.words)   // fixme -- better and cleaner backoff, to match what is done with a mention
-      else
-        contentLemmas
+      for {
+        s <- sentencesExtractor.extractSentences(text)
+        // FIXME: added a reminder here that we are NOT currently omitting attachment words in the regrounding!
+        word <- canonicalizer.canonicalWordsFromSentence(s, Interval(0, s.words.length), attachmentWords = Set())
+      } yield word
     }
 
     //OntologyGrounding

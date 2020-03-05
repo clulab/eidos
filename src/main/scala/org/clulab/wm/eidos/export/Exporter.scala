@@ -3,15 +3,16 @@ package org.clulab.wm.eidos.export
 import java.io.{File, PrintWriter}
 
 import ai.lum.common.StringUtils._
-import org.clulab.odin.{EventMention, Mention, State}
+import org.clulab.odin.{Attachment, EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.{CountAttachment, Location}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.utils.{CsvWriter, ExportUtils, FileUtils, MentionUtils}
+import org.clulab.wm.eidos.serialization.json.{JLDCorpus, JLDRelationMigration}
+import org.clulab.wm.eidos.utils.{CsvWriter, ExportUtils, FileUtils, MentionUtils, TsvWriter}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
 
@@ -205,4 +206,83 @@ case class EntityInfo(
   def groundingToTSV: String = groundingStrings.map(_.normalizeSpace).mkString("\t")
 }
 
+case class MigrationExporter(filename: String) extends Exporter {
 
+  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+    new TsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { tsvWriter =>
+      tsvWriter.println(
+        "DocID",
+        "Sentence Index",
+        "Group Text",
+
+        "Group Count Text",
+        "Group Count Value",
+        "Group Count Unit",
+
+        "Group Modifier Text",
+        "MoveTo Text",
+        "MoveTo Location",
+        "MoveFrom Text",
+        "MoveFrom Location",
+        "MoveThrough Text",
+        "MoveThrough Location",
+        "Sentence Text"
+      )
+      annotatedDocuments.foreach(printTableRows(_, tsvWriter))
+    }
+  }
+
+  def printTableRows(annotatedDocument: AnnotatedDocument, tsvWriter: TsvWriter): Unit = {
+
+    def getEidosArgumentOpt(eidosMention: EidosMention, name: String): (Option[EidosMention], String) = {
+      val argumentsOpt = eidosMention.eidosArguments.get(name)
+      val argumentOpt = argumentsOpt.flatMap(_.headOption)
+      val text = argumentOpt.map(_.odinMention.text).getOrElse("")
+
+      (argumentOpt, text)
+    }
+
+    def getLocation(eidosMentionOpt: Option[EidosMention]): String = {
+      eidosMentionOpt.flatMap { eidosMention: EidosMention =>
+        eidosMention.odinMention.attachments.collectFirst { case locationAttachment: Location =>
+          locationAttachment.geoPhraseID.geonameID.getOrElse("")
+        }
+      }.getOrElse("")
+    }
+
+    annotatedDocument.eidosMentions.foreach { eidosMention: EidosMention =>
+      if (eidosMention.odinMention matches "HumanMigration") {
+        val        (groupOpt,         groupText) = getEidosArgumentOpt(eidosMention, "group")
+        val               (_, groupModifierText) = getEidosArgumentOpt(eidosMention, "groupModifier")
+        val        (moveToOpt,       moveToText) = getEidosArgumentOpt(eidosMention, "moveTo")
+        val      (moveFromOpt,     moveFromText) = getEidosArgumentOpt(eidosMention, "moveFrom")
+        val   (moveThroughOpt,  moveThroughText) = getEidosArgumentOpt(eidosMention, "moveThrough")
+
+        val (groupCountText, groupCountValue, groupCountUnit) = groupOpt.flatMap { group =>
+          group.odinMention.attachments.collectFirst { case countAttachment: CountAttachment =>
+            (countAttachment.text, countAttachment.migrationGroupCount.value.toString, countAttachment.migrationGroupCount.unit.toString)
+          }
+        }.getOrElse(("", "", ""))
+
+        tsvWriter.println(
+          annotatedDocument.document.id.getOrElse(""),
+          eidosMention.odinMention.sentence.toString,
+          groupText,
+
+          groupCountText,
+          groupCountValue,
+          groupCountUnit,
+
+          groupModifierText,
+          moveToText,
+          getLocation(moveToOpt),
+          moveFromText,
+          getLocation(moveFromOpt),
+          moveThroughText,
+          getLocation(moveThroughOpt),
+          eidosMention.odinMention.sentenceObj.getSentenceText
+        )
+      }
+    }
+  }
+}
