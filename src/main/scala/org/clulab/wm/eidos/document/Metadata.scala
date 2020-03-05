@@ -36,6 +36,10 @@ object Metadata {
     dctOpt.flatten
   }
 
+  def apply(): Metadata = {
+    new Metadata(None, None, None, None)
+  }
+
   def apply(eidosSystem: EidosSystem, dctStringOpt: Option[String], idOpt: Option[String]): Metadata = {
     val dctOpt = newDct(eidosSystem, dctStringOpt)
 

@@ -101,7 +101,7 @@ class HalfOntologyLeafNode(
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = /*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)
 
-  override def toString: String = fullName + " = " + values.toList
+  override def toString: String = fullName // + " = " + values.toList
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[HalfOntologyParentNode] = parents(parent)
@@ -172,7 +172,7 @@ object HalfTreeDomainOntology {
 
         for {
           i <- lemmas.indices
-          if canonicalizer.isCanonical(lemmas(i), tags(i), ners(i))
+          if canonicalizer.isCanonicalLemma(lemmas(i), tags(i), ners(i))
         } yield lemmas(i)
       }
       result // breakpoint

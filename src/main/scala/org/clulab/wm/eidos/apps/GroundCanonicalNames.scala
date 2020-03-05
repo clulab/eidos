@@ -7,8 +7,9 @@ import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.wm.eidos.utils.TsvUtils
-import org.clulab.wm.eidos.utils.TsvUtils.TsvWriter
+import org.clulab.wm.eidos.utils.TsvReader
+import org.clulab.wm.eidos.utils.XsvUtils
+import org.clulab.wm.eidos.utils.TsvWriter
 
 object GroundCanonicalNames extends App {
 
@@ -71,18 +72,18 @@ object GroundCanonicalNames extends App {
   val grounder = new Grounder()
 
   Sourcer.sourceFromFile(inputFile).autoClose { source =>
-    Sinker.printWriterFromFile(outputFile).autoClose { printWriter =>
-      val writer = new TsvWriter(printWriter)
+    new TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
+      val tsvReader = new TsvReader()
 
-      writer.println("file", "id", "text", "canonicalName", "isLeaf", "score", "grounding")
+      tsvWriter.println("file", "id", "text", "canonicalName", "isLeaf", "score", "grounding")
       source.getLines.drop(1).foreach { line =>
-        val Array(file, id, text, canonicalName) = TsvUtils.readln(line)
+        val Array(file, id, text, canonicalName) = tsvReader.readln(line)
         val nameAndValueAndIsLeafOpt: Option[(String, Float, Boolean)] = grounder.ground(canonicalName)
         val (name, value, isLeaf) = nameAndValueAndIsLeafOpt
             .map { case (name, value, isLeaf) => (name, value.toString, if (isLeaf) "T" else "F") }
             .getOrElse(("", "", ""))
 
-        writer.println(file, id, text, canonicalName, isLeaf, value, name)
+        tsvWriter.println(file, id, text, canonicalName, isLeaf, value, name)
       }
     }
   }

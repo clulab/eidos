@@ -41,7 +41,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB|JJR/]
-      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|</acl|vmod/) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
 
@@ -123,7 +123,7 @@ rules:
 
   - name: ${ label}_adjective_rule_4
     priority:  ${ rulepriority }
-    example: "heavier than normal"
+    example: "heavy for an X"
     label: ${ label }
     action: ${ action }
     pattern: |

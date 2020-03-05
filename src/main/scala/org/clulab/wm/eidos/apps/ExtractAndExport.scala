@@ -4,6 +4,7 @@ package org.clulab.wm.eidos.apps
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings.CompositionalGrounder
 import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 
 /**
@@ -23,6 +24,14 @@ object ExtractAndExport extends App with Configured {
   val inputExtension = getArgString("apps.inputFileExtension", None)
   val exportAs = getArgStrings("apps.exportAs", None)
   val groundAs = getArgStrings("apps.groundAs", None)
+  val groundedAs = groundAs.flatMap { grounder =>
+    grounder match {
+      case "wm_compositional" =>
+        CompositionalGrounder.branches.map { branch => grounder + "/" + branch }
+      case other => Seq(other)
+    }
+  }
+
   val topN = getArgInt("apps.groundTopN", Some(5))
   val files = FileUtils.findFiles(inputDir, inputExtension)
   val reader = new EidosSystem()
@@ -37,7 +46,7 @@ object ExtractAndExport extends App with Configured {
     val annotatedDocuments = Seq(reader.extractFromText(text, idOpt = Some(file.getName)))
     // 4. Export to all desired formats
     exportAs.foreach { format =>
-      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(annotatedDocuments)
+      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundedAs, topN).export(annotatedDocuments)
     }
   }
 }

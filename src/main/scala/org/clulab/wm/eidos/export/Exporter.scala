@@ -3,17 +3,23 @@ package org.clulab.wm.eidos.export
 import java.io.{File, PrintWriter}
 
 import ai.lum.common.StringUtils._
+import org.clulab.odin.Attachment
 import org.clulab.odin.{EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.CountAttachment
+import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.json.JLDRelationMigration
 import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.CsvWriter
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
+import org.clulab.wm.eidos.utils.TsvWriter
 
 
 trait Exporter {
@@ -94,38 +100,33 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
   }
 }
 
-case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
+case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
+
   override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
-    // Header
-    pw.println(header)
-    annotatedDocuments.foreach(printTableRows(_, pw, reader))
-    pw.flush()
-    pw.println()
-    pw.close()
+    new CsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { csvWriter =>
+      csvWriter.println(
+        "DocID",
+        "Sentence ID",
+        "Cause Text",
+        "Cause Canonical Name",
+        "TopN Groundings",
+        "Cause Score",
+        "Direction",
+        "Effect Text",
+        "Effect Canonical Name",
+        "TopN Groundings",
+        "Effect Score",
+        "Relation Score",
+        "Annotator",
+        "Evidence",
+        "Comments"
+      )
+      annotatedDocuments.foreach(printTableRows(_, csvWriter, reader))
+      csvWriter.println()
+    }
   }
 
-  def header: String = {
-    val headerRow = Seq(
-      "DocID",
-      "Sentence ID",
-      "Cause Text",
-      "Cause Canonical Name",
-      "TopN Groundings",
-      "Cause Score",
-      "Direction",
-      "Effect Text",
-      "Effect Canonical Name",
-      "TopN Groundings",
-      "Effect Score",
-      "Relation Score",
-      "Annotator",
-      "Evidence",
-      "Comments"
-    )
-    headerRow.mkString(",")
-  }
-
-  def printTableRows(annotatedDocument: AnnotatedDocument, pw: PrintWriter, reader: EidosSystem): Unit = {
+  def printTableRows(annotatedDocument: AnnotatedDocument, csvWriter: CsvWriter, reader: EidosSystem): Unit = {
     val causalMentions = annotatedDocument.eidosMentions.filter(m => m.label == EidosSystem.CAUSAL_LABEL)
 
     for {
@@ -145,30 +146,24 @@ case class GroundingExporter(pw: PrintWriter, reader: EidosSystem, groundAs: Seq
 
       direction = ExportUtils.poorMansIndra(cause, effect)
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
-
-      row = Seq(
-        docID,
-        sentenceId.toString,
-        causeInfo.text.normalizeSpace,
-        causeInfo.canonicalName.normalizeSpace,
-        causeGroundings,
-        "", // cause grounding score
-        direction,
-        effectInfo.text.normalizeSpace,
-        effectInfo.canonicalName.normalizeSpace,
-        effectGroundings,
-        "", // effect grounding score
-        "", // relation score
-        "", // annotator
-        evidence,
-        "", // comments
-      )
-
-      escaped = row.map(_.escapeCsv)
-
-    } pw.println(escaped.mkString(","))
+    } csvWriter.println(
+      docID,
+      sentenceId.toString,
+      causeInfo.text.normalizeSpace,
+      causeInfo.canonicalName.normalizeSpace,
+      causeGroundings,
+      "", // cause grounding score
+      direction,
+      effectInfo.text.normalizeSpace,
+      effectInfo.canonicalName.normalizeSpace,
+      effectGroundings,
+      "", // effect grounding score
+      "", // relation score
+      "", // annotator
+      evidence,
+      "" // comments
+    )
   }
-
 }
 
 
@@ -196,16 +191,95 @@ case class EntityInfo(
   val text: String = m.odinMention.text
   val canonicalName: String = m.canonicalName
   val norm: String = getBaseGroundingString(m)
-  val modifier: String = ExportUtils.getModifier(m)
-  val polarity: String = ExportUtils.getPolarity(m)
+//  val modifier: String = ExportUtils.getModifier(m)
+//  val polarity: String = ExportUtils.getPolarity(m)
   val groundingStrings: Seq[String] = groundAs.map { namespace =>
     getGroundingsString(m, namespace, topN, delim)
   }
 
 
-  def toTSV: String = Seq(text, norm, modifier, polarity).map(_.normalizeSpace).mkString("\t")
+  def toTSV: String = Seq(text, norm).map(_.normalizeSpace).mkString("\t")
 
   def groundingToTSV: String = groundingStrings.map(_.normalizeSpace).mkString("\t")
 }
 
+case class MigrationExporter(filename: String) extends Exporter {
 
+  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+    new TsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { tsvWriter =>
+      tsvWriter.println(
+        "DocID",
+        "Sentence Index",
+        "Group Text",
+
+        "Group Count Text",
+        "Group Count Value",
+        "Group Count Unit",
+
+        "Group Modifier Text",
+        "MoveTo Text",
+        "MoveTo Location",
+        "MoveFrom Text",
+        "MoveFrom Location",
+        "MoveThrough Text",
+        "MoveThrough Location",
+        "Sentence Text"
+      )
+      annotatedDocuments.foreach(printTableRows(_, tsvWriter))
+    }
+  }
+
+  def printTableRows(annotatedDocument: AnnotatedDocument, tsvWriter: TsvWriter): Unit = {
+
+    def getEidosArgumentOpt(eidosMention: EidosMention, name: String): (Option[EidosMention], String) = {
+      val argumentsOpt = eidosMention.eidosArguments.get(name)
+      val argumentOpt = argumentsOpt.flatMap(_.headOption)
+      val text = argumentOpt.map(_.odinMention.text).getOrElse("")
+
+      (argumentOpt, text)
+    }
+
+    def getLocation(eidosMentionOpt: Option[EidosMention]): String = {
+      eidosMentionOpt.flatMap { eidosMention: EidosMention =>
+        eidosMention.odinMention.attachments.collectFirst { case locationAttachment: Location =>
+          locationAttachment.geoPhraseID.geonameID.getOrElse("")
+        }
+      }.getOrElse("")
+    }
+
+    annotatedDocument.eidosMentions.foreach { eidosMention: EidosMention =>
+      if (eidosMention.odinMention matches "HumanMigration") {
+        val        (groupOpt,         groupText) = getEidosArgumentOpt(eidosMention, "group")
+        val               (_, groupModifierText) = getEidosArgumentOpt(eidosMention, "groupModifier")
+        val        (moveToOpt,       moveToText) = getEidosArgumentOpt(eidosMention, "moveTo")
+        val      (moveFromOpt,     moveFromText) = getEidosArgumentOpt(eidosMention, "moveFrom")
+        val   (moveThroughOpt,  moveThroughText) = getEidosArgumentOpt(eidosMention, "moveThrough")
+
+        val (groupCountText, groupCountValue, groupCountUnit) = groupOpt.flatMap { group =>
+          group.odinMention.attachments.collectFirst { case countAttachment: CountAttachment =>
+            (countAttachment.text, countAttachment.migrationGroupCount.value.toString, countAttachment.migrationGroupCount.unit.toString)
+          }
+        }.getOrElse(("", "", ""))
+
+        tsvWriter.println(
+          annotatedDocument.document.id.getOrElse(""),
+          eidosMention.odinMention.sentence.toString,
+          groupText,
+
+          groupCountText,
+          groupCountValue,
+          groupCountUnit,
+
+          groupModifierText,
+          moveToText,
+          getLocation(moveToOpt),
+          moveFromText,
+          getLocation(moveFromOpt),
+          moveThroughText,
+          getLocation(moveThroughOpt),
+          eidosMention.odinMention.sentenceObj.getSentenceText
+        )
+      }
+    }
+  }
+}

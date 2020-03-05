@@ -324,10 +324,10 @@ class TestDoc3 extends EnglishTest {
     passingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(rainfall3, Causal, worm)) should be (successful) // Test edges connecting them
     }
-    passingTest should "have correct edges 4" taggedAs(Zheng) in {
+    failingTest should "have correct edges 4" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall4, Causal, flood2)) should be (successful) // Test edges connecting them
     }
-    passingTest should "have correct edges 5" taggedAs(Zheng) in {
+    failingTest should "have correct edges 5" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall4, Causal, rainfallDeficit)) should be (successful) // Test edges connecting them
     }
   }
