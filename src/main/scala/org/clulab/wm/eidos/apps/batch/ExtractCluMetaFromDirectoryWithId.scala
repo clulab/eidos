@@ -4,32 +4,51 @@ import java.io.File
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
-import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.StringUtils
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
-import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
-import org.clulab.wm.eidos.utils.meta.DartZipMetaUtils
+import org.clulab.wm.eidos.utils.meta.CluText
+import org.json4s.DefaultFormats
+import org.json4s.jackson.JsonMethods
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object ExtractDartMetaFromDirectory extends App {
+import scala.collection.mutable
+
+object ExtractCluMetaFromDirectoryWithId extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val inputDir = args(0)
-  val outputDir = args(1)
-  val timeFile = args(2)
-  val threads = args(3).toInt
+  val metaDir = args(1)
+  val outputDir = args(2)
+  val timeFile = args(3)
+  val mapFile = args(4)
+  val threads = args(5).toInt
+
+  val fileToIdMap = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val fileToIdMap = new mutable.HashMap[String, String]()
+    val bufferedSource = Sourcer.sourceFromFile(mapFile)
+    bufferedSource.getLines().foreach { line =>
+      val json = JsonMethods.parse(line)
+      val filename = (json \ "file_name").extract[String]
+      val id = (json \ "_id").extract[String]
+      fileToIdMap += (filename -> id)
+    }
+    fileToIdMap
+  }
 
   val doneDir = inputDir + "/done"
-  val converter = DartZipMetaUtils.convertTextToMeta _
+  val textToMeta = CluText.convertTextToMeta _
 
-  val files = findFiles(inputDir, "json")
+  val files = FileUtils.findFiles(inputDir, "txt")
   val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
@@ -42,6 +61,7 @@ object ExtractDartMetaFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
+    val options = EidosSystem.Options()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
@@ -56,29 +76,45 @@ object ExtractDartMetaFromDirectory extends App {
         logger.info(s"Extracting from ${file.getName}")
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
-          // 2. Get the input file contents
-          val json = DartZipMetaUtils.getMetaData(file)
-          val text = DartZipMetaUtils.getDartText(json).get
-          val documentCreationTime = DartZipMetaUtils.getDocumentCreationTime(json)
-          val documentId = DartZipMetaUtils.getDartDocumentId(json)
-          val documentTitle = DartZipMetaUtils.getDartDocumentTitle(json)
-          val documentLocation = DartZipMetaUtils.getDartDocumentLocation(json)
+          val id = {
+            // These all and with .txt
+            val baseFilename = StringUtils.beforeLast(file.getName, '.', true)
+            val extensions = Array(".html", ".htm", ".pdf")
+
+            def getId(extension: String): Option[String] =
+              fileToIdMap.get(baseFilename + extension)
+
+            val extensionIndex = extensions.indexWhere { extension: String =>
+              getId(extension).isDefined
+            }
+            val id = if (extensionIndex >= 0)
+              getId(extensions(extensionIndex))
+            else
+              fileToIdMap.get(baseFilename)
+
+            if (id.isEmpty)
+              println("This shouldn't happen!")
+            id.get
+          }
+
+          // 2. Get the input file text and metadata
+          val metafile = textToMeta(file, metaDir)
+          val eidosText = CluText(reader, file, Some(metafile))
+          val text = eidosText.getText
+          val metadata = eidosText.getMetadata
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromTextWithDct(text, dctOpt = documentCreationTime, idOpt = documentId))
-          documentTitle.foreach { documentTitle => TitleDocumentAttachment.setTitle(annotatedDocuments.head.document, documentTitle) }
-          documentLocation.foreach { documentLocation => LocationDocumentAttachment.setLocation(annotatedDocuments.head.document, documentLocation) }
+          val annotatedDocuments = Seq(reader.extractFromText(text, options, metadata))
           // 4. Convert to JSON
           val corpus = new JLDCorpus(annotatedDocuments)
           val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
           // 5. Write to output file
-          val path = DartZipMetaUtils.convertTextToJsonld(outputDir, file)
+          val path = CluText.convertTextToJsonld(file, outputDir)
           FileUtils.printWriterFromFile(path).autoClose { pw =>
             pw.println(stringify(mentionsJSONLD, pretty = true))
           }
           // Now move the file to directory done
-          val newPath = doneDir + "/" + file.getName
-          file.renameTo(new File(newPath))
-
+          val newFile = FileEditor(file).setDir(doneDir).get
+          file.renameTo(newFile)
           text.length
         }
         this.synchronized {

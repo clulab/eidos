@@ -229,6 +229,6 @@ object EidosSystem {
 
   object Options {
 
-    def apply(cagRelevantOnly: Boolean): Options = new Options(cagRelevantOnly)
+    def apply(cagRelevantOnly: Boolean = true): Options = new Options(cagRelevantOnly)
   }
 }

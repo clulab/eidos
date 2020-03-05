@@ -2,21 +2,18 @@ package org.clulab.wm.eidos.apps.batch
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
-import org.clulab.wm.eidos.utils.meta.EidosMetaUtils
+import org.clulab.wm.eidos.utils.meta.CluText
 
-object ExtractDateFromDirectory extends App {
+object FilterCluDateFromDirectory extends App {
   val inputDir = args(0)
   val dateFile = args(1)
 
   FileUtils.printWriterFromFile(dateFile).autoClose { printWriter =>
-    val files = findFiles(inputDir, "json")
+    val files = FileUtils.findFiles(inputDir, "json")
 
     files.foreach { file =>
       try {
-        val json = EidosMetaUtils.getMetaData(file)
-        val documentCreationTimes = EidosMetaUtils.getDocumentCreationTimes(json)
-
+        val documentCreationTimes = CluText.getDocumentCreationTimes(file)
         // Best date
 //        if (documentCreationTimes.nonEmpty)
 //          printWriter.println(documentCreationTimes(0))

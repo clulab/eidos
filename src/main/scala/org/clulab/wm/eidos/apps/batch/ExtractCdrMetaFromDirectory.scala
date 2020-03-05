@@ -2,36 +2,34 @@ package org.clulab.wm.eidos.apps.batch
 
 import java.io.File
 
-import org.clulab.processors.Document
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
-import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
-import org.clulab.wm.eidos.utils.meta.DartEsMetaUtils
-import org.clulab.serialization.json.DocOps
-import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidos.utils.meta.CdrText
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-object ExtractDartProcOnlyFromDirectory extends App {
+object ExtractCdrMetaFromDirectory extends App {
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
   val inputDir = args(0)
   val outputDir = args(1)
   val timeFile = args(2)
   val threads = args(3).toInt
 
-//  val doneDir = inputDir + "/done"
-  val converter = DartEsMetaUtils.convertTextToMeta _
+  val doneDir = inputDir + "/done"
 
-  val files = findFiles(inputDir, "txt")
+  val files = FileUtils.findFiles(inputDir, "json")
   val parFiles = ThreadUtils.parallelize(files, threads)
 
   Timer.time("Whole thing") {
-    val timePrintWriter = FileUtils.printWriterFromFile(timeFile)
+    val timePrintWriter = FileUtils.appendingPrintWriterFromFile(timeFile)
     timePrintWriter.println("File\tSize\tTime")
     val timer = new Timer("Startup")
 
@@ -40,6 +38,7 @@ object ExtractDartProcOnlyFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
+    val options = EidosSystem.Options()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
@@ -51,24 +50,26 @@ object ExtractDartProcOnlyFromDirectory extends App {
     parFiles.foreach { file =>
       try {
         // 1. Open corresponding output file
-        println(s"Extracting from ${file.getName}")
+        logger.info(s"Extracting from ${file.getName}")
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
-          // 2. Get the input file contents
-          val text = FileUtils.getTextFromFile(file)
+          // 2. Get the input file text and metadata
+          val eidosText = CdrText(file)
+          val text = eidosText.getText
+          val metadata = eidosText.getMetadata
           // 3. Extract causal mentions from the text
-          val document: Document = reader.annotate(text)
+          val annotatedDocument = reader.extractFromText(text, options, metadata)
           // 4. Convert to JSON
-          val json = document.jsonAST
-          // Only do the processors part
+          val corpus = new JLDCorpus(annotatedDocument)
+          val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
           // 5. Write to output file
-          val path = outputDir + "/" + StringUtils.beforeLast(file.getName, '.') + ".json"
+          val path = FileEditor(file).setDir(outputDir).setExt("jsonld").get
           FileUtils.printWriterFromFile(path).autoClose { pw =>
-            pw.println(stringify(json, pretty = true))
+            pw.println(stringify(mentionsJSONLD, pretty = true))
           }
           // Now move the file to directory done
-//          val newPath = doneDir + "/" + file.getName
-//          file.renameTo(new File(newPath))
+          val newFile = FileEditor(file).setDir(doneDir).get
+          file.renameTo(newFile)
 
           text.length
         }
@@ -78,8 +79,7 @@ object ExtractDartProcOnlyFromDirectory extends App {
       }
       catch {
         case exception: Exception =>
-          println(s"Exception for file $file")
-          exception.printStackTrace()
+          logger.error(s"Exception for file $file", exception)
       }
     }
     timePrintWriter.close()
