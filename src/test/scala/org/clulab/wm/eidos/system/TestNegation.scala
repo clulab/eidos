@@ -1,13 +1,11 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.odin.{EventMention, Mention}
-import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.utils.MentionUtils.hasNegation
 import org.clulab.wm.eidos.test.TestUtils._
 
 
 class TestNegation extends ExtractionTest {
-
-  def hasNegation(m: Mention): Boolean = m.attachments.exists(_.isInstanceOf[Negation])
 
   it should "find no negation when not negated" in {
     val text1 = "Rainfall causes flooding."
