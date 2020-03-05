@@ -188,14 +188,18 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       }.getOrElse(Seq.empty)
       val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
       // Get all groundings for each branch.
-      val allSimiliarities = Map(
-        CompositionalGrounder.PROPERTY ->
-            allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
-        CompositionalGrounder.PROCESS ->
-            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
-        CompositionalGrounder.CONCEPT ->
-            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
-      )
+      val allSimiliarities = {
+        val allMentionTexts = allMentions.map { mention => mention.words.toArray }
+
+        Map(
+          CompositionalGrounder.PROPERTY ->
+              allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+          CompositionalGrounder.PROCESS ->
+              allMentionTexts.flatMap(mentionTexts => w2v.calculateSimilarities(mentionTexts, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+          CompositionalGrounder.CONCEPT ->
+              allMentionTexts.flatMap(mentionTexts => w2v.calculateSimilarities(mentionTexts, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+        )
+      }
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
       val goodGroundings = allSimiliarities.map { case(name, similarities) =>
@@ -281,7 +285,7 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
 }
 
 object EidosOntologyGrounder {
-  protected val                 GROUNDABLE = "Entity"
+            val                 GROUNDABLE = "Entity"
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
   protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...

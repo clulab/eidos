@@ -39,7 +39,6 @@ import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.ProvenanceMap
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.JArray
 
 import scala.collection.Seq
@@ -53,7 +52,7 @@ class TestJLDDeserializer extends ExtractionTest {
 //    val documentCreationTime: Option[String] = Some("This is a test")
     val documentCreationTime: Option[String] = Some(LocalDateTime.now().toString.take(10))
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = true,
-      documentCreationTime, id = None)
+      documentCreationTime, idOpt = None)
 
     annotatedDocument.document.id = Some(title)
     annotatedDocument
@@ -794,7 +793,7 @@ class TestJLDDeserializer extends ExtractionTest {
   }
 
   def testTextFiles(directoryName: String): Unit = {
-    val files = findFiles(directoryName, "txt")
+    val files = FileUtils.findFiles(directoryName, "txt")
 
     files.foreach { file =>
       val text = FileUtils.getTextFromFile(file)
@@ -804,7 +803,7 @@ class TestJLDDeserializer extends ExtractionTest {
   }
 
   def testJsonldFiles(directoryName: String): Unit = {
-    val files = findFiles(directoryName, "jsonld")
+    val files = FileUtils.findFiles(directoryName, "jsonld")
 
     files.foreach { file =>
       val oldText = FileUtils.getTextFromFile(file)
@@ -878,7 +877,7 @@ class TestJLDDeserializer extends ExtractionTest {
   testCrossSentenceEventMention()
 
   // Do not run this last test on Travis, but instead periodically on a real corpus
-  // with all options enabled (useW2V, useTimeNorm, useGeoNorm, etc.)
+  // with all options enabled (useGrounding, useTimeNorm, useGeoNorm, etc.)
 //  testTextFiles("../corpora/Doc52/txt")
 //  testJsonldFiles("../jsonldtmp")
 }

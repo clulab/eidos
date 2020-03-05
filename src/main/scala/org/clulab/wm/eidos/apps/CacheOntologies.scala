@@ -13,24 +13,20 @@ import org.clulab.wm.eidos.groundings.FastDomainOntology.FastDomainOntologyBuild
 import org.clulab.wm.eidos.groundings._
 
 object CacheOntologies extends App {
-
   val config = ConfigFactory.load("eidos")
   val includeParents: Boolean = config[Boolean]("ontologies.includeParents")
-  // Since here we want to cache the current, we can't load from cached:
-  assert(config[Boolean]("ontologies.useCache") == false, "To use CacheOntologies, you must set ontologies.useCache = false")
-  assert(config[Boolean]("ontologies.useW2V") == true, "To use CacheOntologies, you must set useW2V = true")
+  val cacheDir: String = config[String]("ontologies.cacheDir")
+  // Not all operations require the reader, so hedge your bets.
+  lazy val reader = new EidosSystem(config)
 
-  def removeGeoNorms(): Unit = {
+  new File(cacheDir).mkdirs()
+
+  def replaceGeoNorms(): Unit = {
     val cacheManager = new GeoNormFinder.CacheManager(config[Config]("geonorm"))
 
     cacheManager.rmCache()
     cacheManager.mkCache(replaceOnUnzip = true)
   }
-
-  val reader = new EidosSystem(config)
-  val cacheDir: String = config[String]("ontologies.cacheDir")
-
-  new File(cacheDir).mkdirs()
 
   def cacheOntologies(): Unit = {
     val ontologyGrounders: Seq[OntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders
@@ -72,7 +68,14 @@ object CacheOntologies extends App {
     val filenameIn = config[String]("ontologies.wordToVecPath")
     val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn)
     println(s"Saving vectors to $filenameOut...")
-    val word2Vec = CompactWord2Vec(filenameIn, resource = true, cached = false)
+    val word2Vec = reader.components.ontologyHandler.wordToVec match {
+      case realWordToVec: RealWordToVec =>
+        if (!config[Boolean]("ontologies.useCacheForW2V"))
+          realWordToVec.w2v // It wasn't cached, so we must have an up-to-date version.
+        else
+          CompactWord2Vec(filenameIn, resource = true, cached = false)
+      case _ =>  CompactWord2Vec(filenameIn, resource = true, cached = false)
+    }
     word2Vec.save(filenameOut)
     println(s"Finished serializing vectors.")
   }
@@ -84,8 +87,21 @@ object CacheOntologies extends App {
     OntologyMapper.mapIndicators(reader, outputFile, topN)
   }
 
-  removeGeoNorms()
-  cacheOntologies()
+  def safeCacheOntologies(): Unit = {
+    // When not grounding, neither ontologies nor vectors should be loaded at all.  Require grounding, thus.
+    assert(config[Boolean]("ontologies.useGrounding") == true, "To use CacheOntologies, you must set useGrounding = true")
+    // Since here we want to cache the current versions, we can't load from cached in case they aren't current.
+    assert(config[Boolean]("ontologies.useCacheForOntologies") == false, "To use CacheOntologies, you must set ontologies.useCacheForOntologies = false")
+    // Relax this following requirement.  We often recache the vectors, even if the data has not changed.
+    // This strategy may change in important ways if we use the ontologies during the filtering of the vectors.
+    // assert(config[Boolean]("ontologies.useCacheForW2V") == true, "To use CacheOntologies, you must set useCacheForW2V = false")
+
+    cacheOntologies()
+  }
+
+  // Comment these in and out as required.
+  replaceGeoNorms() // This should go first before EidosSystem is created.
   cacheWord2Vec()
+  safeCacheOntologies()
   updateIndicatorMappings()
 }

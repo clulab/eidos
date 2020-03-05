@@ -4,37 +4,27 @@ vars: org/clulab/wm/eidos/english/grammars/vars.yml
 rules:
 
 
-# ------------------- Previous Grammar Unsorted --------------------------
+  - name: ability_to_${addlabel}
+    priority: ${ rulepriority }
+    example: "These higher productivity birds have the potential to increase household income and provide sources of animal protein for consumption. "
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?! due to)# original rule had RB as possible tag
+      cause: Entity =
+        <acl_to [lemma=/ability|capacity|potential/] <dobj
+        # agents (i.e., noun subjects)
+        (${ agents })
+        # optionally you can follow specified modifiers
+        /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}|nmod_in|nmod_of/{,2}
+        # if you land on another trigger, you are then licensed to follow more preps
+        ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity =
+        # direct objects or things like xcomp
+        (${objects} | ${complements})
+
 
   #
-  # param is nominal subject of verb: "PARAM increases/decreases with _____ "
-  #
-#  - name: with-${addlabel}-1
-#    priority: ${rulepriority}
-#    label: ${label}
-#    action: ${ action }
-#    example: ""
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !outgoing=/dobj/]
-#      effect: Entity = <xcomp? nsubj
-#      cause: Entity = nmod_with /${ preps }/{,2}
-
-  #
-  # "subject increases/decreases Y with X "
-  #
-#  - name: with-${addlabel}-2
-#    priority: ${rulepriority}
-#    label: ${label}
-#    action: ${ action }
-#    example: ""
-#    pattern: |
-#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & outgoing=/dobj/]
-#      effect: Entity = dobj
-#      cause: Entity = nmod_with /${ preps }/{,2}
-
-
-
-#
 # The rest of the rules here are PORTED FROM pos-reg_template.yml from REACH grammar
 # NB: These rules are mostly the same as the pos-reg rules, except that all instances of "auxtriggers" in the pattern trigger have been deleted.
 #
@@ -49,7 +39,7 @@ rules:
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/] (?! due to)# original rule had RB as possible tag
       cause: Entity =
         # optionally reverse traverse an advcl
-        </${adverbial_clause}/?
+        </${adverbial_clause}\b/?
         # agents (i.e., noun subjects)
         (${ agents })
         # optionally you can follow specified modifiers
@@ -65,17 +55,27 @@ rules:
         ([word=/(?i)^(${ trigger })/]/ ${ preps }/{,2})?
 
 
-  # Handles occurrence of prep_by when NOT passive voice
-  # misfires on "floods caused by rain"
-  - name: ported_syntax_1c_verb-${addlabel}
+#  # misfires on "floods caused by rain"
+  - name: syntax_passive_verb-${addlabel}
+    priority: ${ rulepriority }
+    example: "The water quality caused poverty by an increase in productivity."
+    #"Exacerbated by climate extremes and a reduction in planted area, the national cereal gap has widened."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VBN/]
+      cause: Entity = >nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      effect: Entity = <advcl >/${agents}/
+
+  - name: advcl_by_verb-${addlabel}
     priority: ${ rulepriority }
     example: "The water quality caused poverty by an increase in productivity."
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-      effect: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = >/(nmod|advcl)_by/ /${ conjunctions }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${objects}|${preps}/{,2})?
+      effect: Entity = /${objects}/
 
   #Handles occurrence of prep_by when NOT passive voice
   #misfires on "floods caused by rain"
@@ -106,10 +106,11 @@ rules:
     label: ${ label }
     action: ${ action }
     pattern: |
-      trigger = [word=/(?i)^(${ trigger })/]# & tag=/^V|RB/]
+      trigger = [word=/(?i)^(${ trigger })/ & !outgoing=/mark/]# & tag=/^V|RB/ ]
       effect: Entity = acl? dobj /${ noun_modifiers }|${ conjunctions }/{,2}
       cause: Entity =
-        (< /xcomp|ccomp|rcmod|appos/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
+        <acl?
+        (< /xcomp|rcmod|appos/){1,2} /${agents}/{,2}  # complement clause and perhaps its subject
         (?! /${agents}/ [tag=PRP])  # but we don't want it if the subject is an existential PRP -- this is likely not a perfect solution
 
 
@@ -201,7 +202,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
       effect: Entity = /${ preps }$/? /${ conjunctions }|${ noun_modifiers }/{1,2}
-      cause: Entity = /nmod_of/? /nmoc_by|agent/ /${ conjunctions }|${ noun_modifiers }/{,2} # the prep_of may appear due to bad syntax
+      cause: Entity = /nmod_of/? /nmod_by|agent/ /${ conjunctions }|${ noun_modifiers }/{,2} # the prep_of may appear due to bad syntax
 
 
   - name: ported_syntax_6_noun-${addlabel}

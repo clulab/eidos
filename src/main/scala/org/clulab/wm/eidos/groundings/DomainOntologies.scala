@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.TableDomainOntology.TableDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
@@ -38,7 +39,7 @@ object DomainOntologies {
   }
 
   def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor,
-      canonicalizer: Canonicalizer, filter: Boolean = true, useCache: Boolean = false,
+      canonicalizer: Canonicalizer, filter: Boolean = true, useCacheForOntologies: Boolean = false,
       includeParents: Boolean = false): DomainOntology = {
 
     // As coded below, when parents are included, the FullTreeDomainOntology is being used.
@@ -46,7 +47,7 @@ object DomainOntologies {
     // If parents are not included, as had traditionally been the case, the HalfTreeDomainOntology suffices.
     // Being smaller and faster, it is preferred.  The faster loading counterpart is CompactDomainOntology.
     if (includeParents) {
-      if (useCache) {
+      if (useCacheForOntologies) {
         logger.info(s"Processing cached yml ontology with parents from $serializedPath...")
         FastDomainOntology.load(serializedPath)
       }
@@ -57,7 +58,7 @@ object DomainOntologies {
       }
     }
     else {
-      if (useCache) {
+      if (useCacheForOntologies) {
         logger.info(s"Processing cached yml ontology without parents from $serializedPath...")
         CompactDomainOntology.load(serializedPath)
       }
@@ -70,11 +71,17 @@ object DomainOntologies {
   }
 
   def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
-      canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean,
+      canonicalizer: Canonicalizer, cacheDir: String, useCacheForOntologies: Boolean,
       includeParents: Boolean): DomainOntology = {
     val ontSerializedPath: String = serializedPath(name, cacheDir, includeParents)
 
     DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true,
-        useCache = useCached, includeParents = includeParents)
+        useCacheForOntologies = useCacheForOntologies, includeParents = includeParents)
+  }
+
+  def mkTableDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
+      canonicalizer: Canonicalizer): DomainOntology = {
+    new TableDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter = true)
+        .build(name, ontologyPath)
   }
 }

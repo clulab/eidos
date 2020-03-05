@@ -20,7 +20,7 @@ import org.clulab.wm.eidos.attachments.CountAttachment
 import org.clulab.wm.eidos.attachments.CountModifier
 import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.actions.MigrationUtils
+import org.clulab.wm.eidos.actions.MigrationHandler
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
@@ -37,13 +37,13 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
-import org.clulab.wm.eidos.document.PostProcessing
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.OntologyAliases
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.PassThruNamer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -570,7 +570,7 @@ class JLDDeserializer {
     def newEventMention(labels: Seq[String], tokenInterval: Interval, trigger: TextBoundMention,
         arguments: Map[String, Seq[Mention]], paths: Map[String, Map[Mention, SynPath]], sentence: Int,
         document: Document, keep: Boolean, foundBy: String, attachments: Set[Attachment]): EventMention = {
-      if (MigrationUtils.needsCrossSentence(sentence, Some(trigger.sentence), arguments))
+      if (MigrationHandler.needsCrossSentence(sentence, Some(trigger.sentence), arguments))
         new CrossSentenceEventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
       else
         new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
@@ -761,31 +761,33 @@ class JLDDeserializer {
     }.getOrElse(Map.empty)
     val allOdinMentions = mentionMap.values.toArray
     val odinMentions = removeTriggerOnlyMentions(allOdinMentions)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
       val document = documentSpec.idAndDocument.value
-      val annotatedDocument = AnnotatedDocument(document, odinMentions)
       // This one will use the deserialized groundings.
-      val newAnnotatedDocument = addEidosExtras1(annotatedDocument, extractions, mentionMap)
+      val newAnnotatedDocument = addEidosExtras(eidosMentions, extractions, mentionMap)
       // This one will rerun the postProcessors, which hopefully match what was used
       // for the original grounding.
       // val newAnnotatedDocument = addEidosExtras2(annotatedDocument, postProcessors)
+      val annotatedDocument = AnnotatedDocument(document, eidosMentions)
 
-      newAnnotatedDocument
+      annotatedDocument
     }
     val corpus = annotatedDocuments
 
     corpus
   }
 
-  def addEidosExtras1(annotatedDocument: AnnotatedDocument, extractions: Seq[Extraction],
-      mentionMap: Map[String, Mention]): AnnotatedDocument = {
+  def addEidosExtras(eidosMentions: Seq[EidosMention], extractions: Seq[Extraction],
+      mentionMap: Map[String, Mention]): Seq[EidosMention] = {
     val extractionsMap = extractions.map { extraction => extraction.id -> extraction }.toMap
     val mentionToExtractionMap = new util.IdentityHashMap[Mention, Extraction]()
+    val allEidosMentions = EidosMention.findReachableEidosMentions(eidosMentions)
 
     mentionMap.foreach { case (id, mention) =>
       mentionToExtractionMap.put(mention, extractionsMap(id))
     }
-    annotatedDocument.allEidosMentions.foreach { eidosMention =>
+    allEidosMentions.foreach { eidosMention =>
       val odinMention = eidosMention.odinMention
       // There could be a "fabricated" trigger mention which is not included in the map, because we only track
       // provenance for those in the jsonld and there isn't an entry in the map for them.
@@ -797,15 +799,7 @@ class JLDDeserializer {
       }
     }
 
-    annotatedDocument
-  }
-
-  def addEidosExtras2(annotatedDocument: AnnotatedDocument, postProcessors: Seq[PostProcessing]): AnnotatedDocument = {
-    val lastAnnotatedDocument = postProcessors.foldLeft(annotatedDocument) { (nextAnnotatedDocument, postProcessor) =>
-      postProcessor.process(nextAnnotatedDocument)
-    }
-
-    lastAnnotatedDocument
+    eidosMentions
   }
 
   def deserialize(json: String /*, postProcessors: Seq[PostProcessing]*/): Corpus = {
