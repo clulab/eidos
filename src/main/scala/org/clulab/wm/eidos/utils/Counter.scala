@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.apps.batch.utils
+package org.clulab.wm.eidos.utils
 
 // This is borrowed from sparql as well.
 class Counter(protected var value: Int, step: Int) {

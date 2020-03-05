@@ -1,12 +1,12 @@
 package org.clulab.wm.eidos.apps.batch
 
-import org.clulab.wm.eidos.apps.batch.utils.TsvUtils
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer
 import org.clulab.wm.eidos.serialization.json.JLDSerializer
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sinker
+import org.clulab.wm.eidos.utils.TsvWriter
 
 object ReconstituteAndExportEstonia extends App {
   val inputDir = args(0)
@@ -16,7 +16,7 @@ object ReconstituteAndExportEstonia extends App {
   val serializer = new JLDSerializer(None)
   val deserializer = new JLDDeserializer()
 
-  new TsvUtils.TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
+  new TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
     tsvWriter.println("docId", "className", "type", "subtype", "canonicalName", "mentionText", "sentenceText")
 
     files.foreach { file =>
