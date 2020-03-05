@@ -219,7 +219,7 @@ object EidosSystem {
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
   val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL) // StopwordManager
 
-  def defaultConfig: Config = ConfigFactory.load("eidos")
+  def defaultConfig: Config = ConfigFactory.load("causeex")
 
   // Turn off warnings from this class.
   edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
