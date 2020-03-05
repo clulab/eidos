@@ -4,19 +4,9 @@ import org.clulab.odin.Mention
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.mentions.EidosMention
 
-trait PreProcessing {
-  def process(odinMentions: Seq[Mention]): Seq[Mention]
-}
-
-trait PostProcessing {
-  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument
-}
-
-// The odinMentions are probably "surface" mentions, not all the reachable mentions.
-class AnnotatedDocument(val document: Document, val odinMentions: Seq[Mention], val eidosMentions: Seq[EidosMention]) {
-  // Note that asEidosMentions returns surface mentions only, not all reachable mentions.
-  def this(document: Document, odinMentions: Seq[Mention]) = this(document, odinMentions, EidosMention.asEidosMentions(odinMentions))
-
+// The eidosMentions are probably "surface" mentions, not all the reachable mentions.
+class AnnotatedDocument(val document: Document, val eidosMentions: Seq[EidosMention]) {
+  lazy val odinMentions: Seq[Mention] = eidosMentions.map { eidosMention => eidosMention.odinMention }
   lazy val allOdinMentions: Seq[Mention] = EidosMention.findReachableOdinMentions(odinMentions)
   lazy val allEidosMentions: Seq[EidosMention] = EidosMention.findReachableEidosMentions(eidosMentions)
 }
@@ -24,5 +14,5 @@ class AnnotatedDocument(val document: Document, val odinMentions: Seq[Mention], 
 object AnnotatedDocument {
   type Corpus = Seq[AnnotatedDocument]
 
-  def apply(document: Document, odinMentions: Seq[Mention]) = new AnnotatedDocument(document, odinMentions)
+  def apply(document: Document, eidosMentions: Seq[EidosMention]) = new AnnotatedDocument(document, eidosMentions)
 }

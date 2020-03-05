@@ -8,7 +8,6 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.jackson.JsonMethods
 
 object ExtractDocumentFromDirectory extends App {
@@ -45,7 +44,7 @@ object ExtractDocumentFromDirectory extends App {
     case "3" => annotateDoc _
     case _ => throw new Exception(s"Unknown format '$format'")
   }
-  val files = findFiles(inputDir, extension)
+  val files = FileUtils.findFiles(inputDir, extension)
   val reader = new EidosSystem()
 
   // For each file in the input directory:

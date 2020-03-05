@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
+import org.clulab.wm.eidos.utils.meta.CluText
 import org.json4s.JValue
 import org.json4s.JsonAST.JField
 import org.json4s.JsonAST.JObject
@@ -65,9 +65,7 @@ object FindMissingFiles extends App {
       documentCreationTime.map(dct => dct.substring(0, 4) + "-" + dct.substring(4, 6) + "-" + dct.substring(6, 8))
 
   def getMetaData(metaDir: String, textFile: File): Option[JValue] = {
-    val textFileName = textFile.getName()
-    val metaFileName = metaDir + "/" + beforeFirst(afterLast(textFileName, '_'), '.') + ".json"
-    val file = new File(metaFileName)
+    val file = CluText.convertTextToMeta17k(textFile, metaDir)
     val json = if (file.exists()) {
       val text = FileUtils.getTextFromFile(file)
       val json = parse(text)
@@ -161,7 +159,7 @@ object FindMissingFiles extends App {
 //    (95000, 99999)
   )
 
-  val files = findFiles(inputDir, "txt")
+  val files = FileUtils.findFiles(inputDir, "txt")
 
   intervals.foreach { interval =>
     val min = interval._1

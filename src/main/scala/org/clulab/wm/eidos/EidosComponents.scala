@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.expansion.ConceptExpander
 import org.clulab.wm.eidos.expansion.Expander
+import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.utils._
@@ -26,7 +27,8 @@ case class EidosComponents(
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
   entityFinders: Seq[Finder],
-  conceptExpander: ConceptExpander
+  conceptExpander: ConceptExpander,
+  nestedArgumentExpander: NestedArgumentExpander
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -35,7 +37,7 @@ case class EidosComponents(
   lazy val language: String = proc.language
 }
 
-class EidosComponentsBuilder {
+class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var procOpt: Option[EidosProcessor] = None
   var negationHandlerOpt: Option[NegationHandler] = None
   var migrationHandlerOpt: Option[MigrationHandler] = None
@@ -46,6 +48,7 @@ class EidosComponentsBuilder {
   var hedgingHandlerOpt: Option[HypothesisHandler] = None
   var entityFindersOpt: Option[Seq[Finder]] = None
   var conceptExpanderOpt: Option[ConceptExpander] = None
+  var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
 
   def add(config: Config): Unit = add(config, None)
 
@@ -57,7 +60,7 @@ class EidosComponentsBuilder {
 
     EidosComponentsBuilder.logger.info((if (reloading) "Reloading" else "Loading") + " config...")
 
-    val eidosConf: Config = config[Config](EidosSystem.PREFIX)
+    val eidosConf: Config = config[Config](eidosSystemPrefix)
 
     if (reloading) {
       // When reloading, the expensive things and those required to make them are borrowed from previous components.
@@ -82,11 +85,7 @@ class EidosComponentsBuilder {
       ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get))
     }
 
-    migrationHandlerOpt = {
-      val keepMigrationEvents = eidosConf[Boolean]("keepMigrationEvents")
-
-      Some(MigrationHandler(keepMigrationEvents))
-    }
+    migrationHandlerOpt = Some(MigrationHandler())
     actionsOpt = Some(EidosActions.fromConfig(config[Config]("actions")))
     engineOpt = { // ODIN component
       val masterRulesPath: String = eidosConf[String]("masterRulesPath")
@@ -106,7 +105,7 @@ class EidosComponentsBuilder {
     }
 
     // Entity Finders can be used to preload entities into the odin state, their use is optional.
-    entityFindersOpt = Some(Finder.fromConfig(EidosSystem.PREFIX + ".entityFinders", config))
+    entityFindersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".entityFinders", config))
     conceptExpanderOpt = {
       // Expander for expanding the bare events
       val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
@@ -117,6 +116,7 @@ class EidosComponentsBuilder {
         EidosComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
       Some(new ConceptExpander(expander, keepStatefulConcepts))
     }
+    nestedArgumentExpanderOpt = Some(new NestedArgumentExpander)
     this
   }
 
@@ -131,7 +131,8 @@ class EidosComponentsBuilder {
       engineOpt.get,
       hedgingHandlerOpt.get,
       entityFindersOpt.get,
-      conceptExpanderOpt.get
+      conceptExpanderOpt.get,
+      nestedArgumentExpanderOpt.get
     )
   }
 }
