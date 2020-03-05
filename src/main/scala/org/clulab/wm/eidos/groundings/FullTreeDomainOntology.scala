@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 import java.util.{Collection => JCollection, Map => JMap}
 
+import org.clulab.struct.Interval
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
@@ -207,17 +208,11 @@ object FullTreeDomainOntology {
     }
 
     protected def realFiltered(text: String): Seq[String] = {
-      val result = sentenceExtractor.extractSentences(text).flatMap { sentence =>
-        val lemmas: Array[String] = sentence.lemmas.get
-        val tags: Array[String] = sentence.tags.get
-        val ners: Array[String] = sentence.entities.get
-
-        for {
-          i <- lemmas.indices
-          if canonicalizer.isCanonicalLemma(lemmas(i), tags(i), ners(i))
-        } yield lemmas(i)
-      }
-      result // breakpoint
+      val sentences = sentenceExtractor.extractSentences(text)
+      for {
+        s <- sentences
+        canonicalWord <- canonicalizer.canonicalWordsFromSentence(s, Interval(0, s.words.length))
+      } yield canonicalWord
     }
 
     protected def fakeFiltered(text: String): Seq[String] = text.split(" +")
