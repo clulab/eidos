@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.utils
 
 import org.clulab.odin.Mention
+import org.clulab.processors.Sentence
+import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 
@@ -12,30 +14,34 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
       tag.startsWith("JJ")
 
 
-  def isCanonical(lemma: String, tag: String, ner: String): Boolean =
+  // Here we use the lemma because the stopwords etc are written against them
+  def isCanonicalLemma(lemma: String, tag: String, ner: String): Boolean =
       isContentTag(tag) &&
       !stopwordManaging.containsStopwordStrict(lemma) &&
       !StopwordManager.STOP_NER.contains(ner)
 
+  def canonicalWordsFromSentence(s: Sentence, tokenInterval: Interval, attachmentWords: Set[String] = Set()): Seq[String] = {
+    val words = s.words
+    val lemmas = s.lemmas.get
+    val tags = s.tags.get
+    val ners = s.entities.get
+    // Here we use words because the embeddings are expecting words
+    val contentWords = for {
+      i <- tokenInterval.start until tokenInterval.end
+      if isCanonicalLemma(lemmas(i), tags(i), ners(i))
+      if !attachmentWords.contains(words(i))
+    } yield words(i)
+
+    if (contentWords.isEmpty)
+      words.slice(tokenInterval.start, tokenInterval.end)   // fixme -- better and cleaner backoff
+    else
+      contentWords
+  }
+
   // This is the filtering method for deciding what makes it into the canonical name and what doesn't.
   def canonicalTokensSimple(odinMention: Mention): Seq[String] = {
-    val words = odinMention.words
-    val lemmas = odinMention.lemmas.get
-    val tags = odinMention.tags.get
-    val ners = odinMention.entities.get
-
     val attachmentWords = odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
-
-    val contentLemmas = for {
-      i <- lemmas.indices
-      if isCanonical(lemmas(i), tags(i), ners(i))
-      if !attachmentWords.contains(words(i))
-    } yield lemmas(i)
-
-    if (contentLemmas.isEmpty)
-      words   // fixme -- better and cleaner backoff
-    else
-      contentLemmas
+    canonicalWordsFromSentence(odinMention.sentenceObj, odinMention.tokenInterval, attachmentWords)
   }
 
   /**

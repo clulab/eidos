@@ -32,7 +32,7 @@ class TestDoc5 extends EnglishTest {
     val access2 = NodeSpec("humanitarian access", Dec("limited", "further"))
     val famine = NodeSpec("Famine (IPC Phase 5)")
     val mortality = NodeSpec("levels of excess mortality", Quant("high"))
-    val food = NodeSpec("food", Dec("lack", "extreme"))
+    val food = NodeSpec("extreme lack of food", Dec("lack", "extreme"))
     val action = NodeSpec("Urgent action to end the conflict")
     val delivery = NodeSpec("the size and scope of emergency assistance delivery", Inc("increase"))
     val lives = NodeSpec("lives", Inc("save"))
@@ -217,7 +217,7 @@ class TestDoc5 extends EnglishTest {
       |higher) throughout the country during the harvest period.
       """
 
-    val response = NodeSpec("humanitarian response", Quant("significant"))
+    val response = NodeSpec("regions of South Sudan are in need of significant humanitarian response", Quant("significant"))
     val crisis = NodeSpec("Crisis", Inc("widespread"))
     val gaps = NodeSpec("their ability to meet basic food requirements", Dec("gaps", "large"))
     val risk = NodeSpec("risk of malnutrition and mortality", Quant("elevated", "significantly"))
@@ -264,7 +264,7 @@ class TestDoc5 extends EnglishTest {
     val outcomes    = NodeSpec("some food security outcomes", Inc("surpassed"))
     val conflict    = NodeSpec("increased conflict", Inc("increased"))
     val livelihoods = NodeSpec("livelihoods", Dec("disrupts"))
-    val assistance  = NodeSpec("humanitarian assistance, Famine (IPC Phase 5)", Dec("restricts"))
+    val assistance  = NodeSpec("humanitarian assistance", Dec("restricts"))
 
     behavior of "TestDoc5 Paragraph 5"
 

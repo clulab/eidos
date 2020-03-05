@@ -206,7 +206,7 @@ class TestDoc8 extends EnglishTest {
     val areaPlanted = NodeSpec("planted area", Dec("reduction"))
 
     val routesa = NodeSpec("Trade", Dec("disrupted"))
-    val routesb = NodeSpec("migration routes", Dec("disrupted"))
+    val routesb = NodeSpec("Trade and migration routes", Dec("disrupted"))
     // How might this be done?
     val routesc = NodeSpec("Trade and migration routes", Dec("disrupted"))
     // We're not this smart yet
@@ -227,7 +227,7 @@ class TestDoc8 extends EnglishTest {
     val income = NodeSpec("income", Dec("destabilised"))
 
     val localFoodProduction = NodeSpec("Supporting local food production", Quant("critical"))
-    val foodSecuritySituation = NodeSpec("food security situation", Dec("deterioration"),  Dec("preventing"))
+    val foodSecuritySituation = NodeSpec("further deterioration of the food security situation", Dec("deterioration"),  Dec("preventing"))
     behavior of "TestDoc8 Impact para 2"
 
     tempBrokenEntitiesTest should "have correct edge 1" taggedAs(Ajay) in {
@@ -248,7 +248,7 @@ class TestDoc8 extends EnglishTest {
     passingTest should "have correct edge 6" taggedAs(Egoitz) in {
       tester.test(EdgeSpec(areaPlanted, Causal, cerealGap)) should be (successful) 
     }
-    passingTest should "have correct singleton node 1a" taggedAs(Keith) in {
+    failingTest should "have correct singleton node 1a" taggedAs(Keith) in {
       tester.test(routesa) should be (successful)
     }
     passingTest should "have correct singleton node 1b" taggedAs(Keith) in {

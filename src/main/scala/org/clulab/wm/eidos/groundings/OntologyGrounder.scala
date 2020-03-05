@@ -44,6 +44,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     OntologyGrounding(domainOntology.version, domainOntology.date, grounding, branch)
   }
 
+  // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     0.until(domainOntology.size).map { n =>
       ConceptEmbedding(domainOntology.getNamer(n), wordToVec.makeCompositeVector(domainOntology.getValues(n)))
@@ -187,14 +188,18 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       }.getOrElse(Seq.empty)
       val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
       // Get all groundings for each branch.
-      val allSimiliarities = Map(
-        CompositionalGrounder.PROPERTY ->
-            allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
-        CompositionalGrounder.PROCESS ->
-            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
-        CompositionalGrounder.CONCEPT ->
-            allMentions.flatMap(m => w2v.calculateSimilarities(Array(m.text), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
-      )
+      val allSimiliarities = {
+        val allMentionTexts = allMentions.map { mention => mention.words.toArray }
+
+        Map(
+          CompositionalGrounder.PROPERTY ->
+              allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+          CompositionalGrounder.PROCESS ->
+              allMentionTexts.flatMap(mentionTexts => w2v.calculateSimilarities(mentionTexts, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+          CompositionalGrounder.CONCEPT ->
+              allMentionTexts.flatMap(mentionTexts => w2v.calculateSimilarities(mentionTexts, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+        )
+      }
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
       val goodGroundings = allSimiliarities.map { case(name, similarities) =>
@@ -212,7 +217,10 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   def getModifierMentions(synHeadWord: String, mention: Mention): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))
-    val rule = CompositionalGrounder.ruleTemplates.replaceAllLiterally(CompositionalGrounder.SYN_HEAD_WORD,
+
+    // FIXME: do we need VPs too?
+    // FIXME: issue with  multiple copies of the same head word, e.g. "price of oil increase price of transportation"
+    val rule = CompositionalGrounder.ruleTemplates.replace(CompositionalGrounder.SYN_HEAD_WORD,
         OdinUtils.escapeExactStringMatcher(synHeadWord))
     val engine = ExtractorEngine(rule)
     val results = engine.extractFrom(doc)
@@ -245,18 +253,18 @@ object CompositionalGrounder {
   val ruleTemplates: String =
       s"""
         | - name: AllWords
-        |   label: Chunk
+        |   label: PotentialModifier
         |   priority: 1
         |   type: token
         |   pattern: |
-        |      [chunk=/NP$$/ & !word=$SYN_HEAD_WORD & !tag=/DT|JJ|CC/]+
+        |      [chunk=/NP$$/ & !word=$SYN_HEAD_WORD & !tag=/DT|JJ|CC/]
         |
         | - name: SegmentConcept
         |   label: InternalModifier
         |   priority: 2
         |   pattern: |
         |      trigger = $SYN_HEAD_WORD
-        |      modifier: Chunk+ = >/^(compound|nmod_of|nmod_to|nmod_for|nmod_such_as)/{0,2} >/amod|compound/?
+        |      modifier: PotentialModifier+ = >/^(compound|nmod_of|nmod_to|nmod_for|nmod_such_as)/{0,2} >/amod|compound/?
           """.stripMargin
 }
 
@@ -277,11 +285,10 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
 }
 
 object EidosOntologyGrounder {
-  protected val                 GROUNDABLE = "Entity"
+            val                 GROUNDABLE = "Entity"
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
   protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
-  // Namespace strings for the different in-house ontologies we typically use
   protected val               UN_NAMESPACE = "un"
   protected val              WDI_NAMESPACE = "wdi"
   protected val              FAO_NAMESPACE = "fao"
@@ -291,10 +298,11 @@ object EidosOntologyGrounder {
   protected val              WHO_NAMESPACE = "who"
   protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
+  protected val   MAAS_NAMES = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
 
   val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
 
-  val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE)
+  val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE) ++ MAAS_NAMES
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
