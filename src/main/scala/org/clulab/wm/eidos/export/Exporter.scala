@@ -3,23 +3,18 @@ package org.clulab.wm.eidos.export
 import java.io.{File, PrintWriter}
 
 import ai.lum.common.StringUtils._
-import org.clulab.odin.Attachment
-import org.clulab.odin.{EventMention, Mention, State}
+import org.clulab.odin.{Attachment, EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.CountAttachment
-import org.clulab.wm.eidos.attachments.Location
+import org.clulab.wm.eidos.attachments.{CountAttachment, Location}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.serialization.json.JLDRelationMigration
-import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
+import org.clulab.wm.eidos.serialization.json.{JLDCorpus, JLDRelationMigration}
+import org.clulab.wm.eidos.utils.{CsvWriter, ExportUtils, FileUtils, MentionUtils, TsvWriter}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.CsvWriter
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
-import org.clulab.wm.eidos.utils.TsvWriter
 
 
 trait Exporter {
@@ -78,8 +73,8 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
       cause <- mention.asInstanceOf[EidosEventMention].eidosArguments("cause")
       factor_a_info = EntityInfo(cause, groundAs)
 
-      trigger = mention.odinMention.asInstanceOf[EventMention].trigger
-      relation_txt = ExportUtils.removeTabAndNewline(trigger.text)
+      trigger = MentionUtils.triggerOpt(mention).getOrElse("")
+      relation_txt = ExportUtils.removeTabAndNewline(trigger)
       relation_norm = mention.label // i.e., "Causal" or "Correlation"
       relation_modifier = ExportUtils.getModifier(mention) // prob none
 
@@ -119,7 +114,10 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
         "Relation Score",
         "Annotator",
         "Evidence",
-        "Comments"
+        "Comments",
+        "Trigger",
+        "Rule",
+        "Negated",
       )
       annotatedDocuments.foreach(printTableRows(_, csvWriter, reader))
       csvWriter.println()
@@ -144,7 +142,9 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       effectInfo = EntityInfo(effect, groundAs, topN, delim = "\n")
       effectGroundings = effectInfo.groundingStrings.head // topN in a row, newline separated
 
+      trigger = MentionUtils.triggerOpt(mention).getOrElse("")
       direction = ExportUtils.poorMansIndra(cause, effect)
+      negation = if (MentionUtils.hasNegation(mention)) "TRUE" else "false"
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
     } csvWriter.println(
       docID,
@@ -161,7 +161,10 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       "", // relation score
       "", // annotator
       evidence,
-      "" // comments
+      "", // comments
+      trigger,
+      mention.odinMention.foundBy,
+      negation,
     )
   }
 }
