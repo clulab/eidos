@@ -37,7 +37,7 @@ rules:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
       label: Increase
-      trigger: ${ increase_triggers }|${ noncausal_increase_triggers }
+      trigger: ${ increase_triggers }|${ noncausal_increase_triggers }|${ create_triggers }
 
   - import: org/clulab/causeex/eidos/english/grammars/modifiersTemplate.yml
     vars:
@@ -68,7 +68,7 @@ rules:
       addlabel: "Causal"
       label: Causal
       action: pass
-      trigger: ${cause_triggers}|${increase_triggers}|${decrease_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
+      trigger: ${cause_triggers}|${increase_triggers}|${decrease_triggers}|${create_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
 
   - import: org/clulab/causeex/eidos/english/grammars/reverse_direction_causal.yml
     vars:
