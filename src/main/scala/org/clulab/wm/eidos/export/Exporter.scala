@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.export
 import java.io.{File, PrintWriter}
 
 import ai.lum.common.StringUtils._
-import org.clulab.odin.{Attachment, EventMention, Mention, State}
+import org.clulab.odin.{Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.EidosSystem
@@ -133,14 +133,13 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       sentenceId = mention.odinMention.sentence
       docID = mention.odinMention.document.id.getOrElse("NONE")
 
-      // For now, only put EidosEventMentions in the eval
       cause <- mention.eidosArguments("cause")
       causeInfo = EntityInfo(cause, groundAs, topN, delim = "\n")
-      causeGroundings = causeInfo.groundingStrings.head // topN in a row, newline separatec
+      causeGroundings = causeInfo.groundingStrings.headOption.getOrElse("NONE") // topN in a row, newline separatec
 
       effect <- mention.eidosArguments("effect")
       effectInfo = EntityInfo(effect, groundAs, topN, delim = "\n")
-      effectGroundings = effectInfo.groundingStrings.head // topN in a row, newline separated
+      effectGroundings = effectInfo.groundingStrings.headOption.getOrElse("NONE") // topN in a row, newline separated
 
       trigger = MentionUtils.triggerOpt(mention).getOrElse("")
       direction = ExportUtils.poorMansIndra(cause, effect)
