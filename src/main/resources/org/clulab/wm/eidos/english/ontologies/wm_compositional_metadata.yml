@@ -3,1596 +3,1796 @@
 #  - we don't attempt to differentiate "event" and "entities" but rather trying to put all causal factors into "causal_factor"
 #  - use coarse-grained concepts "causal_factor", "entity" (where the causal factor is located, who and what artifacts are involved in a causal factor), "time", and "indicator_and_reported_property" as the top level concepts.
 # - allow multiple inheritance ("economic_crisis" is a child to both "economic_and_commerce" and "crisis_and_disaster"). Concepts under "intervention" and "condition" will overlap with other categories
-- wm_compositional:
+- wm:
     - process:
-        - management:
-            - OntologyNode:
-              examples:
-                - mitigation
-              name: mitigation
-              take_args: 0
-              polarity: 1.0
-            # new node below
-            - OntologyNode:
-              examples:
-                - adaptation
-              name: adaptation
-              take_args: 0
-              polarity: 1.0
-            # new node below
-            - OntologyNode:
-              examples:
-                - conservation
-                - sustainable use
-              name: conservation
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - management
-              name: management
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - development
-              name: development
-              take_args: 1
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - production
-              name: production
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - storage
-                - store
-              name: storage
-              take_args: 0
-              polarity: 1.0
+      - management:
         - OntologyNode:
           examples:
-            - evacuation
-          name: evacuation
-          take_args: 0
+          - mitigation
+          name: mitigation
           polarity: 1.0
         # new node below
         - OntologyNode:
           examples:
-            - training
-          name: training
-          take_args: 0
+          - adaptation
+          name: adaptation
           polarity: 1.0
-        - environment:
+        # new node below
+        - OntologyNode:
+          examples:
+          - conservation
+          - sustainable use
+          - overexploitation
+          - depletion
+          name: conservation
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - management
+          name: management
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - development
+          name: development
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - production
+          name: production
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - storage
+          - store
+          name: storage
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - recycling
+          - recycle
+          name: recycle
+          polarity: 1
+      - OntologyNode:
+        examples:
+        - herding
+        - ranching
+        name: animal_tending
+        polarity: 1
+      - OntologyNode:
+        examples:
+        - food preparation
+        - cooking
+        - meal preparation
+        name: food_preparation
+      - wild_food_sources:
+        - OntologyNode:
+          examples:
+          - gather gathering wild foods
+          - forage
+          - foraging
+          name: foraging_wild_foods
+          polarity: 1
+        - OntologyNode:
+          examples:
+          - hunting
+          - trapping
+          name: hunting
+          polarity: 1
+      - OntologyNode:
+        examples:
+        - evacuation
+        - evacuate
+        - evacuating
+        - evacuated
+        name: evacuation
+        polarity: 1.0
+      # new node below
+      - OntologyNode:
+        examples:
+        - training
+        name: training
+        polarity: 1.0
+      - environment:
+        - OntologyNode:
+          examples:
+          - pollution
+          name: pollution
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - contamination
+          - leaching  #AZ: where to put this addition? here, pollution, or its own?
+          - acidification
+          name: contamination
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - emission
+          name: emission
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - deforestation
+          - desertification
+          - climate change
+          name: climate_change_process
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - erosion
+          - soil erosion
+          name: erosion
+          polarity: 1.0
+        # new node below
+        - OntologyNode:
+          examples:
+          - afforestation
+          - agroforestry
+          - reforestation
+          - forestry
+          - logging
+          name: forestry
+          polarity: 1.0
+      - agriculture:
+        - OntologyNode:
+          examples:
+          - planting
+          - plant
+          - horticulture
+          name: planting
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - cultivating
+          - cultivation
+          - cultivate
+          name: cultivating
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - harvesting
+          - harvest
+          name: harvesting
+          polarity: 1.0
+        # new node below
+        # not sure if needs more specific to get 'crop failure'
+        # don't want ALL failures to ground here...
+        - OntologyNode:
+          examples:
+          - failure
+          name: failure
+          polarity: 1.0
+      - conflict:
+        - OntologyNode:
+          examples:
+          - raiding
+          - steal livestock
+          name: raiding
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - bombard
+          - genocide
+          - clash
+          - attack
+          - assault
+          - combat
+          - fight
+          - battle
+          - attacking
+          - attacked
+          - attacks
+          - invaded
+          - shoots
+          - shooting
+          - crossfire
+          - invasion
+          - massacre
+          name: attack
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - bombard
+          - strike
+          - attack
+          - destroy
+          - bomb
+          - bombing
+          - explosion
+          name: strike
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - abduction
+          - kidnapping
+          - forced recruitment
+          - abducted
+          - kidnapped
+          name: abduction
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - exploitation
+          name: exploitation
+          polarity: 1.0
+      - economic:
+        - OntologyNode:
+          examples:
+          - trade
+          name: trade
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - import
+          name: import
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - export
+          name: export
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - transaction
+          - purchase
+          - purchasing
+          - buying
+          - selling
+          name: transaction
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - inflation
+          - hyperinflation
+          - inflationary pressure
+          name: inflation
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - depreciation
+          - depreciating
+          - devaluation
+          - decreased in value
+          name: depreciation
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - consumption
+          - utilization
+          name: utilization
+          opposite: wm/process/economic/nonutilization
+          polarity: 1
+        - OntologyNode:
+          examples:
+          - nonconsumption
+          - nonutilization
+          - wasting
+          - wastage
+          name: nonutilization
+          opposite: wm/process/economic/utilization
+          polarity: -1
+        - OntologyNode:
+          examples:
+          - competition
+          name: competition_process
+          polarity: 1.0
+      - access:
+        - OntologyNode:
+          examples:
+          - access
+          name: access
+          opposite: wm/process/access/nonaccess
+          polarity: 1
+        - OntologyNode:
+          examples:
+          - nonaccess
+          name: nonaccess
+          opposite: wm/process/access/access
+          polarity: -1
+        - OntologyNode:
+          examples:
+          - availability
+          - available
+          name: availability
+          opposite: wm/process/access/unavailability
+          polarity: 1
+        - OntologyNode:
+          examples:
+          - shortage
+          - unavailability
+          - unavailable
+          - scarcity
+          - deficits
+          name: unavailability
+          opposite: wm/process/access/availability
+          polarity: -1
+      - migration:
+        - OntologyNode:
+          examples:
+          - migration
+          - displacement
+          - movement
+          - relocate
+          - refugee migration
+          - residence move
+          - movement trends
+          name: migration
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - seasonal_migration
+          - cyclic migration
+          name: seasonal_migration
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - hosting
+          - host
+          name: hosting
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - emigration
+          - leaving
+          - leave
+          - flight
+          - flee
+          - fleeing
+          - fled
+          name: emigration
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - arrival
+          - arrive
+          - arrivals
+          - immigration
+          - immigrate
+          - choose to come
+          - influx
+          name: immigration
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - displacement
+          - displaced
+          - evicted
+          name: displacement
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - return
+          - repatriate
+          name: return
+          polarity: 1.0
+      - transportation:
+        - OntologyNode:
+          examples:
+          - transport
+          - transporting
+          - transportation
+          - delivery
+          name: transportation
+          polarity: 1.0
+        - OntologyNode:
+          examples:
+          - shipping
+          - trucking
+          name: shipping
+          polarity: 1.0
+    - property:
+      - OntologyNode:
+        pattern:
+        - (quality)
+        examples:
+        - quality
+        name: quality
+        polarity: 1.0
+      - OntologyNode:
+        pattern:
+        - (condition)
+        examples:
+        - condition
+        name: condition
+        polarity: 1.0
+      - OntologyNode:
+        pattern:
+        - (price|cost)
+        examples:
+        - price
+        - cost
+        name: price
+        polarity: 1.0
+      - OntologyNode:
+        pattern:
+        - (supply|amount|level|stock|reserve|storage)
+        examples:
+        - supply
+        - amount
+        - level
+        - stock
+        - reserve
+        - storage
+        name: supply
+        polarity: 1.0
+      - OntologyNode:
+        pattern:
+        - (demand)
+        examples:
+        - demand
+        name: demand
+        polarity: 1.0
+      - OntologyNode:
+        pattern:
+        - (\b(security|\b(secure))
+        examples:
+        - security
+        - secure
+        name: security
+        opposite: wm/property/insecurity
+        polarity: 1
+      - OntologyNode:
+        pattern:
+        - (insecurity|insecure)
+        examples:
+        - insecurity
+        - insecure
+        name: insecurity
+        opposite: wm/property/security
+        polarity: -1
+      - OntologyNode:
+        pattern:
+        - (\b(stability|\b(stable))
+        examples:
+        - stability
+        - stable
+        name: stability
+        opposite: wm/property/instability
+        polarity: 1
+      - OntologyNode:
+        pattern:
+        - (instability|unstable)
+        examples:
+        - instability
+        - unstable
+        name: instability
+        opposite: wm/property/stability
+        polarity: -1
+      - OntologyNode:
+        pattern:
+        - (diversity|variety|diverse|various)
+        examples:
+        - diversity
+        - variety
+        name: diversity
+        polarity: 1.0
+      - OntologyNode:
+        pattern:
+        - (trend|increase|decrease|change|tendency|decline|improve)
+        examples:
+        - trend
+        - trends
+        - increased
+        - decreased
+        - increase
+        - decrease
+        - change
+        - tendency
+        - declined
+        - improved
+        name: trend
+        polarity: 1.0
+      - OntologyNode:
+        pattern:
+        - (safety|safe|unsafe)
+        examples:
+        - safety
+        - safe
+        - unsafe
+        name: safety
+        polarity: 1
+      - OntologyNode:
+        pattern:
+        - (unsanitary|unclean|unpotable)
+        examples:
+        - unsanitary
+        - unclean
+        - unpotable
+        name: sanitation_and_hygiene
+        polarity: 1
+      - OntologyNode:
+        pattern:
+        - (intake)
+        examples:
+        - intake
+        name: intake
+        polarity: 1
+    - concept:
+      - causal_factor:
+        - intervention:
+          - OntologyNode:
+            pattern:
+            - (intervention)
+            - (humanitarian)(\s|\w)+(aid|assistance)
+            examples:
+            - access
+            - humanitarian response
+            - humanitarian aid
+            - assistance
+            - humanitarian support
+            - intervention
+            - rehabilitation
+            - poverty alleviation
+            name: humanitarian_assistance
+            polarity: 1.0
+          - provision_of_goods_and_services:
+            - education:
+              - OntologyNode:
+                examples:
+                - child friendly learning spaces
+                name: child_friendly_learning_spaces
+                polarity: 1.0
+            - health:
+              - OntologyNode:
+                examples:
+                - anti-retroviral treatment
+                name: anti-retroviral_treatment
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - sexual violence management
+                name: sexual_violence_management
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - vector control
+                name: vector_control
+                polarity: 1.0
+            - nutrition:
+              - OntologyNode:
+                examples:
+                - therapeutic feeding
+                - therapeutic treating
+                name: therapeutic_feeding_or_treating
+                polarity: 1.0
             - OntologyNode:
               examples:
-                - pollution
-              name: pollution
-              take_args: 0
+              - provide hygiene tool
+              name: provide_hygiene_tool
               polarity: 1.0
             - OntologyNode:
               examples:
-                - contamination
-              name: contamination
-              take_args: 0
+              - provide delivery kit
+              name: provide_delivery_kit
               polarity: 1.0
             - OntologyNode:
               examples:
-                - emission
-              name: emission
-              take_args: 0
+              - provide farming tool
+              name: provide_farming_tool
               polarity: 1.0
             - OntologyNode:
               examples:
-                - deforestation
-                - desertification
-              name: climate_change
-              take_args: 0
+              - provide seed
+              name: provide_seed
               polarity: 1.0
             - OntologyNode:
               examples:
-                - erosion
-                - soil erosion
-              name: erosion
-              take_args: 0
+              - provide livestock feed
+              name: provide_livestock_feed
               polarity: 1.0
-            # new node below
             - OntologyNode:
               examples:
-                - afforestation
-                - agroforestry
-                - reforestation
-                - forestry
-              name: forestry
-              take_args: 0
+              - provide veterinary service
+              name: provide_veterinary_service
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - provide stationary
+              name: provide_stationary
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - provide fishing tool
+              name: provide_fishing_tool
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - provide cash
+              - provide money
+              - provide loan
+              name: provide_cash
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - provide food
+              name: provide_food
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - provide veterinary drugs vaccines
+              name: provide_veterinary_drugs_vaccines
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - provide moving of houseHolds
+              name: provide_moving_of_houseHolds
+              polarity: 1.0
+          - OntologyNode:
+            pattern:
+            - (((rehabilitation|restoration|construction|repair)\s+of)|(build|restoring|constructing|repairing))
+            - (disaster\s+relief|field\s+hospital|classrooms)
+            - (improvement\s+of|improved)(\s|\w)+(school|infrastructure|education|facilit)
+            - (temporary|relief|deployment)(\s|\w)+(camp|building|facilit|shelter|settlement)
+            - (borehole\s+drilling)
+            name: infrastructure
+            polarity: 1.0
+          - OntologyNode:
+            pattern:
+            - (peacekeeping|peacekeepers|peace\s+(talk|treaty)|political\s+mediation)
+            - (conflict)(\s|\w)+(resolution|mediation|intervention)
+            - (formal\s+mediation)
+            - (ceasefire|cease\s+fire)
+            - (disarm|demobiliz|reintegrat)
+            name: peacekeeping_and_security
+            polarity: 1.0
+          - institutional_support:
+            - protection:
+              - OntologyNode:
+                examples:
+                - capacity building human right
+                name: capacity_building_human_right
+                polarity: 1.0
+        - environmental:
+          - OntologyNode:
+            examples:
+            - climate change
+            name: climate_change
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - biodiversity
+            name: biodiversity
+            polarity: 1.0
+          - natural_resources:
+            - OntologyNode:
+              examples:
+              - natural resource
+              name: natural_resource
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - area
+              - land
+              - mountain
+              - mt
+              - wetland
+              - sand
+              - flood plains
+              - greenbelt
+              - agricultural land
+              - arable land
+              - cultivated area
+              - cropland
+              name: land
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - water
+              - sea
+              - river
+              - pond
+#                 - rain
+              - water resource
+              - lake
+              - freshwater
+              - surface water
+              - groundwater
+              - water body
+              - reservoir
+              - snow melt
+              - moisture
+              name: water_bodies
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - forest
+              - woods
+              name: forest
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - pastoral
+              - pasture
+              - rangeland
+              - vegetation
+              - grazing # AZ: process?
+              - grazeland
+              name: pasture
+              polarity: 1
+            - OntologyNode:
+              examples:
+              - water pumps
+              - water pipes
+              - cistern
+              - potable water
+              - drinking water
+              - groundwater
+              - wells
+              - pumps
+              - pipes
+              - salinization
+              - desalination
+              name: water_commodity
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - fossil fuels
+              - coal
+              - oil
+              - natural gas
+              name: fossil_fuels
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - soil
+              - topsoil
+              name: soil
+              polarity: 1.0
+          - pollution:
+            #AZ: what should be in air/land pollution, if kept separate?
+            - OntologyNode:
+              examples:
+              - pollution
+              - greenhouse gas
+              - ghg
+              name: air_pollution
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - contaminant
+              - pollutants
+              - pollution
+              - leakage
+              name: land_pollution
+              polarity: 1.0
+          - meteorologic:
+            - OntologyNode:
+              examples:
+              - weather
+              - weather systems
+              - rains
+              - rainfall
+              - extreme winds
+              - wet
+              - wetter
+              - climate variability
+              - snow
+              - humid
+              name: weather
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - climate
+              - tropical
+              - equatorial
+              name: climate
+              polarity: 1.0
+            - precipitation:
+              - OntologyNode:
+                examples:
+                - rainfall
+                - precipitation
+                - rains
+                - rain
+                name: rainfall
+                polarity: 1
+            - OntologyNode:
+              examples:
+              - storm
+              - seasonal monsoon
+              - extreme weather
+              - thunderstorm
+              name: storm
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - temperature
+              - cooler
+              - cooling
+              - cold
+              - freezing
+              - heat
+              - heatwave
+              - record highs
+              - warmer
+              - warming
+              name: temperature
+              polarity: 1.0
+          - OntologyNode:
+            examples:
+            - environment
+            name: environment
+            polarity: 1
+        - crisis_and_disaster:
+          - OntologyNode:
+            examples:
+            - famine
+            - hunger
+            - starvation
+            - food deprivation
+            - global acute malnutrition
+            - acute malnutrition
+            name: famine
+            polarity: -1
+          - OntologyNode:
+            examples:
+            - crisis
+            - crises
+            - emergency
+            - disasters
+            - catastrophe
+            name: crisis
+            polarity: 1.0
+          - economic:
+            - OntologyNode:
+              examples:
+              - economic crisis
+              - financial crisis
+              - economic volatility
+              name: economic_crisis
+              polarity: 1
+          - environmental_disasters:
+            #AZ: not sure about crop_failure and insect_infestation wrt process
+            - OntologyNode:
+              examples:
+              - crop failure
+              - loss of crops
+              - decimated crop yields
+              name: crop_failure
+              polarity: 1
+            - OntologyNode:
+              examples:
+              - insect infestation
+              name: insect_infestation
+              polarity: 1
+            # AZ: could the natural_disaster branch also be in process?
+            - natural_disaster:
+              - OntologyNode:
+                examples:
+                - flood
+                - floods
+                - flooding
+                - flash flood
+                name: flooding
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - avalanche
+                name: avalanche
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - wildfire
+                name: wildfire
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - volcanic eruption
+                name: volcanic_eruption
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - drought
+                - droughts
+                - low rainfall
+                name: drought
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - earthquake
+                name: earthquake
+                polarity: 1.0
+              - weather_issue:
+                - OntologyNode:
+                  examples:
+                  - cold temperature
+                  - frigid conditions
+                  - blizzard
+                  - arctic winds
+                  - winter emergency
+                  - state of emergency due to cold weather
+                  name: cold_temperature
+                  polarity: 1.0
+            - OntologyNode:
+              examples:
+              - fire
+              - blaze
+              - wildfires
+              - burned
+              name: fire
+              polarity: 1.0
+        - economic_and_commerce:
+          - OntologyNode:
+            examples:
+            - poverty
+            - poor
+            name: poverty
+            polarity: 1.0
+          - economic_activity:
+            - OntologyNode:
+              examples:
+              - farming
+              name: farming
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - currency
+              - dollar
+              - pound
+              - cash
+              - money
+              - hard currency
+              - foreign exchange
+              name: currency
+              polarity: 1.0
+            - cross_border_trade:
+              - import:
+                - OntologyNode:
+                  examples:
+                  - imported foods
+                  - crop imports
+                  - food import
+                  - food imports
+                  - imports of staples
+                  - international crop trade
+                  - food trade between countries
+                  name: food_import # thing imported
+                  polarity: 1
+              - export:
+                - OntologyNode:
+                  examples:
+                  - crop exports
+                  - food export
+                  - exported foods
+                  - food exports
+                  - exports of staples
+                  - international crop trade
+                  - food trade between countries
+                  name: food_export # thing exported
+                  polarity: 1
+            - market:
+              #AZ: added/modified 'stockpile' from 'food_stocks'
+              - OntologyNode:
+                examples:
+                - stocks
+                - reserves
+                - storage
+                - emergency reserves
+                - price stabilization reserves
+                name: stockpile
+                polarity: 1
+              - OntologyNode:
+                examples:
+                - labor market
+                - labour market
+                - employees
+                - hiring
+                - employment
+                - recruit
+                - find work
+                name: labor_market
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - fuel
+                - biofuel
+                - petroleum
+                - gas
+                - oil
+                - crude
+                - crude market
+                - petrol
+                - diesel
+                name: fuel
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - cost of living
+                - rent
+                - housing cost
+                name: cost_of_living
+                polarity: 1
+              - revenue:
+                - OntologyNode:
+                  examples:
+                  - household income
+                  - take home pay
+                  - wages
+                  - compensation
+                  - livelihood
+                  - net profit
+                  - profit
+                  - earning
+                  - earnings
+                  - revenue
+                  - investment
+                  - repaying
+                  - fee
+                  - dividend
+                  - disbursements
+                  name: household_income
+                  polarity: 1.0
+                - OntologyNode:
+                  examples:
+                  - farmer income
+                  - seasonal income
+                  name: farmer_income
+                  polarity: 1
+                - OntologyNode:
+                  examples:
+                  - budget
+                  - budgetary constraints
+                  - fiscal deficits
+                  name: budget
+                  polarity: 1.0
+                - OntologyNode:
+                  examples:
+                  - assets
+                  - property
+                  - land assets
+                  name: assets
+                  polarity: 1.0
+            - OntologyNode:
+              examples:
+              - business competition
+              - competitors
+              - industry rivalry
+              - competition for resources
+              - economic competition
+              - market pressure
+              name: competition # between? about?
+              polarity: 1
+        - social_and_political:
+          - OntologyNode:
+            examples:
+            - basic services
+            - primary services
+            - essential services
+            name: basic_services
+            polarity: 1.0
+          - population_group:
+            - OntologyNode:
+              examples:
+              - population density
+              - local population
+              name: population_density
+              polarity: 1
+            - OntologyNode:
+              examples:
+              - depopulation
+              - de-population
+              name: de-population
+              polarity: 1
+            - OntologyNode:
+              examples:
+              - overcrowding
+              - over-crowding
+              - population density
+              name: overcrowding
+              polarity: 1
+          - OntologyNode:
+            examples:
+            - humanitarian workers
+            - aid personnel
+            - humanitarian
+            name: humanitarian_workers
+            polarity: 1.0
+          - educational:
+            - OntologyNode:
+              examples:
+              - literacy
+              - education
+              - school
+              - teacher
+              - classroom
+              - school leadership
+              name: education
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - educational materials
+              - reading materials
+              - teaching aids
+              - classroom supplies
+              - school supplies
+              name: educational_materials
+              polarity: 1.0
+          - government:
+            - OntologyNode:
+              examples:
+              - census
+              - survey
+              name: census
+              polarity: 1.0
+              # AZ: should 'regulation' be a process? or both?
+            - OntologyNode:
+              examples:
+              - regulation
+              - governance
+              - surveillance
+              - enforcement
+              - law
+              - policy
+              - legislation
+              - policies
+              name: regulation
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - tax duty
+              - taxes
+              - taxation
+              - tariffs
+              - tariff
+              - export taxes
+              - excise
+              name: tax_duty
+              polarity: 1.0
+          - political:
+            - OntologyNode:
+              examples:
+              - political instability
+              - power struggle
+              - regime breakdown
+              - political violence
+              - unrest
+              name: political_instability
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - corruption
+              - fraud
+              - fraudulency
+              - bribery
+              - extortion
+              - nepotism
+              name: corruption
+              polarity: 1
+            - OntologyNode:
+              examples:
+              - independence
+              - self-rule
+              - political independence
+              name: independence
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - sanction
+              - economic sanctions
+              - diplomatic sanctions
+              - sanctioned
+              name: sanction
+              polarity: 1.0
+          - threat:
+              # AZ: should 'disarmament' be a process?
+            - OntologyNode:
+              examples:
+              - disarmament
+              name: disarmament
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - insecurity
+              - instability
+              - physical insecurity
+              - perceived security
+              - dangerous
+              name: physical_insecurity
+              polarity: 1.0
+          - criminal:
+            # AZ: should some of these crimes be 'process'?
+            - OntologyNode:
+              examples:
+              - crime
+              - crimes
+              - criminal
+              - bribery
+              - cybercrimes
+              - murdered
+              - sexual abuse
+              - assault
+              - stealing
+              - stolen
+              - looted
+              - looting
+              - theft
+              - riots
+              - violations
+              - violent crime
+              - lawlessness
+              - illegal
+              name: crime
+              polarity: 1.0
+          - conflict:
+            - OntologyNode:
+              examples:
+              - political tension
+              - political tensions
+              - adversity
+              - political instability
+              - stress
+              - distress
+              - challenge
+              - hardship
+              - burden
+              - threatening
+              name: tension
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - conflict
+              - war
+              - fighting
+              - infighting
+              - oppression
+              - tyranny
+              - oppressive regime
+              - genocide
+              - clash
+              - clashes
+              - armed clash
+              - raid
+              - regional turmoil
+              - violence
+              - outbreak of violence in the region
+              - hostility
+              - insurgency
+              - armed groups
+              - armed mobilization
+              - sabotage
+              - vandalized
+              - army mobilization
+              name: hostility
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - civil unrest
+              - social unrest
+              - conflict
+              - clash
+              - destroy
+              - protest
+              - picket
+              - strikes
+              - boycott
+              - rally
+              - turmoil
+              - demands
+              - riot
+              name: demonstrate
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - bombard
+              - genocide
+              - clash
+              - attack
+              - destroy
+              - fight
+              - war
+              - warlord
+              - civil war
+              - insurgency
+              - revolt
+              - rebel
+              - uprising
+              - militia
+              - troops
+              - military aggression
+              - conflict
+              - invaded
+              - warfare
+              - the outbreak of war
+              name: war
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - terrorism
+              - insurgency
+              - terrorist
+              - terrorist activity
+              - roadside bombing
+              - bomb threat
+              name: terrorism
               polarity: 1.0
         - agriculture:
+          - OntologyNode:
+            examples:
+            - fertilization
+            - fertilizer
+            - fertilizers
+            - biofertilizers
+            - composts
+            - guano
+            - manure
+            name: fertilizer
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - granary
+            - silo
+            - grain silo
+            name: crop_storage
+            polarity: 1
+          - OntologyNode:
+            examples:
+            - localized irrigation
+            - capillary irrigation
+            - sprinkler irrigation
+            - furrow irrigation
+            - drip fertigation
+            - surface irrigation
+            - runoff irrigation
+            - fertigation
+            - wastewater irrigation
+            - watering
+            - rotation irrigation
+            - flood irrigation
+            - trickle irrigation
+            - centre pivot irrigation
+            - subsurface irrigation
+            - irrigation system
+            - irrigation
+            name: irrigation
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - pesticide
+            name: pesticide
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - bamboo
+            - banana
+            - barley
+            - bean
+            - beans
+            - brown sorghum
+            - cassava
+            - cereal
+            - cereals
+            - cocoa
+            - coconut
+            - coffee
+            - corn
+            - crop
+            - crop
+            - cultivar
+            - feed
+            - flax
+            - flour
+            - food crop
+            - grain
+            - groundnut
+            - groundnuts
+            - leaf vegetables
+            - legume
+            - maize
+            - mango
+            - meher
+            - millet
+            - oats
+            - oilseed
+            - onion
+            - pepper
+            - potato
+            - red sorghum
+            - rice
+            - rubber
+            - seed
+            - sesame
+            - sorghum
+            - soybean
+            - staple
+            - sugar
+            - tea
+            - tobacco
+            - tomato
+            - tuber
+            - vegetable
+            - wheat
+            - white maize
+            - white sorghum
+            name: crop
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - livestock
+            - cattle
+            - poultry
+            - domestic animals
+            name: livestock
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - meat
+            - dairy
+            - milk
+            name: animal_product
+          - plant_disease:
             - OntologyNode:
               examples:
-                - planting
-                - horticulture
-              name: planting
+              - pest infestation
+              - infestation
+              - armyworm
+              - fall armyworm
+              - insect
+              - swarm
+              - locust
+              - fungus
+              - plant nematodes
+              - weeds
+              - volunteer plants
+              - pests
+              - mice
+              - midges
+              - slugs
+              - pest
+              name: pest
+              polarity: 1.0
+          - OntologyNode:
+            examples:
+            - livestock disease
+            - livestock diseases
+            name: livestock_disease
+            polarity: 1
+        - health_and_life:
+          - nutrition:
+            #AZ: not sure about splitting up 'food_preference'
+            - OntologyNode:
+              examples:
+              - food preference
+              - seed preference
+              - dietary preferences
+              - food taste choice
+              name: food_preference
+              polarity: 1
+            - OntologyNode:
+              examples:
+              - food gap
+              - malnutrition
+              - undernutrition
+              - undernourishment
+              - nutritional deficiency
+              - vitamin deficiencies
+              - stunting
+              - wasting
+              - food riots
+              name: malnutrition
+              polarity: -1
+            - OntologyNode:
+              examples:
+              - breast feeding
+              - breastfeeding
+              - breastfed
+              name: breast_feeding
+              polarity: 1
+          - OntologyNode:
+            examples:
+            - biometrics
+            - fingerprint
+            - human features
+            name: biometrics
+            polarity: 1.0
+          - disease:
+            - OntologyNode:
+              examples:
+              - HIV
+              - malaria
+              - diabetes
+              - diarrhea
+              - illnesses
+              - anemia
+              - anaemia
+              - cholera
+              - hepatitis
+              - hiv/aids
+              - measles
+              - sickness
+              - meningitis
+              - pneumonia
+              - outbreak
+              - virus
+              - bacteria
+              - human disease
+              - epidemic
+              - fever
+              - disease outbreaks
+              - preventable diseases
+              - infection
+              - infectious
+              name: human_disease
+              polarity: 1.0
+              # AZ: process w/ entity?
+            - OntologyNode:
+              examples:
+              - alcohol drug and substance abuse
+              - alcohol abuse
+              - drug rehabilitation
+              name: alcohol_drug_and_substance_abuse
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - animal disease
+              name: animal_disease
+              polarity: 1.0
+          - treatment:
+            - OntologyNode:
+              examples:
+              - disease treatment
+              - medication
+              - health treatments
+              - medical therapy
+              - theraputic treatment
+              - cure
+              name: health_treatment
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - procedure
+              - surgery
+              - operation
+              name: medical_procedure
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - vaccine
+              - vaccination
+              name: vaccines
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - medicine
+              - medication
+              name: medication
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - vitamins
+              - supplement
+              name: vitamins
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - prenatal care
+              name: prenatal_care
+              polarity: 1.0
+          - OntologyNode:
+            examples:
+            - death
+            - mortality
+            - morbidity
+            - decease
+            - loss of life
+            - life loss
+            - fatality
+            - fatal
+            - killed
+            - suicide
+            - deaths
+            - murder
+            name: death
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - injury
+            - wounds
+            name: injury
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - birth
+            - childbirth
+            - neonatal
+            - born
+            name: birth
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - basic needs
+            - population needs
+            - humanitarian needs
+            name: basic_needs
+            polarity: 1.0
+        - infrastructure:
+          - OntologyNode:
+            examples:
+            - energy
+            - electric plant
+            - utilities
+            - power grid
+            - electricity
+            - electrical services
+            name: electrical
+            polarity: 1.0
+            # AZ: ok to overlap 'water' examples here w/ natural_resource ?
+          - OntologyNode:
+            examples:
+            - water
+            - moisture
+            - sea
+            - river
+            - pond
+            - rain
+            - water resource
+            - lake
+            - freshwater
+            - surface water
+            - groundwater
+            - water body
+            - capacity of pumps
+            name: water
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - waste
+            - sewage treatment
+            - garbage removal
+            name: waste
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - road
+            - highway
+            - road network
+            - access road
+            name: road
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - bridge
+            name: bridge
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - construction materials
+            - building materials
+            name: construction_materials
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - transit system
+            - public transportation
+            - public transit
+            - travel
+            - transit
+            - mass transit
+            - air services
+            name: travel
+            polarity: 1.0
+          - OntologyNode:
+            examples:
+            - shipping
+            - freight
+            - cargo
+            - goods
+            name: shipping_infrastructure
+            polarity: 1
+          - medical:
+            - OntologyNode:
+              examples:
+              - ambulances
+              - EMS
+              name: ambulances
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - hospital
+              - clinic
+              - health post
+              - healthcare facility
+              name: medical_facility
+              polarity: 1.0
+        - entity:
+          - OntologyNode:
+            examples:
+            - geographic location
+            name: geo-location
+            take_args: 0
+            polarity: 1
+          - OntologyNode:
+            examples:
+            - commission
+            - workshop
+            - conference
+            - partnership
+            - management
+            - organization
+            - programme
+            - Programme Work
+            - convention
+            name: organization
+            take_args: 1
+            polarity: 1
+          - OntologyNode:
+            examples:
+            - government entity
+            - program entity
+            name: government_entity
+            polarity: 1
+          - person_and_group:
+            - OntologyNode:
+              examples:
+              - people group
+              - people
+              - ethnic group
+              - population
+              - rural
+              name: population
+              take_args: 0
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - community
+              - villages
+              - households
+              - family
+              - families
+              - community
+              - communities
+              name: community
+              take_args: 0
+              polarity: 1.0
+            - migration:
+              - OntologyNode:
+                examples:
+                - IDPs
+                - internally displaced persons
+                - displaced persons
+                - refugees
+                - migrants
+                name: human_migration
+                take_args: 0
+                polarity: 1.0
+              - OntologyNode:
+                examples:
+                - returnee
+                name: migration_returnees
+                take_args: 0
+                polarity: 1.0
+          - OntologyNode:
+            examples:
+            - artifact
+            name: artifact
+            take_args: 0
+            polarity: 1.0
+          # AZ: not sure where to put 'food'
+          - OntologyNode:
+            examples:
+            - food
+            name: food
+            polarity: 1.0
+        - time:
+          - temporal:
+            - OntologyNode:
+              examples:
+              - harvest
+              - lean season
+              - planting season
+              - sowing season
+              name: crop_season
+              take_args: 0
+              polarity: 1.0
+            - OntologyNode:
+              examples:
+              - summer
+              - winter
+              - fall
+              - spring
+              - dry season
+              - rainy season
+              - monsoon_season
+              name: season
               take_args: 1
               polarity: 1.0
-            - OntologyNode:
-              examples:
-                - cultivating
-                - cultivation
-                - cultivate
-              name: cultivating
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - harvesting
-                - harvest
-              name: harvesting
-              take_args: 0
-              polarity: 1.0
-            # new node below
-            # not sure if needs more specific to get 'crop failure'
-            # don't want ALL failures to ground here...
-            - OntologyNode:
-              examples:
-                - failure
-              name: failure
-              take_args: 0
-              polarity: 1.0
-        - conflict:
-            - OntologyNode:
-              examples:
-                - raiding
-              name: raiding
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - attack
-              name: attack
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - strike
-              name: strike
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - abduction
-                - kidnapping
-                - forced recruitment
-              name: abduction
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - exploitation
-              name: exploitation
-              take_args: 0
-              polarity: 1.0
-        - economic:
-            - OntologyNode:
-              examples:
-                - trade
-              name: trade
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - import
-              name: import
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - export
-              name: export
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - transaction
-              name: transaction
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - devaluation
-              name: devaluation
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - inflation
-              name: inflation
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - depreciation
-              name: depreciation
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - consumption
-              name: consumption
-              take_args: 1
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - competition
-              name: competition
-              take_args: 1
-              polarity: 1.0
-        - access:
-            - OntologyNode:
-              examples:
-                - access
-                - accessibility
-                - availability
-              name: access
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - shortage
-              name: shortage
-              take_args: 0
-              polarity: 1.0
-        - migration:
-            - OntologyNode:
-              examples:
-                - migration
-                - displacement
-                - movement
-                - moving
-                - move
-              name: migration
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - seasonal_migration
-                - cyclic migration
-              name: seasonal_migration
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - hosting
-              name: hosting
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - emigration
-                - leaving
-                - leave
-                - flight
-                - flee
-              name: emigration
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - arrival
-                - arrive
-                - immigration
-                - immigrate
-                - choose to come
-                - influx
-              name: immigration
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - displacement
-                - displaced
-              name: displacement
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - return
-                - repatriate
-              name: return
-              take_args: 0
-              polarity: 1.0
-        - transportation:
-            - OntologyNode:
-              examples:
-                - transportation
-              name: transportation
-              take_args: 0
-              polarity: 1.0
-            - OntologyNode:
-              examples:
-                - shipping
-                - trucking
-              name: shipping
-              take_args: 0
-              polarity: 1.0
-    - property:
-        - OntologyNode:
-          pattern:
-            - (price|cost)
-          examples:
-            - price
-            - cost
-          name: price
-          take_args: 0
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (supply|amount|level|lack)
-          examples:
-            - supply
-            - amount
-            - level
-            - lack
-          name: supply
-          take_args: 0
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (demand)
-          examples:
-            - demand
-          name: demand
-          take_args: 1
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (security)
-          examples:
-            - security
-          name: security
-          take_args: 0
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (insecurity)
-          examples:
-            - insecurity
-          name: insecurity
-          take_args: 0
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (stability)
-          examples:
-            - stability
-          name: stability
-          take_args: 0
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (instability)
-          examples:
-            - instability
-          name: instability
-          take_args: 0
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (diversity|variety)
-          examples:
-            - diversity
-            - variety
-          name: diversity
-          take_args: 0
-          polarity: 1.0
-        - OntologyNode:
-          pattern:
-            - (trend)
-          examples:
-            - trend
-          name: trend
-          take_args: 0
-          polarity: 1.0
-    - concept:
-        - causal_factor:
-            # AZ: left 'intervention' branch completely as-is
-            - intervention:
-                - OntologyNode:
-                  pattern:
-                    - (intervention)
-                    - (humanitarian)(\s|\w)+(aid|assistance)
-                  examples:
-                    - access
-                    - humanitarian response
-                    - humanitarian aid
-                    - assistance
-                    - humanitarian support
-                    - intervention
-                    - rehabilitation
-                    - poverty alleviation
-                  name: humanitarian assistance
-                  take_args: 0
-                  polarity: 1.0
-                - provision of goods and services:
-                    - education:
-                        - OntologyNode:
-                          examples:
-                            - child friendly learning spaces
-                          name: child friendly learning spaces
-                          take_args: 0
-                          polarity: 1.0
-                    - health:
-                        - OntologyNode:
-                          examples:
-                            - anti-retroviral treatment
-                          name: anti-retroviral treatment
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - sexual violence management
-                          name: sexual violence management
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - vector control
-                          name: vector control
-                          take_args: 1
-                          polarity: 1.0
-                    - nutrition:
-                        - OntologyNode:
-                          examples:
-                            - therapeutic feeding
-                            - therapeutic treating
-                          name: therapeutic feeding or treating
-                          take_args: 0
-                          polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide hygiene tool
-                      name: provide hygiene tool
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide delivery kit
-                      name: provide delivery kit
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide farming tool
-                      name: provide farming tool
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide seed
-                      name: provide seed
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide livestock feed
-                      name: provide livestock feed
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide veterinary service
-                      name: provide veterinary service
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide stationary
-                      name: provide stationary
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide fishing tool
-                      name: provide fishing tool
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide cash
-                        - provide money
-                        - provide loan
-                      name: provide cash
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide food
-                      name: provide food
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide veterinary drugs vaccines
-                      name: provide veterinary drugs vaccines
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - provide moving of houseHolds
-                      name: provide moving of houseHolds
-                      take_args: 0
-                      polarity: 1.0
-                - OntologyNode:
-                  pattern:
-                    - (((rehabilitation|restoration|construction|repair)\s+of)|(build|restoring|constructing|repairing))
-                    - (disaster\s+relief|field\s+hospital|classrooms)
-                    - (improvement\s+of|improved)(\s|\w)+(school|infrastructure|education|facilit)
-                    - (temporary|relief|deployment)(\s|\w)+(camp|building|facilit|shelter|settlement)
-                    - (borehole\s+drilling)
-                  name: infrastructure
-                  take_args: 1
-                  polarity: 1.0
-                - OntologyNode:
-                  pattern:
-                    - (peacekeeping|peacekeepers|peace\s+(talk|treaty)|political\s+mediation)
-                    - (conflict)(\s|\w)+(resolution|mediation|intervention)
-                    - (formal\s+mediation)
-                    - (ceasefire|cease\s+fire)
-                    - (disarm|demobiliz|reintegrat)
-                  name: peacekeeping and security
-                  polarity: 1.0
-                - institutional support:
-                    - protection:
-                        - OntologyNode:
-                          examples:
-                            - capacity building human right
-                          name: capacity building human right
-                          take_args: 0
-                          polarity: 1.0
-            - environment:
-                - OntologyNode:
-                  examples:
-                    - environment
-                  name: environment
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - climate change
-                  name: climate_change
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - biodiversity
-                  name: biodiversity
-                  take_args: 0
-                  polarity: 1.0
-                - natural_resources:
-                    - OntologyNode:
-                      examples:
-                        - natural resource
-                      name: natural_resource
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - area
-                        - land
-                        - mountain
-                        - mt
-                        - wetland
-                        - sand
-                        - flood plains
-                        - greenbelt
-                        - agricultural land
-                        - arable land
-                        - cultivated area
-                      name: land
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - water
-                        - sea
-                        - river
-                        - pond
-                        - rain
-                        - water resource
-                        - lake
-                        - freshwater
-                        - surface water
-                        - groundwater
-                        - water body
-                        - reservoir
-                      name: water_bodies
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - forest
-                        - woods
-                      name: forest
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - land availability
-                      name: land_availability
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - water pumps
-                        - water pipes
-                        - cistern
-                        - potable water
-                        - drinking water
-                        - groundwater
-                      name: water_commodity
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - fossil fuels
-                        - coal
-                        - oil
-                        - natural gas
-                      name: fossil_fuels
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - soil
-                      name: soil
-                      take_args: 0
-                      polarity: 1.0
-                  # AZ: didn't want to delete completely because of CauseEx comment
-                #          - OntologyNode:
-                #            examples:
-                #            - water management
-                #            name: water_management # CauseEx
-                #            take_args: 0
-                #            polarity: 1.0
-                - pollution:
-                    - OntologyNode:
-                      examples:
-                        - greenhouse gas
-                        - ghg
-                      name: air_pollution
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - contaminant
-                      name: land_pollution
-                      take_args: 0
-                      polarity: 1.0
-                - weather:
-                - OntologyNode:
-                  examples:
-                    - weather
-                  name: weather
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - climate
-                    - tropical
-                    - equatorial
-                  name: climate
-                  take_args: 0
-                  polarity: 1.0
-                  # AZ: should precipitation be a process?
-                  # AZ: ok to ground flooding both here AND in crisis_and_disaster > natural_disaster ?
-                - precipitation:
-                    - OntologyNode:
-                      examples:
-                        - flood
-                        - flash flood
-                      name: flooding
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - drought
-                      name: drought
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - storm
-                      name: storm
-                      take_args: 0
-                      polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - temperature
-                  name: temperature
-                  take_args: 1 # temperature of ...
-                  polarity: 1.0
-            - crisis_and_disaster:
-                - crisis:
-                    - OntologyNode:
-                      examples:
-                        - crisis
-                        - emergency
-                        - catastrophe
-                      name: crisis
-                      take_args: 0
-                      polarity: 1.0
-                    - economic_crisis:
-                        - OntologyNode:
-                          examples:
-                            - poverty
-                          name: poverty
-                          take_args: 0
-                          polarity: 1.0
-                    - environmental_factor:
-                        # AZ: could the natural_disaster branch also be in process?
-                        - natural_disaster:
-                            - OntologyNode:
-                              examples:
-                                - flood
-                                - flash flood
-                              name: flooding
-                              take_args: 0
-                              polarity: 1.0
-                            - OntologyNode:
-                              examples:
-                                - avalanche
-                              name: avalanche
-                              take_args: 0
-                              polarity: 1.0
-                            - OntologyNode:
-                              examples:
-                                - wildfire
-                              name: wildfire
-                              take_args: 0
-                              polarity: 1.0
-                            - OntologyNode:
-                              examples:
-                                - volcanic eruption
-                              name: volcanic_eruption
-                              take_args: 0
-                              polarity: 1.0
-                            - OntologyNode:
-                              examples:
-                                - drought
-                              name: drought
-                              take_args: 0
-                              polarity: 1.0
-                            - OntologyNode:
-                              examples:
-                                - storm
-                                - thunderstorm
-                              name: storm
-                              take_args: 0
-                              polarity: 1.0
-                            - OntologyNode:
-                              examples:
-                                - earthquake
-                              name: earthquake
-                              take_args: 0
-                              polarity: 1.0
-                    - weather_issue:
-                        - OntologyNode:
-                          examples:
-                            - cold temperature
-                          name: cold_temperature
-                          take_args: 0
-                          polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - fire
-                  name: fire
-                  take_args: 1 # what is on fire?
-                  polarity: 1.0
-            - economic_and_commerce:
-                - OntologyNode:
-                  examples:
-                    - economic crisis
-                    - financial crisis
-                  name: economic_crisis
-                  take_args: 0
-                  polarity: 1.0
-                - economic activity:
-                    - OntologyNode:
-                      examples:
-                        - livelihood
-                        - workplace
-                        - work
-                        - job
-                        - career
-                        - opportunity
-                        - employment
-                        - agribusiness
-                        - pastoralist livelihood
-                      name: livelihood
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - currency
-                        - dollar
-                        - pound
-                        - cash
-                        - hard currency
-                      name: currency
-                      take_args: 0
-                      polarity: 1.0
-                    # new node below
-                    - OntologyNode:
-                      examples:
-                        - freight
-                        - cargo
-                        - goods
-                      name: goods
-                      take_args: 1
-                      polarity: 1.0
-                    - market:
-                        - OntologyNode:
-                          examples:
-                            - labor market
-                            - labour market
-                            - employees
-                            - hiring
-                            - employment
-                          name: labor_market
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - fuel
-                            - biofuel
-                            - petroleum
-                            - gas
-                            - oil
-                            - crude
-                            - petrol
-                            - diesel
-                          name: fuel
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - livelihood
-                            - income
-                            - household income
-                            - take home pay
-                            - net profit
-                            - profit
-                            - earning
-                            - revenue
-                            - investment
-                          name: revenue
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - budget
-                            - budgetary constraints
-                          name: budget
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - assets
-                            - property
-                            - land assets
-                          name: assets
-                          take_args: 1
-                          polarity: 1.0
-            - social_and_political:
-                - humanitarian:
-                    - OntologyNode:
-                      examples:
-                        - food
-                      name: food
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - basic services
-                        - primary services
-                        - essential services
-                      name: basic_services
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - humanitarian workers
-                      name: humanitarian_workers
-                      take_args: 0
-                      polarity: 1.0
-                - education:
-                    - OntologyNode:
-                      examples:
-                        - literacy
-                        - education
-                        - school
-                        - teacher
-                        - classroom
-                        - school leadership
-                      name: education
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - educational materials
-                        - reading materials
-                        - teaching aids
-                        - classroom supplies
-                        - school supplies
-                      name: educational_materials
-                      polarity: 1.0
-                - government:
-                    - OntologyNode:
-                      examples:
-                        - census
-                        - survey
-                      name: census
-                      take_args: 0
-                      polarity: 1.0
-                    # AZ: should 'regulation' be a process? or both?
-                    - OntologyNode:
-                      examples:
-                        - regulation
-                        - governance
-                        - surveillance
-                        - enforcement
-                        - law
-                        - policy
-                        - legislation
-                      name: regulation
-                      take_args: 1 # topic
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - tax duty
-                      name: tax_duty
-                      take_args: 0
-                      polarity: 1.0
-                - political:
-                    - OntologyNode:
-                      examples:
-                        - political instability
-                        - power struggle
-                        - regime breakdown
-                        - political violence
-                      name: political_instability
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - independence
-                        - self-rule
-                        - political independence
-                      name: independence
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - sanction
-                      name: sanction
-                      take_args: 1
-                      polarity: 1.0
-                    # AZ: should 'disarmament' be a process?
-                    - OntologyNode:
-                      examples:
-                        - disarmament
-                      name: disarmament
-                      take_args: 0
-                      polarity: 1.0
-                - security:
-                    - OntologyNode:
-                      examples:
-                        - insecurity
-                        - instability
-                        - physical insecurity
-                        - perceived security
-                      name: physical_insecurity
-                      take_args: 0
-                      polarity: 1.0
-                    - crime:
-                        - OntologyNode:
-                          examples:
-                            - crime
-                          name: crime
-                          take_args: 0
-                          polarity: 1.0
-                    - conflict:
-                        - OntologyNode:
-                          examples:
-                            - conflict
-                            - war
-                            - fighting
-                            - infighting
-                            - civil unrest
-                            - genocide
-                            - clash
-                            - armed clash
-                            - raid
-                            - hostility
-                            - armed mobilization
-                            - army mobilization
-                          name: hostility
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - civil unrest
-                            - clash
-                            - destroy
-                            - protest
-                            - picket
-                            - riot
-                          name: demonstrate
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - bombard
-                            - civil unrest
-                            - genocide
-                            - clash
-                            - attack
-                            - destroy
-                            - fight
-                            - war
-                            - strike
-                          name: war
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - terrorism
-                          name: terrorism
-                          take_args: 0
-                          polarity: 1.0
-            - agriculture:
-                - OntologyNode:
-                  examples:
-                    - fertilizer
-                  name: fertilizer
-                  take_args: 1
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - localized irrigation
-                    - capillary irrigation
-                    - sprinkler irrigation
-                    - furrow irrigation
-                    - drip fertigation
-                    - surface irrigation
-                    - runoff irrigation
-                    - fertigation
-                    - wastewater irrigation
-                    - watering
-                    - rotation irrigation
-                    - flood irrigation
-                    - trickle irrigation
-                    - centre pivot irrigation
-                    - subsurface irrigation
-                    - irrigation system
-                    - irrigation
-                  name: irrigation
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - pesticide
-                  name: pesticide
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - wheat
-                    - corn
-                    - maize
-                    - rice
-                    - sorghum
-                    - white sorghum
-                    - red sorghum
-                    - brown sorghum
-                    - oats
-                    - white maize
-                    - millet
-                    - barley
-                    - flax
-                    - grain
-                    - beans
-                    - sesame
-                    - sugar
-                    - flour
-                    - tea
-                    - leaf vegetables
-                    - groundnuts
-                    - cultivar
-                    - potato
-                    - bean
-                    - cassava
-                    - banana
-                    - coffee
-                    - soybean
-                    - groundnut
-                    - oilseed
-                    - bamboo
-                    - tomato
-                    - mango
-                    - cereal
-                    - cocoa
-                    - coconut
-                    - rubber
-                    - onion
-                    - tea
-                    - tobacco
-                    - crop
-                    - vegetable
-                    - rice
-                    - feed
-                    - food crop
-                    - legume
-                    - grain
-                    - tuber
-                  name: crop
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - livestock
-                    - cattle
-                    - poultry
-                    - domestic animals
-                  name: livestock
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - infestation
-                    - armyworm
-                    - fall armyworm
-                    - insect
-                    - swarm
-                    - locust
-                    - fungus
-                    - plant nematodes
-                    - weeds
-                    - volunteer plants
-                    - pests
-                    - mice
-                    - midges
-                    - slugs
-                    - pest
-                  name: pest
-                  take_args: 0
-                  polarity: 1.0
-            - health_and_life:
-                - OntologyNode:
-                  examples:
-                    - biometrics
-                    - fingerprint
-                    - human features
-                  name: biometrics
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - health
-                    - malnutrition
-                    - undernutrition
-                    - undernourishment
-                    - stunting
-                    - wasting
-                  name: health
-                  take_args: 0
-                  polarity: 1.0
-                - disease:
-                    - OntologyNode:
-                      examples:
-                        - HIV
-                        - malaria
-                        - diabetes
-                        - anemia
-                        - hiv
-                        - anaemia
-                        - hiv/aids
-                        - outbreak
-                        - virus
-                        - bacteria
-                        - human disease
-                        - epidemic
-                        - infection
-                        - infectious
-                      name: human_disease
-                      take_args: 0
-                      polarity: 1.0
-                    # AZ: process w/ phenomenon?
-                    - OntologyNode:
-                      examples:
-                        - alcohol drug and substance abuse
-                      name: alcohol drug and substance abuse
-                      take_args: 0
-                      polarity: 1.0
-                    - plant_disease:
-                        - OntologyNode:
-                          examples:
-                            - pest infestation
-                          name: pest_infestation
-                          take_args: 0
-                          polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - animal disease
-                      name: animal_disease
-                      take_args: 0
-                      polarity: 1.0
-                - treatment:
-                    - OntologyNode:
-                      examples:
-                        - disease treatment
-                        - medication
-                        - medical therapy
-                        - theraputic treatment
-                        - healthcare
-                      name: health_treatment
-                      take_args: 1
-                      polarity: 1.0
-                    # AZ: all other treatment nodes are new, unsure about take_args
-                    - OntologyNode:
-                      examples:
-                        - vaccine
-                        - vaccination
-                      name: vaccines
-                      take_args: 1 # ?
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - medicine
-                        - medication
-                      name: medication
-                      take_args: 0 # ?
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - procedure
-                        - surgery
-                      name: procedures
-                      take_args: 0 # ?
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - vitamins
-                        - supplement
-                      name: vitamins
-                      take_args: 0 # ?
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - prenatal care
-                      name: prenatal_care
-                      take_args: 0 # ?
-                      polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - death
-                    - mortality
-                    - morbidity
-                    - decease
-                    - loss of life
-                    - life loss
-                    - fatality
-                  name: death
-                  take_args: 1
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - injury
-                  name: injury
-                  take_args: 1
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - birth
-                  name: birth
-                  take_args: 1
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - famine
-                  name: famine
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - basic needs
-                    - population needs
-                    - humanitarian needs
-                  name: basic_needs
-                  polarity: 1.0
-            - infrastructure:
-                - OntologyNode:
-                  examples:
-                    - energy
-                    - electric plant
-                    - utilities
-                  name: electrical
-                  take_args: 0
-                  polarity: 1.0
-                # AZ: ok to overlap 'water' examples here w/ natural_resource ?
-                - OntologyNode:
-                  examples:
-                    - water
-                    - sea
-                    - river
-                    - pond
-                    - rain
-                    - water resource
-                    - lake
-                    - freshwater
-                    - surface water
-                    - groundwater
-                    - water body
-                    - capacity of pumps
-                  name: water
-                  take_args: 0
-                  polarity: 1.0
-                # AZ: create 'waste' phenom, move 'treatment/removal' to process ?
-                - OntologyNode:
-                  examples:
-                    - waste
-                    - sewage treatment
-                    - garbage removal
-                  name: waste
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - road
-                    - highways
-                    - road network
-                    - access road
-                  name: road
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - bridge
-                  name: bridge
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - construction materials
-                  name: construction_materials
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - travel
-                  name: travel
-                  take_args: 0
-                  polarity: 1.0
-                - medical:
-                    - OntologyNode:
-                      examples:
-                        - ambulances
-                      take_args: 0
-                      name: ambulances
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - hospital
-                        - clinic
-                        - health post
-                      name: medical_facility
-                      take_args: 0
-                      polarity: 1.0
-            - condition:
-                - living_condition:
-                    - OntologyNode:
-                      examples:
-                        - unsanitary condition
-                      name: unsanitary_condition
-                      take_args: 0
-                      polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - tension
-                  name: tension
-                  take_args: 1
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - famine
-                    - hunger
-                    - starvation
-                  name: famine
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - poverty
-                  name: poverty
-                  take_args: 0
-                  polarity: 1.0
-            - entity:
-                - OntologyNode:
-                  examples:
-                    - geographic location
-                  name: geo-location
-                  take_args: 0
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - commission
-                    - workshop
-                    - conference
-                    - partnership
-                    - management
-                    - organization
-                    - programme
-                    - Programme Work
-                    - convention
-                  name: organization
-                  take_args: 1
-                  polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - government entity
-                    - program entity
-                  name: government_entity
-                  take_args: 0
-                  polarity: 1.0
-                - person_and_group:
-                    - OntologyNode:
-                      examples:
-                        - people group
-                        - people
-                        - ethnic group
-                        - population
-                        - rural
-                      name: population
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - depopulation
-                        - de-population
-                      name: de-population
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - overcrowding
-                        - over-crowding
-                        - population density
-                      name: overcrowding
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - community
-                        - villages
-                        - households
-                        - family
-                        - families
-                        - community
-                        - communities
-                      name: community
-                      take_args: 0
-                      polarity: 1.0
-                    - migration:
-                        - OntologyNode:
-                          examples:
-                            - IDPs
-                            - displaced persons
-                            - refugees
-                            - migrants
-                          name: human_migration
-                          take_args: 0
-                          polarity: 1.0
-                        - OntologyNode:
-                          examples:
-                            - returnee
-                          name: migration_returnees
-                          take_args: 0
-                          polarity: 1.0
-                - OntologyNode:
-                  examples:
-                    - artifact
-                  name: artifact
-                  take_args: 0
-                  polarity: 1.0
-            - time:
-                - temporal:
-                    - OntologyNode:
-                      examples:
-                        - harvest
-                        - lean season
-                        - planting season
-                        - sowing season
-                      name: crop season
-                      take_args: 0
-                      polarity: 1.0
-                    - OntologyNode:
-                      examples:
-                        - summer
-                        - winter
-                        - fall
-                        - spring
-                        - dry season
-                        - rainy season
-                        - monsoon season
-                      name: season
-                      take_args: 1
-                      polarity: 1.0
-            # AZ: left everything after this as-is
-            - indicator_and_reported_property:
-                - weather:
-                    - OntologyNode:
-                      examples:
-                        - rainfall
-                      name: rainfall
-                      take_args: 0
-                      polarity: 1.0
-                - agriculture:
-                    - OntologyNode:
-                      examples:
-                        - Crop Production
-                      name: Crop Production
-                      take_args: 0
-                      polarity: 1.0
-                - commerce:
-                    - OntologyNode:
-                      examples:
-                        - Cross Border Trade
-                      name: Cross Border Trade
-                      take_args: 0
-                      polarity: 1.0
-                - conflict:
-                    - OntologyNode:
-                      examples:
-                        - population displacement
-                      name: population displacement
-                      take_args: 0
-                      polarity: 1.0
-                - health:
-                    - OntologyNode:
-                      examples:
-                        - Global Acute Malnutrition (GAM) rate
-                      name: Global Acute Malnutrition (GAM) rate
-                      take_args: 0
-                      polarity: 1.0
-
-# FIXME? moved some food (in)security/diversity examples to 'health'/'diversity' nodes
-#        - OntologyNode:
-#          examples:
-#          - food security
-#          - food access
-#          - food availability
-#          - nutrition
-#          - nutrition security
-#          name: food_security
-#          take_args: 0
-#          polarity: 1.0
-#        - OntologyNode:
-#          examples:
-#          - food insecurity
-#          - food gap
-#          - malnutrition
-#          - undernutrition
-#          - undernourishment
-#          - stunting
-#          - wasting
-#          - food riots
-#          - food inflation
-#          name: food_insecurity
-#          take_args: 0
-#          polarity: 1.0
-#        - OntologyNode:
-#          examples:
-#          - food diversity
-#          - food variety
-#          - nutritional variety
-#          name: food_diversity
-#          take_args: 0
-#          polarity: 1.0

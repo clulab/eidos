@@ -5,273 +5,274 @@
 # - allow multiple inheritance ("economic_crisis" is a child to both "economic_and_commerce" and "crisis_and_disaster"). Concepts under "intervention" and "condition" will overlap with other categories
 - wm:
     - process:
-        - management:
-            - mitigation
-            # new node below
-            - adaptation
-            # new node below
-            - conservation
-            - management
-            - development
-            - production
-            - storage
-        - evacuation
+      - management:
+        - mitigation
         # new node below
-        - training
-        - environment:
-            - pollution
-            - contamination
-            - emission
-            - climate_change
-            - erosion
-            # new node below
-            - forestry
-        - agriculture:
-            - planting
-            - cultivating
-            - harvesting
-            # new node below
-            # not sure if needs more specific to get 'crop failure'
-            # don't want ALL failures to ground here...
-            - failure
-        - conflict:
-            - raiding
-            - attack
-            - strike
-            - abduction
-            - exploitation
-        - economic:
-            - trade
-            - import
-            - export
-            - transaction
-            - devaluation
-            - inflation
-            - depreciation
-            - consumption
-            - competition
-        - access:
-            - access
-            - shortage
-        - migration:
-            - migration
-            - seasonal_migration
-            - hosting
-            - emigration
-            - immigration
-            - displacement
-            - return
-        - transportation:
-            - transportation
-            - shipping
+        - adaptation
+        # new node below
+        - conservation
+        - management
+        - development
+        - production
+        - storage
+        - recycle
+      - animal_tending
+      - foraging_wild_foods
+        - hunting
+      - evacuation
+      # new node below
+      - training
+      - environment:
+        - pollution
+        - contamination
+        - emission
+        - climate_change_process
+        - erosion
+        # new node below
+        - forestry
+      - agriculture:
+        - planting
+        - cultivating
+        - harvesting
+        # new node below
+        # not sure if needs more specific to get 'crop failure'
+        # don't want ALL failures to ground here...
+        - failure
+      - conflict:
+        - raiding
+        - attack
+        - strike
+        - abduction
+        - exploitation
+      - economic:
+        - trade
+        - import
+        - export
+        - transaction
+        - inflation
+        - depreciation
+        - utilization
+        - nonutilization
+        - competition_process
+      - access:
+        - access
+        - nonaccess
+        - availability
+        - unavailability
+      - migration:
+        - migration
+        - seasonal_migration
+        - hosting
+        - emigration
+        - immigration
+        - displacement
+        - return
+      - transportation:
+        - transportation
+        - shipping
     - property:
-        - price
-        - supply
-        - demand
-        - security
-        - insecurity
-        - stability
-        - instability
-        - diversity
-        - trend
+      - quality
+      - condition
+      - price
+      - supply
+      - demand
+      - security
+      - insecurity
+      - stability
+      - instability
+      - diversity
+      - trend
+      - safety
+      - sanitation_and_hygiene
+      - intake
     - concept:
-        - causal_factor:
-            # AZ: left 'intervention' branch completely as-is
-            - intervention:
-                - humanitarian assistance
-                - provision of goods and services:
-                    - education:
-                        - child friendly learning spaces
-                    - health:
-                        - anti-retroviral treatment
-                        - sexual violence management
-                        - vector control
-                    - nutrition:
-                        - therapeutic feeding or treating
-                    - provide hygiene tool
-                    - provide delivery kit
-                    - provide farming tool
-                    - provide seed
-                    - provide livestock feed
-                    - provide veterinary service
-                    - provide stationary
-                    - provide fishing tool
-                    - provide cash
-                    - provide food
-                    - provide veterinary drugs vaccines
-                    - provide moving of houseHolds
-                - infrastructure
-                - peacekeeping and security
-                - institutional support:
-                    - protection:
-                        - capacity building human right
-            - environment:
-                - environment
-                - climate_change
-                - biodiversity
-                - natural_resources:
-                    - natural_resource
-                    - land
-                    - water_bodies
-                    - forest
-                    - land_availability
-                    - water_commodity
-                    - fossil_fuels
-                    - soil
-                  # AZ: didn't want to delete completely because of CauseEx comment
-                #          - water_management # CauseEx
-                - pollution:
-                    - air_pollution
-                    - land_pollution
-                - weather:
-                - weather
-                - climate
-                  # AZ: should precipitation be a process?
-                # AZ: ok to ground flooding both here AND in crisis_and_disaster > natural_disaster ?
-                - precipitation:
-                    - flooding
-                    - drought
-                    - storm
-                - temperature
-            - crisis_and_disaster:
-                - crisis:
-                    - crisis
-                    - economic_crisis:
-                        - poverty
-                    - environmental_factor:
-                        # AZ: could the natural_disaster branch also be in process?
-                        - natural_disaster:
-                            - flooding
-                            - avalanche
-                            - wildfire
-                            - volcanic_eruption
-                            - drought
-                            - storm
-                            - earthquake
-                    - weather_issue:
-                        - cold_temperature
-                - fire
-            - economic_and_commerce:
-                - economic_crisis
-                - economic activity:
-                    - livelihood
-                    - currency
-                    # new node below
-                    - goods
-                    - market:
-                        - labor_market
-                        - fuel
-                        - revenue
-                        - budget
-                        - assets
-            - social_and_political:
-                - humanitarian:
-                    - food
-                    - basic_services
-                    - humanitarian_workers
-                - education:
-                    - education
-                    - educational_materials
-                - government:
-                    - census
-                    # AZ: should 'regulation' be a process? or both?
-                    - regulation
-                    - tax_duty
-                - political:
-                    - political_instability
-                    - independence
-                    - sanction
-                    # AZ: should 'disarmament' be a process?
-                    - disarmament
-                - security:
-                    - physical_insecurity
-                    - crime:
-                        - crime
-                    - conflict:
-                        - hostility
-                        - demonstrate
-                        - war
-                        - terrorism
-            - agriculture:
-                - fertilizer
-                - irrigation
-                - pesticide
-                - crop
-                - livestock
-                - pest
-            - health_and_life:
-                - biometrics
-                - health
-                - disease:
-                    - human_disease
-                    # AZ: process w/ phenomenon?
-                    - alcohol drug and substance abuse
-                    - plant_disease:
-                        - pest_infestation
-                    - animal_disease
-                - treatment:
-                    - health_treatment
-                    # AZ: all other treatment nodes are new, unsure about take_args
-                    - vaccines
-                    - medication
-                    - procedures
-                    - vitamins
-                    - prenatal_care
-                - death
-                - injury
-                - birth
-                - famine
-                - basic_needs
-            - infrastructure:
-                - electrical
-                # AZ: ok to overlap 'water' examples here w/ natural_resource ?
-                - water
-                # AZ: create 'waste' phenom, move 'treatment/removal' to process ?
-                - waste
-                - road
-                - bridge
-                - construction_materials
-                - travel
-                - medical:
-                    - ambulances
-                    - medical_facility
-            - condition:
-                - living_condition:
-                    - unsanitary_condition
-                - tension
-                - famine
-                - poverty
-            - entity:
-                - geo-location
-                - organization
-                - government_entity
-                - person_and_group:
-                    - population
-                    - de-population
-                    - overcrowding
-                    - community
-                    - migration:
-                        - human_migration
-                        - migration_returnees
-                - artifact
-            - time:
-                - temporal:
-                    - crop season
-                    - season
-            # AZ: left everything after this as-is
-            - indicator_and_reported_property:
-                - weather:
-                    - rainfall
-                - agriculture:
-                    - Crop Production
-                - commerce:
-                    - Cross Border Trade
-                - conflict:
-                    - population displacement
-                - health:
-                    - Global Acute Malnutrition (GAM) rate
-
-# FIXME? moved some food (in)security/diversity examples to 'health'/'diversity' nodes
-#        - food_security
-#        - food_insecurity
-#        - food_diversity
+      - causal_factor:
+        - intervention:
+          - humanitarian_assistance
+          - provision_of_goods_and_services:
+            - education:
+              - child_friendly_learning_spaces
+            - health:
+              - anti-retroviral_treatment
+              - sexual_violence_management
+              - vector_control
+            - nutrition:
+              - therapeutic_feeding_or_treating
+            - provide_hygiene_tool
+            - provide_delivery_kit
+            - provide_farming_tool
+            - provide_seed
+            - provide_livestock_feed
+            - provide_veterinary_service
+            - provide_stationary
+            - provide_fishing_tool
+            - provide_cash
+            - provide_food
+            - provide_veterinary_drugs_vaccines
+            - provide_moving_of_houseHolds
+          - infrastructure
+          - peacekeeping_and_security
+          - institutional_support:
+            - protection:
+              - capacity_building_human_right
+        - environmental:
+          - climate_change
+          - biodiversity
+          - natural_resources:
+            - natural_resource
+            - land
+            - water_bodies
+            - forest
+            - pasture
+            - water_commodity
+            - fossil_fuels
+            - soil
+          - pollution:
+            #AZ: what should be in air/land pollution, if kept separate?
+            - air_pollution
+            - land_pollution
+          - meteorologic:
+            - weather
+            - climate
+            - precipitation:
+              - rainfall
+            - storm
+            - temperature
+          - environment
+        - crisis_and_disaster:
+          - famine
+          - crisis
+          - economic:
+            - economic_crisis
+          - environmental_disasters:
+            #AZ: not sure about crop_failure and insect_infestation wrt process
+            - crop_failure
+            - insect_infestation
+            # AZ: could the natural_disaster branch also be in process?
+            - natural_disaster:
+              - flooding
+              - avalanche
+              - wildfire
+              - volcanic_eruption
+              - drought
+              - earthquake
+              - weather_issue:
+                - cold_temperature
+            - fire
+        - economic_and_commerce:
+          - poverty
+          - economic_activity:
+            - farming
+            - currency
+            - cross_border_trade:
+              - import:
+                - food_import # thing imported
+              - export:
+                - food_export # thing exported
+            - market:
+              #AZ: added/modified 'stockpile' from 'food_stocks'
+              - stockpile
+              - labor_market
+              - fuel
+              - cost_of_living
+              - revenue:
+                - household_income
+                - farmer_income
+                - budget
+                - assets
+            - competition # between? about?
+        - social_and_political:
+          - basic_services
+          - population_group:
+            - population_density
+            - de-population
+            - overcrowding
+          - humanitarian_workers
+          - educational:
+            - education
+            - educational_materials
+          - government:
+            - census
+              # AZ: should 'regulation' be a process? or both?
+            - regulation
+            - tax_duty
+          - political:
+            - political_instability
+            - corruption
+            - independence
+            - sanction
+          - threat:
+              # AZ: should 'disarmament' be a process?
+            - disarmament
+            - physical_insecurity
+          - criminal:
+            # AZ: should some of these crimes be 'process'?
+            - crime
+          - conflict:
+            - tension
+            - hostility
+            - demonstrate
+            - war
+            - terrorism
+        - agriculture:
+          - fertilizer
+          - crop_storage
+          - irrigation
+          - pesticide
+          - crop
+          - livestock
+          - pest
+          - livestock_disease
+        - health_and_life:
+          - nutrition:
+            #AZ: not sure about splitting up 'food_preference'
+            - food_preference
+            - malnutrition
+            - breast_feeding
+          - biometrics
+          - disease:
+            - human_disease
+              # AZ: process w/ entity?
+            - alcohol_drug_and_substance_abuse
+            - animal_disease
+          - treatment:
+            - health_treatment
+            - medical_procedure
+            - vaccines
+            - medication
+            - vitamins
+            - prenatal_care
+          - death
+          - injury
+          - birth
+          - basic_needs
+        - infrastructure:
+          - electrical
+            # AZ: ok to overlap 'water' examples here w/ natural_resource ?
+          - water
+          - waste
+          - road
+          - bridge
+          - construction_materials
+          - travel
+          - shipping_infrastructure
+          - medical:
+            - ambulances
+            - medical_facility
+        - entity:
+          - geo-location
+          - organization
+          - government_entity
+          - person_and_group:
+            - population
+            - community
+            - migration:
+              - human_migration
+              - migration_returnees
+          - artifact
+          # AZ: not sure where to put 'food'
+          - food
+        - time:
+          - temporal:
+            - crop_season
+            - season
