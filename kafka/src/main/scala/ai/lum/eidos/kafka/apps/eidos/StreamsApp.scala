@@ -1,11 +1,11 @@
-package ai.lum.eidos.kafka.apps
+package ai.lum.eidos.kafka.apps.eidos
 
 import java.time.Duration
 
 import ai.lum.eidos.kafka.stream.EidosStream
 import ai.lum.eidos.kafka.utils.EidosSystem
 
-object EidosApp extends App {
+object StreamsApp extends App {
   val threads = args(0).toInt
   val eidosSystem = new EidosSystem()
 

@@ -1,23 +1,22 @@
 package ai.lum.eidos.kafka.producer
 
 import ai.lum.eidos.kafka.utils.PropertiesBuilder
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
-import org.apache.kafka.common.serialization.Serdes
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.clients.producer.RecordMetadata
+import org.apache.kafka.common.serialization.StringDeserializer
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future // this is built in in scala 2.13
+import scala.concurrent.Future
 
 class ExampleProducer(topic: String, bootstrapServers: String)(executionContext: ExecutionContext) {
   protected val producer: KafkaProducer[String, String] = {
-    val properties = {
-      val serializer = Serdes.String().serializer
-
-      PropertiesBuilder()
-          .put("bootstrap.servers", bootstrapServers)
-          .put("key.serializer", serializer.getClass.getName)
-          .put("value.serializer", serializer.getClass.getName)
-          .get
-    }
+    val properties = PropertiesBuilder()
+        .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+        .put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+        .put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
+        .get
 
     new KafkaProducer[String, String](properties)
   }
@@ -25,7 +24,6 @@ class ExampleProducer(topic: String, bootstrapServers: String)(executionContext:
   def send(key: String, value: String): Future[RecordMetadata] = {
     val message = new ProducerRecord[String, String](topic, key, value)
 
-    // Why does it need to be this complicated?
     Future {
       println(s"Message $key is going to sleep...")
       Thread.sleep(2000)

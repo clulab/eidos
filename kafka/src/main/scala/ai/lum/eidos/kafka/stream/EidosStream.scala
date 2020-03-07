@@ -9,7 +9,8 @@ import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala.Serdes._
 import org.apache.kafka.streams.scala.StreamsBuilder
 
-class EidosStream(eidos: EidosSystem, applicationId: String, bootstrapServers: String, inputTopic: String, outputTopic: String, threads: Integer = 1) {
+class EidosStream(eidos: EidosSystem, applicationId: String, bootstrapServers: String, inputTopic: String,
+    outputTopic: String, threads: Integer = 1) {
   val properties = PropertiesBuilder()
       .put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
       .put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId)

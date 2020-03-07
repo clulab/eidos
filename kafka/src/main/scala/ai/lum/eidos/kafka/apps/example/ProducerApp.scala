@@ -1,26 +1,31 @@
-package ai.lum.eidos.kafka.apps
+package ai.lum.eidos.kafka.apps.example
 
 import java.util.Properties
 
 import ai.lum.eidos.kafka.producer.ExampleProducer
 import ai.lum.eidos.kafka.utils.PropertiesBuilder
-import org.slf4j.{Logger, LoggerFactory}
+import org.apache.kafka.clients.producer.ProducerConfig
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Random, Success}
+import scala.util.Failure
+import scala.util.Random
+import scala.util.Success
 
 object ProducerApp {
-  protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
-  protected val TARGET_TOPIC = "target.topic"
-  protected val KAFKA_URL = "kafka.url"
   protected val LOG: Logger = LoggerFactory.getLogger(getClass)
-  protected val DEFAULT_PROPS: Properties = PropertiesBuilder()
-      .put(TARGET_TOPIC, "eidos.test")
-      .put(KAFKA_URL, "kafka-broker-1:19092") // Do these names have symbolic constants?
+  protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
+
+  val TOPIC = "producer.topic"
+
+  val DEFAULT_PROPS: Properties = PropertiesBuilder()
+      .put(TOPIC, "example-input")
+      .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
       .get
   protected val producer: ExampleProducer = new ExampleProducer(
-    DEFAULT_PROPS.getProperty(TARGET_TOPIC),
-    DEFAULT_PROPS.getProperty(KAFKA_URL)
+    DEFAULT_PROPS.getProperty(TOPIC),
+    DEFAULT_PROPS.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG)
   )(executionContext)
 
   def main(args: Array[String]): Unit = {
