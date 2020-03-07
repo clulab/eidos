@@ -144,6 +144,7 @@ rules:
       effect: Entity = nmod_to nmod_in [tag=/^N/] (${ conjunctions })? #/${noun_modifiers}/{,2} #
       cause: Entity = nsubj nmod_in /${noun_modifiers}/{,2}
 
+
   - name: is_critical_to-${addlabel}
     priority: ${rulepriority}
     label: ${label}
@@ -160,9 +161,9 @@ rules:
     label: ${label}
     action: ${ action }
     example: "He said in order to boost intra-African trade , tariffs needed to be brought down .
-          Tariffs needed to be brought down in order to boost intra-African trade .
-          He said that to boost intra-African trade , tariffs needed to be brought down .
-          Tariffs needed to be brought down to boost intra-African trade ."
+              Tariffs needed to be brought down in order to boost intra-African trade .
+              He said that to boost intra-African trade , tariffs needed to be brought down .
+              Tariffs needed to be brought down to boost intra-African trade ."
     pattern: |
       trigger = [word=/(?i)^(critical|necessary|needed|required)/] (?= to be)
       cause: Entity = >/${agents}/ /${preps}/{,2}
