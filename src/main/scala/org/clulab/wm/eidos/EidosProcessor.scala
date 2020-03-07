@@ -2,6 +2,7 @@ package org.clulab.wm.eidos
 
 import java.util.regex.Pattern
 
+import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
 import org.clulab.processors.clu.PortugueseCluProcessor
@@ -18,7 +19,13 @@ import scala.collection.mutable.ArrayBuffer
 // This interface is needed by the TreeDomainOntologyBuilder that wants sentences
 // that are not quite as complete as the processors normally provide.
 trait SentencesExtractor {
-  def extractSentences(text: String): Array[Sentence]
+  def extractDocument(text: String): Document
+
+  def extractSentences(text: String): Array[Sentence] = {
+    val document = extractDocument(text)
+
+    document.sentences
+  }
 }
 
 // Allow the processors below to answer which language they are supporting.
@@ -31,7 +38,7 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
 
   // TODO: This should be checked with each update of processors.
-  def extractSentences(text: String): Array[Sentence] = {
+  def extractDocument(text: String): Document = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = mkDocument(text, keepText = false)
 
@@ -40,7 +47,7 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
       lemmatize(document)
       recognizeNamedEntities(document)
     }
-    document.sentences
+    document
   }
 }
 
@@ -49,7 +56,7 @@ class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCl
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
 
   // TODO: This should be checked with each update of processors.
-  def extractSentences(text: String): Array[Sentence] = {
+  def extractDocument(text: String): Document = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = mkDocument(text, keepText = false)
 
@@ -58,7 +65,7 @@ class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCl
       tagPartsOfSpeech(document)
       recognizeNamedEntities(document)
     }
-    document.sentences
+    document
   }
 }
 
@@ -67,7 +74,7 @@ class EidosPortugueseProcessor(val language: String, cutoff: Int) extends Portug
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
 
   // TODO: This should be checked with each update of processors.
-  def extractSentences(text: String): Array[Sentence] = {
+  def extractDocument(text: String): Document = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = mkDocument(text, keepText = false)
 
@@ -76,7 +83,7 @@ class EidosPortugueseProcessor(val language: String, cutoff: Int) extends Portug
       tagPartsOfSpeech(document)
       recognizeNamedEntities(document)
     }
-    document.sentences
+    document
   }
 }
 

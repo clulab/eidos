@@ -6,12 +6,11 @@ import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
   val outputDir = args(1)
-  val files = findFiles(inputDir, "txt")
+  val files = FileUtils.findFiles(inputDir, "txt")
   val config = EidosSystem.defaultConfig
   val reader = new EidosSystem(config)
   // 0. Optionally include adjective grounding

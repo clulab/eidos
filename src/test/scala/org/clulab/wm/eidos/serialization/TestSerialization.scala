@@ -9,7 +9,8 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
 class TestSerialization extends Test {
-  val reader = new EidosSystem()
+  val config = this.defaultConfig
+  val reader = new EidosSystem(config)
 
   def serialize(original: Any, index: Int): Unit = {
     val copy = (new ByteArrayOutputStream()).autoClose { streamOut =>

@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 object ReconstituteAndExport extends App with Configured {
 
 
-  val config = ConfigFactory.load("eidos")
+  val config = ConfigFactory.load(EidosSystem.defaultConfig)
   override def getConf: Config = config
 
   val inputDir = getArgString("apps.inputDirectory", None)
@@ -34,7 +34,7 @@ object ReconstituteAndExport extends App with Configured {
     println(s"Extracting from ${file.getName}")
     // 2. Get the input file contents (extractions)
     val json = FileUtils.getTextFromFile(file)
-    val corpus = deserializer.deserialize(json, reader.postProcessors)
+    val corpus = deserializer.deserialize(json)
     // 3. Export to all desired formats
     exportAs.foreach { format =>
       ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(corpus)

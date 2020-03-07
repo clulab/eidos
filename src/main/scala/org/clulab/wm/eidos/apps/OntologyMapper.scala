@@ -15,7 +15,7 @@ object OntologyMapper {
 
   // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
   def main(args: Array[String]): Unit = {
-    val config = ConfigFactory.load("eidos")
+    val config = ConfigFactory.load(EidosSystem.defaultConfig)
     val outputFile = config[String]("apps.ontologymapper.outfile")
     val topN = config[Int]("apps.groundTopN")
     val reader = new EidosSystem(config)
@@ -216,10 +216,11 @@ object OntologyMapper {
     val proc = reader.components.proc
     val w2v = reader.components.ontologyHandler.wordToVec
     val canonicalizer = reader.components.ontologyHandler.canonicalizer
+    val includeParents = reader.components.ontologyHandler.includeParents
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
-      val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager))
+      val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager), includeParents = includeParents)
       val grounder = EidosOntologyGrounder(providedOntName, ontology, w2v, canonicalizer)
       grounder.conceptEmbeddings
     } else {

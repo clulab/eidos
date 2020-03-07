@@ -11,7 +11,7 @@ import org.clulab.odin.EventMention
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.actions.{CorefHandler, MigrationUtils}
+import org.clulab.wm.eidos.actions.{CorefHandler, MigrationHandler}
 import org.clulab.wm.eidos.attachments.CountModifier._
 import org.clulab.wm.eidos.attachments.CountUnit._
 import org.clulab.wm.eidos.expansion.Expander
@@ -27,19 +27,24 @@ import scala.util.Try
 
 //TODO: need to add polarity flipping
 
-class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler]) extends Actions with LazyLogging {
+class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler], keepMigrationEvents: Boolean) extends Actions with LazyLogging {
   type Provenance = (String, Int, Int) // text, startOffset, endOffset
   type CountAndProvenance = (Double, Provenance)
   type CountUnitAndProvenanceOpt = (CountUnit.Value, Option[Provenance])
   type CountModifierAndProvenanceOpt = (CountModifier.Value, Option[Provenance])
   type NumberArg = (Int, Int, Double) // start, end, value
 
+  protected val emptyState = new State()
+
   /*
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    val afterMigration =
+        if (keepMigrationEvents) mentions
+        else mentions.filterNot { migration => migration matches EidosSystem.MIGRATION_LABEL }
     // Expand mentions, if enabled
-    val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
+    val expanded = expansionHandler.map(_.expand(afterMigration, state)).getOrElse(afterMigration)
     // Merge attachments
     val merged = mergeAttachments(expanded, state.updated(expanded))
     // Keep only the most complete version of any given Mention
@@ -176,7 +181,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         val oldGroupArg = mention.arguments("group").head //getting the group arg from the original event
         val newGroupArg = oldGroupArg.withAttachment(countAttachment) //copying the old one but with the newly-found attachments
         val newArgs = mention.arguments ++ Map("group" -> Seq(newGroupArg)) //creating the new set of args by taking the original event arguments and adding the new group argument
-        val withNewArg = MigrationUtils.copyWithNewArgs(mention, newArgs, Some("withGroupNormalized")) //creating the new event argument with the new set of arguments
+        val withNewArg = MigrationHandler.copyWithNewArgs(mention, newArgs, Some("withGroupNormalized")) //creating the new event argument with the new set of arguments
 
         withNewArg
       }.getOrElse(mention)
@@ -405,6 +410,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     argTokenInterval(m).length
   }
 
+  def keepMostCompleteEvents(ms: Seq[Mention]): Seq[Mention] = keepMostCompleteEvents(ms, emptyState)
+
   // Remove incomplete Mentions
   def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
     val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
@@ -620,10 +627,11 @@ object EidosActions extends Actions {
   def fromConfig(config: Config): EidosActions = {
     val useCoref: Boolean = config[Boolean]("useCoref")
     val corefHandler = if (useCoref) Some(CorefHandler.fromConfig(config)) else None
+    val keepMigrationEvents = config[Boolean]("keepMigrationEvents")
 
     val useExpansion: Boolean = config[Boolean]("useExpansion")
     val expansionHandler = if (useExpansion) Some(Expander.fromConfig(config[Config]("expander"))) else None
 
-    new EidosActions(expansionHandler, corefHandler)
+    new EidosActions(expansionHandler, corefHandler, keepMigrationEvents)
   }
 }

@@ -1,0 +1,33 @@
+vars: org/clulab/causeex/eidos/english/grammars/vars.yml
+
+
+rules:
+
+  # ms: this rule must include a preposition in the trigger because "resulting in" is different from "resulting from"
+  # ms: added /^nmod_/? to capture both NPs in "These impacts on livestock and crops have resulted in ..."
+  - name: reverse_causal-noun-1
+    priority: ${ rulepriority }
+    example: "More water resulting in an increase of productivity."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/] (in|to|into)
+      cause: Entity  = /${agents}/ /^nmod_/?
+      effect: Entity = (nmod_in|nmod_of|nmod_on|nmod_to){1,2} (amod | compound)? | ccomp (nsubj | dobj)?
+
+  - name: reverse_causal-noun-2
+    priority: ${ rulepriority }
+    example: "The immediate consequence of drought is a fall in crop production"
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      cause: Entity  = >nmod_of
+      effect: Entity = <nsubj >/${preps}/?
+
+  - name: reverse_causal-noun-3
+    priority: ${ rulepriority }
+    example: "Domestic agricultural production has decreased as a result of below-average rainfall."
+    label: ${ label }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/]
+      cause: Entity  = >nmod_of
+      effect: Entity = <nmod_as >nsubj >/${preps}/?

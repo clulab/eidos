@@ -1,0 +1,45 @@
+#
+#      transparent words
+# these should be lemma forms
+# These *are* included when grounding eidos, but
+# not part of the "contentful" determination
+#
+adult
+availability
+belief
+child
+childhood
+country
+cow
+exposure
+family
+finding
+goal
+group
+growth
+guideline
+household
+human
+improvement
+incidence
+individual
+lifestyle
+man
+mechanism
+more
+mouse
+need
+origin
+pastoralist
+patient
+people
+persistence
+project
+proposal
+rat
+safety
+risk
+smallholder
+symptom
+treatment
+woman

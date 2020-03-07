@@ -2,7 +2,9 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.odin._
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{EidosAttachment, TriggeredAttachment}
+import org.clulab.wm.eidos.attachments.{EidosAttachment, Negation, TriggeredAttachment}
+import org.clulab.wm.eidos.mentions.EidosMention
+
 import scala.collection.mutable.{Set => MutableSet}
 
 object MentionUtils {
@@ -43,5 +45,13 @@ object MentionUtils {
     }
   }
 
+  def hasNegation(m: EidosMention): Boolean = hasNegation(m.odinMention)
+  def hasNegation(m: Mention): Boolean = m.attachments.exists(_.isInstanceOf[Negation])
+
+  def triggerOpt(m: EidosMention): Option[String] = triggerOpt(m.odinMention)
+  def triggerOpt(m: Mention): Option[String] = m match {
+    case em: EventMention => Some(em.trigger.text)
+    case _ => None
+  }
 
 }
