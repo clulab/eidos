@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 
 object DomainOntologies {
   protected lazy val logger: Logger = LoggerFactory.getLogger(getClass)
+  protected val TWO_SIX_NAMESPACE = "two_six"
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
   protected def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {
@@ -73,15 +74,13 @@ object DomainOntologies {
   def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
       canonicalizer: Canonicalizer, cacheDir: String, useCacheForOntologies: Boolean,
       includeParents: Boolean): DomainOntology = {
-    val ontSerializedPath: String = serializedPath(name, cacheDir, includeParents)
+    if (name == TWO_SIX_NAMESPACE)
+      new TableDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter = true).build(name, ontologyPath)
+    else {
+      val ontSerializedPath: String = serializedPath(name, cacheDir, includeParents)
 
-    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true,
-        useCacheForOntologies = useCacheForOntologies, includeParents = includeParents)
-  }
-
-  def mkTableDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
-      canonicalizer: Canonicalizer): DomainOntology = {
-    new TableDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter = true)
-        .build(name, ontologyPath)
+      DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true,
+          useCacheForOntologies = useCacheForOntologies, includeParents = includeParents)
+    }
   }
 }
