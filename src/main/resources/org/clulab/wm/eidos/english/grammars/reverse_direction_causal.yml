@@ -30,4 +30,4 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]
       cause: Entity  = >nmod_of
-      effect: Entity = <nmod_as >nsubj >/${preps}/?
+      effect: Entity = <nmod_as >nsubj? >/${preps}/?
