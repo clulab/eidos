@@ -5,8 +5,6 @@ import java.util.Properties
 import ai.lum.eidos.kafka.producer.ExampleProducer
 import ai.lum.eidos.kafka.utils.PropertiesBuilder
 import org.apache.kafka.clients.producer.ProducerConfig
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
 import scala.util.Failure
@@ -14,7 +12,6 @@ import scala.util.Random
 import scala.util.Success
 
 object ProducerApp {
-  protected val LOG: Logger = LoggerFactory.getLogger(getClass)
   protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   val TOPIC = "producer.topic"

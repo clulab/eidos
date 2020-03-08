@@ -6,14 +6,10 @@ import java.time.Duration
 import java.util.Properties
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.producer.ProducerConfig
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
 
 object ConsumerApp {
-  protected val LOG: Logger = LoggerFactory.getLogger(getClass)
   protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   val TOPIC = "consumer.topic"
