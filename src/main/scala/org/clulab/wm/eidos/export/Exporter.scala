@@ -12,7 +12,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.{EidosEventMention, EidosMention}
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus, JLDRelationMigration}
-import org.clulab.wm.eidos.utils.{CsvWriter, ExportUtils, FileUtils, MentionUtils, TsvWriter}
+import org.clulab.wm.eidos.utils.{CsvWriter, ExportUtils, FileUtils, GroundingUtils, MentionUtils, TsvWriter}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
 
@@ -137,15 +137,21 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       cause <- mention.eidosArguments("cause")
       causeInfo = EntityInfo(cause, groundAs, topN, delim = "\n")
       causeGroundings = causeInfo.groundingStrings.head // topN in a row, newline separatec
+      topCauseGrounding = EntityInfo(cause, groundAs, 1, delim = "\n").groundingStrings.head
+      topCauseScore = GroundingUtils.getGroundingOpt(cause, "wm_flat").flatMap(_.headOption).map(_._2).getOrElse(0.0f)
 
       effect <- mention.eidosArguments("effect")
       effectInfo = EntityInfo(effect, groundAs, topN, delim = "\n")
       effectGroundings = effectInfo.groundingStrings.head // topN in a row, newline separated
+      topEffectGrounding = EntityInfo(effect, groundAs, 1, delim = "\n").groundingStrings.head
+      topEffectScore = GroundingUtils.getGroundingOpt(effect, "wm_flat").flatMap(_.headOption).map(_._2).getOrElse(0.0f)
 
       trigger = MentionUtils.triggerOpt(mention).getOrElse("")
       direction = ExportUtils.poorMansIndra(cause, effect)
       negation = if (MentionUtils.hasNegation(mention)) "TRUE" else "false"
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
+      if ((topCauseGrounding.contains("causal_factor/interventions") && topCauseScore >= 0.7) ||
+        (topEffectGrounding.contains("causal_factor/interventions") && topEffectScore >= 0.7))
     } csvWriter.println(
       docID,
       sentenceId.toString,
