@@ -7,6 +7,7 @@ import org.clulab.odin.{Attachment, EventMention, Mention, State}
 import org.clulab.serialization.json.stringify
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.attachments.{CountAttachment, Location}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
@@ -213,6 +214,19 @@ case class MigrationExporter(filename: String) extends Exporter {
       tsvWriter.println(
         "DocID",
         "Sentence Index",
+
+        "TimeStart Text",
+        "TimeStart Start",
+        "TimeStart End",
+
+        "TimeEnd Text",
+        "TimeEnd Start",
+        "TimeEnd End",
+
+        "Time Text",
+        "Time Start",
+        "Time End",
+
         "Group Text",
 
         "Group Count Text",
@@ -252,11 +266,27 @@ case class MigrationExporter(filename: String) extends Exporter {
 
     annotatedDocument.eidosMentions.foreach { eidosMention: EidosMention =>
       if (eidosMention.odinMention matches "HumanMigration") {
+        val    (timeStartOpt,     timeStartText) = getEidosArgumentOpt(eidosMention, "timeStart")
+        val      (timeEndOpt,       timeEndText) = getEidosArgumentOpt(eidosMention, "timeEnd")
+        val         (timeOpt,          timeText) = getEidosArgumentOpt(eidosMention, "time")
         val        (groupOpt,         groupText) = getEidosArgumentOpt(eidosMention, "group")
         val               (_, groupModifierText) = getEidosArgumentOpt(eidosMention, "groupModifier")
         val        (moveToOpt,       moveToText) = getEidosArgumentOpt(eidosMention, "moveTo")
         val      (moveFromOpt,     moveFromText) = getEidosArgumentOpt(eidosMention, "moveFrom")
         val   (moveThroughOpt,  moveThroughText) = getEidosArgumentOpt(eidosMention, "moveThrough")
+
+        val timeStartsAndEnds = Seq(timeStartOpt, timeEndOpt, timeOpt).map { eidosMentionOpt =>
+          val (timeStart, timeEnd) = eidosMentionOpt.map { eidosMention =>
+            eidosMention.odinMention.attachments.collectFirst { case time: Time =>
+              val start = time.interval.intervals.headOption.map(_.startDate.toString).getOrElse("")
+              val end = time.interval.intervals.lastOption.map(_.endDate.toString).getOrElse("")
+
+              (start, end)
+            }.getOrElse(("", ""))
+          }.getOrElse(("", ""))
+
+          (timeStart, timeEnd)
+        }
 
         val (groupCountText, groupCountValue, groupCountUnit) = groupOpt.flatMap { group =>
           group.odinMention.attachments.collectFirst { case countAttachment: CountAttachment =>
@@ -267,6 +297,19 @@ case class MigrationExporter(filename: String) extends Exporter {
         tsvWriter.println(
           annotatedDocument.document.id.getOrElse(""),
           eidosMention.odinMention.sentence.toString,
+
+          timeStartText,
+          timeStartsAndEnds(0)._1,
+          timeStartsAndEnds(0)._2,
+
+          timeEndText,
+          timeStartsAndEnds(1)._1,
+          timeStartsAndEnds(1)._2,
+
+          timeText,
+          timeStartsAndEnds(2)._1,
+          timeStartsAndEnds(2)._2,
+
           groupText,
 
           groupCountText,
