@@ -1,14 +1,34 @@
-[![Build Status](http://jenkins.cs.arizona.edu:8090/buildStatus/icon?job=eidos%2Fmaster)](http://jenkins.cs.arizona.edu:8090/job/eidos)
 
 # Eidos
 
 Eidos is an open-domain machine reading system designed by the [Computational
 Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University
-of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  It
-uses a cascade of [Odin](https://github.com/clulab/processors) grammars to
-extract events from free text.
+of Arizona](http://www.arizona.edu) for the World Modelers DARPA program and
+then further refined and extended by [LUM.ai](https://lum.ai/) for professional
+and commercial application.  It uses a cascade of [Odin](https://github.com/clulab/processors)
+grammars to extract events from free text.
 
-Eidos identifies entities like "food insecurity" along with a growing list of arguments
+<hr>
+
+# CauseEx
+
+Eidos for CauseEx (Causal Extraction) has all the capabilities of the version for [World Modelers](#world-modelers)
+and more.  Although it is very important to understand the base functionality provided by the World Modelers
+version, this is the repository for the CauseEx version, so in this top section, only the additions are highlighted.
+
+## Kafka Interface
+
+
+## Ontologies
+
+
+<hr>
+
+# World Modelers
+
+[![Build Status](http://jenkins.cs.arizona.edu:8090/buildStatus/icon?job=eidos%2Fmaster)](http://jenkins.cs.arizona.edu:8090/job/eidos)
+
+Eidos for World Modelers identifies entities like "food insecurity" along with a growing list of arguments
 on those entities, such as `increases` / `decreases` / `quantifications`.  It
 subsequently detects events that occur between entities (directed causal events,
 for example) as in "food insecurity causes increased migration".  The list of
