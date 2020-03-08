@@ -22,6 +22,7 @@ object ProducerApp {
   val DEFAULT_PROPS: Properties = PropertiesBuilder()
       .put(TOPIC, "example-input")
       .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+      .put(ProducerConfig.CLIENT_ID_CONFIG, "example-producer")
       .get
   protected val producer: ExampleProducer = new ExampleProducer(
     DEFAULT_PROPS.getProperty(TOPIC),
@@ -30,16 +31,18 @@ object ProducerApp {
 
   def main(args: Array[String]): Unit = {
     val random = new Random()
-    var key: Int = 0
+    var count = 0
 
-    while (true) {
+    while (count < 100) {
       Thread.sleep(5000)
 
-      producer.send(key.toString, random.nextString(10)).onComplete {
-        case Success(value) => LOG.info(s"message sent successfully: $value")
-        case Failure(exception) => exception.printStackTrace()
-      }(executionContext)
-      key += 1
+      producer.send(count.toString, random.nextString(10)) //.onComplete {
+//        case Success(value) => LOG.info(s"message sent successfully: $value")
+//        case Failure(exception) => exception.printStackTrace()
+//      }(executionContext)
+      count += 1
     }
+
+    producer.close()
   }
 }

@@ -16,10 +16,10 @@ class ExampleStream(applicationId: String, bootstrapServers: String, inputTopic:
   val topology = TopologyBuilder.fromStreamsBuilder { streamsBuilder: StreamsBuilder =>
     streamsBuilder
         .stream[String, String](inputTopic)
-        .flatMapValues(textLine => textLine.toLowerCase.split("\\W+"))
-        .groupBy((_, word) => word)
-        .count()
-        .toStream
+        .map { (key, value) =>
+          println(value)
+          key -> (value + "-" + value)
+        }
         .to(outputTopic)
   }.get
 
