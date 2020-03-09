@@ -19,9 +19,6 @@ object ReconstituteAndRegroundEstonia extends App {
   val files = FileUtils.findFiles(inputDir, "jsonld")
   val config = EidosSystem.defaultConfig
   val eidosSystem = new EidosSystem(config)
-  val eidosRefiners = Seq(
-    (eidosMentions: Seq[EidosMention]) => { eidosSystem.components.ontologyHandler.ground(eidosMentions) }
-  )
   val deserializer = new JLDDeserializer()
   val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
   val serializer = new JLDSerializer(Some(adjectiveGrounder))
@@ -30,7 +27,7 @@ object ReconstituteAndRegroundEstonia extends App {
     val json = FileUtils.getTextFromFile(file)
     val oldCorpus = deserializer.deserialize(json)
     val oldEidosMentions = oldCorpus.head.eidosMentions
-    val newEidosMentions = eidosSystem.refineEidosMentions(eidosRefiners, oldEidosMentions)
+    val newEidosMentions = eidosSystem.components.ontologyHandler.ground(oldEidosMentions)
     val newAnnotatedDocument = AnnotatedDocument(oldCorpus.head.document, newEidosMentions)
     val corpus = new JLDCorpus(Seq(newAnnotatedDocument))
     val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
