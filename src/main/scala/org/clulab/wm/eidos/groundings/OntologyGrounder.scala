@@ -172,30 +172,31 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
       }
       // Otherwise, back-off to the w2v-based approach for main branch and a sieve for interventions
       else {
-        val groundings = new ArrayBuffer[OntologyGrounding]
         val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
 
         // Main Portion of the ontology
         val mainConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.REST)
-        val mainGroundings = Seq(newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, mainConceptEmbeddings)))
-        groundings.appendAll(mainGroundings)
+        val mainSimilarities = wordToVec.calculateSimilarities(canonicalNameParts, mainConceptEmbeddings)
 
         // Intervention Branch
         // Only allow grounding to these nodes if the patterns match
         val possibleIntervention = nodePatternsMatch(mention.odinMention.text, Some(InterventionSieveGrounder.regexes))
-        if (possibleIntervention) {
+        val interventionSimilarities = if (possibleIntervention) {
           val matchedPatternsInterventions = nodesPatternMatched(mention.odinMention.text, conceptPatternsSeq(InterventionSieveGrounder.INTERVENTION))
           // If you match a node pattern, give it a score of 1.0
-          if (matchedPatternsInterventions.nonEmpty) {
-            groundings.append(newOntologyGrounding(matchedPatternsInterventions))
-          }
+          if (matchedPatternsInterventions.nonEmpty)
+            matchedPatternsInterventions
           else {
             val interventionConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.INTERVENTION)
-            val interventionGroundings = Seq(newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, interventionConceptEmbeddings)))
-            groundings.appendAll(interventionGroundings)
+
+            wordToVec.calculateSimilarities(canonicalNameParts, interventionConceptEmbeddings)
           }
         }
-        groundings
+        else
+          Seq.empty
+        val similarities = (mainSimilarities ++ interventionSimilarities).sortBy(-_._2).take(topN.get)
+
+        Seq(newOntologyGrounding(similarities))
        }
     }
     else
