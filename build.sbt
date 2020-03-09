@@ -31,7 +31,7 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-modelscorenlp" % procVer,
     "org.clulab"                 %% "geonorm"                  % "0.9.7",
     "org.clulab"                 %% "timenorm"                 % "1.0.4",
-    "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
+    //"org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
     "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
     "commons-io"                  % "commons-io"               % "2.5",
