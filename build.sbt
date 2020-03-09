@@ -9,9 +9,13 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
+//resolvers ++= Seq(
+//  "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies
+//  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d
+//)
+
 resolvers ++= Seq(
-  "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies
-  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d
+  "jitpack" at "https://jitpack.io" // com.github.WorldModelers/Ontologies
 )
 
 libraryDependencies ++= {
