@@ -1,6 +1,8 @@
 import ReleaseTransformations._
 import Tests._
 
+lazy val keith = "was here again"
+
 name := "eidos"
 organization := "org.clulab"
 
@@ -188,13 +190,18 @@ lazy val core = (project in file("."))
   )
 
 lazy val webapp = project
-  .enablePlugins(PlayScala)
-  .aggregate(core)
-  .dependsOn(core)
+    .enablePlugins(PlayScala)
+    .aggregate(core)
+    .dependsOn(core)
 
 lazy val elasticsearch = project
 
 lazy val sparql = project
+
+lazy val kafka = project
+    .aggregate(core)
+    .dependsOn(core)
+
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
