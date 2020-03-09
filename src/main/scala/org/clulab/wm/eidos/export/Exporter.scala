@@ -150,8 +150,9 @@ case class GroundingExporter(filename: String, reader: EidosSystem, groundAs: Se
       direction = ExportUtils.poorMansIndra(cause, effect)
       negation = if (MentionUtils.hasNegation(mention)) "TRUE" else "false"
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
-      if ((topCauseGrounding.contains("causal_factor/interventions") && topCauseScore >= 0.7) ||
-        (topEffectGrounding.contains("causal_factor/interventions") && topEffectScore >= 0.7))
+      if topCauseGrounding.contains("causal_factor/interventions") || topEffectGrounding.contains("causal_factor/interventions")
+//      if ((topCauseGrounding.contains("causal_factor/interventions") && topCauseScore >= 0.7) ||
+//        (topEffectGrounding.contains("causal_factor/interventions") && topEffectScore >= 0.7))
     } csvWriter.println(
       docID,
       sentenceId.toString,
