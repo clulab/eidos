@@ -188,13 +188,23 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
           // If you match a node pattern, give it a score of 1.0
           if (matchedPatternsInterventions.nonEmpty) {
             groundings.append(newOntologyGrounding(matchedPatternsInterventions))
+            // todo: don't use 1
+            // use the w2v score to allow to compete more fairly
+            // soften the regexes in the ontology...
+            // global patterns (any node)
+            // specific pattern, match local
+            // add some the regexes below to the ontology...
+            // pair the interventions embeddings with the patterns
+            // parallel, sanity check assert
+            // rerun, check
           }
-          else {
-            val interventionConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.INTERVENTION)
-            val interventionGroundings = Seq(newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, interventionConceptEmbeddings)))
-            groundings.appendAll(interventionGroundings)
-          }
+//          else {
+////            val interventionConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.INTERVENTION)
+////            val interventionGroundings = Seq(newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, interventionConceptEmbeddings)))
+////            groundings.appendAll(interventionGroundings)
+//          }
         }
+        // fixme: rank properly!
         groundings
        }
     }
