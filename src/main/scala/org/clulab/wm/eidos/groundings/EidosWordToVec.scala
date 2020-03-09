@@ -9,11 +9,9 @@ import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.{Logger, LoggerFactory}
 
 trait EidosWordToVec {
-  type Similarities = Seq[(Namer, Float)]
-
   def stringSimilarity(string1: String, string2: String): Float
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
   def makeCompositeVector(t:Iterable[String]): Array[Float]
 }
 
@@ -24,7 +22,7 @@ class FakeWordToVec extends EidosWordToVec {
 
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float = 0
 
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = Seq.empty
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = Seq.empty
 //  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Float)] = Seq(("hello", 5.0f))
 
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
@@ -59,7 +57,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     sum
   }
 
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = {
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
     val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
@@ -82,6 +80,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
 }
 
 object EidosWordToVec {
+  type Similarities = Seq[(Namer, Float)]
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
