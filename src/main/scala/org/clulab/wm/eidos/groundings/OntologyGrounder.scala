@@ -167,6 +167,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     groundOntology(mention, topN, threshold, 0)
   }
 
+  //A flexible grounding function that can allow window size change and can be used by multiple functions.
   def groundOntology(mention: EidosMention, topN: Option[Int], threshold: Option[Float], windowSize:Int): Seq[OntologyGrounding] = {
     // Do nothing to non-groundableType mentions
     if (!EidosOntologyGrounder.groundableType(mention))
@@ -216,6 +217,44 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
       goodGroundings
     }
+  }
+
+  // Overload method for iterative compositional grounding.
+  def groundOntology(mention: EidosMention, topN: Option[Int], threshold: Option[Float], iterativeFlag:Boolean, maxWindowSize:Int): Seq[OntologyGrounding] = {
+    var windowSize = 0
+    var continueFlag = true
+    val groundedOntologiesFinal:scala.collection.mutable.Map[String, OntologyGrounding] = scala.collection.mutable.Map()
+
+    while (continueFlag&(windowSize<=maxWindowSize)){
+      println("====================")
+      println(s"\twindow size:${windowSize}")
+      val groundedOntologies = groundOntology(mention, topN, threshold, windowSize)
+      // Initialize the map with windowSize 0:
+      if (windowSize==0){
+        for (groundedOntology <- groundedOntologies) {
+          if (groundedOntology.branch.isDefined){
+            groundedOntologiesFinal(groundedOntology.branch.get)=groundedOntology
+          }
+        }
+        windowSize+=1
+      }
+      // When the window size is larger than 0, check the actual grounded ontologies.
+      // If the current ontology is empty, and the new grounded ontology is not empty, update it.
+      else{
+        for (groundedOntology <- groundedOntologies) {
+          if (groundedOntology.branch.isDefined){
+            val ontologyType = groundedOntology.branch.get
+            if (!groundedOntologiesFinal(ontologyType).nonEmpty & groundedOntology.nonEmpty){
+              groundedOntologiesFinal(ontologyType) = groundedOntology
+            }
+          }
+        }
+        windowSize+=1
+      }
+      println("\tgrounded:", groundedOntologiesFinal)
+
+    }
+    groundedOntologiesFinal.map{case(name, ontology)=>ontology}.toSeq
   }
 
   def getModifierMentions(synHeadWord: String, mention: Mention): Seq[Mention] = {
