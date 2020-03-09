@@ -57,6 +57,27 @@ class EidosStream(inputTopic: String, outputTopic: String, properties: Propertie
 
 ## Metadata
 
+It is more and more the case that metadata is provided along with document text.  `EidosSystem` still supports
+its traditional operations on plain text, but several entrypoints have been added that accept metadata.
+Metadata currently includes document title, id, location (i.e., where it is stored), and DCT (document creation time).
+It is usually provided via an object extending the `EidosText` trait.  This is a simple interface which provides
+`getText` and `getMetadata` methods.  Implementations include `CdrText`, `CluText`, and `PlainText`.  Where one
+might previously write
+```scala
+val text = FileUtils.getTextFromFile(file)
+val annotatedDocument = eidosSystem.extractFromText(text)
+```
+one can now upgrate to
+```
+val cdrText = CdrText(file)
+val annotatedDocument = eidosSystem.extractFromText(cdrText.getText, EidosSystem.Options, cdrText.getMetadata)
+```
+in order to make use of the metadata.
+
+## Command Line
+
+
+
 ## Ontologies
 
 
