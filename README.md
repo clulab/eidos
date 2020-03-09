@@ -18,6 +18,43 @@ version, this is the repository for the CauseEx version, so in this top section,
 
 ## Kafka Interface
 
+Eidos can be incorportated into [Kafka streams](https://kafka.apache.org/24/documentation/streams/)
+and used in a pipeline architecture.  Example Eidos producers, streams, and consumers are included in
+the [kafka](https://github.com/lum-ai/eidos/tree/master/kafka) subproject.  The code below, for example,
+is used as part of a pipeline in which a producer inputs json files containing document text and metadata,
+the stream component reads the document, converting it from json to jsonld, and the consumer outputs the
+resulting jsonld files.
+```scala
+package ai.lum.eidos.kafka.stream
+...
+class EidosStream(inputTopic: String, outputTopic: String, properties: Properties, eidosSystem: EidosSystem,
+    options: EidosSystem.Options, adjectiveGrounder: EidosAdjectiveGrounder) {
+
+  protected def process(cdr: String): String = {
+    val cdrText = CdrText(cdr)
+    val annotatedDocument = eidosSystem.extractFromText(cdrText.getText, options, cdrText.getMetadata)
+    val jsonld = stringify(new JLDCorpus(annotatedDocument).serialize(adjectiveGrounder), pretty = true)
+
+    jsonld
+  }
+
+  protected val stream: KafkaStreams = {
+    val topology = TopologyBuilder.fromStreamsBuilder { streamsBuilder =>
+      streamsBuilder
+          .stream[String, String](inputTopic)
+          .map { (key: String, cdr: String) =>
+            println("Streaming " + key)
+            key -> process(cdr)
+          }
+          .to(outputTopic)
+    }.get
+
+    new KafkaStreams(topology, properties)
+  }
+  ...
+}
+```
+
 ## Metadata
 
 ## Ontologies
