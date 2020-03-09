@@ -20,11 +20,13 @@ object StreamApp extends App {
       val eidosSystem = new EidosSystem(config)
       val options = EidosSystem.Options()
       val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
-      val stream = new EidosStream(inputTopic, outputTopic, properties, eidosSystem, options, adjectiveGrounder)
+      val stream = {
+        val stream = new EidosStream(inputTopic, outputTopic, properties, eidosSystem, options, adjectiveGrounder)
 
-      sys.ShutdownHookThread {
-        stream.close()
+        sys.ShutdownHookThread { stream.close() }
+        stream
       }
+
       stream.start()
     }
   }.start
