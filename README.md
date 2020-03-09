@@ -94,8 +94,8 @@ $ sbt "runMain org.clulab.wm.eidos.apps.batch.ExtractCdrMetaFromDirectory ../jso
 An additional ontology can be configured, but presently its files must be deployed manually to the local machine
 before it can be used.  It is configured by editing the file `causeex.conf` and changing the value of `ontologies`
 to include `"two_six"` in the list that may still include other active ontologies as such:
-```json
-ontologies = ["two_six", "wm_flattened", ...]
+```
+ontologies = ["two_six", "wm_flattened", others...]
 ```
 
 <hr>
