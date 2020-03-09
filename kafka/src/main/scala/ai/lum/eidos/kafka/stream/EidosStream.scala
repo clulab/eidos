@@ -1,7 +1,5 @@
 package ai.lum.eidos.kafka.stream
 
-import ai.lum.eidos.kafka.utils.Counter
-import ai.lum.eidos.kafka.utils.EidosSystem
 import ai.lum.eidos.kafka.utils.TopologyBuilder
 
 import java.time.Duration
@@ -12,14 +10,32 @@ import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala.Serdes._
 import org.apache.kafka.streams.scala.StreamsBuilder
 
-class EidosStream(inputTopic: String, outputTopic: String, properties: Properties, eidos: Counter) {
-  val streams = {
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
+import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.utils.meta.CdrText
+
+class EidosStream(inputTopic: String, outputTopic: String, properties: Properties, eidosSystem: EidosSystem,
+    options: EidosSystem.Options, adjectiveGrounder: EidosAdjectiveGrounder) {
+
+  def process(cdr: String): String = {
+    val cdrText = CdrText(cdr)
+    val annotatedDocument = eidosSystem.extractFromText(cdrText.getText, options, cdrText.getMetadata)
+    val corpus = new JLDCorpus(annotatedDocument)
+    val jValue = corpus.serialize(adjectiveGrounder)
+    val jsonld = stringify(jValue, pretty = true)
+
+    jsonld
+  }
+
+  val stream = {
     val topology = TopologyBuilder.fromStreamsBuilder { streamsBuilder: StreamsBuilder =>
       streamsBuilder
           .stream[String, String](inputTopic)
-          .map { (id: String, cdr: String) =>
-            println("Stream " + id)
-            id -> (id + id) // cdr // eidos.process(cdr)
+          .map { (key: String, cdr: String) =>
+            println("Streaming " + key)
+            key -> process(cdr)
           }
           .to(outputTopic)
     }.get
@@ -28,12 +44,12 @@ class EidosStream(inputTopic: String, outputTopic: String, properties: Propertie
   }
 
   def start(): Unit = {
-    streams.cleanUp()
-    streams.start()
+    stream.cleanUp()
+    stream.start()
   }
 
   def close(): Unit = {
-    println("Closing stream")
-    streams.close(Duration.ofSeconds(10))
+    println("Closing stream....")
+    stream.close(Duration.ofSeconds(10))
   }
 }

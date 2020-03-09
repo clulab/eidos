@@ -3,20 +3,24 @@ package ai.lum.eidos.kafka.apps.eidos
 import java.util.Scanner
 
 import ai.lum.eidos.kafka.stream.EidosStream
-import ai.lum.eidos.kafka.utils.Counter
-import ai.lum.eidos.kafka.utils.EidosSystem
 import ai.lum.eidos.kafka.utils.PropertiesBuilder
 
-object StreamsApp extends App {
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
+
+object StreamApp extends App {
   val scanner = new Scanner(System.in)
 
   new Thread {
     override def run(): Unit = {
-      val properties = PropertiesBuilder.fromResource("/eidos.streams.properties").get
+      val properties = PropertiesBuilder.fromResource("/eidos.stream.properties").get
       val inputTopic = properties.getProperty("input.topic")
       val outputTopic = properties.getProperty("output.topic")
-      val eidosSystem = Counter() // new EidosSystem() // some more things, prime?
-      val stream = new EidosStream(inputTopic, outputTopic, properties, eidosSystem)
+      val config = EidosSystem.defaultConfig
+      val eidosSystem = new EidosSystem(config)
+      val options = EidosSystem.Options()
+      val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+      val stream = new EidosStream(inputTopic, outputTopic, properties, eidosSystem, options, adjectiveGrounder)
 
       sys.ShutdownHookThread {
         stream.close()

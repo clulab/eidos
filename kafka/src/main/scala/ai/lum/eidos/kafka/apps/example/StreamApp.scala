@@ -8,7 +8,7 @@ import ai.lum.eidos.kafka.utils.PropertiesBuilder
 
 import org.apache.kafka.streams.StreamsConfig
 
-object StreamsApp extends App {
+object StreamApp extends App {
   protected val DEFAULT_PROPS: Properties = PropertiesBuilder()
       .put(StreamsConfig.APPLICATION_ID_CONFIG, "example-stream")
       .put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
