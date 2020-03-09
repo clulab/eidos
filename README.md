@@ -55,6 +55,9 @@ class EidosStream(inputTopic: String, outputTopic: String, properties: Propertie
 }
 ```
 
+## REST Interface
+
+
 ## Metadata
 
 It is more and more the case that metadata is provided along with document text.  `EidosSystem` still supports
@@ -76,10 +79,24 @@ in order to make use of the metadata.
 
 ## Command Line
 
-
+Eidos can be accessed from the command line in numerous ways.  There are over 40 Java-style command line
+applications included in the source code.  These are most easily accessed via `sbt`, but Eidos can be
+also be assembled (run `sbt assembly`) so that a single jar file is produced for more direct access with
+Java.  In the past, the `ExtractFromDirectory` program was often used, but with the addition of metadata,
+`ExtractCdrMetaFromDirectory` is more functional.  Its parameters are input directory, output directory,
+time file, and thread count so that a typical call is
+```sh
+$ sbt "runMain org.clulab.wm.eidos.apps.batch.ExtractCdrMetaFromDirectory ../json ../jsonld time.txt 8"
+```
 
 ## Ontologies
 
+An additional ontology can be configured, but presently its files must be deployed manually to the local machine
+before it can be used.  It is configured by editing the file `causeex.conf` and changing the value of `ontologies`
+to include `"two_six"` in the list that may still include other active ontologies as such:
+```json
+ontologies = ["two_six", "wm_flattened", ...]
+```
 
 <hr>
 
