@@ -67,8 +67,8 @@ might previously write
 val text = FileUtils.getTextFromFile(file)
 val annotatedDocument = eidosSystem.extractFromText(text)
 ```
-one can now upgrate to
-```
+one can now upgrade to
+```scala
 val cdrText = CdrText(file)
 val annotatedDocument = eidosSystem.extractFromText(cdrText.getText, EidosSystem.Options, cdrText.getMetadata)
 ```
