@@ -425,7 +425,7 @@
         polarity: 1.0
       - OntologyNode:
         pattern:
-        - (\b(security|\b(secure))
+        - (\b(security)|\b(secure))
         examples:
         - security
         - secure
@@ -443,7 +443,7 @@
         polarity: -1
       - OntologyNode:
         pattern:
-        - (\b(stability|\b(stable))
+        - (\b(stability)|\b(stable))
         examples:
         - stability
         - stable
