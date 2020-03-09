@@ -17,11 +17,13 @@ class EidosProducer(topic: String, properties: Properties) {
     val value = FileUtils.getTextFromFile(file)
     val message = new ProducerRecord(topic, key, value)
 
+    println("Produce " + file.getName)
     producer.send(message)
   }
 
   def close(): Unit = {
     producer.flush()
+    println("Closing producer")
     producer.close(Duration.ofSeconds(10))
   }
 }

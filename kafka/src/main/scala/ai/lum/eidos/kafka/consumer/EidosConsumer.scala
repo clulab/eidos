@@ -26,11 +26,15 @@ class EidosConsumer(topic: String, properties: Properties, outputDir: String) {
       val file = FileEditor(new File(record.key)).setDir(outputDir).setExt("jsonld").get
       val value = record.value
 
+      println("Consume " + file.getName)
       FileUtils.printWriterFromFile(file).autoClose { printWriter =>
         printWriter.print(value)
       }
     }
   }
 
-  def close(): Unit = consumer.close(Duration.ofSeconds(10))
+  def close(): Unit = {
+    println("Closing consumer")
+    consumer.close(Duration.ofSeconds(10))
+  }
 }

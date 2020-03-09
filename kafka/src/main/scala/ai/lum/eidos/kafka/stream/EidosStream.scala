@@ -18,7 +18,8 @@ class EidosStream(inputTopic: String, outputTopic: String, properties: Propertie
       streamsBuilder
           .stream[String, String](inputTopic)
           .map { (id: String, cdr: String) =>
-            id -> cdr // eidos.process(cdr)
+            println("Stream " + id)
+            id -> (id + id) // cdr // eidos.process(cdr)
           }
           .to(outputTopic)
     }.get
@@ -32,6 +33,7 @@ class EidosStream(inputTopic: String, outputTopic: String, properties: Propertie
   }
 
   def close(): Unit = {
+    println("Closing stream")
     streams.close(Duration.ofSeconds(10))
   }
 }
