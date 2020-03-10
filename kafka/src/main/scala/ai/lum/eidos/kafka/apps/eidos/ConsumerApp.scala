@@ -5,25 +5,28 @@ import java.util.Scanner
 import ai.lum.eidos.kafka.consumer.EidosConsumer
 import ai.lum.eidos.kafka.utils.PropertiesBuilder
 
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+
 object ConsumerApp extends App {
   val scanner = new Scanner(System.in)
+  val thread = {
+    val thread = new Thread {
+      override def run: Unit = {
+        val properties = PropertiesBuilder.fromResource("/eidos.consumer.properties").get
+        val topic = properties.getProperty("topic")
+        val outputDir = args(0)
 
-  new Thread {
-    override def run: Unit = {
-      val properties = PropertiesBuilder.fromResource("/eidos.consumer.properties").get
-      val topic = properties.getProperty("topic")
-      val outputDir = args(0)
-      val consumer = new EidosConsumer(topic, properties, outputDir)
-
-      sys.ShutdownHookThread {
-        consumer.close()
-      }
-      while (true) {
-        consumer.poll()
+        new EidosConsumer(topic, properties, outputDir).autoClose { consumer =>
+          while (true)
+            consumer.poll()
+        }
       }
     }
-  }.start
+    thread.start
+    thread
+  }
+
   println("Press ENTER to exit...")
   scanner.nextLine()
-  System.exit(0)
+  thread.interrupt
 }

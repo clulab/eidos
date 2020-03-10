@@ -8,7 +8,6 @@ import java.util.Properties
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala.Serdes._
-import org.apache.kafka.streams.scala.StreamsBuilder
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
@@ -19,18 +18,16 @@ import org.clulab.wm.eidos.utils.meta.CdrText
 class EidosStream(inputTopic: String, outputTopic: String, properties: Properties, eidosSystem: EidosSystem,
     options: EidosSystem.Options, adjectiveGrounder: EidosAdjectiveGrounder) {
 
-  def process(cdr: String): String = {
+  protected def process(cdr: String): String = {
     val cdrText = CdrText(cdr)
     val annotatedDocument = eidosSystem.extractFromText(cdrText.getText, options, cdrText.getMetadata)
-    val corpus = new JLDCorpus(annotatedDocument)
-    val jValue = corpus.serialize(adjectiveGrounder)
-    val jsonld = stringify(jValue, pretty = true)
+    val jsonld = stringify(new JLDCorpus(annotatedDocument).serialize(adjectiveGrounder), pretty = true)
 
     jsonld
   }
 
-  val stream = {
-    val topology = TopologyBuilder.fromStreamsBuilder { streamsBuilder: StreamsBuilder =>
+  protected val stream: KafkaStreams = {
+    val topology = TopologyBuilder.fromStreamsBuilder { streamsBuilder =>
       streamsBuilder
           .stream[String, String](inputTopic)
           .map { (key: String, cdr: String) =>
