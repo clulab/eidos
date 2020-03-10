@@ -225,8 +225,10 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     var continueFlag = true
     val groundedOntologiesFinal:scala.collection.mutable.Map[String, OntologyGrounding] = scala.collection.mutable.Map()
 
+    println("====================")
+    println(mention.odinMention.words)
     while (continueFlag&(windowSize<=maxWindowSize)){
-      println("====================")
+      println("\t---------------------------")
       println(s"\twindow size:${windowSize}")
       val groundedOntologies = groundOntology(mention, topN, threshold, windowSize)
       // Initialize the map with windowSize 0:
@@ -251,7 +253,11 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         }
         windowSize+=1
       }
-      println("\tgrounded:", groundedOntologiesFinal)
+      val groundedLabelsFlat = groundedOntologiesFinal.flatMap{case(name, ontology)=>ontology.grounding}
+      for (groundedLabel <- groundedLabelsFlat){
+        println("\t\t",groundedLabel._1, " ", groundedLabel._2)
+      }
+      //println("\tgrounded:", groundedOntologiesFinal)
 
     }
     groundedOntologiesFinal.map{case(name, ontology)=>ontology}.toSeq
