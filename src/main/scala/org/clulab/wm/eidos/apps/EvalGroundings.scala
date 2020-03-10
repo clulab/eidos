@@ -140,14 +140,14 @@ object EvalGroundings extends App {
             conceptCorrect = true
             matchedConcept = top5concept(i)
 
-            println("gold concept grounding:", conceptGroundingGOLD)
+            println("gold concept grounding:", conceptGroundingGOLD.toSeq)
             println("\tmrr:", 1f/(top5concept.indexOf(top5concept(i))+1).toFloat)
 
             break
           }
 
         }
-        println("gold concept grounding:", conceptGroundingGOLD)
+        println("gold concept grounding:", conceptGroundingGOLD.toSeq)
         println("\tmrr:",0)
       }
       breakable {
@@ -157,13 +157,13 @@ object EvalGroundings extends App {
             processCorrect = true
             matchedProcess = top5process(i)
 
-            println("gold process grounding:", processGroundingGOLD)
+            println("gold process grounding:", processGroundingGOLD.toSeq)
             println("\tmrr:", 1f/(top5process.indexOf(top5process(i))+1).toFloat)
 
             break
           }
         }
-        println("gold process grounding:", processGroundingGOLD)
+        println("gold process grounding:", processGroundingGOLD.toSeq)
         println("\tmrr:",0)
       }
       breakable {
@@ -173,13 +173,13 @@ object EvalGroundings extends App {
             propertyCorrect = true
             matchedProperty = top5property(i)
 
-            println("gold property grounding:", propertyGroundingGOLD)
+            println("gold property grounding:", propertyGroundingGOLD.toSeq)
             println("\tmrr:", 1f/(top5property.indexOf(top5property(i))+1).toFloat)
 
             break
           }
         }
-        println("gold property grounding:", propertyGroundingGOLD)
+        println("gold property grounding:", propertyGroundingGOLD.toSeq)
         println("\tmrr:",0)
       }
 
