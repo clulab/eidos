@@ -6,7 +6,8 @@ Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University
 of Arizona](http://www.arizona.edu) for the World Modelers DARPA program and
 then further refined and extended by [LUM.ai](https://lum.ai/) for professional
 and commercial application.  It uses a cascade of [Odin](https://github.com/clulab/processors)
-grammars to extract events from free text.
+grammars to extract events from free text and has been adapted to two domains:
+[CauseEx](#causeex) and [World Modelers](#world-modelers).
 
 <hr>
 
