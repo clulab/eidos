@@ -49,7 +49,7 @@ class OntologyHandler(
       val name: String = ontologyGrounder.name
       val ontologyGroundings: Seq[OntologyGrounding] =
         if (ontologyGrounder.isInstanceOf[org.clulab.wm.eidos.groundings.CompositionalGrounder]){
-          ontologyGrounder.asInstanceOf[org.clulab.wm.eidos.groundings.CompositionalGrounder].groundOntology(eidosMention, topN = Option(5), threshold = Option(0.5f), iterativeFlag=true, maxWindowSize = 0)
+          ontologyGrounder.asInstanceOf[org.clulab.wm.eidos.groundings.CompositionalGrounder].groundOntology(eidosMention, topN = Option(5), threshold = Option(0.5f), iterativeFlag=true, maxWindowSize = 4)
         }
         else{
           ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold = Option(0.5f))
