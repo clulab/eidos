@@ -139,9 +139,16 @@ object EvalGroundings extends App {
             conceptGroundingsCorrect += 1f/(top5concept.indexOf(top5concept(i))+1).toFloat
             conceptCorrect = true
             matchedConcept = top5concept(i)
+
+            println("gold concept grounding:", conceptGroundingGOLD)
+            println("\tmrr:", 1f/(top5concept.indexOf(top5concept(i))+1).toFloat)
+
             break
           }
+
         }
+        println("gold concept grounding:", conceptGroundingGOLD)
+        println("\tmrr:",0)
       }
       breakable {
         for (i <- top5process.indices) {
@@ -149,9 +156,15 @@ object EvalGroundings extends App {
             processGroundingsCorrect += 1f/(top5process.indexOf(top5process(i))+1).toFloat
             processCorrect = true
             matchedProcess = top5process(i)
+
+            println("gold process grounding:", processGroundingGOLD)
+            println("\tmrr:", 1f/(top5process.indexOf(top5process(i))+1).toFloat)
+
             break
           }
         }
+        println("gold process grounding:", processGroundingGOLD)
+        println("\tmrr:",0)
       }
       breakable {
         for (i <- top5property.indices) {
@@ -159,9 +172,15 @@ object EvalGroundings extends App {
             propertyGroundingsCorrect += 1f/(top5property.indexOf(top5property(i))+1).toFloat
             propertyCorrect = true
             matchedProperty = top5property(i)
+
+            println("gold property grounding:", propertyGroundingGOLD)
+            println("\tmrr:", 1f/(top5property.indexOf(top5property(i))+1).toFloat)
+
             break
           }
         }
+        println("gold property grounding:", propertyGroundingGOLD)
+        println("\tmrr:",0)
       }
 
       val returnedFlat = if (flatCorrect) matchedFlat else top5flat.mkString(", ")
