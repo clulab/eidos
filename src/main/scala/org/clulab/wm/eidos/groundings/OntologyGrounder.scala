@@ -226,7 +226,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     val groundedOntologiesFinal:scala.collection.mutable.Map[String, OntologyGrounding] = scala.collection.mutable.Map()
 
     println("====================")
-    println(mention.odinMention.words)
+    println("sentence:",mention.odinMention.document.text)
+    println("original mention:", mention.odinMention.words)
     while (continueFlag&(windowSize<=maxWindowSize)){
       println("\t---------------------------")
       println(s"\twindow size:${windowSize}")
@@ -243,6 +244,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       // When the window size is larger than 0, check the actual grounded ontologies.
       // If the current ontology is empty, and the new grounded ontology is not empty, update it.
       else{
+        println("\texisting keys:", groundedOntologiesFinal.keys)
+        println("\tnew keys:", groundedOntologies.map{onto=>onto.branch})
         for (groundedOntology <- groundedOntologies) {
           if (groundedOntology.branch.isDefined){
             val ontologyType = groundedOntology.branch.get
@@ -253,9 +256,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         }
         windowSize+=1
       }
-      val groundedLabelsFlat = groundedOntologiesFinal.flatMap{case(name, ontology)=>ontology.grounding}
-      for (groundedLabel <- groundedLabelsFlat){
-        println("\t\t",groundedLabel._1, " ", groundedLabel._2)
+      for ((ontoKey, groundedOnto) <- groundedOntologiesFinal){
+        println("\tbranch:", ontoKey)
+        for (nameScore <- groundedOnto.grounding){
+          println("\t\t",nameScore._1, " ",nameScore._2)
+
+        }
       }
       //println("\tgrounded:", groundedOntologiesFinal)
 
