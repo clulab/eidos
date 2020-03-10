@@ -21,7 +21,7 @@ version, this is the repository for the CauseEx version, so in this top section,
 
 Eidos can be incorportated into [Kafka streams](https://kafka.apache.org/24/documentation/streams/)
 and used in a pipeline architecture.  Example Eidos producers, streams, and consumers are included in
-the [kafka](https://github.com/lum-ai/eidos/tree/master/kafka) subproject.  The code below, for example,
+the [kafka subproject](https://github.com/lum-ai/eidos/tree/master/kafka).  The code below, for example,
 is used as part of a pipeline in which a producer inputs json files containing document text and metadata,
 the stream component reads the document, converting it from json to jsonld, and the consumer outputs the
 resulting jsonld files.
