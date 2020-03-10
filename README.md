@@ -14,7 +14,7 @@ grammars to extract events from free text and has been adapted to two domains:
 # CauseEx
 
 Eidos for CauseEx (Causal Extraction) has all the capabilities of the version for [World Modelers](#world-modelers)
-described below and more.  Although it is very important to understand the base functionality provided by the World Modelers
+and more.  Although it is very important to understand the base functionality provided by the World Modelers
 version, this is the repository for the CauseEx version, so in this top section, only the additions are highlighted.
 
 ## Kafka Interface
