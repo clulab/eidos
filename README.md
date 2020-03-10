@@ -13,7 +13,7 @@ grammars to extract events from free text.
 # CauseEx
 
 Eidos for CauseEx (Causal Extraction) has all the capabilities of the version for [World Modelers](#world-modelers)
-and more.  Although it is very important to understand the base functionality provided by the World Modelers
+described below and more.  Although it is very important to understand the base functionality provided by the World Modelers
 version, this is the repository for the CauseEx version, so in this top section, only the additions are highlighted.
 
 ## Kafka Interface
@@ -54,6 +54,12 @@ class EidosStream(inputTopic: String, outputTopic: String, properties: Propertie
   ...
 }
 ```
+This code assumes that Kafka and Zookeeper are already running and configured in a way compatible
+with the properties files consulted by the producer, streams, and consumer apps which in turn
+create the Eidos producer, streams, and consumer objects.  For more information, please consult
+Kafka documentation, particularly that from [Apache](https://kafka.apache.org/documentation/) and
+[Confluent](https://docs.confluent.io/current/getting-started.html).
+
 
 ## REST Interface
 
@@ -61,7 +67,7 @@ class EidosStream(inputTopic: String, outputTopic: String, properties: Propertie
 ## Metadata
 
 It is more and more the case that metadata is provided along with document text.  `EidosSystem` still supports
-its traditional operations on plain text, but several entrypoints have been added that accept metadata.
+its traditional operations on plain text, but several entry points have been added that accept metadata.
 Metadata currently includes document title, id, location (i.e., where it is stored), and DCT (document creation time).
 It is usually provided via an object extending the `EidosText` trait.  This is a simple interface which provides
 `getText` and `getMetadata` methods.  Implementations include `CdrText`, `CluText`, and `PlainText`.  Where one
@@ -80,7 +86,7 @@ in order to make use of the metadata.
 ## Command Line
 
 Eidos can be accessed from the command line in numerous ways.  There are over 40 Java-style command line
-applications included in the source code.  These are most easily accessed via `sbt`, but Eidos can be
+applications included in the source code.  These are most easily accessed via `sbt`, but Eidos can
 also be assembled (run `sbt assembly`) so that a single jar file is produced for more direct access with
 Java.  In the past, the `ExtractFromDirectory` program was often used, but with the addition of metadata,
 `ExtractCdrMetaFromDirectory` is more functional.  Its parameters are input directory, output directory,
