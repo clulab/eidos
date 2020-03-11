@@ -66,7 +66,7 @@ class TestExtraText extends EnglishTest {
     passingTest should "have correct edge 1" taggedAs(Somebody) in {
       tester.test(EdgeSpec(birds, Causal, income)) should be (successful)
     }
-    passingTest should "have correct edge 2" taggedAs(Somebody) in {
+    failingTest should "have correct edge 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(birds, Causal, protein)) should be (successful)
     }
     passingTest should "have correct edge 3" taggedAs(Somebody) in {
