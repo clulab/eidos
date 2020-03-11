@@ -5,8 +5,6 @@ info:
 servers:
   - url: 'http://localhost:9000/eidos/v2'
     description: Localhost
-  - url: 'http://kwalcock.noip.me/eidos/v2'
-    description: Keith's computer
 
 components:
   schemas:

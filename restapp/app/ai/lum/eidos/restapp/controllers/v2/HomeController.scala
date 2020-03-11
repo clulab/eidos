@@ -45,13 +45,13 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     else {
       try {
         val eidosText = new PlainText(text, titleOpt, idOpt, dateOpt, locationOpt) // Need to catch exceptions
-        //    val jValue = eidosHost.process(eidosText)
-        //    val json = stringify(jValue, pretty = true)
-        //    val jObject = JObject(JField("result", JString(text))) // This uses the scala4j version
-        //    val json = Json.stringify(jObject, pretty = false)
-        //    val jsValue = JSon.parse(json)
+        val jValue = eidosHost.process(eidosText)
+//        val json = stringify(jValue, pretty = true)
+//        val jObject = JObject(JField("result", JString(text))) // This uses the scala4j version
+//        val json = Json.stringify(jObject, pretty = false)
+//        val jsValue = JSon.parse(json)
 
-        val jValue = eidosText.toJson
+//        val jValue = eidosText.toJson
         val jsValue = JsonUtils.toJsValue(jValue)
 
 //        Thread.sleep(10000)
@@ -74,7 +74,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     else {
       try {
         val eidosText = new CdrText(JsonUtils.toJValue(request.body))
-        val jValue = eidosText.toJson
+//        val jValue = eidosText.toJson
+        val jValue = eidosHost.process(eidosText)
         val jsValue = JsonUtils.toJsValue(jValue)
 
         Ok(jsValue)
