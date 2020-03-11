@@ -1,22 +1,45 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidos
 
+import java.lang.annotation.Annotation
 
+import ai.lum.common.StringUtils._
 import org.clulab.odin.Attachment
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.export._
+import org.clulab.wm.eidos.attachments.{Decrease, Hedging, Increase, Negation, Quantification}
+import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.GroundingUtils.{getBaseGroundingString, getGroundingsString}
 
 import scala.collection.mutable.ArrayBuffer
 
-object ExportUtils {
+package object exporters {
+
+  case class EntityInfo(
+    m: EidosMention,
+    groundAs: Seq[String] = Seq(EidosOntologyGrounder.PRIMARY_NAMESPACE),
+    topN: Int = 5,
+    delim: String = ", ")
+  {
+    val text: String = m.odinMention.text
+    val canonicalName: String = m.canonicalName
+    val norm: String = getBaseGroundingString(m)
+    //  val modifier: String = ExportUtils.getModifier(m)
+    //  val polarity: String = ExportUtils.getPolarity(m)
+    val groundingStrings: Seq[String] = groundAs.map { namespace =>
+      getGroundingsString(m, namespace, topN, delim)
+    }
+
+
+    def toTSV: String = Seq(text, norm).map(_.normalizeSpace).mkString("\t")
+
+    def groundingToTSV: String = groundingStrings.map(_.normalizeSpace).mkString("\t")
+  }
 
   def getExporter(exporterString: String, filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
     exporterString match {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
       case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
       case "serialized" => SerializedExporter(filename)
-      case "grounding" => GroundingExporter(filename + ".ground.csv", reader, groundAs, topN)
+      case "grounding" => GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
       case "migration" => MigrationExporter(filename + ".migration.tsv")
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
@@ -59,5 +82,6 @@ object ExportUtils {
   }
 
   def removeTabAndNewline(s: String): String = s.replaceAll("(\\n|\\t)", " ")
+
 
 }
