@@ -180,7 +180,8 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
 
         // Intervention Branch
         // Only allow grounding to these nodes if the patterns match
-        val possibleIntervention = nodePatternsMatch(mention.odinMention.text, Some(InterventionSieveGrounder.regexes))
+        val ontologyPatterns = conceptPatternsSeq(InterventionSieveGrounder.INTERVENTION).flatMap(xxx => xxx.patterns.getOrElse(Array()))
+        val possibleIntervention = nodePatternsMatch(mention.odinMention.text, Some(InterventionSieveGrounder.regexes ++ ontologyPatterns))
         val interventionSimilarities = if (possibleIntervention) {
           val matchedPatternsInterventions = nodesPatternMatched(mention.odinMention.text, conceptPatternsSeq(InterventionSieveGrounder.INTERVENTION))
           // If you match a node pattern, give it a score of 1.0
@@ -213,6 +214,19 @@ object InterventionSieveGrounder {
   val branches: Seq[String] = Seq(INTERVENTION, REST)
 
   val regexes = Array(
+    // from ontology
+    """\b(census|survey|AgSS|CFSVA)\\b""".r,
+    """(?i)\b(vaccin(e|ate|ation)s?)\b""".r,
+    """(?i)\b(immuniz(ations?|e))\b""".r,
+    """(?i)\bextension\s+offices?""".r,
+    """(?i)(tower|bunker|stave|grain)\s(silo)""".r,
+    """\b(WASH)\b""".r,
+    """(?i)\b(road|bridge|rail)\s(repair)""".r,
+    """(IPM)(\s(practices))?""".r,
+    """(?i)reports?""".r, // slight adaptation of the regex in ontology
+    """\b(DDT|dicamba|round-up)\b""".r,
+    """\b(IPC|FEWS|VAM)\b""".r,
+    """(?i)\bearly\s+warning\s+system\b""".r,
     // humanitarian assistance
     "(?i)(intervention)".r,
     """(?i)(humanitarian)(\s|\w)+(aid|assistance)""".r,
@@ -235,7 +249,7 @@ object InterventionSieveGrounder {
     """((engag|interact|cooperation)(\s|\w)+with|support)(authorit|institution)""".r,
     """(support|develop|strengthen)(\s|\w)+(capacity|framework)""".r,
     """(integrat)(\s|\w)+into(\s|\w)+(policy|policies|program)""".r,
-    """(capacity\s+building)""".r,
+    """(capacity)(\s|\w)+building""".r,
     """(public\s+sector\s+support)""".r,
     """(invest)(\s|\w)+(in)""".r,
   )
