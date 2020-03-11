@@ -66,7 +66,7 @@ Kafka documentation, particularly that from [Apache](https://kafka.apache.org/do
 
 Various REST interfaces have been added on top of Eidos.  In addition to the traditional `webapp`,
 there are two subprojects, [restapp](https://github.com/lum-ai/eidos/tree/master/restapp) and
-[akkaapp](https://github.com/lum-ai/eidos/tree/master/akkapp), containing protype code.  The
+[akkaapp](https://github.com/lum-ai/eidos/tree/master/akkaapp), containing protype code.  The
 first is described by an [OpenAPI specification](https://github.com/lum-ai/eidos/blob/master/restapp/public/eidos.v2.yaml),
 which can be processed by the [Swagger Editor](https://swagger.io/tools/swagger-editor/) to provide
 a quick user interface.  There are paths for both reading from raw text with optional metadata and
