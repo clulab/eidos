@@ -16,46 +16,83 @@ object CullVectors extends App {
   val outputFile = new File(args(3))
   val limit = args(4).toInt
 
-  // There are some punctuation in here such as -rrb- and -lrb-.
-  // Can these be compared to words in the sentence?
-  // They will not match with W2V though.
-
+  val substitutions = Seq(
+    ("-lrb-", "("), ("-rrb-", ")"), // round
+    ("-lsb-", "["), ("-rsb-", "]"), // square
+    ("-lcb-", "{"), ("-rcb-", "}")  // curvy
+  )
   val freqentWords = Sourcer.sourceFromFile(inFrequencyFile).autoClose { source =>
-    source.getLines.take(limit).map { line =>
-      StringUtils.beforeFirst(line, '\t')
-    }.toSet
-  }
+    val frequentWords = source
+        .getLines
+        .take(limit)
+        .map(StringUtils.beforeFirst(_, '\t'))
+        .map(_.toLowerCase) // We're punting here.  Lowercase will be compared to lowercase.
+        .map { token =>
+          substitutions.foldLeft(token) { case (token, (remove, insert)) =>
+            token.replace(remove, insert)
+          }
+        }
+        .toSet
 
+    frequentWords
+  }
   val reservedWords = {
-    val tableDomainOntology = new TableDomainOntology.TableDomainOntologyBuilder(null, null, false)
+    val tableDomainOntology = new TableDomainOntology
+        .TableDomainOntologyBuilder(null, null, false)
         .build("two_six", "../two_six")
-    val values = 0.until(tableDomainOntology.size).flatMap { index =>
-      tableDomainOntology.getValues(index)
-    }.toSet
+    val values = 0.until(tableDomainOntology.size)
+        .flatMap(tableDomainOntology.getValues(_))
+        .map(_.toLowerCase)
+        .toSet
 
     values
   }
+  val (goodLines, badLines) = Sourcer.sourceFromFile(inVectorFile).autoClose { source =>
+    val goodAndBadLines = source
+        .getLines()
+        .drop(1)
+        .toSeq
+        .groupBy { line =>
+          val word = StringUtils
+              .beforeFirst(line, ' ')
+              .toLowerCase
 
-  val (count, columns) = FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
-    Sourcer.sourceFromFile(inVectorFile).autoClose { source =>
-      val lines = source.getLines()
-      val counter = Counter()
-      val columns = StringUtils.afterLast(lines.next, ' ').toInt
-
-      lines.foreach { line =>
-        val word = StringUtils.beforeFirst(line, ' ')
-
-        if (reservedWords.contains(word) || freqentWords.contains(word) ||
-            // Should reserved words be lowercased itself?  Assume they already are unless case is important.
-            reservedWords.contains(word.toLowerCase) || freqentWords.contains(word.toLowerCase)) {
-          counter.inc()
-          printWriter.print(line)
-          printWriter.print("\n") // Insist on LF so that can manipulate right away.
+          reservedWords.contains(word) || freqentWords.contains(word)
         }
-      }
-      (counter.get, columns)
+
+    (goodAndBadLines(true), goodAndBadLines(false))
+  }
+  val count = goodLines.size + 1
+  val columns = goodLines.head.count(_ == ' ')
+  val badLine = {
+    val badFloats = new Array[Float](columns)
+
+    badLines.foreach { line =>
+      val values = line
+          .split(' ')
+          .drop(1)
+          .map(_.toFloat)
+
+      assert(values.length == columns)
+      0.until(values.length)
+          .foreach(index => badFloats(index) += values(index))
     }
+
+    val badStrings = badFloats.map { badValue => (badValue / badLines.length).toString }
+    val badLine = " " + badStrings.mkString(" ")
+
+    badLine
   }
 
-  println(count.toString + " " + columns) // Put this at the top of the file.
+  // The \n is to force LF as eol even on Windows.
+  FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
+    printWriter.print(count.toString + " " + columns)
+    printWriter.print("\n")
+    printWriter.print(badLine)
+    printWriter.print("\n")
+    goodLines.foreach { line =>
+      printWriter.print(line)
+      printWriter.print("\n")
+    }
+  }
 }
