@@ -1,14 +1,117 @@
-[![Build Status](http://jenkins.cs.arizona.edu:8090/buildStatus/icon?job=eidos%2Fmaster)](http://jenkins.cs.arizona.edu:8090/job/eidos)
 
 # Eidos
 
 Eidos is an open-domain machine reading system designed by the [Computational
 Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University
-of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  It
-uses a cascade of [Odin](https://github.com/clulab/processors) grammars to
-extract events from free text.
+of Arizona](http://www.arizona.edu) for the World Modelers DARPA program and
+then further refined and extended by [LUM.ai](https://lum.ai/) for professional
+and commercial application.  It uses a cascade of [Odin](https://github.com/clulab/processors)
+grammars to extract events from free text and has been adapted to two domains:
+[CauseEx](#causeex) and [World Modelers](#world-modelers).
 
-Eidos identifies entities like "food insecurity" along with a growing list of arguments
+<hr>
+
+# CauseEx
+
+Eidos for CauseEx (Causal Extraction) has all the capabilities of the version for [World Modelers](#world-modelers)
+and more.  Although it is very important to understand the base functionality provided by the World Modelers
+version, this is the repository for the CauseEx version, so in this top section, only the additions are highlighted.
+
+## Kafka Interface
+
+Eidos can be incorportated into [Kafka streams](https://kafka.apache.org/24/documentation/streams/)
+and used in a pipeline architecture.  Example Eidos producers, streams, and consumers are included in
+the [kafka subproject](https://github.com/lum-ai/eidos/tree/master/kafka).  The code below, for example,
+is used as part of a pipeline in which a producer inputs json files containing document text and metadata,
+the stream component reads the document, converting it from json to jsonld, and the consumer outputs the
+resulting jsonld files.
+```scala
+package ai.lum.eidos.kafka.stream
+...
+class EidosStream(inputTopic: String, outputTopic: String, properties: Properties, eidosSystem: EidosSystem,
+    options: EidosSystem.Options, adjectiveGrounder: EidosAdjectiveGrounder) {
+
+  protected def process(cdr: String): String = {
+    val cdrText = CdrText(cdr)
+    val annotatedDocument = eidosSystem.extractFromText(cdrText.getText, options, cdrText.getMetadata)
+    val jsonld = stringify(new JLDCorpus(annotatedDocument).serialize(adjectiveGrounder), pretty = true)
+
+    jsonld
+  }
+
+  protected val stream: KafkaStreams = {
+    val topology = TopologyBuilder.fromStreamsBuilder { streamsBuilder =>
+      streamsBuilder
+          .stream[String, String](inputTopic)
+          .map { (key: String, cdr: String) =>
+            println("Streaming " + key)
+            key -> process(cdr)
+          }
+          .to(outputTopic)
+    }.get
+
+    new KafkaStreams(topology, properties)
+  }
+  ...
+}
+```
+This code assumes that Kafka and Zookeeper are already running and configured in a way compatible
+with the properties files consulted by the producer, streams, and consumer apps which in turn
+create the Eidos producer, streams, and consumer objects.  For more information, please consult
+Kafka documentation, particularly that from [Apache](https://kafka.apache.org/documentation/) and
+[Confluent](https://docs.confluent.io/current/getting-started.html).
+
+
+## REST Interface
+
+
+## Metadata
+
+It is more and more the case that metadata is provided along with document text.  `EidosSystem` still supports
+its traditional operations on plain text, but several entry points have been added that accept metadata.
+Metadata currently includes document title, id, location (i.e., where it is stored), and DCT (document creation time).
+It is usually provided via an object extending the `EidosText` trait.  This is a simple interface which provides
+`getText` and `getMetadata` methods.  Implementations include `CdrText`, `CluText`, and `PlainText`.  Where one
+might previously write
+```scala
+val text = FileUtils.getTextFromFile(file)
+val annotatedDocument = eidosSystem.extractFromText(text)
+```
+one can now upgrade to
+```scala
+val cdrText = CdrText(file)
+val annotatedDocument = eidosSystem.extractFromText(cdrText.getText, EidosSystem.Options, cdrText.getMetadata)
+```
+in order to make use of the metadata.
+
+## Command Line
+
+Eidos can be accessed from the command line in numerous ways.  There are over 40 Java-style command line
+applications included in the source code.  These are most easily accessed via `sbt`, but Eidos can
+also be assembled (run `sbt assembly`) so that a single jar file is produced for more direct access with
+Java.  In the past, the `ExtractFromDirectory` program was often used, but with the addition of metadata,
+`ExtractCdrMetaFromDirectory` is more functional.  Its parameters are input directory, output directory,
+time file, and thread count so that a typical call is
+```sh
+$ sbt "runMain org.clulab.wm.eidos.apps.batch.ExtractCdrMetaFromDirectory ../json ../jsonld time.txt 8"
+```
+
+## Ontologies
+
+An additional ontology can be configured, but presently its files must be deployed manually to the local machine
+before it can be used.  It is configured by editing the file `causeex.conf` and changing the value of `ontologies`
+to include `"two_six"` in the list that may still include other active ontologies as such:
+```
+ontologies = ["two_six", "wm_flattened", others...]
+```
+
+<hr>
+
+# World Modelers
+
+[![Build Status](http://jenkins.cs.arizona.edu:8090/buildStatus/icon?job=eidos%2Fmaster)](http://jenkins.cs.arizona.edu:8090/job/eidos)
+
+Eidos for World Modelers identifies entities like "food insecurity" along with a growing list of arguments
 on those entities, such as `increases` / `decreases` / `quantifications`.  It
 subsequently detects events that occur between entities (directed causal events,
 for example) as in "food insecurity causes increased migration".  The list of
@@ -426,21 +529,17 @@ in the directory `src/main/resources`.  The former is meant to contain default v
 that aren't very likely to change.  The latter is where users are advised to make
 adjustments.  These values in particular are often changed:
 
-- useW2V - turns on grounding, which uses Word2Vec
+- useGrounding - formerly useW2V, turns on grounding, which uses Word2Vec (W2V)
+- useCacheForOntologies - enables use of smaller and faster cached ontology files
+- useCacheForW2V - enables use of smaller and faster vector files
 
-Grounding also requires additional installation.  There are two significantly large files of
-vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
-[Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
-
-- [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
-- [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
-
-Only one of the files can be configured at a time.  The former is smaller and quicker and the latter
-more accurate.  Either should be downloaded and if necessary unzipped and untarred, and then the *.txt
-file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
-Next, check the configuration value for `wordToVecPath`.  It is usually preset to `glove.840B.300d.txt`,
-so if you are using the other one, change it to `vectors.txt`.  Lastly, change the
-value for `useW2V` from `false` to `true`. 
+Grounding no longer requires additional installation and in fact it is enabled by default.
+The large vector file used for this purpose is declared as a library dependency and will be
+installed automatically.  One disadvantage of these settings is that the program will start
+up more slowly and require extra memory.  One way to avoid this is to turn off grounding by
+setting `useGrounding` to `false`.  If you want to be relatively fast and still ground,
+follow instructions below for [optimizing](#optimizing) to create cached versions of these files and then
+turn on the two values `useCacheForOntologies` and `useCacheForW2V`.
 
 Two previous settings are no longer used:
 
@@ -457,26 +556,25 @@ from projects [timenorm](https://github.com/clulab/timenorm) and
 [geonorm](https://github.com/clulab/geonorm), which are separate from
 Eidos and declared in `built.sbt` as a library dependencies.
 
-With `useW2V` set to `true` and `geonorm` and `timenorm` included, your output should look more like this:
+With `useGrounding` set to `true` and `geonorm` and `timenorm` included, your output should look more like this:
 
 ![Eidos with Grounding](/doc/grounding.png?raw=True")
 
 
 ## Optimizing
 
-Processing the vector files and ontologies used in grounding can consume multiple minutes of time,
-so if you want to run Eidos more than once with the vectors, then it's useful to cache a
-preprocessed version of them along with the otherwise preinstalled ontologies.  This requires a large
-amount of memory, possibly 8 or 10GB, so please read the [notes](#notes) below.  If the files are located
-as described above and the configuration file `eidos.conf` is adjusted appropriately and there is
-enough memory, then the command
+Processing the vector file and ontologies used in grounding can consume multiple minutes of time,
+so if you want to run Eidos more than once with grounding, then it's useful to cache a preprocessed
+version of all of them.  This requires a large amount of memory, possibly 8 or 10GB, so please read
+the [notes](#notes) below.  If the configuration file `eidos.conf` is adjusted appropriately
+(`useGrounding` is turned on) and there is enough memory, then the command
 ```bash
 > sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
 ```
-should write serialized versions of the known ontologies and configured vector file to the directory
-`./cache/`.  To use the cached copies, set `useCache = true` in `eidos.conf`.  The program should
-work significantly faster afterwards.  The text version of the vector file(s) can be (re)moved
-after caching so that assembly of the jar file is hastened as well.
+should write serialized versions of the configured vector file and known ontologies to the directory
+`./cache/`.  To then use the cached copies, set `useCacheForOntologies = true` in `eidos.conf`.
+`useCacheForW2V` is set to track the same value, but can be independently controlled if need be.
+The program should work significantly faster afterwards.
 
 
 ## Translating

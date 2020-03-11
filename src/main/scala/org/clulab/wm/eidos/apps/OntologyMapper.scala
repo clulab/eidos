@@ -15,7 +15,7 @@ object OntologyMapper {
 
   // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
   def main(args: Array[String]): Unit = {
-    val config = ConfigFactory.load("eidos")
+    val config = ConfigFactory.load(EidosSystem.defaultConfig)
     val outputFile = config[String]("apps.ontologymapper.outfile")
     val topN = config[Int]("apps.groundTopN")
     val reader = new EidosSystem(config)
@@ -30,7 +30,6 @@ object OntologyMapper {
         line <- lines
         fields = line.split("\t")
         path = fields(0).split(",")
-        //pathSanitized = path.map(Word2Vec.sanitizeWord(_))
         examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
         embedding = w2v.makeCompositeVector(examples)
       } yield ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
@@ -155,9 +154,16 @@ object OntologyMapper {
     }
   }
 
+  def eidosGrounders(reader: EidosSystem): Seq[EidosOntologyGrounder] = {
+    reader.components.ontologyHandler.ontologyGrounders.collect{
+      case e: FlatOntologyGrounder => e
+    }
+  }
+
   // Mapping the primary ontology to the indicator ontologies
   def mapIndicators(reader: EidosSystem, outputFile: String, topN: Int): Unit = {
-    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.grounders
+    // FIXME: should this be the base grounder or the compositional one??
+    val grounders: Seq[EidosOntologyGrounder] = eidosGrounders(reader)
     println(s"number of eidos ontologies - ${grounders.length}")
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
@@ -209,17 +215,17 @@ object OntologyMapper {
     // EidosSystem stuff
     val proc = reader.components.proc
     val w2v = reader.components.ontologyHandler.wordToVec
-//    val config = reader.config
+    val canonicalizer = reader.components.ontologyHandler.canonicalizer
+    val includeParents = reader.components.ontologyHandler.includeParents
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
-      val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager))
-      val grounder = EidosOntologyGrounder(providedOntName, ontology, w2v)
+      val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager), includeParents = includeParents)
+      val grounder = EidosOntologyGrounder(providedOntName, ontology, w2v, canonicalizer)
       grounder.conceptEmbeddings
     } else {
-
-      // TODO.  How do we know what the head is?
-      reader.components.ontologyHandler.grounders.head.conceptEmbeddings
+      // FIXME: How do we know what the head is?
+      eidosGrounders(reader).head.conceptEmbeddings
     }
     val sofiaConceptEmbeddings = loadOtherOntology(sofiaPath, w2v)
     println("Finished loading other ontologies")

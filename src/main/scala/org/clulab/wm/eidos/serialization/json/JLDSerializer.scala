@@ -179,7 +179,7 @@ object JLDArgument {
 }
 
 class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float)
-    extends JLDObject(serializer, "Grounding") {
+    extends JLDObject(serializer, JLDOntologyGrounding.typename) {
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
@@ -189,12 +189,13 @@ class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float
 }
 
 object JLDOntologyGrounding {
+  val typename = "Grounding"
   val singular = "grounding"
   val plural: String = singular // Mass noun
 }
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
-    extends JLDObject(serializer, "Groundings") {
+    extends JLDObject(serializer, JLDOntologyGroundings.typename) {
   val jldGroundings: Seq[JObject] = grounding.grounding.map { case (namer, value) =>
     new JLDOntologyGrounding(serializer, namer.name, value).toJObject
   }
@@ -203,6 +204,7 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
     "name" -> name,
+    "category" -> grounding.branch,
     "version" -> grounding.version,
     "versionDate" -> grounding.date.map(_.toString),
     "values" -> jldGroundings
@@ -210,6 +212,7 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
 }
 
 object JLDOntologyGroundings {
+  val typename = "Groundings"
   val singular = "groundings"
   val plural: String = singular
 }
@@ -398,7 +401,7 @@ object JLDTrigger {
   val typename = "Trigger"
 }
 
-abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, val eidosMention: EidosMention,
+abstract class JLDExtraction(serializer: JLDSerializer, val typeString: String, val subtypeString: String, val eidosMention: EidosMention,
     countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
     extends JLDObject(serializer, JLDExtraction.typename, eidosMention) {
 
@@ -440,12 +443,15 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
+    val jldGroundings = {
+      val groundings = eidosMention.grounding
+      val keys = groundings.keys.toSeq.sorted // for consistency
 
-    val names = eidosMention.grounding.keys.toSeq.sorted
-    val jldGroundings = names.map { name =>
-      val grounding = eidosMention.grounding(name)
+      keys.map { key =>
+        val ontologyGroundings = groundings(key)
 
-      new JLDOntologyGroundings(serializer, name, grounding).toJObject
+        new JLDOntologyGroundings(serializer, key, ontologyGroundings).toJObject
+      }
     }
     val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments ++ jldCountAttachments).map(_.toJObject)
 
@@ -1039,7 +1045,10 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
             if (leftAttachmentNames != rightAttachmentNames)
               leftAttachmentNames < rightAttachmentNames
             else
-              true // Tie goes in favor of the left just because it came first.
+              if (leftOdinMention.foundBy != rightOdinMention.foundBy)
+                leftOdinMention.foundBy < rightOdinMention.foundBy
+              else
+                true // Tie goes in favor of the left just because it came first.
         }
       }
     }
@@ -1099,10 +1108,9 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
     sortedJldExtractions
   }
 
-  protected def getCountAttachments(odinMentions: Seq[Mention]): Seq[CountAttachment]= {
-    val reachableMentions = EidosMention.findReachableMentions(odinMentions)
-    val countAttachmentSeq: Seq[CountAttachment] = reachableMentions.flatMap { odinMention =>
-      odinMention.attachments.collect {
+  protected def getCountAttachments(reachableMentions: Seq[EidosMention]): Seq[CountAttachment]= {
+    val countAttachmentSeq: Seq[CountAttachment] = reachableMentions.flatMap { eidosMention =>
+      eidosMention.odinMention.attachments.collect {
         case attachment: CountAttachment => attachment
       }
     }
@@ -1131,7 +1139,7 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
   override def toJObject: TidyJObject = {
     // These are then on a per document basis.
     val countAttachmentsSeq: Seq[Seq[CountAttachment]] =
-        corpus.map { annotatedDocument => getCountAttachments(annotatedDocument.odinMentions) }
+        corpus.map { annotatedDocument => getCountAttachments(annotatedDocument.allEidosMentions) }
     val jldCountAttachmentsSeq: Seq[Seq[JLDCountAttachment]] =
         countAttachmentsSeq.map { countAttachments => countAttachments.map { countAttachment => new JLDCountAttachment(serializer, countAttachment) } }
     val countAttachmentMap: Map[CountAttachment, JLDCountAttachment] = countAttachmentsSeq.flatten.zip(jldCountAttachmentsSeq.flatten).toMap

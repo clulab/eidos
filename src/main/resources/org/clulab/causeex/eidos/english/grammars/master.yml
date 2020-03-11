@@ -1,0 +1,117 @@
+taxonomy: org/clulab/causeex/eidos/english/grammars/taxonomy.yml
+
+vars: org/clulab/causeex/eidos/english/grammars/triggers.yml
+
+rules:
+  #Entities are found with EntityFinder! Not extracted here!
+
+  #Events
+
+  # Higher priority domain-specific events
+  - import: org/clulab/causeex/eidos/english/grammars/context.yml
+    vars:
+      rulepriority: "1"
+
+  - import: org/clulab/causeex/eidos/english/grammars/migration.yml
+    vars:
+      rulepriority: "2"
+      action: migrationActionFlow
+      label: HumanMigration
+
+  # Find the direct attachments of entities (e.g., quantification, temporal and geospatial context)
+  - import: org/clulab/causeex/eidos/english/grammars/entityQuantification.yml
+    vars:
+      rulepriority: "2"
+      action: applyAttachment #Should add quantifier to state of entity
+      label: Quantification
+
+  - import: org/clulab/causeex/eidos/english/grammars/temporalAttachment.yml
+    vars:
+      rulepriority: "2"
+      action: applyTimeAttachment #Should add time to state of entity
+      label: Time
+
+  #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
+  - import: org/clulab/causeex/eidos/english/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add Increase/Decrease to state of entity
+      label: Increase
+      trigger: ${ increase_triggers }|${ noncausal_increase_triggers }|${ create_triggers }
+
+  - import: org/clulab/causeex/eidos/english/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add Increase/Decrease to state of entity
+      label: Decrease
+      trigger: ${ decrease_triggers }|${ noncausal_decrease_triggers }
+
+  - import: org/clulab/causeex/eidos/english/grammars/explicitModifiers.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add Increase/Decrease to state of entity
+
+
+
+  # ------------ Causal ------------
+  - import: org/clulab/causeex/eidos/english/grammars/causal.yml
+    vars:
+      rulepriority: "6"
+      addlabel: "Causal"
+      label: Causal
+      action: pass
+      trigger: ${cause_triggers} #|${increase_triggers}|${decrease_triggers}
+
+  - import: org/clulab/causeex/eidos/english/grammars/linkersTemplate.yml
+    vars:
+      rulepriority: "6"
+      addlabel: "Causal"
+      label: Causal
+      action: pass
+      trigger: ${cause_triggers}|${increase_triggers}|${decrease_triggers}|${create_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
+
+  - import: org/clulab/causeex/eidos/english/grammars/reverse_direction_causal.yml
+    vars:
+      rulepriority: "6"
+      addlabel: "Causal"
+      label: Causal
+      action: pass
+      trigger: ${reverse_direction_cause_triggers}
+
+  # ------------ ExplicitLinker ------------
+  - import: org/clulab/causeex/eidos/english/grammars/explicitLinkers.yml
+    vars:
+      rulepriority: "6"
+      trigger: ${increase_triggers}|${decrease_triggers}
+      correlation_trigger: ${correlation_triggers}
+      action: pass
+      #action: ? #
+
+  # ------------ Correlation ------------
+  - import: org/clulab/causeex/eidos/english/grammars/linkersTemplate.yml
+    vars:
+      rulepriority: "6"
+      addlabel: "Correlation"
+      label: Correlation
+      action: pass
+      trigger: ${correlation_triggers}
+
+
+
+
+  # -------------- Notes and Future Work ---------------------
+
+  # todo: result of, outcome of as triggers -- reverse direction rules
+  # relate to as correlation trigger
+  # maybe add temporal rules???
+
+    # TODO: 'with X, Y...' sentences:
+    # example: "With the high cost of production, food imports will further reduce farmers' chances to make a living from agriculture."
+    # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
+    # TODO: rules for 'become' where do modifications live? causality?
+    # example: "With increases in poverty levels people become more vulnerable to climate change and other risks."
+    # example: "There will be a small increase in crop diversity due to the need to combat the climate and market risks
+    #            as both of these might become more volatile in the future."
+    # TODO: correlation rules
+    # example: "Significant decline in poverty will be associated with a decrease in family size and increase in non-farm income ."
+

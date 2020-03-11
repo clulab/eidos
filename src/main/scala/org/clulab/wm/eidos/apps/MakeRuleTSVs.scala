@@ -8,7 +8,6 @@ import org.clulab.wm.eidos.utils.FileUtils
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.parallel.ForkJoinTaskSupport
 
 import org.clulab.wm.eidos.utils.ThreadUtils
 
@@ -20,13 +19,13 @@ object MakeRuleTSVs extends App {
   val inputDir = args(0)
   val outputDir = args(1)
   val nCores = 4
-  val files = FileUtils.findFiles(inputDir, "txt").par
-  files.tasksupport = new ForkJoinTaskSupport(ThreadUtils.newForkJoinPool(nCores))
+  val files = FileUtils.findFiles(inputDir, "txt")
+  val parFiles = ThreadUtils.parallelize(files, nCores)
 
   val annotatedDocuments = for {
-      file <- files //foreach { file =>
-      text = FileUtils.getTextFromFile(file)
-      annotatedDocument = reader.extractFromText(text)
+    file <- parFiles //foreach { file =>
+    text = FileUtils.getTextFromFile(file)
+    annotatedDocument = reader.extractFromText(text)
     } yield annotatedDocument
 
   // Organize

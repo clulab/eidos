@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import java.time.ZonedDateTime
-import java.util.IdentityHashMap
+import java.util
 
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
@@ -15,6 +15,31 @@ import scala.util.matching.Regex
 class CompactNamerData(val nodeStrings: Array[String], val leafIndexes: Array[Int], val branchIndexes: Array[Int])
 
 class CompactNamer(protected val n: Int, data: CompactNamerData) extends Namer {
+
+  protected def branch(n: Int, prevNameOffset: Int): Option[String] = {
+    if (n > 0) {
+      val index = n * CompactDomainOntology.branchIndexWidth
+      val parentOffset = data.branchIndexes(index + CompactDomainOntology.parentOffset)
+
+      if (parentOffset == 0)
+        if (prevNameOffset >= 0) Some(data.nodeStrings(prevNameOffset))
+        else None
+      else {
+        val nameOffset = data.branchIndexes(index + CompactDomainOntology.nameOffset)
+
+        branch(parentOffset, nameOffset)
+      }
+    }
+    else None
+  }
+
+  def branch: Option[String] = {
+    // This will always be run on an n that corresponds to a leaf.
+    val index = n * CompactDomainOntology.leafIndexWidth
+    val parentOffset = data.leafIndexes(index + CompactDomainOntology.parentOffset)
+
+    branch(parentOffset, -1)
+  }
 
   protected def parentName(n: Int, stringBuilder: StringBuilder): Unit = {
     if (n > 0) {
@@ -72,6 +97,9 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
 
     start.until(stop).toArray.map(n => leafStrings(leafStringIndexes(n)))
   }
+
+  // TODO: This will not always store just the leaves.
+  def isLeaf(n: Integer): Boolean = false
 
   def getPatterns(n: Integer): Option[Array[Regex]] = {
     val start = patternStartIndexes(n)
@@ -152,17 +180,17 @@ object CompactDomainOntology {
     }
   }
 
-  class CompactDomainOntologyBuilder(treeDomainOntology: TreeDomainOntology) {
+  class CompactDomainOntologyBuilder(treeDomainOntology: HalfTreeDomainOntology) {
 
     protected def append(strings: MutableHashMap[String, Int], string: String): Unit =
        if (!strings.contains(string))
           strings.put(string, strings.size)
 
-    protected def mkParentMap(): IdentityHashMap[OntologyParentNode, (Int, Int)] = {
+    protected def mkParentMap(): util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = {
       // This is myIndex, parentIndex
-      val parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)] = new IdentityHashMap()
+      val parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = new util.IdentityHashMap()
 
-      def append(parents: Seq[OntologyParentNode]): Int =
+      def append(parents: Seq[HalfOntologyParentNode]): Int =
           if (parents.nonEmpty)
             if (parentMap.containsKey(parents.head))
               parentMap.get(parents.head)._1
@@ -205,7 +233,8 @@ object CompactDomainOntology {
       (stringBuffer.toArray, startIndexBuffer)
     }
 
-    protected def mkNodeStringMap(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
+    protected def mkNodeStringMap(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
+      // TODO: Fix this code.  Try to sort entrySet.      
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
       val parentSeq = parentMap
           .entrySet
@@ -237,11 +266,11 @@ object CompactDomainOntology {
       (stringIndexBuffer.toArray, startIndexBuffer.toArray)
     }
 
-    protected def mkLeafIndexes(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkLeafIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
 
       0.until(treeDomainOntology.size).foreach { i =>
-        val node = treeDomainOntology.getNode(i)
+        val node: HalfOntologyLeafNode = treeDomainOntology.getNode(i)
 
         indexBuffer += parentMap.get(node.parent)._1 // parentOffset
         indexBuffer += stringMap(node.escaped) // nameOffset
@@ -249,9 +278,9 @@ object CompactDomainOntology {
       indexBuffer.toArray
     }
 
-    protected def mkParentIndexes(parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkParentIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
-      val keysAndValues: Array[(OntologyParentNode, (Int, Int))] = parentMap.asScala.toArray.sortBy(_._2._1)
+      val keysAndValues: Array[(HalfOntologyParentNode, (Int, Int))] = parentMap.asScala.toArray.sortBy(_._2._1)
 
       keysAndValues.foreach { case (branchNode, (_, parentIndex)) =>
         indexBuffer += parentIndex // parentOffset
@@ -261,7 +290,7 @@ object CompactDomainOntology {
     }
 
     def build(): DomainOntology = {
-      val parentMap: IdentityHashMap[OntologyParentNode, (Int, Int)] = mkParentMap()
+      val parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = mkParentMap()
       val leafStringMap: MutableHashMap[String, Int] = mkLeafStringMap()
       val nodeStringMap: MutableHashMap[String, Int] = mkNodeStringMap(parentMap)
       val (leafStringIndexes, leafStartIndexes) = mkLeafStringAndStartIndexes(leafStringMap)

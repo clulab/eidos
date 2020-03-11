@@ -33,7 +33,6 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.Seq
 
@@ -166,8 +165,8 @@ class TestJLDSerializer extends ExtractionTest {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.components.stopwordManager), ieSystem.components.multiOntologyGrounder)
-      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
+      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions)
+      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextEidosMentions)
 
       nextAnnotatedDocument
     }
@@ -238,7 +237,7 @@ class TestJLDSerializer extends ExtractionTest {
   if (useTimeNorm) {
     it should "serialize DCTs" in {
       val json = serialize(Seq( {
-        val annotatedDocument = ieSystem.extractFromText("There's not much text here", dctString = Some("2018-10-04"))
+        val annotatedDocument = ieSystem.extractFromText("There's not much text here", dctStringOpt = Some("2018-10-04"))
 
         annotatedDocument.document.id = Some("This is a test of DCT")
         annotatedDocument
@@ -303,12 +302,12 @@ class TestJLDSerializer extends ExtractionTest {
   println("It did not test used geo expressions")
 
   it should "serialize all kinds of attachments" in {
-    val annotatedDocument = newTitledAnnotatedDocument(
+    val annotatedDocument1 = newTitledAnnotatedDocument(
         "Since the beginning of September 2016, almost 40,000 refugees arrived daily in Ethiopia from South Sudan as of mid-November.",
         "This includes a migration event"
     )
-    val document = annotatedDocument.document
-    val mention = annotatedDocument.odinMentions(2)
+    val document = annotatedDocument1.document
+    val mention = annotatedDocument1.odinMentions(2)
     val textBoundMention = mention.asInstanceOf[TextBoundMention]
     val emptyMention = textBoundMention.newWithoutAttachment(mention.attachments.head)
 
@@ -338,10 +337,8 @@ class TestJLDSerializer extends ExtractionTest {
 
     val fullMention = attachments.foldLeft(emptyMention) { case (textBoundMention, attachment) => textBoundMention.newWithAttachment(attachment)}
     val odinMentions = Seq(fullMention)
-    val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
-    val grounder = ieSystem.components.multiOntologyGrounder
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, grounder)
-    val annotatedDocument2 = AnnotatedDocument(document, odinMentions, eidosMentions)
+    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val annotatedDocument2 = AnnotatedDocument(document, eidosMentions)
     val json = serialize(Seq(annotatedDocument2))
 
     inspect(json)

@@ -27,9 +27,9 @@ object GeoNormFinder {
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
   class CacheManager(config: Config) {
-    val geoNamesIndexPath: Path = Paths.get(config[String]("geoNamesIndexPath")).toAbsolutePath.normalize
-    protected lazy val segmentsPath: Path = geoNamesIndexPath.resolve("segments_1")
-    protected lazy val zipPath: Path = geoNamesIndexPath.resolve("geonames+woredas.zip")
+    val geoNamesIndexDir: Path = Paths.get(config[String]("geoNamesIndexDir")).toAbsolutePath.normalize
+    protected lazy val segmentsPath: Path = geoNamesIndexDir.resolve("segments_1")
+    protected lazy val zipPath: Path = geoNamesIndexDir.resolve("geonames+woredas.zip")
 
     // The default is not to replace any files on a machine that is simply running Eidos.
     // This can be overruled by programs that are managing the cache.
@@ -37,12 +37,12 @@ object GeoNormFinder {
       // copy the zip file to the local machine
       val geoNamesIndexURL: URL = config[URL]("geoNamesIndexURL")
       logger.info(s"Downloading the GeoNames index from $geoNamesIndexURL.")
-      Files.createDirectories(geoNamesIndexPath)
+      Files.createDirectories(geoNamesIndexDir)
       Files.copy(geoNamesIndexURL.openStream, zipPath)
 
       // unzip the zip file
-      logger.info(s"Extracting the GeoNames index to $geoNamesIndexPath.")
-      FileUtils.unzip(zipPath, geoNamesIndexPath, replace = replaceOnUnzip)
+      logger.info(s"Extracting the GeoNames index to $geoNamesIndexDir.")
+      FileUtils.unzip(zipPath, geoNamesIndexDir, replace = replaceOnUnzip)
       Files.delete(zipPath)
 
       if (!isCached)
@@ -58,9 +58,9 @@ object GeoNormFinder {
       val cached = Files.exists(segmentsPath)
 
       if (cached)
-        logger.info(s"GeoNames index found at $geoNamesIndexPath.")
+        logger.info(s"GeoNames index found at $geoNamesIndexDir.")
       else
-        logger.info(s"No GeoNames index at $geoNamesIndexPath.")
+        logger.info(s"No GeoNames index at $geoNamesIndexDir.")
       cached
     }
   }
@@ -72,11 +72,11 @@ object GeoNormFinder {
 
     new GeoNormFinder(
       new GeoLocationExtractor(),
-      new GeoLocationNormalizer(new GeoNamesIndex(cacheManager.geoNamesIndexPath)))
+      new GeoLocationNormalizer(new GeoNamesIndex(cacheManager.geoNamesIndexDir)))
   }
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention]): Array[GeoPhraseID]= {
-    val reachableMentions = EidosMention.findReachableMentions(odinMentions)
+    val reachableMentions = EidosMention.findReachableOdinMentions(odinMentions)
     val geoPhraseIDSeq: Seq[GeoPhraseID] = reachableMentions.flatMap { odinMention =>
       odinMention.attachments.collect {
         case attachment: Location => attachment.geoPhraseID
