@@ -64,6 +64,21 @@ Kafka documentation, particularly that from [Apache](https://kafka.apache.org/do
 
 ## REST Interface
 
+Various REST interfaces have been added on top of Eidos.  In addition to the traditional `webapp`,
+there are two subprojects, [restapp](https://github.com/lum-ai/eidos/tree/master/restapp) and
+[akkaapp](https://github.com/lum-ai/eidos/tree/master/akkapp), containing protype code.  The
+first is described by an [OpenAPI specification](https://github.com/lum-ai/eidos/blob/master/restapp/public/eidos.v2.yaml),
+which can be processed by the [Swagger Editor](https://swagger.io/tools/swagger-editor/) to provide
+a quick user interface.  There are paths for both reading from raw text with optional metadata and
+for reading from JSON into which the metadata has already been incorporated.
+
+### Input
+
+![Swagger input](/doc/lum/swagger_text_input.png?raw=True")
+
+### Output
+
+![Swagger output](/doc/lum/swagger_text_output.png?raw=True")
 
 ## Metadata
 
@@ -108,8 +123,6 @@ ontologies = ["two_six", "wm_flattened", others...]
 <hr>
 
 # World Modelers
-
-[![Build Status](http://jenkins.cs.arizona.edu:8090/buildStatus/icon?job=eidos%2Fmaster)](http://jenkins.cs.arizona.edu:8090/job/eidos)
 
 Eidos for World Modelers identifies entities like "food insecurity" along with a growing list of arguments
 on those entities, such as `increases` / `decreases` / `quantifications`.  It
