@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.exporters
 
-import ai.lum.common.StringUtils._
+import ai.lum.common.StringUtils.StringWrapper
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, MentionUtils}
@@ -54,7 +54,7 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
       effectGroundings = effectInfo.groundingStrings.head // topN in a row, newline separated
 
       trigger = MentionUtils.triggerOpt(mention).getOrElse("")
-      direction = poorMansIndra(cause, effect)
+      direction = Exporter.poorMansIndra(cause, effect)
       negation = if (MentionUtils.hasNegation(mention)) "TRUE" else "false"
       evidence = mention.odinMention.sentenceObj.getSentenceText.normalizeSpace
     } csvWriter.println(
