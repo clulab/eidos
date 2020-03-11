@@ -1,0 +1,21 @@
+
+GET    /eidos/v1/ping              ai.lum.eidos.restapp.controllers.v1.HomeController.ping
+POST   /eidos/v1/echo              ai.lum.eidos.restapp.controllers.v1.HomeController.echo(text: String)
+
+GET    /eidos/v2/status            ai.lum.eidos.restapp.controllers.v2.HomeController.status
+GET    /eidos/v2/readText          ai.lum.eidos.restapp.controllers.v2.HomeController.readText(text: String, title: Option[String], id: Option[String], date: Option[String], location: Option[String])
+POST   /eidos/v2/readCdr           ai.lum.eidos.restapp.controllers.v2.HomeController.readCdr
+
+GET    /eidos/v3/sys/status              ai.lum.eidos.restapp.controllers.v3.HomeController.status
+GET    /eidos/v3/doc                     ai.lum.eidos.restapp.controllers.v3.HomeController.listDocuments
+POST   /eidos/v3/doc                     ai.lum.eidos.restapp.controllers.v3.HomeController.newDocument
+GET    /eidos/v3/doc/:documentId         ai.lum.eidos.restapp.controllers.v3.HomeController.getDocument(documentId: String)
+DELETE /eidos/v3/doc/:documentId         ai.lum.eidos.restapp.controllers.v3.HomeController.deleteDocument(documentId: String)
+PUT    /eidos/v3/doc/:documentId/cancel  ai.lum.eidos.restapp.controllers.v3.HomeController.cancelDocument(documentId: String)
+GET    /eidos/v3/doc/:documentId/status  ai.lum.eidos.restapp.controllers.v3.HomeController.statusDocument(documentId: String)
+
+# /eidos/v3/sys/ # report something about the system?
+
+# Map static resources from the /public folder to the /assets URL path
+GET    /eidos/assets/*file      controllers.Assets.versioned(path="/public", file: Asset)
+GET    /favicon.ico             controllers.Assets.at(path="/public", file="/images/favicon.ico")

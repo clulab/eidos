@@ -1,0 +1,122 @@
+openapi: 3.0.2
+info:
+  title: eidos
+  version: v2
+servers:
+  - url: 'http://localhost:9000/eidos/v2'
+    description: Localhost
+
+components:
+  schemas:
+    cdr:
+      type: object
+      required:
+      - document_id
+      - extracted_text
+      properties:
+        extracted_metadata:
+          type: object
+          properties:
+            CreationDate:
+              type: string
+            ModDate:
+              type: string
+            Title:
+              type: string
+        document_id:
+          type: string
+        extracted_text:
+          type: string
+        uri:
+          type: string
+
+paths:
+  /status:
+    get:
+      responses:
+        200:
+          description: A prose description of system status
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            
+  /readText:
+    get:
+      summary: Read/process a text with optional metadata
+      parameters:
+        - name: text
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: Bad Request, particularly for poorly formatted dates
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
+        503:
+          description: Service is unavailable, probably because a request is already pending
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
+  /readCdr:
+    post:
+      summary: Read/process text and metadata passed in a Cdr object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cdr'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: Bad Request, particularly for poorly formatted dates
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
+        503:
+          description: Service is unavailable, probably because a request is already pending
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string
+            text/html: {}
