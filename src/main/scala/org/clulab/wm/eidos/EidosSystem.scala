@@ -212,15 +212,11 @@ object EidosSystem {
   val CORR_LABEL = "Correlation"
   val COREF_LABEL = "Coreference"
   val MIGRATION_LABEL = "HumanMigration"
-  // Pos/Neg Affect relations
-  val POS_AFFECT_LABEL = "PositiveAffect"
-  val NEG_AFFECT_LABEL = "NegativeAffect"
   // Taxonomy relations for other uses
   val RELATION_LABEL = "EntityLinker"
 
   // CAG filtering
-  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL,
-    CORR_LABEL, COREF_LABEL, POS_AFFECT_LABEL, NEG_AFFECT_LABEL)
+  val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
   val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
