@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.text.english.cag
 
-import org.clulab.wm.eidos.graph.{Causal, Correlation, Dec, EdgeSpec, Inc, NodeSpec, TimEx, Unmarked}
+import org.clulab.wm.eidos.graph.{Causal, Correlation, Dec, EdgeSpec, Inc, NodeSpec, Pos, TimEx, Unmarked}
 import org.clulab.wm.eidos.test.TestUtils.{EnglishTest, Somebody, successful}
 
 class TestExtraText extends EnglishTest {
@@ -23,7 +23,7 @@ class TestExtraText extends EnglishTest {
     val reserves = NodeSpec("foreign reserves", Dec("drain", "significant"))
     val rights = NodeSpec("curtailment of the rights enshrined in the constitution", Dec("curtailment"))
     val investment = NodeSpec("investment opportunities", Inc("promote"))
-    val poverty = NodeSpec("poverty", Dec("alleviate"))
+    val poverty = NodeSpec("alleviate poverty", Pos("alleviate"), TimEx("before"))
     val trade = NodeSpec("intra-African trade", Inc("boost"))
     val tariffs = NodeSpec("tariffs", Dec("brought down"))
 
@@ -58,7 +58,7 @@ class TestExtraText extends EnglishTest {
     val birds = NodeSpec("higher productivity birds", Inc("higher"))
     val income = NodeSpec("household income", Inc("increase"))
     val protein = NodeSpec("sources of animal protein for consumption", Inc("provide"))
-    val chickens = NodeSpec("purchasing improved chickens", Inc("improved"))
+    val chickens = NodeSpec("purchasing improved chickens", Pos("improved"))
     val sales = NodeSpec("income from egg and chicken sales", Inc("increase", "significant"))
 
     behavior of "p2-extra"
