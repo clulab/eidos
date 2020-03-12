@@ -21,9 +21,6 @@
       - Causal
       - IsA
       - Coreference
-      - Affect:
-          - PositiveAffect
-          - NegativeAffect
     - UndirectedRelation:
       - Correlation
       - SameAs
