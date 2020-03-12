@@ -2,9 +2,8 @@ package org.clulab.wm.eidos.exporters
 
 import ai.lum.common.StringUtils.StringWrapper
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.`export`.EntityInfo
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, GroundingUtils, MentionUtils}
+import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, MentionUtils}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
