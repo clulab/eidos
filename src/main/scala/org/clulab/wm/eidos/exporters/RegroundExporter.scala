@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.export
+package org.clulab.wm.eidos.exporters
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem

@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.utils
 import java.io.PrintWriter
 
 class EscapePair(char: Char) {
-  val unescaped = char.toString
-  val escaped = "\\" + unescaped
+  val unescaped: String = char.toString
+  val escaped: String = "\\" + unescaped
 
   def escape(string: String): String = string.replace(unescaped, escaped)
 
@@ -51,18 +51,36 @@ class CsvReader() extends XsvReader(XsvUtils.commaChar) {
 }
 
 abstract class XsvWriter(printWriter: PrintWriter, separatorChar: Char) {
-  protected val separatorString = separatorChar.toString
+  protected val separatorString: String = separatorChar.toString
 
   def quote(text: String): String = "\"" + text.replace("\"", "\"\"") + "\""
 
-  def stringln(strings: String*): String
+  def mkString(values: Seq[AnyRef]): String
 
-  def println(strings: String*): Unit = {
-    printWriter.print(stringln(strings: _*))
-    printWriter.print("\n") // Force Unix line endings.
+  // Because of type erasure, toString will need to be called on strings, unfortunately.
+  def mkString(string: String, strings: String*): String = mkString(string +: strings)
+
+  def print(values: Seq[AnyRef]): XsvWriter = {
+    printWriter.print(mkString(values))
+    this
   }
 
-  def close(): Unit = printWriter.close
+  def print(string: String, strings: String*): XsvWriter = print(string +: strings)
+
+  // If there is more than one argument, assume they are all strings
+  def println(string: String, strings: String*): XsvWriter = println(string +: strings)
+
+  def println(values: Seq[AnyRef]): XsvWriter = {
+    print(values)
+    println()
+  }
+
+  def println(): XsvWriter = {
+    printWriter.print("\n") // Force Unix line endings.
+    this
+  }
+
+  def close(): Unit = printWriter.close()
 }
 
 class TsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) extends XsvWriter(printWriter, XsvUtils.tabChar) {
@@ -71,30 +89,33 @@ class TsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) extends XsvWr
     XsvUtils.escapePairs.foldLeft(string) { (string, escapePair) => escapePair.escape(string) }
   }
 
-  def stringlnPlain(strings: String*): String = {
-    val escapedStrings = strings.map(escape)
+  def stringlnPlain(values: Seq[AnyRef]): String = {
+    val escapedStrings = values
+        .map(_.toString)
+        .map(escape)
 
     escapedStrings.mkString(separatorString)
   }
 
-  def stringlnExcel(strings: String*): String = {
-    val quotedStrings = strings.map { string =>
-      val mustBeQuoted = TsvWriter.quotableStrings.exists { quotableString: String =>
-        string.contains(quotableString)
-      } || string.contains(XsvUtils.commaChar)
+  def stringlnExcel(values: Seq[AnyRef]): String = {
+    val quotedStrings = values
+        .map(_.toString)
+        .map { string =>
+          val mustBeQuoted = TsvWriter.quotableStrings.exists { quotableString: String =>
+            string.contains(quotableString)
+          } || string.contains(XsvUtils.commaChar)
 
-      if (mustBeQuoted) quote(string)
-      else string
-    }
+          if (mustBeQuoted) quote(string)
+          else string
+        }
 
     quotedStrings.mkString(separatorString)
   }
 
-  def stringln(strings: String*): String =
-      if (isExcel) stringlnExcel(strings: _*)
-      else stringlnPlain(strings: _*)
+  def mkString(values: Seq[AnyRef]): String =
+      if (isExcel) stringlnExcel(values)
+      else stringlnPlain(values)
 }
-
 
 object EscapePair {
 
@@ -113,15 +134,17 @@ object TsvWriter {
 class CsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) extends XsvWriter(printWriter, XsvUtils.commaChar) {
   // TODO: Excel does not seem to be able to handle tabs.
 
-  def stringln(strings: String*): String = {
-    val quotedStrings = strings.map { string =>
-      val mustBeQuoted = CsvWriter.quotableStrings.exists { separator: String =>
-        string.contains(separator)
-      }
+  def mkString(values: Seq[AnyRef]): String = {
+    val quotedStrings = values
+        .map(_.toString)
+        .map { string =>
+          val mustBeQuoted = CsvWriter.quotableStrings.exists { separator: String =>
+            string.contains(separator)
+          }
 
-      if (mustBeQuoted) quote(string)
-      else string
-    }
+          if (mustBeQuoted) quote(string)
+          else string
+        }
 
     quotedStrings.mkString(separatorString)
   }

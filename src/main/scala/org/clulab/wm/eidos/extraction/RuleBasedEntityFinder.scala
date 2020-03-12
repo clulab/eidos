@@ -31,7 +31,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     // trim unwanted POS from entity edges
     val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges)
     // if there are no avoid mentions, no need to filter
-    val res = if (avoid.isEmpty) {
+    val res = if (avoid.isEmpty || expander.isEmpty) {
       trimmedEntities
     } else {
       // check that our expanded entities haven't swallowed any avoid mentions
