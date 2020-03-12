@@ -179,7 +179,7 @@ object JLDArgument {
 }
 
 class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float)
-    extends JLDObject(serializer, "Grounding") {
+    extends JLDObject(serializer, JLDOntologyGrounding.typename) {
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
@@ -189,12 +189,13 @@ class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float
 }
 
 object JLDOntologyGrounding {
+  val typename = "Grounding"
   val singular = "grounding"
   val plural: String = singular // Mass noun
 }
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
-    extends JLDObject(serializer, "Groundings") {
+    extends JLDObject(serializer, JLDOntologyGroundings.typename) {
   val jldGroundings: Seq[JObject] = grounding.grounding.map { case (namer, value) =>
     new JLDOntologyGrounding(serializer, namer.name, value).toJObject
   }
@@ -211,6 +212,7 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
 }
 
 object JLDOntologyGroundings {
+  val typename = "Groundings"
   val singular = "groundings"
   val plural: String = singular
 }
@@ -1112,7 +1114,10 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
             if (leftAttachmentNames != rightAttachmentNames)
               leftAttachmentNames < rightAttachmentNames
             else
-              true // Tie goes in favor of the left just because it came first.
+              if (leftOdinMention.foundBy != rightOdinMention.foundBy)
+                leftOdinMention.foundBy < rightOdinMention.foundBy
+              else
+                true // Tie goes in favor of the left just because it came first.
         }
       }
     }

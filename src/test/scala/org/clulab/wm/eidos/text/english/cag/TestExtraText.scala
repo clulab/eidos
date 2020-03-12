@@ -44,4 +44,35 @@ class TestExtraText extends EnglishTest {
     }
   }
 
+  {
+    // Paragraph 2
+    val text = """These higher productivity birds have the potential to increase household income
+                 |and provide sources of animal protein for consumption.
+                 |Overall, we find that purchasing improved chickens results in a statistically
+                 |significant increase in income from egg and chicken sales compared to households
+                 |that own only local breeds of chicken.
+      """
+
+    val tester = new GraphTester(text)
+
+    val birds = NodeSpec("higher productivity birds", Inc("higher"))
+    val income = NodeSpec("household income", Inc("increase"))
+    val protein = NodeSpec("sources of animal protein for consumption", Inc("provide"))
+    val chickens = NodeSpec("purchasing improved chickens", Inc("improved"))
+    val sales = NodeSpec("income from egg and chicken sales", Inc("increase", "significant"))
+
+    behavior of "p2-extra"
+
+    passingTest should "have correct edge 1" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(birds, Causal, income)) should be (successful)
+    }
+    failingTest should "have correct edge 2" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(birds, Causal, protein)) should be (successful)
+    }
+    passingTest should "have correct edge 3" taggedAs(Somebody) in {
+      tester.test(EdgeSpec(chickens, Causal, sales)) should be (successful)
+    }
+
+  }
+
 }

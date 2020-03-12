@@ -73,7 +73,7 @@ counties in Unity State.
     val mechanisms = NodeSpec("exhaustion of households' coping mechanisms", Dec("exhaustion"))
 
     // Sentence 2
-    val concern = NodeSpec("concern", Quant("major"))
+    val concern = NodeSpec("areas of major concern", Quant("major"))
     val location = NodeSpec("Greater Jonglei and Unity states")
     val foodInsecurity = NodeSpec("food insecurity", Quant("Crisis levels"), Quant("Emergency levels"), Quant("Catastrophe levels"))
 
