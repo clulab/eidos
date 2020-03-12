@@ -24,6 +24,8 @@ class TableOntologyRow(val path: String, val values: Option[Array[String]] = Non
 class TableDomainOntology(val tableOntologyRows: Array[TableOntologyRow], override val version: Option[String], override val date: Option[ZonedDateTime]) extends DomainOntology with Serializable {
 
   def size: Integer = tableOntologyRows.length
+  
+  def indices: Range = tableOntologyRows.indices
 
   def getNamer(n: Integer): Namer = new PassThruNamer(tableOntologyRows(n).path)
 

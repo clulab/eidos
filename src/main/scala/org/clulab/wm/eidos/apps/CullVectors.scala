@@ -10,6 +10,18 @@ import org.clulab.wm.eidos.utils.Sourcer
 import org.clulab.wm.eidos.utils.StringUtils
 
 object CullVectors extends App {
+
+  def l2(values: Array[Float]): Float =
+      Math.sqrt(values.foldLeft(0f) { case (sum, value) => sum + value * value }).toFloat
+
+  // Caution: This normalization happens in place.
+  def normalize(values: Array[Float]): Array[Float] = {
+    val length = l2(values)
+
+    values.indices.foreach { index => values(index) /= length }
+    values
+  }
+
   val inVectorFile = new File(args(0))
   val inFrequencyFile = new File(args(1))
   val inOntologyDir = args(2)
@@ -24,6 +36,8 @@ object CullVectors extends App {
   val freqentWords = Sourcer.sourceFromFile(inFrequencyFile).autoClose { source =>
     val frequentWords = source
         .getLines
+        // In this case, the others are simply ignored.  If their frequencies were to
+        // be taken into account, that would have to change.
         .take(limit)
         .map(StringUtils.beforeFirst(_, '\t'))
         .map(_.toLowerCase) // We're punting here.  Lowercase will be compared to lowercase.
@@ -40,7 +54,8 @@ object CullVectors extends App {
     val tableDomainOntology = new TableDomainOntology
         .TableDomainOntologyBuilder(null, null, false)
         .build("two_six", "../two_six")
-    val values = 0.until(tableDomainOntology.size)
+    val values = tableDomainOntology
+        .indices
         .flatMap(tableDomainOntology.getValues(_))
         .map(_.toLowerCase)
         .toSet
@@ -72,13 +87,19 @@ object CullVectors extends App {
           .split(' ')
           .drop(1)
           .map(_.toFloat)
+      val normalizedValues = normalize(values)
 
-      assert(values.length == columns)
-      0.until(values.length)
-          .foreach(index => badFloats(index) += values(index))
+      assert(normalizedValues.length == badFloats.length)
+      // Normalize them each before adding.
+      normalizedValues
+          .indices
+          .foreach(index => badFloats(index) += normalizedValues(index))
     }
 
-    val badStrings = badFloats.map { badValue => (badValue / badLines.length).toString }
+    // Although the vectors are not normalized to begin with, we'll normalize it now.
+    // Word2Vec normalizes all incoming vectors.  Doing it twice will not hurt.
+    val normalizedBadFloats = normalize(badFloats)
+    val badStrings = normalizedBadFloats.map(_.toString)
     val badLine = " " + badStrings.mkString(" ")
 
     badLine
