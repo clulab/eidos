@@ -39,7 +39,11 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case /${preps}|${noun_modifiers}/{,2}
-      effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to)
+      effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
+      |
+      (<case <nmod_due_to (?! [incoming=nmod_than]))
+      |
+      (<case <nmod_due_to <nmod_than >'nsubj:xsubj')
 
   # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
   - name: dueTo-caseSyntax-dobj_effect-${addlabel}
@@ -162,6 +166,8 @@ rules:
         (<case <nmod_because_of (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
           |
         (<case <nmod_because_of)
+          |
+        (<case <nmod_because_of [tag=/^JJ/] >advcl_for)
 
   - name: becauseSyntax2-${addlabel}
     priority: ${rulepriority}
@@ -200,8 +206,8 @@ rules:
       # in the sentence "We present evidence that the global food system is vulnerable to
       # production shocks caused by extreme weather , and that this risk is growing ."
       # this would match because `produc` is a `nonavoid_causal_triggers`
-      trigger = [lemma=/be/ & tag=/^V/] [!tag=TO]{,2} [lemma=/(?i)^(${ trigger })/ & tag=/^N|^JJ/]
-      cause: Entity = nsubj
+      trigger = [lemma=/be/ & tag=/^V/] [!tag=TO]{,2} [lemma=/(?i)^(${ trigger })|source/ & tag=/^N|^JJ/]
+      cause: Entity = /^nsubj/
       effect: Entity = /${ preps }$/
 
 
@@ -246,7 +252,7 @@ rules:
     action: ${ action }
     example: "The primary causes of moving were insecurity, lack of food, and poor access to services such as healthcare and education."
     pattern: |
-      trigger = [lemma=/cause/ & tag=/^NN/]
+      trigger = [lemma=/cause|source/ & tag=/^NN/]
       effect: Entity = /nmod_of/ /(${preps}|${noun_modifiers})/{,4}
       cause: Entity = <nsubj (?=[outgoing=/cop/]) /^${conjunctions}|${noun_modifiers}|${objects}|${preps}/{,2}
 

@@ -20,7 +20,6 @@ case class EidosComponents(
   negationHandler: NegationHandler,
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
-  multiOntologyGrounder: MultiOntologyGrounder,
   actions: EidosActions,
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
@@ -40,7 +39,6 @@ class EidosComponentsBuilder {
   var documentFilterOpt: Option[DocumentFilter] = None
   var stopwordManagerOpt: Option[StopwordManager] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
-  var multiOntologyGrounderOpt: Option[MultiOntologyGrounder] = None
   var actionsOpt: Option[EidosActions] = None
   var engineOpt: Option[ExtractorEngine] = None
   var hedgingHandlerOpt: Option[HypothesisHandler] = None
@@ -69,7 +67,6 @@ class EidosComponentsBuilder {
       stopwordManagerOpt = Some(eidosComponents.stopwordManager)
       // This involves reloading of very large vector files and is what we're trying to avoid.
       ontologyHandlerOpt = Some(eidosComponents.ontologyHandler)
-      multiOntologyGrounderOpt = Some(eidosComponents.multiOntologyGrounder)
     }
     else {
       {
@@ -83,8 +80,6 @@ class EidosComponentsBuilder {
       documentFilterOpt = Some(FilterByLength(procOpt.get, cutoff = 150))
       stopwordManagerOpt = Some(StopwordManager.fromConfig(config))
       ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get))
-      // Ontologies
-      multiOntologyGrounderOpt = Some(ontologyHandlerOpt.get.ontologyGrounders)
     }
 
     actionsOpt = Some(EidosActions.fromConfig(config[Config]("actions")))
@@ -126,7 +121,6 @@ class EidosComponentsBuilder {
       negationHandlerOpt.get,
       stopwordManagerOpt.get,
       ontologyHandlerOpt.get,
-      multiOntologyGrounderOpt.get,
       actionsOpt.get,
       engineOpt.get,
       hedgingHandlerOpt.get,

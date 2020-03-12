@@ -34,7 +34,7 @@ object ReconstituteAndExport extends App with Configured {
     println(s"Extracting from ${file.getName}")
     // 2. Get the input file contents (extractions)
     val json = FileUtils.getTextFromFile(file)
-    val corpus = deserializer.deserialize(json, reader.components.ontologyHandler.canonicalizer, reader.components.multiOntologyGrounder)
+    val corpus = deserializer.deserialize(json, reader.postProcessors)
     // 3. Export to all desired formats
     exportAs.foreach { format =>
       ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(corpus)

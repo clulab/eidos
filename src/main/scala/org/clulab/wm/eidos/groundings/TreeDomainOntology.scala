@@ -35,10 +35,16 @@ abstract class OntologyNode extends Serializable {
   def escaped: String
 
   override def toString: String = fullName
+
+  def branch: Option[String]
+
+  def isRoot: Boolean = false
 }
 
 @SerialVersionUID(1000L)
-abstract class OntologyParentNode extends OntologyNode
+abstract class OntologyParentNode extends OntologyNode {
+  def isParentRoot: Boolean
+}
 
 @SerialVersionUID(1000L)
 class OntologyRootNode extends OntologyParentNode {
@@ -48,6 +54,12 @@ class OntologyRootNode extends OntologyParentNode {
   override def parents: Seq[OntologyParentNode] = Seq.empty
 
   override def escaped: String = ""
+
+  def branch: Option[String] = None
+
+  override def isRoot: Boolean = true
+
+  def isParentRoot: Boolean = false
 }
 
 class OntologyBranchNode(val nodeName: String, val parent: OntologyParentNode) extends OntologyParentNode {
@@ -58,14 +70,32 @@ class OntologyBranchNode(val nodeName: String, val parent: OntologyParentNode) e
   override def parents: Seq[OntologyParentNode] = parents(parent)
 
   override def escaped: String = escaped(nodeName)
+
+  override def isRoot: Boolean = false
+
+  def isParentRoot: Boolean = parent.isRoot
+
+  def branch: Option[String] =
+      if (parent.isParentRoot) Some(nodeName)
+      else parent.branch
 }
 
 @SerialVersionUID(1000L)
-class OntologyLeafNode(val nodeName: String, val parent: OntologyParentNode, polarity: Float, /*names: Seq[String],*/ examples: Option[Array[String]] = None, descriptions: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None) extends OntologyNode with Namer {
+class OntologyLeafNode(
+  val nodeName: String,
+  val parent: OntologyParentNode,
+  polarity: Float,
+  /*names: Seq[String],*/
+  examples: Option[Array[String]] = None,
+  descriptions: Option[Array[String]] = None,
+  val patterns: Option[Array[Regex]] = None
+) extends OntologyNode with Namer {
 
   def name: String = fullName
 
   override def fullName: String = parent.fullName + escaped
+
+  def branch: Option[String] = parent.branch
 
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = /*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)
@@ -118,8 +148,8 @@ object TreeDomainOntology {
   // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
   class TreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean) {
 
-    def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None):
-        TreeDomainOntology = buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
+    def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): TreeDomainOntology =
+        buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
 
     def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): TreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))

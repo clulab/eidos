@@ -7,6 +7,7 @@ import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Version => AwayVersion}
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidos.groundings.TreeDomainOntology.TreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
@@ -46,5 +47,10 @@ object DomainOntologies {
       val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
       new TreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
     }
+  }
+
+  def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, cacheDir: String, useCached: Boolean): DomainOntology = {
+    val ontSerializedPath: String = serializedPath(name, cacheDir)
+    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true, useCache = useCached)
   }
 }

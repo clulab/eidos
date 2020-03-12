@@ -23,7 +23,9 @@ import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.PosChange
 import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.attachments.Quantification
@@ -32,7 +34,6 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
-import org.clulab.wm.eidos.groundings.MultiOntologyGrounder
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.CountMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
@@ -596,6 +597,16 @@ class TestJLDDeserializer extends ExtractionTest {
         |  $provenance
         |}, {
         |  "@type" : "State",
+        |  "type" : "POS",
+        |  "text" : "positive change",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "NEG",
+        |  "text" : "negative change",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
         |  "type" : "Count",
         |  "text" : "text",
         |  "value" : {
@@ -645,6 +656,8 @@ class TestJLDDeserializer extends ExtractionTest {
       attachments.exists { attachment => attachment.isInstanceOf[Property]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Hedging]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Negation]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[PosChange]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[NegChange]} should be (true)
 
       attachments.exists { attachment => attachment.isInstanceOf[CountAttachment]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Location]} should be (true)
@@ -734,7 +747,6 @@ class TestJLDDeserializer extends ExtractionTest {
   def testCrossSentenceEventMention() = {
     it should "deserialize CrossSentenceEventMention from jsonld" in {
       val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
-      val ontologyGrounder = ieSystem.components.multiOntologyGrounder
 
       def serialize(original: AnnotatedDocument): String = {
         val corpus = Seq(original)
@@ -749,7 +761,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
       val annotatedDocument = ieSystem.extractFromText(text)
       val json = serialize(annotatedDocument)
-      val copy = new JLDDeserializer().deserialize(json, canonicalizer, ontologyGrounder)
+      val copy = new JLDDeserializer().deserialize(json, ieSystem.postProcessors)
       val mentions = copy.head.odinMentions
 
       mentions.count(_.isInstanceOf[CrossSentenceEventMention]) should be(1)
@@ -763,7 +775,7 @@ class TestJLDDeserializer extends ExtractionTest {
       val oldCorpus = Seq(newTitledAnnotatedDocument(text, name))
       val oldJson = serialize(oldCorpus)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson, canonicalizer, ieSystem.components.multiOntologyGrounder)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson, ieSystem.postProcessors)
       val newJson = serialize(newCorpus)
 
       val oldLineCount = oldJson.count(_ == '\n')

@@ -76,7 +76,7 @@ object GeoNormFinder {
   }
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention]): Array[GeoPhraseID]= {
-    val reachableMentions = EidosMention.findReachableMentions(odinMentions)
+    val reachableMentions = EidosMention.findReachableOdinMentions(odinMentions)
     val geoPhraseIDSeq: Seq[GeoPhraseID] = reachableMentions.flatMap { odinMention =>
       odinMention.attachments.collect {
         case attachment: Location => attachment.geoPhraseID

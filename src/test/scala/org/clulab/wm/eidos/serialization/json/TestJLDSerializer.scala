@@ -16,7 +16,9 @@ import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.PosChange
 import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.attachments.Quantification
 import org.clulab.wm.eidos.attachments.Score
@@ -29,11 +31,9 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.Canonicalizer
 
 import scala.collection.Seq
 
@@ -166,8 +166,7 @@ class TestJLDSerializer extends ExtractionTest {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions, new Canonicalizer(ieSystem.components.stopwordManager), ieSystem.components.multiOntologyGrounder)
-      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions, nextEidosMentions)
+      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextOdinMentions)
 
       nextAnnotatedDocument
     }
@@ -328,6 +327,8 @@ class TestJLDSerializer extends ExtractionTest {
       new Property(trigger, someQuantifications),
       new Hedging(trigger, someQuantifications),
       new Negation(trigger, someQuantifications),
+      new PosChange(trigger, someQuantifications),
+      new NegChange(trigger, someQuantifications),
 
       new CountAttachment("text", migrationGroupCount, 3, 6),
       new Location(geoPhraseID),
@@ -338,13 +339,18 @@ class TestJLDSerializer extends ExtractionTest {
 
     val fullMention = attachments.foldLeft(emptyMention) { case (textBoundMention, attachment) => textBoundMention.newWithAttachment(attachment)}
     val odinMentions = Seq(fullMention)
-    val canonicalizer = new Canonicalizer(ieSystem.components.stopwordManager)
-    val grounder = ieSystem.components.multiOntologyGrounder
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions, canonicalizer, grounder)
-    val annotatedDocument2 = AnnotatedDocument(document, odinMentions, eidosMentions)
+    val annotatedDocument2 = AnnotatedDocument(document, odinMentions)
     val json = serialize(Seq(annotatedDocument2))
 
     inspect(json)
     json should not be empty
+    json should include (s""""type" : "${Decrease.kind}",""")
+    json should include (s""""type" : "${Increase.kind}",""")
+    json should include (s""""type" : "${Quantification.kind}",""")
+    json should include (s""""type" : "${Property.kind}",""")
+    json should include (s""""type" : "${Hedging.kind}",""")
+    json should include (s""""type" : "${Negation.kind}",""")
+    json should include (s""""type" : "${PosChange.kind}",""")
+    json should include (s""""type" : "${NegChange.kind}",""")
   }
 }
