@@ -97,9 +97,9 @@ object ExtractCluMetaFromDirectoryWithId extends App {
           val text = eidosText.getText
           val metadata = eidosText.getMetadata
           // 3. Extract causal mentions from the text
-          val annotatedDocuments = Seq(reader.extractFromText(text, options, metadata))
+          val annotatedDocument = reader.extractFromText(text, options, metadata)
           // 4. Convert to JSON
-          val corpus = new JLDCorpus(annotatedDocuments)
+          val corpus = new JLDCorpus(annotatedDocument)
           val mentionsJSONLD = corpus.serialize()
           // 5. Write to output file
           val path = CluText.convertTextToJsonld(file, outputDir)

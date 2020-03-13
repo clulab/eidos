@@ -10,9 +10,9 @@ import org.clulab.wm.eidos.utils.FileUtils
 
 case class JSONLDExporter(filename: String, reader: EidosSystem) extends Exporter {
 
-  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+  override def export(annotatedDocument: AnnotatedDocument): Unit = {
     FileUtils.printWriterFromFile(filename).autoClose { pw =>
-      val corpus = new JLDCorpus(annotatedDocuments)
+      val corpus = new JLDCorpus(annotatedDocument)
       val mentionsJSONLD = corpus.serialize()
 
       pw.println(stringify(mentionsJSONLD, pretty = true))

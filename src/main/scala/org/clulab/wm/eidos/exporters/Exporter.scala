@@ -13,7 +13,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import scala.collection.mutable.ArrayBuffer
 
 trait Exporter {
-  def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit
+  def export(annotatedDocument: AnnotatedDocument): Unit
 }
 
 object Exporter {

@@ -83,10 +83,10 @@ case class MitreExporter(outFilename: String, reader: EidosSystem, filename: Str
         .print(factor_b_info.groundingToTSV)
   }
 
-  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+  override def export(annotatedDocument: AnnotatedDocument): Unit = {
     new TsvWriter(FileUtils.printWriterFromFile(outFilename)).autoClose { tsvWriter =>
       tsvWriter.println(getHeaders)
-      annotatedDocuments.foreach(printTableRows(_, tsvWriter, filename, reader))
+      printTableRows(annotatedDocument, tsvWriter, filename, reader)
     }
   }
 }
