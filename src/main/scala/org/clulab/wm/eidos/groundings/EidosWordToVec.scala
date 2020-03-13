@@ -23,25 +23,12 @@ class FakeWordToVec extends EidosWordToVec {
 
 class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
 
-  protected def split(string: String): Array[String] = string.split(" +")
-
-  protected def dotProduct(v1: Array[Float], v2: Array[Float]): Float = {
-    assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
-    // This would be way prettier, but it is ~20 times slower
-    // v1.indices.foldLeft(0.0f)((sum, i) => sum + v1(i) * v2(i))
-    var sum = 0.0f // optimization
-    var i = 0 // optimization
-    while (i < v1.length) {
-      sum += v1(i) * v2(i)
-      i += 1
-    }
-    sum
-  }
+  // Maybe need to pass in list of transformations that might be used to find it?
 
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
     val sanitizedNameParts = canonicalNameParts.map(Word2VecUtils.sanitizeWord(_))
     val outOfVocabulary = sanitizedNameParts.forall { sanitizedNamePart =>
-      w2v.isOutOfVocabulary(sanitizedNamePart) // && w2v.isOutOfVocabulary(sanitizedNamePart.toLowerCase)
+      w2v.isOutOfVocabulary(sanitizedNamePart) && w2v.isOutOfVocabulary(sanitizedNamePart.toLowerCase)
     }
 
     if (outOfVocabulary)
@@ -49,7 +36,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     else {
       val nodeEmbedding = makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
-        (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+        (conceptEmbedding.namer, w2v.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)

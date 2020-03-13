@@ -29,7 +29,7 @@ object Word2VecUtils {
     val os = new collection.mutable.StringBuilder()
     var i = 0
     while(i < w.length) {
-      val c = w.charAt(i)
+      val c = uw.charAt(i)
       // added underscore since it is our delimiter for dependency stuff...
       if(Character.isLetter(c) || c == '_') os += c
       i += 1

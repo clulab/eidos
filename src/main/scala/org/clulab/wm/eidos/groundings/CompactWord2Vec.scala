@@ -48,43 +48,17 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
   val columns: Int = array.length / map.size
   val rows: Int = array.length / columns
 
-  def get(word: String): Option[CompactWord2Vec.ArrayType] = { // debug use only
+  def keys: Iterable[String] = map.keys // debug use only
+
+  // These are no longer automatically sanitized or transformed in any way.
+  def isOutOfVocabulary(word: String): Boolean = !map.contains(word)
+
+  protected def getRow(word: String): Option[Int] = {
     val bestRowOpt = map.get(word) // Prefer the version with matching case.
     val betterRowOpt = bestRowOpt.orElse(map.get(word.toLowerCase)) // Make do with lowercase.
     val goodRowOpt = betterRowOpt.orElse(unknownRowOpt) // Resort to unknown.
-// needs to be good
-    bestRowOpt.map { row =>
-      val offset = row * columns
 
-      array.slice(offset, offset + columns)
-    }
-  }
-
-  def keys: Iterable[String] = map.keys // debug use only
-
-  def save(filename: String): Unit = {
-    // Sort the map entries (word -> row) by row and then keep just the word.
-    val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
-
-    new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(filename))).autoClose { objectOutputStream =>
-      // Writing is performed in two steps so that the parts can be
-      // processed separately when read back in.
-      objectOutputStream.writeObject(words)
-      objectOutputStream.writeObject(array)
-    }
-  }
-
-  def dotProduct(row1: Int, row2: Int): CompactWord2Vec.ValueType = {
-    val offset1 = row1 * columns
-    val offset2 = row2 * columns
-    var sum = 0.asInstanceOf[CompactWord2Vec.ValueType] // optimization
-    var i = 0 // optimization
-
-    while (i < columns) {
-      sum += array(offset1 + i) * array(offset2 + i)
-      i += 1
-    }
-    sum
+    goodRowOpt
   }
 
   protected def add(dest: CompactWord2Vec.ArrayType, srcRow: Int): Unit = {
@@ -96,9 +70,6 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
       i += 1
     }
   }
-
-  // These are no longer automatically sanitized.
-  def isOutOfVocabulary(word: String): Boolean = !map.contains(word)
 
   // Normalize this vector to length 1, in place.
   // (If the length is zero, do nothing.)
@@ -122,45 +93,38 @@ class CompactWord2Vec(buildType: CompactWord2Vec.BuildType) {
     array
   }
 
+  def dotProduct(v1: Array[Float], v2: Array[Float]): Float = {
+    assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
+    // This would be way prettier, but it is ~20 times slower
+    // v1.indices.foldLeft(0.0f)((sum, i) => sum + v1(i) * v2(i))
+    var sum = 0.0f // optimization
+    var i = 0 // optimization
+    while (i < v1.length) {
+      sum += v1(i) * v2(i)
+      i += 1
+    }
+    sum
+  }
+
   def makeCompositeVector(texts: Iterable[String]): CompactWord2Vec.ArrayType = {
     val total = new CompactWord2Vec.ArrayType(columns)
 
     texts.foreach { word =>
-      map.get(word).foreach { index => add(total, index) }
+      getRow(word).foreach { index => add(total, index) }
     }
     norm(total)
   }
 
-  // Find the average word2vec similarity between any two words in these two texts.
-  // IMPORTANT: words here must be words not lemmas!
-  def avgSimilarity(text1: Iterable[String], text2: Iterable[String]): CompactWord2Vec.ValueType = {
-    val sanitizedText1 = text1.map(Word2VecUtils.sanitizeWord(_))
-    val sanitizedText2 = text2.map(Word2VecUtils.sanitizeWord(_))
+  def save(filename: String): Unit = {
+    // Sort the map entries (word -> row) by row and then keep just the word.
+    val words = map.toArray.sortBy(_._2).map(_._1).mkString("\n")
 
-    sanitizedAvgSimilarity(sanitizedText1, sanitizedText2)
-  }
-
-  // Find the average word2vec similarity between any two words in these two texts.
-  protected def sanitizedAvgSimilarity(text1: Iterable[String], text2: Iterable[String]): CompactWord2Vec.ValueType = {
-    var avg = 0.asInstanceOf[CompactWord2Vec.ValueType] // optimization
-    var count = 0 // optimization
-
-    for (word1 <- text1) {
-      val row1 = map.get(word1)
-
-      if (row1.isDefined) {
-        for (word2 <- text2) {
-          val row2 = map.get(word2)
-
-          if (row2.isDefined) {
-            avg += dotProduct(row1.get, row2.get)
-            count += 1
-          }
-        }
-      }
+    new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(filename))).autoClose { objectOutputStream =>
+      // Writing is performed in two steps so that the parts can be
+      // processed separately when read back in.
+      objectOutputStream.writeObject(words)
+      objectOutputStream.writeObject(array)
     }
-    if (count != 0) avg / count
-    else 0
   }
 }
 
