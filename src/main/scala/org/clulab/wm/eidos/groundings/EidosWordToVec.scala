@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.embeddings.word2vec.Word2Vec
+import org.clulab.wm.eidos.groundings.CompactWord2Vec
+import org.clulab.wm.eidos.groundings.Word2VecUtils
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.{Logger, LoggerFactory}
 
