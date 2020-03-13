@@ -570,7 +570,7 @@ class JLDDeserializer {
 
       val ontologyGrounding = OntologyGrounding(versionOpt, versionDateOpt, valuesValue, categoryOpt)
 
-      (cookedName, ontologyGrounding)
+      (rawName, ontologyGrounding)
     }
 
     nameAndGroundings.toMap
