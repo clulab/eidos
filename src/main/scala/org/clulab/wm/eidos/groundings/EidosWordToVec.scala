@@ -1,50 +1,30 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.embeddings.word2vec.CompactWord2Vec
 import org.clulab.embeddings.word2vec.Word2Vec
-import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.{Logger, LoggerFactory}
 
 trait EidosWordToVec {
-  type Similarities = Seq[(Namer, Float)]
+  // This makes vectors for both arrays
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
 
-  def stringSimilarity(string1: String, string2: String): Float
-  def calculateSimilarity(mention1: Mention, mention2: Mention): Float
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities
-  def makeCompositeVector(t:Iterable[String]): Array[Float]
+  // This is used to make the vector/array for a single bunch of strings so that they can be compared to another vector.
+  def makeCompositeVector(texts: Iterable[String]): Array[Float]
 }
 
 class FakeWordToVec extends EidosWordToVec {
 
-  override def stringSimilarity(string1: String, string2: String): Float =
-    throw new RuntimeException("Word2Vec wasn't loaded, please check configurations.")
-
-  def calculateSimilarity(mention1: Mention, mention2: Mention): Float = 0
-
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = Seq.empty
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = Seq.empty
 //  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Float)] = Seq(("hello", 5.0f))
 
-  def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
+  def makeCompositeVector(texts: Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
 
 class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
-  def stringSimilarity(string1: String, string2: String): Float =
-      w2v.avgSimilarity(split(string1), split(string2))
-
-  def calculateSimilarity(mention1: Mention, mention2: Mention): Float = {
-    // avgSimilarity does sanitizeWord itself, so it is unnecessary here.
-    val sanitisedM1 =  split(mention1.text)
-    val sanitisedM2 =  split(mention2.text)
-    val similarity = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
-    
-    similarity
-  }
-
-  def dotProduct(v1: Array[Float], v2: Array[Float]): Float = {
+  protected def dotProduct(v1: Array[Float], v2: Array[Float]): Float = {
     assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
     // This would be way prettier, but it is ~20 times slower
     // v1.indices.foldLeft(0.0f)((sum, i) => sum + v1(i) * v2(i))
@@ -57,16 +37,16 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     sum
   }
 
-  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
-    // It could be that the composite vectore below has all zeros even though some values are defined.
-    // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
-    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
+  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
+    val sanitizedNameParts = canonicalNameParts.map(Word2VecUtils.sanitizeWord(_))
+    val outOfVocabulary = sanitizedNameParts.forall { sanitizedNamePart =>
+      w2v.isOutOfVocabulary(sanitizedNamePart) // && w2v.isOutOfVocabulary(sanitizedNamePart.toLowerCase)
+    }
 
     if (outOfVocabulary)
       Seq.empty
     else {
-      val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
+      val nodeEmbedding = makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
         (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
@@ -75,11 +55,13 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     }
   }
 
-  def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)
-
+  // These texts are expected to be sanitized in advance.  For instance, their cases should match
+  // that used in the vector file.
+  def makeCompositeVector(texts: Iterable[String]): Array[Float] = w2v.makeCompositeVector(texts)
 }
 
 object EidosWordToVec {
+  type Similarities = Seq[(Namer, Float)]
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 

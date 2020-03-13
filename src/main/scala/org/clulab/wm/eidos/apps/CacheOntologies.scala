@@ -5,7 +5,7 @@ import java.io.File
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.clulab.embeddings.word2vec.CompactWord2Vec
+import org.clulab.wm.eidos.groundings.CompactWord2Vec
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder

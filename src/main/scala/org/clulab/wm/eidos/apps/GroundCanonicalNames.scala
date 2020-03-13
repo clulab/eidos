@@ -18,7 +18,7 @@ object GroundCanonicalNames extends App {
     protected val ontologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
-      0.until(domainOntology.size).map { index =>
+      domainOntology.indices.map { index =>
         val name = domainOntology.getNamer(index).name
         val isLeaf = domainOntology.isLeaf(index)
         name -> isLeaf

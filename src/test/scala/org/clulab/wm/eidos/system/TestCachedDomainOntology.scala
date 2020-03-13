@@ -42,7 +42,7 @@ class TestCachedDomainOntology extends Test {
   }
 
   protected def extract(domainOntology: DomainOntology): Seq[OntologyEntry]= {
-    0.until(domainOntology.size).map { index =>
+    domainOntology.indices.map { index =>
       OntologyEntry(
         domainOntology.getNamer(index).name,
         domainOntology.getValues(index).sorted,
