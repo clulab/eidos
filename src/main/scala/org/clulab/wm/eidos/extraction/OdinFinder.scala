@@ -20,9 +20,11 @@ object OdinFinder {
     val rulesPath = config[String]("rulesPath")
     val rules = FileUtils.getTextFromResource(rulesPath)
     val actions = EidosActions.fromConfig(config[Config]("actions"))
-
     val entityEngine = ExtractorEngine(rules, actions)
 
-    new OdinFinder(None, entityEngine)
+    val expanderConfig = config.get[Config]("expander")
+    val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig)
+
+    new OdinFinder(expander, entityEngine)
   }
 }
