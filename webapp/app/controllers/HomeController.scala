@@ -45,7 +45,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val annotatedDocument = 
         ieSystem.extractFromText("In 2014 drought caused a famine in Ethopia.", cagRelevantOnly = true, Some("2019-08-09"))
     val corpus = new JLDCorpus(annotatedDocument)
-    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+    val mentionsJSONLD = corpus.serialize()
     println("[EidosSystem] Completed Priming ...")
   }
   // -------------------------------------------------
@@ -190,7 +190,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     // Export to JSON-LD
     val corpus = new JLDCorpus(annotatedDocument)
-    val mentionsJSONLD = corpus.serialize(adjectiveGrounder)
+    val mentionsJSONLD = corpus.serialize()
     mentionsJSONLD
   }
 

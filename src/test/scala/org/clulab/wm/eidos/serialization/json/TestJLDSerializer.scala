@@ -38,7 +38,6 @@ import org.clulab.wm.eidos.text.english.cag.CAG._
 import scala.collection.Seq
 
 class TestJLDSerializer extends ExtractionTest {
-  val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
 
@@ -52,7 +51,7 @@ class TestJLDSerializer extends ExtractionTest {
   def serialize(corpus: Corpus): String = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
-      val jValue = jldCorpus.serialize(adjectiveGrounder)
+      val jValue = jldCorpus.serialize()
       stringify(jValue, pretty = true)
     }
     

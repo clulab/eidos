@@ -22,7 +22,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounder, AdjectiveGrounding, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosCrossSentenceEventMention
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.json4s._
@@ -37,17 +37,6 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   serializer.register(this)
   
   def serialize(): JValue = serializer.serialize(this)
-
-  def serialize(adjectiveGrounder: AdjectiveGrounder): JValue = {
-    val oldAdjectiveGrounder = serializer.adjectiveGrounder
-
-    serializer.adjectiveGrounder = Option(adjectiveGrounder)
-
-    val result = serialize()
-
-    serializer.adjectiveGrounder = oldAdjectiveGrounder
-    result
-  }
   
   def toJsonStr: String =
       pretty(render(serialize()))
@@ -72,7 +61,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 // This class helps serialize/convert a JLDObject to JLD by keeping track of
 // what types are included and providing IDs so that references to can be made
 // within the JSON structure.
-class JLDSerializer(var adjectiveGrounder: Option[AdjectiveGrounder]) {
+class JLDSerializer {
   protected val typenames: mutable.HashSet[String] = mutable.HashSet[String]()
   protected val typenamesByIdentity: JIdentityHashMap[Any, String] = new JIdentityHashMap[Any, String]()
   protected val idsByTypenameByIdentity: mutable.HashMap[String, JIdentityHashMap[Any, Int]] = mutable.HashMap()
@@ -949,13 +938,7 @@ object JLDDocument {
 
 class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JLDObject(serializer, JLDCorpus.typename, corpus) {
 
-  protected def this(corpus: Corpus, adjectiveGrounder: Option[AdjectiveGrounder]) = this(new JLDSerializer(adjectiveGrounder), corpus)
-
-  // Traditional, expert call that some may still be using that includes an adjective grounder from Eidos or now from elsewhere
-  def this(corpus: Corpus, adjectiveGrounder: AdjectiveGrounder) = this(corpus, Option(adjectiveGrounder))
-
-  // New call used in examples so that AdjectiveGrounder can be ignored
-  def this(corpus: Corpus) = this(corpus, Option.empty[AdjectiveGrounder])
+  def this(corpus: Corpus) = this(new JLDSerializer, corpus)
 
   def this(annotatedDocument: AnnotatedDocument) = this(Seq(annotatedDocument))
 
