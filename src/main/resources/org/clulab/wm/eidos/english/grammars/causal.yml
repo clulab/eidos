@@ -121,17 +121,18 @@ rules:
     pattern: |
       trigger = [lemma="make" & tag=/^V/]
       cause: Entity = nmod_by
-      effect: Entity = ${agents}
+      effect: Entity = (>/${agents}/|</acl/)
 
   - name: leadToSyntax1-${addlabel}
     priority: ${rulepriority}
     label: ${label}
     action: ${ action }
     example: "Conflict and economic decline have led to violence and displacement."
+    # "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
     pattern: |
       trigger = [lemma=/lead|contribute/ & tag=/^VB/] (?=[word=to])
-      effect: Entity = nmod_to /(${preps}|${noun_modifiers})/{,4}
-      cause: Entity = </advcl|ccomp/? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
+      effect: Entity = /nmod_to/ /(${preps}|${noun_modifiers})/{,4} (?! [mention=Time])
+      cause: Entity = >ccomp? /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2} (?! [mention=Time])
 
   - name: contribToSyntax1-${addlabel}
     priority: ${rulepriority}
@@ -143,16 +144,30 @@ rules:
       effect: Entity = nmod_to nmod_in [tag=/^N/] (${ conjunctions })? #/${noun_modifiers}/{,2} #
       cause: Entity = nsubj nmod_in /${noun_modifiers}/{,2}
 
+
   - name: is_critical_to-${addlabel}
     priority: ${rulepriority}
     label: ${label}
     action: ${ action }
-    example: "substantial decline in oil revenue since 2014 has contributed to a sharp drop in both foreign currency reserves"
+    example: ""
     pattern: |
-      trigger = [word=/(?i)^(critical|necessary|needed|required)/] (?=[word=to])
+      # Here, forbid the "be" to prevent extracting from "X needed to be reduced"
+      trigger = [word=/(?i)^(critical|necessary|needed|required)/] (?= [word=to]) (?! to be)
       effect: Entity = xcomp [tag=/^V/] /${preps}/{,2}
       cause: Entity = /${agents}/
 
+  - name: is_critical_to2-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "He said in order to boost intra-African trade , tariffs needed to be brought down .
+              Tariffs needed to be brought down in order to boost intra-African trade .
+              He said that to boost intra-African trade , tariffs needed to be brought down .
+              Tariffs needed to be brought down to boost intra-African trade ."
+    pattern: |
+      trigger = [word=/(?i)^(critical|necessary|needed|required)/] (?= to be)
+      cause: Entity = >/${agents}/ /${preps}/{,2}
+      effect: Entity = ((>/advcl_in_order|advcl_to/) | (>xcomp >/advcl_in_order|xcomp/)) >/${objects}/{,1}
 
   - name: becauseOfSyntax1-${addlabel}
     priority: ${rulepriority}
@@ -182,6 +197,16 @@ rules:
         (<mark <advcl_because (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
           |
         (<mark <advcl_because)
+
+  - name: help_syntax_1-${addLabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${action}
+    example: "EU regional aid helped spark the Irish economic miracle and modernise Spain , Greece and Portugal ."
+    pattern: |
+      trigger = [lemma=/help/ & tag=/^V/]
+      cause: Entity = ${agents}
+      effect: Entity = >ccomp >/${objects}/{,1}
 
 # ------------------- Explicitly Causal REACH --------------------------
 

@@ -1,0 +1,114 @@
+openapi: 3.0.2
+info:
+  title: eidos
+  version: v3
+servers:
+  - url: 'http://localhost:9000/eidos/v3'
+    description: Localhost
+  - url: 'http://kwalcock.noip.me/eidos/v3'
+    description: Keith's computer
+
+components:
+  parameters:
+    document_id:
+      name: document_id
+      in: path
+      description: Unique document identifier
+      required: true
+      schema:
+        type: string
+  schemas:
+    cdr:
+      type: object
+      required:
+      - document_id
+      - extracted_text
+      properties:
+        extracted_metadata:
+          type: object
+          properties:
+            CreationDate:
+              type: string
+            ModDate:
+              type: string
+            Title:
+              type: string
+        document_id:
+          type: string
+        extracted_text:
+          type: string
+        uri:
+          type: string
+    jsonld:
+      type: object
+
+paths:
+  /sys/status:
+    get:
+      responses:
+        200:
+          description: A prose description of system status
+          content:
+            'text/plain; charset=utf-8':
+              schema:
+                type: string            
+  /doc:
+    get:
+      summary: Get a list of all known documents
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    post:
+      summary: Create a new document in the list and process it
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cdr'
+      responses:
+        200:
+          description: OK
+
+  /doc/{document_id}:
+    get:
+      summary: Get the reading result of a particular document
+      parameters:
+        - $ref: '#/components/parameters/document_id'      
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jsonld'
+    delete:
+      summary: Forget a particular document, after stopping its processing if necessary
+      parameters:
+        - $ref: '#/components/parameters/document_id'      
+      responses:
+        200:
+          description: OK
+
+  /doc/{document_id}/cancel:
+    put:
+      summary: Cancel processing of a particular document
+      parameters:
+        - $ref: '#/components/parameters/document_id'      
+      responses:
+        200:
+          description: OK
+
+  /doc/{document_id}/status:
+    put:
+      summary: Just get the status of document, not its reading
+      parameters:
+        - $ref: '#/components/parameters/document_id'      
+      responses:
+        200:
+          description: OK

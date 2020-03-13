@@ -1,14 +1,14 @@
 package org.clulab.wm.eidos.apps.batch
 
-import org.clulab.wm.eidos.apps.batch.utils.Counter
-import org.clulab.wm.eidos.apps.batch.utils.TsvUtils
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer
 import org.clulab.wm.eidos.serialization.json.JLDSerializer
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.Counter
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sinker
 import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidos.utils.TsvWriter
 
 object ReconstituteAndSummarizeEstonia extends App {
   val inputDir = args(0)
@@ -25,7 +25,7 @@ object ReconstituteAndSummarizeEstonia extends App {
     file.getName -> Counter()
   }.toMap
 
-  new TsvUtils.TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
+  new TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
     tsvWriter.println("docId", "type", "subtype", "eidosCount")
 
     files.foreach { file =>

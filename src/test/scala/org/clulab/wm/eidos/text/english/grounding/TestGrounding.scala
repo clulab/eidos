@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.text.english.grounding
 
 import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyGrounder
 import org.clulab.wm.eidos.groundings.OntologyGrounding
@@ -21,9 +20,9 @@ class TestGrounding extends EnglishTest {
     val threshold: Option[Float] = Option(0.5f)
     val active: Boolean
 
-    def fakeAnnotatedDoc(text: String, causeIntervals: List[Interval], effectIntervals: List[Interval],
+    def fakeAnnotatedDoc(text: String, causeIntervals: Seq[Interval], effectIntervals: Seq[Interval],
         topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold):
-        (List[EidosMention], List[EidosMention])
+        (Seq[EidosMention], Seq[EidosMention])
 
     def allGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[String]
   }
@@ -44,9 +43,9 @@ class TestGrounding extends EnglishTest {
   class FakeCompositionalGroundingTextTester extends CompositionalGroundingTextTester {
     val active = false
 
-    def fakeAnnotatedDoc(text: String, causeIntervals: List[Interval], effectIntervals: List[Interval],
+    def fakeAnnotatedDoc(text: String, causeIntervals: Seq[Interval], effectIntervals: Seq[Interval],
         topN: Option[Int], threshold: Option[Float]):
-        (List[EidosMention], List[EidosMention]) = (List.empty, List.empty)
+        (Seq[EidosMention], Seq[EidosMention]) = (Seq.empty, Seq.empty)
 
     def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[String] = Seq.empty
   }
@@ -99,19 +98,25 @@ class TestGrounding extends EnglishTest {
     }
 
     // TODO: pass topN and threshold through
-    def fakeAnnotatedDoc(text: String, causeIntervals: List[Interval], effectIntervals: List[Interval],
+    def fakeAnnotatedDoc(text: String, causeIntervals: Seq[Interval], effectIntervals: Seq[Interval],
                          topN: Option[Int], threshold: Option[Float]):
-    (List[EidosMention], List[EidosMention]) = {
+    (Seq[EidosMention], Seq[EidosMention]) = {
       val doc = ieSystem.annotate(text)
-      val causeTBM = causeIntervals.map( x =>
-        new TextBoundMention(label="Entity", x, 0, doc, true, "FakeRule") )
-      val causeAD = causeTBM.map( x => AnnotatedDocument(doc, Seq(x)) )
-      val cause = causeAD.map( x => ieSystem.components.ontologyHandler.process(x).eidosMentions.head)
+      val cause = {
+        val odinCauses = causeIntervals.map(x =>
+            new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
+        val eidosCauses = EidosMention.asEidosMentions(odinCauses)
 
-      val effectTBM = effectIntervals.map( x =>
-        new TextBoundMention(label="Entity", x, 0, doc, true, "FakeRule") )
-      val effectAD = effectTBM.map( x => AnnotatedDocument(doc, Seq(x)) )
-      val effect = effectAD.map( x => ieSystem.components.ontologyHandler.process(x).eidosMentions.head)
+        ieSystem.components.ontologyHandler.ground(eidosCauses)
+      }
+
+      val effect = {
+        val odinCauses = effectIntervals.map(x =>
+            new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
+        val eidosCauses = EidosMention.asEidosMentions(odinCauses)
+
+        ieSystem.components.ontologyHandler.ground(eidosCauses)
+      }
 
       val returned = (cause, effect)
       returned
@@ -124,7 +129,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 1"
 
     val text = "The oil supply caused civil unrest in Sudan."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0, 3)), List(Interval(4, 6)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 3)), Seq(Interval(4, 6)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -152,7 +157,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 2"
 
     val text = "The prices of oil caused conflict in Ethiopia."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0, 4)), List(Interval(5, 6)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 4)), Seq(Interval(5, 6)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -180,7 +185,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 3"
 
     val text = "Conflict caused an increase in the transportation price of fresh water."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0, 1)), List(Interval(5, 11)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 1)), Seq(Interval(5, 11)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -211,7 +216,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 4"
 
     val text = "Armed clashes caused a decrease in the supply of school supplies in Jonglei State."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0, 2)), List(Interval(6, 11)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 2)), Seq(Interval(6, 11)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -239,7 +244,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 5"
 
     val text = "Food security was mentioned as the main reason for flight."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0, 2)), List(Interval(9, 10)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 2)), Seq(Interval(9, 10)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -267,7 +272,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding 6"
 
     val text = "The primary reasons for moving were insecurity, lack of food, and poor access to services such as healthcare and education."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(6, 7), Interval(8, 11), Interval(14, 22), Interval(4, 5)), List(Interval(4, 5)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(6, 7), Interval(8, 11), Interval(14, 22), Interval(4, 5)), Seq(Interval(4, 5)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -317,7 +322,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding ACCESS"
 
     val text = "sorghum access caused an increase in migration."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0, 2)), List(Interval(6, 7)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 2)), Seq(Interval(6, 7)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -347,7 +352,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding SUPPLY"
 
     val text = "sorghum shortage caused an increase in migration."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0, 2)), List(Interval(6, 7)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 2)), Seq(Interval(6, 7)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -377,7 +382,7 @@ class TestGrounding extends EnglishTest {
     behavior of "Grounding ISSUE #739"
 
     val text = "The price of oil increased the price of water transportation."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,4)), List(Interval(5,10)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,4)), Seq(Interval(5,10)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
@@ -421,7 +426,7 @@ class TestGrounding extends EnglishTest {
 //    behavior of "test name"
 //
 //    val text = "Sentence goes here"
-//    val eidosMentions = tester.fakeAnnotatedDoc(text, List(Interval(0,1)), List(Interval(1,2)))
+//    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,1)), Seq(Interval(1,2)))
 //    val causeMentions = eidosMentions._1
 //    val effectMentions = eidosMentions._2
 //

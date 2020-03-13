@@ -1,0 +1,101 @@
+
+  - name: location-nn
+    # locations found by the neural network
+    priority: ${ rulepriority }
+    example: "reaching record levels in South Sudan."
+    label: Location
+    type: token
+    pattern: |
+      [norm="LOC" & !word=/KIs?/] [norm="LOC" & !word=/KIs?/]*
+#      there are some cases with a LOC followed by something labeled ORGANIZATION that should be LOC
+
+  - name: location-nn-expand-out
+    # if something in the middle of an NP chunk was found as LOC, expand to the whole NP
+    priority: ${ rulepriority }
+    example: "reaching record levels in South Sudan."
+    label: Location-Expand
+    type: token
+    pattern: |
+      [!norm="LOC" & chunk=B-NP & !tag=/-[LR]RB-/] [!norm="LOC" & chunk=I-NP & !word=and & !tag=/-[LR]RB-/]* [norm="LOC" & chunk=I-NP & !tag=/-[LR]RB-/]+ [!norm="LOC" & chunk=I-NP & !word=and & !tag=/-[LR]RB-/]*
+
+  - name: location-nn-expand-right
+    # if only the beginning of an NP chunk was found as LOC, expand to the whole NP
+    priority: ${ rulepriority }
+    example: "reaching record levels in South Sudan."
+    label: Location-Expand
+    type: token
+    pattern: |
+      [norm="LOC" & chunk=B-NP] [!norm="LOC" & chunk=I-NP & !word=and]+
+
+  - name: location-backoff
+    # backoff to Stanford location
+    priority: ${ rulepriority }
+    example: "was reported through Gangura and Nabiapai"
+    label: Location-Expand
+#    action: backoffGeonorm
+    type: token
+    pattern: |
+      [entity="LOCATION" & !norm="LOC"] [entity="LOCATION" & !norm="LOC" & !tag=/-[LR]RB-/]*
+
+  - name: location-backoff-expand
+    # where the first part of a complex NNP is found, expand to the rest of the NNP chunk
+    priority: ${ rulepriority }
+    example: "* Demographic data: 133 individuals were recorded transiting through the Juba Port FMP"
+    label: Location
+#    action: backoffGeonorm
+    type: token
+    pattern: |
+      [entity="ORGANIZATION" & !norm="LOC"] [chunk="I-NP" & tag=/^NNP/ & !norm="LOC" & !word=and]+
+
+  - name: location-backoff-expand-common
+      # where the first part of a complex NNP is found, expand to the rest of the NNP chunk
+    priority: ${ rulepriority }
+    example: "* Demographic data: 133 individuals were recorded transiting through the Juba Port FMP"
+    label: Location-Expand
+#    action: backoffGeonorm
+    type: token
+    pattern: |
+        [entity="LOCATION" & !norm="LOC"] [chunk="I-NP" & !norm="LOC" & !word=/and|\(/ & !entity = "PERCENT"]+
+
+  - name: location-expand-conjunction
+    # where a location is mislabeld in a conjunction with another location
+    priority: ${ rulepriority }
+    example: "was reported through Gangura and Nabiapai"
+    label: Location-Expand
+#    action: backoffGeonorm
+    type: token
+    pattern: |
+      (?<=[entity="LOCATION"] [word="and"]) [tag=/^NNP/ & !word=/(KIs?)|DRC/ & !norm="LOC" & !entity="LOCATION"]+
+
+  - name: time-stanford
+    # backoff to Stanford time
+    priority: ${ rulepriority }
+    example: "reaching record levels in July."
+    label: Time
+    type: token
+    pattern: |
+      [entity="DATE"] [entity="DATE"]*
+
+
+  - name: number-stanford
+      # backoff to Stanford time
+    priority: ${ rulepriority }
+    example: "bringing the total who arrived to 68,858."
+    label: Concept
+    type: token
+    pattern: |
+        [entity="NUMBER"]
+#      |
+#      [entity="DURATION"] [entity="DURATION"]*
+
+  - name: time-expand
+      # backoff to Stanford time
+    priority: ${ rulepriority }
+    example: "bringing the total who arrived to 68,858."
+    label: Time
+    type: token
+    pattern: |
+        [norm=/.-Time/]
+
+      # todo: same for time
+      # make the other temporal attachment yml rules use the mention=X syntax

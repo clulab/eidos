@@ -16,8 +16,8 @@ import collection.JavaConverters._
 
 class TestCachedDomainOntology extends Test {
   val ontologies: Iterable[String] = Seq("one", "two")
-  val config: Config = ConfigFactory.load(EidosSystem.defaultConfig)
-      .withValue("ontologies.useW2V", ConfigValueFactory.fromAnyRef(false, "Vectors are not necessary."))
+  val config: Config = ConfigFactory.load(this.defaultConfig)
+      .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Vectors are not necessary."))
       .withValue("ontologies.ontologies", ConfigValueFactory.fromIterable(Seq.empty[String].asJava, "Preloaded ontologies are not necessary."))
   val baseDir = "/org/clulab/wm/eidos/english/ontologies"
   val cacheDir: String = config[String]("ontologies.cacheDir")
@@ -54,9 +54,9 @@ class TestCachedDomainOntology extends Test {
 
   protected def getDomainOntologies(ontologySpec: OntologySpec, includeParents: Boolean): Array[DomainOntology] = {
     val path = ontologySpec.path
-    val domainOntologies = Array(false, true).flatMap { useCache =>
-      if (!useCache) {
-        val orig = DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCache , includeParents)
+    val domainOntologies = Array(false, true).flatMap { useCacheForOntologies =>
+      if (!useCacheForOntologies) {
+        val orig = DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies , includeParents)
         val copy =
           if (!includeParents)  new CompactDomainOntologyBuilder(orig.asInstanceOf[HalfTreeDomainOntology]).build()
           else new FastDomainOntologyBuilder(orig.asInstanceOf[FullTreeDomainOntology]).build()
@@ -66,7 +66,7 @@ class TestCachedDomainOntology extends Test {
       else {
         val cachePath = OntologyHandler.serializedPath(ontologySpec.abbrev, cacheDir, includeParents)
 
-        Array(DomainOntologies("", cachePath, proc, canonicalizer, filter, useCache, includeParents))
+        Array(DomainOntologies("", cachePath, proc, canonicalizer, filter, useCacheForOntologies, includeParents))
       }
     }
 

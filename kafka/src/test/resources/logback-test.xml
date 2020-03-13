@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- %l lowers performance -->
+            <!--<pattern>%d [%t] %-5p %l%n %m%n</pattern> -->
+            <pattern>%d - %logger - [%t] %-5p %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.zookeeper" level="WARN"/>
+
+    <logger name="kafka.server" level="WARN"/>
+    <logger name="kafka.zookeeper" level="WARN"/>
+    <logger name="kafka.log" level="WARN"/>
+    <logger name="kafka.cluster" level="WARN"/>
+    <logger name="kafka.coordinator" level="WARN"/>
+    <logger name="kafka.controller" level="WARN"/>
+    <logger name="kafka.common" level="ERROR"/>
+    <logger name="kafka.zk" level="WARN"/>
+    <logger name="kafka.network" level="WARN"/>
+
+    <logger name="org.apache.kafka.clients" level="ERROR"/>
+    <logger name="org.apache.kafka.clients.producer" level="WARN"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.kafka.common.utils" level="OFF"/>
+    <logger name="com.yammer.metrics.reporting" level="OFF"/>>
+
+    <root level="INFO">
+        <appender-ref ref="consoleAppender"/>
+    </root>
+
+</configuration>

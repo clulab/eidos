@@ -1,6 +1,8 @@
 import ReleaseTransformations._
 import Tests._
 
+lazy val keith = "was here again"
+
 name := "eidos"
 organization := "org.clulab"
 
@@ -9,7 +11,12 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
-resolvers += "jitpack" at "https://jitpack.io"
+resolvers ++= Seq(
+  "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies
+  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d
+)
+
+lazy val keith = "keithwas here"
 
 libraryDependencies ++= {
   val    procVer = "7.5.4"
@@ -24,6 +31,7 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-modelscorenlp" % procVer,
     "org.clulab"                 %% "geonorm"                  % "0.9.7",
     "org.clulab"                 %% "timenorm"                 % "1.0.4",
+    "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
     "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
     "commons-io"                  % "commons-io"               % "2.5",
@@ -184,11 +192,24 @@ lazy val core = (project in file("."))
   )
 
 lazy val webapp = project
-  .enablePlugins(PlayScala)
-  .aggregate(core)
-  .dependsOn(core)
+    .enablePlugins(PlayScala)
+    .aggregate(core)
+    .dependsOn(core)
 
 lazy val elasticsearch = project
+
+lazy val restapp = project
+  .enablePlugins(PlayScala)
+  .dependsOn(core)
+
+lazy val akkaapp = project
+//    .dependsOn(core)
+
+lazy val sparql = project
+
+lazy val kafka = project
+    .aggregate(core)
+    .dependsOn(core)
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {

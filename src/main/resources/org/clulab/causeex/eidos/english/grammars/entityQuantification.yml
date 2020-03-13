@@ -1,0 +1,119 @@
+vars: org/clulab/causeex/eidos/english/grammars/vars.yml
+
+
+rules:
+
+#  - name: quantification1b
+#    priority: ${ rulepriority }
+#    example: "moderate to heavy rainfall"
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [mention=Quantifier] to [mention=Quantifier] #Find the quantifier
+#      theme: Entity = <amod #Find the entity the quantifier is modifying
+
+  - name: quantification1c
+    priority: ${ rulepriority }
+    example: "heavier than usual rainfall"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      # note: assumes comparative JJ forms of quantifiers are tagged
+      trigger = [mention=Quantifier] than [word=/(usual|typical|average|normal)/] #Find the quantifier
+      theme: Entity = <amod #Find the entity the quantifier is modifying
+
+  - name: quantification1
+    priority: ${ rulepriority }
+    example: "large puppies"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier]+ #Find the quantifier
+      theme: Entity = /<amod|nmod_to/ #Find the entity the quantifier is modifying
+      adverb: Quantifier? = ${quant_modifiers}
+
+  - name: quantification2
+    priority: ${ rulepriority }
+    example: "record high food prices"
+    label: ${ label }
+    action: ${ action }
+    type: token
+    pattern: |
+      @adverb:Quantifier*
+      (?<trigger> [mention=Quantifier]+)  #Find the adverbial quantifier
+      @theme:Entity #Find the adjectival quantifier being quantified
+
+  - name: quantification_adjective_rule_2
+    priority:  ${ rulepriority }
+    example: "food insecurity is becoming severe"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/]+  #Find the quantifier
+      theme: Entity = <xcomp (>/${agents}/|</acl/)
+      adverb: Quantifier? = ${quant_modifiers}  # todo: we should allow for modification here (e.g. 'more')
+
+  - name: quantification_adjective_rule_3
+    priority: ${ rulepriority }
+    example: "where malnutrition rates in some places are reaching dangerous levels."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/ & incoming=amod]
+      theme: Entity = ((?= <amod [word=/(?i)^${transparent_nouns}/]) <amod <dobj (?= aux [lemma=/be/ & tag=/^V/]) nsubj)
+      adverb: Quantifier? = ${quant_modifiers}
+
+  - name: quantification_adjective_rule_4
+    priority:  ${ rulepriority }
+    example: "food insecurity is severe"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier]+ #Find the quantifier
+      theme: Entity = nsubj
+
+  - name: quantification_copula_rule_1
+    priority:  ${ rulepriority }
+    example: "food insecurity is becoming severe"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/ & outgoing=cop] #Find the quantifier
+      theme: Entity = >nsubj
+
+  - name: quantification3
+    priority: ${ rulepriority }
+    example: "remain above average"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier]+ #Find the quantifier
+      theme: Entity = </${ complements }|^${conjunctions}/? >${ agents } #Find the entity the quantifier is modifying
+
+  - name: quantification4
+    priority: ${ rulepriority }
+    example: "food shortage to record levels"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier]+ #Find the quantifier
+      theme: Entity = <compound nmod_to #${ noun_modifiers })  #Find the entity the quantifier is modifying
+
+  - name: quantification_adjective_rule_5
+    priority:  ${ rulepriority }
+    example: "Supporting local food production will remain critical"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [mention=Quantifier & tag=/^JJ/] #Find the quantifier
+      theme: Entity = <xcomp? (${agents}) ${objects}
+      adverb: Quantifier? = ${quant_modifiers}
+
+  - name: quantification_token_remain
+    priority:  ${ rulepriority }
+    example: "Supporting local food production will remain critical"
+    type: token
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      @theme:Entity remain @trigger:Quantifier

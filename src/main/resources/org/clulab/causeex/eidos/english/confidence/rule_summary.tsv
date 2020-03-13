@@ -1,0 +1,27 @@
+RULE	COUNT of RULE	% of all	Num correct	Num incorrect	% correct	% curated
+ported_syntax_1_verb-Causal	780	0.4514	67	28	0.7053	0.1218
+dueToSyntax2-Causal	165	0.0955	92	21	0.8142	0.6848
+ported_syntax_5_verb-Causal	161	0.0932	29	18	0.6170	0.2919
+leadToSyntax1-Causal	136	0.0787	51	10	0.8361	0.4485
+ported_syntax_1c_verb-Causal	63	0.0365	39	15	0.7222	0.8571
+dueToSyntax5-Causal	61	0.0353	20	9	0.6897	0.4754
+reverse_causal-noun-1	58	0.0336	21	4	0.8400	0.4310
+ported_syntax_4_verb-Causal	55	0.0318	13	1	0.9286	0.2545
+syntax_3_verb-Correlation	43	0.0249	15	13	0.5357	0.6512
+dueToSyntax4-Causal	37	0.0214	18	1	0.9474	0.5135
+syntax_2_verb-Correlation	33	0.0191	10	16	0.3846	0.7879
+syntax_explicit_Correlation_given	26	0.0150	8	13	0.3810	0.8077
+dueToSyntax1-Causal	25	0.0145	24	1	0.9600	1.0000
+reverse_causal-noun-2	23	0.0133	9	7	0.5625	0.6957
+syntax_1d_verb-Correlation	17	0.0098	16	1	0.9412	1.0000
+ported_copula_1-Causal	15	0.0087	6	1	0.8571	0.4667
+syntax_verb-Correlation_with	6	0.0035	4	2	0.6667	1.0000
+syntax_5_verb-Correlation	6	0.0035	3	1	0.7500	0.6667
+ported_syntax_1_verb-Correlation	5	0.0029	3	2	0.6000	1.0000
+syntax_1_verb-Correlation	5	0.0029	5	0	1.0000	1.0000
+ported_nested_syntax_2_verb-Causal	2	0.0012	1	1	0.5000	1.0000
+ported_token_2_noun-Causal	2	0.0012	2	0	1.0000	1.0000
+syntax_explicit_favorable	2	0.0012	2	0	1.0000	1.0000
+dueTo-caseSyntax-dobj_effect-Causal	1	0.0006	1	0	1.0000	1.0000
+Causal_given_Causal	1	0.0006	1	0	1.0000	1.0000
+Grand Total	1728					
