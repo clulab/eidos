@@ -13,6 +13,7 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, MaaSUtils, PlayUtils}
@@ -35,7 +36,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   val eidosConfig: Config = EidosSystem.defaultConfig
   val ieSystem: EidosSystem = new EidosSystem(eidosConfig)
   val stanza = "adjectiveGrounder"
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(eidosConfig.getConfig(stanza))
+  val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(eidosConfig.getConfig(stanza))
   val domainParams: DomainParams = DomainParams.fromConfig(eidosConfig.getConfig(stanza))
   println("[EidosSystem] Completed Initialization ...")
 
@@ -219,7 +220,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val paramDetails: Map[String, Double] = domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
     val paramMean = paramDetails(DomainParams.PARAM_MEAN)
     val paramStdev = paramDetails(DomainParams.PARAM_STDEV)
-    val grounding = adjectiveGrounder.groundAdjective(quantifier)
+    val grounding = adjectiveGrounder.groundAdjective(quantifier).get
     val predictedDelta = grounding.predictDelta(paramMean, paramStdev)
 
     GroundedEntity(mention.document.sentences(mention.sentence).getSentenceText, quantifier, mention.text, predictedDelta, grounding.mu, grounding.sigma)

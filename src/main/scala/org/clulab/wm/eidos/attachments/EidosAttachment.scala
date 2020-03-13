@@ -11,6 +11,8 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
+import org.clulab.wm.eidos.groundings.AdjectiveGrounding
 import org.clulab.wm.eidos.serialization.json.JLDCountAttachment
 import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
 import org.clulab.wm.eidos.utils.QuicklyEqualable
@@ -35,6 +37,8 @@ abstract class EidosAttachment extends Attachment with Serializable with Quickly
 
   // Support for JSON serialization
   def toJson: JValue
+
+  def groundAdjective(adjectiveGrounder: AdjectiveGrounder): Unit = ()
 }
 
 object EidosAttachment {
@@ -152,7 +156,8 @@ object Provenance {
 
 @SerialVersionUID(1L)
 abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
-    val triggerProvenance: Option[Provenance] = None, val quantifierProvenances: Option[Seq[Provenance]]) extends EidosAttachment {
+    val triggerProvenance: Option[Provenance] = None, val quantifierProvenances: Option[Seq[Provenance]],
+    var adjectiveGroundingsOpt: Option[Seq[Option[AdjectiveGrounding]]] = None) extends EidosAttachment {
 
   // It is done this way, at least temporarily, so that serialization and comparisons can be made between
   // objects with and without the optional values.
@@ -187,7 +192,7 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
   }
 
   def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosTriggeredAttachment =
-    new JLDEidosTriggeredAttachment(serializer, kind, this)
+      new JLDEidosTriggeredAttachment(serializer, kind, this)
 
   def toJson(label: String): JValue = {
     val quants =
@@ -197,6 +202,14 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
     (EidosAttachment.TYPE -> label) ~
       (EidosAttachment.TRIGGER -> trigger) ~
       (EidosAttachment.QUANTIFICATIONS -> quants)
+  }
+
+  override def groundAdjective(adjectiveGrounder: AdjectiveGrounder): Unit = {
+    adjectiveGroundingsOpt = quantifiers.map { quantifiers =>
+      quantifiers.map { quantifier =>
+        adjectiveGrounder.groundAdjective(quantifier)
+      }
+    }
   }
 }
 

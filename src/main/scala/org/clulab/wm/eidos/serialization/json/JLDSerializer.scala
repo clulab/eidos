@@ -217,20 +217,20 @@ object JLDOntologyGroundings {
   val plural: String = singular
 }
 
-class JLDModifier(serializer: JLDSerializer, quantifier: String, provenance: Option[Provenance])
-    extends JLDObject(serializer, JLDModifier.typename) {
+class JLDModifier(serializer: JLDSerializer, quantifier: String, provenance: Option[Provenance],
+    adjectiveGroundingOpt: Option[AdjectiveGrounding]) extends JLDObject(serializer, JLDModifier.typename) {
+  val adjectiveGrounding = adjectiveGroundingOpt.getOrElse(JLDModifier.noAdjectiveGrounding)
 
   override def toJObject: TidyJObject = {
-    val grounding = serializer.adjectiveGrounder.map(_.groundAdjective(quantifier)).getOrElse(AdjectiveGrounding.noAdjectiveGrounding)
     val jldProvenance = provenance.map(provenance => Seq(new JLDProvenance(serializer, provenance).toJObject))
 
     TidyJObject(List(
       serializer.mkType(this),
       "text" -> quantifier,
       JLDProvenance.singular -> jldProvenance,
-      "intercept" -> grounding.intercept,
-      "mu" -> grounding.mu,
-      "sigma" -> grounding.sigma
+      "intercept" -> adjectiveGrounding.intercept,
+      "mu" -> adjectiveGrounding.mu,
+      "sigma" -> adjectiveGrounding.sigma
     ))
   }
 }
@@ -239,6 +239,8 @@ object JLDModifier {
   val singular = "modifier"
   val plural = "modifiers"
   val typename = "Modifier"
+
+  val noAdjectiveGrounding = AdjectiveGrounding(None, None, None)
 }
 
 abstract class JLDAttachment(serializer: JLDSerializer, kind: String)
@@ -288,8 +290,9 @@ class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredA
             val quantifierMention =
               if (triggeredAttachment.getQuantifierMentions.isDefined) Some(triggeredAttachment.getQuantifierMentions.get(index))
               else None
+            val adjectiveGroundingOpt = triggeredAttachment.adjectiveGroundingsOpt.flatMap(_(index))
 
-            new JLDModifier(serializer, quantifier, quantifierMention).toJObject
+            new JLDModifier(serializer, quantifier, quantifierMention, adjectiveGroundingOpt).toJObject
           }
 
     TidyJObject(List(
