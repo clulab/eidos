@@ -1,22 +1,29 @@
-package org.clulab.wm.eidos.utils
-
+package org.clulab.wm.eidos.exporters
 
 import org.clulab.odin.Attachment
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.export._
+import org.clulab.wm.eidos.attachments.Decrease
+import org.clulab.wm.eidos.attachments.Hedging
+import org.clulab.wm.eidos.attachments.Increase
+import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 
 import scala.collection.mutable.ArrayBuffer
 
-object ExportUtils {
+trait Exporter {
+  def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit
+}
 
-  def getExporter(exporterString: String, filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
+object Exporter {
+
+  def apply(exporterString: String, filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
     exporterString match {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
       case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
       case "serialized" => SerializedExporter(filename)
-      case "grounding" => GroundingExporter(filename + ".ground.csv", reader, groundAs, topN)
+      case "grounding" => GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
       case "migration" => MigrationExporter(filename + ".migration.tsv")
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
@@ -59,5 +66,4 @@ object ExportUtils {
   }
 
   def removeTabAndNewline(s: String): String = s.replaceAll("(\\n|\\t)", " ")
-
 }

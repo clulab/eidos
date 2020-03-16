@@ -4,8 +4,9 @@ package org.clulab.wm.eidos.apps
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.exporters.Exporter
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer
-import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
+import org.clulab.wm.eidos.utils.FileUtils
 
 /**
   * App used to extract mentions from files in a directory and produce the desired output format (i.e., jsonld, mitre
@@ -37,7 +38,7 @@ object ReconstituteAndExport extends App with Configured {
     val corpus = deserializer.deserialize(json)
     // 3. Export to all desired formats
     exportAs.foreach { format =>
-      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(corpus)
+      Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(corpus)
     }
   }
 }
