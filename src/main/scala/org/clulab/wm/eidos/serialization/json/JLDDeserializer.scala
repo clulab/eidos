@@ -16,9 +16,7 @@ import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Edge
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.CountAttachment
-import org.clulab.wm.eidos.attachments.CountModifier
-import org.clulab.wm.eidos.attachments.CountUnit
+import org.clulab.wm.eidos.attachments.{CountAttachment, CountModifier, CountUnit, DCTime, Decrease, Hedging, Increase, Location, MigrationGroupCount, NegChange, Negation, PosChange, Property, Provenance, Quantification, Time}
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.actions.MigrationHandler
 import org.clulab.wm.eidos.attachments.DCTime
@@ -32,6 +30,7 @@ import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.attachments.{Property, Quantification}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
@@ -481,6 +480,12 @@ class JLDDeserializer {
       case "DEC" =>
         require(provenanceOpt.isDefined)
         new Decrease(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "POS" =>
+        require(provenanceOpt.isDefined)
+        new PosChange(text, quantifiers, provenanceOpt, quantifierProvenances)
+      case "NEG" =>
+        require(provenanceOpt.isDefined)
+        new NegChange(text, quantifiers, provenanceOpt, quantifierProvenances)
       case "PROP" =>
         require(provenanceOpt.isEmpty)
         new Property(text, quantifiers, provenanceOpt, quantifierProvenances)
@@ -615,6 +620,30 @@ class JLDDeserializer {
           )
           newEventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
               keep, foundBy, attachments)
+        }
+        else if (extractionType == "relation" && extractionSubtype == "positiveaffect") {
+          require(JLDRelationPositiveAffect.taxonomy == labels.head)
+          require(triggerOpt.isDefined)
+          require(misnamedArguments.get("source").nonEmpty)
+          require(misnamedArguments.get("destination").nonEmpty)
+          val renamedArguments: Map[String, Seq[Mention]] = Map(
+            "cause" -> misnamedArguments("source"),
+            "effect" -> misnamedArguments("destination")
+          )
+          newEventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
+            keep, foundBy, attachments)
+        }
+        else if (extractionType == "relation" && extractionSubtype == "negativeaffect") {
+          require(JLDRelationNegativeAffect.taxonomy == labels.head)
+          require(triggerOpt.isDefined)
+          require(misnamedArguments.get("source").nonEmpty)
+          require(misnamedArguments.get("destination").nonEmpty)
+          val renamedArguments: Map[String, Seq[Mention]] = Map(
+            "cause" -> misnamedArguments("source"),
+            "effect" -> misnamedArguments("destination")
+          )
+          newEventMention(labels, tokenInterval, triggerOpt.get, renamedArguments, paths, sentence, document,
+            keep, foundBy, attachments)
         }
         else if (extractionType == "relation" && extractionSubtype == "correlation") {
           require(JLDRelationCorrelation.taxonomy == labels.head)

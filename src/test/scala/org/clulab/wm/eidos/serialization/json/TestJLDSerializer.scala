@@ -16,7 +16,9 @@ import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.PosChange
 import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.attachments.Quantification
 import org.clulab.wm.eidos.attachments.Score
@@ -327,6 +329,8 @@ class TestJLDSerializer extends ExtractionTest {
       new Property(trigger, someQuantifications),
       new Hedging(trigger, someQuantifications),
       new Negation(trigger, someQuantifications),
+      new PosChange(trigger, someQuantifications),
+      new NegChange(trigger, someQuantifications),
 
       new CountAttachment("text", migrationGroupCount, 3, 6),
       new Location(geoPhraseID),
@@ -343,5 +347,13 @@ class TestJLDSerializer extends ExtractionTest {
 
     inspect(json)
     json should not be empty
+    json should include (s""""type" : "${Decrease.kind}",""")
+    json should include (s""""type" : "${Increase.kind}",""")
+    json should include (s""""type" : "${Quantification.kind}",""")
+    json should include (s""""type" : "${Property.kind}",""")
+    json should include (s""""type" : "${Hedging.kind}",""")
+    json should include (s""""type" : "${Negation.kind}",""")
+    json should include (s""""type" : "${PosChange.kind}",""")
+    json should include (s""""type" : "${NegChange.kind}",""")
   }
 }

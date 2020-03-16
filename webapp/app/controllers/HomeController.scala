@@ -663,14 +663,18 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 object HomeController {
   val INC_LABEL_AFFIX = "-Inc"
   val DEC_LABEL_AFFIX = "-Dec"
+  val POS_LABEL_AFFIX = "-Pos"
+  val NEG_LABEL_AFFIX = "-Neg"
   val QUANT_LABEL_AFFIX = "-Quant"
 
   // fixme: ordering/precedence...
-  def statefulRepresentation(m: Mention): Mention = {
+  protected def statefulRepresentation(m: Mention): Mention = {
     val stateAffix = m.attachments match {
       case inc if inc.exists(a => a.isInstanceOf[Increase]) => INC_LABEL_AFFIX
       case dec if dec.exists(a => a.isInstanceOf[Decrease]) => DEC_LABEL_AFFIX
       case quant if quant.exists(a => a.isInstanceOf[Quantification]) => QUANT_LABEL_AFFIX
+      case pos if pos.exists(a => a.isInstanceOf[PosChange]) => POS_LABEL_AFFIX
+      case neg if neg.exists(a => a.isInstanceOf[NegChange]) => NEG_LABEL_AFFIX
       case _ => ""
     }
 
