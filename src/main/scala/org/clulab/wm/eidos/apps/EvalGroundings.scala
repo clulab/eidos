@@ -17,11 +17,11 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 object EvalGroundings extends App {
 
   // load tsv file of annotated gold groundings
-  val originalFile = FileUtils.getTextFromFile("grounderEvalResources/gold_groundings_annotated.tsv")
+  val originalFile = FileUtils.getTextFromFile("src/main/resources/org/clulab/wm/eidos/english/grounding/gold_groundings_annotated.tsv")
   val fileAsString: String = originalFile.toString
   val lines: Array[String] = fileAsString.split("\n")
 
-  var outFilename = "grounderEvalResources/evaluation_results.tsv"
+  var outFilename = "src/main/resources/org/clulab/wm/eidos/english/grounding/evaluation_results.tsv"
   val header =
       "Index\t" +
       "Sentence\t" +

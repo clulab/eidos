@@ -10,12 +10,12 @@ import org.clulab.wm.eidos.EidosSystem
 object GenerateGoldGroundingTSV extends App {
 
   // load tsv files from resources
-  val originalFile = FileUtils.getTextFromFile("grounderEvalResources/groundingEvalEntities.tsv")
+  val originalFile = FileUtils.getTextFromFile("src/main/resources/org/clulab/wm/eidos/english/grounding/groundingEvalEntities.tsv")
   val fileAsString: String = originalFile.toString
   val lines: Array[String] = fileAsString.split("\n")
 
-  var outFilename = "grounderEvalResources/gold_groundings.tsv"
-  var rejectsFilename = "grounderEvalResources/rejected_sentences.tsv"
+  var outFilename = "src/main/resources/org/clulab/wm/eidos/english/grounding/gold_groundings.tsv"
+  var rejectsFilename = "src/main/resources/org/clulab/wm/eidos/english/grounding/rejected_sentences.tsv"
 
   val header =
     "GOLD Annotated?\t" +
