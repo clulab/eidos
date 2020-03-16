@@ -668,7 +668,7 @@ object HomeController {
   val QUANT_LABEL_AFFIX = "-Quant"
 
   // fixme: ordering/precedence...
-  def statefulRepresentation(m: Mention): Mention = {
+  protected def statefulRepresentation(m: Mention): Mention = {
     val stateAffix = m.attachments match {
       case inc if inc.exists(a => a.isInstanceOf[Increase]) => INC_LABEL_AFFIX
       case dec if dec.exists(a => a.isInstanceOf[Decrease]) => DEC_LABEL_AFFIX
