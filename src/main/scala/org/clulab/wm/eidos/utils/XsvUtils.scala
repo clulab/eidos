@@ -63,7 +63,7 @@ class CsvReader() extends XsvReader(XsvUtils.commaChar) {
   // TODO It is more complicated because of the multiple lines per string
 }
 
-abstract class XsvWriter(printWriter: PrintWriter, separatorChar: Char) {
+abstract class XsvWriter(val printWriter: PrintWriter, separatorChar: Char) {
   protected val separatorString: String = separatorChar.toString
 
   def quote(text: String): String = "\"" + text.replace("\"", "\"\"") + "\""
