@@ -105,9 +105,9 @@ object EvalGroundings extends App {
       /* 17 */ "Notes", "" // It had an extra.
     )
 
-    Sourcer.sourceFromFile(inFilename).autoClose { sourcer =>
+    Sourcer.sourceFromFile(inFilename).autoClose { source =>
       // Loop over each line in tsv file (except header line).
-      sourcer.getLines.drop(1).foreach { line =>
+      source.getLines.drop(1).foreach { line =>
         val Array( // cells from original tsv
           /*  0 */ annotated,
           /*  1 */ index,

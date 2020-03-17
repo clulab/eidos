@@ -1,151 +1,133 @@
 package org.clulab.wm.eidos.apps
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.groundings.OntologyHandler
-import java.io.PrintWriter
+
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.TsvReader
+import org.clulab.wm.eidos.utils.TsvWriter
 
-// this app creates a spreadsheet to be filled in with gold groundings
+// This app creates a spreadsheet to be filled in with gold groundings.
 
 object GenerateGoldGroundingTSV extends App {
 
-  // load tsv files from resources
-  val originalFile = FileUtils.getTextFromFile("src/main/resources/org/clulab/wm/eidos/english/grounding/groundingEvalEntities.tsv")
-  val fileAsString: String = originalFile.toString
-  val lines: Array[String] = fileAsString.split("\n")
+  class Evaluator(eidosSystem: EidosSystem) {
+    protected val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandler
 
-  var outFilename = "src/main/resources/org/clulab/wm/eidos/english/grounding/gold_groundings.tsv"
-  var rejectsFilename = "src/main/resources/org/clulab/wm/eidos/english/grounding/rejected_sentences.tsv"
+    def evaluate(causeOrEffect: String, sentence: String): (String, Seq[(String, String)]) = {
+      val start = sentence.indexOf(causeOrEffect)
+      val end = start + causeOrEffect.length
+      val namesAndScores: Seq[(String, String)] = if (start >= 0) {
+        val document = eidosSystem.annotate(sentence)
+        val interval = Interval(start, end)
+        val allGroundings = ontologyHandler.reground(sentence, interval, document)
 
-  val header =
-    "GOLD Annotated?\t" +
-    "Index\t" +
-    "Sentence\t" +
-    "Entity\t" +
-    "Character Offsets\t" +
-    "Cause/Effect\t" +
-    "GOLD Flat Grounding\t" +
-    "GOLD Flat Grounding Score\t" +
-    "GOLD Concept Grounding\t" +
-    "GOLD Concept Score\t" +
-    "GOLD Process Grounding\t" +
-    "GOLD Process Score\t" +
-    "GOLD Property Grounding\t" +
-    "GOLD Property Score"
+        Evaluator.groundingNames.map { groundingName =>
+          allGroundings(groundingName)
+              .headOption
+              .map { case (namer, score) =>
+                (namer.name, score.toString)
+              }
+              .getOrElse(("None", "None"))
+        }
+      }
+      else
+        Seq.empty
 
-  val pw = new PrintWriter(outFilename)
-  pw.println(header)
-
-  val pwRejects = new PrintWriter(rejectsFilename)
-
-  pwRejects.println(lines.head)
-
-  val ontologyHandler: OntologyHandler = new
-      EidosSystem().components.ontologyHandler
-  val ieSystem = new EidosSystem()
-
-  for (entry <- lines.tail) {
-    val line = entry.split("\t")
-
-    val index = line(0)
-    val sentence = line(18)
-
-    val cause = line(4)
-    val causeStartOffset = sentence indexOf cause
-    val causeEndOffset = causeStartOffset+cause.length
-    val causeOffset: Interval = Interval(causeStartOffset,causeEndOffset)
-
-    val effect = line(11)
-    val effectStartOffset = sentence indexOf effect
-    val effectEndOffset = effectStartOffset+effect.length
-    val effectOffset: Interval = Interval(effectStartOffset,effectEndOffset)
-
-    val document = ieSystem.annotate(sentence)
-
-    if (causeStartOffset != -1) {
-
-      val allGroundings = ontologyHandler.reground(sentence, causeOffset, document)
-
-      val flatGroundings = allGroundings("wm_flattened")
-      val flatName = flatGroundings.headOption.get._1.name
-      val flatScore = flatGroundings.headOption.get._2
-
-      val conceptGroundings = allGroundings("wm_compositional/concept")
-      val conceptName = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._1.name else None
-      val conceptScore = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._2 else None
-
-      val processGroundings = allGroundings("wm_compositional/process")
-      val processName = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._1.name else None
-      val processScore = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._2 else None
-
-      val propertyGroundings = allGroundings("wm_compositional/property")
-      val propertyName = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._1.name else None
-      val propertyScore = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._2 else None
-
-      val row1 =
-        "" + "\t" +
-        index + "\t" +
-        sentence.trim() + "\t" +
-        cause + "\t" +
-        (causeOffset.start, causeOffset.end) + "\t" +
-        "cause" + "\t" +
-        flatName + "\t" +
-        flatScore + "\t" +
-        conceptName + "\t" +
-        conceptScore + "\t" +
-        processName + "\t" +
-        processScore + "\t" +
-        propertyName + "\t" +
-        propertyScore + "\n"
-
-      pw.print(row1)
-    }
-    else {
-      pwRejects.print(line.mkString("\t")+"\n")
-    }
-
-    if (effectStartOffset != -1) {
-
-      val allGroundings = ontologyHandler.reground(sentence, effectOffset, document)
-
-      val flatGroundings = allGroundings("wm_flattened")
-      val flatName = if (flatGroundings.headOption.isDefined) flatGroundings.headOption.get._1.name else None
-      val flatScore = if(flatGroundings.headOption.isDefined) flatGroundings.headOption.get._2 else None
-
-      val conceptGroundings = allGroundings("wm_compositional/concept")
-      val conceptName = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._1.name else None
-      val conceptScore = if (conceptGroundings.headOption.isDefined) conceptGroundings.headOption.get._2 else None
-
-      val processGroundings = allGroundings("wm_compositional/process")
-      val processName = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._1.name else None
-      val processScore = if (processGroundings.headOption.isDefined) processGroundings.headOption.get._2 else None
-
-      val propertyGroundings = allGroundings("wm_compositional/property")
-      val propertyName = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._1.name else None
-      val propertyScore = if (propertyGroundings.headOption.isDefined) propertyGroundings.headOption.get._2 else None
-
-      val row2 =
-        "" + "\t" +
-        index + "\t" +
-        sentence.trim() + "\t" +
-        effect + "\t" +
-        (effectOffset.start, effectOffset.end) + "\t" +
-        "effect" + "\t" +
-        flatName + "\t" +
-        flatScore + "\t" +
-        conceptName + "\t" +
-        conceptScore + "\t" +
-        processName + "\t" +
-        processScore + "\t" +
-        propertyName + "\t" +
-        propertyScore + "\n"
-
-      pw.print(row2)
-    }
-    else {
-      pwRejects.print(line.mkString("\t")+"\n")
+      (s"($start,$end)", namesAndScores)
     }
   }
-  pw.close()
-  pwRejects.close()
+
+  object Evaluator {
+    val groundingNames = Seq(
+      "wm_flattened",
+      "wm_compositional/concept",
+      "wm_compositional/process",
+      "wm_compositional/property"
+    )
+  }
+
+  // Load tsv files from resources directory (as files, not as resources).
+  val directory = "src/main/resources/org/clulab/wm/eidos/english/grounding/"
+  val  inFilename = directory + "groundingEvalEntities.tsv"
+  val outFilename = directory + "gold_groundings.tsv"
+  val errFilename = directory + "rejected_sentences.tsv"
+  val headers = Array (
+    /*  0 */ "GOLD Annotated?",
+    /*  1 */ "Index",
+    /*  2 */ "Sentence",
+    /*  3 */ "Entity",
+    /*  4 */ "Character Offsets",
+    /*  5 */ "Cause/Effect",
+    /*  6 */ "GOLD Flat Grounding",
+    /*  7 */ "GOLD Flat Grounding Score",
+    /*  8 */ "GOLD Concept Grounding",
+    /*  9 */ "GOLD Concept Score",
+    /* 10 */ "GOLD Process Grounding",
+    /* 11 */ "GOLD Process Score",
+    /* 12 */ "GOLD Property Grounding",
+    /* 13 */ "GOLD Property Score"
+  )
+  val eidosSystem = new EidosSystem()
+  val evaluator = new Evaluator(eidosSystem)
+  val tsvReader = new TsvReader()
+
+  new TsvWriter(FileUtils.printWriterFromFile(outFilename), isExcel = false).autoClose { outTsvWriter =>
+    new TsvWriter(FileUtils.printWriterFromFile(errFilename), isExcel = false).autoClose { errTsvWriter =>
+      outTsvWriter.println(headers)
+      errTsvWriter.println(headers)
+      Sourcer.sourceFromFile(inFilename).autoClose { source =>
+        source.getLines.drop(1).foreach { line =>
+          val Array(
+            /*  0 */ index,
+            /*  1 */ _,
+            /*  2 */ _,
+            /*  3 */ _,
+            /*  4 */ cause,
+            /*  5 */ _,
+            /*  6 */ _,
+            /*  7 */ _,
+            /*  8 */ _,
+            /*  9 */ _,
+            /* 10 */ _,
+            /* 11 */ effect,
+            /* 12 */ _,
+            /* 13 */ _,
+            /* 14 */ _,
+            /* 15 */ _,
+            /* 16 */ _,
+            /* 17 */ _,
+            /* 18 */ sentence
+          ) = tsvReader.readln(line)
+
+          Seq(("cause", cause), ("effect", effect)).foreach { case (label, value) =>
+            val (interval, groundings) = new Evaluator(eidosSystem).evaluate(value, sentence)
+
+            if (groundings.nonEmpty) {
+              outTsvWriter.println(
+                /*  0 */ "",
+                /*  1 */ index,
+                /*  2 */ sentence.trim(),
+                /*  3 */ value,
+                /*  4 */ interval,
+                /*  5 */ label,
+                /*  6 */ groundings(0)._1,
+                /*  7 */ groundings(0)._2,
+                /*  8 */ groundings(1)._1,
+                /*  9 */ groundings(1)._2,
+                /* 10 */ groundings(2)._1,
+                /* 11 */ groundings(2)._2,
+                /* 12 */ groundings(3)._1,
+                /* 13 */ groundings(3)._2
+              )
+            }
+            else
+              errTsvWriter.printWriter.print(line + "\n")
+          }
+        }
+      }
+    }
+  }
 }
