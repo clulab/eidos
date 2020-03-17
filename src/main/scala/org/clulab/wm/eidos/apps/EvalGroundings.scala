@@ -19,10 +19,6 @@ import org.clulab.wm.eidos.utils.TsvWriter
 
 object EvalGroundings extends App {
 
-  class Accuracy(total: Int) {
-    def get(correct: Float): String = (correct / total).toString
-  }
-
   class Evaluator(description: String, val grounderName: String) {
     val separator = ", "
     val none = "None"
@@ -50,14 +46,10 @@ object EvalGroundings extends App {
         // further down in the top values may have a higher index in the gold.
         val top5Index = top5.indexWhere(golds.contains(_))
 
-        if (top5Index >= 0) {
-          val top = top5(top5Index)
-          val goldIndex = golds.indexOf(top)
-
-          (top, true, 1f / (goldIndex + 1))  // Add MRR score based on position in golds.
-        }
+        if (top5Index >= 0)
+          (top5(top5Index), true, 1f / (top5Index + 1))  // Add MRR score based on position in golds.
         else
-          (top5.mkString(separator), false, 0f) // This is a fake top.
+          (top5.mkString(separator), false, 0f) // This is a fake top for diagnostic purposes.
       }
 
       counter.inc()
