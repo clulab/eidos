@@ -70,11 +70,13 @@ object EvalGroundings extends App {
   )
 
   val config = EidosSystem.defaultConfig
+  val useGrounding = config[Boolean]("ontologies.useGrounding")
   val grounderNames: List[String] = config[List[String]]("ontologies.ontologies")
 
+  assert(useGrounding, "Grounding is required for this app.")
   evaluators.foreach { evaluator =>
     assert(grounderNames.contains(StringUtils.beforeFirst(evaluator.grounderName, '/')),
-        s"{$evaluator.grounderName} must be configured")
+        s"{$evaluator.grounderName} must be configured.")
   }
 
   val eidosSystem = new EidosSystem(config)
@@ -125,7 +127,7 @@ object EvalGroundings extends App {
         // Only do the comparison if the gold entity has been annotated (e.g. made sure the gold grounding is correct).
         if (annotated == "y") {
           // Remove leading ( and trailing ) before splitting.
-          val Array(start, end) = offsetsText.slice(1, offsetsText.length() - 1).split(",")
+          val Array(start, end) = offsetsText.slice(1, offsetsText.length() - 1).split(',')
           val interval = Interval(start.toInt, end.toInt)
           // Make a Document out of the sentence.
           val document = eidosSystem.annotate(sentence)
