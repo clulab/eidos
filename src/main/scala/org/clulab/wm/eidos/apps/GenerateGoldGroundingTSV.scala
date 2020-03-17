@@ -79,7 +79,7 @@ object GenerateGoldGroundingTSV extends App {
   assert(useGrounding, "Grounding is required for this app.")
   Evaluator.grounderNames.foreach { grounderName =>
     assert(grounderNames.contains(StringUtils.beforeFirst(grounderName, '/')),
-      s"{$evaluator.grounderName} must be configured.")
+      s"Ontology for $grounderName must be configured.")
   }
 
   val eidosSystem = new EidosSystem(config)

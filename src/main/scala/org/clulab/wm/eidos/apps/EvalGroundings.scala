@@ -76,7 +76,7 @@ object EvalGroundings extends App {
   assert(useGrounding, "Grounding is required for this app.")
   evaluators.foreach { evaluator =>
     assert(grounderNames.contains(StringUtils.beforeFirst(evaluator.grounderName, '/')),
-        s"{$evaluator.grounderName} must be configured.")
+        s"Ontology for ${evaluator.grounderName} must be configured.")
   }
 
   val eidosSystem = new EidosSystem(config)
