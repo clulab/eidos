@@ -1,11 +1,13 @@
 package org.clulab.wm.eidos.apps
 
+import ai.lum.common.ConfigUtils._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.utils.StringUtils
 import org.clulab.wm.eidos.utils.TsvReader
 import org.clulab.wm.eidos.utils.TsvWriter
 
@@ -24,7 +26,7 @@ object GenerateGoldGroundingTSV extends App {
         val interval = Interval(start, end)
         val allGroundings = ontologyHandler.reground(sentence, interval, document)
 
-        Evaluator.groundingNames.map { groundingName =>
+        Evaluator.grounderNames.map { groundingName =>
           allGroundings(groundingName)
               .headOption
               .map { case (namer, score) =>
@@ -41,7 +43,7 @@ object GenerateGoldGroundingTSV extends App {
   }
 
   object Evaluator {
-    val groundingNames = Seq(
+    val grounderNames = Seq(
       "wm_flattened",
       "wm_compositional/concept",
       "wm_compositional/process",
@@ -70,7 +72,17 @@ object GenerateGoldGroundingTSV extends App {
     /* 12 */ "GOLD Property Grounding",
     /* 13 */ "GOLD Property Score"
   )
-  val eidosSystem = new EidosSystem()
+  val config = EidosSystem.defaultConfig
+  val useGrounding = config[Boolean]("ontologies.useGrounding")
+  val grounderNames: List[String] = config[List[String]]("ontologies.ontologies")
+
+  assert(useGrounding, "Grounding is required for this app.")
+  Evaluator.grounderNames.foreach { grounderName =>
+    assert(grounderNames.contains(StringUtils.beforeFirst(grounderName, '/')),
+      s"{$evaluator.grounderName} must be configured.")
+  }
+
+  val eidosSystem = new EidosSystem(config)
   val evaluator = new Evaluator(eidosSystem)
   val tsvReader = new TsvReader()
 
