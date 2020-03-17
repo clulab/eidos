@@ -7,7 +7,9 @@ class TestEvalGroundings extends Test {
 
   behavior of "grounding algorithm"
 
-  it should "not degrade in performance" in {
+  // This test is generally ignored because it takes a very long time to run.
+  // Change "ignore" to "it" on a local machine and run locally to spot check.
+  ignore should "not degrade in performance" in {
     val expectedResults = Map(
       "wm_flattened"              -> 0.7135416f,
       "wm_compositional/concept"  -> 0.5197916f,
