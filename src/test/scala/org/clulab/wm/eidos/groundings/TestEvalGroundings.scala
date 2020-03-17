@@ -20,7 +20,8 @@ class TestEvalGroundings extends Test {
         .toMap
 
     expectedResults.foreach { case (expectedName, expectedScore) =>
-      actualResults should contain (expectedName)
+      actualResults should contain key (expectedName)
+      // This test is fairly harsh and we'll probably back down from it.
       actualResults(expectedName) should be >= expectedScore
     }
   }
