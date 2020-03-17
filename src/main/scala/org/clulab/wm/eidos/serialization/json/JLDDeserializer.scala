@@ -32,6 +32,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.attachments.Provenance
+import org.clulab.wm.eidos.attachments.TriggeredAttachment
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
@@ -39,6 +40,7 @@ import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
+import org.clulab.wm.eidos.groundings.AdjectiveGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
@@ -437,28 +439,38 @@ class JLDDeserializer {
         ontologyGroundingsOpt, provenance, triggerProvenanceOpt, argumentMap)
   }
 
-  protected def deserializeModifier(modifierValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap): (String, Provenance) = {
+  protected def deserializeModifier(modifierValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap):
+      (String, Provenance, Option[AdjectiveGrounding]) = {
     requireType(modifierValue, JLDModifier.typename)
     val text = (modifierValue \ "text").extract[String]
     val provenance = deserializeProvenance((modifierValue \ "provenance").extractOpt[JArray],
         documentMap, documentSentenceMap).get
+    val intercept = (modifierValue \ "intercept").extractOpt[Double]
+    val mu = (modifierValue \ "mu").extractOpt[Double]
+    val sigma = (modifierValue \ "sigma").extractOpt[Double]
+    val adjectiveGrounding =
+      if (intercept.isDefined || mu.isDefined || sigma.isDefined)
+        Some(AdjectiveGrounding(intercept, mu ,sigma))
+      else
+        None
 
-    (text, provenance)
+    (text, provenance, adjectiveGrounding)
   }
 
   def deserializeModifiers(modifiersValueOpt: Option[JArray], documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap):
-      (Option[Seq[String]], Option[Seq[Provenance]]) = {
+      (Option[Seq[String]], Option[Seq[Provenance]], Option[Seq[Option[AdjectiveGrounding]]]) = {
     if (modifiersValueOpt.isDefined) {
-      val textsAndProvenances = modifiersValueOpt.get.arr.map { modifierValue =>
+      val textsAndProvenancesAndAdjectiveGroundings = modifiersValueOpt.get.arr.map { modifierValue =>
         deserializeModifier(modifierValue, documentMap, documentSentenceMap)
       }
-      val texts = textsAndProvenances.map(_._1)
-      val provenances = textsAndProvenances.map(_._2)
+      val texts = textsAndProvenancesAndAdjectiveGroundings.map(_._1)
+      val provenances = textsAndProvenancesAndAdjectiveGroundings.map(_._2)
+      val adjectiveGroundings = textsAndProvenancesAndAdjectiveGroundings.map(_._3)
 
-      (Option(texts), Option(provenances))
+      (Option(texts), Option(provenances), Option(adjectiveGroundings))
     }
     else
-      (None, None)
+      (None, None, None)
   }
 
   def deserializeState(stateValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
@@ -469,7 +481,7 @@ class JLDDeserializer {
     val provenanceOpt = deserializeProvenance((stateValue \ "provenance").extractOpt[JArray],
         documentMap, documentSentenceMap)
     val modifiersValueOpt = (stateValue \ "modifiers").extractOpt[JArray]
-    val (quantifiers, quantifierProvenances) = deserializeModifiers(modifiersValueOpt, documentMap, documentSentenceMap)
+    val (quantifiers, quantifierProvenances, adjectiveGroundingsOpt) = deserializeModifiers(modifiersValueOpt, documentMap, documentSentenceMap)
     val attachment = stateType match {
       case "QUANT" =>
         require(provenanceOpt.isDefined)
@@ -519,6 +531,18 @@ class JLDDeserializer {
       case _ =>
         throw new Exception(s"Unknown state type $stateType")
     }
+    attachment match {
+      case triggeredAttachment: TriggeredAttachment =>
+        // Rather than have Some(Seq(None, None...)), just have None.
+        val adjectiveGroundings =
+            if (adjectiveGroundingsOpt.isEmpty || adjectiveGroundingsOpt.get.exists(_.nonEmpty))
+              adjectiveGroundingsOpt
+            else
+               None
+
+        triggeredAttachment.adjectiveGroundingsOpt = adjectiveGroundings
+      case _ =>
+    }
 
     attachment
   }
@@ -551,7 +575,7 @@ class JLDDeserializer {
 
       val ontologyGrounding = OntologyGrounding(versionOpt, versionDateOpt, valuesValue, categoryOpt)
 
-      (cookedName, ontologyGrounding)
+      (rawName, ontologyGrounding)
     }
 
     nameAndGroundings.toMap

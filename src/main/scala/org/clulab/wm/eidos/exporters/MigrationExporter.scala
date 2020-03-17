@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.utils.{FileUtils, TsvWriter}
 
 case class MigrationExporter(filename: String) extends Exporter {
 
-  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+  override def export(annotatedDocument: AnnotatedDocument): Unit = {
     new TsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { tsvWriter =>
       tsvWriter.println(
         "DocID",
@@ -41,7 +41,7 @@ case class MigrationExporter(filename: String) extends Exporter {
         "MoveThrough Location",
         "Sentence Text"
       )
-      annotatedDocuments.foreach(printTableRows(_, tsvWriter))
+      printTableRows(annotatedDocument, tsvWriter)
     }
   }
 

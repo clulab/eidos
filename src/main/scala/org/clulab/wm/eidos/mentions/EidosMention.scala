@@ -5,6 +5,8 @@ import java.util
 import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.attachments.TriggeredAttachment
 import org.clulab.wm.eidos.utils.HashCodeBagger
 import org.clulab.wm.eidos.utils.IdentityBagger
 
@@ -74,6 +76,11 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
   // Some way to calculate or store these, possibly in subclass
   def tokenIntervals: Seq[Interval] = Seq(odinMention.tokenInterval)
   def negation: Boolean = ???
+
+  def groundAdjectives(adjectiveGrounder: AdjectiveGrounder): Unit = odinMention
+      .attachments
+      .map(_.asInstanceOf[EidosAttachment])
+      .foreach(_.groundAdjective(adjectiveGrounder))
 }
 
 object EidosMention {

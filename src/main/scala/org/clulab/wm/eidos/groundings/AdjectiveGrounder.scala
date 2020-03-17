@@ -15,12 +15,13 @@ case class AdjectiveGrounding(intercept: Option[Double], mu: Option[Double], sig
       else Some(math.pow(math.E, intercept.get + (mu.get * mean) + (sigma.get * stdev)) * stdev)
 }
 
-object AdjectiveGrounding {
-  val noAdjectiveGrounding = AdjectiveGrounding(None, None, None)
+trait AdjectiveGrounder {
+  def groundAdjective(adjective: String): Option[AdjectiveGrounding]
 }
 
-trait AdjectiveGrounder {
-  def groundAdjective(adjective: String): AdjectiveGrounding
+class FakeAdjectiveGrounder extends AdjectiveGrounder {
+
+  def groundAdjective(adjective: String): Option[AdjectiveGrounding] = None
 }
 
 class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounder {
@@ -41,7 +42,7 @@ class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounde
   
   protected val grounder: Map[Quantifier, Map[String, Double]] = load()
   
-  def groundAdjective(adjective: String): AdjectiveGrounding = {
+  def groundAdjective(adjective: String): Option[AdjectiveGrounding] = {
     
     def stemIfAdverb(word: String) = {
       if (word.endsWith("ly"))
@@ -57,13 +58,13 @@ class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounde
     val modelRow = grounder.getOrElse(pseudoStemmed, Map.empty)
     
     if (modelRow.isEmpty)
-      AdjectiveGrounding.noAdjectiveGrounding
+      None
     else {
       val intercept = modelRow.get(EidosAdjectiveGrounder.INTERCEPT)
       val mu = modelRow.get(EidosAdjectiveGrounder.MU_COEFF)
       val sigma = modelRow.get(EidosAdjectiveGrounder.SIGMA_COEFF)
       
-      AdjectiveGrounding(intercept, mu, sigma)
+      Some(AdjectiveGrounding(intercept, mu, sigma))
     }
   }
 }
@@ -75,7 +76,14 @@ object EidosAdjectiveGrounder {
 
   def apply(quantifierKBFile: String): EidosAdjectiveGrounder = new EidosAdjectiveGrounder(quantifierKBFile)
 
-  def fromConfig(config: Config): EidosAdjectiveGrounder = apply(config.getString("quantifierKBPath"))
+  def fromConfig(config: Config): AdjectiveGrounder = {
+    val useAdjectives = config[Boolean]("useAdjectives")
 
-  def fromEidosConfig(config: Config): EidosAdjectiveGrounder = fromConfig(config[Config]("adjectiveGrounder"))
+    if (useAdjectives)
+      apply(config.getString("quantifierKBPath"))
+    else
+      new FakeAdjectiveGrounder()
+  }
+
+  def fromEidosConfig(config: Config): AdjectiveGrounder = fromConfig(config[Config]("adjectiveGrounder"))
 }

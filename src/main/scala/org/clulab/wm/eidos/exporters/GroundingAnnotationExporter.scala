@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
 
-  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+  override def export(annotatedDocument: AnnotatedDocument): Unit = {
     new CsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { csvWriter =>
       csvWriter.println(
         "DocID",
@@ -30,7 +30,7 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
         "Rule",
         "Negated",
       )
-      annotatedDocuments.foreach(printTableRows(_, csvWriter, reader))
+      printTableRows(annotatedDocument, csvWriter, reader)
       csvWriter.println()
     }
   }
