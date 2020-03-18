@@ -2,13 +2,13 @@ package org.clulab.wm.eidos.serialization.json
 
 import java.util.{HashMap => JHashMap}
 
-import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.serialization.json.JsonUtils
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
-import com.github.jsonldjava.utils.JsonUtils
+import com.github.jsonldjava.utils.{JsonUtils => AwayJsonUtils}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 
 import scala.collection.Seq
@@ -27,7 +27,7 @@ class TestJLDFormat extends ExtractionTest {
   def serialize(corpus: Corpus): String = {
     val jldCorpus = new JLDCorpus(corpus)
     val jValue = jldCorpus.serialize()
-    stringify(jValue, pretty = true)
+    JsonUtils.stringify(jValue, pretty = true)
   }
 
   behavior of "JLDSerializer"
@@ -39,7 +39,7 @@ class TestJLDFormat extends ExtractionTest {
     // See https://github.com/jsonld-java/jsonld-java
     // Read the string into an Object (The type of this object will be a List, Map, String, Boolean,
     // Number or null depending on the root object in the file).
-    val jsonObject = Option(JsonUtils.fromString(json))
+    val jsonObject = Option(AwayJsonUtils.fromString(json))
         .getOrElse(throw new Exception("jsonObject is empty"))
 
     // Create a context JSON map containing prefixes and definitions
@@ -50,16 +50,16 @@ class TestJLDFormat extends ExtractionTest {
     // Customise options...
 
     // Call whichever JSONLD function you want! (e.g. compact)
-    val compact = JsonUtils.toPrettyString(JsonLdProcessor.compact(jsonObject, context, options))
+    val compact = AwayJsonUtils.toPrettyString(JsonLdProcessor.compact(jsonObject, context, options))
     compact should not be empty
 
-    val expand = JsonUtils.toPrettyString(JsonLdProcessor.expand(jsonObject))
+    val expand = AwayJsonUtils.toPrettyString(JsonLdProcessor.expand(jsonObject))
     expand should not be empty
 
-    val flatten = JsonUtils.toPrettyString(JsonLdProcessor.flatten(jsonObject, options))
+    val flatten = AwayJsonUtils.toPrettyString(JsonLdProcessor.flatten(jsonObject, options))
     flatten should not be empty
 
-    val normalize = JsonUtils.toPrettyString(JsonLdProcessor.normalize(jsonObject))
+    val normalize = AwayJsonUtils.toPrettyString(JsonLdProcessor.normalize(jsonObject))
     normalize should not be empty
   }
 }
