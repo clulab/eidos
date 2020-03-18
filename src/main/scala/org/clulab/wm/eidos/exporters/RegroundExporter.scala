@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
 class RegroundExporter(filename: String, reader: EidosSystem) extends JSONLDExporter(filename, reader) {
-  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+  def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     FileUtils.printWriterFromFile(filename).autoClose { pw =>
       val regroundedAnnotatedDocs = for {
         ad <- annotatedDocuments
