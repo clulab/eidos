@@ -7,12 +7,17 @@ import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
-
-case class JSONLDExporter(filename: String, reader: EidosSystem) extends Exporter {
-
-  override def export(annotatedDocument: AnnotatedDocument): Unit = {
+class RegroundExporter(filename: String, reader: EidosSystem) extends JSONLDExporter(filename, reader) {
+  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
     FileUtils.printWriterFromFile(filename).autoClose { pw =>
-      val corpus = new JLDCorpus(annotatedDocument)
+      val regroundedAnnotatedDocs = for {
+        ad <- annotatedDocuments
+        doc = ad.document
+        origMentions = ad.eidosMentions
+        regrounded = reader.components.ontologyHandler.ground(origMentions)
+      } yield AnnotatedDocument(doc, regrounded)
+
+      val corpus = new JLDCorpus(regroundedAnnotatedDocs)
       val mentionsJSONLD = corpus.serialize()
 
       pw.println(stringify(mentionsJSONLD, pretty = true))

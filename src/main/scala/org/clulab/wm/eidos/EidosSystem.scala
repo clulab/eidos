@@ -66,7 +66,11 @@ class EidosSystem(val components: EidosComponents) {
 
   // This is the pipeline for EidosMentions.
   protected def mkEidosRefiners(options: EidosSystem.Options): Seq[EidosSystem.EidosRefiner] = Seq(
-    (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) }
+    (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) },
+    (eidosMentions: Seq[EidosMention]) => {
+      eidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
+      eidosMentions
+    }
   )
 
   // ---------------------------------------------------------------------------------------------
@@ -217,7 +221,7 @@ object EidosSystem {
 
   // CAG filtering
   val CAG_EDGES: Set[String] = Set(CAUSAL_LABEL, CONCEPT_EXPANDED_LABEL, CORR_LABEL, COREF_LABEL)
-  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL) // StopwordManager
+  val EXPAND: Set[String] = CAG_EDGES ++ Set(MIGRATION_LABEL)
 
   def defaultConfig: Config = ConfigFactory.load("eidos")
 

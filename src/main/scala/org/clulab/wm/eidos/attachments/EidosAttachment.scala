@@ -11,6 +11,8 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
+import org.clulab.wm.eidos.groundings.AdjectiveGrounding
 import org.clulab.wm.eidos.serialization.json.JLDCountAttachment
 import org.clulab.wm.eidos.serialization.json.{JLDAttachment => JLDEidosAttachment, JLDContextAttachment => JLDEidosContextAttachment, JLDScoredAttachment => JLDEidosScoredAttachment, JLDSerializer => JLDEidosSerializer, JLDTriggeredAttachment => JLDEidosTriggeredAttachment}
 import org.clulab.wm.eidos.utils.QuicklyEqualable
@@ -35,6 +37,8 @@ abstract class EidosAttachment extends Attachment with Serializable with Quickly
 
   // Support for JSON serialization
   def toJson: JValue
+
+  def groundAdjective(adjectiveGrounder: AdjectiveGrounder): Unit = ()
 }
 
 object EidosAttachment {
@@ -47,6 +51,8 @@ object EidosAttachment {
       case Quantification.label => Quantification(eventMention)
       case Increase.label => Increase(eventMention)
       case Decrease.label => Decrease(eventMention)
+      case PosChange.label => PosChange(eventMention)
+      case NegChange.label => NegChange(eventMention)
     }
   }
 
@@ -63,6 +69,8 @@ object EidosAttachment {
       kind match {
         case Increase.label => new Increase(trigger, someQuantifications)
         case Decrease.label => new Decrease(trigger, someQuantifications)
+        case PosChange.label => new PosChange(trigger, someQuantifications)
+        case NegChange.label => new NegChange(trigger, someQuantifications)
         case Quantification.label => new Quantification(trigger, someQuantifications)
         case Property.label => new Property(trigger, someQuantifications)
         case Hedging.label => new Hedging(trigger, someQuantifications)
@@ -152,7 +160,8 @@ object Provenance {
 
 @SerialVersionUID(1L)
 abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanProperty val quantifiers: Option[Seq[String]],
-    val triggerProvenance: Option[Provenance] = None, val quantifierProvenances: Option[Seq[Provenance]]) extends EidosAttachment {
+    val triggerProvenance: Option[Provenance] = None, val quantifierProvenances: Option[Seq[Provenance]],
+    var adjectiveGroundingsOpt: Option[Seq[Option[AdjectiveGrounding]]] = None) extends EidosAttachment {
 
   // It is done this way, at least temporarily, so that serialization and comparisons can be made between
   // objects with and without the optional values.
@@ -187,7 +196,7 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
   }
 
   def newJLDTriggeredAttachment(serializer: JLDEidosSerializer, kind: String): JLDEidosTriggeredAttachment =
-    new JLDEidosTriggeredAttachment(serializer, kind, this)
+      new JLDEidosTriggeredAttachment(serializer, kind, this)
 
   def toJson(label: String): JValue = {
     val quants =
@@ -197,6 +206,14 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
     (EidosAttachment.TYPE -> label) ~
       (EidosAttachment.TRIGGER -> trigger) ~
       (EidosAttachment.QUANTIFICATIONS -> quants)
+  }
+
+  override def groundAdjective(adjectiveGrounder: AdjectiveGrounder): Unit = {
+    adjectiveGroundingsOpt = quantifiers.map { quantifiers =>
+      quantifiers.map { quantifier =>
+        adjectiveGrounder.groundAdjective(quantifier)
+      }
+    }
   }
 }
 
@@ -367,6 +384,58 @@ object Decrease {
 
     new Decrease(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
         attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
+  }
+}
+
+@SerialVersionUID(1L)
+class PosChange(trigger: String, quantifiers: Option[Seq[String]],
+                triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+  extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDTriggeredAttachment(serializer, PosChange.kind)
+
+  override def toJson: JValue = toJson(PosChange.label)
+}
+
+object PosChange {
+  val label = "PositiveChange"
+  val kind = "POS"
+  val argument = "quantifier"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new PosChange(trigger, quantifiers)
+
+  def apply(mention: Mention): PosChange = {
+    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
+
+    new PosChange(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+      attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
+  }
+}
+
+@SerialVersionUID(1L)
+class NegChange(trigger: String, quantifiers: Option[Seq[String]],
+                triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
+  extends TriggeredAttachment(trigger, quantifiers, triggerProvenance, quantifierProvenances) {
+
+  override def newJLDAttachment(serializer: JLDEidosSerializer): JLDEidosAttachment =
+    newJLDTriggeredAttachment(serializer, NegChange.kind)
+
+  override def toJson: JValue = toJson(NegChange.label)
+}
+
+object NegChange {
+  val label = "NegativeChange"
+  val kind = "NEG"
+  val argument = "quantifier"
+
+  def apply(trigger: String, quantifiers: Option[Seq[String]]) = new NegChange(trigger, quantifiers)
+
+  def apply(mention: Mention): NegChange = {
+    val attachmentInfo = TriggeredAttachment.getAttachmentInfo(mention, argument)
+
+    new NegChange(attachmentInfo.triggerText, attachmentInfo.quantifierTexts,
+      attachmentInfo.triggerProvenance, attachmentInfo.quantifierProvenances)
   }
 }
 

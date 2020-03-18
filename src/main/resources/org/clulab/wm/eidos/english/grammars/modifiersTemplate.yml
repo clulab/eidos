@@ -44,6 +44,16 @@ rules:
       theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|</acl|vmod/) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
 
+  - name: syntax_passive_verb_modifier-${label}
+    priority: ${ rulepriority }
+    example: "The water quality caused poverty by an increase in productivity."
+    #"Exacerbated by climate extremes and a reduction in planted area, the national cereal gap has widened."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VBN/ & outgoing=/nmod_by/]
+      theme: Entity = <advcl >/${agents}/
+
 
   - name: ${ label }_ported_syntax_6_verb
     priority: ${ rulepriority }

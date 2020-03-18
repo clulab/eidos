@@ -28,7 +28,8 @@ case class EidosComponents(
   hedgingHandler: HypothesisHandler,
   entityFinders: Seq[Finder],
   conceptExpander: ConceptExpander,
-  nestedArgumentExpander: NestedArgumentExpander
+  nestedArgumentExpander: NestedArgumentExpander,
+  adjectiveGrounder: AdjectiveGrounder
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -49,6 +50,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var entityFindersOpt: Option[Seq[Finder]] = None
   var conceptExpanderOpt: Option[ConceptExpander] = None
   var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
+  var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
 
   def add(config: Config): Unit = add(config, None)
 
@@ -117,6 +119,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       Some(new ConceptExpander(expander, keepStatefulConcepts))
     }
     nestedArgumentExpanderOpt = Some(new NestedArgumentExpander)
+    adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder")))
     this
   }
 
@@ -132,7 +135,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       hedgingHandlerOpt.get,
       entityFindersOpt.get,
       conceptExpanderOpt.get,
-      nestedArgumentExpanderOpt.get
+      nestedArgumentExpanderOpt.get,
+      adjectiveGrounderOpt.get
     )
   }
 }

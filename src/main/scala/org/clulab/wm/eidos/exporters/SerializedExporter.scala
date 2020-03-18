@@ -8,8 +8,8 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 
 case class SerializedExporter(filename: String) extends Exporter {
 
-  override def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
-    val odinMentions = annotatedDocuments.flatMap(ad => ad.odinMentions)
+  override def export(annotatedDocument: AnnotatedDocument): Unit = {
+    val odinMentions = annotatedDocument.odinMentions
     Serializer.save[SerializedMentions](new SerializedMentions(odinMentions), filename + ".serialized")
   }
 }

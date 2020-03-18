@@ -13,7 +13,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import scala.collection.mutable.ArrayBuffer
 
 trait Exporter {
-  def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit
+  def export(annotatedDocument: AnnotatedDocument): Unit
 }
 
 object Exporter {
@@ -25,6 +25,7 @@ object Exporter {
       case "serialized" => SerializedExporter(filename)
       case "grounding" => GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
       case "migration" => MigrationExporter(filename + ".migration.tsv")
+      case "reground" => new RegroundExporter(filename + ".jsonld", reader)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }

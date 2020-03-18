@@ -82,8 +82,8 @@ class TestRaps extends EnglishTest {
 
     val tester = new GraphTester(sent4)
     //increase
-    val cultivar1 = NodeSpec("improved cultivar", Inc("improved"), Inc("promotes"))
-    val tech = NodeSpec("climate-smart technologies", Inc("improved"), Inc("promotes"))
+    val cultivar1 = NodeSpec("improved cultivar", Pos("improved"), Inc("promotes"))
+    val tech = NodeSpec("climate-smart technologies", Pos("improved"), Inc("promotes"))
 
     //decrease
     val fertUse1 = NodeSpec("use of inorganic fertilizer", Dec("cut"))
@@ -267,8 +267,8 @@ class TestRaps extends EnglishTest {
     val tester = new GraphTester(sent11)
 
     val use = NodeSpec("Use", Inc("increased"))
-    val cultivars = NodeSpec("Use of improved cultivars and mechanization", Inc("improved"))
-    val mechanization = NodeSpec("mechanization", Inc("improved"))
+    val cultivars = NodeSpec("Use of improved cultivars and mechanization", Pos("improved"))
+    val mechanization = NodeSpec("mechanization", Pos("improved"))
     val interventions = NodeSpec("use of critical interventions", Quant("critical"))
     val productivity = NodeSpec("productivity", Inc("increases"))
     val resources = NodeSpec("efficient use of resources", Inc("increases"))
