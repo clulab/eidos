@@ -38,9 +38,22 @@ class TsvReader() extends XsvReader(XsvUtils.tabChar) {
     XsvUtils.escapePairs.reverse.foldLeft(string) { (string, escapePair) => escapePair.unescape(string) }
   }
 
-  def readln(line: String): Array[String] = line
-      .split(separatorChar)
-      .map(unescape)
+  def readln(line: String, length: Int = -1): Array[String] = {
+    val values = line
+        .split(separatorChar)
+        .map(unescape)
+
+    if (length >= 0) {
+      if (length < values.length)
+        values.take(length) // Truncate it.
+      else if (length == values.length)
+        values // Return it.
+      else // Expand it.
+        values.padTo(length, "")
+    }
+    else
+      values
+  }
 }
 
 object TsvReader {
@@ -50,7 +63,7 @@ class CsvReader() extends XsvReader(XsvUtils.commaChar) {
   // TODO It is more complicated because of the multiple lines per string
 }
 
-abstract class XsvWriter(printWriter: PrintWriter, separatorChar: Char) {
+abstract class XsvWriter(val printWriter: PrintWriter, separatorChar: Char) {
   protected val separatorString: String = separatorChar.toString
 
   def quote(text: String): String = "\"" + text.replace("\"", "\"\"") + "\""
