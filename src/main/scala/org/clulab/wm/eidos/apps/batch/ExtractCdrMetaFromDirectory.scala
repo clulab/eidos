@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.apps.batch
 
-import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
@@ -47,19 +46,16 @@ object ExtractCdrMetaFromDirectory extends App {
         logger.info(s"Extracting from ${file.getName}")
         val timer = new Timer("Single file in parallel")
         val size = timer.time {
-          // 2. Get the input file text and metadata
+          // 1. Get the input file text and metadata
           val eidosText = CdrText(file)
           val text = eidosText.getText
           val metadata = eidosText.getMetadata
-          // 3. Extract causal mentions from the text
+          // 2. Extract causal mentions from the text
           val annotatedDocument = reader.extractFromText(text, options, metadata)
-          // 4. Convert to JSON
-          val corpus = new JLDCorpus(annotatedDocument)
-          val mentionsJSONLD = corpus.serialize()
-          // 5. Write to output file
+          // 3. Write to output file
           val path = FileEditor(file).setDir(outputDir).setExt("jsonld").get
-          FileUtils.printWriterFromFile(path).autoClose { pw =>
-            pw.println(stringify(mentionsJSONLD, pretty = true))
+          FileUtils.printWriterFromFile(path).autoClose { printWriter =>
+            new JLDCorpus(annotatedDocument).serialize(printWriter)
           }
           // Now move the file to directory done
           val newFile = FileEditor(file).setDir(doneDir).get
