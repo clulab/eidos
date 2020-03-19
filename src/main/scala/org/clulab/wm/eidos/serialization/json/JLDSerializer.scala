@@ -41,7 +41,7 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
   def serialize(printWriter: PrintWriter, pretty: Boolean = true): Unit = {
     val jValue = serialize()
 
-    printWriter.print(stringify(jValue, pretty = true))
+    printWriter.println(stringify(jValue, pretty = true))
   }
 
   def serialize(): JValue = serializer.serialize(this)
