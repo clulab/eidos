@@ -47,7 +47,8 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     domainOntology.indices.map { n =>
-      ConceptEmbedding(domainOntology.getNamer(n), wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+      ConceptEmbedding(domainOntology.getNamer(n),
+          wordToVec.makeCompositeVector(domainOntology.getValues(n)).getOrElse(wordToVec.unknownCompositeVector))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
