@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.serialization.json
 
+import java.io.PrintWriter
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
 import java.time.LocalDateTime
@@ -8,6 +9,7 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.{Attachment, Mention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
+import org.clulab.serialization.json.stringify
 import org.clulab.struct.DirectedGraph
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
@@ -35,7 +37,13 @@ import scala.collection.mutable
 // itself in a way that conforms to the JSON-LD standard as well.
 abstract class JLDObject(val serializer: JLDSerializer, val typename: String, val value: Any = new Object()) {
   serializer.register(this)
-  
+
+  def serialize(printWriter: PrintWriter, pretty: Boolean = true): Unit = {
+    val jValue = serialize()
+
+    printWriter.print(stringify(jValue, pretty = true))
+  }
+
   def serialize(): JValue = serializer.serialize(this)
   
   def toJsonStr: String =
