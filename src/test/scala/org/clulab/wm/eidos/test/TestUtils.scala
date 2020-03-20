@@ -63,7 +63,7 @@ object TestUtils {
   }
 
   class Test extends FlatSpec with Matchers {
-    val defaultConfig: Config = ConfigFactory.load("englishTest")
+    val defaultConfig: Config = ConfigFactory.load("causeexEnglishTest")
 
     val passingTest = it
     val failingTest = ignore
