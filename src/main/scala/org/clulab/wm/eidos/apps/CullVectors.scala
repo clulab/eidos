@@ -136,18 +136,19 @@ object CullVectors extends App {
 
     if (shortcut) {
       val shortcutLines = goodLines.filter { line =>
-        val word = StringUtils.beforeFirst(line, ' ')
+        val sanitizedWordOpt = sanitizer.sanitize(StringUtils.beforeFirst(line, ' '))
 
-        // Only include the good line of its word is more than once in the sanitizedMap/moreLines.
-        // If it is only there once, then the vectors are the same anyway, and so is the word.
+        // Only include the good line if its sanitizedWord is more than once in the sanitizedMap/moreLines.
+        // If it is only there once, then the vector is the same as the unsanitized version anyway.
         // It is therefore redundant.  getWord for SanitizedWord2Vec will find it in the sanitizedMap.
-        val keep = sanitizedMap
-            .get(word)
-            .map(_._1 > 1)
-            .getOrElse(true)
+        // This space (removing the line) and time (sanitizing extra) tradeoff must be evaluated.
+        val keep = sanitizedWordOpt.map { sanitizedWord =>
+          sanitizedMap(sanitizedWord)._1 > 1
+        }.getOrElse(true)
 
         keep
       }
+
       shortcutLines ++ sanitizedLines
     }
     else
