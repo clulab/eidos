@@ -37,5 +37,33 @@ class TestSanitizedWord2Vec extends Test {
     oov3Opt shouldBe empty
   }
 
-  // Test some backing off.
+  def variations(text: String): List[String] = {
+    text.headOption.map { head =>
+      val tails = variations(text.tail)
+      val result = List(
+        tails.map { tail => head.toLower + tail },
+        tails.map { tail => head.toUpper + tail }
+      ).flatten
+
+      result
+    }.getOrElse(List(""))
+  }
+
+  it should "backoff properly" in {
+    // Every version of "they" should be available,
+    // but not all the vectors should be the same.
+    val word = "they"
+    val vectorOpts = variations(word).map { variation =>
+        println(variation)
+      val result = sanitizedWord2Vec.makeCompositeVector(Seq(variation))
+      println(result.get.map(_.toString).mkString(" "))
+      result
+    }
+    val vectors = vectorOpts.flatten
+    val distinctSums = vectors.map(_.sum).distinct
+
+    vectorOpts.size should === (vectors.size)
+    1 should be < distinctSums.size
+    distinctSums.size should be < math.pow(2, word.size).toInt
+  }
 }
