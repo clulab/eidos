@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import java.io.File
 
+import org.clulab.wm.eidos.groundings.Sanitizer
 import org.clulab.wm.eidos.groundings.TableDomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Counter
@@ -9,10 +10,14 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 import org.clulab.wm.eidos.utils.StringUtils
 
+import scala.collection.mutable
+
 object CullVectors extends App {
+  val sanitize = true // Set this optionally
+  val shortcut = true // and this as well.
 
   def l2(values: Array[Float]): Float =
-      Math.sqrt(values.foldLeft(0f) { case (sum, value) => sum + value * value }).toFloat
+      math.sqrt(values.foldLeft(0f) { case (sum, value) => sum + value * value }).toFloat
 
   // Caution: This normalization happens in place.
   def normalize(values: Array[Float]): Array[Float] = {
@@ -96,11 +101,66 @@ object CullVectors extends App {
       good
     }.toVector
   }
-  val count = goodLines.size + 1
+  val betterLines = if (sanitize) {
+    // This section is optional.  Use only if sanitation option is desired.
+    val sanitizer = new Sanitizer()
+    val sanitizedMap = {
+      // This will be [sanitizedWord, (count, vector)]
+      val sanitizedMap = new mutable.HashMap[String, (Int, Array[Float])]()
+
+      goodLines.foreach { line =>
+        val word = StringUtils.beforeFirst(line, ' ')
+        val sanitizedWordOpt = sanitizer.sanitize(word)
+
+        sanitizedWordOpt.map { sanitizedWord =>
+          // If they are the same, then it will already be found.  We're just concerned with the others.
+          val (count, array) = sanitizedMap.getOrElseUpdate(sanitizedWord, (0, new Array[Float](columns)))
+          val floats = StringUtils.afterFirst(line, ' ').split(' ').map(_.toFloat)
+          // It may have frequency zero if not in gigaword at all but included because of reserved words.  Make 1 if so.
+          val freq = wordFrequencies.get(word.toLowerCase).map(_._2).getOrElse(1)
+
+          addWeightedVec(array, freq, floats)
+          sanitizedMap(sanitizedWord) = (count + 1, array)
+        }
+      }
+
+      sanitizedMap
+    }
+    val sanitizedLines = sanitizedMap.map { case (sanitizedWord, (_, array)) =>
+      val normalizedFloats = normalize(array)
+      val normalizedStrings = normalizedFloats.map(_.toString)
+      val normalizedLine = "\t" + sanitizedWord + " " + normalizedStrings.mkString(" ")
+
+      normalizedLine
+    }
+
+    if (shortcut) {
+      val shortcutLines = goodLines.filter { line =>
+        val word = StringUtils.beforeFirst(line, ' ')
+
+        // Only include the good line of its word is more than once in the sanitizedMap/moreLines.
+        // If it is only there once, then the vectors are the same anyway, and so is the word.
+        // It is therefore redundant.  getWord for SanitizedWord2Vec will find it in the sanitizedMap.
+        val keep = sanitizedMap
+            .get(word)
+            .map(_._1 > 1)
+            .getOrElse(true)
+
+        keep
+      }
+      shortcutLines ++ sanitizedLines
+    }
+    else
+      goodLines ++ sanitizedLines
+  }
+  else
+    goodLines
+
+  val count = betterLines.size + 1
   // Although the vectors are not normalized to begin with, we'll normalize it now.
   // Word2Vec normalizes all incoming vectors.  Doing it twice will not hurt.
-  val normalizedBadFloats = normalize(badFloats)
-  val badStrings = normalizedBadFloats.map(_.toString)
+  val normalizedFloats = normalize(badFloats)
+  val badStrings = normalizedFloats.map(_.toString)
   val badLine = " " + badStrings.mkString(" ")
 
   // The \n is to force LF as eol even on Windows.
@@ -109,7 +169,7 @@ object CullVectors extends App {
     printWriter.print("\n")
     printWriter.print(badLine)
     printWriter.print("\n")
-    goodLines.foreach { line =>
+    betterLines.foreach { line =>
       printWriter.print(line)
       printWriter.print("\n")
     }
