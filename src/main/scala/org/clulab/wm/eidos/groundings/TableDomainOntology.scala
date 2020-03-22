@@ -53,7 +53,7 @@ object TableDomainOntology {
 //        .convertFromFilesToResource("../two_six", "two_six.tbl")
 
     val tableDomainOntology2 = new TableDomainOntologyBuilder(null, null, false)
-        .buildFromResource("/org/clulab/causeex/eidos/english/ontologies/two_six.tbl")
+        .buildFromResource("/org/clulab/causeex/eidos/english/ontologies/two_six.tbl", None, None)
 
     println("Done")
   }
@@ -148,7 +148,7 @@ class TableDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonica
     new TableDomainOntology(tableOntologyRows, None, None)
   }
 
-  def buildFromResource(resource: String): TableDomainOntology = {
+  def buildFromResource(resource: String, versionOpt: Option[String], dateOpt: Option[ZonedDateTime]): TableDomainOntology = {
     // A blank line splits the stanzas.
     val splitter: String => Boolean = line => !line.startsWith("# ")
 

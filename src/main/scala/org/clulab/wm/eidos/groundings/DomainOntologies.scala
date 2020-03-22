@@ -4,13 +4,11 @@ import java.time.ZonedDateTime
 
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
-import com.github.worldModelers.ontologies.{Version => AwayVersion}
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.TableDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
@@ -74,8 +72,10 @@ object DomainOntologies {
   def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
       canonicalizer: Canonicalizer, cacheDir: String, useCacheForOntologies: Boolean,
       includeParents: Boolean): DomainOntology = {
-    if (name == TWO_SIX_NAMESPACE)
-      new TableDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter = true).buildFromFiles(name, ontologyPath)
+    if (name == TWO_SIX_NAMESPACE) {
+      val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
+      new TableDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter = true).buildFromResource(ontologyPath, versionOpt, dateOpt)
+    }
     else {
       val ontSerializedPath: String = serializedPath(name, cacheDir, includeParents)
 
