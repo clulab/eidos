@@ -10,7 +10,7 @@ import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.TableDomainOntology.TableDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.TableDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
@@ -75,7 +75,7 @@ object DomainOntologies {
       canonicalizer: Canonicalizer, cacheDir: String, useCacheForOntologies: Boolean,
       includeParents: Boolean): DomainOntology = {
     if (name == TWO_SIX_NAMESPACE)
-      new TableDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter = true).build(name, ontologyPath)
+      new TableDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter = true).buildFromFiles(name, ontologyPath)
     else {
       val ontSerializedPath: String = serializedPath(name, cacheDir, includeParents)
 

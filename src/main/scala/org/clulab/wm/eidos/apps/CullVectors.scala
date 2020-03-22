@@ -4,6 +4,7 @@ import java.io.File
 
 import org.clulab.wm.eidos.groundings.Sanitizer
 import org.clulab.wm.eidos.groundings.TableDomainOntology
+import org.clulab.wm.eidos.groundings.TableDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Counter
 import org.clulab.wm.eidos.utils.FileUtils
@@ -64,9 +65,8 @@ object CullVectors extends App {
     frequentWords
   }
   val reservedWords = {
-    val tableDomainOntology = new TableDomainOntology
-        .TableDomainOntologyBuilder(null, null, false)
-        .build("two_six", inOntologyDir)
+    val tableDomainOntology = new TableDomainOntologyBuilder(null, null, false)
+        .buildFromFiles("two_six", inOntologyDir)
     val values = tableDomainOntology
         .indices
         .flatMap(tableDomainOntology.getValues(_))
