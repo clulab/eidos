@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.groundings
 import org.clulab.wm.eidos.test.TestUtils.Test
 
 class TestSanitizedWord2Vec extends Test {
-  val path = this.defaultConfig.getString("ontologies.wordToVecPath")
+  val path: String = this.defaultConfig.getString("ontologies.wordToVecPath")
   val sanitizedWord2Vec = new SanitizedWord2VecBuilder().build(path, resource = true, cached = false)
 
   behavior of "SanitizedWord2Vec"
@@ -11,7 +11,7 @@ class TestSanitizedWord2Vec extends Test {
   it should "have an unknown vector" in {
     val unknownVector = sanitizedWord2Vec.unknownVector
 
-    unknownVector.exists(_ == 0f) should be (false)
+    unknownVector.contains(0f) should be (false)
   }
 
   it should "have a consistent unknown vector" in {
@@ -61,9 +61,11 @@ class TestSanitizedWord2Vec extends Test {
     }
     val vectors = vectorOpts.flatten
     val distinctSums = vectors.map(_.sum).distinct
+    val unknownSum = sanitizedWord2Vec.unknownVector.sum
 
     vectorOpts.size should === (vectors.size)
     1 should be < distinctSums.size
     distinctSums.size should be < math.pow(2, word.size).toInt
+    distinctSums should not contain unknownSum
   }
 }
