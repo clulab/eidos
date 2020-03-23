@@ -6,7 +6,7 @@ class SanitizedWord2Vec(buildType: SanitizedWord2VecBuilder.BuildType, sanitizer
   protected val unknownRowOpt: Option[Int] = map.get("")
 
   protected val (sanitizedMap, unsanitizedMap) = {
-    val groupedMaps = map.groupBy[Boolean] { case (key, value) =>
+    val groupedMaps = map.groupBy[Boolean] { case (key, _) =>
       key.startsWith("\t") // Sanitized words begin with tab
     }
     val sanitizedMap = groupedMaps.get(true).map { map =>
@@ -39,7 +39,7 @@ class SanitizedWord2Vec(buildType: SanitizedWord2VecBuilder.BuildType, sanitizer
 
       // Keep in mind that sanitization may erase the entire word
       // and tht the sanitized map may not contain the word anyway.
-      sanitizedWordOpt.flatMap(sanitizedMap.get(_))
+      sanitizedWordOpt.flatMap(sanitizedMap.get)
     }
 
     betterRowOpt
@@ -92,5 +92,16 @@ class SanitizedWord2Vec(buildType: SanitizedWord2VecBuilder.BuildType, sanitizer
     }
     else
       None // It is completely OOV!
+  }
+
+  override def save(filename: String): Unit = {
+    val tabbedSanitizedMap = sanitizedMap.map { case (word, index) =>
+      "\t" + word -> index
+    }.toMap
+
+    map ++= unsanitizedMap
+    map ++= tabbedSanitizedMap
+    super.save(filename)
+    map.clear
   }
 }
