@@ -4,7 +4,6 @@ import java.util.{HashMap => JHashMap}
 
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.serialization.json.JsonUtils
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
