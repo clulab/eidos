@@ -43,7 +43,7 @@ class EidosSystem(val components: EidosComponents) {
   // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
   // val cagRelevant = keepCAGRelevant(events)
   protected val headOdinRefiners: Seq[OdinRefiner] = Seq(
-    new OdinRefiner("Actions",  (odinMentions: Seq[Mention]) => { components.actions.keepMostCompleteEvents(odinMentions) }),
+    new OdinRefiner("MostCompleteEventsKeeper",  (odinMentions: Seq[Mention]) => { components.mostCompleteEventsKeeper.keepMostCompleteEvents(odinMentions) }),
     new OdinRefiner("Distinct", (odinMentions: Seq[Mention]) => { odinMentions.distinct })
   )
 
@@ -82,7 +82,7 @@ class EidosSystem(val components: EidosComponents) {
 
   // Annotate the text using a Processor and then populate lexicon labels.
   def annotate(text: String): Document = {
-    val tokenizedDoc = Timer.time("Processors") {
+    val tokenizedDoc = /*Timer.time("Processors")*/ {
       components.proc.mkDocument(text, keepText = true)
     } // This must now be true.
     val annotatedDoc = annotateDoc(tokenizedDoc)
@@ -100,7 +100,7 @@ class EidosSystem(val components: EidosComponents) {
     // Prepare the initial state.  If you are using the entity finder, then it
     // contains the found entities; otherwise, it is empty.
     val initialState = components.entityFinders.foldLeft(emptyState) { (state, entityFinder) =>
-      Timer.time(entityFinder.getClass.getSimpleName) {
+      /*Timer.time(entityFinder.getClass.getSimpleName)*/ {
         val mentions = entityFinder.find(doc, state)
 
         state.updated(mentions)
@@ -120,7 +120,7 @@ class EidosSystem(val components: EidosComponents) {
 
   protected def refine[T](refiners: Seq[Refiner[T]], mentions: Seq[T]): Seq[T] = {
     val lastMentions = refiners.foldLeft(mentions) { (prevMentions, refiner) =>
-      Timer.time(refiner.name) {
+      /*Timer.time(refiner.name)*/ {
         val nextMentions = refiner.refine(prevMentions)
 
         nextMentions // inspect here
