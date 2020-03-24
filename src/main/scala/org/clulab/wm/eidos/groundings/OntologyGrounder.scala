@@ -163,10 +163,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     Seq(newOntologyGrounding(property, Some(CompositionalGrounder.PROPERTY)), process, concept)
   }
 
-  override def groundOntology(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
-    groundOntology(mention, topN, threshold, 0)
-  }
-
   //A flexible grounding function that can allow window size change and can be used by multiple functions.
   def groundOntology(mention: EidosMention, topN: Option[Int], threshold: Option[Float], windowSize:Int): Seq[OntologyGrounding] = {
     // Do nothing to non-groundableType mentions
@@ -194,19 +190,76 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val modifierMentions = headTextOpt.map { headText =>
         getModifierMentions(headText, mention.odinMention)
       }.getOrElse(Seq.empty)
+
       val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
       // Get all groundings for each branch.
-      val allSimiliarities = Map(
+      // Original grounding method: ground syntactic head and modification mention separately.
+//      val allSimilarities = Map(
+//        CompositionalGrounder.PROPERTY ->
+//          allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+//        CompositionalGrounder.PROCESS ->
+//          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+//        CompositionalGrounder.CONCEPT ->
+//          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+//      )
+
+
+      //New grounding method (20200317): concatenate the syntactic head text and modification text for compositional grounding.
+//      val mentionText_ = {if (mentionHeadOpt.toSeq.nonEmpty) mentionHeadOpt.toSeq.head.text.split(" ").toSeq else (" ").toSeq}
+//      val modText_ = {if (modifierMentions.nonEmpty) modifierMentions.head.text.split(" ").toSeq else (" ").toSeq}
+//      val mentionText = mentionText_.map(m=>m.toString)
+//      val modText = modText_.map(m=>m.toString)
+//      val allMentionsText = (mentionText++modText).toArray
+//
+//      println("\ttext for grounding:", allMentionsText.toSeq)
+//
+//      val allSimiliarities = Map(
+//        CompositionalGrounder.PROPERTY ->
+//          nodesPatternMatched(allMentions.head.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)),
+//        CompositionalGrounder.PROCESS ->
+//          w2v.calculateSimilarities(allMentionsText, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)),
+//        CompositionalGrounder.CONCEPT ->
+//          w2v.calculateSimilarities(allMentionsText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+//      )
+
+      // new grounding method (20200317): use mention text (instead of syntactic head) for grounding.
+//      val mentionTextBoundMention = new TextBoundMention(
+//        Seq("Mention_head"),
+//        tokenInterval = Interval(scala.math.max(0, mention.odinMention.start-windowSize), scala.math.min(mention.odinMention.end+windowSize, numTokenInSentence)),
+//        sentence = mention.odinMention.sentence,
+//        document = mention.odinMention.document,
+//        keep = mention.odinMention.keep,
+//        foundBy = mention.odinMention.foundBy
+//      )
+//
+//      val mentionText = mentionTextBoundMention.text.split(" ")
+//      val modText_ = {if (modifierMentions.nonEmpty) modifierMentions.head.text.split(" ").toSeq else (" ").toSeq}
+//      val modText = modText_.map(m=>m.toString).filter(!mentionText.contains(_))
+//      val allMentionsText = {if (mentionText.contains(modText)) mentionText else mentionText++modText}
+//
+//      println("\ttext for grounding:", allMentionsText.toSeq)
+//
+//      val allSimilarities = Map(
+//        CompositionalGrounder.PROPERTY ->
+//          nodesPatternMatched(allMentions.head.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)),
+//        CompositionalGrounder.PROCESS ->
+//          w2v.calculateSimilarities(allMentionsText, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)),
+//        CompositionalGrounder.CONCEPT ->
+//          w2v.calculateSimilarities(allMentionsText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+//      )
+
+      // Grounding (20200323): let process and concept compete with each other
+      val allSimilarities = Map(
         CompositionalGrounder.PROPERTY ->
           allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
-        CompositionalGrounder.PROCESS ->
-          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
-        CompositionalGrounder.CONCEPT ->
-          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+        "process_concept" ->
+          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)++conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
       )
+
+      // Original filtering procedure
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
-      val goodGroundings = allSimiliarities.map { case(name, similarities) =>
+      val goodGroundings = allSimilarities.map { case(name, similarities) =>
         val goodSimilarities = similarities
           .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
           .sortBy(-_._2)
@@ -215,8 +268,14 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         newOntologyGrounding(goodSimilarities, Some(name))
       }.toSeq
 
+
       goodGroundings
     }
+  }
+
+  // This is the default method to ground the property, process and concept.
+  override def groundOntology(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
+    groundOntology(mention, topN, threshold, 0)
   }
 
   // Overload method for iterative compositional grounding.
@@ -268,6 +327,70 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     }
     groundedOntologiesFinal.map{case(name, ontology)=>ontology}.toSeq
   }
+
+
+  // grounding method to use the mention directly for the grounding.
+//  def groundOntology(mention: EidosMention, topN: Option[Int], threshold: Option[Float], windowSize:Int, useMention:Boolean): Seq[OntologyGrounding] = {
+//    // Do nothing to non-groundableType mentions
+//    if (!EidosOntologyGrounder.groundableType(mention))
+//      Seq(newOntologyGrounding())
+//    // or else ground them.
+//    else {
+//      // Get the syntactic head of the mention.
+//      val syntacticHeadOpt = mention.odinMention.synHead
+//      // Count the number of tokens in the sentence, so that the expanded window won't exceed the bounds.
+//      val numTokenInSentence = mention.odinMention.sentenceObj.words.length
+//      // Make a new mention that's just the syntactic head of the original mention.
+//      val mentionHeadOpt = syntacticHeadOpt.map ( syntacticHead =>
+//        new TextBoundMention(
+//          Seq("Mention_head"),
+//          tokenInterval = Interval(scala.math.max(0, syntacticHead-windowSize), scala.math.min(syntacticHead+1+windowSize, numTokenInSentence)),
+//          sentence = mention.odinMention.sentence,
+//          document = mention.odinMention.document,
+//          keep = mention.odinMention.keep,
+//          foundBy = mention.odinMention.foundBy
+//        )
+//      )
+//
+//      val mentionOpt = syntacticHeadOpt.map ( syntacticHead =>
+//        new TextBoundMention(
+//          Seq("Mention_head"),
+//          tokenInterval = Interval(scala.math.max(0, syntacticHead-windowSize), scala.math.min(syntacticHead+1+windowSize, numTokenInSentence)),
+//          sentence = mention.odinMention.sentence,
+//          document = mention.odinMention.document,
+//          keep = mention.odinMention.keep,
+//          foundBy = mention.odinMention.foundBy
+//        )
+//      )
+//
+//      val headTextOpt = mentionHeadOpt.map(_.text)
+//      val modifierMentions = headTextOpt.map { headText =>
+//        getModifierMentions(headText, mention.odinMention)
+//      }.getOrElse(Seq.empty)
+//      val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
+//      // Get all groundings for each branch.
+//      val allSimiliarities = Map(
+//        CompositionalGrounder.PROPERTY ->
+//          allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+//        CompositionalGrounder.PROCESS ->
+//          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+//        CompositionalGrounder.CONCEPT ->
+//          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+//      )
+//      val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
+//      val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
+//      val goodGroundings = allSimiliarities.map { case(name, similarities) =>
+//        val goodSimilarities = similarities
+//          .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
+//          .sortBy(-_._2)
+//          .take(effectiveTopN)
+//
+//        newOntologyGrounding(goodSimilarities, Some(name))
+//      }.toSeq
+//
+//      goodGroundings
+//    }
+//  }
 
   def getModifierMentions(synHeadWord: String, mention: Mention): Seq[Mention] = {
     val doc = Document(Array(mention.sentenceObj))

@@ -46,9 +46,8 @@ object EvalGroundings extends App {
   pw.println(header)
 
   // make grounder to reground entities
-  val ontologyHandler: OntologyHandler = new
-      EidosSystem().components.ontologyHandler
   val ieSystem = new EidosSystem()
+  val ontologyHandler: OntologyHandler = ieSystem.components.ontologyHandler
 
   // keep track of correct groundings
   var evaluatedSentences = 0
