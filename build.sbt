@@ -25,7 +25,7 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-odin"          % procVer,
     "org.clulab"                 %% "processors-modelsmain"    % procVer,
     "org.clulab"                 %% "processors-modelscorenlp" % procVer,
-    "org.clulab"                 %% "geonorm"                  % "0.9.8-SNAPSHOT",
+    "org.clulab"                 %% "geonorm"                  % "0.9.8",
     "org.clulab"                 %% "timenorm"                 % "1.0.5",
     "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
