@@ -31,6 +31,8 @@ case class TimeStep(startDate: LocalDateTime, endDate: LocalDateTime)
 case class TimEx(span: TextInterval, intervals: Seq[TimeStep], text: String)
 @SerialVersionUID(1L)
 case class DCT(interval: TimExInterval, text: String)
+@SerialVersionUID(1L)
+case class SimpleTime(start: LocalDateTime, end: LocalDateTime, duration: Option[Long])
 
 object TimeNormFinder {
 
@@ -76,6 +78,15 @@ object TimeNormFinder {
       }
     }
     alignedTimExs
+  }
+
+  // Method to convert a time attachment to DateTimes
+  def timeExToSimpleTime(time: Time): SimpleTime = {
+    val start = time.interval.intervals.map(_.startDate).min
+    val end = time.interval.intervals.map(_.endDate).max
+    val duration = end.getNano - start.getNano
+    val durOpt = if(duration != 0) Some(duration.toLong) else None
+    SimpleTime(start, end, durOpt)
   }
 }
 
