@@ -514,6 +514,12 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     }
   }
 
+  def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for (m <- ms; entity <- m.arguments("entity"); location <- m.arguments("location")) yield {
+      MentionUtils.withMoreAttachments(entity, location.attachments.toSeq)
+    }
+  }
+
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
     logger.debug("DEBUG ACTION")
     ms

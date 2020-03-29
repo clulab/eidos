@@ -20,7 +20,7 @@ as IPC Phase 4: "Emergency".
     val tester = new GraphTester(text)
 
     // Sentence 1
-    val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"), TimEx("February 2017"), TimEx("June 2017"))
+    val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"), TimEx("February 2017"), TimEx("June 2017"), GeoLoc("Unity State"))
     
     // Sentence 2
     // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
