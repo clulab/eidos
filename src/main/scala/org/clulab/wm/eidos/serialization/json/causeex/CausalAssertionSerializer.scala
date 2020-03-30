@@ -1,8 +1,10 @@
 package org.clulab.wm.eidos.serialization.json.causeex
 
+import java.time.LocalDateTime
+
+import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosEventMention
-
 import org.json4s
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -122,6 +124,9 @@ class Provenance(something: AnyRef) extends CausalAssertionObject {
 
 // These are the classes for internal use, generally described bottom up.
 
+@SerialVersionUID(1L)
+case class SimpleTime(start: LocalDateTime, end: LocalDateTime, duration: Option[Long])
+
 class EntityProperties(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
 
   // Not optional, but may be an empty map
@@ -228,5 +233,19 @@ class CausalAssertionDocument(annotatedDocument: AnnotatedDocument) extends Caus
         .toList
 
     new JArray(framesJValue)
+  }
+}
+
+object CausalAssertionDocument {
+  // TODO: Move this method to where it fits better.
+
+  // Method to convert a time attachment to DateTimes
+  def timeExToSimpleTime(time: Time): SimpleTime = {
+    val start = time.interval.intervals.map(_.startDate).min
+    val end = time.interval.intervals.map(_.endDate).max
+    val duration = (end.getNano - start.getNano) / 1000 / 1000 // Milliseconds are required.
+    val durationOpt = if (duration > 0) Some(duration.toLong) else None
+
+    SimpleTime(start, end, durationOpt)
   }
 }
