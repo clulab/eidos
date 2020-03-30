@@ -135,7 +135,7 @@ class JLDSerializer(var adjectiveGrounder: Option[AdjectiveGrounder]) {
 
     val types: List[JField] = typenames.toList.sorted.map(mkContext)
 
-    new TidyJObject(types)
+    TidyJObject(types)
   }
 
   def mkRef(identity: Any): TidyJObject = {
@@ -145,7 +145,7 @@ class JLDSerializer(var adjectiveGrounder: Option[AdjectiveGrounder]) {
 
     val field: JField = mkId(typename, id)
 
-    new TidyJObject(List(field))
+    TidyJObject(List(field))
   }
 
   def serialize(jldObjectProvider: JLDObject): JValue = {
