@@ -42,7 +42,7 @@ object ExtractCdrMetaFromDirectory extends App {
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
-    Timer.time("Priming") {
+    Timer.time("EidosPrimer") {
       reader.extractFromText("This is a test.")
     }
     timer.stop()

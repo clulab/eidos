@@ -60,7 +60,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
 
   def loadComponents(componentLoaders: Seq[ComponentLoader]): Unit = {
     Timer.time("Complete parallel load") {
-      componentLoaders.foreach { componentLoader =>
+      componentLoaders.par.foreach { componentLoader =>
         Timer.time(componentLoader.name) {
           componentLoader.load()
         }
@@ -85,25 +85,38 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       val eidosComponents = eidosComponentsOpt.get
 
       procOpt = Some(eidosComponents.proc)
-      // This only depends on language, not any settings, so a reload is safe.
-      negationHandlerOpt = Some(eidosComponents.negationHandler)
       stopwordManagerOpt = Some(eidosComponents.stopwordManager)
       // This involves reloading of very large vector files and is what we're trying to avoid.
       ontologyHandlerOpt = Some(eidosComponents.ontologyHandler)
+      // This only depends on language, not any settings, so a reload is safe.
+      negationHandlerOpt = Some(eidosComponents.negationHandler)
       Seq.empty
     }
     else {
       val language = eidosConf[String]("language")
-
-      Seq(
+      val preComponentLoaders = Seq(
         new ComponentLoader("Processors", {
           EidosComponentsBuilder.logger.info("Loading processor...")
 
           procOpt = Some(EidosProcessor(language, cutoff = 150))
         }),
-        new ComponentLoader("NegationHandler", { negationHandlerOpt = Some(NegationHandler(language)) }),
-        new ComponentLoader("StopwordManager", { stopwordManagerOpt = Some(StopwordManager.fromConfig(config)) }),
-        new ComponentLoader("OntologyHandler", { ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get)) })
+        new ComponentLoader("StopwordManager", { stopwordManagerOpt = Some(StopwordManager.fromConfig(config)) })
+      )
+      // Get these out of the way so that the ontologyHandler can take its time about it
+      // even while the processor is busy priming.
+      loadComponents(preComponentLoaders)
+
+      Seq(
+        new ComponentLoader("OntologyHandler", {
+          ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get))
+        }),
+        new ComponentLoader("ProcessorsPrimer", {
+          val eidosProcessor = procOpt.get
+          val tokenizedDoc = eidosProcessor.mkDocument("This is a test.", keepText = true)
+
+          eidosProcessor.annotate(tokenizedDoc)
+        }),
+        new ComponentLoader("NegationHandler", { negationHandlerOpt = Some(NegationHandler(language)) })
       )
     }
 
