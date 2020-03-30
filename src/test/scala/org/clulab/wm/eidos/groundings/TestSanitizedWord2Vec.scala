@@ -18,7 +18,7 @@ class TestSanitizedWord2Vec extends Test {
     val unknownVector = sanitizedWord2Vec.unknownVector
     val emptyVectorOpt = sanitizedWord2Vec.makeCompositeVector(Seq(""))
     // The first will match, the second won't be found and back off to unknown.
-    val pairedVectorOpt = sanitizedWord2Vec.makeCompositeVector(Seq("", "asdf"))
+    val pairedVectorOpt = sanitizedWord2Vec.makeCompositeVector(Seq("", "supercalifragilisticexpialidocious"))
 
     emptyVectorOpt shouldBe defined
     emptyVectorOpt.get should === (unknownVector)
@@ -27,10 +27,10 @@ class TestSanitizedWord2Vec extends Test {
     pairedVectorOpt.get should === (unknownVector)
   }
 
-  it should "not produce None if completely irrelevant" in {
+  it should "produce None if completely irrelevant" in {
     val oov1Opt = sanitizedWord2Vec.makeCompositeVector(Seq.empty)
-    val oov2Opt = sanitizedWord2Vec.makeCompositeVector(Seq("asdf"))
-    val oov3Opt = sanitizedWord2Vec.makeCompositeVector(Seq("asdf", "qwerty"))
+    val oov2Opt = sanitizedWord2Vec.makeCompositeVector(Seq("supercalifragilisticexpialidocious"))
+    val oov3Opt = sanitizedWord2Vec.makeCompositeVector(Seq("supercalifragilisticexpialidocious", "antidisestablishmentarianism"))
 
     oov1Opt shouldBe empty
     oov2Opt shouldBe empty

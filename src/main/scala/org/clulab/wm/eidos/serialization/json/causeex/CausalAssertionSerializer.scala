@@ -1,11 +1,16 @@
 package org.clulab.wm.eidos.serialization.json.causeex
 
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+
+import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosEventMention
-
 import org.json4s
 import org.json4s.JsonDSL._
 import org.json4s._
+
+import scala.language.implicitConversions
 
 // This is the base class.
 
@@ -122,6 +127,9 @@ class Provenance(something: AnyRef) extends CausalAssertionObject {
 
 // These are the classes for internal use, generally described bottom up.
 
+@SerialVersionUID(1L)
+case class SimpleTime(start: LocalDateTime, end: LocalDateTime, duration: Option[Long])
+
 class EntityProperties(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
 
   // Not optional, but may be an empty map
@@ -228,5 +236,28 @@ class CausalAssertionDocument(annotatedDocument: AnnotatedDocument) extends Caus
         .toList
 
     new JArray(framesJValue)
+  }
+}
+
+object CausalAssertionSerializer {
+  protected val zero = LocalDateTime.now
+
+  // TODO: Move this method to where it fits better.
+  // Method to convert a time attachment to DateTimes
+  def timeToSimpleTime(time: Time): SimpleTime = {
+    val start = time.interval.intervals
+        .map(_.startDate)
+        .map { startDate => (startDate, ChronoUnit.MILLIS.between(zero, startDate)) }
+        .minBy(_._2)
+        ._1
+    val end = time.interval.intervals
+        .map(_.endDate)
+        .map { endDate => (endDate, ChronoUnit.MILLIS.between(zero, endDate)) }
+        .maxBy(_._2)
+        ._1
+    val milliseconds = ChronoUnit.MILLIS.between(start, end)
+    val millisecondsOpt = if (milliseconds > 0) Some(milliseconds) else None
+
+    SimpleTime(start, end, millisecondsOpt)
   }
 }
