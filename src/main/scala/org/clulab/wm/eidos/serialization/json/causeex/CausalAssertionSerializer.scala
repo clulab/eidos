@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.serialization.json.causeex
 
 import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.AnnotatedDocument
@@ -236,16 +238,25 @@ class CausalAssertionDocument(annotatedDocument: AnnotatedDocument) extends Caus
   }
 }
 
-object CausalAssertionDocument {
-  // TODO: Move this method to where it fits better.
+object CausalAssertionSerializer {
+  protected val zero = LocalDateTime.now
 
+  // TODO: Move this method to where it fits better.
   // Method to convert a time attachment to DateTimes
   def timeToSimpleTime(time: Time): SimpleTime = {
-    val start = time.interval.intervals.map(_.startDate).min
-    val end = time.interval.intervals.map(_.endDate).max
-    val duration = (end.getNano - start.getNano) / 1000 / 1000 // Milliseconds are required.
-    val durationOpt = if (duration > 0) Some(duration.toLong) else None
+    val start = time.interval.intervals
+        .map(_.startDate)
+        .map { startDate => (startDate, ChronoUnit.MILLIS.between(zero, startDate)) }
+        .minBy(_._2)
+        ._1
+    val end = time.interval.intervals
+        .map(_.endDate)
+        .map { endDate => (endDate, ChronoUnit.MILLIS.between(zero, endDate)) }
+        .maxBy(_._2)
+        ._1
+    val milliseconds = ChronoUnit.MILLIS.between(start, end)
+    val millisecondsOpt = if (milliseconds > 0) Some(milliseconds) else None
 
-    SimpleTime(start, end, durationOpt)
+    SimpleTime(start, end, millisecondsOpt)
   }
 }
