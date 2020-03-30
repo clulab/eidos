@@ -41,6 +41,12 @@ object CullVectors extends App {
   val outputFile = new File(args(3))
   val limit = args(4).toInt
 
+  def keepByIndex(index: Int, freq: Int): Boolean = 0 <= index && index < limit
+
+  def keepByFreq(index: Int, freq: Int): Boolean = 0 <= index && freq >= limit
+
+  val keep = keepByFreq _
+
   // The words in gigaword have been lowercased and include these substitutions.
   val substitutions = Seq(
     ("-lrb-", "("), ("-rrb-", ")"), // round
@@ -79,7 +85,7 @@ object CullVectors extends App {
   // There must be a better way than to open the file twice.
   val columns = Sourcer.sourceFromFile(inVectorFile).autoClose { source =>
     val line = source.getLines.take(1).toSeq.head
-    val Array(_, columns) =line.split(' ')
+    val Array(_, columns) = line.split(' ')
 
     columns.toInt
   }
@@ -91,7 +97,7 @@ object CullVectors extends App {
           .toLowerCase
       val (index, freq) = wordFrequencies.getOrElse(word, (-1, 0))
       // 0 <= index implies wordFrequencies.contains(word).
-      val good = reservedWords.contains(word) || (0 <= index && index < limit)
+      val good = reservedWords.contains(word) || keep(index, freq)
 
       if (!good) { // Need to add to bad line
         val floats = StringUtils.afterFirst(line, ' ').split(' ').map(_.toFloat)
