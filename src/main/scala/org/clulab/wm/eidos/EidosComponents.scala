@@ -2,10 +2,11 @@ package org.clulab.wm.eidos
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.odin._
+import org.clulab.odin.ExtractorEngine
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.actions.MigrationHandler
-import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.attachments.HypothesisHandler
+import org.clulab.wm.eidos.attachments.NegationHandler
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.expansion.ConceptExpander
@@ -13,8 +14,9 @@ import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.utils._
+import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.StopwordManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -59,9 +61,9 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
 
   def loadComponents(componentLoaders: Seq[ComponentLoader]): Unit = {
-    Timer.time("Complete parallel load") {
+    /*Timer.time("Complete parallel load")*/ {
       componentLoaders.par.foreach { componentLoader =>
-        Timer.time(componentLoader.name) {
+        /*Timer.time(componentLoader.name)*/ {
           componentLoader.load()
         }
       }
