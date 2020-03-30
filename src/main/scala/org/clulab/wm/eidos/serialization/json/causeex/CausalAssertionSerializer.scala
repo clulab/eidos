@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.serialization.json.causeex
 
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 import org.clulab.wm.eidos.attachments.Time
@@ -10,6 +9,8 @@ import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.json4s
 import org.json4s.JsonDSL._
 import org.json4s._
+
+import scala.language.implicitConversions
 
 // This is the base class.
 
