@@ -1,8 +1,6 @@
 import ReleaseTransformations._
 import Tests._
 
-lazy val keith = "was here again and"
-
 name := "eidos"
 organization := "org.clulab"
 
