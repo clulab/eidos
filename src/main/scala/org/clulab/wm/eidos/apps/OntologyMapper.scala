@@ -31,7 +31,7 @@ object OntologyMapper {
         fields = line.split("\t")
         path = fields(0).split(",")
         examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
-        embedding = w2v.makeCompositeVector(examples)
+        embedding = w2v.makeCompositeVector(examples).getOrElse(w2v.unknownCompositeVector)
       } yield ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
 
       result.toArray
@@ -75,7 +75,7 @@ object OntologyMapper {
 
   def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
     val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
-    reader.components.ontologyHandler.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.components.proc))
+    reader.components.ontologyHandler.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.components.proc)).get
   }
 
   def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Float = {

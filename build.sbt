@@ -1,7 +1,6 @@
 import ReleaseTransformations._
 import Tests._
 
-
 name := "eidos"
 organization := "org.clulab"
 
@@ -55,7 +54,7 @@ sourceGenerators in Compile += Def.task {
 
   // The user should set these values.
   val codeDir = "src/main/resources/"
-  val ontologyDir = codeDir + "org/clulab/wm/eidos/english/ontologies/"
+  val ontologyDir = codeDir + "org/clulab/causeex/eidos/english/ontologies/"
   val namespace = "com.github.clulab.eidos"
 
   val files = new File(ontologyDir)

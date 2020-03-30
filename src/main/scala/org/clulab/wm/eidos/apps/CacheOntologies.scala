@@ -11,9 +11,11 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.utils.Domain
 
 object CacheOntologies extends App {
   val config = ConfigFactory.load(EidosSystem.defaultConfig)
+  val domain = Domain.getDomain(config)
   val includeParents: Boolean = config[Boolean]("ontologies.includeParents")
   val cacheDir: String = config[String]("ontologies.cacheDir")
   // Not all operations require the reader, so hedge your bets.
@@ -102,6 +104,8 @@ object CacheOntologies extends App {
   // Comment these in and out as required.
   replaceGeoNorms() // This should go first before EidosSystem is created.
   cacheWord2Vec()
-  safeCacheOntologies()
-  updateIndicatorMappings()
+  if (domain != Domain.DOMAIN_CAUSEEX) {
+    safeCacheOntologies()
+    updateIndicatorMappings()
+  }
 }

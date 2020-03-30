@@ -1,0 +1,9754 @@
+# Name
+UnstableStructure
+# Paths
+Event/UnstableStructure
+# Examples
+unstable
+structure
+unstable
+building
+unstable
+bridge
+# Patterns
+
+# Name
+Collision
+# Paths
+Event/Accident/Collision
+# Examples
+collision
+collide
+car
+crash
+train
+crash
+plane
+crash
+airplane
+crash
+helicopter
+crash
+motorcycle
+crash
+vehicle
+crash
+car
+wreck
+trian
+wreck
+plane
+wreck
+airplane
+wreck
+helicopter
+crash
+motorcycle
+wreck
+level
+crossing
+crash
+crash
+into
+t-boned
+head-on
+collision
+side
+collision
+rear
+collision
+serial
+crash
+side
+impact
+single-vehicle
+crash
+carsmash
+fender
+bender
+pileup
+# Patterns
+(?i)(traffic|car)(\s+)(accident)
+
+# Name
+Denial
+# Paths
+Event/DeclarativeCommunication/Denial
+# Examples
+denial
+# Patterns
+
+# Name
+PropagandaActivity
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Influence/PropagandaActivity
+Event/DeclarativeCommunication/AccusationOrAssigningOfResponsibility/Influence/PropagandaActivity
+Event/DeclarativeCommunication/PropagandaActivity
+Event/Deception/PropagandaActivity
+# Examples
+propaganda
+activity
+propaganda
+advertisement
+promotion
+disinformation
+# Patterns
+(?i)propaganda
+
+# Name
+SurrenderOrYielding
+# Paths
+Event/CommissiveCommunication/AgreementOrPromise/FormalAgreement/SurrenderOrYielding
+# Examples
+retreat
+surrender
+yielding
+abandon
+back
+off
+evacuate
+capitulate
+cede
+give
+in
+# Patterns
+
+# Name
+PhysicalSecurity
+# Paths
+Event/PhysicalSecurity
+# Examples
+physical
+security
+protection
+bodyguard
+security
+security
+guard
+camera
+surveillance
+safety
+protective
+barrier
+locks
+# Patterns
+
+# Name
+RoadBlocked
+# Paths
+Event/ReductionRestrictionOrRemoval/BlockadeOrRestrictionOfMovement/RoadBlocked
+Event/Access/BlockadeOrRestrictionOfMovement/RoadBlocked
+Event/EnvironmentalFactor/RoadBlocked
+# Examples
+road
+blocked
+# Patterns
+
+# Name
+IntelligenceOperation
+# Paths
+Event/InformationHandling/InformationOperation/IntelligenceOperation
+Event/Operation/InformationOperation/IntelligenceOperation
+# Examples
+intelligence
+operation
+# Patterns
+(?i)(intel(ligence)?)\s+(op(eration)?s?)\b
+
+# Name
+Arrival
+# Paths
+Event/LocationChange/Arrival
+# Examples
+arrival
+arrive
+landing
+destination
+enter
+reach
+destination
+show
+up
+turn
+up
+come
+be
+in
+turned
+up
+showed
+up
+people
+turned
+up
+persons
+turned
+up
+# Patterns
+
+# Name
+RainfallAndRunoff
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/RainfallAndRunoff
+# Examples
+rainfall
+and
+runoff
+rainfall
+runoff
+heavy
+rains
+rains
+rain
+# Patterns
+
+# Name
+Pricing
+# Paths
+Event/EconomicFactor/Pricing
+# Examples
+pricing
+price
+cost
+charge
+fee
+unit
+price
+list
+price
+purchase
+price
+retail
+price
+MSRP
+SRP
+RRP
+reserve
+price
+starting
+price
+# Patterns
+(?i)\bMSRP\b
+(?i)\bSRP\b
+(?i)\bRRP\b
+
+# Name
+Mediation
+# Paths
+Event/MeetingOrEncounter/Negotiation/Mediation
+Event/ExploratoryCommunication/Negotiation/Mediation
+# Examples
+mediation
+mediate
+mediator
+ombudsman
+ombuds
+arbitrate
+arbitration
+# Patterns
+(?i)\b(mediat)
+
+# Name
+Ambush
+# Paths
+Event/Aggression/Violence/Attack/Ambush
+# Examples
+ambush
+surprise
+attack
+ambuscade
+concealed
+position
+damage
+done
+to
+the
+embassy
+# Patterns
+
+# Name
+PoliticalStability
+# Paths
+Event/PoliticalFactor/PoliticalStability
+# Examples
+political
+stability
+politically
+stable
+predictable
+political
+environment
+# Patterns
+(?i)(political)\s+(stability)
+
+# Name
+Receipt
+# Paths
+Event/Receipt
+# Examples
+receive
+# Patterns
+
+# Name
+WaterSecurity
+# Paths
+Event/HealthAndDisease/FoodWaterAndNutrition/WaterSecurity
+Event/SocialCondition/LivingCondition/FoodWaterAndNutrition/WaterSecurity
+# Examples
+water
+security
+drinking
+water
+security
+enough
+clean
+water
+water
+access
+water
+availability
+availability
+of
+water
+access
+to
+clean
+water
+access
+to
+potable
+water
+clean
+drinking
+water
+# Patterns
+
+# Name
+Shame
+# Paths
+Event/Shame
+# Examples
+shame
+humiliation
+shameful
+guilt
+embarrassment
+embarrassing
+embarrassed
+embarrass
+shamed
+shaming
+ashamed
+humiliating
+humiliate
+# Patterns
+
+# Name
+ArmedForce
+# Paths
+Actor/GroupOfActors/Organization/ArmedForce
+# Examples
+armed
+force
+armed
+men
+armed
+persons
+people
+with
+guns
+group
+of
+armed
+men
+army
+group
+military
+heavily
+armed
+individual
+heavily
+armed
+man
+heavily
+armed
+group
+# Patterns
+
+# Name
+Wedding
+# Paths
+Event/Ceremony/Wedding
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Wedding
+Event/PersonalLifeEvent/Wedding
+# Examples
+wedding
+solemnization
+of
+human
+relationships
+marriage
+event
+civil
+marriage
+wedding
+day
+wedding
+party
+wedding
+anniversary
+espousal
+golden
+wedding
+silver
+wedding
+humanist
+wedding
+ranch
+wedding
+farm
+wedding
+barn
+wedding
+act
+of
+marriage
+wedlock
+# Patterns
+
+# Name
+ContemptOrDisgust
+# Paths
+Event/ContemptOrDisgust
+# Examples
+contempt
+disgust
+worthless
+arrogance
+disregarded
+disregarding
+repulsive
+derision
+antipathy
+# Patterns
+
+# Name
+RefusalOrRejection
+# Paths
+Event/DeclarativeCommunication/RefusalOrRejection
+# Examples
+refusal
+or
+rejection
+# Patterns
+
+# Name
+JointOperation
+# Paths
+Event/Operation/JointOperation
+# Examples
+joint
+operation
+joint
+task
+force
+multinational
+formation
+combined
+joint
+task
+force
+multi-service
+military
+operation
+joint
+military
+campaign
+# Patterns
+(?i)(joint|multi-national|multi-service|combined)(\s|\w)+(operation|formation|campaign)
+(?i)(joint|multi-national|multi-service|combined)(\s|\w)+(task)(\s)+(force)
+
+# Name
+LocatingOrTargeting
+# Paths
+Event/DeclarativeCommunication/Identification/LocatingOrTargeting
+# Examples
+locating
+or
+targeting
+# Patterns
+
+# Name
+PoliticalInstability
+# Paths
+Event/PoliticalFactor/PoliticalInstability
+# Examples
+political
+instability
+political
+crisis
+political
+insecurity
+effect
+on
+democracy
+effect
+on
+election
+# Patterns
+
+# Name
+Deportation
+# Paths
+Event/ReductionRestrictionOrRemoval/Withdrawal/Expulsion/Deportation
+Event/LocationChange/ForcedMove/Expulsion/Deportation
+Event/ReductionRestrictionOrRemoval/ForcedMove/Expulsion/Deportation
+# Examples
+deportation
+deportee
+relocation
+expulsion
+expatriation
+deported
+expatriated
+# Patterns
+
+# Name
+LegalProceedingsOrTrial
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/LegalProceedingsOrTrial
+Event/Ceremony/LegalProceedingsOrTrial
+# Examples
+legal
+proceedings
+trial
+investigation
+grand
+jury
+proceedings
+civil
+damage
+suits
+criminal
+matters
+appeals
+jurisdiction
+insolvency
+lawsuit
+civil
+trial
+criminal
+trial
+hearings
+arbitration
+foreclosure
+receivership
+administrative
+hearings
+court
+appearance
+# Patterns
+
+# Name
+Spending
+# Paths
+Event/EconomicFactor/Spending
+# Examples
+spending
+spend
+disburse
+pay
+payment
+expend
+expenditure
+outlay
+spending
+pressure
+# Patterns
+(?i)(\bpay(ing|s|ed|ment)?\b)(\w\s)+(\bfor\b)
+(?i)(\bspen(t|d(ing|s))?\b)(\w\s)+(\bon\b)
+
+# Name
+EnvironmentalOrganization
+# Paths
+Actor/GroupOfActors/Organization/EnvironmentalOrganization
+# Examples
+environmental
+organization
+Earth
+System
+Governance
+Project
+Global
+Green
+Growth
+Institute
+environmental
+movements
+Green
+Panther
+environmentalism
+society
+# Patterns
+(?i)\bESGP\b
+(?i)\bGGGI\b
+
+# Name
+GrossDomesticProduct
+# Paths
+Event/EconomicFactor/GrossDomesticProduct
+# Examples
+Gross
+Domestic
+Product
+GDP
+real
+GDP
+# Patterns
+(?i)GDP
+
+# Name
+HighWind
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/HighWind
+# Examples
+high
+wind
+# Patterns
+
+# Name
+MassKilling
+# Paths
+Event/Aggression/Violence/MurderOrHomicide/MassKilling
+Event/PersonalLifeEvent/Death/MurderOrHomicide/MassKilling
+# Examples
+mass
+killing
+massacre
+genocide
+carnage
+bloodshed
+holocaust
+# Patterns
+
+# Name
+ExtraJudicialExecution
+# Paths
+Event/PersonalLifeEvent/Death/MurderOrHomicide/ExtraJudicialExecution
+Event/Aggression/Violence/MurderOrHomicide/ExtraJudicialExecution
+# Examples
+extra-judicial
+execution
+killing
+without
+trial
+execution
+without
+trial
+# Patterns
+
+# Name
+CommunicationConveyingEmotion
+# Paths
+Event/CommunicationConveyingEmotion
+# Examples
+communication
+conveying
+emotion
+# Patterns
+
+# Name
+PriceGouging
+# Paths
+Event/EconomicFactor/Pricing/PriceGouging
+# Examples
+price
+gouging
+inflated
+prices
+price
+inflation
+price-gouging
+excessive
+price
+extortive
+pricing
+# Patterns
+(?i)(price)\s+(goug)
+
+# Name
+AnimalIllnessOrDeath
+# Paths
+Event/HealthAndDisease/AnimalIllnessOrDeath
+# Examples
+animal
+illness
+or
+death
+# Patterns
+
+# Name
+Lawlessness
+# Paths
+Event/SocialCondition/LivingCondition/Lawlessness
+Event/DefyingLawsNormsDirectives/Lawlessness
+# Examples
+lawlessness
+unrest
+upheaval
+civil
+unrest
+disorder
+chaos
+havoc
+turmoil
+anarchy
+# Patterns
+
+# Name
+SharingOfInformation
+# Paths
+Event/Cooperation/SharingOfInformation
+# Examples
+sharing
+of
+information
+intelligence
+exchange
+of
+intelligence
+information
+hub-and-spoke
+data
+share
+access
+fusion
+center
+intelligence
+gathering
+goal-oriented
+collaboration
+cyber
+fusion
+center
+exchange
+of
+data
+access
+point
+collaboration
+cooperation
+# Patterns
+
+# Name
+MeetingOrEncounter
+# Paths
+Event/MeetingOrEncounter
+# Examples
+meeting
+or
+encounter
+appointment
+conference
+consultation
+formal
+meeting
+informal
+meeting
+# Patterns
+
+# Name
+Investigation
+# Paths
+Event/Investigation
+# Examples
+investigation
+investigate
+inquiry
+inquire
+scrutinize
+analyze
+analyse
+analysis
+query
+find
+out
+look
+into
+explore
+exploration
+research
+inspect
+inspection
+study
+probe
+question
+# Patterns
+(?i)investigat\w+
+
+# Name
+LegalFine
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/LegalFinding/LegalFine
+# Examples
+legal
+fine
+penalty
+fine
+punishment
+amend
+emend
+# Patterns
+
+# Name
+GroupOfPersons
+# Paths
+Actor/GroupOfActors/GroupOfPersons
+# Examples
+people
+members
+citizens
+leaders
+police
+persons
+representatives
+board
+children
+ministers
+residents
+officials
+men
+candidates
+authorities
+troops
+respondents
+experts
+women
+partners
+voters
+individuals
+workers
+politicians
+reporters
+participants
+analysts
+journalists
+employees
+investors
+authors
+students
+victims
+friends
+customers
+# Patterns
+
+# Name
+RecoveryOrRescue
+# Paths
+Event/RecoveryOrRescue
+# Examples
+recovery
+or
+rescue
+# Patterns
+
+# Name
+Inspiration
+# Paths
+Event/Inspiration
+# Examples
+inspiration
+inpire
+motivation
+motivate
+spark
+excite
+excitement
+# Patterns
+
+# Name
+Transaction
+# Paths
+Event/Transaction
+# Examples
+transaction
+sale
+business
+deal
+business
+deal
+offer
+bargain
+debit
+payment
+receipt
+purchase
+withdrawal
+deposit
+# Patterns
+
+# Name
+FoodInsecurity
+# Paths
+Event/HealthAndDisease/FoodWaterAndNutrition/FoodInsecurity
+Event/SocialCondition/LivingCondition/FoodWaterAndNutrition/FoodInsecurity
+# Examples
+food
+insecurity
+food
+scarcity
+uncertain
+food
+sources
+lack
+of
+food
+food
+shortage
+unavailability
+of
+food
+food
+deficits
+cereal
+shortage
+food
+wasting
+food
+wastage
+inadequate
+food
+consumption
+food
+nonaccess
+unable
+to
+access
+food
+supplies
+food
+instability
+food
+crisis
+# Patterns
+
+# Name
+Deterrence
+# Paths
+Event/Deterrence
+# Examples
+deterrence
+deter
+prevent
+prevention
+discourage
+dissuade
+dissuasion
+# Patterns
+(?i)\b(deter(red|ring|ance|s)?)\b
+
+# Name
+SystemicDiscrimination
+# Paths
+Event/SocialCondition/SystemicDiscrimination
+# Examples
+systemic
+discrimination
+discrimination
+discriminating
+political
+discrimination
+economic
+discrimination
+biased
+bias
+prejudice
+favoritism
+intolerance
+stigmatization
+stigmatisation
+segregation
+religious
+discrimination
+racism
+xenophobia
+minority
+discrimination
+undemocratic
+# Patterns
+
+# Name
+Demographic
+# Paths
+Event/Demographic
+# Examples
+demographic
+citizenship
+nation
+# Patterns
+
+# Name
+StateOfEmergencyOrMartialLaw
+# Paths
+Event/AlertStatus/StateOfEmergencyOrMartialLaw
+# Examples
+state
+of
+emergency
+martial
+law
+state
+of
+siege
+civil
+emergency
+extraordinary
+powers
+national
+emergency
+# Patterns
+
+# Name
+Birth
+# Paths
+Event/PersonalLifeEvent/Birth
+# Examples
+birth
+born
+childbirth
+# Patterns
+
+# Name
+Enemies
+# Paths
+Actor/GroupOfActors/Enemies
+# Examples
+enemies
+foes
+opponents
+adversaries
+hostiles
+# Patterns
+
+# Name
+Pride
+# Paths
+Event/Pride
+# Examples
+pride
+proud
+prideful
+pridefulness
+dignity
+self-worth
+satisfaction
+with
+an
+accomplishment
+# Patterns
+
+# Name
+Wounding
+# Paths
+Event/HealthAndDisease/Injury/Wounding
+# Examples
+wounding
+beating
+sprain
+stain
+wounded
+tissue
+closed
+wound
+abrasion
+avulsion
+incision
+laceration
+puncture
+# Patterns
+
+# Name
+ExploitationOfNaturalResources
+# Paths
+Event/EnvironmentalFactor/NaturalResources/ExploitationOfNaturalResources
+# Examples
+exploitation
+of
+natural
+resources
+drilling
+mining
+harvesting
+forests
+irrigation
+projects
+refining
+fuels
+mineral
+exploitation
+hunting
+extraction
+of
+fossil
+fuels
+quarrying
+# Patterns
+(?i)\b(drilling|mining)\b
+(?i)\bfuel\s+refin(ery|ing)\b
+
+# Name
+AirAccess
+# Paths
+Event/Access/AirAccess
+# Examples
+air
+access
+air
+rights
+navigable
+airspace
+no-fly
+zone
+no
+fly
+zone
+approach
+by
+air
+flyover
+rights
+freedoms
+of
+the
+air
+# Patterns
+
+# Name
+Funeral
+# Paths
+Event/Ceremony/Funeral
+# Examples
+funeral
+burial
+cremation
+funeral
+procession
+funeral
+ceremony
+# Patterns
+
+# Name
+SettlementOfDisagreementOrDispute
+# Paths
+Event/CommissiveCommunication/AgreementOrPromise/SettlementOfDisagreementOrDispute
+# Examples
+settlement
+of
+disagreement
+or
+dispute
+compromise
+settlement
+agreement
+accord
+concession
+deal
+pact
+middle
+ground
+win-win
+situation
+concession
+# Patterns
+
+# Name
+CyberAttack
+# Paths
+Event/InformationHandling/CyberAttack
+Event/Aggression/Violence/Attack/CyberAttack
+# Examples
+cyber
+attack
+disruption
+in
+cyberspace
+offensive
+maneuver
+gain
+unauthorized
+access
+information
+steal
+phishing
+attack
+spear
+phising
+attack
+eavesdropping
+attack
+virus
+trojan
+# Patterns
+(?i)\bcross-site\s+scripting\s+attack
+(?i)\bsql\s+injection\s+attack
+(?i)\bdenial-of-service\s+attack
+(?i)\bman-in-the-middle\s+attack
+(?i)\bworm
+(?i)\btrojan
+(?i)\bvirus
+(?i)\bDoS\b(\s+(attack))?
+
+# Name
+ConsiderationOrExploration
+# Paths
+Event/ConsiderationOrExploration
+# Examples
+consideration
+exploration
+consider
+explore
+studying
+reasoning
+analysis
+analyze
+delve
+into
+examine
+research
+probe
+seek
+test
+question
+# Patterns
+
+# Name
+TariffOrTradeSanctions
+# Paths
+Event/EconomicFactor/EconomicSanctions/TariffOrTradeSanctions
+Event/ReductionRestrictionOrRemoval/Sanctions/EconomicSanctions/TariffOrTradeSanctions
+# Examples
+tariff
+tarrif
+trade
+sanctions
+import
+tariffs
+customs
+tariffs
+# Patterns
+(?i)tariffs?
+(?i)(economic|import|customs)(\s|\w)+(tariff)
+
+# Name
+Planning
+# Paths
+Event/Planning
+# Examples
+planning
+planned
+strategy
+strategize
+objective
+goal
+aim
+development
+plan
+action
+plan
+preparation
+preparatory
+prepare
+design
+groundwork
+preliminary
+work
+# Patterns
+(?i)\bplan(ning)?\b
+
+# Name
+RoadsideBombing
+# Paths
+Event/Aggression/Violence/Attack/Bombing/RoadsideBombing
+# Examples
+roadside
+bombing
+bombs
+placed
+alongside
+of
+a
+road
+explosives
+on
+the
+road
+dynamite
+car
+bombs
+# Patterns
+(?i)\bVBIED
+
+# Name
+SnowSleetAndWinterConditions
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/SnowSleetAndWinterConditions
+# Examples
+snow,
+sleet
+and
+winter
+conditions
+# Patterns
+
+# Name
+Peacekeeping
+# Paths
+Event/MilitaryFactor/MilitaryAction/Peacekeeping
+# Examples
+peacekeeping
+peacekeeper
+keeping
+the
+peace
+# Patterns
+(?i)peacekeep
+
+# Name
+War
+# Paths
+Event/DisagreementOrDispute/ArmedConflict/War
+# Examples
+war
+conflict
+battle
+combat
+hostility
+fight
+clash
+invade
+country
+# Patterns
+
+# Name
+AgreementOrPromise
+# Paths
+Event/CommissiveCommunication/AgreementOrPromise
+# Examples
+agreement
+or
+promise
+obligation
+agreement
+deal
+accord
+initiation
+agree
+# Patterns
+
+# Name
+Apology
+# Paths
+Event/CommunicationConveyingEmotion/CommunicationConveyingEmpathy/Apology
+# Examples
+apology
+expression
+of
+regret
+regret
+excuse
+remorse
+# Patterns
+
+# Name
+GrantingOfAsylum
+# Paths
+Event/ProvisionOfAid/GrantingOfAsylum
+# Examples
+granting
+of
+asylum
+granting
+diplomatic
+asylum
+granting
+territorial
+asylum
+granting
+internal
+asylum
+granting
+external
+asylum
+granting
+political
+asylum
+granted
+refugee
+status
+awarded
+asylum
+awarded
+refugee
+status
+given
+asylum
+given
+refugee
+status
+# Patterns
+
+# Name
+CargoTransportation
+# Paths
+Event/LocationChange/CargoTransportation
+# Examples
+cargo
+transportation
+moving
+goods
+air
+transportation
+naval
+transportation
+maritime
+transport
+fluvial
+transport
+waterborne
+transport
+ground
+transport
+sending
+goods
+receiving
+goods
+# Patterns
+
+# Name
+CommissiveCommunication
+# Paths
+Event/CommissiveCommunication
+# Examples
+commissive
+communication
+# Patterns
+
+# Name
+Thanking
+# Paths
+Event/CommunicationConveyingEmotion/Thanking
+# Examples
+thanking
+conveying
+gratitude
+gratitude
+recognition
+acknowledgment
+thankfulness
+grace
+gratefulness
+praise
+credit
+appreciativeness
+give
+credit
+be
+grateful
+# Patterns
+
+# Name
+PsychologicalAttack
+# Paths
+Event/Aggression/Violence/Attack/PsychologicalAttack
+# Examples
+psychological
+attack
+brainwashing
+manipulation
+psychological
+warfare
+# Patterns
+
+# Name
+BlackMarketTrade
+# Paths
+Event/EconomicFactor/DomesticTrade/BlackMarketTrade
+# Examples
+black
+market
+trade
+black
+market
+shadow
+economy
+underground
+economy
+buying
+illegal
+goods
+selling
+illicit
+material
+illegally
+purchase
+black-market
+sales
+# Patterns
+(?i)black[ -]?market
+
+# Name
+AgriculturalLandUse
+# Paths
+Event/EnvironmentalFactor/NaturalResources/LandUse/AgriculturalLandUse
+# Examples
+agricultural
+land
+use
+farming
+land
+use
+mills
+# Patterns
+
+# Name
+ProvisionOfTrainingSchooling
+# Paths
+Event/ProvisionOfAid/ProvisionOfTrainingSchooling
+Event/EducationAndTraining/ProvisionOfTrainingSchooling
+# Examples
+provision
+of
+training
+or
+schooling
+# Patterns
+
+# Name
+DisinformationOperation
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Influence/DisinformationOperation
+Event/Operation/InformationOperation/MisinformationOperation/DisinformationOperation
+Event/Deception/DisinformationOperation
+Event/DeclarativeCommunication/AccusationOrAssigningOfResponsibility/Influence/DisinformationOperation
+Event/InformationHandling/InformationOperation/MisinformationOperation/DisinformationOperation
+# Examples
+disinformation
+operation
+influence
+operation
+propaganda
+agenda
+fake
+news
+disinformation
+campaign
+falsehood
+fabricated
+fictitious
+stories
+selective
+censorship
+manipulation
+of
+search
+rankings
+hacking
+and
+releasing
+covert
+# Patterns
+(?i)(disinformation)\s+(campaign|operation)
+
+# Name
+TaskForce
+# Paths
+Actor/GroupOfActors/GroupOfPersons/TaskForce
+# Examples
+task
+force
+taskforce
+# Patterns
+(?i)(task)\s+(force|unit)(\s+(\d+))?
+(?i)\bTF\b
+(?i)taskforce
+(?i)(Force)\s+([A-Z0-9]\b)
+(?i)\bMAGTF\b
+
+# Name
+ProvisionOfInspectorsOrObservers
+# Paths
+Event/ProvisionOfAid/ProvisionOfInspectorsOrObservers
+# Examples
+provision
+of
+inspectors
+or
+observers
+# Patterns
+
+# Name
+Neutralization
+# Paths
+Event/ReductionRestrictionOrRemoval/Neutralization
+# Examples
+neutralization
+# Patterns
+
+# Name
+Mobilization
+# Paths
+Event/Mobilization
+# Examples
+mobilization
+mobilisation
+party
+mobilization
+political
+mobilization
+community
+mobilisation
+mobilize
+mobilise
+# Patterns
+
+# Name
+Jealousy
+# Paths
+Event/Jealousy
+# Examples
+jealousy
+envy
+grudge
+rivalry
+desire
+malevolence
+desire
+for
+others'
+possession
+# Patterns
+
+# Name
+Affiliation
+# Paths
+Event/Affiliation
+# Examples
+affiliation
+connection
+partnership
+# Patterns
+
+# Name
+DamageOrDestruction
+# Paths
+Event/DamageOrDestruction
+# Examples
+damage
+destruction
+destroy
+harm
+ravage
+eradicate
+eradication
+impair
+decimate
+decimation
+annihilate
+annihilation
+shatter
+# Patterns
+
+# Name
+Counteraction
+# Paths
+Event/Counteraction
+# Examples
+counteraction
+counteract
+counter-act
+counterattack
+counter-attack
+countermove
+counter-move
+response
+# Patterns
+(?i)\bcounteraction
+(?i)\bcounterattack
+
+# Name
+ChemicalHazard
+# Paths
+Event/EnvironmentalFactor/EnvironmentalHazard/ChemicalHazard
+# Examples
+chemical
+hazard
+# Patterns
+
+# Name
+Voting
+# Paths
+Event/DeclarativeCommunication/DefenseOrSupport/Voting
+# Examples
+audit
+ballot
+cast
+ballot
+choice
+count
+opinion
+poll
+polling
+referendum
+selection
+suffrage
+survey
+Vote
+vote
+against
+vote
+for
+voting
+voting
+poll
+# Patterns
+
+# Name
+TerroristOrganization
+# Paths
+Actor/GroupOfActors/Organization/TerroristOrganization
+# Examples
+terrorist
+organization
+Taliban
+DAESH
+Daesh
+ISIS
+Isis
+ISIL
+Islamic
+State
+Islamic
+State
+in
+Iraq
+and
+Syria
+Islamic
+State
+in
+the
+Levant
+Provisional
+IRA
+Provisional
+Irish
+Republican
+Army
+Irish
+Republican
+Army
+Northern
+Alliance
+Taliban
+Al-Shabaab
+Tamil
+Tigers
+Basque
+Fatherland
+and
+Liberty
+HAMAS
+Hizballah
+al-Qaida
+al
+Qaida
+Boko
+Haram
+# Patterns
+
+# Name
+HungerStrike
+# Paths
+Event/Strike/HungerStrike
+Event/SymbolicAct/HungerStrike
+# Examples
+hunger
+strike
+voluntary
+refusal
+to
+eat
+non-violent
+resistance
+protest
+fast
+as
+an
+act
+of
+protest
+# Patterns
+
+# Name
+EconomicEquality
+# Paths
+Event/EconomicFactor/EconomicCondition/EconomicEquality
+# Examples
+economic
+equality
+equal
+contribution
+equal
+taxation
+fairness
+equal
+life
+chances
+moral
+equality
+horizontal
+equality
+vertical
+equality
+equal
+pay
+for
+equal
+work
+fair
+division
+tax
+neutrality
+# Patterns
+
+# Name
+Assassination
+# Paths
+Event/PersonalLifeEvent/Death/MurderOrHomicide/Assassination
+Event/Aggression/Violence/MurderOrHomicide/Assassination
+# Examples
+assassination
+murder
+crime
+murder
+of
+public
+figure
+slaughter
+homicide
+manslaughter
+sudden
+attack
+# Patterns
+
+# Name
+PowerBalance
+# Paths
+Event/PowerBalance
+# Examples
+power
+balance
+# Patterns
+
+# Name
+Taxation
+# Paths
+Event/PoliticalFactor/Taxation
+Event/EconomicFactor/Taxation
+# Examples
+taxation
+tax
+levy
+tariff
+income
+tax
+capital
+gains
+tax
+corporate
+tax
+payroll
+tax
+property
+tax
+inheritance
+tax
+wealth
+tax
+value-added
+tax
+expatriation
+tax
+# Patterns
+(?i)\bVAT\b
+(?i)value-added
+(?i)\bexcise\s+duty\b
+
+# Name
+DrugTrade
+# Paths
+Event/EconomicFactor/DomesticTrade/BlackMarketTrade/DrugTrade
+# Examples
+drug
+trade
+illegal
+drug
+trade
+illicit
+drug
+trade
+drug
+trafficking
+drug
+trafficker
+drug
+traffic
+drug
+smuggling
+drug
+dealing
+cannabis
+trade
+marijuana
+trafficking
+cannabis
+smuggling
+marijuana
+smuggling
+heroin
+trade
+heroin
+trafficking
+heroin
+smuggling
+opiate
+trade
+opiate
+trafficking
+opiate
+smuggling
+methamphetamine
+trade
+methamphetamine
+trafficking
+methamphetamine
+smuggling
+cocaine
+trade
+cocaine
+trafficking
+cocaine
+smuggling
+# Patterns
+(?i)(drug|cocaine|(meth)?amphetamine|cannabis|marijuana|heroin|opiate)\s+(trade|traffic)
+
+# Name
+EspionageOperation
+# Paths
+Event/Operation/EspionageOperation
+# Examples
+espionage
+operation
+# Patterns
+(?i)(espionage|spy)\s+(op(eration)?s?)\b
+
+# Name
+FoodSecurity
+# Paths
+Event/HealthAndDisease/FoodWaterAndNutrition/FoodSecurity
+Event/SocialCondition/LivingCondition/FoodWaterAndNutrition/FoodSecurity
+# Examples
+food
+security
+food
+availability
+good
+domestic
+food
+supply
+availability
+of
+foods
+food
+access
+food
+stability
+food
+consumption
+household
+food
+storage
+food
+production
+producing
+food
+consumption
+of
+enough
+food
+food
+utilization
+# Patterns
+
+# Name
+TransferOfLeadership
+# Paths
+Event/TransferOfLeadership
+# Examples
+transfer
+of
+leadership
+leadership
+transfer
+successor
+heir
+replacement
+descendant
+election
+new
+president
+new
+manager
+forced
+resignation
+# Patterns
+
+# Name
+BoycottOrEmbargo
+# Paths
+Event/ReductionRestrictionOrRemoval/BoycottOrEmbargo
+# Examples
+boycott
+embargo
+arms
+embargo
+blacklist
+economic
+embargo
+boycotting
+blacklisting
+# Patterns
+
+# Name
+IncomeAndExpense
+# Paths
+Event/EconomicFactor/IncomeAndExpense
+# Examples
+income
+expense
+more
+expensive
+electricity
+in
+homes
+more
+expensive
+utilities
+in
+homes
+# Patterns
+(?i)\b(expense)
+
+# Name
+Excess
+# Paths
+Event/Excess
+# Examples
+excess
+abundance
+abundant
+overabundance
+overabundant
+surplus
+plethora
+extra
+superfluous
+overage
+oversupply
+superabundance
+surfeit
+# Patterns
+
+# Name
+Expulsion
+# Paths
+Event/ReductionRestrictionOrRemoval/Withdrawal/Expulsion
+Event/LocationChange/ForcedMove/Expulsion
+Event/ReductionRestrictionOrRemoval/ForcedMove/Expulsion
+# Examples
+expulsion
+# Patterns
+
+# Name
+GovernmentCeremony
+# Paths
+Event/Ceremony/GovernmentCeremony
+Event/GovernmentActivity/GovernmentCeremony
+# Examples
+government
+ceremony
+swearing-in
+ceremony
+presidential
+ceremony
+coronation
+papal
+coronation
+oath
+of
+office
+abdication
+government
+meeting
+council
+meeting
+resignation
+investiture
+inauguration
+# Patterns
+
+# Name
+Secrecy
+# Paths
+Event/Secrecy
+# Examples
+secrecy
+secret
+top
+secret
+state
+secrets
+hiding
+information
+privacy
+system
+concealment
+system
+classified
+restricted
+information
+protected
+information
+security
+clearance
+cosmic
+top
+secret
+discrete
+covert
+clandestine
+furtive
+hush-hush
+surreptitious
+undisclosed
+# Patterns
+(?i)secre(ts?|cy)\b
+
+# Name
+RadiologicalHazard
+# Paths
+Event/EnvironmentalFactor/EnvironmentalHazard/RadiologicalHazard
+# Examples
+radiological
+hazard
+# Patterns
+
+# Name
+Loan
+# Paths
+Event/Loan
+# Examples
+loan
+borrow
+conventional
+rows
+conforming
+loans
+secured
+loans
+interest
+rate
+rent
+lend
+credit
+personal
+loan
+average
+loan
+interest
+rate
+# Patterns
+
+# Name
+CeasefireOrTruce
+# Paths
+Event/ReductionRestrictionOrRemoval/CeasefireOrTruce
+Event/CommissiveCommunication/AgreementOrPromise/FormalAgreement/CeasefireOrTruce
+# Examples
+ceasefire
+truce
+amnesty
+amnistice
+accord
+treaty
+suspend
+conflict
+temporarily
+# Patterns
+
+# Name
+Looting
+# Paths
+Event/Aggression/Violence/Looting
+Event/TheftOrRobbery/Looting
+# Examples
+looting
+plundering
+during
+wartime
+stealing
+during
+wartime
+plundering
+during
+riots
+stealing
+during
+riots
+# Patterns
+
+# Name
+Amusement
+# Paths
+Event/Amusement
+# Examples
+amusement
+joy
+laughter
+laughing
+delight
+amused
+delighted
+cheer
+cheerful
+entertained
+# Patterns
+
+# Name
+OathTaking
+# Paths
+Event/CommissiveCommunication/AgreementOrPromise/OathTaking
+# Examples
+oath
+taking
+swear
+take
+an
+oath
+testify
+formal
+binding
+promise
+# Patterns
+
+# Name
+ReportAsMissing
+# Paths
+Event/DeclarativeCommunication/Reporting/ReportAsMissing
+# Examples
+report
+as
+missing
+# Patterns
+
+# Name
+TransferOfOwnership
+# Paths
+Event/TransferOfOwnership
+# Examples
+transfer
+ownership
+give
+gift
+sell
+buy
+purchase
+inheritance
+inherit
+trade
+swap
+barter
+exchange
+bequest
+# Patterns
+
+# Name
+BirthsAndFertility
+# Paths
+Event/Demographic/BirthsAndFertility
+# Examples
+births
+fertility
+birth
+rate
+family
+formation
+natality
+fertility
+rate
+total
+fertility
+rate
+crude
+birth
+rate
+child-woman
+ratio
+general
+fertility
+rate
+gross
+reproduction
+rate
+net
+reproduction
+rate
+fertility
+factor
+# Patterns
+
+# Name
+IntimidationAndCoercion
+# Paths
+Event/DeclarativeCommunication/AccusationOrAssigningOfResponsibility/Influence/IntimidationAndCoercion
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Influence/IntimidationAndCoercion
+# Examples
+intimidation
+coercion
+influence
+witnesses
+# Patterns
+
+# Name
+Injury
+# Paths
+Event/HealthAndDisease/Injury
+# Examples
+injury
+# Patterns
+
+# Name
+GroupOfOrganizations
+# Paths
+Actor/GroupOfActors/GroupOfOrganizations
+# Examples
+# Patterns
+
+# Name
+CounterTerrorismOperation
+# Paths
+Event/Operation/CounterOperation/CounterTerrorismOperation
+# Examples
+counterterrorism
+operation
+counter-terrorism
+operation
+antiterrorism
+# Patterns
+(?i)((counter|anti)[ -]?terror(is[mt])?)\s+(op(eration)?s?)\b
+
+# Name
+Warning
+# Paths
+Event/DirectiveCommunication/Warning
+# Examples
+warning
+alert
+caution
+hint
+inform
+notify
+alarm
+signal
+forwarm
+# Patterns
+
+# Name
+EarthquakeAndAftershock
+# Paths
+Event/EnvironmentalFactor/NaturalDisaster/EarthquakeAndAftershock
+# Examples
+earthquake
+earthquakes
+aftershock
+aftershocks
+quake
+quakes
+tremor
+tremors
+temblor
+temblors
+# Patterns
+
+# Name
+EconomicSanctions
+# Paths
+Event/ReductionRestrictionOrRemoval/Sanctions/EconomicSanctions
+Event/EconomicFactor/EconomicSanctions
+# Examples
+economic
+sanctions
+# Patterns
+
+# Name
+Accident
+# Paths
+Event/Accident
+# Examples
+accident
+mishap
+# Patterns
+
+# Name
+BoycottEmbargoSanctionsOrStrike
+# Paths
+Event/ReductionRestrictionOrRemoval/BoycottEmbargoSanctionsOrStrike
+# Examples
+walkout
+general
+strike
+labor
+strike
+labour
+strike
+strike
+action
+strike
+work
+stoppage
+support
+strike
+boycott,
+divestment,
+and
+sanctions
+warning
+strike
+penalize
+penalty
+penalties
+# Patterns
+(?i)\bBDS\b
+
+# Name
+DisagreementOrDispute
+# Paths
+Event/DisagreementOrDispute
+# Examples
+disagreement
+or
+dispute
+# Patterns
+
+# Name
+Savings
+# Paths
+Event/EconomicFactor/Savings
+# Examples
+savings
+wealth
+net
+worth
+savings
+account
+equity
+own
+equity
+# Patterns
+(?i)savings
+
+# Name
+Happiness
+# Paths
+Event/Happiness
+# Examples
+happiness
+# Patterns
+
+# Name
+Announcement
+# Paths
+Event/Announcement
+# Examples
+announcement
+briefing
+broadcast
+disclosure
+news
+message
+statement
+report
+notice
+# Patterns
+
+# Name
+Export
+# Paths
+Event/EconomicFactor/Export
+# Examples
+export
+trade
+exportation
+transport
+business
+deal
+exchange
+industry
+reexport
+re-export
+# Patterns
+
+# Name
+Consumption
+# Paths
+Event/Consumption
+# Examples
+consuming
+consumption
+consume
+deplete
+depletion
+eat
+use
+utilization
+# Patterns
+
+# Name
+EconomicDevelopment
+# Paths
+Event/EconomicFactor/EconomicDevelopment
+Event/ExpansionOrDevelopment/EconomicDevelopment
+# Examples
+economic
+development
+modernize
+modernization
+Westernize
+Westernization
+industrialize
+industrialization
+industrialise
+industrialisation
+improve
+infrastructure
+infrastructure
+spending
+economic
+reform
+government
+investment
+# Patterns
+
+# Name
+BusinessCeremony
+# Paths
+Event/Ceremony/BusinessCeremony
+# Examples
+business
+ceremony
+corporate
+event
+initial
+public
+offering
+retirement
+party
+executive
+team
+meeting
+business
+conference
+business
+seminar
+incentive
+program
+appreciation
+event
+team-building
+event
+board
+meeting
+# Patterns
+
+# Name
+DenialOfResponsibility
+# Paths
+Event/DeclarativeCommunication/Denial/DenialOfResponsibility
+# Examples
+denial
+of
+responsibility
+# Patterns
+
+# Name
+OccupationOfTerritory
+# Paths
+Event/OccupationOfTerritory
+# Examples
+occupation
+of
+territory
+annexation
+takeover
+occupation
+military
+occupation
+hostile
+takeover
+hostile
+occupation
+# Patterns
+
+# Name
+IssuingPublishingOrReleasing
+# Paths
+Event/IssuingPublishingOrReleasing
+# Examples
+issuing,
+publishing
+or
+releasing
+providing
+something
+new
+issuing
+a
+press
+release
+release
+a
+new
+product
+software
+release
+publishing
+product
+delivery
+software
+delivery
+# Patterns
+
+# Name
+EthnicityDemographic
+# Paths
+Event/Demographic/EthnicityDemographic
+# Examples
+ethnicity
+demographic
+ethnic
+data
+ethnic
+characteristics
+ethnic
+particularities
+ethnic
+population
+data
+number
+of
+ethnics
+ethnic
+density
+# Patterns
+
+# Name
+Curiosity
+# Paths
+Event/Curiosity
+# Examples
+curiosity
+curious
+curiousness
+inquisitive
+inquiring
+eager
+to
+acquire
+knowledge
+# Patterns
+(?i)curio(us|sity)
+
+# Name
+AmassingAndStockpiling
+# Paths
+Event/AmassingAndStockpiling
+# Examples
+amassing
+and
+stockpiling
+control
+a
+market
+monopoly
+collect
+accumulate
+stash
+stockpiling
+amassing
+# Patterns
+
+# Name
+EducationalOrganization
+# Paths
+Actor/GroupOfActors/Organization/EducationalOrganization
+# Examples
+educational
+organization
+univesrity
+school
+high-school
+education
+organization
+educational
+nonprofit
+organization
+academic
+organization
+outdoor
+education
+organizations
+student
+organizations
+training
+organizations
+university
+organizations
+educational
+institutions
+educational
+foundations
+# Patterns
+
+# Name
+Testifying
+# Paths
+Event/DeclarativeCommunication/Testifying
+# Examples
+testifying
+# Patterns
+
+# Name
+HurricaneOrTyphoon
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/HighWind/TropicalStorm/HurricaneOrTyphoon
+Event/EnvironmentalFactor/WeatherIssue/Storm/TropicalStorm/HurricaneOrTyphoon
+Event/EnvironmentalFactor/NaturalDisaster/TropicalStorm/HurricaneOrTyphoon
+# Examples
+hurricane
+typhoon
+# Patterns
+(?i)hurricane
+(?i)typhoon
+
+# Name
+Democracy
+# Paths
+Event/PoliticalFactor/GovernmentalFactor/Democracy
+# Examples
+democracy
+democratic
+democratization
+people
+vote
+representative
+government
+elective
+government
+upward
+control
+political
+equality
+social
+norms
+electoral
+democracy
+election
+presidential
+republic
+parliamentary
+republic
+parliament
+congress
+egalitarian
+human
+rights
+# Patterns
+
+# Name
+Grief
+# Paths
+Event/Sadness/Grief
+Event/Modifier/StrongOrIntense/Grief
+# Examples
+grief
+grief-stricken
+grieve
+griever
+bereavement
+grieving
+process
+complicated
+grief
+prolonged
+grief
+mourn
+mourner
+anticipatory
+grief
+# Patterns
+(?i)\bgrie(f|ve(s|d)?)\b
+(?i)\bDABDA\b
+
+# Name
+ConcentrationOfDisplacedPersons
+# Paths
+Event/Demographic/ConcentrationOfDisplacedPersons
+# Examples
+concentration
+of
+displaced
+persons
+migrant
+load
+refugee
+crisis
+exile
+internal
+displacement
+displaced
+persons
+migrant
+relocation
+migrant
+labour
+migrant
+labor
+migrant
+plan
+migrant
+distribution
+migrant
+influx
+migrant
+distribution
+plan
+refugee
+families
+number
+of
+IDPs
+total
+number
+of
+refugees
+mass
+arrival
+of
+migrants
+refugee
+quota
+# Patterns
+
+# Name
+Death
+# Paths
+Event/PersonalLifeEvent/Death
+# Examples
+death
+die
+afterlife
+decease
+pass
+away
+killed
+# Patterns
+
+# Name
+SymbolicAct
+# Paths
+Event/SymbolicAct
+# Examples
+symbolic
+act
+# Patterns
+
+# Name
+MaritimeDomainAwareness
+# Paths
+Event/AwarenessOrUnderstanding/MaritimeDomainAwareness
+# Examples
+maritime
+domain
+awareness
+global
+maritime
+situational
+awareness
+maritime
+anomaly
+detection
+underwater
+domain
+awareness
+naval
+information
+# Patterns
+
+# Name
+ReleaseOrParole
+# Paths
+Event/ReturnOrRelease/ReleaseOrParole
+# Examples
+release
+or
+parole
+# Patterns
+
+# Name
+Avalanche
+# Paths
+Event/EnvironmentalFactor/NaturalDisaster/Avalanche
+# Examples
+avalanche
+snowslide
+slab
+avalanche
+loose
+snow
+avalanche
+powder
+snow
+avalanche
+ice
+avalanche
+rock-ice
+slide
+icefall
+# Patterns
+
+# Name
+ProvisionOfHumanitarianAid
+# Paths
+Event/ProvisionOfAid/ProvisionOfHumanitarianAid
+# Examples
+provision
+of
+humanitarian
+aid
+giving
+humanitarian
+aid
+gave
+humanitarian
+aid
+giving
+humanitarian
+aid
+provided
+humanitarian
+aid
+provision
+of
+humanitarian
+assistance
+giving
+humanitarian
+assistance
+gave
+humanitarian
+assistance
+provided
+humanitarian
+assistance
+humanitarian
+aid
+humanitarian
+assistance
+provide
+aid
+for
+refugees
+delivery
+of
+humanitarian
+aid
+delivery
+of
+humanitarian
+assistance
+# Patterns
+
+# Name
+ConfiscationDamageOrDestruction
+# Paths
+Event/ConfiscationDamageOrDestruction
+# Examples
+confiscation
+damage
+destruction
+seizure
+of
+goods
+loss
+property
+loss
+confiscate
+expropriate
+appropriate
+impound
+# Patterns
+
+# Name
+Veto
+# Paths
+Event/DeclarativeCommunication/RefusalOrRejection/Veto
+# Examples
+veto
+oppose
+block
+# Patterns
+(?i)\b(veto)\b
+
+# Name
+ViolationOfCeasefireOrTruce
+# Paths
+Event/ViolationOfAgreement/ViolationOfCeasefireOrTruce
+# Examples
+violation
+of
+ceasefire
+or
+truce
+breach
+of
+truce
+breach
+of
+ceasefire
+violation
+of
+truce
+violation
+of
+ceasefire
+# Patterns
+
+# Name
+Battle
+# Paths
+Event/Aggression/Violence/Attack/Battle
+# Examples
+battle
+fight
+combat
+assault
+# Patterns
+
+# Name
+ReligiousOrganization
+# Paths
+Actor/GroupOfActors/Organization/ReligiousOrganization
+# Examples
+religious
+organization
+church
+Orthodox
+Church
+Catholic
+Church
+Eastern
+Orthodox
+Church
+Russian
+Orthodox
+Church
+Greek
+Orthodox
+Church
+Lutheran
+Church
+Lutheranism
+Lutheran
+national
+church
+Islam
+state
+church
+Anglican
+Church
+religious
+order
+religious
+sect
+# Patterns
+
+# Name
+Threatening
+# Paths
+Event/Threatening
+# Examples
+threatening
+intimitading
+threat
+fearing
+bullying
+# Patterns
+
+# Name
+Parole
+# Paths
+Event/ReturnOrRelease/ReleaseOrParole/Parole
+# Examples
+parole
+liberate
+free
+release
+under
+condition
+# Patterns
+(?i)parole
+
+# Name
+BanOrProhibition
+# Paths
+Event/DirectiveCommunication/BanOrProhibition
+# Examples
+ban
+prohibit
+prohibition
+forbid
+block
+censor
+deny
+disallow
+exclude
+barred
+# Patterns
+
+# Name
+Execution
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/LegalFinding/LegalSentence/Execution
+Event/PersonalLifeEvent/Death/Execution
+# Examples
+execution
+execute
+stabbed
+to
+death
+sentenced
+to
+death
+death
+row
+capital
+punishment
+beheading
+decapitation
+gassing
+electrocution
+# Patterns
+
+# Name
+PoliticalParty
+# Paths
+Actor/GroupOfActors/Organization/PoliticalParty
+# Examples
+political
+party
+ruling
+party
+the
+party
+Democratic
+Party
+Democrats
+Republican
+Party
+Republicans
+Libertarian
+Party
+Libertarians
+Communist
+Party
+Democratic
+Socialists
+of
+America
+Solidarity
+Party
+Labor
+Party
+Labour
+Party
+Liberal
+Party
+Conservative
+Party
+Green
+Party
+Tories
+Tory
+Party
+Christian
+Democratic
+Union
+CDU
+Partido
+Popular
+# Patterns
+
+# Name
+Extradition
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/Extradition
+Event/Cooperation/JudicialCooperation/Extradition
+Event/ReductionRestrictionOrRemoval/ForcedMove/Extradition
+Event/LocationChange/ForcedMove/Extradition
+# Examples
+extradition
+# Patterns
+
+# Name
+PopulationOfConcern
+# Paths
+Actor/GroupOfActors/GroupOfPersons/PopulationOfConcern
+# Examples
+migrant
+immigrant
+foreigner
+emigrant
+labour
+migrant
+labor
+migrant
+expatriate
+expat
+refugee
+alien
+war
+refugee
+climate
+refugee
+refugee
+children
+asylum
+seeker
+displaced
+person
+internally
+displaced
+person
+returned
+internally
+displaced
+person
+returned
+refugee
+returnee
+stateless
+person
+# Patterns
+
+# Name
+AgriculturalOrganization
+# Paths
+Actor/GroupOfActors/Organization/AgriculturalOrganization
+# Examples
+agricultural
+organization
+Food
+and
+Agriculture
+Organization
+agency
+specialized
+in
+agriculture
+agricultural
+agency
+# Patterns
+(?i)\bFAO\b
+
+# Name
+TensionOrStress
+# Paths
+Event/TensionOrStress
+# Examples
+pressure
+tension
+stress
+strain
+tense
+emotional
+response
+anxiety
+nervousness
+panic
+unease
+uneasiness
+bad
+relation
+fraying
+relation
+# Patterns
+
+# Name
+MilitaryExercise
+# Paths
+Event/MilitaryFactor/MilitaryAction/MilitaryExercise
+# Examples
+military
+exercise
+counterterrorism
+drill
+war
+game
+life-fire
+exercise
+# Patterns
+(?i)(military|snap)(\s|\w)+(exercise)
+(?i)(war)(-|\s)*(game)
+(?i)\bLFX\b
+(?i)(live)(-|\s)*(fire)(\s|\w)+(exercise)
+
+# Name
+ElectromagneticActivity
+# Paths
+Event/InformationHandling/ElectromagneticActivity
+# Examples
+electromagnetic
+activity
+radio
+jamming
+radar
+jamming
+spot
+jamming
+sweep
+jamming
+barrage
+jamming
+base
+jamming
+pulse
+jamming
+radar
+deception
+blip
+enhancement
+signal
+detection
+hardening
+binary
+hardening
+# Patterns
+
+# Name
+FinancialWithdrawal
+# Paths
+Event/FinancialEvent/FinancialWithdrawal
+Event/ReductionRestrictionOrRemoval/Withdrawal/FinancialWithdrawal
+# Examples
+financial
+withdrawal
+removing
+funds
+from
+a
+bank
+account
+withdraw
+withdraw
+money
+withdrawal
+form
+money
+# Patterns
+
+# Name
+ExecutiveGovernmentActivity
+# Paths
+Event/GovernmentActivity/ExecutiveGovernmentActivity
+# Examples
+executive
+government
+activity
+executive
+operations
+vetoes
+nominations
+issuance
+of
+orders
+directives
+reports
+government
+# Patterns
+
+# Name
+Negotiation
+# Paths
+Event/MeetingOrEncounter/Negotiation
+Event/ExploratoryCommunication/Negotiation
+# Examples
+negotiation
+negotiate
+negotiator
+haggle
+summit
+dialog
+dialogue
+bargain
+renegotiate
+renegotiation
+# Patterns
+(?i)\bnegotiat
+
+# Name
+PhysicalSeparation
+# Paths
+Event/PhysicalSeparation
+# Examples
+physical
+separation
+# Patterns
+
+# Name
+CriminalOrganization
+# Paths
+Actor/GroupOfActors/Organization/CriminalOrganization
+# Examples
+criminal
+organization
+organized
+crime
+crime
+syndicate
+National
+Crime
+Syndicate
+gang
+mob
+ring
+mafia
+network
+mafia
+drug
+cartel
+gangster
+# Patterns
+(?i)\bcamorra\b
+(?i)\bndrangheta\b
+(?i)\byakuza\b
+(?i)\blos Zetas\b
+(?i)\btriad\b
+
+# Name
+SuicideBombing
+# Paths
+Event/Aggression/Violence/Attack/Bombing/SuicideBombing
+Event/PersonalLifeEvent/Suicide/SuicideBombing
+# Examples
+suicide
+bombing
+violent
+attack
+with
+bomb
+suicide
+attack
+with
+explosive
+# Patterns
+
+# Name
+Goodwill
+# Paths
+Event/Goodwill
+# Examples
+goodwill
+# Patterns
+
+# Name
+LackOfSupportOrDissatisfaction
+# Paths
+Event/LackOfSupportOrDissatisfaction
+# Examples
+lack
+of
+support
+or
+dissatisfaction
+# Patterns
+
+# Name
+TheftOrRobbery
+# Paths
+Event/TheftOrRobbery
+# Examples
+theft
+or
+robbery
+# Patterns
+
+# Name
+SpaceSituationalAwareness
+# Paths
+Event/AwarenessOrUnderstanding/SpaceSituationalAwareness
+# Examples
+space
+situational
+awareness
+space
+weather
+near-earth
+objects
+space
+surveillance
+space
+tracking
+detecting
+man-made
+objects
+in
+space
+tracking
+space
+debris
+mapping
+satellites
+space
+object
+recognition
+station
+# Patterns
+(?i)(space)(\s|\w)+(situational)(\s|\w)+(awareness)
+
+# Name
+ColdTemperature
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/ColdTemperature
+# Examples
+cold
+temperature
+cold
+cold
+weather
+sub-zero
+temperatures
+cold
+winter
+cold
+period
+freezing
+over
+cold
+season
+# Patterns
+
+# Name
+FindingOfNotGuilty
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/LegalFinding/FindingOfNotGuilty
+# Examples
+finding
+of
+not
+guilty
+not
+guilty
+acquittal
+clearance
+exculpation
+exemption
+innocent
+# Patterns
+
+# Name
+EntertainmentEvent
+# Paths
+Event/EntertainmentEvent
+# Examples
+entertainment
+event
+# Patterns
+
+# Name
+GovernmentAgency
+# Paths
+Actor/GroupOfActors/Organization/GovernmentAgency
+# Examples
+government
+agency
+government
+parliament
+legislature
+court
+courts
+ministry
+ministries
+European
+Commission
+Foreign
+Ministry
+Defense
+Ministry
+Federal
+Bureau
+of
+Investigation
+KGB
+FBI
+CIA
+Central
+Intelligence
+Agency
+NSA
+National
+Security
+Agency
+FSB
+United
+States
+Congress
+congress
+Duma
+State
+Duma
+city
+government
+state
+government
+federal
+government
+Judiciary
+Supreme
+Court
+# Patterns
+
+# Name
+PeacekeepingOperation
+# Paths
+Event/Operation/MilitaryCampaignOrOperation/PeacekeepingOperation
+Event/MilitaryFactor/MilitaryCampaignOrOperation/PeacekeepingOperation
+Event/ProtectionOrPreservation/PeacekeepingOperation
+# Examples
+peacekeeping
+operation
+peace-keeping
+operation
+# Patterns
+(?i)(peace)(\s|-)?(keeping)\s+(operation)
+
+# Name
+CommercialOrganization
+# Paths
+Actor/GroupOfActors/Organization/CommercialOrganization
+# Examples
+commerical
+organization
+business
+for-profit
+corporation
+corporation
+profitable
+company
+company
+private
+company
+public
+company
+publicly
+listed
+company
+# Patterns
+
+# Name
+HumanRightsOrganization
+# Paths
+Actor/GroupOfActors/Organization/HumanRightsOrganization
+# Examples
+human
+rights
+organization
+Estonian
+Human
+Rights
+Center
+European
+Court
+of
+Human
+Rights
+Amnesty
+International
+Global
+Rights
+Human
+Rights
+Watch
+Freedom
+House
+UN
+Watch
+ACLU
+American
+Civil
+Liberties
+Union
+United
+Nations
+Human
+Rights
+Council
+UN
+Human
+Rights
+Council
+# Patterns
+
+# Name
+AppointmentOrNomination
+# Paths
+Event/AppointmentOrNomination
+# Examples
+appointment
+appoint
+nomination
+nominate
+designate
+nominee
+appointee
+# Patterns
+
+# Name
+HumanRightsAbuse
+# Paths
+Event/HumanRightsAbuse
+# Examples
+human
+rights
+abuse
+excessive
+length
+of
+investigations
+human
+rights
+violation
+political
+torture
+torturing
+prisoners
+collective
+punishment
+extrajudicial
+killings
+extraordinary
+rendition
+irregular
+rendition
+forced
+rendition
+# Patterns
+
+# Name
+FeelingUnsafeOrInsecure
+# Paths
+Event/FeelingUnsafeOrInsecure
+# Examples
+feeling
+unsafe
+or
+insecure
+# Patterns
+
+# Name
+WasteManagement
+# Paths
+Event/WasteManagement
+# Examples
+waste
+management/sanitation
+# Patterns
+
+# Name
+LaborOrganization
+# Paths
+Actor/GroupOfActors/Organization/LaborOrganization
+# Examples
+labor
+organization
+trade
+union
+AFL-CIO
+American
+Federation
+of
+Labor
+Congress
+of
+Industrial
+Organizations
+labor
+union
+labour
+union
+IWW
+Industrial
+Workers
+of
+the
+World
+Change
+to
+Win
+CtW
+teamsters
+International
+Brotherhood
+of
+Teamsters
+IBT
+# Patterns
+
+# Name
+InspectionOrObservation
+# Paths
+Event/InspectionOrObservation
+# Examples
+inspection
+inspect
+observation
+listen
+summarization
+summary
+report
+pay
+attention
+information
+logic
+reasoning
+observe
+contemplation
+underlying
+property
+underlying
+value
+# Patterns
+
+# Name
+BiologicalHazard
+# Paths
+Event/EnvironmentalFactor/EnvironmentalHazard/BiologicalHazard
+# Examples
+biological
+hazard
+# Patterns
+
+# Name
+ResistanceRebellionOrUprising
+# Paths
+Event/ResistanceRebellionOrUprising
+# Examples
+resistance
+group
+rebellion
+resistance
+movement
+opposition
+rebellion
+violent
+resistance
+hostility
+insurgent
+revolutionist
+# Patterns
+
+# Name
+PolicyChange
+# Paths
+Event/PolicyChange
+# Examples
+policy
+change
+change
+in
+attitude
+change
+in
+perspective
+change
+in
+point
+of
+view
+change
+in
+principle
+reform
+change
+amend
+reorganize
+revise
+policy
+decision
+change
+in
+policy
+membership
+member
+of
+NATO
+utility
+privatisation
+change
+affecting
+politics
+possible
+change
+measures
+taken
+extra
+measures
+additional
+measures
+new
+measures
+# Patterns
+
+# Name
+Sabotage
+# Paths
+Event/DamageOrDestruction/Sabotage
+# Examples
+sabotage
+saboteur
+tamper
+# Patterns
+(?i)sabotage
+(?i)(destroy|damage|disrupt)(\w|\s)+(equipment)
+
+# Name
+Poverty
+# Paths
+Event/EconomicFactor/EconomicCondition/Poverty
+# Examples
+poverty
+poor
+economic
+situation
+not
+wealthy
+poor
+economic
+hardships
+bankruptcy
+famine
+lack
+of
+money
+lack
+of
+assets
+penniless
+below
+the
+poverty
+line
+# Patterns
+
+# Name
+AlertStatus
+# Paths
+Event/AlertStatus
+# Examples
+alert
+status
+red
+alert
+high
+alert
+state
+of
+alert
+alert
+state
+defcon
+threat
+level
+# Patterns
+(?i)(state)\s+(of)\s+(alert)
+(?i)(alert)\s+(state)
+(?i)(high)\s+(alert)
+
+# Name
+VaccinationProgram
+# Paths
+Event/Operation/VaccinationProgram
+Event/HealthAndDisease/VaccinationProgram
+# Examples
+vaccination
+operation
+# Patterns
+(?i)(vaccination)\s+(operation)
+
+# Name
+Merger
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Merger
+Event/CommissiveCommunication/AgreementOrPromise/FormalAgreement/Merger
+# Examples
+merger
+combination
+of
+two
+or
+more
+entities
+fuse
+takeover
+# Patterns
+
+# Name
+RespectForRightsFreedoms
+# Paths
+Event/RespectForRightsFreedoms
+# Examples
+respect
+for
+human
+rights
+and
+political
+freedoms
+empathy
+acceptance
+# Patterns
+
+# Name
+ExhibitionOfPower
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Influence/IntimidationAndCoercion/ExhibitionOfPower
+Event/DeclarativeCommunication/AccusationOrAssigningOfResponsibility/Influence/IntimidationAndCoercion/ExhibitionOfPower
+# Examples
+exhibition
+of
+power
+military
+maneuver
+missile
+test
+overflight
+military
+buildup
+deployment
+exercise
+joint
+strategic
+military
+exercise
+of
+the
+armed
+forces
+placement
+# Patterns
+
+# Name
+Compassion
+# Paths
+Event/Compassion
+# Examples
+compassion
+compassionate
+compassionateness
+sympathy
+sympathetic
+kindness
+kind
+humane
+treatment
+merciful
+mercy
+mercifulness
+# Patterns
+
+# Name
+EconomicInflation
+# Paths
+Event/EconomicFactor/EconomicCondition/EconomicInflation
+# Examples
+economic
+inflation
+inflation
+price
+increase
+price
+rise
+decrease
+in
+purchasing
+power
+increase
+in
+prices
+devaluation
+decline
+weakening
+weak
+currency
+# Patterns
+
+# Name
+CivilCampaign
+# Paths
+Event/Operation/CivilCampaign
+# Examples
+civil
+campaign
+neighborhood
+watch
+# Patterns
+
+# Name
+CommunicationConveyingEmpathy
+# Paths
+Event/CommunicationConveyingEmotion/CommunicationConveyingEmpathy
+# Examples
+communication
+conveying
+empathy
+empathic
+communication
+communication
+with
+empathy
+# Patterns
+
+# Name
+AlcoholDrugAndSubstanceAbuse
+# Paths
+Event/HealthAndDisease/AlcoholDrugAndSubstanceAbuse
+# Examples
+alcohol
+abuse
+drug
+abuse
+substance
+abuse
+# Patterns
+
+# Name
+Deception
+# Paths
+Event/Deception
+# Examples
+deception
+# Patterns
+
+# Name
+WeatherIssue
+# Paths
+Event/EnvironmentalFactor/WeatherIssue
+# Examples
+weather
+issue
+# Patterns
+
+# Name
+Permission
+# Paths
+Event/DirectiveCommunication/Permission
+# Examples
+permission
+approval
+grant
+allowed
+acceptance
+agreement
+endorsement
+permit
+accord
+allow
+give
+approval
+be
+allowed
+were
+allowed
+allowed
+was
+allowed
+# Patterns
+
+# Name
+TrespassOrIncursion
+# Paths
+Event/LocationChange/TrespassOrIncursion
+# Examples
+trespass
+incursion
+entering
+land
+without
+permission
+entering
+property
+without
+permission
+# Patterns
+(?i)\btrespass
+(?i)\bincursion
+
+# Name
+Visit
+# Paths
+Event/MeetingOrEncounter/Visit
+# Examples
+visit
+trip
+delegation
+business
+visit
+official
+visit
+travel
+voyage
+journey
+tour
+business
+travel
+foreign
+travel
+diplomatic
+visits
+tour
+# Patterns
+
+# Name
+Productivity
+# Paths
+Event/EconomicFactor/Productivity
+# Examples
+productivity
+productivity
+per
+person
+employed
+labor
+productivity
+labour
+productivity
+aggregate
+labor
+productivity
+efficiency
+of
+production
+total
+factor
+productivity
+total-factor
+productivity
+multi-factor
+productivity
+multifactor
+productivity
+business
+productivity
+national
+productivity
+# Patterns
+(?i)productivity
+(?i)\b([TM]FP)\b
+
+# Name
+Family
+# Paths
+Actor/GroupOfActors/GroupOfPersons/Family
+# Examples
+family
+nuclear
+family
+extended
+family
+blended
+family
+kin
+kinship
+group
+blood
+relatives
+# Patterns
+
+# Name
+InfectiousHumanDisease
+# Paths
+Event/HealthAndDisease/InfectiousHumanDisease
+# Examples
+infectious
+human
+disease
+AIDS
+cholera
+ebola
+HIV
+influenza
+hepatitis
+malaria
+measles
+meningitis
+polio
+flu
+SARS
+tuberculosis
+dengue
+fever
+smallpox
+diphtheria
+syphilis
+anthrax
+# Patterns
+(?i)\b(AIDS|anthrax|cholera|dengue|ebola|flu|HIV|influenza|malaria|measles|meningitis|polio|SARS|syphilis|smallpox)\b
+(?i)yellow\s+fever
+(?i)west\s+vile\s+virus
+
+# Name
+EconomicGrowth
+# Paths
+Event/ExpansionOrDevelopment/EconomicGrowth
+Event/EconomicFactor/EconomicGrowth
+# Examples
+economic
+growth
+economy
+grew
+global
+economic
+growth
+slow
+economic
+growth
+moderate
+economic
+growth
+national
+economic
+growth
+statewide
+economic
+growth
+economic
+prosperity
+economic
+growth
+rate
+prosperity
+generate
+surplus
+# Patterns
+(?i)(economic)(\s+)(growth)
+(?i)(per\s+capita\s+)?(GDP)(\s+)(growth)(\s+per\s+capita)?
+
+# Name
+Anti-Government
+# Paths
+Actor/Anti-Government
+# Examples
+anti-government
+conspiracy
+theory
+antigovernment
+anarchist
+anarchy
+revolution
+militia
+movement
+rebellion
+# Patterns
+(?i)\banti-?government\b
+
+# Name
+Volunteering
+# Paths
+Event/CommissiveCommunication/AgreementOrPromise/Volunteering
+# Examples
+volunteering
+volunteer
+service
+without
+pay
+free
+help
+freely
+undertake
+a
+task
+help
+without
+money
+# Patterns
+
+# Name
+CivilSocietyOrganization
+# Paths
+Actor/GroupOfActors/Organization/CivilSocietyOrganization
+# Examples
+civil
+society
+organization
+(cso)
+civil
+society
+organization
+labor
+union
+non-profit
+organization
+church
+charity
+activist
+group
+club
+community
+foundation
+cooperatives
+consumer
+organization
+# Patterns
+(?i)\bcso\b
+
+# Name
+Deployment
+# Paths
+Event/Deployment
+# Examples
+deployment
+stationing
+force
+movement
+deploy
+deployed
+troop
+deployment
+deployment
+of
+troops
+deployment
+of
+equipment
+equipment
+deployment
+# Patterns
+
+# Name
+JuryDeliberation
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/JuryDeliberation
+# Examples
+jury
+deliberation
+deliberation
+jury
+discussing
+the
+trial
+legal
+arguments
+decide
+the
+verdict
+# Patterns
+
+# Name
+Pro-Government
+# Paths
+Actor/Pro-Government
+# Examples
+pro-government
+government
+sponsored
+state-backed
+pro-government
+militia
+coalition
+government-organized
+demonstrations
+state
+demonstrations
+pro-government
+demonstration
+rally
+state
+owned
+media
+# Patterns
+(?i)\bPGMs?\b
+(?i)\bpro-?government\b
+
+# Name
+WaterManagement
+# Paths
+Event/HealthAndDisease/FoodWaterAndNutrition/WaterManagement
+Event/EnvironmentalFactor/NaturalResources/LandUse/WaterManagement
+Event/SocialCondition/LivingCondition/FoodWaterAndNutrition/WaterManagement
+# Examples
+water
+management
+# Patterns
+
+# Name
+Tourism
+# Paths
+Event/EconomicFactor/Tourism
+# Examples
+tourism
+travel
+tourist
+vacation
+ecotourism
+eco-tourism
+safari
+traveling
+for
+recreation
+backpacker
+tourism
+niche
+tourism
+sports
+tourism
+adventure
+tourism
+couchsurfing
+religious
+tourism
+# Patterns
+(?i)touris[mt]
+
+# Name
+Transparency
+# Paths
+Event/Transparency
+# Examples
+transparency
+# Patterns
+
+# Name
+FindingOfGuilty
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/LegalFinding/FindingOfGuilty
+# Examples
+finding
+of
+guilty
+guilty
+verdict
+convicted
+condemn
+sentence
+imprison
+culpable
+liable
+incarcerate
+jail
+# Patterns
+
+# Name
+Graduation
+# Paths
+Event/PersonalLifeEvent/Graduation
+Event/Ceremony/Graduation
+# Examples
+graduation
+graduation
+date
+graduation
+school
+exit
+examination
+graduation
+examination
+graduation
+day
+graduation
+party
+convocation
+invocation
+graduation
+ceremony
+graduation
+night
+university
+graduation
+receive
+of
+diploma
+degree
+completion
+# Patterns
+
+# Name
+LegalEvent
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent
+# Examples
+legal
+event
+# Patterns
+
+# Name
+EconomicFactor
+# Paths
+Event/EconomicFactor
+# Examples
+economic
+factor
+# Patterns
+(?i)(economic)\s+(factor)
+
+# Name
+Revenue
+# Paths
+Event/EconomicFactor/Revenue
+# Examples
+revenue
+government
+revenue
+tax
+revenue
+business
+revenue
+sales
+turnover
+income
+repair
+service
+revenue
+rent
+revenue
+earned
+# Patterns
+(?i)revenue
+
+# Name
+ExplosiveHazard
+# Paths
+Event/EnvironmentalFactor/EnvironmentalHazard/ExplosiveHazard
+# Examples
+explosive
+hazard
+# Patterns
+
+# Name
+BlockadeOrRestrictionOfMovement
+# Paths
+Event/ReductionRestrictionOrRemoval/BlockadeOrRestrictionOfMovement
+Event/Access/BlockadeOrRestrictionOfMovement
+# Examples
+blockade
+or
+restriction
+of
+movement
+# Patterns
+
+# Name
+Peace
+# Paths
+Event/SocialCondition/LivingCondition/Peace
+# Examples
+peace
+# Patterns
+
+# Name
+Ownership
+# Paths
+Event/Ownership
+# Examples
+ownership
+own
+possession
+holding
+property
+takeover
+hold
+proprietary
+proprietorship
+possessorship
+proprietary
+rights
+# Patterns
+
+# Name
+Confusion
+# Paths
+Event/Confusion
+# Examples
+confusion
+disorientation
+perplexity
+bewilderment
+clutter
+# Patterns
+
+# Name
+Stasis
+# Paths
+Event/Stasis
+# Examples
+stasis
+# Patterns
+
+# Name
+EthnicCleansing
+# Paths
+Event/EthnicCleansing
+# Examples
+ethnic
+cleansing
+ethnic
+removal
+removal
+of
+ethnic
+removal
+of
+ethnic
+with
+violence
+holocaust
+expulsion
+of
+population
+genocide
+removal
+of
+population
+population
+displacement
+# Patterns
+
+# Name
+MilitaryDeescalation
+# Paths
+Event/MilitaryFactor/MilitaryDeescalation
+Event/ReductionRestrictionOrRemoval/Deescalation/MilitaryDeescalation
+# Examples
+military
+de-escalation
+military
+deescalation
+de-escalation
+reduction
+of
+military
+conflict
+ceasefire
+truce
+amnesty
+# Patterns
+(?i)military(\s\w)+de-?escalat
+(?i)de-?escalat(\s\w)+(conflict)
+
+# Name
+EnvironmentalFactor
+# Paths
+Event/EnvironmentalFactor
+# Examples
+environmental
+factor
+# Patterns
+
+# Name
+Departure
+# Paths
+Event/LocationChange/Departure
+# Examples
+departure
+leaving
+evacuation
+exit
+exodus
+departure
+retreat
+leave
+home
+leave
+the
+country
+people
+have
+left
+have
+left
+# Patterns
+
+# Name
+DemonstrationOrProtest
+# Paths
+Event/MeetingOrEncounter/DemonstrationOrProtest
+# Examples
+demonstration
+or
+protest
+# Patterns
+
+# Name
+EnvironmentalProtection
+# Paths
+Event/EnvironmentalFactor/EnvironmentalProtection
+Event/ProtectionOrPreservation/EnvironmentalProtection
+# Examples
+environmental
+protection
+sustainability
+sustainable
+conservation
+recycling
+recycle
+reforest
+reforestation
+revegetation
+land
+rehabilitation
+prairie
+restoration
+cleanup
+clean-up
+environmental
+regulation
+environmental
+management
+carbon
+sequestration
+carbon
+offset
+biosequestration
+mitigation
+# Patterns
+(?i)(environmental)\s+(protection)
+
+# Name
+SupportSystemOrNetwork
+# Paths
+Actor/GroupOfActors/SupportSystemOrNetwork
+# Examples
+support
+system
+support
+network
+backers
+# Patterns
+(?i)(support)\s+(system)
+
+# Name
+InterGovernmentalOrganization
+# Paths
+Actor/GroupOfActors/Organization/InterGovernmentalOrganization
+# Examples
+inter-governmental
+organization
+Council
+of
+Europe
+European
+Union
+EU
+eu
+E.U.
+Commonwealth
+of
+Independent
+Statezs
+CIS
+cis
+C.I.S.
+African
+Union
+NATO
+nato
+N.A.T.O.
+North
+Atlantic
+Treaty
+Organization
+Warsaw
+Pact
+United
+Nations
+UN
+un
+U.N.
+Arab
+League
+World
+Trade
+Organization
+WTO
+wto
+OPEC
+opec
+ASEAN
+asean
+League
+of
+Nations
+European
+Economic
+Community
+EEC
+E.E.C.
+European
+Community
+Organization
+of
+American
+States
+Commonwealth
+of
+Nations
+# Patterns
+
+# Name
+Escape
+# Paths
+Event/Escape
+# Examples
+escape
+free
+capture
+detained
+breakout
+freedom
+rescue
+liberation
+# Patterns
+
+# Name
+Tsunami
+# Paths
+Event/EnvironmentalFactor/NaturalDisaster/Tsunami
+# Examples
+tsunami
+tidal
+wave
+giant
+sea
+swell
+giant
+wave
+seismic
+sea
+wave
+seismic
+sea-wave
+megatsunami
+water
+quake
+seaquake
+sea-quake
+tunami
+meteotsunami
+meteorological
+tsunami
+# Patterns
+
+# Name
+Imprisonment
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Imprisonment
+# Examples
+imprisonment
+captivity
+custody
+incarceration
+# Patterns
+
+# Name
+Attack
+# Paths
+Event/Aggression/Violence/Attack
+# Examples
+attack
+bombard
+clash
+assault
+combat
+crossfire
+invasion
+massacre
+bombardment
+strike
+shelling
+incursion
+aggression
+# Patterns
+
+# Name
+ReligiousCeremonyOrWorship
+# Paths
+Event/Ceremony/ReligiousCeremonyOrWorship
+# Examples
+religious
+ceremony
+or
+worship
+religious
+ceremony
+religious
+worship
+liturgy
+church
+service
+religious
+rites
+# Patterns
+
+# Name
+Autocracy
+# Paths
+Event/PoliticalFactor/GovernmentalFactor/Autocracy
+# Examples
+autocracy
+autocratic
+authoritarian
+authoritarianism
+despot
+despotic
+despotism
+absolutism
+dictator
+dictatorship
+dictatorial
+czarism
+tsarism
+tzarism
+# Patterns
+
+# Name
+ApprehensionAnxietyFearOrWorry
+# Paths
+Event/ApprehensionAnxietyFearOrWorry
+# Examples
+fear
+anxiety
+concern
+apprehension
+worry
+doubt
+horror
+panic
+terror
+# Patterns
+(?i)\b(anxiety|fear)\b
+
+# Name
+CollapsedStructure
+# Paths
+Event/StructuralDamage/CollapsedStructure
+# Examples
+collapsed
+structure
+collapsed
+building
+collapsed
+structure
+collapsed
+bridge
+demolition
+explosion
+# Patterns
+
+# Name
+Retreat
+# Paths
+Event/ReductionRestrictionOrRemoval/Retreat
+# Examples
+retreat
+retreated
+withdrawl
+of
+troops
+troop
+withdrawal
+pull
+troops
+out
+pull
+out
+troops
+military
+withdrawal
+escape
+enemy
+forces
+withdraw
+troops
+# Patterns
+
+# Name
+Wages
+# Paths
+Event/EconomicFactor/Wages
+# Examples
+wages
+monetary
+compensation
+remuneration
+task
+wage
+wage
+labour
+wage
+labor
+wage
+rate
+minimum
+wage
+salary
+overtime
+time
+and
+a
+half
+# Patterns
+(?i)\b(wages?)\b
+(?i)\b(salar(y|ies))
+
+# Name
+PraisingOrEndorsing
+# Paths
+Event/DeclarativeCommunication/DefenseOrSupport/PraisingOrEndorsing
+# Examples
+advocate
+affirm
+applaud
+approve
+commend
+compliments
+confirm
+defend
+endorse
+favor
+praising
+endorsing
+recommend
+support
+recognize
+recognition
+# Patterns
+
+# Name
+WarCrime
+# Paths
+Event/WarCrime
+# Examples
+war
+crime
+war
+criminal
+violate
+the
+laws
+of
+war
+torture
+kill
+civilians
+kill
+prisoners
+destroy
+civilian
+property
+perfidy
+# Patterns
+(?i)(war)\s+(crim(e|inal))
+
+# Name
+Operation
+# Paths
+Event/Operation
+# Examples
+operation
+mission
+# Patterns
+
+# Name
+LandUse
+# Paths
+Event/EnvironmentalFactor/NaturalResources/LandUse
+# Examples
+# Patterns
+
+# Name
+Malnutrition
+# Paths
+Event/HealthAndDisease/FoodWaterAndNutrition/Malnutrition
+Event/SocialCondition/LivingCondition/FoodWaterAndNutrition/Malnutrition
+# Examples
+malnutrition
+# Patterns
+
+# Name
+TropicalStorm
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/HighWind/TropicalStorm
+Event/EnvironmentalFactor/WeatherIssue/Storm/TropicalStorm
+Event/EnvironmentalFactor/NaturalDisaster/TropicalStorm
+# Examples
+tropical
+storm
+# Patterns
+(?i)(tropical)\s+(storm)
+
+# Name
+CyberDefense
+# Paths
+Event/Operation/InformationOperation/CyberDefense
+Event/InformationHandling/InformationOperation/CyberDefense
+# Examples
+cyber
+defense
+cyberdefense
+cyber-defense
+cyber
+security
+cybersecurity
+cyber-security
+protect
+cyberspace
+# Patterns
+(?i)cyber[ -]?defen[sc]e
+(?i)cyber[ -]?security
+
+# Name
+DisapprovalOrDenunciation
+# Paths
+Event/DeclarativeCommunication/DisapprovalOrDenunciation
+# Examples
+disapproval
+or
+denunciation
+# Patterns
+
+# Name
+MilitaryCampaignOrOperation
+# Paths
+Event/MilitaryFactor/MilitaryCampaignOrOperation
+Event/Operation/MilitaryCampaignOrOperation
+# Examples
+military
+campaign
+military
+operation
+# Patterns
+(?i)(military)\s+(campaign)
+
+# Name
+MissingPersons
+# Paths
+Event/MissingPersons
+# Examples
+missing
+persons
+# Patterns
+(?i)(missing)(\s|\w)+(person)
+
+# Name
+InfrastructureAndUtilities
+# Paths
+Event/InfrastructureAndUtilities
+# Examples
+infrastructure
+and
+utilities
+railway
+roads
+bridge
+electric
+water
+sewer
+rail
+modernization
+transportation
+border
+post
+# Patterns
+
+# Name
+Donation
+# Paths
+Event/Donation
+# Examples
+donation
+donate
+gift
+give
+charitable
+giving
+donated
+supplies
+# Patterns
+
+# Name
+Attempt
+# Paths
+Event/Modifier/Attempt
+# Examples
+attempt
+charging
+ahead
+drive
+effort
+help
+push
+pushing
+for
+seek
+struggling
+tackle
+try
+undertake
+# Patterns
+(?i)\battempt
+(?i)\beffort
+(?i)\bseek
+(?i)\btrie
+(?i)\btry
+
+# Name
+ProvisionOfMilitaryAid
+# Paths
+Event/MilitaryFactor/ProvisionOfMilitaryAid
+Event/ProvisionOfAid/ProvisionOfMilitaryAid
+# Examples
+provide
+military
+aid
+military
+aid
+security
+assistance
+mililitary
+assistance
+# Patterns
+(?i)\b(military)\s+(aid|assistance)\b
+
+# Name
+Strike
+# Paths
+Event/Strike
+# Examples
+strike
+# Patterns
+
+# Name
+Frustration
+# Paths
+Event/Frustration
+# Examples
+frustration
+frustrated
+exasperated
+# Patterns
+
+# Name
+PhysicalMeasurement
+# Paths
+Event/PhysicalMeasurement
+# Examples
+physical
+measurement
+percentage
+# Patterns
+(?i)\b(physical)\s+(measurement)
+
+# Name
+PoliticalReform
+# Paths
+Event/PoliticalFactor/PoliticalReform
+# Examples
+political
+reform
+parliamentary
+reform
+# Patterns
+
+# Name
+DiplomaticRecognition
+# Paths
+Event/DiplomaticRecognition
+# Examples
+diplomatic
+recognition
+recognize
+acknowledge
+independence
+sovereign
+sovereignty
+# Patterns
+
+# Name
+AgeDemographic
+# Paths
+Event/Demographic/AgeDemographic
+# Examples
+age
+demographic
+children
+adults
+adolescents
+infants
+youth
+minors
+teenagers
+teens
+toddlers
+elderly
+seniors
+school-age
+children
+young
+adults
+# Patterns
+
+# Name
+MurderOrHomicide
+# Paths
+Event/Aggression/Violence/MurderOrHomicide
+Event/PersonalLifeEvent/Death/MurderOrHomicide
+# Examples
+murder
+or
+homicide
+killing
+# Patterns
+
+# Name
+Maintenance
+# Paths
+Event/Maintenance
+# Examples
+maintenance
+upgrade
+work
+update
+maintain
+repair
+improve
+building
+infrastructure
+conserve
+preserve
+keep
+up
+preventative
+maintenance
+corrective
+maintenance
+# Patterns
+(?i)\b(maintain)
+
+# Name
+Flood
+# Paths
+Event/EnvironmentalFactor/NaturalDisaster/Flood
+# Examples
+flood
+spring
+flood
+large-scale
+flood
+flash
+flood
+100-year
+flood
+major
+flood
+annual
+flood
+river
+flood
+riverine
+flood
+estuarine
+flood
+coastal
+flood
+severe
+flood
+inland
+flood
+urban
+flood
+hurricane
+flood
+catastrophic
+flood
+storm
+flood
+flooding
+spring
+flooding
+large-scale
+flooding
+flash
+flooding
+100-year
+flooding
+major
+flooding
+annual
+flooding
+river
+flooding
+riverine
+flooding
+estuarine
+flooding
+coastal
+flooding
+severe
+flooding
+inland
+flooding
+urban
+flooding
+hurricane
+flooding
+catastrophic
+flooding
+storm
+flooding
+inundation
+storm
+surge
+tidal
+surge
+storm
+tide
+# Patterns
+
+# Name
+Pilgrimage
+# Paths
+Event/LocationChange/PersonalOrPassengerTransportation/Pilgrimage
+# Examples
+pilgrimage
+crusade
+excursion
+sacred
+tour
+sacred
+mission
+# Patterns
+
+# Name
+ProvisionOfProtectionOrPeacekeepers
+# Paths
+Event/ProvisionOfAid/ProvisionOfProtectionOrPeacekeepers
+# Examples
+provision
+of
+protection
+provision
+of
+peacekeepers
+providing
+UN
+peacekeeping
+units
+sending
+peacekeeping
+units
+providing
+protection
+sending
+protection
+# Patterns
+
+# Name
+Interview
+# Paths
+Event/ExploratoryCommunication/Interview
+# Examples
+interview
+job
+interview
+exit
+interview
+telephone
+interview
+skype
+interview
+online
+interview
+question-and-answer
+q&a
+q-and-a
+# Patterns
+
+# Name
+CommunicationConveyingOptimism
+# Paths
+Event/CommunicationConveyingEmotion/CommunicationConveyingOptimism
+# Examples
+communication
+conveying
+optimism
+optimism
+hope
+confidence
+desire
+expectation
+anticipation
+faith
+message
+of
+freedom
+# Patterns
+
+# Name
+LimnicEruption
+# Paths
+Event/EnvironmentalFactor/NaturalDisaster/LimnicEruption
+# Examples
+limnic
+eruption
+# Patterns
+
+# Name
+AbductionHostageTakingOrHijacking
+# Paths
+Event/AbductionHostageTakingOrHijacking
+# Examples
+abduction
+abducting
+abducted
+abduct
+hostage
+taking
+hijacking
+hijacked
+hijack
+kidnapping
+kidnapped
+kidnap
+hostage
+situation
+hostages
+hostage
+crisis
+# Patterns
+
+# Name
+TradeBalance
+# Paths
+Event/EconomicFactor/ImportAndExport/TradeBalance
+# Examples
+trade
+balance
+balance
+of
+trade
+commercial
+balance
+net
+exports
+trade
+surplus
+trade
+deficit
+exchange
+goods
+service
+exchange
+# Patterns
+(?i)\bNX\b
+(?i)(trade)\s+(balance)
+(?i)(balance)\s+(of)\s+(trade)
+(?i)\b(net)\s+(export)
+
+# Name
+ConservationLandUse
+# Paths
+Event/ProtectionOrPreservation/ConservationLandUse
+Event/EnvironmentalFactor/NaturalResources/LandUse/ConservationLandUse
+# Examples
+conservation
+land
+use
+conserve
+habitats
+conservation
+easement
+permanent
+preservation
+area
+conservation
+designation
+mitigate
+sustainable
+agriculture
+# Patterns
+
+# Name
+RequestOrAppealForAsylum
+# Paths
+Event/RequestOrAppeal/RequestOrAppealForAsylum
+# Examples
+request
+for
+asylum
+appeal
+for
+asylum
+seeking
+asylum
+sought
+asylum
+asylum-seeking
+asylum
+seeker
+ask
+for
+diplomatic
+asylum
+request
+sanctuary
+appeal
+for
+safe
+harbor
+# Patterns
+(?i)(asylum)\s+(seek)
+(?i)(seek|sought)(\s|\w)+(asylum)
+
+# Name
+Violence
+# Paths
+Event/Aggression/Violence
+# Examples
+violence
+# Patterns
+
+# Name
+Shortage
+# Paths
+Event/Shortage
+# Examples
+shortage
+unavailability
+unavailable
+scarcity
+scarce
+deficit
+deficits
+shortfall
+dearth
+deficiency
+lack
+lacking
+limited
+inadequate
+level
+inadequate
+# Patterns
+(?i)shortage
+
+# Name
+ArrestOrDetention
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/ArrestOrDetention
+# Examples
+arrest
+detention
+behind
+bars
+detention
+conviction
+in
+custody
+imprisonment
+incarceration
+jailing
+custory
+# Patterns
+
+# Name
+DefyingLawsNormsDirectives
+# Paths
+Event/DefyingLawsNormsDirectives
+# Examples
+defying
+laws
+norms
+directives
+# Patterns
+
+# Name
+EconomicOpportunity
+# Paths
+Event/EconomicFactor/EconomicOpportunity
+# Examples
+economic
+opportunity
+investment
+contribution
+financing
+loan
+purchase
+interest
+rate
+profitability
+economic
+advantage
+# Patterns
+
+# Name
+NaturalResources
+# Paths
+Event/EnvironmentalFactor/NaturalResources
+# Examples
+natural
+resources
+coal
+fossil
+fuels
+wind
+solar
+power
+air
+oil
+natural
+gas
+# Patterns
+
+# Name
+EspionageOrTreason
+# Paths
+Event/EspionageOrTreason
+# Examples
+espionage
+or
+treason
+spying
+illicitly
+obtained
+information
+treason
+treachery
+betrayal
+surveillance
+bugging
+# Patterns
+(?i)espionage
+(?i)treason
+
+# Name
+ChemicalUse
+# Paths
+Event/ChemicalUse
+# Examples
+chemical
+use
+combustion
+pesticide
+combination
+single
+displacement
+redox
+synthesis
+# Patterns
+
+# Name
+AdvocacyGroup
+# Paths
+Actor/GroupOfActors/Organization/AdvocacyGroup
+# Examples
+advocacy
+group
+pressure
+groups
+lobby
+groups
+campaign
+groups
+interest
+groups
+special
+interest
+groups
+influent
+group
+people
+with
+influence
+# Patterns
+
+# Name
+Wildfire
+# Paths
+Event/Fire/Wildfire
+Event/EnvironmentalFactor/NaturalDisaster/Wildfire
+# Examples
+wildfire
+wild-fire
+wildland
+fire
+rural
+fire
+brush
+fire
+bush
+fire
+bushfire
+canyon
+fire
+desert
+fire
+forest
+fire
+grass
+fire
+hill
+fire
+peat
+fire
+prairie
+fire
+vegetation
+fire
+veld
+fire
+catastrophic
+wildfire
+rural
+wildfire
+high-severity
+wildfire
+# Patterns
+
+# Name
+Person
+# Paths
+Actor/Person
+# Examples
+person
+individual
+citizen
+chief
+commissioner
+reporter
+journalist
+scientist
+politician
+owner
+man
+woman
+child
+# Patterns
+
+# Name
+GoverningDirective
+# Paths
+Event/PoliticalFactor/GoverningDirective
+# Examples
+governing
+directive
+directive
+law
+illegal
+policy
+regulation
+regulate
+statute
+legally
+required
+legal
+requirement
+tort
+delict
+# Patterns
+
+# Name
+PaymentOrRepayment
+# Paths
+Event/PaymentOrRepayment
+# Examples
+payment
+pay
+repayment
+repay
+reimbursement
+refund
+refundment
+remuneration
+restitution
+compensation
+# Patterns
+
+# Name
+Crew
+# Paths
+Actor/GroupOfActors/GroupOfPersons/Crew
+# Examples
+crew
+team
+unit
+squad
+crew
+members
+ship
+crew
+ambulance
+crew
+cabin
+crew
+flight
+crew
+air
+crew
+shooting
+crew
+TV
+crew
+ground
+crew
+tank
+crew
+camera
+crew
+submarine
+crew
+# Patterns
+
+# Name
+Demobilization
+# Paths
+Event/ReductionRestrictionOrRemoval/Demobilization
+# Examples
+demobilization
+demobilisation
+demilitarization
+demilitarisation
+withdrawal
+of
+forces
+disarmament
+transition
+to
+peacetime
+release
+from
+active
+duty
+# Patterns
+
+# Name
+BranchOfGovernment
+# Paths
+Actor/GroupOfActors/Organization/BranchOfGovernment
+# Examples
+branch
+of
+government
+bureau
+parts
+of
+federal
+government
+government
+branch
+# Patterns
+
+# Name
+PoliticalDissent
+# Paths
+Event/PoliticalFactor/PoliticalDissent
+# Examples
+political
+dissent
+protest
+protester
+political
+demonstration
+peace
+march
+protest
+march
+# Patterns
+
+# Name
+InsectInfestation
+# Paths
+Event/EnvironmentalFactor/InsectInfestation
+# Examples
+insect
+infestation
+# Patterns
+
+# Name
+StructuralDamage
+# Paths
+Event/StructuralDamage
+# Examples
+structural
+damage
+structural
+integrity
+damage
+# Patterns
+
+# Name
+Competition
+# Paths
+Event/Competition
+# Examples
+competition
+sporting
+event
+challenge
+economic
+competition
+game
+race
+rivalry
+# Patterns
+
+# Name
+Demand
+# Paths
+Event/Modifier/StrongOrIntense/Demand
+Event/RequestOrAppeal/Demand
+# Examples
+demand
+# Patterns
+
+# Name
+Illness
+# Paths
+Event/HealthAndDisease/Illness
+# Examples
+illness
+sickness
+disease
+epidemic
+flu
+pandemic
+endemic
+human
+population
+outbreak
+HIV
+aids
+ebola
+fever
+# Patterns
+
+# Name
+SexualAssault
+# Paths
+Event/Aggression/Violence/Attack/PhysicalAssault/SexualAssault
+# Examples
+sexual
+assault
+rape
+groping
+abuse
+sexual
+abuse
+torture
+in
+a
+sexual
+manner
+molestation
+violation
+harassment
+# Patterns
+
+# Name
+PreparednessOrCapability
+# Paths
+Event/PreparednessOrCapability
+# Examples
+preparedness
+ready
+readiness
+capability
+capable
+ability
+able
+capacity
+building
+mobility
+knowhow
+know-how
+expertise
+# Patterns
+(?i)prepared
+(?i)capab(le|ility)
+
+# Name
+SanitaryConditions
+# Paths
+Event/SocialCondition/LivingCondition/SanitaryConditions
+# Examples
+sanitary
+conditions
+# Patterns
+
+# Name
+Contentment
+# Paths
+Event/Happiness/Contentment
+# Examples
+contentment
+content
+calmness
+comfortable
+comfort
+satisfaction
+satisfied
+happiness
+happy
+pleased
+please
+# Patterns
+(?i)\bpleased\b
+
+# Name
+Tornado
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/HighWind/Tornado
+Event/EnvironmentalFactor/WeatherIssue/Storm/Tornado
+Event/EnvironmentalFactor/NaturalDisaster/Tornado
+# Examples
+tornado
+# Patterns
+
+# Name
+SystemicExploitation
+# Paths
+Event/SocialCondition/SystemicExploitation
+# Examples
+systemic
+exploitation
+exploitation
+exploiting
+profiteering
+exploit
+# Patterns
+
+# Name
+GroundCollapse
+# Paths
+Event/EnvironmentalFactor/NaturalDisaster/GroundCollapse
+# Examples
+ground
+collapse
+# Patterns
+
+# Name
+Purchasing
+# Paths
+Event/Purchasing
+# Examples
+purchasing
+purchase
+buy
+acquire
+invest
+redeem
+shop
+get
+obtain
+procure
+# Patterns
+
+# Name
+Cooperation
+# Paths
+Event/Cooperation
+# Examples
+cooperation
+cooperate
+collaboration
+collaborate
+partnership
+partner
+association
+team
+work
+working
+together
+good
+relation
+relation
+between
+# Patterns
+(?i)\bcooperat(ed?|i(on|ng))\b
+
+# Name
+FinancialDeposit
+# Paths
+Event/FinancialEvent/FinancialDeposit
+# Examples
+financial
+deposit
+deposit
+put
+money
+into
+a
+bank
+payment
+deposit
+funding
+bank
+deposit
+fixed
+deposit
+re-investment
+deposit
+cash
+deposit
+# Patterns
+
+# Name
+Innovation
+# Paths
+Event/Innovation
+# Examples
+innovation
+funding
+increases
+innovation
+government
+policies
+affect
+innovation
+innovation
+is
+driven
+by
+necessity
+modernization
+funding
+affects
+innovation
+lack
+of
+funding
+suppress
+innovation
+paradigm
+shift
+# Patterns
+(?i)\b(innovation|prototype)s?\b
+
+# Name
+PersonalLifeEvent
+# Paths
+Event/PersonalLifeEvent
+# Examples
+personal
+life
+event
+life
+changing
+event
+# Patterns
+
+# Name
+CommunicationConveyingPessimism
+# Paths
+Event/CommunicationConveyingEmotion/CommunicationConveyingPessimism
+# Examples
+communication
+conveying
+pessimism
+dismay
+for
+the
+future
+pessimism
+tendency
+to
+see
+the
+worst
+cynicism
+despair
+distrust
+hopelessness
+doubt
+pity
+# Patterns
+
+# Name
+SpaceEvent
+# Paths
+Event/SpaceEvent
+# Examples
+space
+event
+# Patterns
+
+# Name
+CultureTransformationOrLoss
+# Paths
+Event/ArtsAndCulture/CultureTransformationOrLoss
+# Examples
+culture
+transformation
+or
+loss
+# Patterns
+
+# Name
+ExperimentOrTest
+# Paths
+Event/ExperimentOrTest
+# Examples
+experiment
+or
+test
+# Patterns
+
+# Name
+AdministrativeSanctions
+# Paths
+Event/ReductionRestrictionOrRemoval/Sanctions/AdministrativeSanctions
+# Examples
+administrative
+sanctions
+# Patterns
+(?i)(administrative)\s+(sanction)
+
+# Name
+Import
+# Paths
+Event/EconomicFactor/Import
+# Examples
+import
+importation
+reimport
+reimportation
+# Patterns
+(?i)\b(re-?)?import(s|ed|ing|ation)\b
+
+# Name
+Commanding
+# Paths
+Event/DirectiveCommunication/Commanding
+# Examples
+commanding
+orders
+instructions
+commands
+direction
+request
+rule
+plan
+# Patterns
+
+# Name
+Torture
+# Paths
+Event/Aggression/Violence/Torture
+# Examples
+torture
+rack
+torment
+persecution
+extract
+information
+through
+torture
+# Patterns
+
+# Name
+ContaminatedWater
+# Paths
+Event/HealthAndDisease/FoodWaterAndNutrition/ContaminatedWater
+Event/SocialCondition/LivingCondition/FoodWaterAndNutrition/ContaminatedWater
+Event/EnvironmentalFactor/EnvironmentalHazard/ContaminatedWater
+# Examples
+contaminated
+Water
+unsafe
+water
+lack
+of
+clean
+water
+unpotable
+water
+dirty
+water
+poisoned
+water
+polluted
+water
+# Patterns
+
+# Name
+Restoration
+# Paths
+Event/ReturnOrRelease/Restoration
+# Examples
+restoration
+restore
+object
+restore
+property
+reclamation
+recovery
+original
+owner
+recovery
+pay
+debt
+restore
+# Patterns
+(?i)\b(restor)
+
+# Name
+ReturnOrRelease
+# Paths
+Event/ReturnOrRelease
+# Examples
+return
+or
+release
+# Patterns
+
+# Name
+IntelligenceGathering
+# Paths
+Event/InformationHandling/IntelligenceGathering
+# Examples
+intelligence
+gathering
+# Patterns
+(?i)intelligence\s+gathering
+(?i)gather(ed|s|ing)?\s+intelligence
+
+# Name
+SponsorOrHost
+# Paths
+Event/SponsorOrHost
+# Examples
+sponsor
+host
+providing
+leadership
+resource
+provider
+providing
+facilities
+backer
+patron
+benefactor
+presenter
+# Patterns
+
+# Name
+HumanitarianCrisis
+# Paths
+Event/EnvironmentalFactor/HumanitarianCrisis
+# Examples
+humanitarian
+crisis
+refugee
+crisis
+ongoing
+crisis
+humanitarian
+situation
+humanatarian
+catastrophe
+humanitarian
+disaster
+# Patterns
+
+# Name
+EconomicCondition
+# Paths
+Event/EconomicFactor/EconomicCondition
+# Examples
+economic
+condition
+macroeconomic
+variables
+macroeconomic
+conditions
+economic
+outlook
+economic
+trend
+economic
+pressure
+fiscal
+prosperity
+fiscal
+headroom
+# Patterns
+
+# Name
+Congratulation
+# Paths
+Event/CommunicationConveyingEmotion/CommunicationConveyingEmpathy/Congratulation
+# Examples
+congratulation
+acknowledgment
+laud
+praise
+compliment
+felicitate
+celebrate
+commend
+endorse
+to
+laude
+# Patterns
+
+# Name
+Immigration
+# Paths
+Event/LocationChange/ChangeOfResidence/Immigration
+# Examples
+immigration
+exodus
+moving
+to
+a
+new
+location
+movement
+to
+a
+new
+country
+# Patterns
+(?i)\bexodus
+
+# Name
+CropFailure
+# Paths
+Event/EnvironmentalFactor/CropFailure
+# Examples
+crop
+failure
+loss
+of
+crops
+decimated
+crop
+yields
+failure
+of
+crops
+decimated
+crops
+crop
+loss
+# Patterns
+(?i)(crop)\s+(failure)
+(?i)(crop)\s+(loss)
+(?i)(decimated)\s+(crops?)
+(?i)(loss)\s+(of)\s+(crops?)
+(?i)(failure)\s+(of)\s+(crops?)
+
+# Name
+Ceremony
+# Paths
+Event/Ceremony
+# Examples
+ceremony
+parade
+formality
+# Patterns
+
+# Name
+RallyingSupport
+# Paths
+Event/DeclarativeCommunication/DefenseOrSupport/RallyingSupport
+# Examples
+rallying
+support
+# Patterns
+
+# Name
+Annoyance
+# Paths
+Event/Annoyance
+# Examples
+annoyance
+annoy
+irk
+dismay
+aggravate
+bother
+exasperate
+irritate
+agitate
+pester
+# Patterns
+(?i)\b(annoy)
+
+# Name
+FormalAgreement
+# Paths
+Event/CommissiveCommunication/AgreementOrPromise/FormalAgreement
+# Examples
+formal
+agreement
+signed
+agreement
+pact
+# Patterns
+
+# Name
+ManufacturingCreatingOrBuilding
+# Paths
+Event/ManufacturingCreatingOrBuilding
+# Examples
+manufacturing,
+creating
+or
+building
+# Patterns
+
+# Name
+MedicalEmergency
+# Paths
+Event/PersonalLifeEvent/MedicalEmergency
+# Examples
+medical
+emergency
+near-fatal
+life
+threatening
+injuries
+heart
+attack
+stroke
+hypothermia
+shock
+trauma
+hospitalization
+respiratory
+failure
+poisoning
+ambulance
+# Patterns
+
+# Name
+OrganizationalUnit
+# Paths
+Actor/GroupOfActors/Organization/OrganizationalUnit
+# Examples
+organizational
+unit
+department
+team
+work
+team
+division
+project
+team
+group
+strategic
+business
+unit
+business
+unit
+sales
+team
+marketing
+team
+finance
+team
+R&D
+research
+and
+development
+research
+&
+development
+production
+team
+branch
+subdivision
+# Patterns
+
+# Name
+Fire
+# Paths
+Event/Fire
+# Examples
+fire
+set
+fire
+catch
+fire
+flame
+burn
+# Patterns
+
+# Name
+DecisionOrRecommendation
+# Paths
+Event/DeclarativeCommunication/DecisionOrRecommendation
+# Examples
+decision
+recommendation
+decide
+recommend
+proposal
+propose
+choose
+approve
+approval
+adopt
+resolution
+# Patterns
+
+# Name
+LifeExpenctancy
+# Paths
+Event/Demographic/LifeExpenctancy
+# Examples
+life
+expectancy
+life
+expectancy
+at
+birth
+LEB
+cohort
+life
+expectancy
+at
+birth
+cohort
+LEB
+period
+life
+expectancy
+at
+birth
+period
+LEB
+longevity
+average
+lifespan
+maximum
+lifespan
+life
+span
+lifespan
+# Patterns
+
+# Name
+EconomicDepression
+# Paths
+Event/EconomicFactor/EconomicCondition/EconomicDepression
+# Examples
+depression
+economic
+depression
+the
+great
+depression
+great
+recession
+recession
+collapse
+decline
+hard
+times
+deflation
+unemployment
+# Patterns
+
+# Name
+Riot
+# Paths
+Event/Aggression/Violence/Riot
+Event/MeetingOrEncounter/DemonstrationOrProtest/Riot
+# Examples
+riot
+violent
+protest
+uprising
+revolt
+rebellion
+public
+disturbance
+violent
+public
+disturbance
+rampage
+revolution
+uproar
+instigation
+incite
+street
+fighting
+street
+violence
+protest
+violent
+protest
+turmoil
+# Patterns
+
+# Name
+ExpressionOfCondolenceOrSympathy
+# Paths
+Event/CommunicationConveyingEmotion/CommunicationConveyingEmpathy/ExpressionOfCondolenceOrSympathy
+# Examples
+expression
+of
+condolence
+expression
+of
+sympathy
+empathy
+sympathy
+compassion
+warmth
+kindness
+understanding
+condolence
+consolation
+# Patterns
+
+# Name
+ProvisionOfEconomicAid
+# Paths
+Event/ProvisionOfAid/ProvisionOfEconomicAid
+# Examples
+provision
+of
+economic
+aid
+foreign
+funds
+bailout
+economic
+bailout
+EU
+funding
+fiscal
+stimulus
+economic
+assistance
+influx
+of
+funds
+inflow
+of
+funds
+monetary
+stimulus
+stimulus
+package
+economic
+aid
+# Patterns
+
+# Name
+Sanctions
+# Paths
+Event/ReductionRestrictionOrRemoval/Sanctions
+# Examples
+sanctions
+# Patterns
+
+# Name
+SearchAndRescue
+# Paths
+Event/RecoveryOrRescue/SearchAndRescue
+Event/Investigation/SearchAndRescue
+Event/Operation/SearchAndRescue
+# Examples
+search
+and
+rescue
+operation
+search-and-rescue
+operation
+air-sea
+rescue
+combat
+search
+and
+rescue
+searching
+for
+distressed
+persons
+rescue
+workers
+mountain
+rescue
+maritime
+rescue
+# Patterns
+(?i)(search)[\s-]+(and)[\s-]+(rescue)
+(?i)\b(SAR)\s+(op(eration)?s?)\b
+(?i)\b(SAROPS)\b
+
+# Name
+ElectromagneticRadiationHazard
+# Paths
+Event/EnvironmentalFactor/EnvironmentalHazard/ElectromagneticRadiationHazard
+# Examples
+electromagnetic
+radiation
+hazard
+increased
+electromagnetic
+radiation
+# Patterns
+(?i)(electromagnetic)\s+(radiation)\s+(hazard)
+
+# Name
+ReductionRestrictionOrRemoval
+# Paths
+Event/ReductionRestrictionOrRemoval
+# Examples
+reduction
+restriction
+or
+removal
+# Patterns
+
+# Name
+JailsAndPrisoners
+# Paths
+Event/JailsAndPrisoners
+# Examples
+jails
+and
+prisoners
+# Patterns
+
+# Name
+PersonalCommunication
+# Paths
+Event/PersonalCommunication
+# Examples
+personal
+communication
+# Patterns
+(?i)\b(personal)\s+(communication)\b
+(?i)\b(social)\s+(media)\b
+
+# Name
+Deescalation
+# Paths
+Event/ReductionRestrictionOrRemoval/Deescalation
+# Examples
+deescalation
+de-escalation
+deescalate
+de-escalate
+resolve
+the
+conflict
+conflict
+resolution
+# Patterns
+
+# Name
+FeelingSafeOrSecure
+# Paths
+Event/FeelingSafeOrSecure
+# Examples
+feeling
+safe
+or
+secure
+safeguard
+peace
+safety
+welfare
+wellbeing
+thriving
+prosperity
+growth
+security
+low
+crime
+rate
+# Patterns
+
+# Name
+LandslideOrMudslide
+# Paths
+Event/EnvironmentalFactor/NaturalDisaster/LandslideOrMudslide
+# Examples
+landslide
+land
+slide
+mudslide
+mud
+slide
+rockslide
+rock
+slide
+landslip
+land
+slip
+rockfall
+rock
+fall
+mudflow
+mud
+flow
+debris
+flow
+# Patterns
+
+# Name
+AgriculturalEvent
+# Paths
+Event/AgriculturalEvent
+# Examples
+agriculture
+agricultural
+crop
+farm
+farmer
+food
+production
+grow
+vegetables
+agricultural
+products
+poppy
+production
+livestock
+harvest
+planting
+sowing
+reaping
+plowing
+soil
+amendment
+soil
+health
+fertilizer
+fertilize
+fertilization
+crop
+yield
+cash
+crop
+food
+commodity
+tractor
+# Patterns
+
+# Name
+EconomicRecession
+# Paths
+Event/EconomicFactor/EconomicCondition/EconomicRecession
+# Examples
+economic
+recession
+recession
+collapse
+decline
+economic
+decline
+hard
+times
+deflation
+inflation
+unemployment
+# Patterns
+
+# Name
+Debt
+# Paths
+Event/EconomicFactor/Debt
+# Examples
+debt
+increase
+in
+debt
+decrease
+in
+debt
+bond
+due
+duty
+capital
+deficit
+liablity
+mortgage
+obligation
+# Patterns
+
+# Name
+Hatred
+# Paths
+Event/Hatred
+# Examples
+hatred
+hate
+hatefulness
+hate
+speech
+hate
+crime
+ethnic
+hatred
+racial
+hatred
+aversion
+animosity
+despise
+deplore
+abhor
+abhorrence
+loathe
+# Patterns
+
+# Name
+Confidence
+# Paths
+Event/Confidence
+# Examples
+confidence
+assurance
+confident
+support
+# Patterns
+
+# Name
+Storm
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/Storm
+# Examples
+storm
+# Patterns
+
+# Name
+SolarFlare
+# Paths
+Event/SpaceEvent/SolarFlare
+# Examples
+solar
+flare
+radiation
+from
+sun
+sudden
+flash
+of
+increase
+brightness
+solar
+radiation
+coronal
+mass
+ejection
+solar
+storm
+# Patterns
+(?i)(solar)\s+(storm)
+
+# Name
+PoliticalRevolution
+# Paths
+Event/PoliticalFactor/PoliticalRevolution
+# Examples
+political
+revolution
+revolution
+overthrow
+insurrection
+revolt
+# Patterns
+
+# Name
+ProvisionOfAid
+# Paths
+Event/ProvisionOfAid
+# Examples
+provision
+of
+aid
+# Patterns
+
+# Name
+NuclearHazard
+# Paths
+Event/EnvironmentalFactor/EnvironmentalHazard/NuclearHazard
+# Examples
+nuclear
+hazard
+nuclear
+blast
+nuclear
+explosion
+nuclear
+radiation
+thermal
+radiation
+from
+a
+nuclear
+explosion
+ionizing
+radiation
+from
+a
+nuclear
+explosion
+radiation
+effects
+from
+a
+nuclear
+explosion
+# Patterns
+
+# Name
+Confiscation
+# Paths
+Event/ReductionRestrictionOrRemoval/Confiscation
+# Examples
+confiscation
+confiscations
+confiscate
+confiscated
+appropriation
+appropriated
+forfeiture
+seizure
+seized
+seizures
+seize
+impound
+impounded
+expropriate
+expropriated
+# Patterns
+
+# Name
+RetreatSurrenderOrYielding
+# Paths
+Event/RetreatSurrenderOrYielding
+# Examples
+retreat
+surrender
+yielding
+abandon
+back
+off
+evacuate
+capitulate
+# Patterns
+
+# Name
+SocialCondition
+# Paths
+Event/SocialCondition
+# Examples
+social
+condition
+# Patterns
+
+# Name
+Terrorism
+# Paths
+Event/DeclarativeCommunication/AccusationOrAssigningOfResponsibility/Influence/IntimidationAndCoercion/Terrorism
+Event/Aggression/Violence/Terrorism
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Influence/IntimidationAndCoercion/Terrorism
+# Examples
+terrorism
+targeted
+terrorism
+targeted
+attack
+assassination
+massacre
+destruction
+manslaughter
+shooting
+mass
+shooting
+bombing
+car
+bomb
+vehicle-borne
+improvised
+explosive
+device
+VBIED
+improvised
+explosive
+device
+IED
+# Patterns
+(?i)\bVBIED
+(?i)\bIED
+
+# Name
+RelevanceOrImportance
+# Paths
+Event/RelevanceOrImportance
+# Examples
+relevance
+importance
+# Patterns
+
+# Name
+Evacuation
+# Paths
+Event/ReductionRestrictionOrRemoval/ForcedMove/Evacuation
+Event/LocationChange/ForcedMove/Evacuation
+# Examples
+evacuation
+# Patterns
+
+# Name
+CommercialOperation
+# Paths
+Event/Operation/CommercialOperation
+# Examples
+commercial
+operation
+business
+operation
+planned
+interconnector
+upgrade
+facility
+construction
+project
+# Patterns
+
+# Name
+IllnessOrInjury
+# Paths
+Event/HealthAndDisease/IllnessOrInjury
+# Examples
+# Patterns
+
+# Name
+Possession
+# Paths
+Event/Possession
+# Examples
+possession,
+regardless
+of
+ownership.
+# Patterns
+
+# Name
+ArmedConflict
+# Paths
+Event/DisagreementOrDispute/ArmedConflict
+# Examples
+armed
+conflict
+armed
+combat
+armed
+fight
+# Patterns
+
+# Name
+PersonalOrPassengerTransportation
+# Paths
+Event/LocationChange/PersonalOrPassengerTransportation
+# Examples
+personal
+or
+passenger
+transportation
+# Patterns
+
+# Name
+Reporting
+# Paths
+Event/DeclarativeCommunication/Reporting
+# Examples
+reporting
+# Patterns
+
+# Name
+HighUnemployment
+# Paths
+Event/Employment/HighUnemployment
+Event/EconomicFactor/EconomicCondition/HighUnemployment
+# Examples
+high
+unemployment
+unemployment
+recession
+economic
+distress
+few
+jobs
+# Patterns
+(?i)\bhigh(er|est)\s+unemployment\b
+
+# Name
+ForestryOrganization
+# Paths
+Actor/GroupOfActors/Organization/ForestryOrganization
+# Examples
+forestry
+organization
+National
+Association
+of
+State
+Foresters
+Virginia
+Forestry
+Association
+Ohio
+Forestry
+Association
+PA
+Forestry
+Association
+Texas
+Forestry
+Food
+and
+Agriculture
+Organization
+European
+Arboricultural
+Council
+Global
+Forest
+COalition
+World
+Rainforest
+Movement
+Rainforest
+Alliance
+# Patterns
+
+# Name
+DomesticTrade
+# Paths
+Event/EconomicFactor/DomesticTrade
+# Examples
+domestic
+trade
+internal
+trade
+intranational
+trade
+home
+trade
+retail
+wholesaling
+# Patterns
+(?i)(domestic)\s+(trade)
+
+# Name
+EducationAndTraining
+# Paths
+Event/EducationAndTraining
+# Examples
+education
+and
+training
+# Patterns
+
+# Name
+ReforestationLandUse
+# Paths
+Event/EnvironmentalFactor/NaturalResources/LandUse/ReforestationLandUse
+# Examples
+reforestation
+land
+use
+planting
+trees
+after
+deforestation
+planting
+trees
+after
+fire
+tree-planting
+tree-seeding
+forestry
+# Patterns
+
+# Name
+Raid
+# Paths
+Event/Aggression/Violence/Attack/Raid
+# Examples
+raid
+surprise
+attack
+attack
+without
+warning
+fast
+attack
+search
+without
+warning
+depredation
+# Patterns
+
+# Name
+DirectiveCommunication
+# Paths
+Event/DirectiveCommunication
+# Examples
+directive
+communication
+# Patterns
+
+# Name
+MilitaryAction
+# Paths
+Event/MilitaryFactor/MilitaryAction
+# Examples
+military
+action
+# Patterns
+
+# Name
+RallyingOpposition
+# Paths
+Event/DeclarativeCommunication/DisapprovalOrDenunciation/RallyingOpposition
+# Examples
+rallying
+opposition
+# Patterns
+
+# Name
+DefensiveManeuver
+# Paths
+Event/MilitaryFactor/MilitaryAction/DefensiveManeuver
+# Examples
+defensive
+maneuver
+defensive
+force
+dispersal
+all
+round
+defence
+defence
+in
+depth
+mutual
+support
+# Patterns
+
+# Name
+Populace
+# Paths
+Actor/GroupOfActors/GroupOfPersons/Populace
+# Examples
+populace
+public
+# Patterns
+
+# Name
+DiplomaticSanctions
+# Paths
+Event/ReductionRestrictionOrRemoval/Sanctions/DiplomaticSanctions
+# Examples
+diplomatic
+sanctions
+expelled
+diplomats
+closed
+embassy
+diplomats
+were
+expelled
+expulsion
+of
+a
+diplomat
+ambassador
+was
+recalled
+removal
+of
+diplomatic
+ties
+closing
+of
+embassies
+# Patterns
+
+# Name
+Organization
+# Paths
+Actor/GroupOfActors/Organization
+# Examples
+organization
+group
+of
+people
+non-governmental
+organization
+nonprofit
+organization
+not-for-profit
+organization
+nongovernmental
+organizations
+nongovernment
+organizations
+institution
+business
+organization
+company
+# Patterns
+
+# Name
+ApplicationOfMilitaryOrPoliticalPressure
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Influence/IntimidationAndCoercion/ApplicationOfMilitaryOrPoliticalPressure
+Event/DeclarativeCommunication/AccusationOrAssigningOfResponsibility/Influence/IntimidationAndCoercion/ApplicationOfMilitaryOrPoliticalPressure
+# Examples
+application
+of
+military
+or
+police
+pressure
+military
+force
+Russia
+influence
+political
+pressure
+threat
+air
+strikes
+sanctions
+travel
+ban
+coercive
+diplomacy
+blockades
+embargo
+military-backed
+# Patterns
+
+# Name
+Withdrawal
+# Paths
+Event/ReductionRestrictionOrRemoval/Withdrawal
+# Examples
+withdrawal
+# Patterns
+
+# Name
+Election
+# Paths
+Event/Election
+# Examples
+election
+vote
+appointment
+poll
+decision
+selection
+election
+participation
+# Patterns
+
+# Name
+Commemoration
+# Paths
+Event/Ceremony/Commemoration
+# Examples
+commemoration
+commend
+commemorate
+honoring
+honored
+commemorating
+memorialization
+memorialisation
+memorialize
+remembrance
+celebration
+celebrate
+# Patterns
+
+# Name
+ContractRelatedEvent
+# Paths
+Event/CommissiveCommunication/AgreementOrPromise/FormalAgreement/ContractRelatedEvent
+# Examples
+contract-related
+contract
+entering
+a
+contract
+dissolving
+a
+contract
+contract
+agreement
+agreement
+negotiation
+# Patterns
+
+# Name
+GroupOfActors
+# Paths
+Actor/GroupOfActors
+# Examples
+group
+of
+actors
+group
+of
+people
+# Patterns
+
+# Name
+GuardingOrPatrolling
+# Paths
+Event/ProtectionOrPreservation/GuardingOrPatrolling
+# Examples
+guard
+guarding
+guardian
+patrol
+patrolling
+watch
+over
+safeguard
+joint
+patrol
+on-water
+patrol
+border
+patrol
+warding
+# Patterns
+
+# Name
+CriminalAct
+# Paths
+Event/DefyingLawsNormsDirectives/CriminalAct
+# Examples
+criminal
+act
+crime
+violation
+abduction
+murder
+perjury
+fraud
+embezzlement
+treason
+piracy
+kidnapping
+extortion
+criminal
+offense
+burglary
+robbery
+theft
+attempted
+murder
+street
+crime
+blackmail
+misdemeanor
+felony
+fraud
+schemes
+attempted
+theft
+criminal
+proceeding
+manslaughter
+smuggling
+human
+trafficking
+drug
+smuggling
+sex
+trafficking
+trafficking
+abuse
+conspiracy
+illegal
+action
+illegal
+acts
+illegal
+act
+illegal
+actions
+illegal
+activity
+illegal
+# Patterns
+
+# Name
+ProfitAndLoss
+# Paths
+Event/EconomicFactor/ProfitAndLoss
+# Examples
+profit
+losses
+normal
+profit
+economic
+profit
+gross
+profit
+earnings
+before
+interest,
+taxes,
+depreciation,
+and
+amortization
+earnings
+before
+interest
+and
+taxes
+earnings
+before
+taxes
+net
+income
+earnings
+after
+tax
+net
+profit
+net
+profit
+after
+tax
+income
+before
+extraordinary
+expenses
+operating
+profit
+retainied
+earnings
+optimum
+profit
+# Patterns
+(?i)\b(profit(ing|ed|s)?)\b
+(?i)\b(EBITDA)\b
+(?i)\b(EBI?T)\b
+
+# Name
+Confirmation
+# Paths
+Event/Confirmation
+# Examples
+confirmation
+confirmed
+validation
+of
+act
+validation
+of
+event
+# Patterns
+(?i)confirmation
+(?i)confirmed?
+(?i)validation
+(?i)validated?
+
+# Name
+Aggression
+# Paths
+Event/Aggression
+# Examples
+aggression
+assault
+hostility
+incursion
+# Patterns
+
+# Name
+Forgiving
+# Paths
+Event/CommunicationConveyingEmotion/CommunicationConveyingEmpathy/Forgiving
+# Examples
+forgiving
+merciful
+gracious
+# Patterns
+
+# Name
+Bankruptcy
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/Bankruptcy
+Event/FinancialEvent/Bankruptcy
+# Examples
+bankruptcy
+bankrupt
+insolvent
+unable
+to
+pay
+debts
+liquidation
+cannot
+repay
+debts
+chapter
+11
+chapter
+eleven
+# Patterns
+
+# Name
+ReligiousOrPoliticalBeliefs
+# Paths
+Event/ReligiousOrPoliticalBeliefs
+# Examples
+religious
+beliefs
+political
+beliefs
+Nationalism
+Catholic
+traditional
+religion
+religion
+Christianity
+Christian
+Eastern
+Orthodox
+Roman
+Catholic
+Jewish
+Protestant
+Copts
+Coptic
+pagan
+religions
+Islam
+Judaism
+Buddhism
+political
+values
+Communism
+state
+religion
+religious
+pluralism
+Muslim
+Greek
+Orthodox
+folk
+religion
+Mormonism
+Mormon
+LDS
+Latter
+Day
+Saints
+Mennonite
+Shia
+Sunni
+Hasidic
+Hinduism
+Hindu
+Shintoism
+Shinto
+Taoism
+Liberalism
+Conservatism
+Liberal
+Conservative
+Libertarianism
+Libertarian
+Fascism
+Fascist
+Communist
+belief
+vision
+of
+the
+world
+left-wing
+left
+wing
+right-wing
+right
+wing
+left-wing
+beliefs
+left
+wing
+beliefs
+right-wing
+beliefs
+right
+wing
+beliefs
+centrist
+leftist
+# Patterns
+
+# Name
+Subversion
+# Paths
+Event/Subversion
+# Examples
+subversion
+subvert
+undermine
+demoralize
+demoralization
+subversive
+political
+action
+# Patterns
+
+# Name
+ForcedMove
+# Paths
+Event/LocationChange/ForcedMove
+Event/ReductionRestrictionOrRemoval/ForcedMove
+# Examples
+forced
+move
+# Patterns
+
+# Name
+RuralDevelopment
+# Paths
+Event/ExpansionOrDevelopment/EconomicDevelopment/RuralDevelopment
+Event/EconomicFactor/EconomicDevelopment/RuralDevelopment
+# Examples
+rural
+development
+# Patterns
+(?i)(rural)(\s|\w)+(development)
+(?i)(develop(ed|ing|s)?)(\s|\w)+(rural)
+
+# Name
+DeclineToComment
+# Paths
+Event/DeclarativeCommunication/RefusalOrRejection/DeclineToComment
+# Examples
+decline
+to
+comment
+no
+comments
+refuse
+to
+comment
+not
+disposed
+to
+comment
+right
+to
+silence
+decline
+to
+comment
+no
+answer
+# Patterns
+
+# Name
+CapacityOrStorage
+# Paths
+Event/CapacityOrStorage
+# Examples
+capacity
+storage
+room
+space
+cargo
+handling
+capacity
+storage
+capacity
+computer
+processing
+power
+data
+disk
+storage
+# Patterns
+(?i)(load|overall|production|storage|total)\s+capacity
+
+# Name
+Employment
+# Paths
+Event/Employment
+# Examples
+employment
+employmentâ€“population
+ratio
+job
+career
+job
+creation
+layoff
+hire
+hiring
+work
+# Patterns
+
+# Name
+InformationHandling
+# Paths
+Event/InformationHandling
+# Examples
+information
+handling
+# Patterns
+
+# Name
+GeopoliticalEntity
+# Paths
+Actor/GroupOfActors/Organization/GeopoliticalEntity
+# Examples
+geopolitical
+entity
+country
+state
+sovereign
+nation
+nation
+county
+prefecture
+district
+city
+township
+town
+province
+oblast
+krai
+Europe
+Asia
+America
+North
+America
+South
+America
+Central
+America
+Mesoamerica
+Africa
+Australia
+Austronesia
+Austrasia
+Oceania
+Southeast
+Asia
+South
+Asia
+Middle
+East
+Central
+Asia
+Western
+Europe
+Eastern
+Europe
+East
+Africa
+West
+Africa
+North
+Africa
+Southern
+Africa
+Western
+Asia
+Southern
+Europe
+Northern
+Europe
+Scandinavia
+East
+Asia
+# Patterns
+
+# Name
+Incompetency
+# Paths
+Event/Incompetency
+# Examples
+incompetency
+incompetence
+mishandled
+misuse
+mismanagement
+inefficiency
+inefficiencies
+neglect
+incompetent
+# Patterns
+
+# Name
+Bombing
+# Paths
+Event/Aggression/Violence/Attack/Bombing
+# Examples
+bombing
+attack
+with
+bombs
+# Patterns
+
+# Name
+CommunicationFactor
+# Paths
+Event/InfrastructureAndUtilities/CommunicationFactor
+# Examples
+communication
+factor
+internet
+portal
+subscribers
+land
+line
+cellular
+service
+coverage
+cellular
+tower
+satellite
+network
+transmission
+relay
+station
+tributary
+station
+data
+terminal
+equipment
+# Patterns
+(?i)\bDTE\b
+
+# Name
+EvaluationOrAppraisal
+# Paths
+Event/DeclarativeCommunication/EvaluationOrAppraisal
+# Examples
+evaluation
+appraisal
+analysis
+analyze
+assess
+assessment
+estimation
+evaluate
+performance
+evaluation
+rating
+# Patterns
+
+# Name
+Pollution
+# Paths
+Event/EnvironmentalFactor/EnvironmentalHazard/Pollution
+# Examples
+pollution
+waste
+polluting
+toxic
+fumes
+pollutants
+air
+pollution
+ground
+pollution
+water
+pollution
+leakage
+of
+plastics
+environmental
+damage
+noise
+pollution
+atmospheric
+pollution
+# Patterns
+
+# Name
+PublicTransportation
+# Paths
+Event/InfrastructureAndUtilities/PublicTransportation
+# Examples
+public
+transportation
+public
+transit
+mass
+transit
+access
+to
+public
+transportation
+tram
+bus
+train
+trolley
+subway
+# Patterns
+
+# Name
+Household
+# Paths
+Actor/GroupOfActors/GroupOfPersons/Household
+# Examples
+household
+# Patterns
+
+# Name
+HealthAndDisease
+# Paths
+Event/HealthAndDisease
+# Examples
+health
+disease
+health
+status
+overall
+health
+# Patterns
+
+# Name
+Pardon
+# Paths
+Event/ReturnOrRelease/ReleaseOrParole/Pardon
+Event/CommunicationConveyingEmotion/CommunicationConveyingEmpathy/Forgiving/Pardon
+# Examples
+pardon
+formally
+excusing
+someone
+formally
+forgiving
+a
+mistake
+granting
+the
+pardon
+excuse
+forgive
+mercy
+clemency
+# Patterns
+
+# Name
+DistrustOrSuspicion
+# Paths
+Event/DistrustOrSuspicion
+# Examples
+distrust
+mistrust
+misgivings
+distrustful
+suspicion
+cynicism
+skepticism
+# Patterns
+
+# Name
+LowUnemployment
+# Paths
+Event/EconomicFactor/EconomicCondition/LowUnemployment
+Event/Employment/LowUnemployment
+# Examples
+low
+unemployment
+high
+employment
+prosperity
+wealth
+growth
+abundance
+riches
+richesness
+economic
+prosperity
+# Patterns
+(?i)\blow(er|ered|est)\s+unemployment\b
+
+# Name
+AdequateSupply
+# Paths
+Event/AdequateSupply
+# Examples
+adequate
+supply
+richness
+plenty
+abundance
+prosperity
+riches
+wealth
+enough
+supplies
+source
+# Patterns
+
+# Name
+HighTemperature
+# Paths
+Event/EnvironmentalFactor/WeatherIssue/HighTemperature
+# Examples
+high
+temperature
+heatwave
+heat
+wave
+unseasonably
+warm
+weather
+warm
+weather
+unexpectedly
+warm
+weather
+# Patterns
+
+# Name
+LegislativeGovernmentActivity
+# Paths
+Event/GovernmentActivity/LegislativeGovernmentActivity
+# Examples
+legislative
+government
+activity
+legislative
+operations
+election
+of
+officials
+voting
+on
+laws
+voting
+on
+legislation
+government
+pass
+a
+bill
+passed
+a
+bill
+passing
+bills
+wrote
+a
+bill
+writing
+bills
+voting
+on
+bills
+# Patterns
+
+# Name
+Suicide
+# Paths
+Event/PersonalLifeEvent/Suicide
+# Examples
+suicide
+self-slaughter
+self-destruction
+self-murder
+# Patterns
+
+# Name
+ElectionCampaign
+# Paths
+Event/Operation/ElectionCampaign
+# Examples
+election
+campaign
+political
+campaign
+electoral
+campaign
+# Patterns
+
+# Name
+AccusationOrAssigningOfResponsibility
+# Paths
+Event/DeclarativeCommunication/AccusationOrAssigningOfResponsibility
+# Examples
+accusation
+or
+assigning
+of
+responsibility
+# Patterns
+
+# Name
+GrossNationalIncome
+# Paths
+Event/EconomicFactor/GrossNationalIncome
+# Examples
+gross
+national
+income
+gross
+national
+product
+# Patterns
+(?i)\bGNI\b
+(?i)\bGNP\b
+
+# Name
+Curfew
+# Paths
+Event/PoliticalFactor/GoverningDirective/Curfew
+Event/ReductionRestrictionOrRemoval/Curfew
+# Examples
+curfew
+enforced
+curfew
+police
+curfew
+juvenile
+curfew
+military
+curfew
+mandatory
+curfew
+# Patterns
+(?i)curfews?
+(?i)(juvenile|police|military)(\s|\w)+(curfew)
+
+# Name
+Allies
+# Paths
+Actor/GroupOfActors/Allies
+# Examples
+allies
+confederate
+supporter
+sympathizer
+# Patterns
+
+# Name
+TransportationOfPeopleOrCargo
+# Paths
+Event/LocationChange/TransportationOfPeopleOrCargo
+# Examples
+transportation
+of
+people,
+personnel
+or
+cargo
+cargo
+transportation
+passenger
+transportation
+personal
+transportation
+put
+to
+sea
+# Patterns
+
+# Name
+Corruption
+# Paths
+Event/DefyingLawsNormsDirectives/Corruption
+# Examples
+corruption
+systemic
+corruption
+political
+corruption
+government
+corruption
+vast
+corruption
+Corruption
+corrupt
+system
+corrupt
+government
+# Patterns
+
+# Name
+Invitation
+# Paths
+Event/RequestOrAppeal/Invitation
+# Examples
+invitation
+invite
+RSVP
+# Patterns
+
+# Name
+Mortality
+# Paths
+Event/Demographic/Mortality
+# Examples
+mortality
+morbidity
+death
+rate
+infant
+mortality
+age-adjusted
+death
+rates
+ageing
+society
+mortality
+rate
+infant
+mortality
+maternal
+mortality
+child
+mortality
+crude
+death
+rate
+# Patterns
+
+# Name
+FilingOfLawsuit
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/FilingOfLawsuit
+# Examples
+filing
+of
+lawsuit
+claim
+losses
+file
+a
+lawsuit
+file
+a
+complaint
+sue
+civil
+lawsuit
+settle
+out
+of
+court
+register
+the
+document
+plaintiff
+defendant
+# Patterns
+
+# Name
+DefenseOrSupport
+# Paths
+Event/DeclarativeCommunication/DefenseOrSupport
+# Examples
+defense
+or
+support
+# Patterns
+
+# Name
+Repression
+# Paths
+Event/Repression
+# Examples
+repression
+pogrom
+persecution
+state
+repression
+political
+repression
+suppression
+subjugation
+repressive
+censorship
+authoritarian
+authoritarianism
+dictatorial
+dictator
+totalitarian
+tyranny
+autocrat
+autocratic
+# Patterns
+
+# Name
+Stoning
+# Paths
+Event/Aggression/Violence/Attack/PhysicalAssault/Stoning
+# Examples
+stoning
+stoned
+to
+death
+throwing
+stones
+lapidation
+pelting
+with
+stones
+# Patterns
+
+# Name
+Trust
+# Paths
+Event/Trust
+# Examples
+trust
+trustworthy
+faith
+credence
+# Patterns
+
+# Name
+ReceiptOfAid
+# Paths
+Event/Receipt/ReceiptOfAid
+# Examples
+receipt
+of
+aid
+receipt
+of
+financial
+aid
+receipt
+of
+military
+aid
+financial
+support
+financial
+aid
+military
+support
+military
+aid
+# Patterns
+
+# Name
+DeclarativeCommunication
+# Paths
+Event/DeclarativeCommunication
+# Examples
+declarative
+communication
+respond
+response
+statement
+present
+presentation
+presented
+present
+to
+the
+public
+indicates
+indicate
+indicated
+expressed
+expresses
+expressed
+the
+idea
+expressed
+the
+view
+# Patterns
+
+# Name
+Hope
+# Paths
+Event/Hope
+# Examples
+hope
+anticipation
+aspiration
+belief
+desire
+sense
+# Patterns
+
+# Name
+ClaimingOfResponsibility
+# Paths
+Event/DeclarativeCommunication/ClaimingOfResponsibility
+# Examples
+claiming
+of
+responsibility
+# Patterns
+
+# Name
+DisabilityDemographic
+# Paths
+Event/Demographic/DisabilityDemographic
+# Examples
+disability
+demographic
+disability
+population
+data
+disabled
+people
+number
+of
+disabled
+people
+# Patterns
+
+# Name
+Reconnaissance
+# Paths
+Event/InformationHandling/Reconnaissance
+Event/MilitaryFactor/MilitaryAction/Reconnaissance
+# Examples
+reconnaissance
+recon
+recce
+area
+reconnaissance
+zone
+reconnaissance
+civil
+reconnaissance
+route
+reconnaissance
+reconnaissance-by-fire
+special
+reconnaissance
+armored
+reconnaissance
+amphibious
+reconnaissance
+# Patterns
+(?i)\brecon
+(?i)\brecce\b
+
+# Name
+ReconnaissanceOperation
+# Paths
+Event/InformationHandling/ReconnaissanceOperation
+Event/Operation/MilitaryCampaignOrOperation/ReconnaissanceOperation
+Event/MilitaryFactor/MilitaryCampaignOrOperation/ReconnaissanceOperation
+# Examples
+reconnaissance
+operation
+# Patterns
+(?i)(recce|recon(n?a?i?ss?ance)?)\s+(op(eration|s|\b))
+(?i)(scouting)\s+(op(eration|s|\b))
+(?i)\bRIF\b
+
+# Name
+Vaccination
+# Paths
+Event/HealthAndDisease/Vaccination
+# Examples
+vaccination
+vaccine
+inactivated
+vaccine
+attenuated
+vaccine
+toxoid
+vaccine
+subunit
+vaccine
+conjugate
+vaccine
+univalent
+vaccine
+polyvalent
+vaccine
+multivalent
+vaccine
+oral
+vaccine
+DIVA
+vaccine
+# Patterns
+(?i)vaccin(e|ation)
+(?i)\b(DTaP)\b
+(?i)\b(Tdap)\b
+
+# Name
+Risk
+# Paths
+Event/Risk
+# Examples
+risk
+source
+of
+danger
+threat
+hazard
+menace
+commination
+danger
+emergency
+# Patterns
+
+# Name
+Desperation
+# Paths
+Event/Desperation
+# Examples
+desperation
+lost
+hope
+act
+recklessly
+despair
+hopelessness
+agony
+recklessness
+fear
+anguish
+anxiety
+# Patterns
+
+# Name
+Sadness
+# Paths
+Event/Sadness
+# Examples
+sadness
+sad
+sadly
+sorrow
+woe
+glum
+sadden
+sorrowful
+forlorn
+woeful
+despair
+heartbroken
+downhearted
+downcast
+# Patterns
+(?i)\bsad(den(s|ed)?|ness|ly)?\b
+
+# Name
+CounterOperation
+# Paths
+Event/Operation/CounterOperation
+# Examples
+counter
+operation
+counter-operation
+counteroperation
+# Patterns
+
+# Name
+TransferOfLeadershipOrPolicyChange
+# Paths
+Event/TransferOfLeadershipOrPolicyChange
+# Examples
+transfer
+of
+leadership
+policy
+change
+reversal
+about-face
+turnaround
+volte-face
+U-turn
+one-eighty
+turnabout
+sudden
+change
+# Patterns
+
+# Name
+Identification
+# Paths
+Event/DeclarativeCommunication/Identification
+# Examples
+identification
+# Patterns
+
+# Name
+ViolationOfAgreement
+# Paths
+Event/ViolationOfAgreement
+# Examples
+violation
+of
+agreement
+breach
+of
+agreement
+# Patterns
+
+# Name
+LocationChange
+# Paths
+Event/LocationChange
+# Examples
+location
+change
+# Patterns
+
+# Name
+ExpressionOfIntent
+# Paths
+Event/CommissiveCommunication/ExpressionOfIntent
+# Examples
+expression
+of
+intent
+purpose
+promise
+swear
+engagement
+duty
+liability
+commitment
+agreement
+# Patterns
+
+# Name
+EnergyRelatedFactor
+# Paths
+Event/EnergyRelatedFactor
+# Examples
+energy
+related
+factor
+energy-related
+factor
+energy
+production
+energy
+supply
+energy
+consumption
+energy
+demand
+energy
+distribution
+energy
+inventory
+energy
+transport
+energy
+generation
+electricity
+electricity
+production
+electricity
+supply
+electricity
+demand
+electricity
+distribution
+electricity
+inventory
+electricity
+generation
+electricity
+consumption
+fuel
+supply
+fuel
+production
+fuel
+demand
+fuel
+distribution
+fuel
+inventory
+fuel
+transport
+fuel
+generation
+fuel
+consumption
+solar
+power
+solar
+production
+solar
+supply
+solar
+demand
+solar
+distribution
+solar
+inventory
+solar
+transport
+solar
+generation
+solar
+consumption
+wind
+power
+wind
+supply
+wind
+production
+wind
+demand
+wind
+power
+distribution
+wind
+power
+generation
+wind
+power
+consumption
+nuclear
+power
+nuclear
+power
+supply
+nuclear
+power
+production
+nuclear
+power
+demand
+nuclear
+power
+distribution
+nuclear
+power
+generation
+nuclear
+power
+consumption
+hydro
+power
+hydro
+power
+supply
+hydro
+power
+production
+hydro
+power
+demand
+hydro
+power
+distribution
+hydro
+power
+generation
+hydro
+power
+consumption
+green
+energy
+green
+energy
+production
+renewable
+energy
+# Patterns
+
+# Name
+PhysicalAssault
+# Paths
+Event/Aggression/Violence/Attack/PhysicalAssault
+# Examples
+physical
+assault
+physical
+attack
+# Patterns
+
+# Name
+Investment
+# Paths
+Event/FinancialEvent/Investment
+# Examples
+investment
+increase
+in
+investment
+decrease
+in
+investment
+profit
+growth
+investment
+defensive
+investment
+property
+investment
+shares
+bonds
+mutual
+funds
+fixed
+interest
+investment
+# Patterns
+(?i)(mutual)\s+(fund)
+(?i)(investment)
+(?i)\b(FDI)\b
+
+# Name
+TransferOfFunds
+# Paths
+Event/FinancialEvent/TransferOfFunds
+# Examples
+transfer
+of
+funds
+money
+transfer
+contribution
+money
+contribution
+electronic
+funds
+transfer
+EFT
+movement
+of
+an
+asset
+movement
+of
+monetary
+funds
+ownership
+transfer
+# Patterns
+
+# Name
+ChangeOfResidence
+# Paths
+Event/LocationChange/ChangeOfResidence
+# Examples
+change
+of
+residence
+relocation
+move
+change
+of
+address
+# Patterns
+
+# Name
+LegalSentence
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/LegalFinding/LegalSentence
+# Examples
+legal
+sentence
+sentence
+punishment
+ordered
+by
+a
+trial
+court
+sentencing
+# Patterns
+
+# Name
+UtilitiesOrganization
+# Paths
+Actor/GroupOfActors/Organization/UtilitiesOrganization
+# Examples
+utility
+public
+utility
+water
+company
+power
+company
+electric
+company
+telephone
+company
+natural
+gas
+company
+cable
+company
+internet
+service
+provider
+broadband
+provider
+sewage
+works
+# Patterns
+(?i)(\bISP\b)
+
+# Name
+Advising
+# Paths
+Event/DirectiveCommunication/Advising
+# Examples
+advising
+suggestion
+tip
+recommendation
+guidance
+instruction
+proposal
+opinion
+# Patterns
+
+# Name
+UnsanitaryConditions
+# Paths
+Event/SocialCondition/LivingCondition/UnsanitaryConditions
+# Examples
+unsanitary
+conditions
+open
+sewage
+# Patterns
+
+# Name
+Drought
+# Paths
+Event/SocialCondition/LivingCondition/FoodWaterAndNutrition/WaterInsecurity/Drought
+Event/EnvironmentalFactor/WeatherIssue/Drought
+Event/HealthAndDisease/FoodWaterAndNutrition/WaterInsecurity/Drought
+Event/EnvironmentalFactor/NaturalDisaster/Drought
+# Examples
+drought
+drouth
+extreme
+drought
+spring
+drought
+severe
+drought
+prolonged
+drought
+summer
+drought
+midsummer
+drought
+long-term
+drought
+multiyear
+drought
+megadrought
+decades-long
+drought
+multi-decadal
+drought
+absolute
+drought
+partial
+drought
+drought
+conditions
+drought
+period
+drought
+event
+drought
+disaster
+drought
+emergency
+# Patterns
+
+# Name
+SocialServices
+# Paths
+Event/SocialServices
+# Examples
+social
+services
+food
+subsidies
+job
+training
+human
+services
+providing
+health
+care
+enabling
+access
+to
+education
+emergency
+services
+law
+enforcement
+housing
+assistence
+job
+placement
+# Patterns
+(?i)(social)\s+(service)
+
+# Name
+Anger
+# Paths
+Event/Annoyance/Anger
+Event/Modifier/StrongOrIntense/Anger
+# Examples
+anger
+displeasure
+fury
+annoyance
+hostility
+bitterness
+discontent
+irritation
+indignation
+alienation
+antagonism
+outrage
+rage
+angry
+infuriate
+irate
+ire
+# Patterns
+(?i)\b(ang(er|ry))
+
+# Name
+LegalFinding
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/LegalFinding
+# Examples
+legal
+finding
+# Patterns
+
+# Name
+HealthcareOrganization
+# Paths
+Actor/GroupOfActors/Organization/HealthcareOrganization
+# Examples
+healthcare
+organization
+Mayo
+Clinic
+St.
+Jude's
+Research
+Hospital
+St.
+Jude's
+Health
+Maintenance
+Organization
+HMO
+hospital
+mental
+hospital
+psychiatric
+hospital
+emergency
+room
+ER
+clinic
+field
+hospital
+# Patterns
+
+# Name
+HeadquartersOrBaseEstablished
+# Paths
+Event/Affiliation/HeadquartersOrBaseEstablished
+# Examples
+headquarters
+or
+base
+established
+opening
+of
+office
+establishment
+of
+office
+open
+of
+base
+open
+of
+main
+office
+open
+of
+command
+post
+HQ
+# Patterns
+(?i)\bHQ
+
+# Name
+MilitaryOccupation
+# Paths
+Event/MilitaryFactor/MilitaryOccupation
+# Examples
+military
+occupation
+belligerent
+occupation
+occupying
+power
+occupation
+by
+a
+foreign
+power
+occupied
+territory
+# Patterns
+(?i)(military)\s+(occupation)
+
+# Name
+AidOrReliefOrganization
+# Paths
+Actor/GroupOfActors/Organization/AidOrReliefOrganization
+# Examples
+aid
+or
+relief
+organization
+World
+Food
+Programme
+Cooperative
+for
+Assistance
+and
+Relief
+Everywhere
+Oxfam
+International
+relief
+organization
+humanitarian
+organization
+aid
+agency
+relief
+agency
+# Patterns
+(?i)\bWFP\b
+(?i)\bCARE\b
+
+# Name
+Oligarchy
+# Paths
+Event/PoliticalFactor/GovernmentalFactor/Oligarchy
+# Examples
+oligarchy
+oligarch
+oligarchic
+plutocracy
+plutocrat
+plutocratic
+junta
+# Patterns
+
+# Name
+SeparationOrDivorce
+# Paths
+Event/GovernmentActivity/JudicialGovernmentActivity/LegalEvent/SeparationOrDivorce
+Event/PersonalLifeEvent/SeparationOrDivorce
+# Examples
+separation
+divorce
+breakup
+split
+departure
+ending
+of
+marriage
+dissolution
+dissolution
+of
+marriage
+end
+of
+cohabitation
+end
+of
+relationship
+# Patterns
+
+# Name
+EconomicInequality
+# Paths
+Event/EconomicFactor/EconomicCondition/EconomicInequality
+# Examples
+economic
+inequality
+inequality
+unequal
+incomes
+income
+inequality
+disparity
+of
+income
+distributions
+unequal
+distribution
+of
+income
+unequal
+wealth
+distribution
+# Patterns
