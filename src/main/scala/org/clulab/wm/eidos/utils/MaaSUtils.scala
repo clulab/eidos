@@ -46,8 +46,9 @@ object MaaSUtils {
     val examples = json("examples").arr.map(_.toString)
     // create a bag of words, and sanitize them
     val sanitizedExampleBag = examples.flatMap(_.split("\\s+")).map(w => Word2Vec.sanitizeWord(w))
+    val w2v = reader.components.ontologyHandler.wordToVec
     // average the word embeddings
-    val embedding = reader.components.ontologyHandler.wordToVec.makeCompositeVector(sanitizedExampleBag)
+    val embedding = w2v.makeCompositeVector(sanitizedExampleBag).getOrElse(w2v.unknownCompositeVector)
     // convert to a ConceptEmbedding
     val conceptEmbed = ConceptEmbedding(new PassThruNamer(node), embedding)
 

@@ -1,8 +1,6 @@
 import ReleaseTransformations._
 import Tests._
 
-lazy val keith = "was here again"
-
 name := "eidos"
 organization := "org.clulab"
 
@@ -15,8 +13,6 @@ resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies
   "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d
 )
-
-lazy val keith = "keithwas here"
 
 libraryDependencies ++= {
   val    procVer = "7.5.4"
@@ -58,7 +54,7 @@ sourceGenerators in Compile += Def.task {
 
   // The user should set these values.
   val codeDir = "src/main/resources/"
-  val ontologyDir = codeDir + "org/clulab/wm/eidos/english/ontologies/"
+  val ontologyDir = codeDir + "org/clulab/causeex/eidos/english/ontologies/"
   val namespace = "com.github.clulab.eidos"
 
   val files = new File(ontologyDir)

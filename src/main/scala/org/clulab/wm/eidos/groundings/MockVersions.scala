@@ -8,7 +8,7 @@ case class MockVersion(commit: String, date: ZonedDateTime)
 
 object MockVersions {
   val codeDir = "src/main/resources"
-  val ontologyDir = codeDir + "/org/clulab/wm/eidos/english/ontologies/"
+  val ontologyDir = codeDir + "/org/clulab/causeex/eidos/english/ontologies/"
 
   // This first value applies to the entire repository.
   val version: Option[MockVersion] = Some(MockVersion("2db42aa7c62d9b3b4cf99a08ec393121e53ce5cd", ZonedDateTime.parse("2019-10-07T17:00:49-07:00"))) // 2019-10-04T20:49:00Z")))

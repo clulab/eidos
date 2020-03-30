@@ -41,6 +41,7 @@ vectors.txt
 embeddings_november_2016.txt
 geonamesDict_noUnicode.txt
 glove.840B.300d.txt
+vectors100byFreq.txt
 cache/*.serialized
 cache/english/*.serialized
 cache/geonames/
