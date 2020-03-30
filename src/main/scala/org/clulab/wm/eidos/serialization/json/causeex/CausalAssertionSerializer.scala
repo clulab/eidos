@@ -240,7 +240,7 @@ object CausalAssertionDocument {
   // TODO: Move this method to where it fits better.
 
   // Method to convert a time attachment to DateTimes
-  def timeExToSimpleTime(time: Time): SimpleTime = {
+  def timeToSimpleTime(time: Time): SimpleTime = {
     val start = time.interval.intervals.map(_.startDate).min
     val end = time.interval.intervals.map(_.endDate).max
     val duration = (end.getNano - start.getNano) / 1000 / 1000 // Milliseconds are required.
