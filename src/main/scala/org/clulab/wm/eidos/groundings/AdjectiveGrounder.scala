@@ -24,7 +24,7 @@ class FakeAdjectiveGrounder extends AdjectiveGrounder {
   def groundAdjective(adjective: String): Option[AdjectiveGrounding] = None
 }
 
-class  EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounder {
+class EidosAdjectiveGrounder(quantifierKBFile: String) extends AdjectiveGrounder {
 
   protected def load(): Map[Quantifier, Map[String, Double]] =
       Sourcer.sourceFromResource(quantifierKBFile).autoClose { source =>

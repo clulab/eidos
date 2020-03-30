@@ -160,8 +160,6 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
     )
   }
 
-
-
   def groundOntology(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the main part of the ontology,
@@ -202,9 +200,7 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
     }
     else
       Seq(newOntologyGrounding())
-
   }
-
 }
 
 object InterventionSieveGrounder {
@@ -272,17 +268,11 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       }.toMap
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    var property = ArrayBuffer(): Seq[(Namer,Float)]
-    for (string <- strings) {
-      val matchedPatterns = nodesPatternMatched(string, conceptPatternsSeq(CompositionalGrounder.PROPERTY))
-      if (matchedPatterns.nonEmpty) {
-        property = property ++ matchedPatterns
-      }
-    }
+    val property = newOntologyGrounding(strings.flatMap { string => nodesPatternMatched(string, conceptPatternsSeq(CompositionalGrounder.PROPERTY)) }, Some(CompositionalGrounder.PROPERTY))
     val process = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)), Some(CompositionalGrounder.PROCESS))
     val concept = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)), Some(CompositionalGrounder.CONCEPT))
 
-    Seq(newOntologyGrounding(property, Some(CompositionalGrounder.PROPERTY)), process, concept)
+    Seq(property, process, concept)
   }
 
   override def groundOntology(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
