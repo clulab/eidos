@@ -39,7 +39,6 @@ object ExtractCdrMetaFromDirectory extends App {
       reader.extractFromText("This is a test.")
     }
     timer.stop()
-
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
     parFiles.foreach { file =>
