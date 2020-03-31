@@ -222,6 +222,42 @@ object Inc {
       new Inc(trigger, Option(quantifiers.toSeq))
 }
 
+class Pos(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+
+  override protected val matchingClass: Class[_] = Pos.targetClass
+
+  override def toString: String = toString(Pos.abbrev)
+}
+
+object Pos {
+  val abbrev = "POS"
+  val targetClass: Class[_] = classOf[PosChange]
+
+  def apply(trigger: String) =
+    new Pos(trigger, None)
+
+  def apply(trigger: String, quantifiers: String*) =
+    new Pos(trigger, Option(quantifiers.toSeq))
+}
+
+class Neg(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
+
+  override protected val matchingClass: Class[_] = Neg.targetClass
+
+  override def toString: String = toString(Neg.abbrev)
+}
+
+object Neg {
+  val abbrev = "NEG"
+  val targetClass: Class[_] = classOf[NegChange]
+
+  def apply(trigger: String) =
+    new Neg(trigger, None)
+
+  def apply(trigger: String, quantifiers: String*) =
+    new Neg(trigger, Option(quantifiers.toSeq))
+}
+
 class TimEx(text: String) extends ContextAttachmentSpec(text) {
 
   override protected val matchingClass: Class[_] = TimEx.targetClass

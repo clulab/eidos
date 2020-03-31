@@ -16,7 +16,9 @@ import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.PosChange
 import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.attachments.Quantification
 import org.clulab.wm.eidos.attachments.Score
@@ -28,6 +30,7 @@ import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
@@ -37,7 +40,6 @@ import org.clulab.wm.eidos.text.english.cag.CAG._
 import scala.collection.Seq
 
 class TestJLDSerializer extends ExtractionTest {
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
 
@@ -51,7 +53,7 @@ class TestJLDSerializer extends ExtractionTest {
   def serialize(corpus: Corpus): String = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
-      val jValue = jldCorpus.serialize(adjectiveGrounder)
+      val jValue = jldCorpus.serialize()
       stringify(jValue, pretty = true)
     }
     
@@ -327,6 +329,8 @@ class TestJLDSerializer extends ExtractionTest {
       new Property(trigger, someQuantifications),
       new Hedging(trigger, someQuantifications),
       new Negation(trigger, someQuantifications),
+      new PosChange(trigger, someQuantifications),
+      new NegChange(trigger, someQuantifications),
 
       new CountAttachment("text", migrationGroupCount, 3, 6),
       new Location(geoPhraseID),
@@ -343,5 +347,13 @@ class TestJLDSerializer extends ExtractionTest {
 
     inspect(json)
     json should not be empty
+    json should include (s""""type" : "${Decrease.kind}",""")
+    json should include (s""""type" : "${Increase.kind}",""")
+    json should include (s""""type" : "${Quantification.kind}",""")
+    json should include (s""""type" : "${Property.kind}",""")
+    json should include (s""""type" : "${Hedging.kind}",""")
+    json should include (s""""type" : "${Negation.kind}",""")
+    json should include (s""""type" : "${PosChange.kind}",""")
+    json should include (s""""type" : "${NegChange.kind}",""")
   }
 }

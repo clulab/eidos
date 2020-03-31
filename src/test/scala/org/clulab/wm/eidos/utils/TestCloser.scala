@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.util
+package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Closer

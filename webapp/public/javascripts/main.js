@@ -4,10 +4,14 @@ var bratLocation = 'assets/brat';
 var baseConceptColor = '#CCD1D1';
 var increaseConceptColor = '#BBDC90';
 var decreaseConceptColor = '#FC5C38';
+var positiveChangeConceptColor = '#7ED8E1';
+var negativeChangeConceptColor = '#E19630';
 var quantifierColor = '#AED6F1';
 var quantifiedConceptColor = '#85C1E9';
 var causalEventColor = '#BB8FCE';
 var correlationEventColor = '#F7DC6F';
+var posAffectEventColor = '#7EE1C5';
+var negAffectEventColor = '#EE86D1';
 var timeExpressionColor = '#FFA500'
 var geoLocationColor = '#FFA500'
 
@@ -69,6 +73,24 @@ var collData = {
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
             "bgColor": decreaseConceptColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "Concept-Pos",
+            "labels" : ["Concept-Pos", "Conc"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": positiveChangeConceptColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "Concept-Neg",
+            "labels" : ["Concept-Neg", "Conc"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": negativeChangeConceptColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -378,6 +400,26 @@ var collData = {
         "type": "Correlation",
         "labels": ["CORRELATION"],
         "bgColor": correlationEventColor,
+        "borderColor": "darken",
+        "arcs": [
+          {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
+          {"type": "effect", "labels": ["effect"], "borderColor": "darken", "bgColor":"pink"}
+         ]
+      },
+      {
+          "type": "PositiveAffect",
+          "labels": ["POS_AFFECT"],
+          "bgColor": posAffectEventColor,
+          "borderColor": "darken",
+          "arcs": [
+            {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
+            {"type": "effect", "labels": ["effect"], "borderColor": "darken", "bgColor":"pink"}
+           ]
+      },
+      {
+        "type": "NegativeAffect",
+        "labels": ["NEG_AFFECT"],
+        "bgColor": negAffectEventColor,
         "borderColor": "darken",
         "arcs": [
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
