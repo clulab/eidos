@@ -13,8 +13,8 @@ object ReconstituteAndExportEstonia extends App {
   val outputFile = args(1)
 
   val files = FileUtils.findFiles(inputDir, "jsonld")
-  val serializer = new JLDSerializer(None)
-  val deserializer = new JLDDeserializer()
+  val serializer = new JLDSerializer
+  val deserializer = new JLDDeserializer
 
   new TsvWriter(Sinker.printWriterFromFile(outputFile)).autoClose { tsvWriter =>
     tsvWriter.println("docId", "className", "type", "subtype", "canonicalName", "mentionText", "sentenceText")

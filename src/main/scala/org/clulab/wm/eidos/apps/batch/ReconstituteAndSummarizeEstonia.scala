@@ -15,7 +15,7 @@ object ReconstituteAndSummarizeEstonia extends App {
   val outputFile = args(1)
 
   val files = FileUtils.findFiles(inputDir, "jsonld")
-  val serializer = new JLDSerializer(None)
+  val serializer = new JLDSerializer()
   val deserializer = new JLDDeserializer()
 
   val expectedType = "relation"

@@ -150,7 +150,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
         Some(new ConceptExpander(expander, keepStatefulConcepts))
       } }),
       new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) }),
-      new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig[Config]("adjectiveGrounder")) })
+      new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder"))) })
     )
     val componentLoaders = headComponentLoaders ++ tailComponentLoaders
     loadComponents(componentLoaders)
