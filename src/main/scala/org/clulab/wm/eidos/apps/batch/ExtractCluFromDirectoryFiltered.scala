@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.apps.batch
 
 import java.io.File
 
-import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
@@ -72,22 +71,18 @@ object ExtractCluFromDirectoryFiltered extends App {
 
     def filter (file: File): Boolean = min <= file.length() && file.length <= max
 
-    // For each file in the input directory:
+    // For each file in the input directory
     files.filter(filter).par.foreach { file =>
       try {
-        // 1. Open corresponding output file
         println(s"Extracting from ${file.getName}")
-        // 2. Get the input file contents
+        // 1. Get the input file contents
         val text = FileUtils.getTextFromFile(file)
-        // 3. Extract causal mentions from the text
-        val annotatedDocuments = Seq(reader.extractFromText(text))
-        // 4. Convert to JSON
-        val corpus = new JLDCorpus(annotatedDocuments)
-        val mentionsJSONLD = corpus.serialize()
-        // 5. Write to output file
+        // 2. Extract causal mentions from the text
+        val annotatedDocument = reader.extractFromText(text)
+        // 3. Write to output file
         val path = CluText.convertTextToJsonld(file, filterOutputDir)
-        FileUtils.printWriterFromFile(path).autoClose { pw =>
-          pw.println(stringify(mentionsJSONLD, pretty = true))
+        FileUtils.printWriterFromFile(path).autoClose { printWriter =>
+          new JLDCorpus(annotatedDocument).serialize(printWriter)
         }
       }
       catch {

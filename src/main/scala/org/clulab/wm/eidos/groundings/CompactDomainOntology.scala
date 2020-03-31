@@ -6,6 +6,7 @@ import java.util
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidos.utils.TsvReader
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{HashMap => MutableHashMap}
@@ -160,7 +161,8 @@ object CompactDomainOntology {
     FileUtils.newClassLoaderObjectInputStream(filename, this).autoClose { objectInputStream =>
       val (versionOpt: Option[String], dateOpt: Option[ZonedDateTime]) = {
         val firstLine = objectInputStream.readObject().asInstanceOf[String]
-        val Array(commit, date) = firstLine.split('\t')
+        val tsvReader = new TsvReader()
+        val Array(commit, date) = tsvReader.readln(firstLine)
         val commitOpt = if (commit.nonEmpty) Some(commit) else None
         val dateOpt = if (date.nonEmpty) Some(ZonedDateTime.parse(date)) else None
 

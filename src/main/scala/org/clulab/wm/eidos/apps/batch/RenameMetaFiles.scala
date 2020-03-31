@@ -1,8 +1,6 @@
 package org.clulab.wm.eidos.apps.batch
 
-import java.io.File
 import java.nio.file.Files
-import java.nio.file.Paths
 
 import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils

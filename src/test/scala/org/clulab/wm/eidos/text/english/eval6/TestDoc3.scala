@@ -50,7 +50,7 @@ class TestDoc3 extends EnglishTest {
 
     // To get "well above" as a single quantifier perhaps add it to Quantifier.tsv ?
     val rainfall = NodeSpec("rainfall", Inc("heavy"), Quant("well above average"), Quant("persistently heavy"), TimEx("past month"))
-    val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Inc("favorable"))
+    val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Pos("favorable"))
     val flooding = NodeSpec("potential for flooding")
     val rainfall2 = NodeSpec("above-average rainfall", Quant("Average to above-average"), Inc("above-average"))
     val rainfall3 = NodeSpec("rainfall", Quant("below average"))
@@ -129,12 +129,12 @@ class TestDoc3 extends EnglishTest {
     val tester = new GraphTester(text)
 
     val rainfall1 = NodeSpec("rainfall in July", Quant("average to above average"), TimEx("July"))
-    val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Inc("favorable"), Quant("favorable"))
-    val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Inc("favorable"))
+    val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Pos("favorable"), Quant("favorable"))
+    val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Pos("favorable"))
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight"), TimEx("July"), TimEx("previous month")) // todo (temporal?): really should capture the "compared to the previous month"...
     val rainfall4 = NodeSpec("rainfall", Dec("decline"))
     val moistureStress = NodeSpec("moisture stress on crops")
-    val rainfall5 = NodeSpec("Meanwhile, in Greater Equatoria, favorable rainfall", GeoLoc("Greater Equatoria"), Inc("favorable"), Quant("favorable"))
+    val rainfall5 = NodeSpec("Meanwhile, in Greater Equatoria, favorable rainfall", GeoLoc("Greater Equatoria"), Pos("favorable"), Quant("favorable"))
     val sowing = NodeSpec("agricultural households to begin sowing")
     val infestation = NodeSpec("significant infestations of Fall Armyworm", Quant("significant"))
 
@@ -304,8 +304,8 @@ class TestDoc3 extends EnglishTest {
     // Nodes here
 
     behavior of "TestDoc3 Paragraph 9"
-    val cropCond = NodeSpec("Cropping conditions", Inc("favorable"), Quant("favorable"))
-    val rainfall = NodeSpec("good performance of seasonal rainfall", Quant("good"), Inc("good"))
+    val cropCond = NodeSpec("Cropping conditions", Pos("favorable"), Quant("favorable"))
+    val rainfall = NodeSpec("good performance of seasonal rainfall", Quant("good"), Pos("good"))
     val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average","persistently", "well"), Quant("above-average", "persistently", "well"), GeoLoc("Ethiopia"), TimEx("coming weeks"))
     val flood = NodeSpec("flooding", TimEx("coming weeks"))
     val rainfall3 = NodeSpec("continued rains")
@@ -538,8 +538,8 @@ class TestDoc3 extends EnglishTest {
 
     val vegetation2 = NodeSpec("above-average vegetation conditions in parts of Ta'izz and Ibb governorates", Inc("above-average"), Quant("above-average")) // Increase??
 
-    val rainfallForecasts = NodeSpec("short-and long-term rainfall forecasts", Quant("favorable"), Inc("favorable"), Dec("short-and"))
-    val agriculturalAreas = NodeSpec("agricultural areas of the western and central highlands", Inc("favorable"))
+    val rainfallForecasts = NodeSpec("short-and long-term rainfall forecasts", Quant("favorable"), Pos("favorable"), Dec("short-and"))
+    val agriculturalAreas = NodeSpec("agricultural areas of the western and central highlands", Pos("favorable"))
 
     val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"), Quant("most"))
     val insecurity = NodeSpec("insecurity")

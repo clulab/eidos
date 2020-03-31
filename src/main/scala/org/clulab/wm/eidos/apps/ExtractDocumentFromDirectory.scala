@@ -55,9 +55,9 @@ object ExtractDocumentFromDirectory extends App {
       // 2. Get the input file contents
       val text = FileUtils.getTextFromFile(file)
       // 3. Extract causal mentions from the text
-      val annotatedDocuments = Seq(annotator(reader, text))
+      val annotatedDocument = annotator(reader, text)
       // 4. Convert to JSON
-      val corpus = new JLDCorpus(annotatedDocuments)
+      val corpus = new JLDCorpus(annotatedDocument)
       val mentionsJSONLD = corpus.serialize()
       // 5. Write to output file
       pw.println(stringify(mentionsJSONLD, pretty = true))

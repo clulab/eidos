@@ -395,7 +395,7 @@ class TestDoc5 extends EnglishTest {
     val action = NodeSpec("Urgent action to end the conflict", Dec("end"))
     val access = NodeSpec("humanitarian access to severely food insecure populations", Inc("improve"))
     val assistance = NodeSpec("increase size and scope of emergency assistance delivery", Inc("increase"), Quant("critical"), TimEx("coming year"))
-    val lives = NodeSpec("lives", Inc("save"))
+    val lives = NodeSpec("save lives over the coming year", TimEx("coming year"))
 
     behavior of "TestDoc5 Paragraph 8"
 
