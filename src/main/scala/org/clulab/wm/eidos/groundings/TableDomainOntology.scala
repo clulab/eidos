@@ -182,8 +182,7 @@ class TableDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonica
       val lines = source.getLines().toList
       val rows = splitLines(lines).toArray
 
-      // TODO Need version and date for this one because in source code!
-      new TableDomainOntology(rows, None, None)
+      new TableDomainOntology(rows, versionOpt, dateOpt)
     }
 
     tableDomainOntology

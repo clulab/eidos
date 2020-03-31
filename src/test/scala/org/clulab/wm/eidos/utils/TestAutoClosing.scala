@@ -1,9 +1,9 @@
-package org.clulab.wm.eidos.util
+package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Closer
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
-class TestCloser extends Test {
+class TestAutoClosing extends Test {
 
   class Closing(exception: Option[Throwable] = None) {
     var closed: Boolean = false // test
@@ -19,7 +19,7 @@ class TestCloser extends Test {
   
   it should "be able to produce a simple result" in {
     val closing = new Closing()
-    val result = Closer.autoClose(closing) { _ =>
+    val result = closing.autoClose { _ =>
       5
     }
     result should be (5)
@@ -28,7 +28,7 @@ class TestCloser extends Test {
 
   it should "be able to produce a null result" in {
     val closing = new Closing()
-    val result: AnyRef = Closer.autoClose(closing) { _ =>
+    val result: AnyRef = closing.autoClose { _ =>
       null
     }
 
@@ -38,7 +38,7 @@ class TestCloser extends Test {
 
   it should "be able to produce a None result" in {
     val closing = new Closing()
-    val result = Closer.autoClose(closing) { _ =>
+    val result = closing.autoClose { _ =>
       None
     }
     result should be (None)
@@ -47,7 +47,7 @@ class TestCloser extends Test {
 
   it should "be able to produce a Some result" in {
     val closing = new Closing()
-    val result = Closer.autoClose(closing) { _ =>
+    val result = closing.autoClose { _ =>
       Some(5)
     }
     result should be (Some(5))
@@ -58,7 +58,7 @@ class TestCloser extends Test {
     val closing = new Closing()
 
     an [IllegalStateException] should be thrownBy {
-      Closer.autoClose(closing)(_ => throw new IllegalStateException("Boom!"))
+      closing.autoClose(_ => throw new IllegalStateException("Boom!"))
     }
     closing.closed should be (true)
   }
@@ -67,7 +67,7 @@ class TestCloser extends Test {
     val closing = new Closing()
 
     an [StackOverflowError] should be thrownBy {
-      Closer.autoClose(closing)(_ => throw new StackOverflowError("Boom!"))
+      closing.autoClose(_ => throw new StackOverflowError("Boom!"))
     }
     closing.closed should be (true)
   }
@@ -76,7 +76,7 @@ class TestCloser extends Test {
     val closing = new Closing(Some(new IllegalStateException("Boom!")))
 
     an [IllegalStateException] should be thrownBy {
-      Closer.autoClose(closing)(_ => "Hello")
+      closing.autoClose(_ => "Hello")
     }
     closing.closed should be (true)
   }
@@ -85,7 +85,7 @@ class TestCloser extends Test {
     val closing = new Closing(Some(new StackOverflowError("Boom!")))
 
     an [StackOverflowError] should be thrownBy {
-      Closer.autoClose(closing)(_ => "Hello")
+      closing.autoClose(_ => "Hello")
     }
     closing.closed should be (true)
   }
@@ -94,7 +94,7 @@ class TestCloser extends Test {
     val closing = new Closing(Some(new IllegalStateException("Boom!")))
 
     an [RuntimeException] should be thrownBy {
-      Closer.autoClose(closing)(_ => throw new RuntimeException("Boom!"))
+      closing.autoClose(_ => throw new RuntimeException("Boom!"))
     }
     closing.closed should be (true)
   }
@@ -103,7 +103,7 @@ class TestCloser extends Test {
     val closing = new Closing(Some(new OutOfMemoryError("Boom!")))
 
     an [StackOverflowError] should be thrownBy {
-      Closer.autoClose(closing)(_ => throw new StackOverflowError("Boom!"))
+      closing.autoClose(_ => throw new StackOverflowError("Boom!"))
     }
     closing.closed should be (true)
   }
@@ -112,7 +112,7 @@ class TestCloser extends Test {
     val closing = new Closing(Some(new IllegalStateException("Boom!")))
 
     an [StackOverflowError] should be thrownBy {
-      Closer.autoClose(closing)(_ => throw new StackOverflowError("Boom!"))
+      closing.autoClose(_ => throw new StackOverflowError("Boom!"))
     }
     closing.closed should be (true)
   }
@@ -121,7 +121,7 @@ class TestCloser extends Test {
     val closing = new Closing(Some(new OutOfMemoryError("Boom!")))
 
     an [OutOfMemoryError] should be thrownBy {
-      Closer.autoClose(closing)(_ => throw new IllegalStateException("Boom!"))
+      closing.autoClose(_ => throw new IllegalStateException("Boom!"))
     }
     closing.closed should be (true)
   }
@@ -134,7 +134,7 @@ class TestCloser extends Test {
     }
 
     an [RuntimeException] should be thrownBy {
-      Closer.autoClose(getClosing)( _ => 5)
+      getClosing.autoClose( _ => 5)
     }
     closing.closed should be (false)
   }

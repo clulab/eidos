@@ -5,7 +5,6 @@ import java.time.LocalDateTime
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
@@ -23,7 +22,9 @@ import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.PosChange
 import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.attachments.Provenance
 import org.clulab.wm.eidos.attachments.Quantification
@@ -32,6 +33,7 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.CountMap
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
@@ -44,7 +46,6 @@ import org.json4s.JArray
 import scala.collection.Seq
 
 class TestJLDDeserializer extends ExtractionTest {
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
   
@@ -61,7 +62,7 @@ class TestJLDDeserializer extends ExtractionTest {
   def serialize(corpus: Corpus): String = {
     val json = {
       val jldCorpus = new JLDEidosCorpus(corpus)
-      val jValue = jldCorpus.serialize(adjectiveGrounder)
+      val jValue = jldCorpus.serialize()
       stringify(jValue, pretty = true)
     }
     
@@ -601,6 +602,16 @@ class TestJLDDeserializer extends ExtractionTest {
         |  $provenance
         |}, {
         |  "@type" : "State",
+        |  "type" : "POS",
+        |  "text" : "positive change",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
+        |  "type" : "NEG",
+        |  "text" : "negative change",
+        |  $provenance
+        |}, {
+        |  "@type" : "State",
         |  "type" : "Count",
         |  "text" : "text",
         |  "value" : {
@@ -650,6 +661,8 @@ class TestJLDDeserializer extends ExtractionTest {
       attachments.exists { attachment => attachment.isInstanceOf[Property]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Hedging]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Negation]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[PosChange]} should be (true)
+      attachments.exists { attachment => attachment.isInstanceOf[NegChange]} should be (true)
 
       attachments.exists { attachment => attachment.isInstanceOf[CountAttachment]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Location]} should be (true)

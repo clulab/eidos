@@ -14,6 +14,8 @@ import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StopwordManager
@@ -31,7 +33,8 @@ case class EidosComponents(
   hedgingHandler: HypothesisHandler,
   entityFinders: Seq[Finder],
   conceptExpander: ConceptExpander,
-  nestedArgumentExpander: NestedArgumentExpander
+  nestedArgumentExpander: NestedArgumentExpander,
+  adjectiveGrounder: AdjectiveGrounder
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -59,6 +62,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var entityFindersOpt: Option[Seq[Finder]] = None
   var conceptExpanderOpt: Option[ConceptExpander] = None
   var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
+  var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
 
   def loadComponents(componentLoaders: Seq[ComponentLoader]): Unit = {
     /*Timer.time("Complete parallel load")*/ {
@@ -145,7 +149,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
           EidosComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
         Some(new ConceptExpander(expander, keepStatefulConcepts))
       } }),
-      new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) })
+      new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) }),
+      new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder"))) })
     )
     val componentLoaders = headComponentLoaders ++ tailComponentLoaders
     loadComponents(componentLoaders)
@@ -164,7 +169,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       hedgingHandlerOpt.get,
       entityFindersOpt.get,
       conceptExpanderOpt.get,
-      nestedArgumentExpanderOpt.get
+      nestedArgumentExpanderOpt.get,
+      adjectiveGrounderOpt.get
     )
   }
 }

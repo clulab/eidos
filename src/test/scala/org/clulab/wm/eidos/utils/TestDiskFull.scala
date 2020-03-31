@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.util
+package org.clulab.wm.eidos.utils
 
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream

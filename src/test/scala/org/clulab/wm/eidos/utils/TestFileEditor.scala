@@ -1,9 +1,8 @@
-package org.clulab.wm.eidos.util
+package org.clulab.wm.eidos.utils
 
 import java.io.File
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.FileEditor
 
 class TestFileEditor extends Test {
   
