@@ -14,6 +14,8 @@ import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
+import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StopwordManager
@@ -147,7 +149,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
           EidosComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
         Some(new ConceptExpander(expander, keepStatefulConcepts))
       } }),
-      new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) })
+      new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) }),
+      new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig[Config]("adjectiveGrounder")) })
     )
     val componentLoaders = headComponentLoaders ++ tailComponentLoaders
     loadComponents(componentLoaders)

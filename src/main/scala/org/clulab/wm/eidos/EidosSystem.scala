@@ -66,9 +66,12 @@ class EidosSystem(val components: EidosComponents) {
   }
 
   // This is the pipeline for EidosMentions.
-    }
   protected def mkEidosRefiners(options: EidosSystem.Options): Seq[EidosRefiner] = Seq(
-    new EidosRefiner("OntologyHandler", (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) })
+    new EidosRefiner("OntologyHandler",   (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) }),
+    new EidosRefiner("AdjectiveGrounder", (eidosMentions: Seq[EidosMention]) => {
+      eidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
+      eidosMentions
+    })
   )
 
   // ---------------------------------------------------------------------------------------------
