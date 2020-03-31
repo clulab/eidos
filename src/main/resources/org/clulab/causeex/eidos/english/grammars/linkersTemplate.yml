@@ -157,16 +157,16 @@ rules:
       effect: Entity  = >dobj? >/(acl_to|advcl_to)/{1,2} >/${objects}/? /${conjunctions}/{,2}
       cause: Entity = >dobj
 
-
-  - name: token_1_verb-${addlabel}
-    priority: ${ rulepriority }
-    # Helps in some cases of broken syntax
-    example: "ongoing insecurity is limiting access to assistance and movement towards natural food sources"
-    type: token
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      @cause: Entity is (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^VBG/]) [mention=Entity]+ and @effect: Entity
+#  # removed 3/30/2020: precision on estonia run5 eval was 0% (!)
+#  - name: token_1_verb-${addlabel}
+#    priority: ${ rulepriority }
+#    # Helps in some cases of broken syntax
+#    example: "ongoing insecurity is limiting access to assistance and movement towards natural food sources"
+#    type: token
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      @cause: Entity is (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^VBG/]) [mention=Entity]+ and @effect: Entity
 
   # Couldn't get the syntax right to combine this with preceding rule...
   - name: token_2_verb-${addlabel}
@@ -192,16 +192,16 @@ rules:
 #      effect: Entity = /${ preps }/ /${ noun_modifiers }|${ conjunctions }/{,2}
 #      cause: Entity = /nmod_of/? nmod_by (<${objects}|nmod_by|agent|${noun_modifiers}|${preps}){1,2} /compound|amod|conj_|cc/{,2} #the prep_of may appear due to bad syntax
 
-
-  - name: ported_syntax_2_noun-${addlabel}
-    priority: ${ rulepriority }
-    example: ""
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
-      effect: Entity = /${ preps }$/? /${ conjunctions }|${ noun_modifiers }/{1,2}
-      cause: Entity = /nmod_of/? /nmod_by|agent/ /${ conjunctions }|${ noun_modifiers }/{,2} # the prep_of may appear due to bad syntax
+#  # removed 3/30/2020: precision on estonia run5 eval was 25%
+#  - name: ported_syntax_2_noun-${addlabel}
+#    priority: ${ rulepriority }
+#    example: ""
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/ & tag=/^N/]
+#      effect: Entity = /${ preps }$/? /${ conjunctions }|${ noun_modifiers }/{1,2}
+#      cause: Entity = /nmod_of/? /nmod_by|agent/ /${ conjunctions }|${ noun_modifiers }/{,2} # the prep_of may appear due to bad syntax
 
 
   - name: ported_syntax_6_noun-${addlabel}
@@ -241,16 +241,17 @@ rules:
       effect: Entity = /nmod:poss/ # I think this is the UDep version
 
 
-  # this rule is needed because PP attachment of "by" is often wrong
-  - name: ported_token_2_noun-${addlabel}
-    priority: ${ rulepriority }
-    #Original example: "Activation of mTOR by rapamycin has been standard treatment "
-    example: ""
-    type: token
-    label: ${ label }
-    action: ${ action }
-    pattern: |
-      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) of @effect: Entity by  @cause: Entity (?! [lemma=/${ negTriggers }/ ])
+#  # this rule is needed because PP attachment of "by" is often wrong
+#  # removed 3/30/2020: precision on estonia run5 eval was 0% (!)
+#  - name: ported_token_2_noun-${addlabel}
+#    priority: ${ rulepriority }
+#    #Original example: "Activation of mTOR by rapamycin has been standard treatment "
+#    example: ""
+#    type: token
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      (?<trigger> [word=/(?i)^(${ trigger })/ & tag=/^NN/]) of @effect: Entity by  @cause: Entity (?! [lemma=/${ negTriggers }/ ])
 
 
   - name: ported_nested_syntax_2_verb-${addlabel}

@@ -14,20 +14,22 @@ rules:
       cause: Entity  = /${agents}/ /^nmod_/?
       effect: Entity = (nmod_in|nmod_of|nmod_on|nmod_to){1,2} (amod | compound)? | ccomp (nsubj | dobj)?
 
-  - name: reverse_causal-noun-2
-    priority: ${ rulepriority }
-    example: "The immediate consequence of drought is a fall in crop production"
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/]
-      cause: Entity  = >nmod_of
-      effect: Entity = <nsubj >/${preps}/?
+#  # removed 3/30/2020: precision on estonia run5 eval was 37.5%
+#  - name: reverse_causal-noun-2
+#    priority: ${ rulepriority }
+#    example: "The immediate consequence of drought is a fall in crop production"
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/]
+#      cause: Entity  = >nmod_of
+#      effect: Entity = <nsubj >/${preps}/?
 
-  - name: reverse_causal-noun-3
-    priority: ${ rulepriority }
-    example: "Domestic agricultural production has decreased as a result of below-average rainfall."
-    label: ${ label }
-    pattern: |
-      trigger = [word=/(?i)^(${ trigger })/]
-      cause: Entity  = >nmod_of
-      effect: Entity = <nmod_as >nsubj >/${preps}/?
+# removed 3/30/2020: precision on estonia run5 eval was 15.4%
+#  - name: reverse_causal-noun-3
+#    priority: ${ rulepriority }
+#    example: "Domestic agricultural production has decreased as a result of below-average rainfall."
+#    label: ${ label }
+#    pattern: |
+#      trigger = [word=/(?i)^(${ trigger })/]
+#      cause: Entity  = >nmod_of
+#      effect: Entity = <nmod_as >nsubj >/${preps}/?

@@ -45,41 +45,44 @@ rules:
       |
       (<case <nmod_due_to <nmod_than >'nsubj:xsubj')
 
-  # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
-  - name: dueTo-caseSyntax-dobj_effect-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "pastoralists have depleted or lost their livestock assets due to the conflict"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /${preps}/{,2}
-      effect: Entity = <case <nmod_due_to? /${objects}/
+#  # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
+#  # removed 3/30/2020: precision on estonia run5 eval was 38.5%
+#  - name: dueTo-caseSyntax-dobj_effect-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: "pastoralists have depleted or lost their livestock assets due to the conflict"
+#    pattern: |
+#      trigger = [lemma="due" & tag=/JJ/]
+#      cause: Entity = <case /${preps}/{,2}
+#      effect: Entity = <case <nmod_due_to? /${objects}/
 
-  - name: dueToSyntax4-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "food imports will decrease due to rainfall"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = <case /^(${conjunctions})/? /${preps}/{,2} /${conjunctions}/{,2}
-      #cause: Entity = <case conj_and /${preps}/{,2} /${conjunctions}/{,2}
-      effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
+  # removed 3/30/2020: precision on estonia run5 eval was 11.1%
+#  - name: dueToSyntax4-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: "food imports will decrease due to rainfall"
+#    pattern: |
+#      trigger = [lemma="due" & tag=/JJ/]
+#      cause: Entity = <case /^(${conjunctions})/? /${preps}/{,2} /${conjunctions}/{,2}
+#      #cause: Entity = <case conj_and /${preps}/{,2} /${conjunctions}/{,2}
+#      effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
 
     #-----------------------------------------------------------------------------------------
     # These rules are based on a parse which has 'due' with an outgoing 'nmod_to' relation:
     #-----------------------------------------------------------------------------------------
 
-  - name: dueToSyntax3-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "food imports will decrease due to the exhaustion of coping capacities"
-    pattern: |
-      trigger = [lemma="due" & tag=/JJ/]
-      cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
-      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
+#  # removed 3/30/2020: precision on estonia run5 eval was 0% (!)
+#  - name: dueToSyntax3-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: "food imports will decrease due to the exhaustion of coping capacities"
+#    pattern: |
+#      trigger = [lemma="due" & tag=/JJ/]
+#      cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
+#      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
 
   - name: dueToSyntax5-${addlabel}
     priority: ${rulepriority}
@@ -225,16 +228,17 @@ rules:
 
 # ------------------- Explicitly Causal Migration Documents --------------------------
 
-  - name: reasons-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "Conflict and food insecurity were cited as the main reasons for leaving South Sudan."
-    # example 2: "Food security was mentioned as the main reason for flight."
-    pattern: |
-      trigger = [lemma=/${reasons}/ & tag=/^NN/]
-      effect: Entity = /(acl|nmod)_for/ /(${preps}|${noun_modifiers})/{,4}
-      cause: Entity = </nmod_as/ [lemma=/${report}/ & tag=/^VB/] /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
+#  # removed 3/30/2020: precision on estonia run5 eval was 40%
+#  - name: reasons-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: "Conflict and food insecurity were cited as the main reasons for leaving South Sudan."
+#    # example 2: "Food security was mentioned as the main reason for flight."
+#    pattern: |
+#      trigger = [lemma=/${reasons}/ & tag=/^NN/]
+#      effect: Entity = /(acl|nmod)_for/ /(${preps}|${noun_modifiers})/{,4}
+#      cause: Entity = </nmod_as/ [lemma=/${report}/ & tag=/^VB/] /${agents}/ /${noun_modifiers}|${objects}|${preps}/{,2}
 
   - name: reasons-were-${addlabel}
     priority: ${rulepriority}
@@ -246,15 +250,16 @@ rules:
       effect: Entity = /(acl|nmod)_for/ /(${preps}|${noun_modifiers})/{,4}
       cause: Entity = <nsubj (?=[outgoing=/cop/]) /^${conjunctions}|${noun_modifiers}|${objects}|${preps}/{,2}
 
-  - name: report-as-reason-${addlabel}
-    priority: ${rulepriority}
-    label: ${label}
-    action: ${ action }
-    example: "Refugees continue to report the fear of indiscriminate killings by the government forces as their main reason of flight."
-    pattern: |
-      trigger = [lemma=/cite|give|mention|provide|report/ & tag=/^VB/]
-      effect: Entity = /nmod_as/ [lemma=/${reasons}/] /nmod_(for|of)/ /(${preps}|${noun_modifiers})/{,4}
-      cause: Entity = /${objects}/ /${noun_modifiers}|${objects}|${preps}/{,2}
+#  # removed 3/30/2020: precision on estonia run5 eval was 50%
+#  - name: report-as-reason-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: "Refugees continue to report the fear of indiscriminate killings by the government forces as their main reason of flight."
+#    pattern: |
+#      trigger = [lemma=/cite|give|mention|provide|report/ & tag=/^VB/]
+#      effect: Entity = /nmod_as/ [lemma=/${reasons}/] /nmod_(for|of)/ /(${preps}|${noun_modifiers})/{,4}
+#      cause: Entity = /${objects}/ /${noun_modifiers}|${objects}|${preps}/{,2}
 
 
   - name: causes-were-${addlabel}
