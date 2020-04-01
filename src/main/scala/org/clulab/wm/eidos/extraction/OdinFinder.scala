@@ -10,8 +10,13 @@ import org.clulab.wm.eidos.utils.FileUtils
 
 class OdinFinder(val expander: Option[Expander], val engine: ExtractorEngine) extends Finder {
 
-
-  def find(doc: Document, initialState: State = new State()): Seq[Mention] = engine.extractFrom(doc, initialState)
+  def find(doc: Document, initialState: State = new State()): Seq[Mention] = {
+    val baseExtractions = engine.extractFrom(doc, initialState)
+    expander match {
+      case Some(e) => e.expand(baseExtractions)
+      case None => baseExtractions
+    }
+  }
 
 }
 
