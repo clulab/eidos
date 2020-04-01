@@ -6,19 +6,6 @@ rules:
   #Entities are found with EntityFinder! Not extracted here!
 
   #Events
-
-  # Higher priority domain-specific events
-#  - import: org/clulab/wm/eidos/english/grammars/context.yml
-#    vars:
-#      rulepriority: "1"
-
-#  - import: org/clulab/wm/eidos/english/grammars/migration.yml
-#    vars:
-#      rulepriority: "2"
-#      action: migrationActionFlow
-#      label: HumanMigration
-#-------------------------------------------------------------------------------------
-
   # Find the direct attachments of entities (e.g., quantification, temporal and geospatial context)
   - import: org/clulab/wm/eidos/english/grammars/entityQuantification.yml
     vars:
