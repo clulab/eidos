@@ -52,4 +52,12 @@ class TestEidosTokenizer extends EnglishTest {
       actualTrue should be (expectedTrue)
     }
   }
+
+  it should "tokenize corrrectly" in {
+    val text = "This is a sentence."
+    val tokens = eidosTokenizer.entoken(text)
+
+    // Check all the raw, start, end, words
+
+  }
 }

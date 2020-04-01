@@ -155,7 +155,7 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
         else {
           val text = Normalizer.normalize(string, form)
 
-          assert(text.size >= 1)
+          assert(text.nonEmpty)
           text.map { char => (char, (start, end)) }
         }
       }
@@ -173,26 +173,32 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     normalize(text, ranges)
   }
 
-  def sanitize(oldText: String, oldRanges: Seq[(Int, Int)], keepAccents: Boolean = false): (String, Seq[(Int, Int)]) = {
-    val newTextAndRanges = oldText.zip(oldRanges).flatMap { case (char, (start, end)) =>
-      val unicodeOpt = EidosTokenizer.unicodes.get(char)
+  def isSanitized(text: String): Boolean =
+      !text.exists { char => EidosTokenizer.unicodes.contains(char) || 0x80 <= char }
 
-      if (unicodeOpt.isDefined)
-        if (keepAccents && EidosTokenizer.accents.contains(char))
-          Seq((char, (start, end)))
-        else
-          unicodeOpt.get.map { char => (char, (start, end)) }
-      else
-        if (char < 0x80)
+  def sanitize(oldText: String, oldRanges: Seq[(Int, Int)], keepAccents: Boolean = false): (String, Seq[(Int, Int)]) = {
+    if (isSanitized(oldText))
+      (oldText, oldRanges)
+    else {
+      val newTextAndRanges = oldText.zip(oldRanges).flatMap { case (char, (start, end)) =>
+        val unicodeOpt = EidosTokenizer.unicodes.get(char)
+
+        if (unicodeOpt.isDefined)
+          if (keepAccents && EidosTokenizer.accents.contains(char))
+            Seq((char, (start, end)))
+          else
+            unicodeOpt.get.map { char => (char, (start, end)) }
+        else if (char < 0x80)
           Seq((char, (start, end)))
         else
           Seq((' ', (start, end))) // This will change work boundaries!
+      }
+
+      val newText = newTextAndRanges.map(_._1).mkString
+      val newRanges = newTextAndRanges.map(_._2)
+
+      (newText, newRanges)
     }
-
-    val newText = newTextAndRanges.map(_._1).mkString
-    val newRanges = newTextAndRanges.map(_._2)
-
-    (newText, newRanges)
   }
 
   def sanitize(text: String, keepAccents: Boolean): (String, Seq[(Int, Int)]) = {
@@ -201,18 +207,58 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     sanitize(text, ranges, keepAccents)
   }
 
-  override def tokenize(text: String, sentenceSplit: Boolean = true): Array[Sentence] = {
-    val (cleanText, offsets) = sanitize(text, true)
-    if (cleanText != text)
-      println("We want to avoid this!")
-    val rawTokens = readTokens(cleanText)
-    // Now fix up the rawTokens
+  override protected def readTokens(text: String): Array[RawToken] = {
+    val (normalizedText, normalizedRanges) = normalize(text)
+    val (sanitizedText, sanitizedRanges) = sanitize(normalizedText, normalizedRanges, keepAccents = true)
+    val redTokens = super.readTokens(sanitizedText)
+    val rawTokens =
+        if (text.eq(sanitizedText)) // If it is literally the same object...
+          redTokens
+        else
+          redTokens.map { case RawToken(_, oldBeginPosition, oldEndPosition, word) =>
+            val newBeginPosition = sanitizedRanges(oldBeginPosition)._1
+            val newEndPosition = sanitizedRanges(oldEndPosition - 1)._2
+            val newRaw = text.slice(newBeginPosition, newEndPosition)
+
+            RawToken(newRaw, newBeginPosition, newEndPosition, word)
+          }
+    rawTokens
+  }
+
+  // Insentivize, break up into sentences
+  // Entoken
+  // Ensentence
+
+  def entoken(text: String): Array[RawToken] = {
+    val (normalizedText, normalizedRanges) = normalize(text)
+    val (sanitizedText, sanitizedRanges) = sanitize(normalizedText, normalizedRanges, keepAccents = true)
+    val rawTokens = readTokens(sanitizedText)
     val stepTokens = steps.foldLeft(rawTokens) { (rawTokens, step) =>
       step.process(rawTokens)
     }
+    // This split() should be working on sanitizedText with any extra spaces in it
+    // because it access what it thinks is the raw text in order to check for the spaces.
     // The first major change is with the added paragraphSplitter.
-    val paragraphTokens = paragraphSplitter.split(cleanText, stepTokens)
-    val sentences = sentenceSplitter.split(paragraphTokens, sentenceSplit)
+    val splitTokens = paragraphSplitter.split(sanitizedText, stepTokens)
+    val paragraphTokens =
+        if (text.eq(sanitizedText)) // If it is literally the same object...
+          splitTokens
+        else
+          splitTokens.map { case RawToken(_, oldBeginPosition, oldEndPosition, word) =>
+            val newBeginPosition = sanitizedRanges(oldBeginPosition)._1
+            val newEndPosition = sanitizedRanges(oldEndPosition - 1)._2
+            val newRaw = text.slice(newBeginPosition, newEndPosition)
+
+            RawToken(newRaw, newBeginPosition, newEndPosition, word)
+          }
+
+    paragraphTokens
+  }
+
+  def ensentence(tokens: Array[RawToken], sentenceSplit: Boolean): Array[Sentence] = {
+    // split() looks only at the word, not the token, so it is safe to have
+    // rewritten the tokens at this point.
+    val sentences = sentenceSplitter.split(tokens, sentenceSplit)
     // The second change is to filter by sentence length.
     val shortSentences = sentences.filter { sentence => sentence.words.length < cutoff }
     val skipLength = sentences.length - shortSentences.length
@@ -220,6 +266,13 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     if (skipLength > 0)
       EidosProcessor.logger.info(s"skipping $skipLength sentences")
     shortSentences
+  }
+
+  override def tokenize(text: String, sentenceSplit: Boolean = true): Array[Sentence] = {
+    val tokens = entoken(text)
+    val sentences = ensentence(tokens, sentenceSplit)
+
+    sentences
   }
 }
 
