@@ -1,3 +1,5 @@
+taxonomy: org/clulab/wm/eidos/english/grammars/taxonomy.yml
+
 rules:
     
   - name: location-nn
