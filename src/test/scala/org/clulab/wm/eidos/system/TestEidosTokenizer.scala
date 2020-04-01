@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.system
 
+import org.clulab.processors.clu.tokenizer.RawToken
 import org.clulab.wm.eidos.EidosEnglishProcessor
-import org.clulab.wm.eidos.EidosTokenizer
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestEidosTokenizer extends EnglishTest {
@@ -53,11 +53,14 @@ class TestEidosTokenizer extends EnglishTest {
     }
   }
 
-  it should "tokenize corrrectly" in {
-    val text = "This is a sentence."
+  it should "tokenize unicode corrrectly" in {
+    val text = "(\u0277)"
     val tokens = eidosTokenizer.entoken(text)
 
-    // Check all the raw, start, end, words
-
+    tokens should have size (4)
+    tokens(0) should be (RawToken("(", 0, 1, "("))
+    tokens(1) should be (RawToken("\u0277", 1, 2, "omega"))
+    tokens(2) should be (RawToken(")", 2, 3, ")"))
+    tokens(3) should be (RawToken("", 3, 3, ".")) // The paragraph splitter ands a trailing period.
   }
 }

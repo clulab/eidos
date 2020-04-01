@@ -245,8 +245,18 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
           splitTokens
         else
           splitTokens.map { case RawToken(_, oldBeginPosition, oldEndPosition, word) =>
-            val newBeginPosition = sanitizedRanges(oldBeginPosition)._1
-            val newEndPosition = sanitizedRanges(oldEndPosition - 1)._2
+            // The paragraph splitter may have added tokens with positions beyond the string
+            // boundaries and therefore beyond the boundaries of the sanitized ranges.
+            val newBeginPosition =
+                if (oldBeginPosition < sanitizedRanges.length)
+                  sanitizedRanges(oldBeginPosition)._1
+                else
+                  text.length
+            val newEndPosition =
+                if (oldEndPosition < sanitizedRanges.length)
+                  sanitizedRanges(oldEndPosition - 1)._2
+                else
+                  text.length
             val newRaw = text.slice(newBeginPosition, newEndPosition)
 
             RawToken(newRaw, newBeginPosition, newEndPosition, word)
