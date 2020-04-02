@@ -250,6 +250,8 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
                   text.length
             val newEndPosition =
                 if (oldEndPosition < sanitizedRanges.length)
+                  // This might more typically be (oldEndPosition)._1, and usually that would give
+                  // the same answer, but if characters have been deleted it might not be.
                   sanitizedRanges(oldEndPosition - 1)._2
                 else
                   text.length
