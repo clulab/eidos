@@ -278,6 +278,7 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     shortSentences
   }
 
+  // This is a bit misnamed, but we are overriding a processors method here.
   override def tokenize(text: String, sentenceSplit: Boolean = true): Array[Sentence] = {
     val tokens = entoken(text)
     val sentences = ensentence(tokens, sentenceSplit)
