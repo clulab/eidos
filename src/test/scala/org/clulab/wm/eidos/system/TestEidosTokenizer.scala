@@ -85,8 +85,9 @@ class TestEidosTokenizer extends EnglishTest {
 
   it should "handle problematic text correctly" in {
     {
-      // This comes from our gold_graoundings.tsv.
-      val text = "\uc4a2 Restoring the severely damaged environment."
+      // This comes from our gold_groundings_annotated.tsv.
+      // It started out as UTF-8 \xe8 \x98 \x91 and converts to UTF-16 as \u8611.
+      val text = "\u8611 Restoring the severely damaged environment."
       val expectedWords = Seq("Restoring", "the", "severely", "damaged", "environment", ".")
       val actualWords = eidosTokenizer.entoken(text).map(_.word)
 
@@ -94,9 +95,9 @@ class TestEidosTokenizer extends EnglishTest {
     }
 
     {
-      // This comes from our gold_groundings_annotated.tsv.
-      // It should be \ue89891, but how can that be expressed?
-      val text = "\u8611 Restoring the severely damaged environment."
+      // This comes from our gold_graoundings.tsv.
+      // It started out as UTF-8 \xc4 \xa2 after some bad conversion from the text above.
+      val text = "\uc4a2 Restoring the severely damaged environment."
       val expectedWords = Seq("Restoring", "the", "severely", "damaged", "environment", ".")
       val actualWords = eidosTokenizer.entoken(text).map(_.word)
 
