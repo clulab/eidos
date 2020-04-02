@@ -225,10 +225,6 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     rawTokens
   }
 
-  // Insentivize, break up into sentences
-  // Entoken
-  // Ensentence
-
   def entoken(text: String): Array[RawToken] = {
     val (normalizedText, normalizedRanges) = normalize(text)
     val (sanitizedText, sanitizedRanges) = sanitize(normalizedText, normalizedRanges, keepAccents = true)
