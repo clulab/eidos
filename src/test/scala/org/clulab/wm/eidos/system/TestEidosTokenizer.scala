@@ -18,6 +18,22 @@ class TestEidosTokenizer extends EnglishTest {
     newText should be (oldText)
   }
 
+  it should "not normalize reversed diacritics" in {
+    val oldText = "Universit\u00a8at Koblenz-Landau"
+    val newText = eidosTokenizer.normalize(oldText)._1
+
+    newText should be ("Universit at Koblenz-Landau")
+  }
+
+  it should "work OK with UTF-32 characters" in {
+    val oldText = "(\ud83d\udca9)"
+    val normalizedText = eidosTokenizer.normalize(oldText)._1
+    val sanitizedText = eidosTokenizer.sanitize(oldText, keepAccents = true)._1
+
+    normalizedText should be (oldText)
+    sanitizedText should be ("(  )")
+  }
+
   it should "normalize abnormal text" in {
     val inputsAndExpecteds = Seq(
       ("e\ufb00ort", "effort"),
