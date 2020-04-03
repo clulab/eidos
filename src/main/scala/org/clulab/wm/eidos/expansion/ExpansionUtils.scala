@@ -20,7 +20,7 @@ object ExpansionUtils {
     // find mentions of the same label and sentence overlap
     val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
     // new foundBy for paper-trail, removes duplicate portions
-    val completeFoundBy = compositionalFoundBy(overlapping)
+    val completeFoundBy = if (overlapping.nonEmpty) compositionalFoundBy(overlapping) else expanded.foundBy
     // get all the attachments for the overlapping mentions
     val allAttachments = overlapping.flatMap(m => m.attachments).distinct
     // Add in all attachments
