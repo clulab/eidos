@@ -191,7 +191,7 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
         else if (char < 0x80)
           Seq((char, (start, end)))
         else
-          Seq((' ', (start, end))) // This will change work boundaries!
+          Seq((' ', (start, end))) // This will change word boundaries!
       }
 
       val newText = newTextAndRanges.map(_._1).mkString
