@@ -9,7 +9,7 @@ import org.json4s._
 
 // This is the base class.
 
-abstract class CausalAssertionObject {
+abstract class CauseExObject {
   val optionalUnknown = JNull
   val nonOptionalConfidence = JDouble(1d)
   val optionalConfidence: JValue = optionalUnknown
@@ -17,13 +17,13 @@ abstract class CausalAssertionObject {
 
   def toJValue(): JValue
 
-  implicit def toJValue(causalAssertionObject: CausalAssertionObject): JValue = causalAssertionObject.toJValue()
+  implicit def toJValue(causalAssertionObject: CauseExObject): JValue = causalAssertionObject.toJValue()
 }
 
 // These classes are described directly in the documentation in this order.
 
 // Frame objects are used to represent events and causal assertions.
-class Frame(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class Frame(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   def toJValue(): JObject = {
     val documentIdOpt = eidosEventMention.odinMention.document.id
@@ -50,7 +50,7 @@ class Frame(eidosEventMention: EidosEventMention) extends CausalAssertionObject 
 }
 
 // Check first with the arguments further below.
-class Entity(something: AnyRef) extends CausalAssertionObject {
+class Entity(something: AnyRef) extends CauseExObject {
 
   def toJValue(): JObject = {
     TidyJObject(
@@ -70,7 +70,7 @@ class Entity(something: AnyRef) extends CausalAssertionObject {
 }
 
 // What are the arguments, are these attributes like time and location?
-class Argument extends CausalAssertionObject {
+class Argument extends CauseExObject {
 
   def toJValue(): JObject = {
     TidyJObject(
@@ -85,7 +85,7 @@ class Argument extends CausalAssertionObject {
   }
 }
 
-class Span(something: AnyRef) extends CausalAssertionObject {
+class Span(something: AnyRef) extends CauseExObject {
 
   def toJValue(): JObject = {
     TidyJObject(
@@ -99,7 +99,7 @@ class Span(something: AnyRef) extends CausalAssertionObject {
   }
 }
 
-class CausalFactor(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class CausalFactor(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   def toJValue(): JObject = {
     TidyJObject(
@@ -111,7 +111,7 @@ class CausalFactor(eidosEventMention: EidosEventMention) extends CausalAssertion
   }
 }
 
-class Provenance(something: AnyRef) extends CausalAssertionObject {
+class Provenance(something: AnyRef) extends CauseExObject {
 
   def toJValue(): JObject = {
     TidyJObject(
@@ -122,7 +122,7 @@ class Provenance(something: AnyRef) extends CausalAssertionObject {
 
 // These are the classes for internal use, generally described bottom up.
 
-class EntityProperties(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class EntityProperties(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   // Not optional, but may be an empty map
   def toJValue(): JObject = {
@@ -135,7 +135,7 @@ class EntityProperties(eidosEventMention: EidosEventMention) extends CausalAsser
   }
 }
 
-class FrameProperties(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class FrameProperties(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   // Not optional, but may be an empty map
   def toJValue(): JObject = {
@@ -149,7 +149,7 @@ class FrameProperties(eidosEventMention: EidosEventMention) extends CausalAssert
   }
 }
 
-class Arguments(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class Arguments(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   def toJValue(): JArray = {
     val causes = eidosEventMention.eidosArguments("cause")
@@ -158,14 +158,14 @@ class Arguments(eidosEventMention: EidosEventMention) extends CausalAssertionObj
   }
 }
 
-class CausalFactors(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class CausalFactors(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   def toJValue(): JArray = {
     ???
   }
 }
 
-class EntityEvidence(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class EntityEvidence(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   def toJValue(): JObject = {
     TidyJObject(
@@ -175,7 +175,7 @@ class EntityEvidence(eidosEventMention: EidosEventMention) extends CausalAsserti
   }
 }
 
-class FrameEvidence(eidosEventMention: EidosEventMention) extends CausalAssertionObject {
+class FrameEvidence(eidosEventMention: EidosEventMention) extends CauseExObject {
 
   def wordCount(text: String): Int = text.count(_ == ' ') + 1
 
@@ -204,7 +204,7 @@ class FrameEvidence(eidosEventMention: EidosEventMention) extends CausalAssertio
   }
 }
 
-class CausalAssertionDocument(annotatedDocument: AnnotatedDocument) extends CausalAssertionObject {
+class CauseExDocument(annotatedDocument: AnnotatedDocument) extends CauseExObject {
 
   def toJValue(): JArray = {
     val framesJValue = annotatedDocument

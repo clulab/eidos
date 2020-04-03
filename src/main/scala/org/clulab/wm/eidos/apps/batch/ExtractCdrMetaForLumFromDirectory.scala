@@ -4,7 +4,7 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDCorpus
-import org.clulab.wm.eidos.serialization.json.causeex.CausalAssertionDocument
+import org.clulab.wm.eidos.serialization.json.causeex.CauseExDocument
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
@@ -59,7 +59,7 @@ object ExtractCdrMetaForLumFromDirectory extends App {
           // 3. Extract causal mentions from the text
           val annotatedDocument = reader.extractFromText(text, options, metadata)
           // 4. Convert to JSON
-          val corpus = new CausalAssertionDocument(annotatedDocument)
+          val corpus = new CauseExDocument(annotatedDocument)
           val mentionsJSONLD = corpus.toJValue()
           // 5. Write to output file
           val path = FileEditor(file).setDir(outputDir).get
