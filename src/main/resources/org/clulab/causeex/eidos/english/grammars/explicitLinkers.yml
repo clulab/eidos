@@ -88,15 +88,16 @@ rules:
       cause: Entity = <case
       effect: Entity = <case <nmod_given /${agents}/?
 
-  - name: syntax_explicit_favorable
-    priority: ${ rulepriority }
-    example: "We have started ramping up food and nutrition support, but much more is needed to keep things from deteriorating even further during the lean season"
-    label: Causal
-    action: ${ action }
-    pattern: |
-      trigger = [lemma=/^(favorable|helpful|amenable)/ & tag=/^JJ/]
-      cause: Entity = (?= cop) /${agents}/
-      effect: Entity = nmod_for
+#  # removed 3/30/2020: precision on estonia run5 eval was 40%
+#  - name: syntax_explicit_favorable
+#    priority: ${ rulepriority }
+#    example: "We have started ramping up food and nutrition support, but much more is needed to keep things from deteriorating even further during the lean season"
+#    label: Causal
+#    action: ${ action }
+#    pattern: |
+#      trigger = [lemma=/^(favorable|helpful|amenable)/ & tag=/^JJ/]
+#      cause: Entity = (?= cop) /${agents}/
+#      effect: Entity = nmod_for
 
   - name: syntax_explicit_Correlation_related
     priority: ${ rulepriority }

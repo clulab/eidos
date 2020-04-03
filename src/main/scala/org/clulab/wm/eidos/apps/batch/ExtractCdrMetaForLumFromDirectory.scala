@@ -35,15 +35,13 @@ object ExtractCdrMetaForLumFromDirectory extends App {
     timer.start()
     // Prime it first.  This counts on overall time, but should not be attributed
     // to any particular document.
-    val config = EidosSystem.defaultConfig
-    val reader = new EidosSystem(config)
+    val reader = new EidosSystem()
     val options = EidosSystem.Options()
-    // 0. Optionally include adjective grounding
-    val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 
-    reader.extractFromText("This is a test.")
+    Timer.time("EidosPrimer") {
+      reader.extractFromText("This is a test.")
+    }
     timer.stop()
-
     timePrintWriter.println("Startup\t0\t" + timer.elapsedTime.get)
 
     parFiles.foreach { file =>

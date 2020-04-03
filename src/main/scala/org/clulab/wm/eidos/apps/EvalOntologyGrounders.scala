@@ -274,7 +274,7 @@ object EvalOntologyGrounders extends App {
         val fields = tsvReader.readln(line)
 
         if (first.isTrue) {
-          val newLine = tsvWriter.stringln(fields: _*)
+          val newLine = tsvWriter.mkString(fields)
 
           if (line != newLine) throw new RuntimeException("The file doesn't seem to be formatted as expected.")
           else printWriter.println(line)
@@ -285,7 +285,7 @@ object EvalOntologyGrounders extends App {
 
           if (!valid) printWriter.println(line)
           else
-            if (evaluateRow(line, row, scores, eidosSystem, printWriter, tsvWriter)) tsvWriter.println(fields: _*)
+            if (evaluateRow(line, row, scores, eidosSystem, printWriter, tsvWriter)) tsvWriter.println(fields)
             else printWriter.println(line)
         }
       }

@@ -13,6 +13,7 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.serialization.json.{DocOps, JSONSerializer}
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer
 import org.clulab.wm.eidos.utils.Canonicalizer
@@ -21,7 +22,7 @@ import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 class TestDocSerialization extends Test {
   val config: Config = this.defaultConfig // Do not use EidosSystem's defaultConfig!
   val reader: EidosSystem = new EidosSystem(config)
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+  val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
   val canonicalizer: Canonicalizer = reader.components.ontologyHandler.canonicalizer
 
   def testObjectSerialization(annotatedDocument: AnnotatedDocument): Unit = {
