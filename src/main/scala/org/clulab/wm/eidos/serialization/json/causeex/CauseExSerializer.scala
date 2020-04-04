@@ -90,14 +90,10 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
       // A better way is to use a special ontology like two_six_events here.
-      {
-        val result = CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
-            .filter(isFrameType(eidosMention)(_))
-            .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
-            .distinct
-
-        result
-      }
+      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
+          .filter(isFrameType(eidosMention)(_))
+          .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
+          .distinct // This is necessary because the same leaf can have multiple parents.
     ).flatten
 
     TidyJObject(
@@ -321,9 +317,8 @@ class OntologizedType(val uri: String, val confidence: Float) extends CauseExFie
   override def equals(other: Any): Boolean = {
     this.getClass == other.getClass && {
       val that = other.asInstanceOf[OntologizedType]
-      val result = this.uri == that.uri
 
-      result
+      this.uri == that.uri
     }
   }
 
