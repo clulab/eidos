@@ -76,7 +76,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // TODO Could this be coreference?
   def isSimilarAssertion(eidosMention: EidosMention): Boolean = false
 
-  def isFrameType(singleOntologyGrounding: SingleOntologyGrounding): Boolean = {
+  def isFrameType(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = {
     0.5 < singleOntologyGrounding._2
   }
 
@@ -91,8 +91,8 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
       // A better way is to use a special ontology like two_six_events here.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
-          .filter(isFrameType)
-          .map { singleOntologyGrounding => new FrameType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
+          .filter(isFrameType(eidosMention)(_))
+          .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
     ).flatten
 
     TidyJObject(
@@ -124,13 +124,14 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
   // http://ontology.causeex.com/ontology/odps/DataProvenance#NOM
   // http://ontology.causeex.com/ontology/odps/DataProvenance#PRO
 
-  def isEntityType(singleOntologyGrounding: SingleOntologyGrounding): Boolean = true
+  def isEntityType(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = true
 
   def toJValue: JObject = {
     val entityTypes = Seq(
       // A better way is to use a special ontology like two_six_events here.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_actor")
-          .filter(isEntityType)
+          .filter(isEntityType(eidosMention)(_))
+          // TODO: There are two different prefixes in play.  Are they in the same ontology?
           .map { singleOntologyGrounding => new EntityType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
     ).flatten
     // TODO: Figure out the NAM, NOM, PRO
@@ -266,10 +267,11 @@ object Trend extends Enumeration {
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
   val namer: Namer = singleOntologyGrounding._1
   val float: Float = singleOntologyGrounding._2
+  val factorClass = OntologizedType.toUri(namer.name, "http://ontology.causeex.com/ontology/odps/ICM#")
 
   def toJValue: JObject = {
     TidyJObject(
-      "factor_class" -> namer.name, // Ontologized URI string for causal factor class
+      "factor_class" -> factorClass, // Ontologized URI string for causal factor class
       "relevance" -> JDouble(float), // Not optional, must be 0.0 to 1.0
       // TODO: We need better magnitude.
       "magnitude" -> JDouble(0d), // Not optional, must be -1.0 to 1.0
@@ -458,11 +460,6 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
   // ...
   // http://ontology.causeex.com/ontology/odps/ICM#Weather
 
-  def getIcmGroundings: MultipleOntologyGrounding = {
-    // It is assumed then that these begin with http://ontology.causeex.com/ontology/odps/ICM#.
-    eidosMention.grounding.get("two_six_icm").map(_.grounding).getOrElse(Seq.empty)
-  }
-
   def getTrend: Trend.Value = {
     // There's no technical reason that it could be both
     if (eidosMention.odinMention.attachments.exists { attachment => attachment.isInstanceOf[Increase]})
@@ -476,12 +473,14 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
       Trend.UNKNOWN
   }
 
+  def isCausalFactor(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = true
+
   def toJValue: JArray = {
     val trend = getTrend
     // TODO: The attachments will have a trigger and that should influence magnitude.
-    val causalFactors = getIcmGroundings.map { singleOntologyGrounding =>
-      new CausalFactor(singleOntologyGrounding, trend)
-    }
+    val causalFactors = CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_icm")
+        .filter(isCausalFactor(eidosMention)(_))
+        .map(new CausalFactor(_, trend))
 
     new JArray(causalFactors.toList.map(_.toJValue))
   }
