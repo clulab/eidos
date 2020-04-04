@@ -13,7 +13,6 @@ import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases.SingleOntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosMention
@@ -41,7 +40,7 @@ object CauseExObject {
   val nonOptionalConfidence: JValue = JDouble(1d)
   val optionalConfidence: JValue = optionalUnknown
   val emptyJObject: JObject = JObject()
-  val unknownDocumentId = "<unknown>"
+  val unknownDocumentId = "<unknown>" // This is only used if a require is commented out.
 
   def getDocumentId(eidosMention: EidosMention): String = getDocumentId(eidosMention.odinMention)
 
@@ -49,10 +48,29 @@ object CauseExObject {
 
   def getDocumentId(document: Document): String = document.id.getOrElse(unknownDocumentId)
 
+  def toShortName(name: String): String = {
+    val leafName =
+      if (name.last == '/') name.dropRight(1)
+      else name
+    val shortName = StringUtils.afterLast(leafName, '/')
+
+    shortName
+  }
+
   def getSingleOntologyGroundings(eidosMention: EidosMention, key: String): Seq[SingleOntologyGrounding] = {
-    eidosMention.grounding.get(key).map { ontologyGrounding =>
+    val singleOntologyGroundings = eidosMention.grounding.get(key).map { ontologyGrounding =>
       ontologyGrounding.grounding
     }.getOrElse(Seq.empty)
+    // This is necessary because the same leaf can have multiple parents.
+    // Unfortunately there is no distinctBy in this version of Scala.
+    val distinctOntologyGroundings = singleOntologyGroundings
+        .groupBy { singleOntologyGrounding => toShortName(singleOntologyGrounding._1.name) }
+        .map { case (name, singleOntologyGroundings) => name -> singleOntologyGroundings.head }
+        .toSeq
+        .sortBy { case (key, (_, float)) => (-float, key) }
+        .map { case (_, singleOntologyGrounding) => singleOntologyGrounding }
+
+    distinctOntologyGroundings
   }
 }
 
@@ -93,7 +111,6 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
           .filter(isFrameType(eidosMention)(_))
           .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
-          .distinct // This is necessary because the same leaf can have multiple parents.
     ).flatten
 
     TidyJObject(
@@ -327,14 +344,7 @@ class OntologizedType(val uri: String, val confidence: Float) extends CauseExFie
 
 object OntologizedType {
 
-  def toUri(name: String, prefix: String): String = {
-    val shortName = StringUtils.afterLast(name, '/')
-    val asLeafName =
-        if (shortName.last == '/') shortName.dropRight(1)
-        else shortName
-
-    prefix + asLeafName
-  }
+  def toUri(name: String, prefix: String): String = prefix + CauseExObject.toShortName(name)
 }
 
 class FrameType(uri: String, confidence: Float = 1f) extends OntologizedType(uri, confidence) {
@@ -585,6 +595,7 @@ class FrameEvidence(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class CauseExDocument(annotatedDocument: AnnotatedDocument) extends CauseExObject {
+  require(annotatedDocument.document.id.isDefined)
 
   def toJValue: JArray = {
     val frameJValues = annotatedDocument.eidosMentions
