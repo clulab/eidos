@@ -49,8 +49,8 @@ object CauseExObject {
 
   def toShortName(name: String): String = {
     val leafName =
-      if (name.last == '/') name.dropRight(1)
-      else name
+        if (name.last == '/') name.dropRight(1)
+        else name
     val shortName = StringUtils.afterLast(leafName, '/')
 
     shortName
@@ -60,7 +60,7 @@ object CauseExObject {
     val singleOntologyGroundings = eidosMention.grounding.get(key).map { ontologyGrounding =>
       ontologyGrounding.grounding
     }.getOrElse(Seq.empty)
-    // This is necessary because the same leaf can have multiple parents.
+    // This is necessary because the same leaf can have multiple parents and thus multiple paths to it.
     // Unfortunately there is no distinctBy in this version of Scala.
     val distinctOntologyGroundings = singleOntologyGroundings
         .groupBy { singleOntologyGrounding => toShortName(singleOntologyGrounding._1.name) }
@@ -77,6 +77,8 @@ object CauseExObject {
 
 // Frame objects are used to represent events and causal assertions.
 class Frame(eidosMention: EidosMention) extends CauseExObject {
+  // See frame_types.txt.  For the first three, logical tests of some kind are
+  // be used.  For the Event#s, grounding is used.
   // http://ontology.causeex.com/ontology/odps/CauseEffect#CausalAssertion
   // http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent
   // http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion
@@ -88,11 +90,13 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   def isCausalAssertion(eidosMention: EidosMention): Boolean =
       eidosMention.eidosArguments.contains("cause") && eidosMention.eidosArguments.contains("effect")
 
+  // TODO We have qualifiers!  See CauseEffect.ttl for definition.
   def isQualifiedEvent(eidosMention: EidosMention): Boolean = false
 
-  // TODO Could this be coreference?
+  // TODO Could this be coreference?  See CauseEffect.ttl for definition.
   def isSimilarAssertion(eidosMention: EidosMention): Boolean = false
 
+  // This is an example predicate.  We ground to 10, but it might not make sense to use all of them.
   def isFrameType(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = {
     0.5 < singleOntologyGrounding._2
   }
@@ -106,7 +110,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isCausalAssertion,  "http://ontology.causeex.com/ontology/odps/CauseEffect#CausalAssertion"),
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
-      // A better way is to use a special ontology like two_six_events here.
+      // Right now, two_six really means two_six_events here.  We don't have the other ontologies yet.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
           .filter(isFrameType(eidosMention)(_))
           .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
@@ -116,12 +120,10 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       "frame_types" -> new FrameTypes(frameTypes),
       // These will be the causes and effects.
       "causal_factors" -> new CausalFactors(eidosMention),
-      // These will be the attributes of time and location.
+      // These will include the attributes of time and location.
       "arguments" -> new Arguments(eidosMention),
-      // TODO Require this somehow so that it does not get tidied.
       // Not optional, but may be an empty map
       "properties" -> new FrameProperties(eidosMention),
-      // TODO We do have possibly have polarity
       "evidence" -> new FrameEvidence(eidosMention),
       "docid" -> CauseExObject.getDocumentId(eidosMention),
       "provenance" -> new Provenance()
@@ -131,12 +133,12 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
 
 // Check first with the arguments further below.
 class Entity(eidosMention: EidosMention) extends CauseExObject {
-  // EntityTypes
+  // See entity_types.txt.  Most of these need to be found using grounding.
   // http://ontology.causeex.com/ontology/odps/Actor#AdvocacyGroup
   //  ...
   // http://ontology.causeex.com/ontology/odps/GeneralConcepts#Wetland
 
-  // MentionTypes
+  // See mention_type.txt.  These probably need to be done via POS or NER.
   // http://ontology.causeex.com/ontology/odps/DataProvenance#NAM
   // http://ontology.causeex.com/ontology/odps/DataProvenance#NOM
   // http://ontology.causeex.com/ontology/odps/DataProvenance#PRO
@@ -145,22 +147,23 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
 
   def toJValue: JObject = {
     val entityTypes = Seq(
-      // A better way is to use a special ontology like two_six_events here.
+      // TODO: We don't have an antology for this.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_actor")
           .filter(isEntityType(eidosMention)(_))
           // TODO: There are two different prefixes in play.  Are they in the same ontology?
           .map { singleOntologyGrounding => new EntityType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
     ).flatten
     // TODO: Figure out the NAM, NOM, PRO
-    val newMentionTypeOpt: Option[String] = None
+    val mentionTypeOpt: Option[String] = None
 
     TidyJObject(
       // Ontologized URI string for entity type
       // Value represents non-optional confidence
       "entity_types" -> new EntityTypes(entityTypes),
-      "mention_type" -> newMentionTypeOpt, // Ontologized URI string for mention type
+      "mention_type" -> mentionTypeOpt, // Ontologized URI string for mention type
       // Not optional, but may be an empty map
       "evidence" -> new EntityEvidence(eidosMention),
+      // Not optional, but may be an empty map
       "properties" -> new EntityProperties(eidosMention),
       "provenance" -> new Provenance(),
       // Most canonical name the system can provide for the entity
@@ -199,24 +202,6 @@ class FrameArgument(roleUri: String, eidosMention: EidosMention) extends Argumen
 
 class TimeArgument(time: Time, docId: String) extends Argument {
 
-  // TODO: See CauseEffect file for definition of latency and other roles!
-  def getLatencyOpt: Option[Long] = {
-    val start = time.interval.intervals
-        .map(_.startDate)
-        .map { startDate => (startDate, ChronoUnit.MILLIS.between(TimeArgument.zero, startDate)) }
-        .minBy(_._2)
-        ._1
-    val end = time.interval.intervals
-        .map(_.endDate)
-        .map { endDate => (endDate, ChronoUnit.MILLIS.between(TimeArgument.zero, endDate)) }
-        .maxBy(_._2)
-        ._1
-    val milliseconds = ChronoUnit.MILLIS.between(start, end)
-    val millisecondsOpt = if (milliseconds > 0) Some(milliseconds) else None
-
-    millisecondsOpt
-  }
-
   def toJValue: JObject = {
     TidyJObject(
       // Either an ontologized URI string for the role or 'has_time' for time arguments.
@@ -238,7 +223,7 @@ class Span(val docId: String, val start: Int, val end: Int, val text: String) ex
     CauseExObject.getDocumentId(odinMention),
     Span.getStart(odinMention),
     Span.getEnd(odinMention),
-    odinMention.text // kwa: this needs to be raw text?
+    odinMention.text
   )
 
   def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
@@ -290,15 +275,8 @@ class HeadSpan(docId: String, start: Int, end: Int, text: String) extends Span(d
   def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
 }
 
-object Trend extends Enumeration {
-  type Trend = Value
-
-  val DECREASING, NEUTRAL, INCREASING, UNKNOWN = Value
-}
-
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
-  val namer: Namer = singleOntologyGrounding._1
-  val float: Float = singleOntologyGrounding._2
+  val (namer: Namer, float: Float) = singleOntologyGrounding
   val factorClass: String = OntologizedType.toUri(namer.name, "http://ontology.causeex.com/ontology/odps/ICM#")
 
   def toJValue: JObject = {
@@ -323,22 +301,18 @@ class Provenance() extends CauseExObject {
 
 // These are the classes for internal use, generally described bottom up.
 
+object Trend extends Enumeration {
+  type Trend = Value
+
+  val DECREASING, NEUTRAL, INCREASING, UNKNOWN = Value
+}
+
 class OntologizedType(val uri: String, val confidence: Float) extends CauseExField {
 
   def this(singleOntologyGrounding: SingleOntologyGrounding, prefix: String) =
-    this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
+      this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
 
   def toJField: JField = JField(uri, JDouble(confidence))
-
-  override def equals(other: Any): Boolean = {
-    this.getClass == other.getClass && {
-      val that = other.asInstanceOf[OntologizedType]
-
-      this.uri == that.uri
-    }
-  }
-
-  override def hashCode: Int = uri.hashCode
 }
 
 object OntologizedType {
@@ -366,6 +340,7 @@ class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
     locations.headOption.flatMap { location =>
       location.geoPhraseID.geonameID.flatMap { string =>
         try {
+          // We store strings, and they don't only describe numbers.
           Some(string.toInt)
         }
         catch {
@@ -388,6 +363,7 @@ class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Modality(eidosMention: EidosMention) extends CauseExObject {
+  // See modality.txt.
   // http://ontology.causeex.com/ontology/odps/Event#Asserted
   // http://ontology.causeex.com/ontology/odps/Event#Other
 
@@ -395,6 +371,7 @@ class Modality(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Polarity(eidosMention: EidosMention) extends CauseExObject {
+  // See polarity.txt.
   // http://ontology.causeex.com/ontology/odps/Event#Negative
   // http://ontology.causeex.com/ontology/odps/Event#Positive
 
@@ -404,13 +381,12 @@ class Polarity(eidosMention: EidosMention) extends CauseExObject {
       }
 
   def toJValue: JValue =
-      if (isNegative)
-        JString("http://ontology.causeex.com/ontology/odps/Event#Negative")
-      else
-        JString("http://ontology.causeex.com/ontology/odps/Event#Positive")
+      if (isNegative) JString("http://ontology.causeex.com/ontology/odps/Event#Negative")
+      else JString("http://ontology.causeex.com/ontology/odps/Event#Positive")
 }
 
 class Tense(eidosMention: EidosMention) extends CauseExObject {
+  // See tense.txt.
   // http://ontology.causeex.com/ontology/odps/Event#Future
   // http://ontology.causeex.com/ontology/odps/Event#Past
   // http://ontology.causeex.com/ontology/odps/Event#Present
@@ -420,6 +396,7 @@ class Tense(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Genericity(eidosMention: EidosMention) extends CauseExObject {
+  // See genericity.txt.
   // http://ontology.causeex.com/ontology/odps/Event#Generic
   // http://ontology.causeex.com/ontology/odps/Event#Specific
 
@@ -442,12 +419,22 @@ class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Arguments(eidosMention: EidosMention) extends CauseExObject {
+  // See role.txt.
+  // has_time
+  // http://ontology.causeex.com/ontology/odps/CauseEffect#has_catalyst
+  // http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause
+  // http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect
+  // http://ontology.causeex.com/ontology/odps/CauseEffect#has_mitigating_factor
+  // ...
+  // http://ontology.causeex.com/ontology/odps/Actor#uses
 
   def getTimes: Seq[Time] = eidosMention.odinMention.attachments.toSeq.collect { case time: Time => time }
 
   def getCauses: Seq[EidosMention] = eidosMention.eidosArguments.getOrElse("cause", Seq.empty)
 
   def getEffects: Seq[EidosMention] = eidosMention.eidosArguments.getOrElse("effect", Seq.empty)
+
+  // TODO: See CauseEffect file for definition of latency and other roles!
 
   // TODO: For now, grounding matches, but some need to be identified by type of attachment or name of argument.
   def isRole(argument: String, eidosMention: EidosMention): Boolean = false
@@ -456,7 +443,7 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
     eidosMention.eidosArguments.flatMap { case (argument, eidosMentions) =>
       eidosMentions
           .filter { eidosMention => isRole(argument, eidosMention) }
-          // TODO: The key needs to be mapped into a role.
+          // TODO: The key needs to be mapped into a role. // KWA revisit
           .map { eidosMention => new EntityArgument(argument, eidosMention) }
     }.toSeq
   }
@@ -465,7 +452,7 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
     eidosMention.odinMention.attachments.toSeq.flatMap { attachment =>
       attachment match {
         // This very eidosMention has the location.
-        case location: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
+        case _: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
         // TODO: Find more
         case _ => None
       }
@@ -476,8 +463,9 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
     getEntityArgumentsFromArguments ++ getEntityArgumentsFromAttachments
   }
 
+  // KWA:  Make sure time and also location get in here.  There is location, with cause or effect or parent?
   def toJValue: JArray = {
-    val arguments = Seq(
+    val arguments = List(
       getTimes.map { time => new TimeArgument(time, CauseExObject.getDocumentId(eidosMention)) },
       getCauses.map { cause => new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", cause) },
       getEffects.map { effect => new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", effect) },
@@ -485,12 +473,13 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
       getEntityArguments
     ).flatten
 
-    new JArray(arguments.map(_.toJValue).toList)
+    new JArray(arguments.map(_.toJValue))
   }
 }
 
 class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
   // TODO: Add the ICM stuff here, perhaps mapped from groundings?
+  // See factor_class.txt.
   // http://ontology.causeex.com/ontology/odps/ICM#AbilityToAddressBasicNeeds
   // ...
   // http://ontology.causeex.com/ontology/odps/ICM#Weather
@@ -533,7 +522,7 @@ class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
     TidyJObject(
       "span" -> new Span(eidosMention), // Optional
       "head_span" -> new HeadSpan(eidosMention)  // Optional
-    )
+    )(required = true)
   }
 }
 
@@ -553,7 +542,6 @@ abstract class Trigger(val eidosEventMention: EidosEventMention) extends CauseEx
 class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eidosEventMention) {
 
   def toJValue: JObject = {
-
       if (wordCount(text) == 1) new Span(eidosTrigger).toJValue
         // The canonicalName does not have "unnormalized text referred to by the start/length".
       // else if (wordCount(eidosTrigger.canonicalName) == 1) new Span(eidosTrigger.canonicalName).toJValue
@@ -597,13 +585,10 @@ class CauseExDocument(annotatedDocument: AnnotatedDocument) extends CauseExObjec
   require(annotatedDocument.document.id.isDefined)
 
   def toJValue: JArray = {
-    val frameJValues = annotatedDocument.eidosMentions
-        .map { eidosMention =>
-          new Frame(eidosMention).toJValue
-        }
-        .toList
+    val frames = annotatedDocument.eidosMentions
+        .map(new Frame(_))
 
-    new JArray(frameJValues)
+    new JArray(frames.toList.map(_.toJValue))
   }
 }
 
