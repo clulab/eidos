@@ -4,10 +4,10 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 import scala.language.implicitConversions
-
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
+import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.Negation
@@ -71,6 +71,18 @@ object CauseExObject {
 
     distinctOntologyGroundings
   }
+
+  def hasAttachment[T](eidosMention: EidosMention): Boolean =
+      eidosMention.odinMention.attachments.exists { attachment => attachment.isInstanceOf[T] }
+
+  def getAttachments[T](eidosMention: EidosMention): Seq[T] =
+    eidosMention.odinMention.attachments.collect { case attachment: T => attachment }.toSeq
+
+  def hasArgument(eidosMention: EidosMention, name: String): Boolean =
+      eidosMention.eidosArguments.contains(name)
+
+  def getArguments(eidosMention: EidosMention, name: String): Seq[EidosMention] =
+      eidosMention.eidosArguments.getOrElse(name, Seq.empty)
 }
 
 // These classes are described directly in the documentation in this order.
@@ -88,7 +100,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // http://ontology.causeex.com/ontology/odps/Event#Webcast
 
   def isCausalAssertion(eidosMention: EidosMention): Boolean =
-      eidosMention.eidosArguments.contains("cause") && eidosMention.eidosArguments.contains("effect")
+      CauseExObject.hasArgument(eidosMention, "cause") && CauseExObject.hasArgument(eidosMention, "effect")
 
   // TODO We have qualifiers!  See CauseEffect.ttl for definition.
   def isQualifiedEvent(eidosMention: EidosMention): Boolean = false
@@ -334,7 +346,7 @@ class FrameTypes(frameTypes: Seq[FrameType]) extends CauseExObject {
 class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
 
   def getLocationOpt: Option[Int] = {
-    val locations = eidosMention.odinMention.attachments.collect { case attachment: Location => attachment }
+    val locations = CauseExObject.getAttachments[Location](eidosMention)
     assert(locations.size <= 1)
 
     locations.headOption.flatMap { location =>
@@ -375,10 +387,7 @@ class Polarity(eidosMention: EidosMention) extends CauseExObject {
   // http://ontology.causeex.com/ontology/odps/Event#Negative
   // http://ontology.causeex.com/ontology/odps/Event#Positive
 
-  def isNegative: Boolean =
-      eidosMention.odinMention.attachments.exists { attachment =>
-        attachment.isInstanceOf[Negation]
-      }
+  def isNegative: Boolean = CauseExObject.hasAttachment[Negation](eidosMention)
 
   def toJValue: JValue =
       if (isNegative) JString("http://ontology.causeex.com/ontology/odps/Event#Negative")
@@ -428,11 +437,11 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   // ...
   // http://ontology.causeex.com/ontology/odps/Actor#uses
 
-  def getTimes: Seq[Time] = eidosMention.odinMention.attachments.toSeq.collect { case time: Time => time }
+  def getTimes: Seq[Time] = CauseExObject.getAttachments[Time](eidosMention)
 
-  def getCauses: Seq[EidosMention] = eidosMention.eidosArguments.getOrElse("cause", Seq.empty)
+  def getCauses: Seq[EidosMention] = CauseExObject.getArguments(eidosMention, "cause")
 
-  def getEffects: Seq[EidosMention] = eidosMention.eidosArguments.getOrElse("effect", Seq.empty)
+  def getEffects: Seq[EidosMention] = CauseExObject.getArguments(eidosMention, "effect")
 
   // TODO: See CauseEffect file for definition of latency and other roles!
 
@@ -486,9 +495,9 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
 
   def getTrend: Trend.Value = {
     // There's no technical reason that it could be both
-    if (eidosMention.odinMention.attachments.exists { attachment => attachment.isInstanceOf[Increase]})
+    if (CauseExObject.hasAttachment[Increase](eidosMention))
       Trend.INCREASING
-    else if (eidosMention.odinMention.attachments.exists { attachment => attachment.isInstanceOf[Increase]})
+    else if (CauseExObject.hasAttachment[Decrease](eidosMention))
       Trend.DECREASING
     // TODO: Which of these should be used?
     else if (false)
