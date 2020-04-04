@@ -7,10 +7,15 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.serialization.json.JsonUtils
 import org.clulab.wm.eidos.serialization.json.causeex.SimpleTime
+import org.clulab.wm.eidos.serialization.json.causeex.TidyJObject
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.json4s._
 
-class TestCausalAssertionSerializer extends ExtractionTest {
+class TestCauseExSerializer extends ExtractionTest {
+  val optionalEmptyTidyJObject: TidyJObject = TidyJObject()(required = false)
+  val requiredEmptyTidyJObject: TidyJObject = TidyJObject()(required = true)
 
   behavior of "LocalDateTime"
 
@@ -34,5 +39,26 @@ class TestCausalAssertionSerializer extends ExtractionTest {
     simpleTime.end should be (tomorrow)
     simpleTime.duration shouldBe defined
     simpleTime.duration.get should be (ChronoUnit.MILLIS.between(yesterday, tomorrow))
+  }
+
+  behavior of "TidyJObject"
+
+  it should "keep required values, even if empty" in {
+    val tidyJObject = TidyJObject(
+      "null" -> null,
+      "JNull" -> JNull,
+      "JNothing" -> JNothing,
+      "emptyJString" -> TidyJObject.emptyJString,
+      "emptyJArray" -> TidyJObject.emptyJArray,
+      "emptyJSet" -> TidyJObject.emptyJSet,
+      "emptyJObject" -> TidyJObject.emptyJObject,
+      "optionalEmptyTidyJObject" -> TidyJObject()(required = false),
+      "requiredEmptyTidyJObject" -> TidyJObject()(required = true)
+    )
+    val json = JsonUtils.stringify(tidyJObject, pretty = true)
+
+    // It should fit on three lines.
+    json.count(_ == '\n') should be (2)
+    json should include ("requiredEmptyTidyJObject")
   }
 }

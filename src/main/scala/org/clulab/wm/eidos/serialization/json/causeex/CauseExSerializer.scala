@@ -18,7 +18,6 @@ import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.StringUtils
-import org.json4s
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -37,10 +36,10 @@ trait CauseExField {
 object CauseExObject {
   // Handy singleton values are here.
   val optionalUnknown: JValue = JNull
-  val nonOptionalConfidence: JValue = JDouble(1d)
-  val optionalConfidence: JValue = optionalUnknown
-  val emptyJObject: JObject = JObject()
   val unknownDocumentId = "<unknown>" // This is only used if a require is commented out.
+
+  val optionalConfidence: JValue = optionalUnknown
+  val requiredConfidence: JValue = JDouble(1d) // also called non-optional
 
   def getDocumentId(eidosMention: EidosMention): String = getDocumentId(eidosMention.odinMention)
 
@@ -300,7 +299,7 @@ object Trend extends Enumeration {
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
   val namer: Namer = singleOntologyGrounding._1
   val float: Float = singleOntologyGrounding._2
-  val factorClass = OntologizedType.toUri(namer.name, "http://ontology.causeex.com/ontology/odps/ICM#")
+  val factorClass: String = OntologizedType.toUri(namer.name, "http://ontology.causeex.com/ontology/odps/ICM#")
 
   def toJValue: JObject = {
     TidyJObject(
@@ -370,7 +369,7 @@ class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
           Some(string.toInt)
         }
         catch {
-          case throwable: Throwable => None
+          case _: NumberFormatException => None
         }
       }
     }
@@ -558,7 +557,7 @@ class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(ei
       if (wordCount(text) == 1) new Span(eidosTrigger).toJValue
         // The canonicalName does not have "unnormalized text referred to by the start/length".
       // else if (wordCount(eidosTrigger.canonicalName) == 1) new Span(eidosTrigger.canonicalName).toJValue
-      else CauseExObject.emptyJObject
+      else TidyJObject.emptyJObject
   }
 }
 
@@ -566,7 +565,7 @@ class ExtendedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eido
 
   def toJValue: JObject = {
       if (wordCount(text) > 1) new Span(eidosTrigger).toJValue
-      else CauseExObject.emptyJObject
+      else TidyJObject.emptyJObject
   }
 }
 
@@ -611,7 +610,7 @@ class CauseExDocument(annotatedDocument: AnnotatedDocument) extends CauseExObjec
 case class SimpleTime(start: LocalDateTime, end: LocalDateTime, duration: Option[Long])
 
 object SimpleTime {
-  protected val zero = LocalDateTime.now
+  protected val zero: LocalDateTime = LocalDateTime.now
 
   // TODO: Move this method to where it fits better.
   // Method to convert a time attachment to DateTimes
