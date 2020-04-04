@@ -69,7 +69,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // http://ontology.causeex.com/ontology/odps/Event#Webcast
 
   def isCausalAssertion(eidosMention: EidosMention): Boolean =
-    eidosMention.eidosArguments.contains("cause") && eidosMention.eidosArguments.contains("effect")
+      eidosMention.eidosArguments.contains("cause") && eidosMention.eidosArguments.contains("effect")
 
   def isQualifiedEvent(eidosMention: EidosMention): Boolean = false
 
@@ -90,9 +90,14 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
       // A better way is to use a special ontology like two_six_events here.
-      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
-          .filter(isFrameType(eidosMention)(_))
-          .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
+      {
+        val result = CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
+            .filter(isFrameType(eidosMention)(_))
+            .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
+            .distinct
+
+        result
+      }
     ).flatten
 
     TidyJObject(
@@ -219,9 +224,9 @@ class Span(val docId: String, val start: Int, val end: Int, val text: String) ex
 
   def this(odinMention: Mention) = this(
     CauseExObject.getDocumentId(odinMention),
-    odinMention.tokenInterval.start,
-    odinMention.tokenInterval.end,
-    odinMention.text
+    Span.getStart(odinMention),
+    Span.getEnd(odinMention),
+    odinMention.text // kwa: this needs to be raw text?
   )
 
   def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
@@ -242,6 +247,21 @@ class Span(val docId: String, val start: Int, val end: Int, val text: String) ex
       // Unnormalized text referred to by the start/length
       "text" -> text // Optional
     )
+  }
+}
+
+object Span {
+
+  def getStart(odinMention: Mention): Int = {
+    odinMention
+        .sentenceObj
+        .startOffsets(odinMention.tokenInterval.start)
+  }
+
+  def getEnd(odinMention: Mention): Int = {
+    odinMention
+        .sentenceObj
+        .endOffsets(math.min(odinMention.tokenInterval.end, odinMention.sentenceObj.endOffsets.length) - 1)
   }
 }
 
@@ -297,6 +317,17 @@ class OntologizedType(val uri: String, val confidence: Float) extends CauseExFie
     this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
 
   def toJField: JField = JField(uri, JDouble(confidence))
+
+  override def equals(other: Any): Boolean = {
+    this.getClass == other.getClass && {
+      val that = other.asInstanceOf[OntologizedType]
+      val result = this.uri == that.uri
+
+      result
+    }
+  }
+
+  override def hashCode: Int = uri.hashCode
 }
 
 object OntologizedType {
@@ -304,8 +335,8 @@ object OntologizedType {
   def toUri(name: String, prefix: String): String = {
     val shortName = StringUtils.afterLast(name, '/')
     val asLeafName =
-      if (shortName.last == '/') shortName.dropRight(1)
-      else shortName
+        if (shortName.last == '/') shortName.dropRight(1)
+        else shortName
 
     prefix + asLeafName
   }
