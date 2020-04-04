@@ -58,7 +58,7 @@ object ExtractCdrMetaForLumFromDirectory extends App {
           val annotatedDocument = reader.extractFromText(text, options, metadata)
           // 4. Convert to JSON
           val corpus = new CauseExDocument(annotatedDocument)
-          val mentionsJSONLD = corpus.toJValue()
+          val mentionsJSONLD = corpus.toJValue
           // 5. Write to output file
           val path = FileEditor(file).setDir(outputDir).get
           FileUtils.printWriterFromFile(path).autoClose { pw =>

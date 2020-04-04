@@ -7,7 +7,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
-import org.clulab.wm.eidos.serialization.json.causeex.CausalAssertionSerializer
+import org.clulab.wm.eidos.serialization.json.causeex.SimpleTime
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 
 class TestCausalAssertionSerializer extends ExtractionTest {
@@ -28,7 +28,7 @@ class TestCausalAssertionSerializer extends ExtractionTest {
     val tomorrow = today.plusDays(1L)
     val yesterday = today.minusDays(1L)
     val time = Time(TimEx(Interval(0, 1), Seq(TimeStep(today, tomorrow), TimeStep(yesterday, today)), "text"))
-    val simpleTime = CausalAssertionSerializer.timeToSimpleTime(time)
+    val simpleTime = SimpleTime.fromTime(time)
 
     simpleTime.start should be (yesterday)
     simpleTime.end should be (tomorrow)
