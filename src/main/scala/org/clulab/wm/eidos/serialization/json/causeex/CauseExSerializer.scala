@@ -89,10 +89,30 @@ object CauseExObject {
 
 // Frame objects are used to represent events and causal assertions.
 class Frame(eidosMention: EidosMention) extends CauseExObject {
-  // See frame_types.txt.  For the first three, logical tests of some kind are
-  // be used.  For the Event#s, grounding is used.
+  // See frame_types.txt and CauseEffect.ttl.  For the first three, logical
+  // tests of some kind are be used.  For the Event#s, grounding is used.
+
+  // A class that relates one or more causal EventOrFactor entities to one or
+  // more resulting Events/Factors, where the individuals are related using the
+  // 'cause'/'catalyst'/... and 'effect' properties. The 'effect' EventOrFactor
+  // may be prevented or enhanced by any related 'preventative' or 'catalyst'
+  // Events/Factors. In addition, 'precondition' entities may also be defined.
+  // The confidence in the relationship of 'cause'/'catalyst'/... to 'effect'
+  // is defined using the General Concepts ontology's numeric_confidence datatype
+  // property.
   // http://ontology.causeex.com/ontology/odps/CauseEffect#CausalAssertion
+
+  // A reification of event:EventOrFactor. It is needed in order to define the
+  // latency and/or strength of the Event/Factor relative to the CausalAssertion's
+  // 'effect'. The EventOrFactor that is reified is identified using the
+  // references_event property.
   // http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent
+
+  // A class that relates one or more Events/Factors (related using the is_similar
+  // object property), indicating that the individuals are alike/comparable and may
+  // produce similar causes/effects. The confidence in the relationship of
+  // 'similarity' is defined using the General Concepts ontology's numeric_confidence
+  // datatype property.
   // http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion
   // ...anything from the event ontology hierarchy which could come from groundings...
   // http://ontology.causeex.com/ontology/odps/Event#AbductionHostageTakingOrHijacking
@@ -102,15 +122,15 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   def isCausalAssertion(eidosMention: EidosMention): Boolean =
       CauseExObject.hasArgument(eidosMention, "cause") && CauseExObject.hasArgument(eidosMention, "effect")
 
-  // TODO We have qualifiers!  See CauseEffect.ttl for definition.
   def isQualifiedEvent(eidosMention: EidosMention): Boolean = false
 
   // TODO Could this be coreference?  See CauseEffect.ttl for definition.
   def isSimilarAssertion(eidosMention: EidosMention): Boolean = false
 
   // This is an example predicate.  We ground to 10, but it might not make sense to use all of them.
-  def isFrameType(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = {
-    0.5 < singleOntologyGrounding._2
+  def isGoodFrame(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean = {
+    // Mihai said, "I think they should be the top 1 grounding in the corresponding ontology."
+    index == 0
   }
 
   def newFrameTypes(condition: EidosMention => Boolean, uri: String): Seq[FrameType] =
@@ -123,9 +143,9 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
       // Right now, two_six really means two_six_events here.  We don't have the other ontologies yet.
-      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six")
-          .filter(isFrameType(eidosMention)(_))
-          .map(new FrameType(_, "http://ontology.causeex.com/ontology/odps/Event#"))
+      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
+          .filter { case (singleOntologyGrounding, index) => isGoodFrame(eidosMention)(singleOntologyGrounding, index) }
+          .map { case (singleOntologyGrounding, _) => new FrameType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
     ).flatten
 
     TidyJObject(
@@ -150,9 +170,24 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
   //  ...
   // http://ontology.causeex.com/ontology/odps/GeneralConcepts#Wetland
 
-  // See mention_type.txt.  These probably need to be done via POS or NER.
+  // See mention_type.txt and DataProvenance.ttl.  These probably need to be done via POS or NER.
+
+  // Proper Name (deprecated)
+  // Note that NAM is deprecated with the deprecation of MentionType, in lieu of using
+  // data-prov:trigger_words. Can use proper_name_mention (a sub-property of trigger_words)
+  // to specifically designate the mention type.
   // http://ontology.causeex.com/ontology/odps/DataProvenance#NAM
+
+  // Nominal/Common Noun (deprecated)
+  // Note that NOM is deprecated with the deprecation of MentionType, in lieu of using
+  // data-prov:trigger_words. Can use common_noun_mention (a sub-property of trigger_words)
+  // to specifically designate the mention type.
   // http://ontology.causeex.com/ontology/odps/DataProvenance#NOM
+
+  // Pronoun (deprecated)
+  // Note that PRO is deprecated with the deprecation of MentionType, in lieu of using
+  // data-prov:trigger_words. Can use pronoun_mention (a sub-property of trigger_words)
+  // to specifically designate the mention type.
   // http://ontology.causeex.com/ontology/odps/DataProvenance#PRO
 
   def isEntityType(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = true
@@ -375,7 +410,7 @@ class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Modality(eidosMention: EidosMention) extends CauseExObject {
-  // See modality.txt.
+  // See modality.txt and Event.ttl.
   // http://ontology.causeex.com/ontology/odps/Event#Asserted
   // http://ontology.causeex.com/ontology/odps/Event#Other
 
@@ -383,7 +418,7 @@ class Modality(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Polarity(eidosMention: EidosMention) extends CauseExObject {
-  // See polarity.txt.
+  // See polarity.txt and Event.ttl.
   // http://ontology.causeex.com/ontology/odps/Event#Negative
   // http://ontology.causeex.com/ontology/odps/Event#Positive
 
@@ -395,7 +430,7 @@ class Polarity(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Tense(eidosMention: EidosMention) extends CauseExObject {
-  // See tense.txt.
+  // See tense.txt and Event.ttl.
   // http://ontology.causeex.com/ontology/odps/Event#Future
   // http://ontology.causeex.com/ontology/odps/Event#Past
   // http://ontology.causeex.com/ontology/odps/Event#Present
@@ -405,7 +440,7 @@ class Tense(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Genericity(eidosMention: EidosMention) extends CauseExObject {
-  // See genericity.txt.
+  // See genericity.txt end Event.ttl.
   // http://ontology.causeex.com/ontology/odps/Event#Generic
   // http://ontology.causeex.com/ontology/odps/Event#Specific
 
@@ -428,9 +463,14 @@ class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
 }
 
 class Arguments(eidosMention: EidosMention) extends CauseExObject {
-  // See role.txt.
+  // See role.txt and CauseEffect.ttl.
   // has_time
+
+  // These all need to be tracked down an analyzed.
+  // Property indicating that the referenced Event/Factor or QualifiedEvent increases the intensity
+  // of the 'effect', but is not a 'cause' of the 'effect'.
   // http://ontology.causeex.com/ontology/odps/CauseEffect#has_catalyst
+
   // http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause
   // http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect
   // http://ontology.causeex.com/ontology/odps/CauseEffect#has_mitigating_factor
@@ -488,7 +528,7 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
 
 class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
   // TODO: Add the ICM stuff here, perhaps mapped from groundings?
-  // See factor_class.txt.
+  // See factor_class.txt and ICM-Mapping.ttl.
   // http://ontology.causeex.com/ontology/odps/ICM#AbilityToAddressBasicNeeds
   // ...
   // http://ontology.causeex.com/ontology/odps/ICM#Weather
