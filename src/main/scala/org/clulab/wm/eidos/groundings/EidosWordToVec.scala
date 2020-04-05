@@ -14,7 +14,9 @@ trait EidosWordToVec {
   def stringSimilarity(string1: String, string2: String): Float
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities
-  def makeCompositeVector(t:Iterable[String]): Array[Float]
+  def calculateSimilaritiesContext(canonicalNameParts: Array[String], canonicalNamePartsContext: Array[String],conceptEmbeddings: Seq[ConceptEmbedding], targetTokenWeight:Int): Similarities
+
+    def makeCompositeVector(t:Iterable[String]): Array[Float]
 }
 
 class FakeWordToVec extends EidosWordToVec {
@@ -25,7 +27,9 @@ class FakeWordToVec extends EidosWordToVec {
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float = 0
 
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = Seq.empty
-//  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Float)] = Seq(("hello", 5.0f))
+  def calculateSimilaritiesContext(canonicalNameParts: Array[String], canonicalNamePartsContext: Array[String],conceptEmbeddings: Seq[ConceptEmbedding], targetTokenWeight:Int): Similarities = Seq.empty
+
+    //  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Float)] = Seq(("hello", 5.0f))
 
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
@@ -74,6 +78,47 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
       }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
+    }
+  }
+
+  def calculateSimilaritiesContext(canonicalNameParts: Array[String], canonicalNamePartsContext: Array[String],conceptEmbeddings: Seq[ConceptEmbedding], targetTokenWeight:Int): Similarities = {
+    def repeatElementsInArray(array: Array[String],times: Int): Array[String] = {
+      array.flatMap (x =>
+        Array.fill(times)(x)
+      )
+    }
+
+    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
+    // It could be that the composite vectore below has all zeros even though some values are defined.
+    // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
+    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
+
+    val sanitizedNamePartsContext = canonicalNamePartsContext.map(Word2Vec.sanitizeWord(_))
+    // It could be that the composite vectore below has all zeros even though some values are defined.
+    // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
+    val outOfVocabularyContext = sanitizedNamePartsContext.forall(w2v.isOutOfVocabulary(_))
+
+    if (outOfVocabulary & outOfVocabularyContext)
+      Seq.empty
+    else if(!outOfVocabulary & !outOfVocabularyContext){
+      println("reweighted token seq:", (repeatElementsInArray(sanitizedNameParts, targetTokenWeight)++sanitizedNamePartsContext).toSeq)
+      val nodeEmbedding = w2v.makeCompositeVector(repeatElementsInArray(sanitizedNameParts, targetTokenWeight)++sanitizedNamePartsContext)
+      val similarities = conceptEmbeddings.map { conceptEmbedding =>
+        (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+      }
+
+      similarities.sortBy(-_._2).take(topKNodeGroundings)
+    }
+    else if (!outOfVocabulary){
+      val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
+      val similarities = conceptEmbeddings.map { conceptEmbedding =>
+        (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+      }
+
+      similarities.sortBy(-_._2).take(topKNodeGroundings)
+    }
+    else{
+      Seq.empty
     }
   }
 

@@ -179,6 +179,17 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val mentionHeadOpt = syntacticHeadOpt.map ( syntacticHead =>
         new TextBoundMention(
           Seq("Mention_head"),
+          tokenInterval = Interval(syntacticHead),
+          sentence = mention.odinMention.sentence,
+          document = mention.odinMention.document,
+          keep = mention.odinMention.keep,
+          foundBy = mention.odinMention.foundBy
+        )
+      )
+
+      val mentionContextOpt = syntacticHeadOpt.map ( syntacticHead =>
+        new TextBoundMention(
+          Seq("Mention_head"),
           tokenInterval = Interval(scala.math.max(0, syntacticHead-windowSize), scala.math.min(syntacticHead+1+windowSize, numTokenInSentence)),
           sentence = mention.odinMention.sentence,
           document = mention.odinMention.document,
@@ -192,7 +203,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
         getModifierMentions(headText, mention.odinMention)
       }.getOrElse(Seq.empty)
 
-      val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
+      val allMentions = mentionContextOpt.toSeq ++ modifierMentions
+      val allMentionTokens = allMentions.flatMap(m=>m.text.split(" ").toSeq)
+      println("\tsyntactic head:", mentionHeadOpt.toSeq.map(m=>m.text.split(" ").toSeq))
+      println("\tcontext:",  mentionContextOpt.toSeq.map(m=>m.text.split(" ").toSeq))
+      println("\tmodifications:", modifierMentions.map(m=>m.text.split(" ").toSeq))
+      println("\tall mention tokens:", allMentionTokens)
       // Get all groundings for each branch.
       // Original grounding method: ground syntactic head and modification mention separately.
       val allSimilarities = Map(
@@ -259,6 +275,18 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 //          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)++conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
 //      )
 
+      // Grounding (20200323): when ground one mention, consider the tokens of other surrounding mentions, and use a weight.
+//      val allMentionTokens = allMentions.flatMap(m=>m.text.split(" "))
+//      println("all mention tokens:", allMentionTokens)
+//      val allSimilarities = Map(
+//        CompositionalGrounder.PROPERTY ->
+//          allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+//        CompositionalGrounder.PROCESS ->
+//          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))), // original grounding for process
+//        CompositionalGrounder.CONCEPT ->
+//          allMentions.flatMap(m => w2v.calculateSimilaritiesContext(m.text.split(" "), allMentionTokens.toArray, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT), 5)) // context grounding for concept
+//      )
+
       // Original filtering procedure
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
@@ -305,6 +333,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     println("====================")
     println("sentence:",mention.odinMention.document.text)
     println("original mention:", mention.odinMention.words)
+    // original method for iterative grounding. Every time increasing the window size, completely reground.
     while (continueFlag&(windowSize<=maxWindowSize)){
       println("\t---------------------------")
       println(s"\twindow size:${windowSize}")
@@ -340,9 +369,107 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
         }
       }
-      //println("\tgrounded:", groundedOntologiesFinal)
-
     }
+
+    // Two stage iterative grounding (20200324): the grounded nodes in smaller window size are candidates for larger window size
+
+    // a temporary simple dummy ontology grounder to ground concept given a candidate embedding list
+//    def groundOntologyDummy(mention: EidosMention, topN: Option[Int], threshold: Option[Float], windowSize:Int, candidateEmbeddings:Seq[ConceptEmbedding]):OntologyGrounding = {
+//      if (!EidosOntologyGrounder.groundableType(mention))
+//        newOntologyGrounding()
+//      // or else ground them.
+//      else {
+//        // Get the syntactic head of the mention.
+//        val syntacticHeadOpt = mention.odinMention.synHead
+//        // Count the number of tokens in the sentence, so that the expanded window won't exceed the bounds.
+//        val numTokenInSentence = mention.odinMention.sentenceObj.words.length
+//        // Make a new mention that's just the syntactic head of the original mention.
+//        val mentionHeadOpt = syntacticHeadOpt.map(syntacticHead =>
+//          new TextBoundMention(
+//            Seq("Mention_head"),
+//            tokenInterval = Interval(syntacticHead),
+//            sentence = mention.odinMention.sentence,
+//            document = mention.odinMention.document,
+//            keep = mention.odinMention.keep,
+//            foundBy = mention.odinMention.foundBy
+//          )
+//        )
+//
+//        val mentionContextOpt = syntacticHeadOpt.map ( syntacticHead =>
+//          new TextBoundMention(
+//            Seq("Mention_head"),
+//            tokenInterval = Interval(scala.math.max(0, syntacticHead-windowSize), scala.math.min(syntacticHead+1+windowSize, numTokenInSentence)),
+//            sentence = mention.odinMention.sentence,
+//            document = mention.odinMention.document,
+//            keep = mention.odinMention.keep,
+//            foundBy = mention.odinMention.foundBy
+//          )
+//        )
+//
+//        val headTextOpt = mentionHeadOpt.map(_.text)
+//        val modifierMentions = headTextOpt.map { headText =>
+//          getModifierMentions(headText, mention.odinMention)
+//        }.getOrElse(Seq.empty)
+//
+//        val allMentions = mentionContextOpt.toSeq ++ modifierMentions
+//
+//        println("\tsyntactic head:", mentionHeadOpt.toSeq.flatMap(m=>m.text.split(" ")))
+//        println("\tcontext:",  mentionContextOpt.toSeq.flatMap(m=>m.text.split(" ")))
+//        println("\tmodifications:", modifierMentions.flatMap(m=>m.text.split(" ")))
+//        println("\tall mention tokens:", allMentions.flatMap(m=>m.text.split(" ")))
+//
+//        val conceptGroundings = allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), candidateEmbeddings))
+//
+//        val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
+//        val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
+//        val goodSimilarities = conceptGroundings
+//            .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
+//            .sortBy(-_._2)
+//            .take(effectiveTopN)
+//
+//        newOntologyGrounding(goodSimilarities, Some("concept"))
+//      }
+//    }
+//
+//    var candidateEmbeddings:Seq[ConceptEmbedding] = Seq()
+//    while (continueFlag&(windowSize<=maxWindowSize)){
+//      println("\t---------------------------")
+//      println(s"\twindow size:${windowSize}")
+//      // Initialize the map with windowSize 0:
+//      if (windowSize==0){
+//        val groundedOntologies = groundOntology(mention, topN, threshold, windowSize) //use a slightly smaller threshold to get more candidate nodes.
+//
+//        for (groundedOntology <- groundedOntologies) {
+//          if (groundedOntology.branch.isDefined){
+//            groundedOntologiesFinal(groundedOntology.branch.get)=groundedOntology
+//          }
+//        }
+//        val conceptGroundings = groundedOntologiesFinal("concept")
+//        val candidateNodeNames = conceptGroundings.grounding.map(t =>t._1.name) // get the names of the node
+//        candidateEmbeddings = conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT).filter(embd =>candidateNodeNames.contains(embd.namer.name))
+//
+//        windowSize+=1
+//      }
+//      // When the window size is larger than 0, check the actual grounded ontologies.
+//      // If the current ontology has a lot of candidate nodes, use iterative window to match it more accurately.
+//      else{
+//        println("\texisting keys:", groundedOntologiesFinal.keys)
+//        println("\tcandidate embeddings length:", candidateEmbeddings.length)
+//        val conceptGroundings = groundedOntologiesFinal("concept")
+//        if (conceptGroundings.grounding.length==5){
+//          groundedOntologiesFinal("concept") = groundOntologyDummy(mention, topN, Some(0.6f), windowSize, candidateEmbeddings)
+//        }
+//
+//        windowSize+=1
+//      }
+//      for ((ontoKey, groundedOnto) <- groundedOntologiesFinal){
+//        println("\tbranch:", ontoKey)
+//        for (nameScore <- groundedOnto.grounding){
+//          println("\t\t",nameScore._1, " ",nameScore._2)
+//
+//        }
+//      }
+//    }
     groundedOntologiesFinal.map{case(name, ontology)=>ontology}.toSeq
   }
 
