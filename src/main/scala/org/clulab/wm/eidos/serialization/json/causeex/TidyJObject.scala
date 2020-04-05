@@ -7,6 +7,10 @@ class TidyJObject(protected var jFields: List[JField], val required: Boolean) ex
 }
 
 object TidyJObject {
+  val emptyJString: JString = JString("")
+  val emptyJArray: JArray = JArray(List.empty)
+  val emptyJSet: JSet = JSet(Set.empty)
+  val emptyJObject: JObject = JObject()
 
   def isTidy(keyAndValue: (String, JValue)): Boolean = keyAndValue._2 match {
     case null => false
@@ -16,6 +20,7 @@ object TidyJObject {
     case value: JArray => value.values.nonEmpty
     case value: JSet => value.values.nonEmpty
     case value: TidyJObject => value.required || value.jFields.exists(isTidy)
+    case value: JObject => value.values.nonEmpty
     case _ => true
   }
 
@@ -23,5 +28,5 @@ object TidyJObject {
 
   def apply(jFields: JField*)(implicit required: Boolean = false) = new TidyJObject(jFields.toList, required)
 
-  def apply() = new TidyJObject(List.empty[JField], false)
+  def apply()(required: Boolean) = new TidyJObject(List.empty[JField], required)
 }
