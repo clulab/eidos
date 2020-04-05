@@ -119,6 +119,10 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // ...
   // http://ontology.causeex.com/ontology/odps/Event#Webcast
 
+  // TODO: Understand what an INHIBIT event is.
+  // Dane said, "Use http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause for causes
+  // of PROMOTE events, http://ontology.causeex.com/ontology/odps/CauseEffect#has_preventative for causes
+  // of INHIBIT events, //http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect for effects."
   def isCausalAssertion(eidosMention: EidosMention): Boolean =
       CauseExObject.hasArgument(eidosMention, "cause") && CauseExObject.hasArgument(eidosMention, "effect")
 
@@ -128,7 +132,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   def isSimilarAssertion(eidosMention: EidosMention): Boolean = false
 
   // This is an example predicate.  We ground to 10, but it might not make sense to use all of them.
-  def isGoodFrame(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean = {
+  def isFrame(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean = {
     // Mihai said, "I think they should be the top 1 grounding in the corresponding ontology."
     index == 0
   }
@@ -144,7 +148,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
       // Right now, two_six really means two_six_events here.  We don't have the other ontologies yet.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
-          .filter { case (singleOntologyGrounding, index) => isGoodFrame(eidosMention)(singleOntologyGrounding, index) }
+          .filter { case (singleOntologyGrounding, index) => isFrame(eidosMention)(singleOntologyGrounding, index) }
           .map { case (singleOntologyGrounding, _) => new FrameType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
     ).flatten
 
@@ -221,7 +225,7 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
 
 abstract class Argument extends CauseExObject
 
-class EntityArgument(roleUri: String, eidosMention: EidosMention) extends Argument {
+class EntityArgument(val roleUri: String, val eidosMention: EidosMention) extends Argument {
 
   def toJValue: JObject = {
     TidyJObject(
@@ -230,6 +234,18 @@ class EntityArgument(roleUri: String, eidosMention: EidosMention) extends Argume
       "confidence" -> CauseExObject.optionalConfidence,
       // Exactly one of entity, frame, or span must be specified
       "entitiy" -> new Entity(eidosMention) // Optional
+    )
+  }
+}
+
+class TimeArgument(time: Time, eidosMention: EidosMention) extends EntityArgument("has_time", eidosMention) {
+
+  override def toJValue: JObject = {
+    TidyJObject(
+      // Either an ontologized URI string for the role or 'has_time' for time arguments.
+      "role" -> roleUri,
+      "confidence" -> CauseExObject.optionalConfidence,
+      "span" -> new Span(eidosMention, time) // Optional, only valid with the role "has_time"
     )
   }
 }
@@ -243,18 +259,6 @@ class FrameArgument(roleUri: String, eidosMention: EidosMention) extends Argumen
       "confidence" -> CauseExObject.optionalConfidence,
       // Exactly one of entity, frame, or span must be specified
       "frame" -> new Frame(eidosMention), // Optional
-    )
-  }
-}
-
-class TimeArgument(time: Time, docId: String) extends Argument {
-
-  def toJValue: JObject = {
-    TidyJObject(
-      // Either an ontologized URI string for the role or 'has_time' for time arguments.
-      "role" -> "has_time",
-      "confidence" -> CauseExObject.optionalConfidence,
-      "span" -> new Span(docId, time) // Optional, only valid with the role "has_time"
     )
   }
 }
@@ -275,8 +279,8 @@ class Span(val docId: String, val start: Int, val end: Int, val text: String) ex
 
   def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
 
-  def this(docId: String, time: Time) = this (
-    docId,
+  def this(eidosMention: EidosMention, time: Time) = this (
+    CauseExObject.getDocumentId(eidosMention),
     time.interval.span.start,
     time.interval.span.end,
     time.interval.text
@@ -422,6 +426,8 @@ class Polarity(eidosMention: EidosMention) extends CauseExObject {
   // http://ontology.causeex.com/ontology/odps/Event#Negative
   // http://ontology.causeex.com/ontology/odps/Event#Positive
 
+  // Dane said, "The polarity aligns to Eidos' concept of negation
+  // (Event#Negative for negated, Event#Positive for non-negated)."
   def isNegative: Boolean = CauseExObject.hasAttachment[Negation](eidosMention)
 
   def toJValue: JValue =
@@ -477,29 +483,28 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   // ...
   // http://ontology.causeex.com/ontology/odps/Actor#uses
 
-  def getTimes: Seq[Time] = CauseExObject.getAttachments[Time](eidosMention)
-
-  def getCauses: Seq[EidosMention] = CauseExObject.getArguments(eidosMention, "cause")
-
-  def getEffects: Seq[EidosMention] = CauseExObject.getArguments(eidosMention, "effect")
-
   // TODO: See CauseEffect file for definition of latency and other roles!
 
   // TODO: For now, grounding matches, but some need to be identified by type of attachment or name of argument.
   def isRole(argument: String, eidosMention: EidosMention): Boolean = false
 
-  def getEntityArgumentsFromArguments: Seq[EntityArgument] = {
-    eidosMention.eidosArguments.flatMap { case (argument, eidosMentions) =>
-      eidosMentions
-          .filter { eidosMention => isRole(argument, eidosMention) }
-          // TODO: The key needs to be mapped into a role. // KWA revisit
-          .map { eidosMention => new EntityArgument(argument, eidosMention) }
-    }.toSeq
+  def getEntityArgumentsFromArguments: Seq[Argument] = {
+    eidosMention.eidosArguments.toSeq.flatMap { case (argument, eidosMentions) =>
+      eidosMentions.flatMap { eidosMention =>
+        argument match {
+          case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
+          case "effect" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", eidosMention))
+          // TODO: Find more
+          case _ => None
+        }
+      }
+    }
   }
 
-  def getEntityArgumentsFromAttachments: Seq[EntityArgument] = {
+  def getEntityArgumentsFromAttachments: Seq[Argument] = {
     eidosMention.odinMention.attachments.toSeq.flatMap { attachment =>
       attachment match {
+        case time: Time => Some(new TimeArgument(time, eidosMention))
         // This very eidosMention has the location.
         case _: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
         // TODO: Find more
@@ -508,21 +513,10 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
     }
   }
 
-  def getEntityArguments: Seq[EntityArgument] = {
-    getEntityArgumentsFromArguments ++ getEntityArgumentsFromAttachments
-  }
-
-  // KWA:  Make sure time and also location get in here.  There is location, with cause or effect or parent?
   def toJValue: JArray = {
-    val arguments = List(
-      getTimes.map { time => new TimeArgument(time, CauseExObject.getDocumentId(eidosMention)) },
-      getCauses.map { cause => new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", cause) },
-      getEffects.map { effect => new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", effect) },
-      // TODO: Check for other relevant arguments and attributes?
-      getEntityArguments
-    ).flatten
+    val arguments = getEntityArgumentsFromArguments ++ getEntityArgumentsFromAttachments
 
-    new JArray(arguments.map(_.toJValue))
+    new JArray(arguments.toList.map(_.toJValue))
   }
 }
 
@@ -546,14 +540,15 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
       Trend.UNKNOWN
   }
 
-  def isCausalFactor(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = true
+  def isCausalFactor(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean =
+      index == 0
 
   def toJValue: JArray = {
     val trend = getTrend
     // TODO: The attachments will have a trigger and that should influence magnitude.
-    val causalFactors = CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_icm")
-        .filter(isCausalFactor(eidosMention)(_))
-        .map(new CausalFactor(_, trend))
+    val causalFactors = CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_icm").zipWithIndex
+        .filter { case (singleOntologyGrounding, index) => isCausalFactor(eidosMention)(singleOntologyGrounding, index) }
+        .map { case (singleOntologyGrounding, _) => new CausalFactor(singleOntologyGrounding, trend) }
 
     new JArray(causalFactors.toList.map(_.toJValue))
   }
