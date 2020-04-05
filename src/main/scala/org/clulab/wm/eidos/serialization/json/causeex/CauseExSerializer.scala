@@ -10,7 +10,6 @@ import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.attachments.Decrease
-import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.Negation
@@ -79,13 +78,27 @@ object CauseExObject {
       eidosMention.odinMention.attachments.exists(_.getClass == clazz)
 
   def getAttachments[T](eidosMention: EidosMention, clazz: Class[T]): Seq[T] =
-    eidosMention.odinMention.attachments.collect { case attachment: T => attachment }.toSeq
+      eidosMention.odinMention.attachments.toSeq.filter(_.getClass == clazz).map(_.asInstanceOf[T])
 
   def hasArgument(eidosMention: EidosMention, name: String): Boolean =
       eidosMention.eidosArguments.contains(name)
 
   def getArguments(eidosMention: EidosMention, name: String): Seq[EidosMention] =
       eidosMention.eidosArguments.getOrElse(name, Seq.empty)
+
+  def mapArguments(eidosMention: EidosMention)(function: (String, EidosMention) => Option[Argument]): Seq[Argument] = {
+    eidosMention.eidosArguments.toSeq.sortBy{ case (key, _) => key }.flatMap { case (key, eidosMentions) =>
+      eidosMentions.flatMap { eidosMention =>
+        function(key, eidosMention)
+      }
+    }
+  }
+
+  def mapAttachments(eidosMention: EidosMention)(function: Attachment => Option[Argument]): Seq[Argument] = {
+    eidosMention.odinMention.attachments.toSeq.flatMap { attachment =>
+      function(attachment)
+    }
+  }
 }
 
 // These classes are described directly in the documentation in this order.
@@ -492,44 +505,24 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   // TODO: For now, grounding matches, but some need to be identified by type of attachment or name of argument.
   def isRole(argument: String, eidosMention: EidosMention): Boolean = false
 
-  def argumentsToArguments(eidosMention: EidosMention)(function: (String, EidosMention) => Some[Argument]): Seq[Argument] = {
-    eidosMention.eidosArguments.toSeq.sortBy{ case (key, _) => key }.flatMap { case (key, eidosMentions) =>
-      eidosMentions.flatMap { eidosMention =>
-        function(key, eidosMention)
-      }
-    }
+  def matchArgument(key: String, eidosMention: EidosMention): Option[Argument] = key match {
+    case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
+    case "effect" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", eidosMention))
+    // TODO: Find more
+    case _ => None
   }
 
-  def getArgumentsFromArguments: Seq[Argument] =
-    argumentsToArguments(eidosMention) { case (key, eidosMention) =>
-      key match {
-        case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
-        case "effect" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", eidosMention))
-        // TODO: Find more
-        case _ => None[Argument]
-      }
-    }
-
-  def attachmentsToArguments(eidosMention: EidosMention)(function: Attachment => Some[Argument]): Seq[Argument] = {
-    eidosMention.odinMention.attachments.toSeq.flatMap { attachment =>
-      function(attachment)
-    }
-  }
-
-  def getArgumentsFromAttachments: Seq[Argument] = {
-    attachmentsToArguments(eidosMention) { attachment =>
-      attachment match {
-        case time: Time => Some(new TimeArgument(time, eidosMention))
-        // This very eidosMention has the location.
-        case _: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
-        // TODO: Find more
-        case _ => None[Attachment]
-      }
-    }
+  def matchAttachment(attachment: Attachment): Option[Argument] = attachment match {
+    case time: Time => Some(new TimeArgument(time, eidosMention))
+    // This very eidosMention has the location.
+    case _: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
+    // TODO: Find more
+    case _ => None
   }
 
   def toJValue: JArray = {
-    val arguments = getArgumentsFromArguments ++ getArgumentsFromAttachments
+    val arguments = CauseExObject.mapArguments(eidosMention)(matchArgument _) ++
+        CauseExObject.mapAttachments(eidosMention)(matchAttachment _)
 
     new JArray(arguments.toList.map(_.toJValue))
   }
