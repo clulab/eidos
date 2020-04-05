@@ -3,11 +3,14 @@ package org.clulab.wm.eidos.serialization.json.causeex
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
+import org.clulab.odin.Attachment
+
 import scala.language.implicitConversions
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.attachments.Decrease
+import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.Negation
@@ -432,11 +435,7 @@ class Polarity(eidosMention: EidosMention) extends CauseExObject {
   def isNegative: Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Negation])
 
   def toJValue: JValue =
-      if (isNegative) {
-        val result = JString("http://ontology.causeex.com/ontology/odps/Event#Negative")
-
-        result
-      }
+      if (isNegative) JString("http://ontology.causeex.com/ontology/odps/Event#Negative")
       else JString("http://ontology.causeex.com/ontology/odps/Event#Positive")
 }
 
@@ -493,33 +492,44 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   // TODO: For now, grounding matches, but some need to be identified by type of attachment or name of argument.
   def isRole(argument: String, eidosMention: EidosMention): Boolean = false
 
-  def getEntityArgumentsFromArguments: Seq[Argument] = {
-    eidosMention.eidosArguments.toSeq.sortBy{ case (key, _) => key }.flatMap { case (argument, eidosMentions) =>
+  def argumentsToArguments(eidosMention: EidosMention)(function: (String, EidosMention) => Some[Argument]): Seq[Argument] = {
+    eidosMention.eidosArguments.toSeq.sortBy{ case (key, _) => key }.flatMap { case (key, eidosMentions) =>
       eidosMentions.flatMap { eidosMention =>
-        argument match {
-          case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
-          case "effect" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", eidosMention))
-          // TODO: Find more
-          case _ => None
-        }
+        function(key, eidosMention)
       }
     }
   }
 
-  def getEntityArgumentsFromAttachments: Seq[Argument] = {
+  def getArgumentsFromArguments: Seq[Argument] =
+    argumentsToArguments(eidosMention) { case (key, eidosMention) =>
+      key match {
+        case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
+        case "effect" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", eidosMention))
+        // TODO: Find more
+        case _ => None[Argument]
+      }
+    }
+
+  def attachmentsToArguments(eidosMention: EidosMention)(function: Attachment => Some[Argument]): Seq[Argument] = {
     eidosMention.odinMention.attachments.toSeq.flatMap { attachment =>
+      function(attachment)
+    }
+  }
+
+  def getArgumentsFromAttachments: Seq[Argument] = {
+    attachmentsToArguments(eidosMention) { attachment =>
       attachment match {
         case time: Time => Some(new TimeArgument(time, eidosMention))
         // This very eidosMention has the location.
         case _: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
         // TODO: Find more
-        case _ => None
+        case _ => None[Attachment]
       }
     }
   }
 
   def toJValue: JArray = {
-    val arguments = getEntityArgumentsFromArguments ++ getEntityArgumentsFromAttachments
+    val arguments = getArgumentsFromArguments ++ getArgumentsFromAttachments
 
     new JArray(arguments.toList.map(_.toJValue))
   }
@@ -562,7 +572,7 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
 class EntityType(uri: String, confidence: Float = 1f) extends OntologizedType(uri, confidence) {
 
   def this(singleOntologyGrounding: SingleOntologyGrounding, prefix: String) =
-    this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
+      this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
 }
 
 class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
@@ -634,8 +644,7 @@ class CauseExDocument(annotatedDocument: AnnotatedDocument) extends CauseExObjec
   require(annotatedDocument.document.id.isDefined)
 
   def toJValue: JArray = {
-    val frames = annotatedDocument.eidosMentions
-        .map(new Frame(_))
+    val frames = annotatedDocument.eidosMentions.map(new Frame(_))
 
     new JArray(frames.toList.map(_.toJValue))
   }
