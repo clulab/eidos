@@ -72,10 +72,10 @@ object CauseExObject {
     distinctOntologyGroundings
   }
 
-  def hasAttachment[T](eidosMention: EidosMention): Boolean =
-      eidosMention.odinMention.attachments.exists { attachment => attachment.isInstanceOf[T] }
+  def hasAttachment[T](eidosMention: EidosMention, clazz: Class[T]): Boolean =
+      eidosMention.odinMention.attachments.exists(_.getClass == clazz)
 
-  def getAttachments[T](eidosMention: EidosMention): Seq[T] =
+  def getAttachments[T](eidosMention: EidosMention, clazz: Class[T]): Seq[T] =
     eidosMention.odinMention.attachments.collect { case attachment: T => attachment }.toSeq
 
   def hasArgument(eidosMention: EidosMention, name: String): Boolean =
@@ -386,7 +386,7 @@ class FrameTypes(frameTypes: Seq[FrameType]) extends CauseExObject {
 class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
 
   def getLocationOpt: Option[Int] = {
-    val locations = CauseExObject.getAttachments[Location](eidosMention)
+    val locations = CauseExObject.getAttachments(eidosMention, classOf[Location])
     assert(locations.size <= 1)
 
     locations.headOption.flatMap { location =>
@@ -429,10 +429,14 @@ class Polarity(eidosMention: EidosMention) extends CauseExObject {
 
   // Dane said, "The polarity aligns to Eidos' concept of negation
   // (Event#Negative for negated, Event#Positive for non-negated)."
-  def isNegative: Boolean = CauseExObject.hasAttachment[Negation](eidosMention)
+  def isNegative: Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Negation])
 
   def toJValue: JValue =
-      if (isNegative) JString("http://ontology.causeex.com/ontology/odps/Event#Negative")
+      if (isNegative) {
+        val result = JString("http://ontology.causeex.com/ontology/odps/Event#Negative")
+
+        result
+      }
       else JString("http://ontology.causeex.com/ontology/odps/Event#Positive")
 }
 
@@ -530,9 +534,9 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
 
   def getTrend: Trend.Value = {
     // There's no technical reason that it could be both
-    if (CauseExObject.hasAttachment[Increase](eidosMention))
+    if (CauseExObject.hasAttachment(eidosMention, classOf[Increase]))
       Trend.INCREASING
-    else if (CauseExObject.hasAttachment[Decrease](eidosMention))
+    else if (CauseExObject.hasAttachment(eidosMention, classOf[Decrease]))
       Trend.DECREASING
     // TODO: Which of these should be used?
     else if (false)
