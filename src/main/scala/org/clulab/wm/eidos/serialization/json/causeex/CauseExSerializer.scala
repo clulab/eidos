@@ -194,15 +194,16 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
   // to specifically designate the mention type.
   // http://ontology.causeex.com/ontology/odps/DataProvenance#PRO
 
-  def isEntityType(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding): Boolean = true
+  def isEntityType(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean =
+      index == 0
 
   def toJValue: JObject = {
     val entityTypes = Seq(
       // TODO: We don't have an antology for this.
-      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_actor")
-          .filter(isEntityType(eidosMention)(_))
+      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_actor").zipWithIndex
+          .filter { case (singleOntologyGrounding, index) => isEntityType(eidosMention)(singleOntologyGrounding, index) }
           // TODO: There are two different prefixes in play.  Are they in the same ontology?
-          .map { singleOntologyGrounding => new EntityType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
+          .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
     ).flatten
     // TODO: Figure out the NAM, NOM, PRO
     val mentionTypeOpt: Option[String] = None
@@ -489,7 +490,7 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   def isRole(argument: String, eidosMention: EidosMention): Boolean = false
 
   def getEntityArgumentsFromArguments: Seq[Argument] = {
-    eidosMention.eidosArguments.toSeq.flatMap { case (argument, eidosMentions) =>
+    eidosMention.eidosArguments.toSeq.sortBy{ case (key, _) => key }.flatMap { case (argument, eidosMentions) =>
       eidosMentions.flatMap { eidosMention =>
         argument match {
           case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
