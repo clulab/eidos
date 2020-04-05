@@ -139,13 +139,13 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // Dane said, "Use http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause for causes
   // of PROMOTE events, http://ontology.causeex.com/ontology/odps/CauseEffect#has_preventative for causes
   // of INHIBIT events, //http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect for effects."
-  def isCausalAssertion(eidosMention: EidosMention): Boolean =
+  def isCausalAssertion: Boolean =
       CauseExObject.hasArgument(eidosMention, "cause") && CauseExObject.hasArgument(eidosMention, "effect")
 
-  def isQualifiedEvent(eidosMention: EidosMention): Boolean = false
+  def isQualifiedEvent: Boolean = false
 
   // TODO Could this be coreference?  See CauseEffect.ttl for definition.
-  def isSimilarAssertion(eidosMention: EidosMention): Boolean = false
+  def isSimilarAssertion: Boolean = false
 
   // This is an example predicate.  We ground to 10, but it might not make sense to use all of them.
   def isFrame(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean = {
@@ -153,8 +153,8 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
     index == 0
   }
 
-  def newFrameTypes(condition: EidosMention => Boolean, uri: String): Seq[FrameType] =
-      if (condition(eidosMention)) Seq(new FrameType(uri))
+  def newFrameTypes(condition: => Boolean, uri: String): Seq[FrameType] =
+      if (condition) Seq(new FrameType(uri))
       else Seq.empty
 
   def toJValue: JObject = {
@@ -255,25 +255,25 @@ class EntityArgument(val roleUri: String, val eidosMention: EidosMention) extend
   }
 }
 
-class TimeArgument(time: Time, eidosMention: EidosMention) extends EntityArgument("has_time", eidosMention) {
+class TimeArgument(time: Time, eidosMention: EidosMention, confidenceOpt: Option[Float] = Some(1f)) extends EntityArgument("has_time", eidosMention) {
 
   override def toJValue: JObject = {
     TidyJObject(
       // Either an ontologized URI string for the role or 'has_time' for time arguments.
       "role" -> roleUri,
-      "confidence" -> CauseExObject.optionalConfidence,
+      "confidence" -> confidenceOpt,
       "span" -> new Span(eidosMention, time) // Optional, only valid with the role "has_time"
     )
   }
 }
 
-class FrameArgument(roleUri: String, eidosMention: EidosMention) extends Argument {
+class FrameArgument(roleUri: String, eidosMention: EidosMention, confidenceOpt: Option[Float] = None) extends Argument {
 
   def toJValue: JObject = {
     TidyJObject(
       // Either an ontologized URI string for the role or 'has_time' for time arguments.
       "role" -> roleUri,
-      "confidence" -> CauseExObject.optionalConfidence,
+      "confidence" -> confidenceOpt,
       // Exactly one of entity, frame, or span must be specified
       "frame" -> new Frame(eidosMention), // Optional
     )
@@ -637,7 +637,10 @@ class CauseExDocument(annotatedDocument: AnnotatedDocument) extends CauseExObjec
   require(annotatedDocument.document.id.isDefined)
 
   def toJValue: JArray = {
-    val frames = annotatedDocument.eidosMentions.map(new Frame(_))
+    val frames = annotatedDocument
+        .eidosMentions
+        .map(new Frame(_))
+        .filter(_.isCausalAssertion)
 
     new JArray(frames.toList.map(_.toJValue))
   }
