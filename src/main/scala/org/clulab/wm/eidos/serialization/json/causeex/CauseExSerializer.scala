@@ -242,7 +242,7 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
 
 abstract class Argument extends CauseExObject
 
-class EntityArgument(val roleUri: String, val eidosMention: EidosMention) extends Argument {
+class EntityArgument(val roleUri: String, val eidosMention: EidosMention, confidenceOpt: Option[Float] = None) extends Argument {
 
   def toJValue: JObject = {
     TidyJObject(
@@ -267,7 +267,7 @@ class TimeArgument(time: Time, eidosMention: EidosMention, confidenceOpt: Option
   }
 }
 
-class FrameArgument(roleUri: String, eidosMention: EidosMention, confidenceOpt: Option[Float] = None) extends Argument {
+class FrameArgument(roleUri: String, eidosMention: EidosMention, confidenceOpt: Option[Float] = Some(1f)) extends Argument {
 
   def toJValue: JObject = {
     TidyJObject(
