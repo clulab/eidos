@@ -153,33 +153,42 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
     index == 0
   }
 
+  def isIncrease: Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Increase])
+
   def newFrameTypes(condition: => Boolean, uri: String): Seq[FrameType] =
       if (condition) Seq(new FrameType(uri))
       else Seq.empty
 
   def toJValue: JObject = {
-    val frameTypes = Seq(
+    val frameTypeOpt = Seq(
       newFrameTypes(isCausalAssertion,  "http://ontology.causeex.com/ontology/odps/CauseEffect#CausalAssertion"),
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
+
+      newFrameTypes(isIncrease, "http://ontology.causeex.com/ontology/odps/Event#Increase"),
+
       // Right now, two_six really means two_six_events here.  We don't have the other ontologies yet.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isFrame(eidosMention)(singleOntologyGrounding, index) }
           .map { case (singleOntologyGrounding, _) => new FrameType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
-    ).flatten
+    ).flatten.headOption
 
-    TidyJObject(
-      "frame_types" -> new FrameTypes(frameTypes),
-      // These will be the causes and effects.
-      "causal_factors" -> new CausalFactors(eidosMention),
-      // These will include the attributes of time and location.
-      "arguments" -> new Arguments(eidosMention),
-      // Not optional, but may be an empty map
-      "properties" -> new FrameProperties(eidosMention),
-      "evidence" -> new FrameEvidence(eidosMention),
-      "docid" -> CauseExObject.getDocumentId(eidosMention),
-      "provenance" -> new Provenance()
-    )
+    // TODO: Need to have has_topic next?  Everything has a topic.
+
+    frameTypeOpt.map { frameType =>
+      TidyJObject(
+        "frame_types" -> new FrameTypes(Seq(frameType)),
+        // These will be the causes and effects.
+        "causal_factors" -> new CausalFactors(eidosMention),
+        // These will include the attributes of time and location.
+        "arguments" -> new Arguments(eidosMention),
+        // Not optional, but may be an empty map
+        "properties" -> new FrameProperties(eidosMention),
+        "evidence" -> new FrameEvidence(eidosMention),
+        "docid" -> CauseExObject.getDocumentId(eidosMention),
+        "provenance" -> new Provenance()
+      )
+    }.getOrElse(TidyJObject.emptyJObject)
   }
 }
 
@@ -352,7 +361,7 @@ class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Tren
       "factor_class" -> factorClass, // Ontologized URI string for causal factor class
       "relevance" -> JDouble(float), // Not optional, must be 0.0 to 1.0
       // TODO: We need better magnitude.
-      "magnitude" -> JDouble(0d), // Not optional, must be -1.0 to 1.0
+      "magnitude" -> JDouble(1f), // Not optional, must be -1.0 to 1.0
       "trend" -> trend.toString // DECREASING, NEUTRAL, INCREASING, UNKNOWN
     )
   }
@@ -554,7 +563,7 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
   def toJValue: JArray = {
     val trend = getTrend
     // TODO: The attachments will have a trigger and that should influence magnitude.
-    val causalFactors = CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_icm").zipWithIndex
+    val causalFactors = CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex // should be different ontology
         .filter { case (singleOntologyGrounding, index) => isCausalFactor(eidosMention)(singleOntologyGrounding, index) }
         .map { case (singleOntologyGrounding, _) => new CausalFactor(singleOntologyGrounding, trend) }
 
