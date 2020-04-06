@@ -8,16 +8,15 @@ import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.utils.FileUtils
 
-class OdinFinder(val expander: Option[Expander], val engine: ExtractorEngine) extends Finder {
+class OdinFinder(val expanderOpt: Option[Expander], val engine: ExtractorEngine) extends Finder {
 
   def find(doc: Document, initialState: State = new State()): Seq[Mention] = {
     val baseExtractions = engine.extractFrom(doc, initialState)
-    expander match {
-      case Some(e) => e.expand(baseExtractions)
-      case None => baseExtractions
-    }
-  }
 
+    expanderOpt
+        .map(_.expand(baseExtractions))
+        .getOrElse(baseExtractions)
+  }
 }
 
 object OdinFinder {
@@ -27,9 +26,9 @@ object OdinFinder {
     val actions = EidosActions.fromConfig(config[Config]("actions"))
     val entityEngine = ExtractorEngine(rules, actions)
 
-    val expanderConfig = config.get[Config]("expander")
-    val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig)
+    val expanderConfigOpt = config.get[Config]("expander")
+    val expanderOpt = expanderConfigOpt.map(Expander.fromConfig)
 
-    new OdinFinder(expander, entityEngine)
+    new OdinFinder(expanderOpt, entityEngine)
   }
 }
