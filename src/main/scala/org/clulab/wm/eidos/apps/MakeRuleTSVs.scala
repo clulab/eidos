@@ -5,10 +5,10 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.FoundBy
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
-
 import org.clulab.wm.eidos.utils.ThreadUtils
 
 object MakeRuleTSVs extends App {
@@ -33,7 +33,7 @@ object MakeRuleTSVs extends App {
   val keptMentions = reader.components.stopwordManager.keepCAGRelevant(mentions)
   // create a map where the key is the Set of rule/rule components and the values are the Mentions
   val byRules = keptMentions.groupBy(_.foundBy)
-    .map(grouping => (grouping._1.split("\\+\\+").toSet, grouping._2))
+    .map(grouping => (FoundBy.split(grouping._1).toSet, grouping._2))
 
   // All the rules
   val masterSetRules = byRules.unzip._1.flatten.toSet
