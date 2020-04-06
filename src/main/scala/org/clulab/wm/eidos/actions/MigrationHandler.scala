@@ -7,6 +7,7 @@ import org.clulab.odin.{CrossSentenceMention, EventMention, Mention, RelationMen
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab._
+import org.clulab.wm.eidos.utils.FoundBy
 
 import scala.annotation.tailrec
 
@@ -321,7 +322,7 @@ object MigrationHandler {
 
       new CrossSentenceEventMention(labels = mention.labels, trigger,
         arguments = newArgs, Map.empty, mention.sentence, mention.document, keep = true,
-        foundBy = mention.foundBy + "++crossSentActions", attachments = mention.attachments)
+        foundBy = FoundBy(mention).add("crossSentActions"), attachments = mention.attachments)
     }
     else
       newWithinSentenceMention(mention, newArgs, foundByAffix, mkNewInterval)

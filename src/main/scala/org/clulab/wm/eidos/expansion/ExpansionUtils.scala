@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.expansion
 import org.clulab.odin._
 import org.clulab.wm.eidos.attachments.{DCTime, Property, Time}
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
 
 object ExpansionUtils {
@@ -13,14 +14,10 @@ object ExpansionUtils {
 
   // During expansion, sometimes there are attachments that got sucked up, here we add them to the expanded argument mention
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
-    def compositionalFoundBy(ms: Seq[Mention]): String = {
-      ms.map(_.foundBy).flatMap(ruleName => ruleName.split("\\+\\+")).distinct.mkString("++")
-    }
-
     // find mentions of the same label and sentence overlap
     val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
     // new foundBy for paper-trail, removes duplicate portions
-    val completeFoundBy = if (overlapping.nonEmpty) compositionalFoundBy(overlapping) else expanded.foundBy
+    val completeFoundBy = if (overlapping.nonEmpty) FoundBy.concat(overlapping) else expanded.foundBy
     // get all the attachments for the overlapping mentions
     val allAttachments = overlapping.flatMap(m => m.attachments).distinct
     // Add in all attachments
