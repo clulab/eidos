@@ -22,7 +22,7 @@ class TestEidosTokenizer extends EnglishTest {
     val oldText = "Universit\u00a8at Koblenz-Landau"
     val newText = eidosTokenizer.normalize(oldText)._1
 
-    newText should be ("Universit at Koblenz-Landau")
+    newText should be ("Universit \u0308at Koblenz-Landau")
   }
 
   it should "work OK with UTF-32 characters" in {
