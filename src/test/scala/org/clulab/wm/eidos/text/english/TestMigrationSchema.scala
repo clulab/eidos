@@ -266,7 +266,7 @@ class TestMigrationSchema extends EnglishTest {
 //    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
     val group = NodeSpec("375 individuals", CountSpec(375))
-    val moveFrom = NodeSpec("Juba", GeoLoc("Juba"))
+    val moveFrom = NodeSpec("Juba", GeoLoc("Juba"), NodeSpec.lastFilter)
     val migration = HumanMigrationEdgeSpec(group = Some(group), moveFrom = Some(moveFrom), moveTo = Some(moveTo))
 
     behavior of "migration_reach"
@@ -822,7 +822,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val time1 = NodeSpec("Between 1 February and 11 March 2017", TimEx("Between 1 February and 11 March 2017"))
     val group1 = NodeSpec("12,828 refugees", CountSpec(12828))
-    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"))
+    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
     val migration1 = HumanMigrationEdgeSpec(
       time = Some(time1),
       group = Some(group1),
