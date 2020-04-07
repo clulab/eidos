@@ -443,7 +443,7 @@ class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
     TidyJObject(
       // TODO: Is there anything for this available, like latitude and longitude?
       "external_uri" -> JNothing, // Ontologized URI string for entity, optional
-      "geonames_id" -> null, // Optional, int id used by the GeoNames API and in urls
+      "geonames_id" -> getLocationOpt, // Optional, int id used by the GeoNames API and in urls
       "latitude" -> JNothing, // Optional
       "longitude" -> JNothing // Optional
     )(required = true)
@@ -493,6 +493,23 @@ class Genericity(eidosMention: EidosMention) extends CauseExObject {
 
 class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
 
+  def getLocationOpt: Option[Int] = {
+    val locations = CauseExObject.getAttachments(eidosMention, classOf[Location])
+    assert(locations.size <= 1)
+
+    locations.headOption.flatMap { location =>
+      location.geoPhraseID.geonameID.flatMap { string =>
+        try {
+          // We store strings, and they don't only describe numbers.
+          Some(string.toInt)
+        }
+        catch {
+          case _: NumberFormatException => None
+        }
+      }
+    }
+  }
+
   // Not optional, but may be an empty map
   def toJValue: JObject = {
     TidyJObject(
@@ -500,7 +517,9 @@ class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
       "polarity" -> new Polarity(eidosMention),   // Ontologized URI string for polarity, optional
       "tense" -> new Tense(eidosMention),   // Ontologized URI string for tense, optional
       "genericity" -> new Genericity(eidosMention),   // Ontologized URI string for genericity, optional
-      "confidence" -> CauseExObject.optionalConfidence // Optional
+      "confidence" -> CauseExObject.optionalConfidence, // Optional
+
+      "geonames_id" -> getLocationOpt // TODO: KWA: This probably shouldn't be here.
     )(required = true)
   }
 }
