@@ -1277,7 +1277,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("85% of the new arrivals", CountSpec(85, CountModifier.NoModifier, CountUnit.Percentage))
-    val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
+    val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"), NodeSpec.lastFilter)
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       moveFrom = Some(moveFrom1))
