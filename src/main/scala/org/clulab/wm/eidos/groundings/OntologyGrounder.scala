@@ -396,7 +396,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
           .filter(_._1.name.startsWith("wm/"+branch))
         newOntologyGrounding(goodSimilarities, Some(branch))
       }
-      val goodPropertyGroundings = getTopKGrounding(allSimilarities(CompositionalGrounder.PROPERTY), "property")
+      val goodPropertyGroundings = getTopKGrounding(propertySimilarities, "property")
       val goodProcessGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, "process")
       val goodConceptGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, "concept")
 
