@@ -220,7 +220,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
           allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
       )
 
-
       //New grounding method (20200317): concatenate the syntactic head text and modification text for compositional grounding.
 //      val mentionText_ = {if (mentionHeadOpt.toSeq.nonEmpty) mentionHeadOpt.toSeq.head.text.split(" ").toSeq else (" ").toSeq}
 //      val modText_ = {if (modifierMentions.nonEmpty) modifierMentions.head.text.split(" ").toSeq else (" ").toSeq}
@@ -287,33 +286,121 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 //          allMentions.flatMap(m => w2v.calculateSimilaritiesContext(m.text.split(" "), allMentionTokens.toArray, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT), 5)) // context grounding for concept
 //      )
 
+      // Grounding (20200406) if the syntactic head is a verb: use a weight to ground. If the syntactic head is a verb and there are no modifications, use the whole (or part) of the original mention for grounding.
+//      val mentionHeadTag = mentionHeadOpt.map(m=>m.tags.head.head).getOrElse("None")
+//      println("\tmention head tag:", mentionHeadTag)
+//      val allSimilarities = {
+//        if (!mentionHeadTag.startsWith("NN")) {
+//          if (modifierMentions.isEmpty) {
+//            val mentionText = mention.odinMention.text.split(" ")
+//            Map(
+//              CompositionalGrounder.PROPERTY ->
+//                allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+//              CompositionalGrounder.PROCESS ->
+//                allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+//              CompositionalGrounder.CONCEPT ->
+//                w2v.calculateSimilarities(mentionText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+//            )
+//
+//          }
+//          else
+//          {
+//            val mentionText_ = {
+//              if (mentionHeadOpt.toSeq.nonEmpty) mentionHeadOpt.toSeq.head.text.split(" ").toSeq else (" ").toSeq
+//            }
+//            val modText_ = {
+//              if (modifierMentions.nonEmpty) modifierMentions.head.text.split(" ").toSeq else (" ").toSeq
+//            }
+//            val mentionText = mentionText_.map(m => m.toString)
+//            val modText = modText_.map(m => m.toString)
+//            val allMentionsText = (mentionText ++ modText).toArray
+//
+//            Map(
+//              CompositionalGrounder.PROPERTY ->
+//                allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+//              CompositionalGrounder.PROCESS ->
+//                allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+//              CompositionalGrounder.CONCEPT->
+//                w2v.calculateSimilarities(allMentionsText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+//            )
+//
+//          }
+//        }
+//        else
+//        {
+//          Map(
+//            CompositionalGrounder.PROPERTY ->
+//              allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
+//            CompositionalGrounder.PROCESS ->
+//              allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
+//            CompositionalGrounder.CONCEPT ->
+//              allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+//          )
+//
+//        }
+//
+//      }
+
+      val propertySimilarities = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
+      val processSimilarities = allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
+      val mentionHeadTag = mentionHeadOpt.map(m=>m.tags.head.head).getOrElse("None")
+      val conceptSimilarities = {
+        if (!mentionHeadTag.startsWith("NN")) {
+          if (modifierMentions.isEmpty) {
+            val mentionText = mention.odinMention.text.split(" ")
+            w2v.calculateSimilarities(mentionText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+          }
+          else
+          {
+            val headText_ = {
+              if (mentionHeadOpt.toSeq.nonEmpty) mentionHeadOpt.toSeq.head.text.split(" ").toSeq else (" ").toSeq
+            }
+            val modText_ = {
+              if (modifierMentions.nonEmpty) modifierMentions.head.text.split(" ").toSeq else (" ").toSeq
+            }
+            val mentionText = headText_.map(m => m.toString)
+            val modText = modText_.map(m => m.toString)
+            val allMentionsText = (mentionText ++ modText).toArray
+
+            w2v.calculateSimilarities(allMentionsText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+
+          }
+        }
+        else
+        {
+          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+        }
+      }
+
+
+
       // Original filtering procedure
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
-      val goodGroundings = allSimilarities.map { case(name, similarities) =>
-        val goodSimilarities = similarities
-          .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
-          .sortBy(-_._2)
-          .take(effectiveTopN)
-
-        newOntologyGrounding(goodSimilarities, Some(name))
-      }.toSeq
-
-
-      // Filtering procedure: let process and concept to compete with each other:
-//      def getTopKGrounding(similarities: Seq[(Namer, Float)], branch:String):OntologyGrounding = {
+//      val goodGroundings = allSimilarities.map { case(name, similarities) =>
 //        val goodSimilarities = similarities
 //          .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
 //          .sortBy(-_._2)
 //          .take(effectiveTopN)
-//          .filter(_._1.name.startsWith("wm/"+branch))
-//        newOntologyGrounding(goodSimilarities, Some(branch))
-//      }
-//      val goodPropertyGroundings = getTopKGrounding(allSimilarities(CompositionalGrounder.PROPERTY), "property")
-//      val goodProcessGroundings = getTopKGrounding(allSimilarities(CompositionalGrounder.PROCESS), "process")
-//      val goodConceptGroundings = getTopKGrounding(allSimilarities(CompositionalGrounder.CONCEPT), "concept")
 //
-//      val goodGroundings = Seq(goodPropertyGroundings, goodProcessGroundings, goodConceptGroundings)
+//        newOntologyGrounding(goodSimilarities, Some(name))
+//      }.toSeq
+
+
+      // Filtering procedure: let process and concept to compete with each other:
+      def getTopKGrounding(similarities: Seq[(Namer, Float)], branch:String):OntologyGrounding = {
+        val goodSimilarities = similarities
+          .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
+          .sortBy(-_._2)
+          .take(effectiveTopN)
+          .filter(_._1.name.startsWith("wm/"+branch))
+        newOntologyGrounding(goodSimilarities, Some(branch))
+      }
+      val goodPropertyGroundings = getTopKGrounding(allSimilarities(CompositionalGrounder.PROPERTY), "property")
+      val goodProcessGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, "process")
+      val goodConceptGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, "concept")
+
+      val goodGroundings = Seq(goodPropertyGroundings, goodProcessGroundings, goodConceptGroundings)
 
       goodGroundings
     }
@@ -330,7 +417,6 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
     var continueFlag = true
     val groundedOntologiesFinal:scala.collection.mutable.Map[String, OntologyGrounding] = scala.collection.mutable.Map()
 
-    println("====================")
     println("sentence:",mention.odinMention.document.text)
     println("original mention:", mention.odinMention.words)
     // original method for iterative grounding. Every time increasing the window size, completely reground.

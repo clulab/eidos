@@ -70,7 +70,7 @@ object EvalGroundings extends App {
   }
 
   // loop over each line in tsv file (except header line)
-  for (entry <- lines.tail) {
+  for ((entry, line_num) <- lines.tail.zipWithIndex) {
     val line = entry.split("\t")
 
     // cells from original tsv
@@ -89,6 +89,8 @@ object EvalGroundings extends App {
 
     // only do the comparison if the gold entity has been annotated (e.g. made sure the gold grounding is correct)
     if (annotated == "y") {
+      println("====================")
+      println(s"sample_$line_num")
 
       evaluatedSentences += 1
 
