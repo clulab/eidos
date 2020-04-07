@@ -168,7 +168,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // This is an example predicate.  We ground to 10, but it might not make sense to use all of them.
   def isFrame(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean = {
     // Mihai said, "I think they should be the top 1 grounding in the corresponding ontology."
-    index == 0
+    index <= 1
   }
 
   def isIncrease: Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Increase])
@@ -178,7 +178,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       else Seq.empty
 
   def toJValue: JObject = {
-    val frameTypeOpt = Seq(
+    val frameTypes = Seq(
       newFrameTypes(isCausalAssertion,  "http://ontology.causeex.com/ontology/odps/CauseEffect#CausalAssertion"),
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
@@ -189,24 +189,22 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isFrame(eidosMention)(singleOntologyGrounding, index) }
           .map { case (singleOntologyGrounding, _) => new FrameType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
-    ).flatten.headOption
+    ).flatten
 
     // TODO: Need to have has_topic next?  Everything has a topic.
 
-    frameTypeOpt.map { frameType =>
-      TidyJObject(
-        "frame_types" -> new FrameTypes(Seq(frameType)),
-        // These will be the causes and effects.
-        "causal_factors" -> new CausalFactors(eidosMention),
-        // These will include the attributes of time and location.
-        "arguments" -> new Arguments(eidosMention),
-        // Not optional, but may be an empty map
-        "properties" -> new FrameProperties(eidosMention),
-        "evidence" -> new FrameEvidence(eidosMention),
-        "docid" -> CauseExObject.getDocumentId(eidosMention),
-        "provenance" -> new Provenance()
-      )
-    }.getOrElse(TidyJObject.emptyJObject)
+    TidyJObject(
+      "frame_types" -> new FrameTypes(frameTypes),
+      // These will be the causes and effects.
+      "causal_factors" -> new CausalFactors(eidosMention),
+      // These will include the attributes of time and location.
+      "arguments" -> new Arguments(eidosMention),
+      // Not optional, but may be an empty map
+      "properties" -> new FrameProperties(eidosMention),
+      "evidence" -> new FrameEvidence(eidosMention),
+      "docid" -> CauseExObject.getDocumentId(eidosMention),
+      "provenance" -> new Provenance()
+    )
   }
 }
 
@@ -536,8 +534,8 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
 
   def matchAttachment(attachment: Attachment): Option[Argument] = attachment match {
     case time: Time => Some(new TimeArgument(time, eidosMention))
-    // This very eidosMention has the location.
-    case _: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
+    // This very eidosMention has the location.  See GeneralConcepts-Location.ttl.
+//    case location: Location => Some(new LocationArgument(location, eidosMention))
     // TODO: Find more
     case _ => None
   }
