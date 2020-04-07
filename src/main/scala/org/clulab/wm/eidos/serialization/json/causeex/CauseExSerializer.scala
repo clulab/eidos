@@ -246,7 +246,7 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_actor").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isEntityType(eidosMention)(singleOntologyGrounding, index) }
           // TODO: There are two different prefixes in play.  Are they in the same ontology?
-          .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
+          .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding, "<ActorOrGeneralConcept>#") }
     ).flatten
     // TODO: Figure out the NAM, NOM, PRO
     val mentionTypeOpt: Option[String] = None
@@ -367,7 +367,7 @@ object HeadSpan {
 
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
   val (namer: Namer, float: Float) = singleOntologyGrounding
-  val factorClass: String = OntologizedType.toUri(namer.name, "http://ontology.causeex.com/ontology/odps/ICM#")
+  val factorClass: String = OntologizedType.toUri(namer.name, "<http://ontology.causeex.com/ontology/odps/ICM>#")
 
   def toJValue: JObject = {
     TidyJObject(
