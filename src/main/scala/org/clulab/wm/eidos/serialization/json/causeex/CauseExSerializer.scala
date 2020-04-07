@@ -99,6 +99,24 @@ object CauseExObject {
       function(attachment)
     }
   }
+
+  def getSentenceStartEndText(eidosMention: EidosMention): (Int, Int, String) = {
+    val odinMention = eidosMention.odinMention
+    val start = odinMention.sentenceObj.startOffsets.head
+    val end = odinMention.sentenceObj.endOffsets.last
+    val text = odinMention.document.text.get.slice(start, end)
+
+    (start, end, text)
+  }
+
+  def getMentionStartEndText(eidosMention: EidosMention): (Int, Int, String) = {
+    val odinMention = eidosMention.odinMention
+    val start = odinMention.startOffset
+    val end = odinMention.endOffset
+    val text = odinMention.document.text.get.slice(start, end)
+
+    (start, end, text)
+  }
 }
 
 // These classes are described directly in the documentation in this order.
@@ -259,7 +277,7 @@ class EntityArgument(val roleUri: String, val eidosMention: EidosMention, confid
       "role" -> roleUri,
       "confidence" -> CauseExObject.optionalConfidence,
       // Exactly one of entity, frame, or span must be specified
-      "entitiy" -> new Entity(eidosMention) // Optional
+      "entity" -> new Entity(eidosMention) // Optional
     )
   }
 }
@@ -271,7 +289,7 @@ class TimeArgument(time: Time, eidosMention: EidosMention, confidenceOpt: Option
       // Either an ontologized URI string for the role or 'has_time' for time arguments.
       "role" -> roleUri,
       "confidence" -> confidenceOpt,
-      "span" -> new Span(eidosMention, time) // Optional, only valid with the role "has_time"
+      "span" -> Span(eidosMention, time) // Optional, only valid with the role "has_time"
     )
   }
 }
@@ -296,22 +314,6 @@ object TimeArgument {
 class Span(val docId: String, val start: Int, val end: Int, val text: String) extends CauseExObject {
   val length: Int = end - start
 
-  def this(odinMention: Mention) = this(
-    CauseExObject.getDocumentId(odinMention),
-    Span.getStart(odinMention),
-    Span.getEnd(odinMention),
-    odinMention.text
-  )
-
-  def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
-
-  def this(eidosMention: EidosMention, time: Time) = this (
-    CauseExObject.getDocumentId(eidosMention),
-    time.interval.span.start,
-    time.interval.span.end,
-    time.interval.text
-  )
-
   def toJValue: JObject = {
     TidyJObject(
       // Document ID string as given in CDR
@@ -326,30 +328,41 @@ class Span(val docId: String, val start: Int, val end: Int, val text: String) ex
 
 object Span {
 
-  def getStart(odinMention: Mention): Int = {
-    odinMention
-        .sentenceObj
-        .startOffsets(odinMention.tokenInterval.start)
+  def apply(eidosMention: EidosMention): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val (start, end, text) = CauseExObject.getMentionStartEndText(eidosMention)
+
+    new Span(docId, start, end, text)
   }
 
-  def getEnd(odinMention: Mention): Int = {
-    odinMention
-        .sentenceObj
-        .endOffsets(math.min(odinMention.tokenInterval.end, odinMention.sentenceObj.endOffsets.length) - 1)
+  def apply(eidosMention: EidosMention, time: Time): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val start = time.interval.span.start
+    val end = time.interval.span.end
+    val text = eidosMention.odinMention.document.text.get.slice(start, end)
+
+    new Span(docId, start, end, text)
+  }
+
+  def forSentence(eidosMention: EidosMention): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val (start, end, text) = CauseExObject.getSentenceStartEndText(eidosMention)
+
+    new Span(docId, start, end, text)
   }
 }
 
 // TODO: How are these calculated?
-class HeadSpan(docId: String, start: Int, end: Int, text: String) extends Span(docId, start, end, text) {
+class HeadSpan(docId: String, start: Int, end: Int, text: String) extends Span(docId, start, end, text)
 
-  def this(odinMention: Mention) = this(
-    CauseExObject.getDocumentId(odinMention),
-    odinMention.tokenInterval.start,
-    odinMention.tokenInterval.end,
-    odinMention.text
-  )
+object HeadSpan {
 
-  def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
+  def apply(eidosMention: EidosMention): HeadSpan = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val (start, end, text) = CauseExObject.getMentionStartEndText(eidosMention)
+
+    new HeadSpan(docId, start, end, text)
+  }
 }
 
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
@@ -581,8 +594,8 @@ class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
 
   def toJValue: JObject = {
     TidyJObject(
-      "span" -> new Span(eidosMention), // Optional
-      "head_span" -> new HeadSpan(eidosMention)  // Optional
+      "span" -> Span(eidosMention), // Optional
+      "head_span" -> HeadSpan(eidosMention)  // Optional
     )(required = true)
   }
 }
@@ -603,7 +616,7 @@ abstract class Trigger(val eidosEventMention: EidosEventMention) extends CauseEx
 class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eidosEventMention) {
 
   def toJValue: JObject = {
-      if (wordCount(text) == 1) new Span(eidosTrigger).toJValue
+      if (wordCount(text) == 1) Span(eidosTrigger).toJValue
         // The canonicalName does not have "unnormalized text referred to by the start/length".
       // else if (wordCount(eidosTrigger.canonicalName) == 1) new Span(eidosTrigger.canonicalName).toJValue
       else TidyJObject.emptyJObject
@@ -613,7 +626,7 @@ class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(ei
 class ExtendedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eidosEventMention) {
 
   def toJValue: JObject = {
-      if (wordCount(text) > 1) new Span(eidosTrigger).toJValue
+      if (wordCount(text) > 1) Span(eidosTrigger).toJValue
       else TidyJObject.emptyJObject
   }
 }
@@ -624,13 +637,13 @@ class FrameEvidence(eidosMention: EidosMention) extends CauseExObject {
     TidyJObject(
       "trigger" -> new ContractedTrigger(eidosEventMention),
       "extended_trigger" -> new ExtendedTrigger(eidosEventMention),
-      "sentence" -> new Span(eidosEventMention)
+      "sentence" -> Span.forSentence(eidosEventMention)
     )
   }
 
   def toJValue(eidosMention: EidosMention): JObject = {
     TidyJObject(
-      "sentence" -> new Span(eidosMention)
+      "sentence" -> Span.forSentence(eidosMention)
     )
   }
 
