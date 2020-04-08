@@ -19,7 +19,7 @@ class TestDoc3 extends EnglishTest {
     val cropActivity = NodeSpec("cropping activities")
     val rainfall2 = NodeSpec("heavier than normal rainfall", Quant("heavier than normal"), Inc("heavier than normal"))
     val floodRisk = NodeSpec("risk of flooding", Inc("increasing"))
-    
+
     behavior of "TestDoc3 Paragraph 1"
 
     // Note: There is no good path here.
@@ -53,7 +53,7 @@ class TestDoc3 extends EnglishTest {
     val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Pos("favorable"))
     val flooding = NodeSpec("potential for flooding")
     val rainfall2 = NodeSpec("above-average rainfall", Quant("Average to above-average"), Inc("above-average"))
-    val rainfall3 = NodeSpec("rainfall", Quant("below average"))
+    val rainfall3 = NodeSpec("rainfall", Quant("below average"), GeoLoc("Afar"))
 
     behavior of "TestDoc3 Paragraph 2"
 
@@ -128,7 +128,7 @@ class TestDoc3 extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val rainfall1 = NodeSpec("rainfall in July", Quant("average to above average"), TimEx("July"))
+    val rainfall1 = NodeSpec("rainfall in July", Quant("average to above average"), TimEx("July"), GeoLoc("South Sudan"))
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Pos("favorable"), Quant("favorable"))
     val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Pos("favorable"))
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight"), TimEx("July"), TimEx("previous month")) // todo (temporal?): really should capture the "compared to the previous month"...
@@ -205,11 +205,11 @@ class TestDoc3 extends EnglishTest {
 
     // Nodes here
     val rainfall = NodeSpec("Rainfall deficits", Dec("deficits"))
-    val season = NodeSpec("late start to the season")
-    val drySpell = NodeSpec("extended dry spells")
-    val cropYield = NodeSpec("reduced crop yields", Dec("reduced"))
+    val season = NodeSpec("late start to the season", GeoLoc("Kenya"))
+    val drySpell = NodeSpec("extended dry spells", GeoLoc("Kenya"))
+    val cropYield = NodeSpec("reduced crop yields", Dec("reduced"), GeoLoc("Kenya"))
     // todo: this Dec trigger will likely need a specialized rule ->  ${triggers} than /[usual/typical/average... etc]/
-    val cropProd = NodeSpec("poorer than usual crop production prospects", Dec("poorer than usual"), Quant("usual"))
+    val cropProd = NodeSpec("poorer than usual crop production prospects", Dec("poorer than usual"), Quant("usual"), GeoLoc("Kenya"))
 
     behavior of "TestDoc3 Paragraph 6"
 
