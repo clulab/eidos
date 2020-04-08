@@ -91,6 +91,15 @@ class EidosSystem(val components: EidosComponents) {
     annotatedDoc
   }
 
+  // Annotate the text using a Processor with DCT.
+  def annotate(text: String, documentTime: String): Document = {
+    val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // This must now be true.
+    tokenizedDoc.setDCT(documentTime)
+    val annotatedDoc = annotateDoc(tokenizedDoc)
+
+    annotatedDoc
+  }
+
   // ---------------------------------------------------------------------------------------------
   //                                 Extraction Methods
   // ---------------------------------------------------------------------------------------------
@@ -166,7 +175,10 @@ class EidosSystem(val components: EidosComponents) {
 
   // MAIN PIPELINE METHOD if given text
   def extractFromText(text: String, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
-    val doc = annotate(text)
+    val doc = metadata.dctOpt match {
+      case Some(dct) => annotate(text, dct.text)
+      case _ => annotate(text)
+    }
 
     extractFromDoc(doc, options, metadata)
   }
