@@ -190,7 +190,18 @@ class TestJLDSerializer extends ExtractionTest {
     inspect(json)
     json should not be empty
   }
-  
+
+  it should "serialize UTF-32 characters properly" in {
+    val json = serialize(Seq(
+      newTitledAnnotatedDocument("MEK1 binds ERK2\ud83d\udca9", "utf32")
+    ))
+
+    inspect(json)
+    (json.indices.exists { index => json(index).isHighSurrogate && json(index + 1).isLowSurrogate }) should be (true)
+    (json.indices.exists { index => json(index).isHighSurrogate && !json(index + 1).isLowSurrogate }) should be (false)
+    (json.indices.exists { index => json(index).isLowSurrogate && !json(index - 1).isHighSurrogate }) should be (false)
+  }
+
   it should "serialize all CAGs in one pass" in {
     val json = serialize(Seq(
         newTitledAnnotatedDocument(p1, "p1"), 
