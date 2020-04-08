@@ -23,56 +23,20 @@ import scala.collection.JavaConverters._
 case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int, endOffset: Int)
 
 object GeoNormFinder {
-
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
-  class CacheManager(config: Config) {
-    val geoNamesIndexDir: Path = Paths.get(config[String]("geoNamesIndexDir")).toAbsolutePath.normalize
-    protected lazy val segmentsPath: Path = geoNamesIndexDir.resolve("segments_1")
-    protected lazy val zipPath: Path = geoNamesIndexDir.resolve("geonames+woredas.zip")
-
-    // The default is not to replace any files on a machine that is simply running Eidos.
-    // This can be overruled by programs that are managing the cache.
-    def mkCache(replaceOnUnzip: Boolean = false): Unit = {
-      // copy the zip file to the local machine
-      val geoNamesIndexURL: URL = config[URL]("geoNamesIndexURL")
-      logger.info(s"Downloading the GeoNames index from $geoNamesIndexURL.")
-      Files.createDirectories(geoNamesIndexDir)
-      Files.copy(geoNamesIndexURL.openStream, zipPath)
-
-      // unzip the zip file
-      logger.info(s"Extracting the GeoNames index to $geoNamesIndexDir.")
-      FileUtils.unzip(zipPath, geoNamesIndexDir, replace = replaceOnUnzip)
-      Files.delete(zipPath)
-
-      if (!isCached)
-        throw new RuntimeException(s"The caching operation was apparently unsuccessful.")
-    }
-
-    def rmCache(): Unit = {
-      Files.deleteIfExists(segmentsPath)
-      Files.deleteIfExists(zipPath)
-    }
-
-    def isCached: Boolean = {
-      val cached = Files.exists(segmentsPath)
-
-      if (cached)
-        logger.info(s"GeoNames index found at $geoNamesIndexDir.")
-      else
-        logger.info(s"No GeoNames index at $geoNamesIndexDir.")
-      cached
-    }
-  }
-
   def fromConfig(config: Config): GeoNormFinder = {
-    val cacheManager = new CacheManager(config)
-    if (!cacheManager.isCached)
-      cacheManager.mkCache()
+    val geoNamesDir: Path = Paths.get(config[String]("geoNamesDir")).toAbsolutePath.normalize
+    val geoNamesIndex =
+        if (Files.exists(geoNamesDir) && Files.list(geoNamesDir).count() > 0)
+          new GeoNamesIndex(geoNamesDir)
+        else
+          GeoNamesIndex.fromClasspathJar(geoNamesDir)
 
     new GeoNormFinder(
       new GeoLocationExtractor(),
-      new GeoLocationNormalizer(new GeoNamesIndex(cacheManager.geoNamesIndexDir)))
+      new GeoLocationNormalizer(geoNamesIndex)
+    )
   }
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention]): Array[GeoPhraseID]= {

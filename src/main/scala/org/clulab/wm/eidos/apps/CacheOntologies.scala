@@ -1,13 +1,15 @@
 package org.clulab.wm.eidos.apps
 
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 
 import ai.lum.common.ConfigUtils._
-import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.embeddings.word2vec.CompactWord2Vec
+import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
@@ -21,11 +23,27 @@ object CacheOntologies extends App {
 
   new File(cacheDir).mkdirs()
 
-  def replaceGeoNorms(): Unit = {
-    val cacheManager = new GeoNormFinder.CacheManager(config[Config]("geonorm"))
+  def deleteFiles(path: Path): Unit = {
+    if (Files.exists(path)) {
+      Files.list(path).forEach { path =>
+        Files.deleteIfExists(path)
+      }
+      // At least on Windows, the directory doesn't disappear until the application exists.
+      // In the meantime, it will be locked and unavailable for use by GeoNamesIndex.
+      // However, it is is left around but empty, it works OK.  So, skip this.
+      // Files.deleteIfExists(path)
+    }
+  }
 
-    cacheManager.rmCache()
-    cacheManager.mkCache(replaceOnUnzip = true)
+  def createFiles(path: Path): Unit = {
+    GeoNamesIndex.fromClasspathJar(path)
+  }
+
+  def replaceGeoNorms(): Unit = {
+    val geoNamesDir: Path = Paths.get(config[String]("geonorm.geoNamesDir")).toAbsolutePath.normalize
+
+    deleteFiles(geoNamesDir)
+    createFiles(geoNamesDir)
   }
 
   def cacheOntologies(): Unit = {
@@ -101,7 +119,7 @@ object CacheOntologies extends App {
 
   // Comment these in and out as required.
   replaceGeoNorms() // This should go first before EidosSystem is created.
-  cacheWord2Vec()
-  safeCacheOntologies()
-  updateIndicatorMappings()
+//  cacheWord2Vec()
+//  safeCacheOntologies()
+//  updateIndicatorMappings()
 }
