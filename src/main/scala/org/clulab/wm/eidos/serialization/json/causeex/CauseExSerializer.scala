@@ -99,6 +99,24 @@ object CauseExObject {
       function(attachment)
     }
   }
+
+  def getSentenceStartEndText(eidosMention: EidosMention): (Int, Int, String) = {
+    val odinMention = eidosMention.odinMention
+    val start = odinMention.sentenceObj.startOffsets.head
+    val end = odinMention.sentenceObj.endOffsets.last
+    val text = odinMention.document.text.get.slice(start, end)
+
+    (start, end, text)
+  }
+
+  def getMentionStartEndText(eidosMention: EidosMention): (Int, Int, String) = {
+    val odinMention = eidosMention.odinMention
+    val start = odinMention.startOffset
+    val end = odinMention.endOffset
+    val text = odinMention.document.text.get.slice(start, end)
+
+    (start, end, text)
+  }
 }
 
 // These classes are described directly in the documentation in this order.
@@ -150,7 +168,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // This is an example predicate.  We ground to 10, but it might not make sense to use all of them.
   def isFrame(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean = {
     // Mihai said, "I think they should be the top 1 grounding in the corresponding ontology."
-    index == 0
+    index <= 1
   }
 
   def isIncrease: Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Increase])
@@ -160,7 +178,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       else Seq.empty
 
   def toJValue: JObject = {
-    val frameTypeOpt = Seq(
+    val frameTypes = Seq(
       newFrameTypes(isCausalAssertion,  "http://ontology.causeex.com/ontology/odps/CauseEffect#CausalAssertion"),
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
@@ -171,24 +189,22 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isFrame(eidosMention)(singleOntologyGrounding, index) }
           .map { case (singleOntologyGrounding, _) => new FrameType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
-    ).flatten.headOption
+    ).flatten
 
     // TODO: Need to have has_topic next?  Everything has a topic.
 
-    frameTypeOpt.map { frameType =>
-      TidyJObject(
-        "frame_types" -> new FrameTypes(Seq(frameType)),
-        // These will be the causes and effects.
-        "causal_factors" -> new CausalFactors(eidosMention),
-        // These will include the attributes of time and location.
-        "arguments" -> new Arguments(eidosMention),
-        // Not optional, but may be an empty map
-        "properties" -> new FrameProperties(eidosMention),
-        "evidence" -> new FrameEvidence(eidosMention),
-        "docid" -> CauseExObject.getDocumentId(eidosMention),
-        "provenance" -> new Provenance()
-      )
-    }.getOrElse(TidyJObject.emptyJObject)
+    TidyJObject(
+      "frame_types" -> new FrameTypes(frameTypes),
+      // These will be the causes and effects.
+      "causal_factors" -> new CausalFactors(eidosMention),
+      // These will include the attributes of time and location.
+      "arguments" -> new Arguments(eidosMention),
+      // Not optional, but may be an empty map
+      "properties" -> new FrameProperties(eidosMention),
+      "evidence" -> new FrameEvidence(eidosMention),
+      "docid" -> CauseExObject.getDocumentId(eidosMention),
+      "provenance" -> new Provenance()
+    )
   }
 }
 
@@ -228,7 +244,7 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_actor").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isEntityType(eidosMention)(singleOntologyGrounding, index) }
           // TODO: There are two different prefixes in play.  Are they in the same ontology?
-          .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
+          .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding, "<ActorOrGeneralConcept>#") }
     ).flatten
     // TODO: Figure out the NAM, NOM, PRO
     val mentionTypeOpt: Option[String] = None
@@ -259,7 +275,7 @@ class EntityArgument(val roleUri: String, val eidosMention: EidosMention, confid
       "role" -> roleUri,
       "confidence" -> CauseExObject.optionalConfidence,
       // Exactly one of entity, frame, or span must be specified
-      "entitiy" -> new Entity(eidosMention) // Optional
+      "entity" -> new Entity(eidosMention) // Optional
     )
   }
 }
@@ -271,7 +287,7 @@ class TimeArgument(time: Time, eidosMention: EidosMention, confidenceOpt: Option
       // Either an ontologized URI string for the role or 'has_time' for time arguments.
       "role" -> roleUri,
       "confidence" -> confidenceOpt,
-      "span" -> new Span(eidosMention, time) // Optional, only valid with the role "has_time"
+      "span" -> Span(eidosMention, time) // Optional, only valid with the role "has_time"
     )
   }
 }
@@ -296,22 +312,6 @@ object TimeArgument {
 class Span(val docId: String, val start: Int, val end: Int, val text: String) extends CauseExObject {
   val length: Int = end - start
 
-  def this(odinMention: Mention) = this(
-    CauseExObject.getDocumentId(odinMention),
-    Span.getStart(odinMention),
-    Span.getEnd(odinMention),
-    odinMention.text
-  )
-
-  def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
-
-  def this(eidosMention: EidosMention, time: Time) = this (
-    CauseExObject.getDocumentId(eidosMention),
-    time.interval.span.start,
-    time.interval.span.end,
-    time.interval.text
-  )
-
   def toJValue: JObject = {
     TidyJObject(
       // Document ID string as given in CDR
@@ -326,35 +326,46 @@ class Span(val docId: String, val start: Int, val end: Int, val text: String) ex
 
 object Span {
 
-  def getStart(odinMention: Mention): Int = {
-    odinMention
-        .sentenceObj
-        .startOffsets(odinMention.tokenInterval.start)
+  def apply(eidosMention: EidosMention): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val (start, end, text) = CauseExObject.getMentionStartEndText(eidosMention)
+
+    new Span(docId, start, end, text)
   }
 
-  def getEnd(odinMention: Mention): Int = {
-    odinMention
-        .sentenceObj
-        .endOffsets(math.min(odinMention.tokenInterval.end, odinMention.sentenceObj.endOffsets.length) - 1)
+  def apply(eidosMention: EidosMention, time: Time): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val start = time.interval.span.start
+    val end = time.interval.span.end
+    val text = eidosMention.odinMention.document.text.get.slice(start, end)
+
+    new Span(docId, start, end, text)
+  }
+
+  def forSentence(eidosMention: EidosMention): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val (start, end, text) = CauseExObject.getSentenceStartEndText(eidosMention)
+
+    new Span(docId, start, end, text)
   }
 }
 
 // TODO: How are these calculated?
-class HeadSpan(docId: String, start: Int, end: Int, text: String) extends Span(docId, start, end, text) {
+class HeadSpan(docId: String, start: Int, end: Int, text: String) extends Span(docId, start, end, text)
 
-  def this(odinMention: Mention) = this(
-    CauseExObject.getDocumentId(odinMention),
-    odinMention.tokenInterval.start,
-    odinMention.tokenInterval.end,
-    odinMention.text
-  )
+object HeadSpan {
 
-  def this(eidosMention: EidosMention) = this(eidosMention.odinMention)
+  def apply(eidosMention: EidosMention): HeadSpan = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val (start, end, text) = CauseExObject.getMentionStartEndText(eidosMention)
+
+    new HeadSpan(docId, start, end, text)
+  }
 }
 
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
   val (namer: Namer, float: Float) = singleOntologyGrounding
-  val factorClass: String = OntologizedType.toUri(namer.name, "http://ontology.causeex.com/ontology/odps/ICM#")
+  val factorClass: String = OntologizedType.toUri(namer.name, "<http://ontology.causeex.com/ontology/odps/ICM>#")
 
   def toJValue: JObject = {
     TidyJObject(
@@ -432,7 +443,7 @@ class EntityProperties(eidosMention: EidosMention) extends CauseExObject {
     TidyJObject(
       // TODO: Is there anything for this available, like latitude and longitude?
       "external_uri" -> JNothing, // Ontologized URI string for entity, optional
-      "geonames_id" -> null, // Optional, int id used by the GeoNames API and in urls
+      "geonames_id" -> getLocationOpt, // Optional, int id used by the GeoNames API and in urls
       "latitude" -> JNothing, // Optional
       "longitude" -> JNothing // Optional
     )(required = true)
@@ -482,6 +493,23 @@ class Genericity(eidosMention: EidosMention) extends CauseExObject {
 
 class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
 
+  def getLocationOpt: Option[Int] = {
+    val locations = CauseExObject.getAttachments(eidosMention, classOf[Location])
+    assert(locations.size <= 1)
+
+    locations.headOption.flatMap { location =>
+      location.geoPhraseID.geonameID.flatMap { string =>
+        try {
+          // We store strings, and they don't only describe numbers.
+          Some(string.toInt)
+        }
+        catch {
+          case _: NumberFormatException => None
+        }
+      }
+    }
+  }
+
   // Not optional, but may be an empty map
   def toJValue: JObject = {
     TidyJObject(
@@ -489,7 +517,9 @@ class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
       "polarity" -> new Polarity(eidosMention),   // Ontologized URI string for polarity, optional
       "tense" -> new Tense(eidosMention),   // Ontologized URI string for tense, optional
       "genericity" -> new Genericity(eidosMention),   // Ontologized URI string for genericity, optional
-      "confidence" -> CauseExObject.optionalConfidence // Optional
+      "confidence" -> CauseExObject.optionalConfidence, // Optional
+
+      "geonames_id" -> getLocationOpt // TODO: KWA: This probably shouldn't be here.
     )(required = true)
   }
 }
@@ -523,8 +553,8 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
 
   def matchAttachment(attachment: Attachment): Option[Argument] = attachment match {
     case time: Time => Some(new TimeArgument(time, eidosMention))
-    // This very eidosMention has the location.
-    case _: Location => Some(new EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#location", eidosMention))
+    // This very eidosMention has the location.  See GeneralConcepts-Location.ttl.
+//    case location: Location => Some(new LocationArgument(location, eidosMention))
     // TODO: Find more
     case _ => None
   }
@@ -581,8 +611,8 @@ class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
 
   def toJValue: JObject = {
     TidyJObject(
-      "span" -> new Span(eidosMention), // Optional
-      "head_span" -> new HeadSpan(eidosMention)  // Optional
+      "span" -> Span(eidosMention), // Optional
+      "head_span" -> HeadSpan(eidosMention)  // Optional
     )(required = true)
   }
 }
@@ -603,7 +633,7 @@ abstract class Trigger(val eidosEventMention: EidosEventMention) extends CauseEx
 class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eidosEventMention) {
 
   def toJValue: JObject = {
-      if (wordCount(text) == 1) new Span(eidosTrigger).toJValue
+      if (wordCount(text) == 1) Span(eidosTrigger).toJValue
         // The canonicalName does not have "unnormalized text referred to by the start/length".
       // else if (wordCount(eidosTrigger.canonicalName) == 1) new Span(eidosTrigger.canonicalName).toJValue
       else TidyJObject.emptyJObject
@@ -613,7 +643,7 @@ class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(ei
 class ExtendedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eidosEventMention) {
 
   def toJValue: JObject = {
-      if (wordCount(text) > 1) new Span(eidosTrigger).toJValue
+      if (wordCount(text) > 1) Span(eidosTrigger).toJValue
       else TidyJObject.emptyJObject
   }
 }
@@ -624,13 +654,13 @@ class FrameEvidence(eidosMention: EidosMention) extends CauseExObject {
     TidyJObject(
       "trigger" -> new ContractedTrigger(eidosEventMention),
       "extended_trigger" -> new ExtendedTrigger(eidosEventMention),
-      "sentence" -> new Span(eidosEventMention)
+      "sentence" -> Span.forSentence(eidosEventMention)
     )
   }
 
   def toJValue(eidosMention: EidosMention): JObject = {
     TidyJObject(
-      "sentence" -> new Span(eidosMention)
+      "sentence" -> Span.forSentence(eidosMention)
     )
   }
 
