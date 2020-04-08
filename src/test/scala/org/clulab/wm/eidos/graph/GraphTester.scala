@@ -1,5 +1,8 @@
 package org.clulab.wm.eidos.graph
 
+import java.io.PrintWriter
+import java.io.StringWriter
+
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.GeoNormFinder
@@ -34,36 +37,62 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
     cleanText
   }
 
-  protected def toString(mentions: Seq[Mention]): String = {
-    mentions.zipWithIndex.map { case (mention, index) =>
-      val id = mention.getClass.getSimpleName + "@" + System.identityHashCode(mention)
+  protected def mentionIds(mentions: Seq[Mention]): String = {
+    val mentionIds = mentions.map(mentionId)
+    val mentionsId =
+        if (mentionIds.isEmpty) ""
+        else mentionIds.mkString("(", ", ", ")")
 
-      s"#$index: ($id) = ${mention.text} ${mention.attachments.mkString(", ") }"
-    }.mkString("\n\t")
+    mentionsId
+  }
+
+  protected def mentionId(mention: Mention): String = {
+    val id = s"${mention.getClass.getSimpleName}@${System.identityHashCode(mention)}[${mention.text}]"
+    val argumentIds = mention.arguments.toSeq.map { case (key, values) =>
+      s"$key = ${mentionIds(values)}"
+    }
+    val argumentsId =
+        if (argumentIds.isEmpty) ""
+        else argumentIds.mkString("(", ", ", ")")
+
+    id + argumentsId
   }
 
   protected def annotateTest(graphSpec: GraphSpec, result: Seq[String]): Seq[String] = {
     if (result == TestUtils.successful)
       result
-    else Seq(
-      Seq("\nErrors:\n"),
-      Seq(result.mkString("\n\t")),
-      Seq("\nMentions:\n"),
-      Seq(toString(mentions)),
-      Seq("\nFound:\n"),
-      Seq(testResults.keySet.asScala.toSeq.map { graphSpec =>
+    else {
+      val stringWriter = new StringWriter()
+      val printWriter = new PrintWriter(stringWriter)
+
+      printWriter.println
+      printWriter.println("Errors:")
+      result.foreach { value =>
+        printWriter.println("\t" + value)
+      }
+      printWriter.println("Mentions:")
+      mentions.zipWithIndex.foreach { case (mention, index) =>
+        printWriter.println(s"\t#$index: ${mentionId(mention)}")
+      }
+      printWriter.println("Found:")
+      testResults.keySet.asScala.toSeq.foreach { graphSpec =>
         val testResult = testResults.get(graphSpec)
         val mentionOpt = testResult.mention
-        val string = mentionOpt.map { mention =>
-          val id = mention.getClass.getSimpleName + "@" + System.identityHashCode(mention)
+
+        if (mentionOpt.isDefined) {
+          val mention = mentionOpt.get
           val index = mentions.indexOf(mention)
 
-          s"$graphSpec: ($id) = [#$index], ${mention.text} ${mention.attachments.mkString(", ") }"
-        }.getOrElse(s"$graphSpec: None")
+          printWriter.println(s"\t$graphSpec = #$index: ${mentionId(mention)}")
+        }
+        else
+          printWriter.println(s"\t$graphSpec = None")
+      }
+      printWriter.flush
 
-        string
-      }.mkString("\n\t"))
-    ).flatten
+      val string = stringWriter.toString
+      Seq(string)
+    }
   }
 
   def test(nodeSpec: NodeSpec): Seq[String] = {
