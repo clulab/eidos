@@ -84,17 +84,10 @@ class EidosSystem(val components: EidosComponents) {
   }
 
   // Annotate the text using a Processor and then populate lexicon labels.
+  // If there is a document time involved, please place it in the metadata
+  // and use one of the calls that takes it into account.
   def annotate(text: String): Document = {
     val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // This must now be true.
-    val annotatedDoc = annotateDoc(tokenizedDoc)
-
-    annotatedDoc
-  }
-
-  // Annotate the text using a Processor with DCT.
-  def annotate(text: String, documentTime: String): Document = {
-    val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // This must now be true.
-    tokenizedDoc.setDCT(documentTime)
     val annotatedDoc = annotateDoc(tokenizedDoc)
 
     annotatedDoc
@@ -175,12 +168,13 @@ class EidosSystem(val components: EidosComponents) {
 
   // MAIN PIPELINE METHOD if given text
   def extractFromText(text: String, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
-    val doc = metadata.dctOpt match {
-      case Some(dct) => annotate(text, dct.text)
-      case _ => annotate(text)
-    }
+    val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // This must now be true.
 
-    extractFromDoc(doc, options, metadata)
+    metadata.dctOpt.foreach { dct => tokenizedDoc.setDCT(dct.text) }
+
+    val annotatedDoc = annotateDoc(tokenizedDoc)
+
+    extractFromDoc(annotatedDoc, options, metadata)
   }
 
   // Legacy versions
