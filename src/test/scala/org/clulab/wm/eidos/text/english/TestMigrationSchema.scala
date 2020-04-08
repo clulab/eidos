@@ -13,7 +13,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group = NodeSpec("300 refugees", CountSpec(300))
-    val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
+    val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"), NodeSpec.lastFilter)
     val moveFrom = NodeSpec("South Sudan", GeoLoc("South Sudan"))
     val time = NodeSpec("1997", TimEx("1997"))
 
@@ -217,7 +217,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1_2 = NodeSpec("Interviewed KIs")
-    val moveTo1 = NodeSpec("Bor", GeoLoc("Bor"))
+    val moveTo1 = NodeSpec("Bor", GeoLoc("Bor"), NodeSpec.lastFilter)
 //    val migration1 = HumanMigrationEdgeSpec(group = Some(group1_2), moveTo = Some(moveTo1)) -> this is wrong
 
     // This is a hack.  Nothing checks that these are from the same mention.
