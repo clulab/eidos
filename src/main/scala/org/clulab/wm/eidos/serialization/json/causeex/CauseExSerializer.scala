@@ -183,8 +183,10 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isQualifiedEvent,   "http://ontology.causeex.com/ontology/odps/CauseEffect#QualifiedEvent"),
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
 
-      newFrameTypes(isIncrease, "http://ontology.causeex.com/ontology/odps/Event#Increase"),
-      newFrameTypes(isDecrease, "http://ontology.causeex.com/ontology/odps/Event#Decrease"),
+      // Dane said, "I think they should not be added, manually nor not, for now. They are not causal
+      // Increase/Decrease as Eidos models them."
+//      newFrameTypes(isIncrease, "http://ontology.causeex.com/ontology/odps/Event#Increase"),
+//      newFrameTypes(isDecrease, "http://ontology.causeex.com/ontology/odps/Event#Decrease"),
 
       // Right now, two_six really means an Event or Action.  We don't have the other ontologies yet.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
