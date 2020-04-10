@@ -56,22 +56,28 @@ object MentionUtils {
     case _ => None
   }
 
-  def triggerInfo(em: EidosMention): TriggerInfo = triggerInfo(em.odinMention)
-  def triggerInfo(m: Mention): TriggerInfo = m match {
-    // if mention is an EventMention, it's easy
-    case em: EventMention => TriggerInfo(em.trigger.text, em.trigger.startOffset, em.trigger.endOffset)
-    // Otherwise, check to see if the mention has a syntactic head
-    case _ => {
-      val synHeadOpt = m.synHead
-      if (synHeadOpt.isDefined) {
-        // get the info from the syntactic head
-        val head = synHeadOpt.get
-        val s = m.sentenceObj
-        TriggerInfo(s.words(head), s.startOffsets(head), s.endOffsets(head))
-      } else {
-        // Otherwise backoff to the whole mention
-        TriggerInfo(m.text, m.startOffset, m.endOffset)
-      }
+  /**
+   * This method information for the syntactic head, stored in TriggerInfo as this is the semi-standard terminology
+   * in the IE community.  If an EventMention is provided, the synHead of the mention's trigger is used.  Else, the
+   * synHead of the whole mention is used.  If no synHead exists, the backoff is to use the whole mention (or trigger).
+   * @param em
+   * @return TriggerInfo, containing the (raw) text of the synHead "trigger" and the start and end char offsets
+   */
+  def synHeadOfMentionOrTrigger(em: EidosMention): TriggerInfo = synHeadOfMentionOrTrigger(em.odinMention)
+  def synHeadOfMentionOrTrigger(m: Mention): TriggerInfo = {
+    val triggerOrMention = m match {
+      case em: EventMention => em.trigger
+      case _ => m
+    }
+    val synHeadOpt = triggerOrMention.synHead
+    if (synHeadOpt.isDefined) {
+      // get the info from the syntactic head
+      val head = synHeadOpt.get
+      val s = m.sentenceObj
+      TriggerInfo(s.raw(head), s.startOffsets(head), s.endOffsets(head))
+    } else {
+      // Otherwise backoff to the whole mention
+      TriggerInfo(triggerOrMention.text, triggerOrMention.startOffset, triggerOrMention.endOffset)
     }
   }
 
