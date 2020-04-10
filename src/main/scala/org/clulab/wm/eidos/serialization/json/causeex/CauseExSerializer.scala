@@ -147,10 +147,6 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // ...
   // http://ontology.causeex.com/ontology/odps/Event#Webcast
 
-  // TODO: Understand what an INHIBIT event is.
-  // Dane said, "Use http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause for causes
-  // of PROMOTE events, http://ontology.causeex.com/ontology/odps/CauseEffect#has_preventative for causes
-  // of INHIBIT events, //http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect for effects."
   def isCausalAssertion: Boolean =
       CauseExObject.hasArgument(eidosMention, "cause") && CauseExObject.hasArgument(eidosMention, "effect")
 
@@ -175,6 +171,8 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
 
   def isIncrease: Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Increase])
 
+  def isDecrease: Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Decrease])
+
   def newFrameTypes(condition: => Boolean, uri: String): Seq[FrameType] =
       if (condition) Seq(new FrameType(uri))
       else Seq.empty
@@ -186,6 +184,7 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
       newFrameTypes(isSimilarAssertion, "http://ontology.causeex.com/ontology/odps/CauseEffect#SimilarAssertion"),
 
       newFrameTypes(isIncrease, "http://ontology.causeex.com/ontology/odps/Event#Increase"),
+      newFrameTypes(isDecrease, "http://ontology.causeex.com/ontology/odps/Event#Decrease"),
 
       // Right now, two_six really means an Event or Action.  We don't have the other ontologies yet.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
@@ -611,17 +610,21 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
     // (cause:Dec, effect:[Inc]) => CausalAssertion(has_preventative(x), has_effect(y))
     // (cause:Dec, effect:Dec) => CausalAssertion(has_cause(x), has_effect(y))
     // [Inc] means an explicit increment or one implied by the absence of either increment or decrement.
+    // These are older:
+    // Dane said, "Use http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause for causes
+    // of PROMOTE events, http://ontology.causeex.com/ontology/odps/CauseEffect#has_preventative for causes
+    // of INHIBIT events, //http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect for effects."
     case "cause" =>
       val causeMention = eidosMention
       val causeIsDecrease = isDecrease(causeMention)
       val causeIsIncrease = isIncrease(causeMention) || !causeIsDecrease
-      assert(causeIsIncrease && causeIsDecrease == false)
+      assert(!(causeIsIncrease && causeIsDecrease))
 
       // It would be nice to be in a place where this wasn't optional.
       val effectMentionOpt = getEffectOpt // This retrieves the argument from the parent.
       val effectIsDecrease = effectMentionOpt.isDefined && isDecrease(effectMentionOpt.get)
       val effectIsIncrease = effectMentionOpt.isEmpty || isIncrease(effectMentionOpt.get) || !effectIsDecrease
-      assert(effectIsIncrease && effectIsDecrease == false)
+      assert(!(effectIsIncrease && effectIsDecrease))
 
       val causeIsCause = (causeIsIncrease && effectIsIncrease) || (causeIsDecrease && effectIsDecrease)
       val roleUri =
