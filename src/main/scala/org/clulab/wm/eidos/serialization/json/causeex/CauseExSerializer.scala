@@ -563,7 +563,7 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
     val arguments = CauseExObject.mapArguments(eidosMention)(matchArgument _) ++
         CauseExObject.mapAttachments(eidosMention)(matchAttachment _)
 
-    new JArray(arguments.toList.map(_.toJValue))
+    TidyJArray(arguments.toList.map(_.toJValue))(required = true)
   }
 }
 
@@ -597,7 +597,7 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
         .filter { case (singleOntologyGrounding, index) => isCausalFactor(eidosMention)(singleOntologyGrounding, index) }
         .map { case (singleOntologyGrounding, _) => new CausalFactor(singleOntologyGrounding, trend) }
 
-    new JArray(causalFactors.toList.map(_.toJValue))
+    TidyJArray(causalFactors.toList.map(_.toJValue))(required = true)
   }
 }
 
@@ -636,7 +636,7 @@ class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(ei
       if (wordCount(text) == 1) Span(eidosTrigger).toJValue
         // The canonicalName does not have "unnormalized text referred to by the start/length".
       // else if (wordCount(eidosTrigger.canonicalName) == 1) new Span(eidosTrigger.canonicalName).toJValue
-      else TidyJObject.emptyJObject
+      else TidyJ.emptyJObject
   }
 }
 
@@ -644,7 +644,7 @@ class ExtendedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eido
 
   def toJValue: JObject = {
       if (wordCount(text) > 1) Span(eidosTrigger).toJValue
-      else TidyJObject.emptyJObject
+      else TidyJ.emptyJObject
   }
 }
 
