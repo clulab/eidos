@@ -7,6 +7,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 
 import scala.collection.mutable.{Set => MutableSet}
 
+case class TriggerInfo(text: String, start: Int, end: Int)
+
 object MentionUtils {
 
   def newCrossSentenceMention(m: CrossSentenceMention, attachments: Set[Attachment]) =
@@ -48,14 +50,30 @@ object MentionUtils {
   def hasNegation(m: EidosMention): Boolean = hasNegation(m.odinMention)
   def hasNegation(m: Mention): Boolean = m.attachments.exists(_.isInstanceOf[Negation])
 
-  def triggerOpt(m: EidosMention, synHeadBackoff: Boolean = false): Option[String] = triggerOpt(m.odinMention, synHeadBackoff)
-  def triggerOpt(m: Mention, synHeadBackoff: Boolean = false): Option[String] = m match {
+  def triggerOpt(m: EidosMention): Option[String] = triggerOpt(m.odinMention)
+  def triggerOpt(m: Mention): Option[String] = m match {
     case em: EventMention => Some(em.trigger.text)
-    case _ =>
-      if (synHeadBackoff) {
-        m.synHead.map(i => m.sentenceObj.words(i))
-      }
-      else None
+    case _ => None
   }
+
+  def triggerInfo(em: EidosMention): TriggerInfo = triggerInfo(em.odinMention)
+  def triggerInfo(m: Mention): TriggerInfo = m match {
+    // if mention is an EventMention, it's easy
+    case em: EventMention => TriggerInfo(em.trigger.text, em.trigger.startOffset, em.trigger.endOffset)
+    // Otherwise, check to see if the mention has a syntactic head
+    case _ => {
+      val synHeadOpt = m.synHead
+      if (synHeadOpt.isDefined) {
+        // get the info from the syntactic head
+        val head = synHeadOpt.get
+        val s = m.sentenceObj
+        TriggerInfo(s.words(head), s.startOffsets(head), s.endOffsets(head))
+      } else {
+        // Otherwise backoff to the whole mention
+        TriggerInfo(m.text, m.startOffset, m.endOffset)
+      }
+    }
+  }
+
 
 }
