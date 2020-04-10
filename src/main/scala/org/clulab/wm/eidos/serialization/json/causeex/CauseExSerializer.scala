@@ -160,6 +160,14 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   def isSimilarAssertion: Boolean = false
 
   // This is an example predicate.  We ground to 10, but it might not make sense to use all of them.
+
+  // TODO: Take this into account:
+  // Dane said, "Actors should be filtered out or not grounded to for now, because they can be
+  // arguments to Events, they just can't be has_cause, has_preventative, or has_effect.
+  // Mihai said, "I would propose to keep Actors as potential has_cause and has_preventative,
+  // and optionally filter them in the output. I think there decision to not allow actors as causes
+  // is an arbitrary one that does not generalize well."
+
   def isFrame(eidosMention: EidosMention)(singleOntologyGrounding: SingleOntologyGrounding, index: Int): Boolean = {
     // Mihai said, "I think they should be the top 1 grounding in the corresponding ontology."
     index <= 1
@@ -563,6 +571,7 @@ class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
   }
 }
 
+// TODO: Make an entire CausalAssertion class and then use this for just individual arguments.
 class Arguments(eidosMention: EidosMention) extends CauseExObject {
   // See role.txt and CauseEffect.ttl.
   // has_time
@@ -583,14 +592,43 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   // TODO: For now, grounding matches, but some need to be identified by type of attachment or name of argument.
   def isRole(argument: String, eidosMention: EidosMention): Boolean = false
 
+  def isIncrease(eidosMention: EidosMention): Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Increase])
+
+  def isDecrease(eidosMention: EidosMention): Boolean = CauseExObject.hasAttachment(eidosMention, classOf[Decrease])
+
+  def getEffectOpt: Option[EidosMention] = {
+    val effects = CauseExObject.getArguments(eidosMention, "effect")
+
+    // TODO: Turn this into a warning.
+    require(effects.size <= 1)
+    effects.headOption
+  }
+
   def matchArgument(key: String, eidosMention: EidosMention): Option[Argument] = key match {
-    // TODO: Take this into account:
-    // Dane said, "Actors should be filtered out or not grounded to for now, because they can be
-    // arguments to Events, they just can't be has_cause, has_preventative, or has_effect.
-    // Mihai said, "I would propose to keep Actors as potential has_cause and has_preventative,
-    // and optionally filter them in the output. I think there decision to not allow actors as causes
-    // is an arbitrary one that does not generalize well."
-    case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
+    // See the long discussion at https://github.com/lum-ai/eidos-causeex/issues/66#issuecomment-611602454.
+    // (cause:[Inc], effect:[Inc]) => CausalAssertion(has_cause(x), has_effect(y))
+    // (cause:[Inc], effect:Dec) => CausalAssertion(has_preventative(x), has_effect(y))
+    // (cause:Dec, effect:[Inc]) => CausalAssertion(has_preventative(x), has_effect(y))
+    // (cause:Dec, effect:Dec) => CausalAssertion(has_cause(x), has_effect(y))
+    // [Inc] means an explicit increment or one implied by the absence of either increment or decrement.
+    case "cause" =>
+      val causeMention = eidosMention
+      val causeIsDecrease = isDecrease(causeMention)
+      val causeIsIncrease = isIncrease(causeMention) || !causeIsDecrease
+      assert(causeIsIncrease && causeIsDecrease == false)
+
+      // It would be nice to be in a place where this wasn't optional.
+      val effectMentionOpt = getEffectOpt // This retrieves the argument from the parent.
+      val effectIsDecrease = effectMentionOpt.isDefined && isDecrease(effectMentionOpt.get)
+      val effectIsIncrease = effectMentionOpt.isEmpty || isIncrease(effectMentionOpt.get) || !effectIsDecrease
+      assert(effectIsIncrease && effectIsDecrease == false)
+
+      val causeIsCause = (causeIsIncrease && effectIsIncrease) || (causeIsDecrease && effectIsDecrease)
+      val roleUri =
+          if (causeIsCause) "http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause"
+          else "http://ontology.causeex.com/ontology/odps/CauseEffect#has_preventative"
+
+      Some(new FrameArgument(roleUri, eidosMention))
     case "effect" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", eidosMention))
     // TODO: Find more
     case _ => None
