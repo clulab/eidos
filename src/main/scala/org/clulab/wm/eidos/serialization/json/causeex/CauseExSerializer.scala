@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.serialization.json.causeex
 
+import java.io.PrintWriter
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -682,6 +683,10 @@ class CauseExDocument(annotatedDocument: AnnotatedDocument) extends CauseExObjec
         .filter(_.isCausalAssertion)
 
     new JArray(frames.toList.map(_.toJValue))
+  }
+
+  def serialize(printWriter: PrintWriter): Unit = {
+    printWriter.println(TidyJ.serialize(toJValue))
   }
 }
 
