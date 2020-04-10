@@ -4,7 +4,7 @@ import ai.lum.common.StringUtils.StringWrapper
 import com.typesafe.config.{Config, ConfigFactory}
 import java.util.Calendar
 
-import org.clulab.odin.{EventMention, State}
+import org.clulab.odin.EventMention
 import org.clulab.struct.Counter
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
@@ -15,6 +15,8 @@ import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.TsvWriter
+
+import scala.collection.Seq
 
 object AnnotationTSV extends App with Configured {
 
@@ -49,8 +51,7 @@ object AnnotationTSV extends App with Configured {
   // Correct is 16 = P
 
   def mkTableRows(annotatedDocument: AnnotatedDocument, filename: String, reader: EidosSystem): (Seq[Seq[AnyRef]], Counter[String]) = {
-    val allMentions = annotatedDocument.odinMentions
-    val mentionsToPrint = annotatedDocument.eidosMentions.filter(m => reader.components.stopwordManager.releventEdge(m.odinMention, State(allMentions)))
+    val mentionsToPrint = reader.components.stopwordManager.relevantMentions(annotatedDocument)
 
     val ruleCounter = new Counter[String]
 
@@ -107,20 +108,23 @@ object AnnotationTSV extends App with Configured {
   )
 
   // Sorted...
-  def counterToRows(ruleCounter: Counter[String]): Seq[Seq[String]] = {
+  def counterToRows(ruleCounter: Counter[String], ruleColumn: String = "S", correctColumn: String = "Q"): Seq[Seq[String]] = {
     val total = ruleCounter.getTotal
     val rows = ruleCounter.toSeq
       .sortBy(- _._2)
       .zipWithIndex
-      .map(ruleInfo => ruleRow(ruleInfo._1._1, ruleInfo._1._2, total, ruleInfo._2))
+      .map(ruleInfo => ruleRow(ruleInfo._1._1, ruleInfo._1._2, total, ruleInfo._2, ruleColumn, correctColumn))
     rows :+ Seq("Grand Total", total.toString)
   }
 
-  def ruleRow(rule: String, count: Double, total: Double, i: Int): Seq[String] = {
+  def ruleRow(rule: String, count: Double, total: Double, i: Int, ruleColumn: String, correctColumn: String): Seq[String] = {
     val j = i + 2 // account for the header and 1-indexing of google sheets
     val percAll = count / total
-    val numCorrect = "=SUMIF(rule_annotation!$S:$S,A" + j + ",rule_annotation!$Q:$Q)"
-    val numIncorrect = s"=COUNTIFS(rule_annotation!S:S,A$j,rule_annotation!Q:Q," + """"<>1")"""
+    val numCorrect = "=SUMIF(rule_annotation!$" +
+      ruleColumn + ":$" + ruleColumn + ",A" + j +
+      ",rule_annotation!$" + correctColumn + ":$" +
+      correctColumn + ")"
+    val numIncorrect = s"=COUNTIFS(rule_annotation!${ruleColumn}:${ruleColumn},A$j,rule_annotation!${correctColumn}:${correctColumn}," + """"<>1")"""
     val percCorr = s"=IF(D$j+E$j>0, D$j/(D$j+E$j), " + """"")"""
     val percCurated = s"=(D$j+E$j)/B$j"
 
