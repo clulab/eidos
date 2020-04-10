@@ -8,7 +8,6 @@ import org.clulab.odin.Attachment
 
 import scala.language.implicitConversions
 import org.clulab.odin.Mention
-import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Increase
@@ -17,7 +16,6 @@ import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.SingleOntologyGrounding
-import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.wm.eidos.utils.Namer
@@ -46,6 +44,13 @@ object CauseExObject {
   val optionalConfidence: JValue = optionalUnknown
   val requiredConfidence: JValue = JDouble(1d) // also called non-optional
 
+  val prefixes: Map[String, String] = Map(
+    "ICM" -> "<http://ontology.causeex.com/ontology/odps/ICM>#",
+    "Event" -> "http://ontology.causeex.com/ontology/odps/Event#",
+    "Actor" -> "http://ontology.causeex.com/ontology/odps/Actor#",
+    "GeneralConcepts" -> "http://ontology.causeex.com/ontology/odps/GeneralConcepts"
+  )
+
   def getDocumentId(eidosMention: EidosMention): String = getDocumentId(eidosMention.odinMention)
 
   def getDocumentId(odinMention: Mention): String = getDocumentId(odinMention.document)
@@ -61,14 +66,28 @@ object CauseExObject {
     shortName
   }
 
+  def getNamespace(name: String): String = StringUtils.beforeFirst(name, '/')
+
+  def toUri(name: String, prefix: String): String = prefix + CauseExObject.toShortName(name)
+
+  def toUri(singleOntologyGrounding: SingleOntologyGrounding): String = {
+    val name = singleOntologyGrounding._1.name
+    val namespace = getNamespace(name)
+    val prefix = prefixes.getOrElse(namespace, throw new Exception(s"Unknown namespace: $namespace"))
+
+    prefix + CauseExObject.toShortName(name)
+  }
+
   def getSingleOntologyGroundings(eidosMention: EidosMention, key: String): Seq[SingleOntologyGrounding] = {
     val singleOntologyGroundings = eidosMention.grounding.get(key).map { ontologyGrounding =>
       ontologyGrounding.grounding
     }.getOrElse(Seq.empty)
     // This is necessary because the same leaf can have multiple parents and thus multiple paths to it.
+    // Furthermore, a leaf of the same name can be part of multiple ontology trees, like Event and Actor that
+    // are combined into one logical ontology.  Therefore the SingleOntologyGrounding is converted to a Uri.
     // Unfortunately there is no distinctBy in this version of Scala.
     val distinctOntologyGroundings = singleOntologyGroundings
-        .groupBy { singleOntologyGrounding => toShortName(singleOntologyGrounding._1.name) }
+        .groupBy { singleOntologyGrounding => toUri(singleOntologyGrounding) }
         .map { case (name, singleOntologyGroundings) => name -> singleOntologyGroundings.head }
         .toSeq
         .sortBy { case (key, (_, float)) => (-float, key) }
@@ -188,10 +207,10 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
 
       newFrameTypes(isIncrease, "http://ontology.causeex.com/ontology/odps/Event#Increase"),
 
-      // Right now, two_six really means two_six_events here.  We don't have the other ontologies yet.
+      // Right now, two_six really means an Event or Action.  We don't have the other ontologies yet.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isFrame(eidosMention)(singleOntologyGrounding, index) }
-          .map { case (singleOntologyGrounding, _) => new FrameType(singleOntologyGrounding, "http://ontology.causeex.com/ontology/odps/Event#") }
+          .map { case (singleOntologyGrounding, _) => new FrameType(singleOntologyGrounding) }
     ).flatten
 
     // TODO: Need to have has_topic next?  Everything has a topic.
@@ -243,11 +262,11 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
 
   def toJValue: JObject = {
     val entityTypes = Seq(
-      // TODO: We don't have an antology for this.
-      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_actor").zipWithIndex
+      // TODO: We don't have an ontology for this.
+      CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_icm").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isEntityType(eidosMention)(singleOntologyGrounding, index) }
           // TODO: There are two different prefixes in play.  Are they in the same ontology?
-          .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding, "<ActorOrGeneralConcept>#") }
+          .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding) }
     ).flatten
     // TODO: Figure out the NAM, NOM, PRO
     val mentionTypeOpt: Option[String] = None
@@ -384,7 +403,7 @@ object HeadSpan {
 
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
   val (namer: Namer, float: Float) = singleOntologyGrounding
-  val factorClass: String = OntologizedType.toUri(namer.name, "<http://ontology.causeex.com/ontology/odps/ICM>#")
+  val factorClass: String = CauseExObject.toUri(singleOntologyGrounding)
 
   def toJValue: JObject = {
     TidyJObject(
@@ -416,21 +435,16 @@ object Trend extends Enumeration {
 
 class OntologizedType(val uri: String, val confidence: Float) extends CauseExField {
 
-  def this(singleOntologyGrounding: SingleOntologyGrounding, prefix: String) =
-      this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
+  def this(singleOntologyGrounding: SingleOntologyGrounding) =
+      this(CauseExObject.toUri(singleOntologyGrounding), singleOntologyGrounding._2)
 
   def toJField: JField = JField(uri, JDouble(confidence))
 }
 
-object OntologizedType {
-
-  def toUri(name: String, prefix: String): String = prefix + CauseExObject.toShortName(name)
-}
-
 class FrameType(uri: String, confidence: Float = 1f) extends OntologizedType(uri, confidence) {
 
-  def this(singleOntologyGrounding: SingleOntologyGrounding, prefix: String) =
-      this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
+  def this(singleOntologyGrounding: SingleOntologyGrounding) =
+      this(CauseExObject.toUri(singleOntologyGrounding), singleOntologyGrounding._2)
 }
 
 class FrameTypes(frameTypes: Seq[FrameType]) extends CauseExObject {
@@ -579,8 +593,8 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   }
 
   def toJValue: JArray = {
-    val arguments = CauseExObject.mapArguments(eidosMention)(matchArgument _) ++
-        CauseExObject.mapAttachments(eidosMention)(matchAttachment _)
+    val arguments = CauseExObject.mapArguments(eidosMention)(matchArgument) ++
+        CauseExObject.mapAttachments(eidosMention)(matchAttachment)
 
     TidyJArray(arguments.toList.map(_.toJValue))(required = true)
   }
@@ -622,8 +636,8 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
 
 class EntityType(uri: String, confidence: Float = 1f) extends OntologizedType(uri, confidence) {
 
-  def this(singleOntologyGrounding: SingleOntologyGrounding, prefix: String) =
-      this(OntologizedType.toUri(singleOntologyGrounding._1.name, prefix), singleOntologyGrounding._2)
+  def this(singleOntologyGrounding: SingleOntologyGrounding) =
+      this(CauseExObject.toUri(singleOntologyGrounding), singleOntologyGrounding._2)
 }
 
 class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
