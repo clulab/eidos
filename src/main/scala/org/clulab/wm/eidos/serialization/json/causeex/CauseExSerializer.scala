@@ -584,6 +584,12 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   def isRole(argument: String, eidosMention: EidosMention): Boolean = false
 
   def matchArgument(key: String, eidosMention: EidosMention): Option[Argument] = key match {
+    // TODO: Take this into account:
+    // Dane said, "Actors should be filtered out or not grounded to for now, because they can be
+    // arguments to Events, they just can't be has_cause, has_preventative, or has_effect.
+    // Mihai said, "I would propose to keep Actors as potential has_cause and has_preventative,
+    // and optionally filter them in the output. I think there decision to not allow actors as causes
+    // is an arbitrary one that does not generalize well."
     case "cause" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_cause", eidosMention))
     case "effect" => Some(new FrameArgument("http://ontology.causeex.com/ontology/odps/CauseEffect#has_effect", eidosMention))
     // TODO: Find more
