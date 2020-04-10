@@ -48,10 +48,14 @@ object MentionUtils {
   def hasNegation(m: EidosMention): Boolean = hasNegation(m.odinMention)
   def hasNegation(m: Mention): Boolean = m.attachments.exists(_.isInstanceOf[Negation])
 
-  def triggerOpt(m: EidosMention): Option[String] = triggerOpt(m.odinMention)
-  def triggerOpt(m: Mention): Option[String] = m match {
+  def triggerOpt(m: EidosMention, synHeadBackoff: Boolean = false): Option[String] = triggerOpt(m.odinMention, synHeadBackoff)
+  def triggerOpt(m: Mention, synHeadBackoff: Boolean = false): Option[String] = m match {
     case em: EventMention => Some(em.trigger.text)
-    case _ => None
+    case _ =>
+      if (synHeadBackoff) {
+        m.synHead.map(i => m.sentenceObj.words(i))
+      }
+      else None
   }
 
 }
