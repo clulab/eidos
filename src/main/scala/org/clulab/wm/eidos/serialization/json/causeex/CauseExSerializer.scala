@@ -44,39 +44,11 @@ object CauseExObject {
   val optionalConfidence: JValue = optionalUnknown
   val requiredConfidence: JValue = JDouble(1d) // also called non-optional
 
-  val prefixes: Map[String, String] = Map(
-    "ICM" -> "<http://ontology.causeex.com/ontology/odps/ICM>#",
-    "Event" -> "http://ontology.causeex.com/ontology/odps/Event#",
-    "Actor" -> "http://ontology.causeex.com/ontology/odps/Actor#",
-    "GeneralConcepts" -> "http://ontology.causeex.com/ontology/odps/GeneralConcepts"
-  )
-
   def getDocumentId(eidosMention: EidosMention): String = getDocumentId(eidosMention.odinMention)
 
   def getDocumentId(odinMention: Mention): String = getDocumentId(odinMention.document)
 
   def getDocumentId(document: Document): String = document.id.getOrElse(unknownDocumentId)
-
-  def toShortName(name: String): String = {
-    val leafName =
-        if (name.last == '/') name.dropRight(1)
-        else name
-    val shortName = StringUtils.afterLast(leafName, '/')
-
-    shortName
-  }
-
-  def getNamespace(name: String): String = StringUtils.beforeFirst(name, '/')
-
-  def toUri(name: String, prefix: String): String = prefix + CauseExObject.toShortName(name)
-
-  def toUri(singleOntologyGrounding: SingleOntologyGrounding): String = {
-    val name = singleOntologyGrounding._1.name
-    val namespace = getNamespace(name)
-    val prefix = prefixes.getOrElse(namespace, throw new Exception(s"Unknown namespace: $namespace"))
-
-    prefix + CauseExObject.toShortName(name)
-  }
 
   def getSingleOntologyGroundings(eidosMention: EidosMention, key: String): Seq[SingleOntologyGrounding] = {
     val singleOntologyGroundings = eidosMention.grounding.get(key).map { ontologyGrounding =>
@@ -87,7 +59,7 @@ object CauseExObject {
     // are combined into one logical ontology.  Therefore the SingleOntologyGrounding is converted to a Uri.
     // Unfortunately there is no distinctBy in this version of Scala.
     val distinctOntologyGroundings = singleOntologyGroundings
-        .groupBy { singleOntologyGrounding => toUri(singleOntologyGrounding) }
+        .groupBy { singleOntologyGrounding => OntologizedUri(singleOntologyGrounding).getString }
         .map { case (name, singleOntologyGroundings) => name -> singleOntologyGroundings.head }
         .toSeq
         .sortBy { case (key, (_, float)) => (-float, key) }
@@ -265,7 +237,6 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
       // TODO: We don't have an ontology for this.
       CauseExObject.getSingleOntologyGroundings(eidosMention, "two_six_icm").zipWithIndex
           .filter { case (singleOntologyGrounding, index) => isEntityType(eidosMention)(singleOntologyGrounding, index) }
-          // TODO: There are two different prefixes in play.  Are they in the same ontology?
           .map { case (singleOntologyGrounding, _) => new EntityType(singleOntologyGrounding) }
     ).flatten
     // TODO: Figure out the NAM, NOM, PRO
@@ -402,13 +373,11 @@ object HeadSpan {
 }
 
 class CausalFactor(singleOntologyGrounding: SingleOntologyGrounding, trend: Trend.Value = Trend.UNKNOWN) extends CauseExObject {
-  val (namer: Namer, float: Float) = singleOntologyGrounding
-  val factorClass: String = CauseExObject.toUri(singleOntologyGrounding)
 
   def toJValue: JObject = {
     TidyJObject(
-      "factor_class" -> factorClass, // Ontologized URI string for causal factor class
-      "relevance" -> JDouble(float), // Not optional, must be 0.0 to 1.0
+      "factor_class" -> OntologizedUri(singleOntologyGrounding).getString, // Ontologized URI string for causal factor class
+      "relevance" -> JDouble(singleOntologyGrounding._2), // Not optional, must be 0.0 to 1.0
       // TODO: We need better magnitude.
       "magnitude" -> JDouble(1f), // Not optional, must be -1.0 to 1.0
       "trend" -> trend.toString // DECREASING, NEUTRAL, INCREASING, UNKNOWN
@@ -427,24 +396,61 @@ class Provenance() extends CauseExObject {
 
 // These are the classes for internal use, generally described bottom up.
 
+class OntologizedUri(protected val string: String) {
+
+  def getString: String = string
+}
+
+object OntologizedUri {
+  val prefixes: Map[String, String] = Map(
+    "ICM" -> "<http://ontology.causeex.com/ontology/odps/ICM>#",
+    "Event" -> "http://ontology.causeex.com/ontology/odps/Event#",
+    "Actor" -> "http://ontology.causeex.com/ontology/odps/Actor#",
+    "GeneralConcepts" -> "http://ontology.causeex.com/ontology/odps/GeneralConcepts"
+  )
+
+  def toShortName(longName: String): String = {
+    val leafName =
+        if (longName.last == '/') longName.dropRight(1)
+        else longName
+    val shortName = StringUtils.afterLast(leafName, '/')
+
+    shortName
+  }
+
+  def getNamespace(longName: String): String = StringUtils.beforeFirst(longName, '/')
+
+  def apply(longName: String, prefix: String): OntologizedUri = new OntologizedUri(prefix + toShortName(longName))
+
+  def apply(singleOntologyGrounding: SingleOntologyGrounding): OntologizedUri = {
+    val longName = singleOntologyGrounding._1.name
+    val namespace = getNamespace(longName)
+    val prefix = prefixes.getOrElse(namespace, throw new Exception(s"Unknown namespace: $namespace"))
+
+    new OntologizedUri(prefix + toShortName(longName))
+  }
+}
+
 object Trend extends Enumeration {
   type Trend = Value
 
   val DECREASING, NEUTRAL, INCREASING, UNKNOWN = Value
 }
 
-class OntologizedType(val uri: String, val confidence: Float) extends CauseExField {
+class OntologizedType(val ontologizedUri: OntologizedUri, val confidence: Float) extends CauseExField {
 
   def this(singleOntologyGrounding: SingleOntologyGrounding) =
-      this(CauseExObject.toUri(singleOntologyGrounding), singleOntologyGrounding._2)
+      this(OntologizedUri(singleOntologyGrounding), singleOntologyGrounding._2)
 
-  def toJField: JField = JField(uri, JDouble(confidence))
+  def toJField: JField = JField(ontologizedUri.getString, JDouble(confidence))
 }
 
-class FrameType(uri: String, confidence: Float = 1f) extends OntologizedType(uri, confidence) {
+class FrameType(ontologizedUri: OntologizedUri, confidence: Float = 1f) extends OntologizedType(ontologizedUri, confidence) {
 
   def this(singleOntologyGrounding: SingleOntologyGrounding) =
-      this(CauseExObject.toUri(singleOntologyGrounding), singleOntologyGrounding._2)
+      this(OntologizedUri(singleOntologyGrounding), singleOntologyGrounding._2)
+
+  def this(uri: String) = this(new OntologizedUri(uri))
 }
 
 class FrameTypes(frameTypes: Seq[FrameType]) extends CauseExObject {
@@ -634,10 +640,10 @@ class CausalFactors(eidosMention: EidosMention) extends CauseExObject {
   }
 }
 
-class EntityType(uri: String, confidence: Float = 1f) extends OntologizedType(uri, confidence) {
+class EntityType(ontologizedUri: OntologizedUri, confidence: Float = 1f) extends OntologizedType(ontologizedUri, confidence) {
 
   def this(singleOntologyGrounding: SingleOntologyGrounding) =
-      this(CauseExObject.toUri(singleOntologyGrounding), singleOntologyGrounding._2)
+      this(OntologizedUri(singleOntologyGrounding), singleOntologyGrounding._2)
 }
 
 class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
