@@ -19,8 +19,10 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.SingleOntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidos.utils.TriggerInfo
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -343,6 +345,15 @@ object Span {
     new Span(docId, start, end, text)
   }
 
+  def apply(eidosMention: EidosMention, triggerInfo: TriggerInfo): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val start = triggerInfo.start
+    val end = triggerInfo.end
+    val text = triggerInfo.text
+
+    new Span(docId, start, end, text)
+  }
+
   def forSentence(eidosMention: EidosMention): Span = {
     val docId = CauseExObject.getDocumentId(eidosMention)
     val (start, end, text) = CauseExObject.getSentenceStartEndText(eidosMention)
@@ -351,16 +362,23 @@ object Span {
   }
 }
 
-// TODO: How are these calculated?
-class HeadSpan(docId: String, start: Int, end: Int, text: String) extends Span(docId, start, end, text)
+class HeadSpan(docId: String, start: Int, end: Int, text: String, isHead: Boolean) extends Span(docId, start, end, text) {
+
+  override def toJValue: JObject =
+    if (isHead) super.toJValue
+    else TidyJ.emptyJObject
+}
 
 object HeadSpan {
 
-  def apply(eidosMention: EidosMention): HeadSpan = {
+  def apply(eidosMention: EidosMention, triggerInfo: TriggerInfo): HeadSpan = {
     val docId = CauseExObject.getDocumentId(eidosMention)
-    val (start, end, text) = CauseExObject.getMentionStartEndText(eidosMention)
+    val start = triggerInfo.start
+    val end = triggerInfo.end
+    val text = triggerInfo.text
+    val isHead = triggerInfo.isHead
 
-    new HeadSpan(docId, start, end, text)
+    new HeadSpan(docId, start, end, text, isHead)
   }
 }
 
@@ -611,9 +629,11 @@ class EntityType(uri: String, confidence: Float = 1f) extends OntologizedType(ur
 class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
 
   def toJValue: JObject = {
+    val triggerInfo = MentionUtils.triggerInfo(eidosMention)
+
     TidyJObject(
-      "span" -> Span(eidosMention), // Optional
-      "head_span" -> HeadSpan(eidosMention)  // Optional
+      "span" -> Span(eidosMention, triggerInfo), // Optional
+      "head_span" -> HeadSpan(eidosMention, triggerInfo)  // Optional
     )(required = true)
   }
 }
@@ -623,53 +643,37 @@ class EntityTypes(entityTypes: Seq[EntityType]) extends CauseExObject {
   def toJValue: JObject = new JObject(entityTypes.map(_.toJField).toList)
 }
 
-abstract class Trigger(val eidosEventMention: EidosEventMention) extends CauseExObject {
-  val eidosTrigger: EidosMention = eidosEventMention.eidosTrigger
-  val odinTrigger: TextBoundMention = eidosEventMention.odinTrigger
-  val text: String = odinTrigger.text
-
-  def wordCount(text: String): Int = text.count(_ == ' ') + 1
+abstract class Trigger(val eidosMention: EidosMention) extends CauseExObject {
 }
 
-class ContractedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eidosEventMention) {
+class ContractedTrigger(eidosMention: EidosMention, triggerInfo: TriggerInfo) extends Trigger(eidosMention) {
 
   def toJValue: JObject = {
-      if (wordCount(text) == 1) Span(eidosTrigger).toJValue
+      if (triggerInfo.wordCount == 1) Span(eidosMention, triggerInfo).toJValue
         // The canonicalName does not have "unnormalized text referred to by the start/length".
       // else if (wordCount(eidosTrigger.canonicalName) == 1) new Span(eidosTrigger.canonicalName).toJValue
       else TidyJ.emptyJObject
   }
 }
 
-class ExtendedTrigger(eidosEventMention: EidosEventMention) extends Trigger(eidosEventMention) {
+class ExtendedTrigger(eidosMention: EidosMention, triggerInfo: TriggerInfo) extends Trigger(eidosMention) {
 
   def toJValue: JObject = {
-      if (wordCount(text) > 1) Span(eidosTrigger).toJValue
+      if (triggerInfo.wordCount > 1) Span(eidosMention, triggerInfo).toJValue
       else TidyJ.emptyJObject
   }
 }
 
 class FrameEvidence(eidosMention: EidosMention) extends CauseExObject {
 
-  def toJValue(eidosEventMention: EidosEventMention): JObject = {
-    TidyJObject(
-      "trigger" -> new ContractedTrigger(eidosEventMention),
-      "extended_trigger" -> new ExtendedTrigger(eidosEventMention),
-      "sentence" -> Span.forSentence(eidosEventMention)
-    )
-  }
+  def toJValue: JObject = {
+    val triggerInfo = MentionUtils.triggerInfo(eidosMention)
 
-  def toJValue(eidosMention: EidosMention): JObject = {
     TidyJObject(
+      "trigger" -> new ContractedTrigger(eidosMention, triggerInfo),
+      "extended_trigger" -> new ExtendedTrigger(eidosMention, triggerInfo),
       "sentence" -> Span.forSentence(eidosMention)
     )
-  }
-
-  def toJValue: JObject = {
-    eidosMention match {
-      case eidosEventMention: EidosEventMention => toJValue(eidosEventMention)
-      case _ => toJValue(eidosMention)
-    }
   }
 }
 

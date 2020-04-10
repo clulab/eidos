@@ -7,7 +7,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 
 import scala.collection.mutable.{Set => MutableSet}
 
-case class TriggerInfo(text: String, start: Int, end: Int)
+case class TriggerInfo(text: String, start: Int, end: Int, wordCount: Int, isHead: Boolean)
 
 object MentionUtils {
 
@@ -59,7 +59,7 @@ object MentionUtils {
   def triggerInfo(em: EidosMention): TriggerInfo = triggerInfo(em.odinMention)
   def triggerInfo(m: Mention): TriggerInfo = m match {
     // if mention is an EventMention, it's easy
-    case em: EventMention => TriggerInfo(em.trigger.text, em.trigger.startOffset, em.trigger.endOffset)
+    case em: EventMention => TriggerInfo(em.trigger.text, em.trigger.startOffset, em.trigger.endOffset, em.trigger.end - em.trigger.start, isHead = false)
     // Otherwise, check to see if the mention has a syntactic head
     case _ => {
       val synHeadOpt = m.synHead
@@ -67,10 +67,10 @@ object MentionUtils {
         // get the info from the syntactic head
         val head = synHeadOpt.get
         val s = m.sentenceObj
-        TriggerInfo(s.words(head), s.startOffsets(head), s.endOffsets(head))
+        TriggerInfo(s.words(head), s.startOffsets(head), s.endOffsets(head), 1, isHead = true)
       } else {
         // Otherwise backoff to the whole mention
-        TriggerInfo(m.text, m.startOffset, m.endOffset)
+        TriggerInfo(m.text, m.startOffset, m.endOffset, m.end - m.start, isHead = false )
       }
     }
   }
