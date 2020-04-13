@@ -10,7 +10,7 @@ class FoundBy(protected val foundBy: String) {
     require(!rule.contains(FoundBy.concatter))
     require(!(foundBy.last == FoundBy.concatter.head && rule.head == FoundBy.concatter.last))
 
-    FoundBy.concatter + rule
+    foundBy + FoundBy.concatter + rule
   }
 
   def get: String = foundBy

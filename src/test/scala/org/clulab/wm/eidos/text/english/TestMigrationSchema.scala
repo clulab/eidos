@@ -13,7 +13,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group = NodeSpec("300 refugees", CountSpec(300))
-    val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
+    val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"), NodeSpec.lastFilter)
     val moveFrom = NodeSpec("South Sudan", GeoLoc("South Sudan"))
     val time = NodeSpec("1997", TimEx("1997"))
 
@@ -152,7 +152,6 @@ class TestMigrationSchema extends EnglishTest {
     val moveFrom2 = NodeSpec("Uganda", GeoLoc("Uganda"))
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveFrom = Some(moveFrom2), moveTo = Some(moveTo), time = Some(time))
 
-
     behavior of "migration_receive"
 
     passingTest should "have correct moveTo1 node" taggedAs (Somebody) in {
@@ -174,7 +173,6 @@ class TestMigrationSchema extends EnglishTest {
     failingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be(successful)
     }
-
   }
 
   {
@@ -185,7 +183,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("IDPs") // Last in the list of mentions, not necessarily last in text.
-  val moveTo = NodeSpec("Bor Town", GeoLoc("Bor Town"))
+    val moveTo = NodeSpec("Bor Town", GeoLoc("Bor Town"))
     // This one matches the rule.
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo))
 
@@ -219,7 +217,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1_2 = NodeSpec("Interviewed KIs")
-    val moveTo1 = NodeSpec("Bor", GeoLoc("Bor"))
+    val moveTo1 = NodeSpec("Bor", GeoLoc("Bor"), NodeSpec.lastFilter)
 //    val migration1 = HumanMigrationEdgeSpec(group = Some(group1_2), moveTo = Some(moveTo1)) -> this is wrong
 
     // This is a hack.  Nothing checks that these are from the same mention.
@@ -266,7 +264,7 @@ class TestMigrationSchema extends EnglishTest {
 //    val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
     val group = NodeSpec("375 individuals", CountSpec(375))
-    val moveFrom = NodeSpec("Juba", GeoLoc("Juba"))
+    val moveFrom = NodeSpec("Juba", GeoLoc("Juba"), NodeSpec.lastFilter)
     val migration = HumanMigrationEdgeSpec(group = Some(group), moveFrom = Some(moveFrom), moveTo = Some(moveTo))
 
     behavior of "migration_reach"
@@ -343,7 +341,6 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct migration1 event" taggedAs (Somebody) in {
       tester.test(migration1) should be(successful)
     }
-
   }
 
   {
@@ -822,7 +819,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val time1 = NodeSpec("Between 1 February and 11 March 2017", TimEx("Between 1 February and 11 March 2017"))
     val group1 = NodeSpec("12,828 refugees", CountSpec(12828))
-    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"))
+    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
     val migration1 = HumanMigrationEdgeSpec(
       time = Some(time1),
       group = Some(group1),
@@ -974,7 +971,6 @@ class TestMigrationSchema extends EnglishTest {
       moveFrom = Some(moveFrom1),
       moveTo = Some(moveTo1),
       time = Some(time1))
-
 
     val group2 = NodeSpec("77,874", CountSpec(77874))
     val timeStart = NodeSpec("since September 2016", TimEx("since September 2016"))
@@ -1277,7 +1273,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("85% of the new arrivals", CountSpec(85, CountModifier.NoModifier, CountUnit.Percentage))
-    val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
+    val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"), NodeSpec.lastFilter)
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       moveFrom = Some(moveFrom1))
@@ -1308,7 +1304,6 @@ class TestMigrationSchema extends EnglishTest {
     failingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be (successful)
     }
-
 
     val moveFrom3 = NodeSpec("Longechuk", GeoLoc("Longechuk"))
     val migration3 = HumanMigrationEdgeSpec(
@@ -1387,7 +1382,6 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct migration7 event" taggedAs (Somebody) in {
       tester.test(migration7) should be (successful)
     }
-
 
     val moveFrom8 = NodeSpec("Uror", GeoLoc("Uror"))
     val migration8 = HumanMigrationEdgeSpec(
@@ -1474,7 +1468,6 @@ class TestMigrationSchema extends EnglishTest {
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1), timeStart = Some(time1))
 
-
     val group2 = NodeSpec("74,825", CountSpec(74825))
     val timeStart2 = NodeSpec("since September 2016", TimEx("since September 2016"))
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), timeStart = Some(timeStart2), moveTo = Some(moveTo1))
@@ -1508,7 +1501,6 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be (successful)
     }
-
   }
 
   {
@@ -1521,7 +1513,6 @@ class TestMigrationSchema extends EnglishTest {
     val time1 = NodeSpec("past week", TimEx("past week"))
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), time = Some(time1), groupModifier = Some(groupModifier)) //fixme: time is not attached => fix rule (migration-arrival or add to migration-rate)
-
 
     behavior of "migration-ma-2"
 
@@ -1548,11 +1539,9 @@ class TestMigrationSchema extends EnglishTest {
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
-
     val group2 = NodeSpec("all the new arrivals")
     val moveTo2 = NodeSpec("Nguenyyiel", GeoLoc("Nguenyyiel"))
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), moveTo = Some(moveTo2))
-
 
     behavior of "migration-ma-3"
 
@@ -1568,7 +1557,6 @@ class TestMigrationSchema extends EnglishTest {
       tester.test(migration1) should be (successful)
     }
 
-
     passingTest should "have correct group2 node" taggedAs (Somebody) in {
       tester.test(group2) should be (successful)
     }
@@ -1580,7 +1568,6 @@ class TestMigrationSchema extends EnglishTest {
     passingTest should "have correct migration2 event" taggedAs (Somebody) in {
       tester.test(migration2) should be (successful)
     }
-
   }
 
   /*

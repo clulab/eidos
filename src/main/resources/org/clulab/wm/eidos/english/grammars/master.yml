@@ -19,6 +19,13 @@ rules:
       action: applyTimeAttachment #Should add time to state of entity
       label: Time
 
+  - import: org/clulab/wm/eidos/english/grammars/locationAttachment.yml
+    vars:
+      rulepriority: "2"
+      action: applyLocationAttachment #Should add time to state of entity
+      label: Location
+
+
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
   - import: org/clulab/wm/eidos/english/grammars/modifiersTemplate.yml
     vars:
