@@ -20,6 +20,8 @@ object Finder {
         case "gazetteer" => GazetteerEntityFinder.fromConfig(config)
         case "geonorm" => GeoNormFinder.fromConfig(config[Config]("geonorm"))
         case "timenorm" => TimeNormFinder.fromConfig(config[Config]("timenorm"))
+        case "context" => OdinFinder.fromConfig(config[Config]("context"))
+        case "migration" => OdinFinder.fromConfig(config[Config]("migration"))
         case _ => ???
       }
     }

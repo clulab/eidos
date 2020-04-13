@@ -150,9 +150,9 @@ class TestDoc5 extends EnglishTest {
     val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("since 2014"))
     val reserves = NodeSpec("both foreign currency reserves", Dec("drop", "sharp"))
     val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"), GeoLoc("South Sudanese"))
-    val factors2 = NodeSpec("factors")
-    val insecurity = NodeSpec("insecurity along key trade routes")
-    val flows = NodeSpec("normal trade flow", Dec("restricted"), Quant("normal")) //NOTE: change flows to flow to facilitate correct parse;
+    val factors2 = NodeSpec("factors", GeoLoc("South Sudan"))
+    val insecurity = NodeSpec("insecurity along key trade routes", GeoLoc("South Sudan"))
+    val flows = NodeSpec("normal trade flow", Dec("restricted"), Quant("normal"), GeoLoc("South Sudan")) //NOTE: change flows to flow to facilitate correct parse;
     val requirements = NodeSpec("import requirements", Inc("higher"))
     val harvests = NodeSpec("below-average harvests", Dec("below-average"), Quant("below-average"))
     val availability = NodeSpec("food availability on local markets", Dec("reduction")) // NOTE: there is a bad parse here, subsequent is also tagged as an entity (cause)
