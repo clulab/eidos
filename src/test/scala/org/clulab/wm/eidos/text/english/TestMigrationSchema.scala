@@ -300,7 +300,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
-    val moveThrough = NodeSpec("Pagak", GeoLoc("Pagak"))
+    val moveThrough = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
     val migration = HumanMigrationEdgeSpec(moveTo = Some(moveTo), moveThrough = Some(moveThrough))
 
     behavior of "migration_nouns"
@@ -1535,7 +1535,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("1,796 individuals", CountSpec(1796))
-    val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak")) //todo: should this be intermediate point?
+    val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter) //todo: should this be intermediate point?
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
