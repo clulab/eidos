@@ -14,9 +14,10 @@ trait EidosWordToVec {
   def stringSimilarity(string1: String, string2: String): Float
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities
+  def calculateSimilaritiesWeighted(): Similarities
   def calculateSimilaritiesContext(canonicalNameParts: Array[String], canonicalNamePartsContext: Array[String],conceptEmbeddings: Seq[ConceptEmbedding], targetTokenWeight:Int): Similarities
 
-    def makeCompositeVector(t:Iterable[String]): Array[Float]
+  def makeCompositeVector(t:Iterable[String]): Array[Float]
 }
 
 class FakeWordToVec extends EidosWordToVec {
@@ -27,6 +28,7 @@ class FakeWordToVec extends EidosWordToVec {
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float = 0
 
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): Similarities = Seq.empty
+  def calculateSimilaritiesWeighted(): Similarities = Seq.empty
   def calculateSimilaritiesContext(canonicalNameParts: Array[String], canonicalNamePartsContext: Array[String],conceptEmbeddings: Seq[ConceptEmbedding], targetTokenWeight:Int): Similarities = Seq.empty
 
     //  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Float)] = Seq(("hello", 5.0f))
@@ -81,6 +83,13 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     }
   }
 
+  def calculateSimilaritiesWeighted(): Similarities = {
+    val eidosCompactWord2Vec = w2v.asInstanceOf[EidosCompactWord2Vec]
+
+    eidosCompactWord2Vec.specialFunction()
+    ???
+  }
+
   def calculateSimilaritiesContext(canonicalNameParts: Array[String], canonicalNamePartsContext: Array[String],conceptEmbeddings: Seq[ConceptEmbedding], targetTokenWeight:Int): Similarities = {
     def repeatElementsInArray(array: Array[String],times: Int): Array[String] = {
       array.flatMap (x =>
@@ -123,7 +132,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)
-
+  
 }
 
 object EidosWordToVec {
@@ -138,8 +147,8 @@ object EidosWordToVec {
       logger.info(s"Loading w2v from $wordToVecPath...")
 
       val w2v =
-        if (cached) CompactWord2Vec(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
-        else CompactWord2Vec(wordToVecPath, resource = true, cached)
+        if (cached) EidosCompactWord2Vec(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
+        else EidosCompactWord2Vec(wordToVecPath, resource = true, cached)
 
       new RealWordToVec(w2v, topKNodeGroundings)
     }
