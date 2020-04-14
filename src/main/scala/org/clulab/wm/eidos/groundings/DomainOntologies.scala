@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 object DomainOntologies {
   protected lazy val logger: Logger = LoggerFactory.getLogger(getClass)
   protected val TWO_SIX_NAMESPACE = "two_six"
+  protected val ICM_NAMESPACE = "icm"
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
   protected def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {
@@ -72,7 +73,7 @@ object DomainOntologies {
   def mkDomainOntology(name: String, ontologyPath: String, sentenceExtractor: SentencesExtractor,
       canonicalizer: Canonicalizer, cacheDir: String, useCacheForOntologies: Boolean,
       includeParents: Boolean): DomainOntology = {
-    if (name == TWO_SIX_NAMESPACE) {
+    if (name == TWO_SIX_NAMESPACE || name == ICM_NAMESPACE) {
       val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
       new TableDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter = true).buildFromResource(ontologyPath, versionOpt, dateOpt)
     }

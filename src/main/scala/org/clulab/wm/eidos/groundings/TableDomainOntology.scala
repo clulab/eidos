@@ -46,14 +46,14 @@ object TableDomainOntology {
   // Make some option here for different loader from resource, all one file
 
   def main(args: Array[String]): Unit = {
-    val tableDomainOntology1 = new TableDomainOntologyBuilder(null, null, false)
-        .buildFromFiles("two_six", "../two_six")
+//    val tableDomainOntology1 = new TableDomainOntologyBuilder(null, null, false)
+//        .buildFromFiles("icm", "../icm")
+//
+//    val tableDomainOntology2 = new TableDomainOntologyBuilder(null, null, false)
+//        .buildFromResource("/org/clulab/causeex/eidos/english/ontologies/two_six.tbl", None, None)
 
-//    new TableDomainOntologyBuilder(null, null, false)
-//        .convertFromFilesToResource("../two_six", "two_six.tbl")
-
-    val tableDomainOntology2 = new TableDomainOntologyBuilder(null, null, false)
-        .buildFromResource("/org/clulab/causeex/eidos/english/ontologies/two_six.tbl", None, None)
+    new TableDomainOntologyBuilder(null, null, false)
+        .convertFromFilesToResource("../icm", "icm.tbl")
 
     println("Done")
   }
