@@ -102,7 +102,7 @@ object CacheOntologies extends App {
   }
 
   // Comment these in and out as required.
-  replaceGeoNorms() // This should go first before EidosSystem is created.
+//  replaceGeoNorms() // This should go first before EidosSystem is created.
   cacheWord2Vec()
   if (domain != Domain.DOMAIN_CAUSEEX) {
     safeCacheOntologies()

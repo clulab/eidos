@@ -71,14 +71,19 @@ object CullVectors extends App {
     frequentWords
   }
   val reservedWords = {
-    val tableDomainOntology = new TableDomainOntologyBuilder(null, null, false)
-        .buildFromFiles("two_six", inOntologyDir)
-    val values = tableDomainOntology
-        .indices
-        .flatMap(tableDomainOntology.getValues(_))
-        // These are lowercased to match gigaword.
-        .map(_.toLowerCase)
-        .toSet
+    val tableDomainOntologyBuilder = new TableDomainOntologyBuilder(null, null, false)
+    val values = Seq("two_six.tbl", "icm.tbl").flatMap { name =>
+      val tableDomainOntology = tableDomainOntologyBuilder
+          .buildFromResource("/org/clulab/causeex/eidos/english/ontologies/" + name , None, None)
+      val values = tableDomainOntology
+          .indices
+          .flatMap(tableDomainOntology.getValues(_))
+          // These are lowercased to match gigaword.
+          .map(_.toLowerCase)
+          .toSet
+
+      values
+    }
 
     values
   }
