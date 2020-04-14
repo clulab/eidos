@@ -9,6 +9,7 @@ import org.clulab.odin.Attachment
 import scala.language.implicitConversions
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
@@ -18,7 +19,6 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.SingleOntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.MentionUtils
-import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.clulab.wm.eidos.utils.TriggerInfo
 import org.json4s.JsonDSL._
@@ -147,8 +147,13 @@ class Frame(eidosMention: EidosMention) extends CauseExObject {
   // ...
   // http://ontology.causeex.com/ontology/odps/Event#Webcast
 
-  def isCausalAssertion: Boolean =
-      CauseExObject.hasArgument(eidosMention, "cause") && CauseExObject.hasArgument(eidosMention, "effect")
+  def isCausalAssertion: Boolean = {
+    val result = eidosMention.odinMention.matches(EidosSystem.CAUSAL_LABEL)
+
+    if (result)
+      assert(CauseExObject.hasArgument(eidosMention, "cause") && CauseExObject.hasArgument(eidosMention, "effect"))
+    result
+  }
 
   def isQualifiedEvent: Boolean = false
 
@@ -267,6 +272,27 @@ class Entity(eidosMention: EidosMention) extends CauseExObject {
   }
 }
 
+class LocationEntity(eidosMention: EidosMention, location: Location) extends Entity(eidosMention) {
+  val entityTypes = Seq(new EntityType(new OntologizedUri("http://ontology.causeex.com/ontology/odps/GeneralConcepts#Location")))
+  val mentionTypeOpt: Option[String] = Some("http://ontology.causeex.com/ontology/odps/DataProvenance#NAM")
+location.geoPhraseID.geonameID
+  override def toJValue: JObject = {
+    TidyJObject(
+      // Ontologized URI string for entity type
+      // Value represents non-optional confidence
+      "entity_types" -> new EntityTypes(entityTypes),
+      "mention_type" -> mentionTypeOpt, // Ontologized URI string for mention type
+      // Not optional, but may be an empty map
+      "evidence" -> new LocationEntityEvidence(eidosMention, location),
+      // Not optional, but may be an empty map
+      "properties" -> new EntityProperties(eidosMention),
+      "provenance" -> new Provenance(),
+      // Most canonical name the system can provide for the entity
+      "canonical_label" -> JNothing // location.geoPhraseID.geonameID // Optional
+    )
+  }
+}
+
 abstract class Argument extends CauseExObject
 
 class EntityArgument(val roleUri: String, val eidosMention: EidosMention, confidenceOpt: Option[Float] = None) extends Argument {
@@ -290,6 +316,19 @@ class TimeArgument(time: Time, eidosMention: EidosMention, confidenceOpt: Option
       "role" -> roleUri,
       "confidence" -> confidenceOpt,
       "span" -> Span(eidosMention, time) // Optional, only valid with the role "has_time"
+    )
+  }
+}
+
+class LocationArgument(location: Location, eidosMention: EidosMention, confidenceOpt: Option[Float] = Some(1f)) extends EntityArgument("http://ontology.causeex.com/ontology/odps/GeneralConcepts#located_at", eidosMention) {
+
+  override def toJValue: JObject = {
+    TidyJObject(
+      // Either an ontologized URI string for the role or 'has_time' for time arguments.
+      "role" -> roleUri,
+      "confidence" -> confidenceOpt,
+      // Exactly one of entity, frame, or span must be specified
+      "entity" -> new LocationEntity(eidosMention, location) // Optional
     )
   }
 }
@@ -349,6 +388,16 @@ object Span {
     val start = triggerInfo.start
     val end = triggerInfo.end
     val text = triggerInfo.text
+
+    new Span(docId, start, end, text)
+  }
+
+  def apply(eidosMention: EidosMention, location: Location): Span = {
+    val docId = CauseExObject.getDocumentId(eidosMention)
+    val geoPhraseID = location.geoPhraseID
+    val start = geoPhraseID.startOffset
+    val end = geoPhraseID.endOffset
+    val text = geoPhraseID.text
 
     new Span(docId, start, end, text)
   }
@@ -566,8 +615,6 @@ class FrameProperties(eidosMention: EidosMention) extends CauseExObject {
       "tense" -> new Tense(eidosMention),   // Ontologized URI string for tense, optional
       "genericity" -> new Genericity(eidosMention),   // Ontologized URI string for genericity, optional
       "confidence" -> CauseExObject.optionalConfidence, // Optional
-
-      "geonames_id" -> getLocationOpt // TODO: KWA: This probably shouldn't be here.
     )(required = true)
   }
 }
@@ -642,7 +689,7 @@ class Arguments(eidosMention: EidosMention) extends CauseExObject {
   def matchAttachment(attachment: Attachment): Option[Argument] = attachment match {
     case time: Time => Some(new TimeArgument(time, eidosMention))
     // This very eidosMention has the location.  See GeneralConcepts-Location.ttl.
-//    case location: Location => Some(new LocationArgument(location, eidosMention))
+    case location: Location => Some(new LocationArgument(location, eidosMention))
     // TODO: Find more
     case _ => None
   }
@@ -698,11 +745,22 @@ class EntityType(ontologizedUri: OntologizedUri, confidence: Float = 1f) extends
 class EntityEvidence(eidosMention: EidosMention) extends CauseExObject {
 
   def toJValue: JObject = {
-    val triggerInfo = MentionUtils.triggerInfo(eidosMention)
+    val triggerInfo = MentionUtils.synHeadOfMentionOrTrigger(eidosMention)
 
     TidyJObject(
       "span" -> Span(eidosMention, triggerInfo), // Optional
       "head_span" -> HeadSpan(eidosMention, triggerInfo)  // Optional
+    )(required = true)
+  }
+}
+
+class LocationEntityEvidence(eidosMention: EidosMention, location: Location) extends EntityEvidence(eidosMention) {
+
+  override def toJValue: JObject = {
+
+    TidyJObject(
+      "span" -> Span(eidosMention, location), // Optional
+      "head_span" -> JNothing // Optional
     )(required = true)
   }
 }
@@ -736,7 +794,7 @@ class ExtendedTrigger(eidosMention: EidosMention, triggerInfo: TriggerInfo) exte
 class FrameEvidence(eidosMention: EidosMention) extends CauseExObject {
 
   def toJValue: JObject = {
-    val triggerInfo = MentionUtils.triggerInfo(eidosMention)
+    val triggerInfo = MentionUtils.synHeadOfMentionOrTrigger(eidosMention)
 
     TidyJObject(
       "trigger" -> new ContractedTrigger(eidosMention, triggerInfo),

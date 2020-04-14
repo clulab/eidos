@@ -9,8 +9,6 @@ import scala.collection.mutable.{Set => MutableSet}
 
 case class TriggerInfo(text: String, start: Int, end: Int, wordCount: Int, isHead: Boolean)
 
-case class TriggerInfo(text: String, start: Int, end: Int)
-
 object MentionUtils {
 
   def newCrossSentenceMention(m: CrossSentenceMention, attachments: Set[Attachment]) =
@@ -76,12 +74,12 @@ object MentionUtils {
       // get the info from the syntactic head
       val head = synHeadOpt.get
       val s = m.sentenceObj
-      TriggerInfo(s.raw(head), s.startOffsets(head), s.endOffsets(head))
-    } else {
+      TriggerInfo(s.raw(head), s.startOffsets(head), s.endOffsets(head), 1, isHead = true)
+    }
+    else {
       // Otherwise backoff to the whole mention
-      TriggerInfo(triggerOrMention.text, triggerOrMention.startOffset, triggerOrMention.endOffset)
+      TriggerInfo(triggerOrMention.text, triggerOrMention.startOffset, triggerOrMention.endOffset,
+        triggerOrMention.startOffset - triggerOrMention.endOffset, isHead = false)
     }
   }
-
-
 }
