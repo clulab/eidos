@@ -302,12 +302,10 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val mentionText = mention.odinMention.words.toArray
       val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
       val allMentionTokens = allMentions.flatMap(m=>m.words)
-      println("\tsyntactic head:", mentionHeadOpt.toSeq.map(m=>m.words))
-      println("\tmodifications:", modifierMentions.map(m=>m.words))
-      println("\tall mention tokens:", allMentionTokens)
-      // Get all groundings for each branch.
-      // Original grounding method: ground syntactic head and modification mention separately.
 
+      // Get all groundings for each branch.
+      // Each branch is its own grounding strategy to allow best performance.
+      // The groundings of concepts and processes are competing at last, as it gains better performance.
       val propertySimilarities = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
       val processSimilarities = allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
       val mentionHeadTag = mentionHeadOpt.map(m=>m.tags.head.head).getOrElse("None")
@@ -328,7 +326,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
           allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
         }
       }
-      // Original filtering procedure
+
+      // Start filtering procedure
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
 
