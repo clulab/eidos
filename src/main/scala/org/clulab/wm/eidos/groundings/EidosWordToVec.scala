@@ -12,7 +12,9 @@ trait EidosWordToVec {
   def stringSimilarity(string1: String, string2: String): Float
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
-  def makeCompositeVector(t:Iterable[String]): Array[Float]
+  def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Array[String], weight:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
+
+    def makeCompositeVector(t:Iterable[String]): Array[Float]
 }
 
 class FakeWordToVec extends EidosWordToVec {
@@ -23,7 +25,9 @@ class FakeWordToVec extends EidosWordToVec {
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float = 0
 
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = Seq.empty
-//  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Float)] = Seq(("hello", 5.0f))
+  def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Array[String], weight:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = Seq.empty
+
+    //  def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: ConceptEmbeddings): Seq[(String, Float)] = Seq(("hello", 5.0f))
 
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
@@ -73,6 +77,11 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }
+  }
+
+  def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Array[String], weight:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
+
+
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)

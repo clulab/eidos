@@ -298,42 +298,37 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val modifierMentions = headTextOpt.map { headText =>
         getModifierMentions(headText, mention.odinMention)
       }.getOrElse(Seq.empty)
-      val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
 
-      // New grounding method, features:
-      // (1) let concept and process branch ground together and rank together. So top 5 of all are maintained.
-      // (2) judge the pos tag of the syntactic head. If the head is not NN type, include modifications or original context (when modifications are not available)
+      val mentionText = mention.odinMention.words.toArray
+      val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
+      val allMentionTokens = allMentions.flatMap(m=>m.words)
+      println("\tsyntactic head:", mentionHeadOpt.toSeq.map(m=>m.words))
+      println("\tmodifications:", modifierMentions.map(m=>m.words))
+      println("\tall mention tokens:", allMentionTokens)
+      // Get all groundings for each branch.
+      // Original grounding method: ground syntactic head and modification mention separately.
+
       val propertySimilarities = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
       val processSimilarities = allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
       val mentionHeadTag = mentionHeadOpt.map(m=>m.tags.head.head).getOrElse("None")
       val conceptSimilarities = {
         if (!mentionHeadTag.startsWith("NN")) {
           if (modifierMentions.isEmpty) {
-            val mentionText = mention.odinMention.text.split(" ")
-            w2v.calculateSimilarities(mentionText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+            val posTags = mention.odinMention.tags.getOrElse(Seq.empty)
+            w2v.calculateSimilaritiesWeighted(mentionText, posTags, 5, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
           }
           else
           {
-            val headText_ = {
-              if (mentionHeadOpt.toSeq.nonEmpty) mentionHeadOpt.toSeq.head.text.split(" ").toSeq else (" ").toSeq
-            }
-            val modText_ = {
-              if (modifierMentions.nonEmpty) modifierMentions.head.text.split(" ").toSeq else (" ").toSeq
-            }
-            val mentionText = headText_.map(m => m.toString)
-            val modText = modText_.map(m => m.toString)
-            val allMentionsText = (mentionText ++ modText).toArray
-
-            w2v.calculateSimilarities(allMentionsText, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
-
+            val allMentionTags = allMentions.flatMap(mention =>mention.tags).flatten
+            w2v.calculateSimilaritiesWeighted(allMentionTokens.toArray, allMentionTags, 1, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
           }
         }
         else
         {
-          allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+          allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
         }
       }
-
+      // Original filtering procedure
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
 
