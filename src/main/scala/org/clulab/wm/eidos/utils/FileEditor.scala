@@ -16,6 +16,18 @@ class FileEditor(protected var file: File) {
     this
   }
 
+  def incDir(dir: String): FileEditor = {
+    val name = file.getName
+    val pathOpt = Option(file.getParentFile)
+    val newPath =
+        if (pathOpt.isDefined)
+          Paths.get(Paths.get(pathOpt.get.getPath, dir).toString, name).toString
+        else Paths.get(dir, name).toString
+
+    file = new File(newPath)
+    this
+  }
+
   def setName(name: String): FileEditor = {
     val pathOpt = Option(file.getParentFile)
     val newPath =
