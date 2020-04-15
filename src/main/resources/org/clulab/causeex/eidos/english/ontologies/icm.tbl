@@ -1,0 +1,1762 @@
+# Name
+Residential
+# Paths
+ICM/PhysicalEnvironment/ManMadeStructures/Residential
+# Examples
+residential
+residence
+residences
+house
+houses
+home
+homes
+apartment
+apartments
+condominium
+condominiums
+condo
+condos
+apartment
+building
+apartment
+buildings
+townhome
+townhomes
+townhouse
+townhouses
+rowhouse
+row
+house
+town
+home
+town
+house
+mansion
+mansions
+# Patterns
+
+# Name
+CriminalActivities
+# Paths
+ICM/Social/BasicNeeds/CriminalActivities
+# Examples
+criminal
+activities
+violent
+crimes
+organized
+crimes
+theft
+murder
+attempt
+murdered
+extortion
+gambling
+prostitution
+blackmailing
+bank
+roberry
+roberry
+property
+crime
+white
+collar
+crime
+high
+tech
+crime
+# Patterns
+
+# Name
+FreedomOfReligiousExpression
+# Paths
+ICM/Social/BasicNeeds/FreedomOfReligiousExpression
+# Examples
+freedom
+of
+religious
+expression
+freedom
+of
+religion
+religious
+persecution
+antisemetic
+judaism
+christianity
+islam
+# Patterns
+
+# Name
+SecuritySafetyLevel
+# Paths
+ICM/Social/BasicNeeds/SecuritySafetyLevel
+# Examples
+security
+safety
+level
+# Patterns
+
+# Name
+ReligiousOrgInfluence
+# Paths
+ICM/Social/Institutions/ReligiousOrgInfluence
+# Examples
+religious
+org
+influence
+religious
+organization
+influence
+religious
+order
+influence
+influential
+religion
+religious
+leader
+influence
+# Patterns
+
+# Name
+MilitaryCyberActivity
+# Paths
+ICM/Military/ArmedForces/MilitaryCyberActivity
+# Examples
+military
+cyber
+activity
+cyber
+warfare
+cyberwarfare
+cyber
+war
+cyber
+attacks
+military
+cyber
+attack
+military
+cyber
+defense
+malicious
+cyber
+activity
+cybersecurity
+activity
+cyberactivity
+cyber
+spying
+cyber-arms
+industry
+cyberterrorism
+penetration
+test
+# Patterns
+(?i)\bcyberwarfare\b
+(?i)\bcyberterrorism\b
+
+# Name
+SeasonalEffectonPopulace
+# Paths
+ICM/PhysicalEnvironment/Weather/SeasonalEffectonPopulace
+# Examples
+seasonal
+effecton
+populace
+seasonal
+effect
+on
+populace
+seasonal
+affective
+seasonality
+effect
+on
+population
+seasonal
+effect
+on
+public
+# Patterns
+
+# Name
+MilitaryRecruitment
+# Paths
+ICM/Military/Sustainment/MilitaryRecruitment
+# Examples
+military
+recruitment
+recruitment
+advertising
+military
+draft
+enlistment
+# Patterns
+
+# Name
+MilitaryAirReadiness
+# Paths
+ICM/Military/ArmedForces/MilitaryAirReadiness
+# Examples
+military
+air
+readiness
+aerial
+readiness
+air
+force
+readiness
+military
+air
+ready
+air
+force
+preparedness
+air
+force
+prepared
+# Patterns
+
+# Name
+MilitaryNavalReadiness
+# Paths
+ICM/Military/ArmedForces/MilitaryNavalReadiness
+# Examples
+military
+naval
+readiness
+# Patterns
+
+# Name
+DefenseRegionalCommunications
+# Paths
+ICM/Information/DefenseInformation/DefenseRegionalCommunications
+# Examples
+defense
+regional
+communications
+regional
+communications
+defense
+information
+system
+agency
+# Patterns
+
+# Name
+MilitaryConflict
+# Paths
+ICM/Military/MilitaryConflict
+# Examples
+military
+conflict
+armed
+conflict
+war
+battle
+world
+war
+combat
+hand-to-hand
+combat
+armed
+combat
+# Patterns
+
+# Name
+SecurityElementInfluence
+# Paths
+ICM/Political/PoliticalOrganizations/SecurityElementInfluence
+# Examples
+security
+element
+influence
+security
+aparatus
+influence
+security
+sector
+influence
+security
+agency
+influence
+# Patterns
+
+# Name
+MultiNationalCorporationInfluence
+# Paths
+ICM/Political/RegionalOrInternational/MultiNationalCorporationInfluence
+# Examples
+multi
+national
+corporation
+influence
+# Patterns
+
+# Name
+WaterPollutionLevels
+# Paths
+ICM/PhysicalEnvironment/Habitability/WaterPollutionLevels
+# Examples
+water
+pollution
+levels
+# Patterns
+
+# Name
+WasteServices
+# Paths
+ICM/Infrastructure/Utilities/WasteServices
+# Examples
+waste
+services
+# Patterns
+
+# Name
+WaterTransportation
+# Paths
+ICM/Infrastructure/Transportation/WaterTransportation
+# Examples
+water
+transportation
+transportation
+over
+water
+cargo
+transportation
+over
+water
+person
+transportation
+over
+water
+ship
+transport
+maritime
+transport
+fluvial
+transport
+waterborne
+transport
+transport
+via
+waterways
+freight
+transport
+overseas
+# Patterns
+
+# Name
+ShelterAvailability
+# Paths
+ICM/Social/BasicNeeds/ShelterAvailability
+# Examples
+shelter
+availability
+housing
+availability
+living
+accommodations
+# Patterns
+
+# Name
+ExtraJudicialActivity
+# Paths
+ICM/Political/CentralOrLocalGovernment/ExtraJudicialActivity
+# Examples
+extra
+judicial
+activity
+activity
+outside
+duty
+off-duty
+conduct
+judge
+extrajudicial
+activity
+# Patterns
+
+# Name
+CommunicationRestrictions
+# Paths
+ICM/Information/NationalInformation/CommunicationRestrictions
+# Examples
+communication
+restrictions
+censorship
+internet
+censorship
+block
+content
+firewall
+media
+regulation
+broadcasting
+act
+# Patterns
+
+# Name
+AbilityToAddressBasicNeeds
+# Paths
+ICM/Social/BasicNeeds/AbilityToAddressBasicNeeds
+# Examples
+ability
+to
+address
+basic
+needs
+basic
+needs
+basic
+necessities
+ability
+to
+address
+basic
+necessities
+phyisical
+well-being
+above
+poverty
+above
+poverty
+threshold
+# Patterns
+
+# Name
+EconomicAgriculturalCapability
+# Paths
+ICM/Economic/Production/EconomicAgriculturalCapability
+# Examples
+economic
+agricultural
+capability
+land
+usage
+food
+crop
+production
+crop
+yield
+food
+price
+farm
+management
+production
+economics
+rural
+finance
+agricultural
+marketing
+prices
+agricultural
+policy
+and
+development
+food
+and
+nutrition
+economics
+environmental
+natural
+resource
+economics
+# Patterns
+
+# Name
+Leadership
+# Paths
+ICM/Military/Leadership
+# Examples
+leadership
+administration
+authority
+command
+management
+military
+command
+commander
+general
+colonel
+lieutenant
+officer
+high-ranking
+officer
+# Patterns
+(?i)\blieutenant\b
+(?i)\bcolonel\b
+(?i)\bcommander\b
+
+# Name
+EthnicTensionsinGovt
+# Paths
+ICM/Political/PoliticalOrganizations/EthnicTensionsinGovt
+# Examples
+ethnic
+tensions
+in
+government
+ethnic
+conflict
+in
+government
+ethnic
+issues
+in
+government
+conflict
+in
+government
+tensions
+in
+government
+ethnic
+tensions
+among
+officials
+ethnic
+tensions
+among
+authorities
+# Patterns
+
+# Name
+Refugees
+# Paths
+ICM/Social/AffinityGroups/Refugees
+# Examples
+refugees
+refugee
+aliens
+alien
+war
+refugees
+Refugees
+Refugee
+Aliens
+Alien
+# Patterns
+
+# Name
+EconomicProduction
+# Paths
+ICM/Economic/Production/EconomicProduction
+# Examples
+economic
+production
+economic
+growth
+market
+production
+market
+output
+goods
+and
+services
+# Patterns
+
+# Name
+ReligiousOrgSuppression
+# Paths
+ICM/Social/Institutions/ReligiousOrgSuppression
+# Examples
+religious
+org
+suppression
+religious
+persecution
+religious
+organization
+suppression
+suppress
+religious
+organization
+persecute
+religious
+organization
+suppress
+religious
+order
+suppress
+religion
+# Patterns
+
+# Name
+MilitaryCoercionOrIntimidation
+# Paths
+ICM/Military/Leadership/MilitaryCoercionOrIntimidation
+# Examples
+military
+coercion
+or
+intimidation
+army
+coercion
+navy
+intimidation
+naval
+intimidation
+air
+coercion
+air
+force
+intimidation
+air
+forces
+intimidating
+# Patterns
+
+# Name
+InternationalTrade
+# Paths
+ICM/Economic/Distribution/InternationalTrade
+# Examples
+international
+trade
+world
+trade
+global
+trade
+trade
+between
+countries
+external
+trade
+overseas
+trading
+# Patterns
+
+# Name
+Commercial
+# Paths
+ICM/PhysicalEnvironment/ManMadeStructures/Commercial
+# Examples
+commercial
+# Patterns
+
+# Name
+PVOInfluence
+# Paths
+ICM/Social/Institutions/PVOInfluence
+# Examples
+pvo
+influence
+PVO
+influence
+private
+voluntary
+organization
+influence
+# Patterns
+
+# Name
+PublicFacilities
+# Paths
+ICM/Infrastructure/PublicFacilities
+# Examples
+public
+facilities
+government
+buildings
+non
+government
+buildings
+places
+of
+worship
+public
+gathering
+places
+hospitals
+police
+stations
+public
+transport
+healthcare
+libraries
+schools
+# Patterns
+
+# Name
+IndustrialResourceAvailability
+# Paths
+ICM/Economic/Consumption/IndustrialResourceAvailability
+# Examples
+industrial
+resource
+availability
+resource
+availability
+material
+availability
+services
+availability
+manufacturing
+equipment
+availability
+oil
+availability
+# Patterns
+
+# Name
+EmergencyFacilityAvailability
+# Paths
+ICM/Infrastructure/PublicFacilities/EmergencyFacilityAvailability
+# Examples
+emergency
+facility
+availability
+hospitals
+field
+clinics
+shelters
+doctors
+medical
+providers
+# Patterns
+
+# Name
+MilitaryCBRNEReadiness
+# Paths
+ICM/Military/ArmedForces/MilitaryCBRNEReadiness
+# Examples
+military
+cbrne
+readiness
+chemical
+biological
+radiological
+nuclear
+explosives
+readiness
+radiation
+readiness
+CBRN
+mission
+readiness
+CBRNE
+readiness
+explosive
+readiness
+# Patterns
+
+# Name
+GangsOrCriminalOrganizationsActivities
+# Paths
+ICM/Social/AffinityGroups/GangsOrCriminalOrganizationsActivities
+# Examples
+gangs
+or
+criminal
+organizations
+activities
+organized
+crime
+money
+laundering
+trafficking
+mafia
+activity
+mob
+activity
+yakuza
+activity
+# Patterns
+
+# Name
+DisinformationOperation
+# Paths
+ICM/Information/NationalInformation/DisinformationOperation
+# Examples
+disinformation
+operation
+influence
+operation
+propaganda
+agenda
+fake
+news
+disinformation
+campaign
+falsehood
+fabricated
+fictitious
+stories
+selective
+censorship
+manipulation
+of
+search
+rankings
+hacking
+and
+releasing
+covert
+# Patterns
+
+# Name
+MisinformationOperation
+# Paths
+ICM/Information/NationalInformation/MisinformationOperation
+# Examples
+misinformation
+operation
+fake
+news
+incomplete
+information
+bias
+# Patterns
+
+# Name
+MilitaryGroundActivity
+# Paths
+ICM/Military/ArmedForces/MilitaryGroundActivity
+# Examples
+military
+ground
+activity
+conflict
+conflicts
+fighting
+combat
+# Patterns
+
+# Name
+MilitaryWMDActivity
+# Paths
+ICM/Military/ArmedForces/MilitaryWMDActivity
+# Examples
+military
+wmd
+activity
+weapons
+of
+mass
+destruction
+activity
+weapon
+of
+mass
+destruction
+activity
+nuclear
+bomb
+activity
+nuclear
+bombing
+activity
+atomic
+explosion
+activity
+radiological
+weapon
+chemical
+weapon
+biological
+weapon
+# Patterns
+(?i)(wmd)\s+(activity)
+
+# Name
+MilitarySOFCapability
+# Paths
+ICM/Military/ArmedForces/MilitarySOFCapability
+# Examples
+military
+sof
+capability
+military
+sof
+power
+military
+special
+operation
+force
+capability
+military
+special
+operation
+force
+power
+special
+reconnaissance
+capability
+special
+reconnaissance
+power
+special
+forces
+capability
+special
+forces
+power
+special
+operation
+forces
+capability
+special
+operation
+forces
+power
+navy
+seal
+capability
+# Patterns
+(?i)(SOF)\s+(capability)
+(?i)(navy)\s+(seal)\s+(capability)
+
+# Name
+DiasporaInfluence
+# Paths
+ICM/Social/AffinityGroups/DiasporaInfluence
+# Examples
+diaspora
+influence
+# Patterns
+
+# Name
+PopulaceMotivation
+# Paths
+ICM/Social/PopulaceMotivation
+# Examples
+populace
+motivation
+# Patterns
+
+# Name
+FactualInformationOperation
+# Paths
+ICM/Information/NationalInformation/FactualInformationOperation
+# Examples
+factual
+information
+operation
+# Patterns
+
+# Name
+MilitaryGroundCapability
+# Paths
+ICM/Military/ArmedForces/MilitaryGroundCapability
+# Examples
+military
+ground
+capability
+army
+tanks
+ground
+troops
+soldiers
+bases
+munitions
+military
+research
+technology
+new
+equipment
+training
+# Patterns
+
+# Name
+EconomicEquality
+# Paths
+ICM/Social/BasicNeeds/EconomicEquality
+# Examples
+economic
+equality
+equal
+contribution
+equal
+taxation
+fairness
+equal
+life
+chances
+moral
+equality
+horizontal
+equality
+vertical
+equality
+equal
+pay
+for
+equal
+work
+fair
+division
+tax
+neutrality
+# Patterns
+
+# Name
+MilitarySpending
+# Paths
+ICM/Military/MilitarySpending
+# Examples
+military
+spending
+army
+spending
+military
+funding
+defense
+spending
+defence
+budget
+military
+expenditure
+military
+expenditure
+# Patterns
+
+# Name
+ForeignInvestment
+# Paths
+ICM/Economic/Consumption/ForeignInvestment
+# Examples
+foreign
+investment
+capital
+flow
+foreign
+direct
+investment
+foreign
+portofolio
+investment
+horizontal
+foreign
+direct
+investment
+# Patterns
+
+# Name
+Institutions
+# Paths
+ICM/Social/Institutions
+# Examples
+institutions
+educational
+institutions
+government
+institutions
+formal
+institutions
+informal
+institutions
+family
+economy
+religion
+government
+economy
+social
+institutions
+# Patterns
+
+# Name
+MilitaryAirCapability
+# Paths
+ICM/Military/ArmedForces/MilitaryAirCapability
+# Examples
+military
+air
+capability
+air
+force
+aircraft
+bases
+planes
+bombers
+munitions
+military
+research
+technology
+aerospace
+engineering
+new
+equipment
+missile
+training
+# Patterns
+
+# Name
+Habitable
+# Paths
+ICM/PhysicalEnvironment/Geography/Habitable
+# Examples
+habitable
+# Patterns
+
+# Name
+SeasonalEffectonOperations
+# Paths
+ICM/PhysicalEnvironment/Weather/SeasonalEffectonOperations
+# Examples
+seasonal
+effect
+on
+operations
+weather
+effect
+on
+operations
+temporary
+effect
+on
+operations
+temporary
+change
+weather
+effect
+climate
+effect
+# Patterns
+
+# Name
+ReligiousInfluenceInGovt
+# Paths
+ICM/Political/PoliticalOrganizations/ReligiousInfluenceInGovt
+# Examples
+religious
+influence
+in
+govt
+# Patterns
+
+# Name
+ProvisionOfAidOrSupport
+# Paths
+ICM/Economic/Consumption/ProvisionOfAidOrSupport
+# Examples
+provision
+of
+aid
+or
+support
+provide
+aid
+or
+support
+providing
+aid
+or
+support
+give
+aid
+giving
+support
+provide
+assistance
+# Patterns
+
+# Name
+PoliticalAllianceStrength
+# Paths
+ICM/Political/RegionalOrInternational/PoliticalAllianceStrength
+# Examples
+political
+alliance
+strength
+coalition
+strength
+bloc
+strength
+# Patterns
+
+# Name
+PopulaceSupportForGovernment
+# Paths
+ICM/Political/CentralOrLocalGovernment/PopulaceSupportForGovernment
+# Examples
+populace
+support
+for
+government
+# Patterns
+
+# Name
+NavigableWaterways
+# Paths
+ICM/PhysicalEnvironment/Geography/NavigableWaterways
+# Examples
+navigable
+waterways
+# Patterns
+
+# Name
+AbilityToAddressIdentityBasedBasicNeeds
+# Paths
+ICM/Social/BasicNeeds/AbilityToAddressIdentityBasedBasicNeeds
+# Examples
+ability
+to
+address
+identity
+based
+basic
+needs
+# Patterns
+
+# Name
+MilitaryActivity
+# Paths
+ICM/Military/MilitaryActivity
+# Examples
+military
+activity
+military
+operation
+military
+campaign
+war
+military
+occupation
+military
+conflict
+combat
+operation
+# Patterns
+
+# Name
+GasAvailability
+# Paths
+ICM/Infrastructure/Utilities/GasAvailability
+# Examples
+gas
+availability
+natural
+gas
+availability
+utility
+availability
+natural
+gas
+availability
+enough
+gas
+price
+of
+gas
+oil
+price
+war
+oil
+price
+oil
+crisis
+crude
+oil
+price
+oil
+well
+oil
+drilling
+# Patterns
+
+# Name
+PlacesOfWorship
+# Paths
+ICM/Infrastructure/PublicFacilities/PlacesOfWorship
+# Examples
+places
+of
+worship
+holy
+place
+house
+of
+worship
+mosque
+shrine
+synagogue
+temple
+cathedral
+church
+# Patterns
+
+# Name
+MilitaryCBRNECapability
+# Paths
+ICM/Military/ArmedForces/MilitaryCBRNECapability
+# Examples
+military
+cbrne
+capability
+chemical
+biological
+radiological
+nuclear
+explosives
+capability
+radiation
+capability
+CBRN
+mission
+capable
+CBRNE
+capability
+explosive
+capability
+# Patterns
+
+# Name
+ManMadeStructures
+# Paths
+ICM/PhysicalEnvironment/ManMadeStructures
+# Examples
+construction
+building
+industry
+buildings
+residential
+buildings
+offices
+architecture
+church
+# Patterns
+
+# Name
+MilitarySOFActivity
+# Paths
+ICM/Military/ArmedForces/MilitarySOFActivity
+# Examples
+military
+sof
+activity
+# Patterns
+
+# Name
+NationalArmsProduction
+# Paths
+ICM/Military/Military-IndustrialComplex/NationalArmsProduction
+# Examples
+national
+arms
+production
+arms
+production
+arms
+industry
+munition
+production
+national
+gun
+industry
+defense
+industry
+# Patterns
+
+# Name
+EthnicGroupsinGovt
+# Paths
+ICM/Political/PoliticalOrganizations/EthnicGroupsinGovt
+# Examples
+ethnic
+groups
+in
+government
+ethnic
+groups
+in
+politics
+race
+representation
+ethnic
+minority
+representation
+# Patterns
+
+# Name
+CommercialSocioEconomicLevel
+# Paths
+ICM/PhysicalEnvironment/ManMadeStructures/CommercialSocioEconomicLevel
+# Examples
+commercial
+socio
+economic
+level
+# Patterns
+
+# Name
+PetroleumIndustry
+# Paths
+ICM/Infrastructure/Industry/PetroleumIndustry
+# Examples
+petroleum
+industry
+fossil
+fuel
+industry
+fossil
+fuels
+oil
+industry
+petrochemical
+industry
+# Patterns
+
+# Name
+TraversableDismounted
+# Paths
+ICM/PhysicalEnvironment/Geography/TraversableDismounted
+# Examples
+traversable
+dismounted
+# Patterns
+
+# Name
+SocioeconomicTendencies
+# Paths
+ICM/Social/BasicNeeds/SocioeconomicTendencies
+# Examples
+socioeconomic
+tendencies
+socio-economic
+tendencies
+socioeconomic
+trends
+socio-economic
+trends
+socioeconomic
+changes
+socio-economic
+changes
+# Patterns
+
+# Name
+WaterAvailability
+# Paths
+ICM/Social/BasicNeeds/WaterAvailability
+# Examples
+water
+availability
+# Patterns
+
+# Name
+PeacekeepingActivity
+# Paths
+ICM/Military/InternalSecurity/PeacekeepingActivity
+# Examples
+peacekeeping
+activity
+peacebuilding
+activities
+peace
+operations
+# Patterns
+
+# Name
+MilitaryCapability
+# Paths
+ICM/Military/ArmedForces/MilitaryCapability
+# Examples
+military
+capability
+military
+research
+technology
+development
+new
+equipment
+training
+military
+bases
+munitions
+logistics
+capability
+warfighting
+capabilities
+military
+personnel
+inventory
+defense
+budget
+# Patterns
+
+# Name
+ExecutiveGovernmentActivity
+# Paths
+ICM/Political/CentralOrLocalGovernment/ExecutiveGovernmentActivity
+# Examples
+executive
+government
+activity
+propose
+a
+lwe
+veto
+a
+law
+negotiate
+foreign
+treaties
+appoint
+federal
+judges
+grant
+pardons
+# Patterns
+
+# Name
+AggressiveActions
+# Paths
+ICM/Military/AggressiveActions
+# Examples
+aggressive
+actions
+# Patterns
+
+# Name
+MilitaryNavalCapability
+# Paths
+ICM/Military/ArmedForces/MilitaryNavalCapability
+# Examples
+military
+naval
+capability
+military
+naval
+force
+military
+naval
+power
+naval
+power
+naval
+force
+navy
+capability
+# Patterns
+
+# Name
+FoodAndNutritionLevel
+# Paths
+ICM/Social/BasicNeeds/FoodAndNutritionLevel
+# Examples
+food
+and
+nutrition
+level
+food
+diversity
+food
+supply
+access
+nutritional
+supplements
+malnutrition
+nutritional
+deficiency
+food
+wasting
+food
+shortage
+food
+availability
+cereal
+shortage
+availability
+domestic
+food
+supply
+food
+production
+famine
+stunting
+# Patterns
+(?i)(famine|malnutrition)
+
+# Name
+EducationAvailability
+# Paths
+ICM/Social/Institutions/EducationAvailability
+# Examples
+education
+availability
+education
+available
+educational
+facilities
+available
+school
+resources
+available
+# Patterns
+
+# Name
+ReligiousGathering
+# Paths
+ICM/PhysicalEnvironment/ManMadeStructures/ReligiousGathering
+# Examples
+religious
+gathering
+# Patterns
+
+# Name
+JudicialActivity
+# Paths
+ICM/Political/CentralOrLocalGovernment/JudicialActivity
+# Examples
+judicial
+activity
+court
+activity
+# Patterns
+
+# Name
+MilitaryCyberCapability
+# Paths
+ICM/Military/ArmedForces/MilitaryCyberCapability
+# Examples
+military
+cyber
+capability
+critical
+infrastructure
+protection
+defend
+cyber
+attack
+digital
+weapons
+firewall
+hacker
+network
+readiness
+offensive
+cyber
+operations
+# Patterns
+(?i)(military)\s+(cyber)\s+(capabilit)
+
+# Name
+EmploymentLevel
+# Paths
+ICM/Economic/EmploymentLevel
+# Examples
+employment
+level
+employment
+rate
+unemployment
+level
+unemployment
+rate
+level
+of
+employment
+level
+of
+unemployment
+employment
+to
+population
+ratio
+employment
+situation
+full
+employment
+# Patterns
+
+# Name
+GovernmentStability
+# Paths
+ICM/Political/CentralOrLocalGovernment/GovernmentStability
+# Examples
+government
+stability
+political
+instability
+stability
+political
+insecurity
+stability
+coup
+government
+change
+government
+collapse
+political
+unrest
+regime
+change
+stable
+governance
+# Patterns
+
+# Name
+DefenseNationalCommunications
+# Paths
+ICM/Information/DefenseInformation/DefenseNationalCommunications
+# Examples
+defense
+national
+communications
+national
+communications
+military
+communications
+alert
+measurement
+system
+nuclear
+command
+control
+defense
+satellite
+communication
+system
+signal
+corps
+signal
+intelligence
+defense
+communication
+system
+# Patterns
+
+# Name
+GovernmentInfluenceOnMilitary
+# Paths
+ICM/Political/CentralOrLocalGovernment/GovernmentInfluenceOnMilitary
+# Examples
+government
+influence
+on
+military
+# Patterns
+
+# Name
+Political
+# Paths
+ICM/Political
+# Examples
+political
+politics
+campaigning
+government
+policy
+international
+affairs
+legislature
+# Patterns
+
+# Name
+SoilContaminationLevels
+# Paths
+ICM/PhysicalEnvironment/Habitability/SoilContaminationLevels
+# Examples
+soil
+contamination
+levels
+soil
+pollution
+contaminated
+land
+soil
+pollutant
+level
+# Patterns
