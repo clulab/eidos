@@ -56,13 +56,12 @@ object ExtractCdrMetaForLumFromDirectory extends App {
           val metadata = eidosText.getMetadata
           // 3. Extract causal mentions from the text
           val annotatedDocument = reader.extractFromText(text, options, metadata)
-          // 4. Convert to JSON
-          val corpus = new CauseExDocument(annotatedDocument)
-          val mentionsJSONLD = corpus.toJValue
+          // 4. Convert to CauseEx format
+          val causeExDocument = new CauseExDocument(annotatedDocument)
           // 5. Write to output file
           val path = FileEditor(file).setDir(outputDir).get
-          FileUtils.printWriterFromFile(path).autoClose { pw =>
-            pw.println(stringify(mentionsJSONLD, pretty = true))
+          FileUtils.printWriterFromFile(path).autoClose { printWriter =>
+            causeExDocument.serialize(printWriter)
           }
           // Now move the file to directory done
           val newFile = FileEditor(file).setDir(doneDir).get

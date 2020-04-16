@@ -16,6 +16,7 @@ import org.clulab.wm.eidos.attachments.CountModifier._
 import org.clulab.wm.eidos.attachments.CountUnit._
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
+import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,7 +29,7 @@ import scala.util.Try
 
 //TODO: need to add polarity flipping
 
-class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler], keepMigrationEvents: Boolean) extends Actions with LazyLogging {
+class EidosActions(val expansionHandler: Option[Expander], val coref: Option[CorefHandler]) extends Actions with LazyLogging {
   type Provenance = (String, Int, Int) // text, startOffset, endOffset
   type CountAndProvenance = (Double, Provenance)
   type CountUnitAndProvenanceOpt = (CountUnit.Value, Option[Provenance])
@@ -41,11 +42,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    val afterMigration =
-        if (keepMigrationEvents) mentions
-        else mentions.filterNot { migration => migration matches EidosSystem.MIGRATION_LABEL }
     // Expand mentions, if enabled
-    val expanded = expansionHandler.map(_.expand(afterMigration, state)).getOrElse(afterMigration)
+    val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
     // Merge attachments
     val merged = mergeAttachments(expanded, state.updated(expanded))
     // Keep only the most complete version of any given Mention
@@ -316,10 +314,10 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         // Here, we want to keep the theme that is being modified, not the modification event itself
         case rm: RelationMention =>
           val theme = mostCompleteEventsKeeper.tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
-          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = FoundBy(theme).add(rm))
         case em: EventMention =>
           val theme = mostCompleteEventsKeeper.tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
-          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = FoundBy(theme).add(em))
       }
     } yield copyWithMod
   }
@@ -327,6 +325,12 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   def applyTimeAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
     for (m <- ms; entity <- m.arguments("entity"); time <- m.arguments("time")) yield {
       MentionUtils.withMoreAttachments(entity, time.attachments.toSeq)
+    }
+  }
+
+  def applyLocationAttachment(ms: Seq[Mention], state: State): Seq[Mention] = {
+    for (m <- ms; entity <- m.arguments("entity"); location <- m.arguments("location")) yield {
+      MentionUtils.withMoreAttachments(entity, location.attachments.toSeq)
     }
   }
 
@@ -443,11 +447,9 @@ object EidosActions extends Actions {
   def fromConfig(config: Config): EidosActions = {
     val useCoref: Boolean = config[Boolean]("useCoref")
     val corefHandler = if (useCoref) Some(CorefHandler.fromConfig(config)) else None
-    val keepMigrationEvents = config[Boolean]("keepMigrationEvents")
-
     val useExpansion: Boolean = config[Boolean]("useExpansion")
     val expansionHandler = if (useExpansion) Some(Expander.fromConfig(config[Config]("expander"))) else None
 
-    new EidosActions(expansionHandler, corefHandler, keepMigrationEvents)
+    new EidosActions(expansionHandler, corefHandler)
   }
 }
