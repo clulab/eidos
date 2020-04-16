@@ -6,18 +6,6 @@ rules:
   #Entities are found with EntityFinder! Not extracted here!
 
   #Events
-
-  # Higher priority domain-specific events
-  - import: org/clulab/causeex/eidos/english/grammars/context.yml
-    vars:
-      rulepriority: "1"
-
-  - import: org/clulab/causeex/eidos/english/grammars/migration.yml
-    vars:
-      rulepriority: "2"
-      action: migrationActionFlow
-      label: HumanMigration
-
   # Find the direct attachments of entities (e.g., quantification, temporal and geospatial context)
   - import: org/clulab/causeex/eidos/english/grammars/entityQuantification.yml
     vars:
@@ -30,6 +18,13 @@ rules:
       rulepriority: "2"
       action: applyTimeAttachment #Should add time to state of entity
       label: Time
+
+  - import: org/clulab/causex/eidos/english/grammars/locationAttachment.yml
+    vars:
+      rulepriority: "2"
+      action: applyLocationAttachment #Should add time to state of entity
+      label: Location
+
 
   #Step 2: Find other entity-modifying events (e.g. "Increase in rainfall")
   - import: org/clulab/causeex/eidos/english/grammars/modifiersTemplate.yml
@@ -51,6 +46,20 @@ rules:
       rulepriority: "3"
       action: applyAttachment #Should add Increase/Decrease to state of entity
 
+  # The positive/negative change modifiers
+  - import: org/clulab/causeex/eidos/english/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add PosChange to state of entity
+      label: PositiveChange
+      trigger: ${ positive_affect_triggers }|${ noncausal_positive_affect_triggers }
+
+  - import: org/clulab/causeex/eidos/english/grammars/modifiersTemplate.yml
+    vars:
+      rulepriority: "3"
+      action: applyAttachment #Should add NegChange to state of entity
+      label: NegativeChange
+      trigger: ${ negative_affect_triggers }
 
 
   # ------------ Causal ------------
@@ -68,7 +77,8 @@ rules:
       addlabel: "Causal"
       label: Causal
       action: pass
-      trigger: ${cause_triggers}|${increase_triggers}|${decrease_triggers}|${create_triggers} #|${affect_triggers}|${nonavoid_affect_triggers}
+      trigger: ${cause_triggers}|${increase_triggers}|${decrease_triggers}|${create_triggers}|${positive_affect_triggers}|${negative_affect_triggers}
+      othertriggers: ${cause_triggers}|${increase_triggers}|${decrease_triggers}|${create_triggers}|${positive_affect_triggers}|${negative_affect_triggers}
 
   - import: org/clulab/causeex/eidos/english/grammars/reverse_direction_causal.yml
     vars:
@@ -95,6 +105,7 @@ rules:
       label: Correlation
       action: pass
       trigger: ${correlation_triggers}
+      othertriggers: ${cause_triggers}|${increase_triggers}|${decrease_triggers}|${create_triggers}|${positive_affect_triggers}|${negative_affect_triggers}
 
 
 
