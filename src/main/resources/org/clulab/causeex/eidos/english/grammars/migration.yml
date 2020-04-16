@@ -1,13 +1,13 @@
+taxonomy: org/clulab/causeex/eidos/english/grammars/taxonomy.yml
 vars: org/clulab/causeex/eidos/english/grammars/vars.yml
-
 
 rules:
 
   - name: migration-verbs
-    priority: ${ rulepriority }
+    priority: 2
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
-    label: ${ label }
-    action: ${ action } # parse out quantity as an attachment
+    label: HumanMigration
+    action: migrationActionFlow # parse out quantity as an attachment
     pattern: |
       trigger = [lemma=/^(go|come|flee|travel|transit|return|leave|pour|cross|move|head)/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
@@ -21,10 +21,10 @@ rules:
 
   - name: migration-arrive
     # arrive behaves differently with nmod_in than other migration verbs
-    priority: ${ rulepriority }
+    priority: 2
     example: "Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=arrive & tag=/^VB/]
       group: Entity? = ((<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?)|(<acl <nmod_with >nsubjpass)|nmod_to) [!entity="LOCATION"]
@@ -39,10 +39,10 @@ rules:
 
   - name: migration-displace
     # displace acts differently a lot of the time
-    priority: ${ rulepriority }
+    priority: 2
     example: "For many FGD respondents from Greater Equatoria, this was the second or even third time they or their family had been displaced out of South Sudan; many reported leaving during the 2013 displacement crisis and/or in the second Sudanese Civil War (1983-2006)."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=displace & tag=/^VB/]
       group: Entity? = (<acl|>dobj|(>advcl_as >nmod_by)|(>ccomp? >/${agents}/)|(>/${agents}/ >nmod_of))
@@ -55,10 +55,10 @@ rules:
 
   - name: migration-make-way
     # for idiomatic 'make X's way'
-    priority: ${ rulepriority }
+    priority: 2
     example: "IDPs from Uror also made their way to Duk, which hosted 24% of IDPs in March compared to 10% in February."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=make & outgoing=dobj] (?= [word=/.*/]{,5} [lemma=way])
       group: Entity? = <xcomp? (>/${agents}/|<acl)
@@ -72,10 +72,10 @@ rules:
 
   - name: migration-receive-host
     # receive takes groups as dobj, destination as agents
-    priority: ${ rulepriority }
+    priority: 2
     example: "In March, Bor Town continued to receive IDPs displaced from the Equatorias, in particular Yei and populations returning from refugee settlements in Uganda."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/receive|host|accommodate/ & tag=/^VB/]
       group: Entity? = >dobj
@@ -88,10 +88,10 @@ rules:
 
 
   - name: migration-settle
-    priority: ${ rulepriority }
+    priority: 2
     example: "Based on regular visits by REACH to sites in Bor Town where IDPs have settled, as well as the continuous inflow of new arrivals, a conservative estimate would suggest that the number of IDPs from the Equatorias in Bor Town is likely to have been around 12,000-15,000 individuals at the end of March."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=settle & tag=/^VB/]
       group: Entity? = <advcl_before? >/${agents}/
@@ -100,10 +100,10 @@ rules:
 
   - name: migration-pass
   # "pass through"
-    priority: ${ rulepriority }
+    priority: 2
     example: "Interviewed KIs passed through Nimule and Juba before settling in Bor."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=pass & tag=/^VB/]
       group: Entity? = >/${agents}/
@@ -112,10 +112,10 @@ rules:
 
 
   - name: migration-reach
-    priority: ${ rulepriority }
+    priority: 2
     example: "* Departures: 375 individuals were recorded leaving Juba (52%) of which the vast majority intended to reach refugees camps in Uganda (75%)"
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/reach/ & tag=/^VB/]
       group: Entity? = <xcomp? (>/${agents}/|<acl) >nmod_of?
@@ -128,10 +128,10 @@ rules:
 
 
   - name: migration-nouns
-    priority: ${ rulepriority }
+    priority: 2
     example: "Additional cross border movement to Ethiopia occurs via Pagak."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/(movement|outflow|inflow|displacement|exodus)/ & tag=/^NN/]
       group: Entity? = <xcomp? (>/${agents}/|<acl)|>nmod_of
@@ -143,20 +143,20 @@ rules:
       time: Time? = (<dobj? (>nmod_during >nummod|>nmod_in))|(</${agents}/ >nmod_in)
 
   - name: migration-originated-from
-    priority: ${ rulepriority }
+    priority: 2
     example: " The new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/(originate)/ & tag=/^VB/]
       group: Entity? = nsubj nmod_of?
       moveFrom: Location? = (>nmod_from|>nmod_out_of|>nmod_within) dep?
 
   - name: migration-destination-dep
-    priority: ${ rulepriority }
+    priority: 2
     example: "* Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=destination & tag=/^NN/]
       group: Concept = <nmod_with <nmod_from nsubj nummod
@@ -164,20 +164,20 @@ rules:
       moveTo: Location = <nsubj >conj_and? | dep compound | dep? nmod_in?
 
   - name: migration-destination-left
-    priority: ${ rulepriority }
+    priority: 2
     example: "* Arrivals: 358 individuals came from Uganda citing Juba as intended destination"
-    label: ${ label }
+    label: HumanMigration
     type: token
-    action: ${ action }
+    action: migrationActionFlow
     pattern: |
       [!word=from] @moveTo:Location+ (and @moveTo:Location+)? []{,5}? (?<trigger> [lemma=destination])
 
   - name: migration-destination-right
-    priority: ${ rulepriority }
+    priority: 2
     example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State"
-    label: ${ label }
+    label: HumanMigration
     type: token
-    action: ${ action }
+    action: migrationActionFlow
     pattern: |
       (?<trigger> [lemma=destination]) [!word=from]{,5}? @moveTo:Location+ (and @moveTo:Location+)?
 
@@ -185,10 +185,10 @@ rules:
   # hackathon rules
 
   - name: migration-arrival
-    priority: ${ rulepriority }
+    priority: 2
     example: "* Arrivals: 36 individuals moved from Juba with the main destinations being Bor South in Jonglei State (24 individuals, or 67%) and Awerial (12 individuals, or 33%) in Lakes State. Between 1 and 25 March 2017, 13,225 South Sudanese refugees arrived in Gambella, Ethiopia, bringing the total number of new arrivals since September 2016 to 74,825."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/(arrival)/ & tag=/^NN/]
       group: Concept? = (<nmod_of <dobj >nmod_to)
@@ -198,10 +198,10 @@ rules:
 
 
   - name: migration-relocate
-    priority: ${ rulepriority }
+    priority: 2
     example: "Except 1,796 individuals who are awaiting relocation in Pagak, all the new arrivals have been relocated to Nguenyyiel refugee camp."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/relocate/ & tag=/^VB/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl) >nmod_of? >conj_and?) [!entity="LOCATION"]
@@ -213,10 +213,10 @@ rules:
       time: Time? = (>nmod_during >nummod?)|>nmod_in
 
   - name: migration-relocation
-    priority: ${ rulepriority }
+    priority: 2
     example: "Additional cross border movement to Ethiopia occurs via Pagak."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/(relocation)/ & tag=/^NN/]
       group: Entity? = (<xcomp? (>/${agents}/|<acl)|>nmod_of)|(<dobj >/${agents}/)
@@ -229,10 +229,10 @@ rules:
 
 #very specific; clashes with the rate rule
 #  - name: migration-jump
-#    priority: ${ rulepriority }
+#    priority: 2
 #    example: "The daily arrival rate has significantly jumped from 103 person in February and 199 in February to 660 so far in March."
-#    label: ${ label }
-#    action: ${ action }
+#    label: HumanMigration
+#    action: migrationActionFlow
 #    pattern: |
 #      trigger = [lemma=/jump/ & tag=/^VB/]
 #      groupModifier: Time = nsubj amod
@@ -240,10 +240,10 @@ rules:
 #      time: Time? = advmod? nmod_in
 
   - name: migration-rate
-    priority: ${ rulepriority }
+    priority: 2
     example: "Of these, 3,967 arrived in the week of 6 to 11 March, representing a daily average arrival rate of 660 people."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/rate|average/ & tag=/^NN|JJ/]
       group: Concept? = <nsubj | nmod_of nummod | <nsubj nmod_at nummod
@@ -257,10 +257,10 @@ rules:
 
 
   - name: migration-remain
-    priority: ${ rulepriority }
+    priority: 2
     example: "192 level1 registered new arrivals remain in Pagak, awaiting relocation."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/remain/]
       group: Concept? = <ccomp nsubj nummod
@@ -269,40 +269,40 @@ rules:
 
 
   - name: migration-according_to
-    priority: ${ rulepriority }
+    priority: 2
     example: "According to a recent sample survey conducted in Pagak..."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/accord/ & tag=/VBG/]
       moveTo: Location = <case acl nmod_in
 
   #very specific
   - name: migration-total_of
-    priority: ${ rulepriority }
+    priority: 2
     example: "Latest developments: Between 1 February and 11 March 2017, a total of 12,828 refugees crossed through Pagak, 56.6% (7,258) of whom were registered in the first 11 days of March 2017."
-    label: ${ label }
-    action: ${ action }
+    label: HumanMigration
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/total/ & tag=/NN/]
       group: Concept = <mwe <"det:qmod" nummod
       time: Time = <mwe <"det:qmod" <appos
 
   - name: migration-bring_number_to
-    priority: ${ rulepriority }
+    priority: 2
     example: "This brings the number of refugees who have arrived in Ethiopia since September 2016 to 68,858."
-    label: ${ label }
+    label: HumanMigration
     type: token
-    action: ${ action }
+    action: migrationActionFlow
     pattern: |
       (?<trigger> [lemma=bring] [lemma = the]? []? [lemma = number]) []* [lemma = to] @group:Concept
 
   - name: migration-bring_number_to2
-    priority: ${ rulepriority }
+    priority: 2
     example: "Between 1 and 30 March 2017, 16,274 South Sudanese refugees arrived in Gambella, Ethiopia, bringing the total number of new arrivals since September 2016 to 77,874."
-    label: ${ label }
+    label: HumanMigration
 #    type: token
-    action: ${ action }
+    action: migrationActionFlow
     pattern: |
       trigger = [lemma=/bring/ & tag=/VBG/]
       group: Concept = nmod_to
