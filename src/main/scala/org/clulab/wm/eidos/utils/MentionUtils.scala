@@ -7,6 +7,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 
 import scala.collection.mutable.{Set => MutableSet}
 
+case class TriggerInfo(text: String, start: Int, end: Int)
+
 object MentionUtils {
 
   def newCrossSentenceMention(m: CrossSentenceMention, attachments: Set[Attachment]) =
@@ -53,5 +55,31 @@ object MentionUtils {
     case em: EventMention => Some(em.trigger.text)
     case _ => None
   }
+
+  /**
+   * This method information for the syntactic head, stored in TriggerInfo as this is the semi-standard terminology
+   * in the IE community.  If an EventMention is provided, the synHead of the mention's trigger is used.  Else, the
+   * synHead of the whole mention is used.  If no synHead exists, the backoff is to use the whole mention (or trigger).
+   * @param em
+   * @return TriggerInfo, containing the (raw) text of the synHead "trigger" and the start and end char offsets
+   */
+  def synHeadOfMentionOrTrigger(em: EidosMention): TriggerInfo = synHeadOfMentionOrTrigger(em.odinMention)
+  def synHeadOfMentionOrTrigger(m: Mention): TriggerInfo = {
+    val triggerOrMention = m match {
+      case em: EventMention => em.trigger
+      case _ => m
+    }
+    val synHeadOpt = triggerOrMention.synHead
+    if (synHeadOpt.isDefined) {
+      // get the info from the syntactic head
+      val head = synHeadOpt.get
+      val s = m.sentenceObj
+      TriggerInfo(s.raw(head), s.startOffsets(head), s.endOffsets(head))
+    } else {
+      // Otherwise backoff to the whole mention
+      TriggerInfo(triggerOrMention.text, triggerOrMention.startOffset, triggerOrMention.endOffset)
+    }
+  }
+
 
 }
