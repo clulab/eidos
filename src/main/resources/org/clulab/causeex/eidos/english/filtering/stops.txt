@@ -143,7 +143,6 @@ referral
 role
 sample
 section
-sector
 series
 situation
 size
