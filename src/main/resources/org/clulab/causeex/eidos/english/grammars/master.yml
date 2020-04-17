@@ -19,7 +19,7 @@ rules:
       action: applyTimeAttachment #Should add time to state of entity
       label: Time
 
-  - import: org/clulab/causex/eidos/english/grammars/locationAttachment.yml
+  - import: org/clulab/causeex/eidos/english/grammars/locationAttachment.yml
     vars:
       rulepriority: "2"
       action: applyLocationAttachment #Should add time to state of entity
