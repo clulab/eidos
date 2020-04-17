@@ -4,13 +4,23 @@
 # These *are* included when grounding eidos, but
 # not part of the "contentful" determination
 #
+# Removed for LUM
+# access
 adult
 availability
+# Removed for LUM
+# application
 belief
+# Removed for LUM
+# capacity
 child
 childhood
+# Removed for LUM
+# consumption
 country
 cow
+# Removed for LUM
+# diagnosis
 exposure
 family
 finding
@@ -23,6 +33,9 @@ human
 improvement
 incidence
 individual
+# Removed for LUM
+# instrument
+# intervention
 lifestyle
 man
 mechanism
@@ -34,12 +47,19 @@ pastoralist
 patient
 people
 persistence
+# Removed for LUM
+# policy
+# program
 project
 proposal
 rat
 safety
 risk
 smallholder
+# Removed for LUM
+# susceptibility
 symptom
 treatment
 woman
+# Removed for LUM
+# work

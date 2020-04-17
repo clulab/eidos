@@ -71,6 +71,8 @@ achievement
 activity
 addition
 adjustment
+# Removed for LUM
+# agent
 aim
 algorithm
 alteration
@@ -80,6 +82,8 @@ attempt
 auc
 author
 authors
+# Removed for LUM
+# barrier
 case
 category
 change
@@ -87,6 +91,8 @@ cohort
 combination
 concentration
 concept
+# Removed for LUM
+# concern
 conclusion
 condition
 consequence
@@ -115,7 +121,11 @@ indication
 insight
 intake
 kind
+# Removed for LUM
+# knowledge
 level
+# Removed for LUM
+# manuscript
 measure
 measurement
 mg
@@ -143,11 +153,17 @@ referral
 role
 sample
 section
+# Removed for LUM
+# sector
 series
 situation
 size
+# Removed for LUM
+# state
 status
 step
+# Removed for LUM
+# strategy
 study
 substance
 technique
