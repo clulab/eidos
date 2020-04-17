@@ -15,14 +15,17 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val    procVer = "8.0.2"
-  val  luceneVer = "6.6.6"
-  val lihaoyiVer = "0.7.1"
+  val      procVer = "8.0.2"
+  val procModelVer = "7.5.4"
+  val    luceneVer = "6.6.6"
+  val   lihaoyiVer = "0.7.1"
 
   Seq(
     "org.clulab"                 %% "processors-main"          % procVer,
     "org.clulab"                 %% "processors-corenlp"       % procVer,
     "org.clulab"                 %% "processors-odin"          % procVer,
+    "org.clulab"                 %% "processors-modelsmain"    % procModelVer,
+    "org.clulab"                 %% "processors-modelscorenlp" % procModelVer,
     "org.clulab"                 %% "geonorm"                  % "0.9.8",
     "org.clulab"                 %% "timenorm"                 % "1.0.5",
     "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
