@@ -11,6 +11,14 @@ rules:
       |
       [chunk='B-NP' & !mention=Avoid]
 
+  - name: possessive-np
+    label: Concept
+    priority: 2
+    type: token
+    pattern: |
+      # avoids event triggers, coordinations, refs, etc.
+      [mention=Concept] [tag=POS] [lemma=s] [tag=/^JJ|VBD/]{,2} [mention=Concept]
+
   - name: simple-vp
     label: Concept
     priority: 1

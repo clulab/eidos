@@ -18,7 +18,7 @@ rules:
         # optionally you can follow specified modifiers
         /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}|nmod_in|nmod_of/{,2}
         # if you land on another trigger, you are then licensed to follow more preps
-        ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+        ([word=/(?i)^(${othertriggers})/] /${ preps }/{,2})?
       effect: Entity =
         # direct objects or things like xcomp
         (${objects} | ${complements})
@@ -45,14 +45,14 @@ rules:
         # optionally you can follow specified modifiers
         /nmod_than|${ objects }|${ conjunctions }|${ noun_modifiers}|nmod_in|nmod_of/{,2}
         # if you land on another trigger, you are then licensed to follow more preps
-        ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+        ([word=/(?i)^(${ othertriggers })/] /${ preps }/{,2})?
       effect: Entity =
         # direct objects or things like xcomp
         (${objects} | ${complements})
         # optionally you can follow specified modifiers
         /${noun_modifiers}|${ preps }/{,2}
         # if you land on another trigger, you are then licensed to follow more preps
-        ([word=/(?i)^(${ trigger })/]/ ${ preps }/{,2})?
+        ([word=/(?i)^(${ othertriggers })/]/ ${ preps }/{,2})?
 
 
   - name: syntax_passive_verb-${addlabel}
@@ -63,7 +63,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^VBN/]
-      cause: Entity = >nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = >nmod_by /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ othertriggers })/] /${ preps }/{,2})?
       effect: Entity = <advcl >/${agents}/
 
   - name: advcl_by_verb-${addlabel}
@@ -73,7 +73,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/]
-      cause: Entity = >/(nmod|advcl)_by/ /${ conjunctions }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${objects}|${preps}/{,2})?
+      cause: Entity = >/(nmod|advcl)_by/ /${ conjunctions }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ othertriggers })/] /${objects}|${preps}/{,2})?
       effect: Entity = /${objects}/
 
   #Handles occurrence of prep_by when NOT passive voice
@@ -85,8 +85,8 @@ rules:
 #    action: ${ action }
 #    pattern: |
 #      trigger = [word=/(?i)^(${ trigger })/ & tag=/^V/ & !tag=/VBN/]
-#      effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
-#      cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+#      effect: Entity = nmod_to /${ conjunctions }|${ objects }|${ noun_modifiers }/{,2} ([word=/(?i)^(${ othertriggers })/] /${ preps }/{,2})?
+#      cause: Entity = </${complements}|${adverbial_clause}/? (${ agents }) /${ noun_modifiers }|${ conjunctions }/{,2} ([word=/(?i)^(${ othertriggers })/] /${ preps }/{,2})?
 
 
   - name: ported_syntax_4_verb-${addlabel}
@@ -97,7 +97,7 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^V|RB/]
       effect: Entity = (/^nsubjpass/ /conj_|${ noun_modifiers }/{,2})
-      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${preps}|${ noun_modifiers }|${objects}/{,2} ([word=/(?i)^(${ trigger })/] /${ preps }/{,2})?
+      cause: Entity = (/nmod/ /conj_|${ noun_modifiers }/{,2})? /nmod_/{,2} /${passive_agents}/ /${preps}|${ noun_modifiers }|${objects}/{,2} ([word=/(?i)^(${ othertriggers })/] /${ preps }/{,2})?
 
   - name: ported_syntax_5_verb-${addlabel}
     priority: ${ rulepriority }
@@ -263,7 +263,7 @@ rules:
     pattern: |
       trigger = [lemma=lead] to
       cause: Entity = nsubj|xcomp
-      effect: Entity = (?= nmod_to [word=/(?i)^(${ trigger })/]) nmod_to nmod_of? ${noun_modifiers}?
+      effect: Entity = (?= nmod_to [word=/(?i)^(${ othertriggers })/]) nmod_to nmod_of? ${noun_modifiers}?
 
     #Reach comments for this rule:
     # TODO: expand lemma pattern for trigger
