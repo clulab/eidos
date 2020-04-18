@@ -32,7 +32,7 @@ object AnnotationSheetAndSummary extends App with Configured {
   // handle text or previously generated jsonld
   def getInput(f: File): AnnotatedDocument = {
     inputExtension match {
-      case j if j.endsWith("jsonld") =>
+      case j if j.endsWith("jsonld") || j.endsWith("json") =>
         val json = FileUtils.getTextFromFile(f)
         deserializer.deserialize(json).head
       case _ =>
@@ -61,6 +61,7 @@ object AnnotationSheetAndSummary extends App with Configured {
 
   // make a row for the sheet for each EidosMention
   val rows = exporter.getRows(relevantMentions)
+  val shuffledRows = scala.util.Random.shuffle(rows)
 
   val timestamp = Calendar.getInstance.getTime
 
@@ -70,7 +71,7 @@ object AnnotationSheetAndSummary extends App with Configured {
       // Sheet 1 -- Extraction Data
       csvWriter1.println(s"EIDOS Rule Annotation -- generated $timestamp")
       exporter.printHeader(csvWriter1)
-      rows.foreach(csvWriter1.println)
+      shuffledRows.foreach(csvWriter1.println)
       // Sheet 2 -- Summary Statistics
       csvWriter2.println(AnnotationTSV.headers2)
       val summaryRows = AnnotationTSV.counterToRows(ruleCounter, ruleCounter = "Q", correctColumn = "L")
