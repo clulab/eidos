@@ -59,14 +59,12 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
       docID = mention.odinMention.document.id.getOrElse("NONE")
 
       // For now, only put EidosEventMentions in the eval
-      cause
-        <- mention.eidosArguments("cause")
+      cause <- mention.eidosArguments.getOrElse("cause", Seq())
       causeInfo = EntityInfo(cause, groundAs, topN, delim = "\n")
       causeGroundings = causeInfo.groundingStrings.head // topN in a row, newline separatec
 
 
-      effect
-        <- mention.eidosArguments("effect")
+      effect <- mention.eidosArguments.getOrElse("effect", Seq())
       effectInfo = EntityInfo(effect, groundAs, topN, delim = "\n")
       effectGroundings = effectInfo.groundingStrings.head // topN in a row, newline separated
 
