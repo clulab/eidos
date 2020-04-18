@@ -98,8 +98,8 @@ object AnnotationSheetAndSummary extends App with Configured {
       exporter.printHeader(csvWriter1)
       shuffledRows.foreach(csvWriter1.println)
       // Sheet 2 -- Summary Statistics
-      csvWriter2.println(AnnotationTSV.headers2)
-      val summaryRows = AnnotationTSV.counterToRows(ruleCounter, ruleCounter = "Q", correctColumn = "L")
+      csvWriter2.println(headers2)
+      val summaryRows = AnnotationTSV.counterToRows(ruleCounter, ruleColumn = "Q", correctColumn = "L")
       summaryRows.foreach(csvWriter2.println)
     }
   }
