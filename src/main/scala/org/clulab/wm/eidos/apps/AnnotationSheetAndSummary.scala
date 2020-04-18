@@ -7,15 +7,21 @@ import java.util.Calendar
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.struct.Counter
 import org.clulab.utils.Configured
-import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.{EidosSystem, utils}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.GroundingAnnotationExporter
 import org.clulab.wm.eidos.serialization.json.JLDDeserializer
 import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, FoundBy, ThreadUtils}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
+import scala.collection.Seq
+
+
 
 object AnnotationSheetAndSummary extends App with Configured {
+
+  val config = ConfigFactory.load("eidos")
+  override def getConf: Config = config
 
   collection.parallel.ForkJoinTasks.defaultForkJoinPool
   lazy val reader = new EidosSystem()
@@ -29,20 +35,34 @@ object AnnotationSheetAndSummary extends App with Configured {
   val inputExtension = getArgString("apps.inputFileExtension", None)
   val nCores = getArgInt("apps.nCores", Some(1))
 
+  val headers2: Seq[String] = Seq(
+    "RULE",
+    "COUNT of RULE",
+    "% of all",
+    "Num correct",
+    "Num incorrect",
+    "% correct",
+    "% curated"
+  )
+
+
   // handle text or previously generated jsonld
-  def getInput(f: File): AnnotatedDocument = {
+  def getInput(f: File): Option[AnnotatedDocument] = {
     inputExtension match {
       case j if j.endsWith("jsonld") || j.endsWith("json") =>
         val json = FileUtils.getTextFromFile(f)
-        deserializer.deserialize(json).head
+        try {
+          Some(deserializer.deserialize(json).head)
+        } catch {
+          case throwable: Throwable =>
+            println(s"Failed to parse: ${f.getCanonicalPath} --> $throwable")
+            None
+        }
       case _ =>
         val text = FileUtils.getTextFromFile(f)
-        reader.extractFromText(text)
+        Some(reader.extractFromText(text))
     }
   }
-
-  val config = ConfigFactory.load("eidos")
-  override def getConf: Config = config
 
   val files = FileUtils.findFiles(inputDir, inputExtension)
   val parFiles = ThreadUtils.parallelize(files, nCores)
@@ -53,7 +73,12 @@ object AnnotationSheetAndSummary extends App with Configured {
     // extract the annotated documents from the files
     .map(f => getInput(f))
     // filter the eidos mentions in each to be only relevant ones
-    .flatMap(ad => reader.components.stopwordManager.relevantMentions(ad))
+    .flatMap{ adOpt =>
+      adOpt match {
+        case Some(ad) => reader.components.stopwordManager.relevantMentions(ad).filter(_.label == EidosSystem.CAUSAL_LABEL)
+        case None => Seq()
+      }
+    }
 
   // tally the rules in the found mentions
   val ruleCounter = new Counter[String]
