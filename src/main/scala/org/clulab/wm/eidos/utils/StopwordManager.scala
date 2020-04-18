@@ -23,6 +23,13 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
   def hasContent(mention: Mention, state: State): Boolean = hasContent(mention) || resolvedCoref(mention, state)
 
   def hasContent(mention: Mention): Boolean = {
+    // In this domain, as well as many, entities should not be single characters.
+    // Further, due to conversion from PDF, single chars in general are for more
+    // likely to be conversion errors than real tokens.
+    if (mention.words.length == 1 && mention.words.head.length == 1) {
+      return false
+    }
+
     val lemmas = mention.lemmas.get
     val tags = mention.tags.get
     val entities = mention.entities.get
