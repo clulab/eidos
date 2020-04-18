@@ -124,7 +124,7 @@ object AnnotationTSV extends App with Configured {
       ruleColumn + ":$" + ruleColumn + ",A" + j +
       ",rule_annotation!$" + correctColumn + ":$" +
       correctColumn + ")"
-    val numIncorrect = s"=COUNTIFS(rule_annotation!${ruleColumn}:${ruleColumn},A$j,rule_annotation!${correctColumn}:${correctColumn}," + """"<>1")"""
+    val numIncorrect = s"=COUNTIFS(rule_annotation!${ruleColumn}"+"$3:"+ s"${ruleColumn},A$j,rule_annotation!${correctColumn}" + "$3:" + s"${correctColumn}," + """"<>1")"""
     val percCorr = s"=IF(D$j+E$j>0, D$j/(D$j+E$j), " + """"")"""
     val percCurated = s"=(D$j+E$j)/B$j"
 
