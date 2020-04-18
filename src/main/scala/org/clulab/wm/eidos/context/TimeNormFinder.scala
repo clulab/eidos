@@ -1,7 +1,9 @@
 package org.clulab.wm.eidos.context
 
-import java.time.LocalDateTime
 import java.util.IdentityHashMap
+import java.time.{LocalDate, LocalDateTime, ZoneId}
+import java.time.format.DateTimeFormatter
+import edu.stanford.nlp.time.Timex
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
@@ -35,14 +37,18 @@ case class DCT(interval: TimExInterval, text: String)
 object TimeNormFinder {
 
   def fromConfig(config: Config): TimeNormFinder = {
-    val timeRegexPath: String = config[String]("timeRegexPath")
-    val regexes = Sourcer.sourceFromResource(timeRegexPath).autoClose { source =>
-      source
-          .getLines
-          .map(_.r)
-          .toList // rather than toSeq so that source can be closed sooner rather than later
-    }
-    new TimeNormFinder(new TemporalNeuralParser, regexes)
+    val useNeuralParser: Boolean = config[Boolean]("useNeuralParser")
+    if (useNeuralParser) {
+      val timeRegexPath: String = config[String]("timeRegexPath")
+      val regexes = Sourcer.sourceFromResource(timeRegexPath).autoClose { source =>
+        source
+            .getLines
+            .map(_.r)
+            .toList // rather than toSeq so that source can be closed sooner rather than later
+      }
+      new TimeNormFinderNeural(new TemporalNeuralParser, regexes)
+    } else
+      new TimeNormFinderSUTime()
   }
 
   def getTimExs(odinMentions: Seq[Mention]): Seq[TimEx] = {
@@ -79,12 +85,21 @@ object TimeNormFinder {
   }
 }
 
-class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) extends Finder {
-  private val CONTEXT_WINDOW_SIZE = 20
-  private val BATCH_SIZE = 40
+
+trait TimeNormFinder extends Finder {
 
   def getTimExs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[TimEx]] =
-      TimeNormFinder.getTimExs(odinMentions, sentences)
+    TimeNormFinder.getTimExs(odinMentions, sentences)
+
+  def parseDctString(dctString: String): Option[DCT]
+
+  def find(doc: Document, initialState: State): Seq[Mention]
+}
+
+
+class TimeNormFinderNeural(parser: TemporalNeuralParser, timeRegexes: Seq[Regex], useNeuralParser: Boolean = true) extends TimeNormFinder {
+  private val CONTEXT_WINDOW_SIZE = 20
+  private val BATCH_SIZE = 40
 
   def parseBatch(text: String, spans: Array[(Int, Int)],
                  textCreationTime: TimExInterval = UnknownInterval()): Array[Array[TimeExpression]] = {
@@ -167,14 +182,14 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
     val contextTimeExpressions: Array[Array[TimeExpression]] = dctOpt match {
       case Some(dct: DCT) =>
         contextSpans
-            .sliding(BATCH_SIZE, BATCH_SIZE)
-            .flatMap(batch => parseBatch(text, batch, textCreationTime = dct.interval))
-            .toArray
+          .sliding(BATCH_SIZE, BATCH_SIZE)
+          .flatMap(batch => parseBatch(text, batch, textCreationTime = dct.interval))
+          .toArray
       case None =>
         contextSpans
-            .sliding(BATCH_SIZE, BATCH_SIZE)
-            .flatMap(batch => parseBatch(text, batch))
-            .toArray
+          .sliding(BATCH_SIZE, BATCH_SIZE)
+          .flatMap(batch => parseBatch(text, batch))
+          .toArray
     }
 
     // create mentions for each of the time expressions that were found
@@ -206,12 +221,12 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
       val timeSteps: Seq[TimeStep] = Try { // Normalizing incorrectly parsed time expressions may throw an exception
         timeExpression match {
           case timeInterval: TimExInterval if timeInterval.isDefined =>
-          Seq (TimeStep (timeInterval.start, timeInterval.end) )
+            Seq(TimeStep(timeInterval.start, timeInterval.end))
           case timeIntervals: TimExIntervals if timeIntervals.isDefined =>
-          timeIntervals.iterator.toSeq.map (interval => TimeStep (interval.start, interval.end) )
-          case _ => Seq ()
+            timeIntervals.iterator.toSeq.map(interval => TimeStep(interval.start, interval.end))
+          case _ => Seq()
         }
-      }.getOrElse(Seq ())
+      }.getOrElse(Seq())
       val attachment = TimEx(timeTextInterval, timeSteps, timeText)
 
       // create the Mention for this time expression
@@ -226,5 +241,95 @@ class TimeNormFinder(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]) exte
       )
     }
     mentions
+  }
+}
+
+class TimeNormFinderSUTime() extends TimeNormFinder {
+  // TIMEX types
+  private val types = Set("DATE", "TIME", "DURATION", "SET")
+
+  def parseDctString(dctString: String): Option[DCT] = {
+    Try {
+      val parser = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+      val dctOpt = LocalDate.parse(dctString, parser).atStartOfDay() match {
+        case dctLocalDateTime: LocalDateTime =>
+          DCT(SimpleInterval(dctLocalDateTime, dctLocalDateTime.plusDays(1)), dctString)
+      }
+      Some(dctOpt)
+    }.getOrElse(None)
+  }
+
+  // Gets the boundary tokens, starting or ending, of a time expression.
+  // We assume the boundaries of a time expression are the non consecutive TIMEX tokens (distance > 1).
+  private def filterBoundaryTokens(tokenSequence: Array[Int]): Seq[Int] = {
+    val firstTokenOpt = tokenSequence.headOption
+    val lastTokenOpt = tokenSequence.lastOption
+    val filteredTokenSequence = (firstTokenOpt, lastTokenOpt) match {
+      case (Some(firstToken), Some(lastToken)) =>
+        val tokens = tokenSequence.sliding(2).flatMap {
+          case Array(token1, token2) if token2 - token1 > 1 => Seq(token1, token2)
+          case _ => Seq()
+        }.toSeq
+        firstToken +: tokens :+ lastToken
+      case _ => Seq()
+    }
+    filteredTokenSequence
+  }
+
+  def find(doc: Document, initialState: State): Seq[Mention] = {
+    val mentions = for ((sentence, sentenceIndex) <- doc.sentences.zipWithIndex.toSeq) yield {
+
+      // Get the token ids annotated as some type of TIMEX. Consecutive TIMEX tokens form a time expression.
+      val timexTokens: Array[Int] = sentence.entities.get match {
+        case entities: Array[String] => entities.zipWithIndex.filter(e => types.contains(e._1)).map(_._2)
+        case _ => Array.empty
+      }
+      // Filter the starting and ending tokens of the time expressions
+      val boundaryTokens = filterBoundaryTokens(timexTokens)
+
+      // Group the boundaries in pairs (start, end) and create mentions for each of the time expressions
+      val sentenceMentions: Seq[Mention] = boundaryTokens.sliding(2, 2).toSeq.map { boundaryToken =>
+        val startToken = boundaryToken.head
+        val endToken = boundaryToken.last
+        val startOffset = sentence.startOffsets(startToken)
+        val endOffset = sentence.endOffsets(endToken)
+        // Char based TextInterval for TimEx
+        val charInterval = TextInterval(startOffset, endOffset)
+        // Word based TextInterval for Mention
+        val wordInterval = TextInterval(startToken, endToken + 1)
+        val timeText = sentence.getSentenceFragmentText(startToken, endToken + 1)
+        val timeExpression = sentence.norms.get(startToken)
+        val timeExpressionType = sentence.entities.get(startToken)
+
+        // Create a Timex object for the time expression and get the range (start and end) of the interval
+        // Construct the attachment with the detailed time information
+        val timeSteps = Try {
+          val timex = new Timex(timeExpressionType, timeExpression)
+          val interval_start = LocalDateTime.ofInstant(timex.getRange.first.getTime.toInstant, ZoneId.systemDefault())
+          val interval_end = LocalDateTime.ofInstant(timex.getRange.second.getTime.toInstant, ZoneId.systemDefault())
+          // The range given by Timex is closed and we need left-closed and right-open intervals: [start, end)
+          val interval_end_open = timeExpressionType match {
+            case "DATE" => interval_end.plusDays(1)
+            case "TIME" => interval_end.plusSeconds(1)
+            case _ => interval_end
+          }
+          Seq(TimeStep(interval_start, interval_end_open))
+        }.getOrElse(Seq())
+        val attachment = TimEx(charInterval, timeSteps, timeText)
+
+        // create the Mention for this time expression
+        new TextBoundMention(
+          Seq("Time"),
+          wordInterval,
+          sentenceIndex,
+          doc,
+          true,
+          getClass.getSimpleName,
+          Set(Time(attachment))
+        )
+      }
+      sentenceMentions
+    }
+    mentions.flatten
   }
 }
