@@ -7,3 +7,10 @@ domain, as determined from the EstoniaRun5 evaluation:
     ported_syntax_2_noun-Causal, dueTo-caseSyntax-dobj_effect-Causal,
     ported_token_2_noun-Causal, report-as-reason-Causal, 
     reasons-Causal, dueToSyntax3-Causal, token_1_verb-Causal
+
++ **04-16-2020** - Marked legacy changes with "# Removed for LUM" so that it is
+easier to interpret the diffs.  All other changes involve substitution of "causeex"
+for "wm".
+    + stops.txt
+    + transparent.txt
+    + causal.yml

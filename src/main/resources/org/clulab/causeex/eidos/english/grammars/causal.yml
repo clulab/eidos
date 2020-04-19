@@ -187,6 +187,21 @@ rules:
           |
         (<case <nmod_because_of [tag=/^JJ/] >advcl_for)
 
+#  # Removed for LUM
+#  - name: becauseSyntax2-${addlabel}
+#    priority: ${rulepriority}
+#    label: ${label}
+#    action: ${ action }
+#    example: "Many families do not have food because the conflict has worsened."
+#              #There is increased migration because the conflict has worsened.
+#    pattern: |
+#      trigger = [lemma="because"]
+#      cause: Entity = <mark /${agents}|${preps}|${noun_modifiers}/{,2}
+#      effect: Entity =
+#        (<mark <advcl_because (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
+#          |
+#        (<mark <advcl_because)
+
   - name: help_syntax_1-${addLabel}
     priority: ${rulepriority}
     label: ${label}
