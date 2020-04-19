@@ -23,24 +23,26 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
   def hasContent(mention: Mention, state: State): Boolean = hasContent(mention) || resolvedCoref(mention, state)
 
   def hasContent(mention: Mention): Boolean = {
-    // In this domain, as well as many, entities should not be single characters.
-    // Further, due to conversion from PDF, single chars in general are for more
-    // likely to be conversion errors than real tokens.
-    if (mention.words.length == 1 && mention.words.head.length == 1) {
-      return false
-    }
-
     val lemmas = mention.lemmas.get
     val tags = mention.tags.get
     val entities = mention.entities.get
 
+    // There should be at least one noun
     if (!tags.exists(_.startsWith("NN"))) return false
-    //println(s"Checking mention: ${mention.text}")
+
+    // There should be at least one word which:
     lemmas.indices.exists { i =>
+      // has more than one character
+      lemmas(i).length > 1 &&
+      // has a content POS tag
       isContentPOS(tags(i)) &&
+      // isn't a VBN
       tags(i) != "VBN" && // we don't want entities/concepts which consist ONLY of a VBN
+      // isn't a stopword
       !containsStopword(lemmas(i)) &&
+        // isn't a stop tag
         !StopwordManager.STOP_POS.contains(tags(i)) &&
+        // and isn't a stop NER
         !StopwordManager.STOP_NER.contains(entities(i))
     }
   }
