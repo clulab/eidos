@@ -4,6 +4,8 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.wm.eidos.actions.CorefHandler
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 
 trait StopwordManaging {
@@ -86,6 +88,11 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
   //(mention.matches("Entity") && mention.attachments.nonEmpty) ||
     cagEdgeMentions.contains(mention) ||
       cagEdgeArguments.contains(mention)
+
+  def relevantMentions(ad: AnnotatedDocument): Seq[EidosMention] = {
+    val allMentions = ad.odinMentions
+    ad.eidosMentions.filter(m => releventEdge(m.odinMention, State(allMentions)))
+  }
 
   def releventEdge(m: Mention, state: State): Boolean = {
     m match {
