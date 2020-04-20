@@ -56,15 +56,20 @@ object Exporter {
     sb.mkString(", ")
   }
 
-  def poorMansIndra(cause: EidosMention, effect: EidosMention): String = {
-    def numDec(em: EidosMention): Int = em.odinMention.attachments.collect{case dec: Decrease => dec}.size
-    def numInc(em: EidosMention): Int = em.odinMention.attachments.collect{case inc: Increase => inc}.size
+  def isPromotion(cause: EidosMention, effect: EidosMention): Boolean = {
+    def numInc(em: EidosMention): Int = em.odinMention.attachments.count(_.isInstanceOf[Increase])
+    def numDec(em: EidosMention): Int = em.odinMention.attachments.count(_.isInstanceOf[Decrease])
 
-    val effectPolarity = if (numDec(effect) > numInc(effect)) -1 else 1
-    val causePolarity = if (numDec(cause) > numInc(cause)) -1 else 1
+    val effectIsPromotion = numInc(effect) >= numDec(effect)
+    val causeIsPromotion = numInc(cause) >= numDec(cause)
 
-    if (effectPolarity * causePolarity > 0) "PROMOTE" else "INHIBIT"
+    effectIsPromotion == causeIsPromotion
   }
+
+  def isInhibition(cause: EidosMention, effect: EidosMention): Boolean = !isPromotion(cause, effect)
+
+  def poorMansIndra(cause: EidosMention, effect: EidosMention): String =
+      if (isPromotion(cause, effect)) "PROMOTE" else "INHIBIT"
 
   def removeTabAndNewline(s: String): String = s.replaceAll("(\\n|\\t)", " ")
 }
