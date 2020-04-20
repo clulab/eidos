@@ -27,13 +27,22 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
     val tags = mention.tags.get
     val entities = mention.entities.get
 
+    // There should be at least one noun
     if (!tags.exists(_.startsWith("NN"))) return false
-    //println(s"Checking mention: ${mention.text}")
+
+    // There should be at least one word which:
     lemmas.indices.exists { i =>
+      // has more than one character
+      lemmas(i).length > 1 &&
+      // has a content POS tag
       isContentPOS(tags(i)) &&
+      // isn't a VBN
       tags(i) != "VBN" && // we don't want entities/concepts which consist ONLY of a VBN
+      // isn't a stopword
       !containsStopword(lemmas(i)) &&
+        // isn't a stop tag
         !StopwordManager.STOP_POS.contains(tags(i)) &&
+        // and isn't a stop NER
         !StopwordManager.STOP_NER.contains(entities(i))
     }
   }
