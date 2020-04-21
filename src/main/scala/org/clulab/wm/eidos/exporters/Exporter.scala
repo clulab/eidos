@@ -56,15 +56,18 @@ object Exporter {
     sb.mkString(", ")
   }
 
-  def isPromotion(cause: EidosMention, effect: EidosMention): Boolean = {
-    def numInc(em: EidosMention): Int = em.odinMention.attachments.count(_.isInstanceOf[Increase])
-    def numDec(em: EidosMention): Int = em.odinMention.attachments.count(_.isInstanceOf[Decrease])
+  def numAtt(eidosMention: EidosMention, clazz: Class[_]): Int =
+      eidosMention.odinMention.attachments.count(_.getClass == clazz)
 
-    val effectIsPromotion = numInc(effect) >= numDec(effect)
-    val causeIsPromotion = numInc(cause) >= numDec(cause)
+  def numInc(eidosMention: EidosMention): Int = numAtt(eidosMention, classOf[Increase])
 
-    effectIsPromotion == causeIsPromotion
-  }
+  def numDec(eidosMention: EidosMention): Int = numAtt(eidosMention, classOf[Decrease])
+
+  def isInc(eidosMention: EidosMention): Boolean = numInc(eidosMention) >= numDec(eidosMention)
+
+  def isDec(eidosMention: EidosMention): Boolean = !isInc(eidosMention)
+
+  def isPromotion(cause: EidosMention, effect: EidosMention): Boolean = isInc(cause) == isInc(effect)
 
   def isInhibition(cause: EidosMention, effect: EidosMention): Boolean = !isPromotion(cause, effect)
 
