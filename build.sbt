@@ -15,7 +15,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val      procVer = "8.0.1"
+  val      procVer = "8.0.2"
   val procModelVer = "7.5.4"
   val    luceneVer = "6.6.6"
   val   lihaoyiVer = "0.7.1"
@@ -170,7 +170,7 @@ assemblyMergeStrategy in assembly := {
   // preferred over a version that will silently handle new conflicts without alerting us to the potential problem.
   case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
   case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
-  case PathList("module-info.class") => MergeStrategy.discard // This might not be right, but it stops the complaints.
+  case PathList("module-info.class")        => MergeStrategy.discard // This might not be right, but it stops the complaints.
   case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyones licenses and notices.
   case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
   case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
