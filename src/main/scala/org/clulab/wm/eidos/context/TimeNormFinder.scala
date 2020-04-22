@@ -1,10 +1,10 @@
 package org.clulab.wm.eidos.context
 
-import java.util.IdentityHashMap
-import java.time.{LocalDate, LocalDateTime, ZoneId}
+import java.util.{IdentityHashMap, TimeZone}
+import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
 import java.time.format.DateTimeFormatter
-import edu.stanford.nlp.time.Timex
 
+import edu.stanford.nlp.time.Timex
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.anafora.Data
@@ -247,6 +247,14 @@ class TimeNormFinderNeural(parser: TemporalNeuralParser, timeRegexes: Seq[Regex]
 class TimeNormFinderSUTime() extends TimeNormFinder {
   // TIMEX types
   private val types = Set("DATE", "TIME", "DURATION", "SET")
+  // PAST and NEXT opeartors keywords
+  private val pastOperators = Array("past", "last", "previous")
+  private val nextOperators = Array("next", "following", "coming")
+  // The text of the time expression must start with "the last", "the following",...
+  private val normalizableRegex = s"^the (${(pastOperators ++ nextOperators).mkString("|")})".r
+  private val timeZoneId = ZoneId.of("UTC")
+  TimeZone.setDefault(TimeZone.getTimeZone(timeZoneId))
+
 
   def parseDctString(dctString: String): Option[DCT] = {
     Try {
@@ -289,15 +297,11 @@ class TimeNormFinderSUTime() extends TimeNormFinder {
 
   // Normalize DURATION like "the last 5 years" with norm values like "P5Y"
   private def normalizeDuration(text: String, timex: String, dct: DCT): Seq[TimeStep] = {
-    val pastOperators = Array("past", "last", "previous")
-    val nextOperators = Array("next", "following", "coming")
     // The form of the normalized timex must be PNU where N is an integer
     // and U a valid unit: Y (year), M (month), W (week) or D (day)
     val periodRegex = "^P([0-9]+)(Y|M|W|D)$".r
     val periodMatch = periodRegex.findFirstMatchIn(timex)
     val period = periodMatch.map(p => (p.group(1).toInt, p.group(2))).toSeq
-    // The text of the time expression must start with "the last", "the following",...
-    val normalizableRegex = s"^the (${(pastOperators ++ nextOperators).mkString("|")})".r
     // if pastOperator the interval is: from (dct - N units) to dct
     // if nextOperator the interval is: from dct to (dct + N units)
     normalizableRegex.findFirstMatchIn(text) match {
@@ -347,16 +351,23 @@ class TimeNormFinderSUTime() extends TimeNormFinder {
               case None => Seq()
             }
           } else {
-            val timex = new Timex(timeExpressionType, timeExpression)
-            val interval_start = LocalDateTime.ofInstant(timex.getRange.first.getTime.toInstant, ZoneId.systemDefault())
-            val interval_end = LocalDateTime.ofInstant(timex.getRange.second.getTime.toInstant, ZoneId.systemDefault())
-            // The range given by Timex is closed and we need left-closed and right-open intervals: [start, end)
-            val interval_end_open = timeExpressionType match {
-              case "DATE" => interval_end.plusDays(1)
-              case "TIME" => interval_end.plusSeconds(1)
-              case _ => interval_end
+            // T character separates date and time in the time expression, e.g. 2020-05-20T16:10
+            val (interval_start, interval_end) = timeExpression.split("T") match {
+              case Array(dateOfTimex, timeOfTimex) =>
+                // Timex does not parse time, some parse date and time separately and the join them.
+                val dateTimex = new Timex(timeExpressionType, dateOfTimex)
+                val date = LocalDateTime.ofInstant(dateTimex.getDate.getTime.toInstant, timeZoneId)
+                val time = LocalTime.parse(timeOfTimex)
+                val interval_start = time.atDate(date.toLocalDate)
+                (interval_start, interval_start.plusSeconds(1))
+              case _ =>
+                val timex = new Timex(timeExpressionType, timeExpression)
+                val interval_start = LocalDateTime.ofInstant(timex.getRange.first.getTime.toInstant, timeZoneId)
+                val interval_end = LocalDateTime.ofInstant(timex.getRange.second.getTime.toInstant, timeZoneId)
+                // The range given by Timex is closed and we need left-closed and right-open intervals: [start, end)
+                (interval_start, interval_end.plusDays(1))
             }
-            Seq(TimeStep(interval_start, interval_end_open))
+            Seq(TimeStep(interval_start, interval_end))
           }
         }.getOrElse(Seq())
         val attachment = TimEx(charInterval, timeSteps, timeText)
