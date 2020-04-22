@@ -307,10 +307,10 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       // Each branch is its own grounding strategy to allow best performance.
       // The groundings of concepts and processes are competing at last, as it gains better performance.
       val propertySimilarities = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
-      val processSimilarities = allMentions.flatMap(m => w2v.calculateSimilarities(m.text.split(" "), conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
-      val mentionHeadTag = mentionHeadOpt.map(m=>m.tags.head.head).getOrElse("None")
+      val processSimilarities = allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
       val conceptSimilarities = {
-        if (!mentionHeadTag.startsWith("NN")) {
+        val mentionHeadTagIsNN = mentionHeadOpt.map(m=>m.tags.head.head.startsWith("NN")).getOrElse(false)
+        if (!mentionHeadTagIsNN) {
           if (modifierMentions.isEmpty) {
             val posTags = mention.odinMention.tags.getOrElse(Seq.empty)
             w2v.calculateSimilaritiesWeighted(mentionText, posTags, 5, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
@@ -337,12 +337,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
           .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
           .sortBy(-_._2)
           .take(effectiveTopN)
-          .filter(_._1.name.startsWith("wm/"+branch))
+          .filter(_._1.branch.get == branch)
         newOntologyGrounding(goodSimilarities, Some(branch))
       }
-      val goodPropertyGroundings = getTopKGrounding(propertySimilarities, "property")
-      val goodProcessGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, "process")
-      val goodConceptGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, "concept")
+      val goodPropertyGroundings = getTopKGrounding(propertySimilarities, CompositionalGrounder.PROPERTY)
+      val goodProcessGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, CompositionalGrounder.PROCESS)
+      val goodConceptGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, CompositionalGrounder.CONCEPT)
 
       val goodGroundings = Seq(goodPropertyGroundings, goodProcessGroundings, goodConceptGroundings)
 

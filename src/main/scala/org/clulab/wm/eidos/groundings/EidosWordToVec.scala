@@ -84,7 +84,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
     val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
-    val termWeights = posTags.map(tag=>if (tag.startsWith("NN")) nounVerbWeightRatio else 1.0.toFloat)
+    val termWeights = posTags.map(tag=>if (tag.startsWith("NN")) nounVerbWeightRatio else 1.0f)
 
 
     if (outOfVocabulary)
