@@ -15,16 +15,17 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val    procVer = "8.0.2-SNAPSHOT"
-  val  luceneVer = "6.6.6"
-  val lihaoyiVer = "0.7.1"
+  val      procVer = "8.0.2"
+  val procModelVer = "7.5.4"
+  val    luceneVer = "6.6.6"
+  val   lihaoyiVer = "0.7.1"
 
   Seq(
     "org.clulab"                 %% "processors-main"          % procVer,
     "org.clulab"                 %% "processors-corenlp"       % procVer,
     "org.clulab"                 %% "processors-odin"          % procVer,
-    "org.clulab"                 %% "processors-modelsmain"    % "7.5.4",
-    "org.clulab"                 %% "processors-modelscorenlp" % "7.5.4",
+    "org.clulab"                 %% "processors-modelsmain"    % procModelVer,
+    "org.clulab"                 %% "processors-modelscorenlp" % procModelVer,
     "org.clulab"                 %% "geonorm"                  % "0.9.8",
     "org.clulab"                 %% "timenorm"                 % "1.0.5",
     "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
@@ -117,27 +118,6 @@ publishTo := {
 // let’s remove any repositories for optional dependencies in our artifact
 pomIncludeRepository := { _ => false }
 
-
-// These values in scmInfo replace the <scm/> section previously recorded in
-// pomExtra so that default values aren't used which then double up in the
-// XML and cause a validation error.  This problem was first noted with
-// sbt.version=1.1.6
-// addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.8")
-// addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.3")
-// This produced
-// <scm>
-//     <url>https://github.com/clulab/eidos</url>
-//     <connection>scm:git:https://github.com/clulab/eidos.git</connection>
-//     <developerConnection>scm:git:git@github.com:clulab/eidos.git</developerConnection>
-// </scm>
-// that must be automatically generated and a duplicate
-// <scm>
-//     <url>https://github.com/clulab/eidos</url>
-//     <connection>https://github.com/clulab/eidos</connection>
-// </scm>
-// Judging from this, the scmInfo is collected automatically, perhaps by
-// addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.9.3")
-// However, the developerConnection is undesired, so this is used:
 scmInfo := Some(
   ScmInfo(
     url("https://github.com/clulab/eidos"),
@@ -145,28 +125,16 @@ scmInfo := Some(
   )
 )
 
+licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
-// mandatory stuff to add to the pom for publishing
-pomExtra :=
-  <url>https://github.com/clulab/eidos</url>
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <!--scm>
-    <url>https://github.com/clulab/eidos</url>
-    <connection>https://github.com/clulab/eidos</connection>
-  </scm-->
-  <developers>
-    <developer>
-      <id>mihai.surdeanu</id>
-      <name>Mihai Surdeanu</name>
-      <email>mihai@surdeanu.info</email>
-    </developer>
-  </developers>
+developers := List(
+  Developer(
+    id    = "mihai.surdeanu",
+    name  = "Mihai Surdeanu",
+    email = "mihai@surdeanu.info",
+    url   = url("http://surdeanu.info/mihai/")
+  )
+)
 //
 // end publishing settings
 //
@@ -202,6 +170,7 @@ assemblyMergeStrategy in assembly := {
   // preferred over a version that will silently handle new conflicts without alerting us to the potential problem.
   case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
   case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
+  case PathList("module-info.class") => MergeStrategy.discard // This might not be right, but it stops the complaints.
   case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyones licenses and notices.
   case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
   case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
