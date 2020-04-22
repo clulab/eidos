@@ -4,6 +4,8 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.wm.eidos.actions.CorefHandler
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 
 trait StopwordManaging {
@@ -27,13 +29,22 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
     val tags = mention.tags.get
     val entities = mention.entities.get
 
+    // There should be at least one noun
     if (!tags.exists(_.startsWith("NN"))) return false
-    //println(s"Checking mention: ${mention.text}")
+
+    // There should be at least one word which:
     lemmas.indices.exists { i =>
+      // has more than one character
+      lemmas(i).length > 1 &&
+      // has a content POS tag
       isContentPOS(tags(i)) &&
+      // isn't a VBN
       tags(i) != "VBN" && // we don't want entities/concepts which consist ONLY of a VBN
+      // isn't a stopword
       !containsStopword(lemmas(i)) &&
+        // isn't a stop tag
         !StopwordManager.STOP_POS.contains(tags(i)) &&
+        // and isn't a stop NER
         !StopwordManager.STOP_NER.contains(entities(i))
     }
   }
@@ -77,6 +88,11 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
   //(mention.matches("Entity") && mention.attachments.nonEmpty) ||
     cagEdgeMentions.contains(mention) ||
       cagEdgeArguments.contains(mention)
+
+  def relevantMentions(ad: AnnotatedDocument): Seq[EidosMention] = {
+    val allMentions = ad.odinMentions
+    ad.eidosMentions.filter(m => releventEdge(m.odinMention, State(allMentions)))
+  }
 
   def releventEdge(m: Mention, state: State): Boolean = {
     m match {
