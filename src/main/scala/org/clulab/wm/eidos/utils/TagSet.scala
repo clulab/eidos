@@ -177,8 +177,8 @@ PROPN Proper Noun
 PUNCT Punctuation
 SCONJ Subordinating conjunction
 VERBF Verb, finite
-VERBI Verb, infinite
 VERBG Verb, gerund
+VERBI Verb, infinite
 VERBP Verb, participle, passive
 
 */
