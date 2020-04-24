@@ -5,6 +5,7 @@ import com.typesafe.config.Config
 import org.clulab.odin.{Mention, State}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
+import org.clulab.wm.eidos.utils.TagSet
 
 trait Finder {
   def find(doc: Document, initialState: State = new State()): Seq[Mention]
@@ -12,16 +13,16 @@ trait Finder {
 
 object Finder {
 
-  def fromConfig(key: String, config: Config): Seq[Finder] = {
+  def fromConfig(key: String, config: Config, tagSet: TagSet): Seq[Finder] = {
     val finderTypes: List[String] = config[List[String]](key)
     finderTypes.map { finder =>
       finder match {
-        case "rulebased" => RuleBasedEntityFinder.fromConfig(config)
-        case "gazetteer" => GazetteerEntityFinder.fromConfig(config)
+        case "rulebased" => RuleBasedEntityFinder.fromConfig(config, tagSet)
+        case "gazetteer" => GazetteerEntityFinder.fromConfig(config, tagSet)
         case "geonorm" => GeoNormFinder.fromConfig(config[Config]("geonorm"))
         case "timenorm" => TimeNormFinder.fromConfig(config[Config]("timenorm"))
-        case "context" => OdinFinder.fromConfig(config[Config]("context"))
-        case "migration" => OdinFinder.fromConfig(config[Config]("migration"))
+        case "context" => OdinFinder.fromConfig(config[Config]("context"), tagSet)
+        case "migration" => OdinFinder.fromConfig(config[Config]("migration"), tagSet)
         case _ => ???
       }
     }

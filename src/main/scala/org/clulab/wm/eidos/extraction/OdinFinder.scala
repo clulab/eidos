@@ -7,6 +7,7 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.TagSet
 
 class OdinFinder(val expanderOpt: Option[Expander], val engine: ExtractorEngine) extends Finder {
 
@@ -20,14 +21,14 @@ class OdinFinder(val expanderOpt: Option[Expander], val engine: ExtractorEngine)
 }
 
 object OdinFinder {
-  def fromConfig(config: Config): OdinFinder = {
+  def fromConfig(config: Config, tagSet: TagSet): OdinFinder = {
     val rulesPath = config[String]("rulesPath")
     val rules = FileUtils.getTextFromResource(rulesPath)
-    val actions = EidosActions.fromConfig(config[Config]("actions"))
+    val actions = EidosActions.fromConfig(config[Config]("actions"), tagSet)
     val entityEngine = ExtractorEngine(rules, actions)
 
     val expanderConfigOpt = config.get[Config]("expander")
-    val expanderOpt = expanderConfigOpt.map(Expander.fromConfig)
+    val expanderOpt = expanderConfigOpt.map(Expander.fromConfig(_, tagSet))
 
     new OdinFinder(expanderOpt, entityEngine)
   }
