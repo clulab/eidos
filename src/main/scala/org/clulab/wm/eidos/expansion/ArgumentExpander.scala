@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.extraction.EntityHelper
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.expansion.ArgumentExpander.logger
+import org.clulab.wm.eidos.utils.TagSet
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -18,7 +19,7 @@ import scala.collection.mutable.ArrayBuffer
   * @param dependencies the valid/invalid incoming/outgoing dependencies for expansion
   * @param maxHops max number of dependency edges will traverse during expansion
   */
-class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], dependencies: Dependencies, maxHops: Int) extends Expander {
+class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], dependencies: Dependencies, maxHops: Int, tagSet: TagSet) extends Expander {
   private val textBoundExpander = new TextBoundExpander(dependencies, maxHops)
 
   def expand(ms: Seq[Mention], state: State = new State()): Seq[Mention] = {
@@ -95,7 +96,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
           .map(ExpansionUtils.addSubsumedAttachments(_, state))
           .map(ExpansionUtils.attachDCT(_, state))
           .map(ExpansionUtils.addOverlappingAttachmentsTextBounds(_, state)) // todo: what does this do that the addSubsumed doesn't?
-          .map(EntityHelper.trimEntityEdges)
+          .map(EntityHelper.trimEntityEdges(_, tagSet))
         // Store
         newArgs.put(argType, attached)
       } else {
@@ -182,7 +183,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
 object ArgumentExpander {
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def fromConfig(config: Config): ArgumentExpander = {
+  def fromConfig(config: Config, tagSet: TagSet): ArgumentExpander = {
     val validArgs: List[String] = config[List[String]]("validArguments")
     val validLabels: List[String] = config[List[String]]("validLabels")
     // Dependencies
@@ -197,6 +198,6 @@ object ArgumentExpander {
       invalidOutgoing.map(_.r).toSet
     )
     val maxHops: Int = config[Int]("maxHops")
-    new ArgumentExpander(validArgs.toSet, validLabels.toSet, expansionDeps, maxHops)
+    new ArgumentExpander(validArgs.toSet, validLabels.toSet, expansionDeps, maxHops, tagSet)
   }
 }

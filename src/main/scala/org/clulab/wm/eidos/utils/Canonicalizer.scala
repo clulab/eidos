@@ -6,19 +6,13 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.mentions.EidosMention
 
-class Canonicalizer(stopwordManaging: StopwordManaging) {
-
-  protected def isContentTag(tag: String): Boolean =
-      tag.startsWith("NN") ||
-      tag.startsWith("VB") ||
-      tag.startsWith("JJ")
-
+class Canonicalizer(stopwordManaging: StopwordManaging, tagSet: TagSet) {
 
   // Here we use the lemma because the stopwords etc are written against them
   def isCanonicalLemma(lemma: String, tag: String, ner: String): Boolean =
-      isContentTag(tag) &&
-      !stopwordManaging.containsStopwordStrict(lemma) &&
-      !StopwordManager.STOP_NER.contains(ner)
+    tagSet.isOntologyContent(tag) &&
+        !stopwordManaging.containsStopwordStrict(lemma) &&
+        !StopwordManager.STOP_NER.contains(ner)
 
   def canonicalWordsFromSentence(s: Sentence, tokenInterval: Interval, attachmentWords: Set[String] = Set()): Seq[String] = {
     val words = s.words
@@ -45,9 +39,9 @@ class Canonicalizer(stopwordManaging: StopwordManaging) {
   }
 
   /**
-   * To handle mentions that span multiple sentences, we sort the pieces of the mention and then filter each
-   * to get the tokens that will make it into the canonicalName.
-   */
+    * To handle mentions that span multiple sentences, we sort the pieces of the mention and then filter each
+    * to get the tokens that will make it into the canonicalName.
+    */
   def canonicalNameParts(eidosMention: EidosMention): Array[String] = {
     // Sentence has been added to account for cross sentence mentions.
     def lessThan(left: Mention, right: Mention): Boolean =

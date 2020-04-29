@@ -66,7 +66,7 @@ class TestDomainOntology extends Test {
       .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
   val reader = new EidosSystem(config)
   val proc = reader.components.proc
-  val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManager, proc.getTagSet)
   val useCacheForOntologies = config[Boolean]("ontologies.useCacheForOntologies")
   val includeParents = config[Boolean]("ontologies.includeParents")
   val filter = true

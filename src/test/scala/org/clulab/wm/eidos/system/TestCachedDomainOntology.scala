@@ -23,7 +23,7 @@ class TestCachedDomainOntology extends Test {
   val cacheDir: String = config[String]("ontologies.cacheDir")
   val reader: EidosSystem = new EidosSystem(config)
   val proc: EidosProcessor = reader.components.proc
-  val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManager, reader.components.proc.getTagSet)
   val filter = true
 
   case class OntologySpec(abbrev: String, path: String)
