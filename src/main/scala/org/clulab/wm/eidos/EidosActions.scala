@@ -17,6 +17,7 @@ import org.clulab.wm.eidos.attachments.CountUnit._
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidos.utils.TagSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -628,11 +629,11 @@ object EidosActions extends Actions {
   val MIN_PATTERN: Pattern = Pattern.compile("""(at\s+least)|(more\s+than)|over""")
   val MAX_PATTERN: Pattern = Pattern.compile("""(at\s+most)|(less\s+than)|almost|under""")
 
-  def fromConfig(config: Config): EidosActions = {
+  def fromConfig(config: Config, tagSet: TagSet): EidosActions = {
     val useCoref: Boolean = config[Boolean]("useCoref")
     val corefHandler = if (useCoref) Some(CorefHandler.fromConfig(config)) else None
     val useExpansion: Boolean = config[Boolean]("useExpansion")
-    val expansionHandler = if (useExpansion) Some(Expander.fromConfig(config[Config]("expander"))) else None
+    val expansionHandler = if (useExpansion) Some(Expander.fromConfig(config[Config]("expander"), tagSet)) else None
 
     new EidosActions(expansionHandler, corefHandler)
   }

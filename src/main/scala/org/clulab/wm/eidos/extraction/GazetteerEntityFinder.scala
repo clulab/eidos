@@ -8,6 +8,7 @@ import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.expansion.Expander
 import GazetteerEntityFinder.NER_OUTSIDE
 import org.clulab.wm.eidos.utils.DisplayUtils
+import org.clulab.wm.eidos.utils.TagSet
 
 /**
   * The GazetteerEntityFinder finds mentions of gazetteer elements.  The matching uses a processors LexiconNER,
@@ -82,10 +83,10 @@ object GazetteerEntityFinder {
   val NER_OUTSIDE = "O"
 
   def apply(lexicons: Seq[String], expander: Option[Expander]) = new GazetteerEntityFinder(lexicons, expander)
-  def fromConfig(config: Config) = {
+  def fromConfig(config: Config, tagSet: TagSet) = {
     val lexicons = config[List[String]]("gazetteers.lexicons")
     val expanderConfig = config.get[Config]("gazetteers.expander")
-    val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig)
+    val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig(_, tagSet))
     GazetteerEntityFinder(lexicons, expander)
   }
 }

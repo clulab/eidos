@@ -13,6 +13,10 @@ import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.utils.ScienceUtils
+import org.clulab.wm.eidos.utils.EnglishTagSet
+import org.clulab.wm.eidos.utils.PortugueseTagSet
+import org.clulab.wm.eidos.utils.SpanishTagSet
+import org.clulab.wm.eidos.utils.TagSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -33,11 +37,14 @@ trait SentencesExtractor {
 // Allow the processors below to answer which language they are supporting.
 trait LanguageSpecific {
   val language: String
+
+  def getTagSet: TagSet
 }
 
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  val tagSet = new EnglishTagSet()
 
   // TODO: This should be checked with each update of processors.
   def extractDocument(text: String): Document = {
@@ -51,11 +58,14 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
     }
     document
   }
+
+  def getTagSet: TagSet = tagSet
 }
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  val tagSet = new SpanishTagSet()
 
   // TODO: This should be checked with each update of processors.
   def extractDocument(text: String): Document = {
@@ -69,11 +79,14 @@ class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCl
     }
     document
   }
+
+  def getTagSet: TagSet = tagSet
 }
 
 class EidosPortugueseProcessor(val language: String, cutoff: Int) extends PortugueseCluProcessor
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  val tagSet = new PortugueseTagSet()
 
   // TODO: This should be checked with each update of processors.
   def extractDocument(text: String): Document = {
@@ -87,6 +100,8 @@ class EidosPortugueseProcessor(val language: String, cutoff: Int) extends Portug
     }
     document
   }
+
+  def getTagSet: TagSet = tagSet
 }
 
 class ParagraphSplitter {

@@ -486,8 +486,12 @@ out, switch `language` in `eidos.conf` from `english` to `portuguese`.  Here is 
 
 If you want to use Eidos in its default configuration, it is available to project management
 software like Maven and `sbt` in prepackaged form, independently of the GitHub repository.
-Code like that below can be used to declare the dependency.
+Code like that below can be used to declare the dependency.  The extra resolver is used for
+`glove` word vectors and models from the [processors](https://github.com/clulab/processors) project.
+
 ```scala
+resolvers += "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release"
+
 libraryDependencies ++=
   Seq(
     "org.clulab"    %% "eidos"          % "0.2.2"

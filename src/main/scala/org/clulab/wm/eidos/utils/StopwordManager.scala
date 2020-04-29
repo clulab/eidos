@@ -6,18 +6,18 @@ import org.clulab.odin._
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.{EidosActions, EidosSystem}
+import org.clulab.wm.eidos.EidosSystem
 
 trait StopwordManaging {
   def containsStopword(stopword: String): Boolean
   def containsStopwordStrict(stopword: String): Boolean = containsStopword(stopword)
 }
 
-class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) extends StopwordManaging {
+class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler, tagSet: TagSet) extends StopwordManaging {
   protected val stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
   protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
 
-  protected val bothWords = stopwords ++ transparentWords
+  protected val bothWords: Set[String] = stopwords ++ transparentWords
 
   def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
   override def containsStopwordStrict(stopword: String): Boolean = stopwords.contains(stopword)
@@ -30,22 +30,19 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
     val entities = mention.entities.get
 
     // There should be at least one noun
-    if (!tags.exists(_.startsWith("NN"))) return false
+    if (!tags.exists(tagSet.isAnyNoun)) return false
+    // This above can be combined with those below
 
     // There should be at least one word which:
     lemmas.indices.exists { i =>
       // has more than one character
       lemmas(i).length > 1 &&
-      // has a content POS tag
-      isContentPOS(tags(i)) &&
-      // isn't a VBN
-      tags(i) != "VBN" && // we don't want entities/concepts which consist ONLY of a VBN
-      // isn't a stopword
-      !containsStopword(lemmas(i)) &&
-        // isn't a stop tag
-        !StopwordManager.STOP_POS.contains(tags(i)) &&
-        // and isn't a stop NER
-        !StopwordManager.STOP_NER.contains(entities(i))
+          // has a content POS tag
+          tagSet.isStopwordContent(tags(i)) &&
+          // isn't a stopword
+          !containsStopword(lemmas(i)) &&
+          // and isn't a stop NER
+          !StopwordManager.STOP_NER.contains(entities(i))
     }
   }
 
@@ -57,14 +54,9 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
     else false
   }
 
-
-
-  def isContentPOS(tag: String): Boolean = StopwordManager.CONTENT_POS_PREFIXES.exists(prefix => tag.startsWith(prefix))
-
-
   def filterStopTransparent(mentions: Seq[Mention]): Seq[Mention] =
-      // Remove mentions which are entirely stop/transparent words
-      mentions.filter(hasContent)
+  // Remove mentions which are entirely stop/transparent words
+    mentions.filter(hasContent)
 
 
   def keepCAGRelevant(mentions: Seq[Mention]): Seq[Mention] = {
@@ -87,7 +79,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
   // We're no longer keeping all modified entities
   //(mention.matches("Entity") && mention.attachments.nonEmpty) ||
     cagEdgeMentions.contains(mention) ||
-      cagEdgeArguments.contains(mention)
+        cagEdgeArguments.contains(mention)
 
   def relevantMentions(ad: AnnotatedDocument): Seq[EidosMention] = {
     val allMentions = ad.odinMentions
@@ -110,27 +102,26 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
 
     if (causes.nonEmpty && effects.nonEmpty) // If it's something interesting,
     // then both causes and effects should have some content
-      causes.exists(hasContent(_, state)) && effects.exists(hasContent(_, state))
+    causes.exists(hasContent(_, state)) && effects.exists(hasContent(_, state))
     else
-      true
+    true
   }
 }
 
 object StopwordManager {
-  val CONTENT_POS_PREFIXES: Set[String] = Set("ADJ", "NOUN", "NN", "PROPN", "VERB", "VB", "JJ")
-  val STOP_POS: Set[String] = Set("CD")
   val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MISC", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME")
 
-// maybe use this to get missed Locations/Dates/etc?; not sure if necessary anymore?
-//  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")
+  // maybe use this to get missed Locations/Dates/etc?; not sure if necessary anymore?
+  //  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")
 
 
-  def apply(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler) = new StopwordManager(stopwordsPath, transparentPath, corefHandler)
+  def apply(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler, tagSet: TagSet) =
+      new StopwordManager(stopwordsPath, transparentPath, corefHandler, tagSet)
 
-  def fromConfig(config: Config) = {
+  def fromConfig(config: Config, tagSet: TagSet) = {
     val stopwordsPath: String = config[String]("filtering.stopWordsPath")
     val transparentPath: String = config[String]("filtering.transparentPath")
     val corefHandler: CorefHandler = CorefHandler.fromConfig(config[Config]("actions")) // fixme
-    apply(stopwordsPath, transparentPath, corefHandler)
+    apply(stopwordsPath, transparentPath, corefHandler, tagSet)
   }
 }

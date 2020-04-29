@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.expansion
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.{Mention, State}
+import org.clulab.wm.eidos.utils.TagSet
 
 import scala.util.matching.Regex
 
@@ -14,11 +15,11 @@ trait Expander {
 }
 
 object Expander {
-  def fromConfig(config: Config): Expander = {
+  def fromConfig(config: Config, tagSet: TagSet): Expander = {
     val expandType: String = config[String]("expansionType") // fixme
     expandType match {
       case "textbound" => TextBoundExpander.fromConfig(config) // todo: check about scoping with these nested configs
-      case "argument" => ArgumentExpander.fromConfig(config)
+      case "argument" => ArgumentExpander.fromConfig(config, tagSet)
       case _ => ???
     }
   }

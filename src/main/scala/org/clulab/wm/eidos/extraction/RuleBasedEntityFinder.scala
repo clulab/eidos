@@ -6,10 +6,11 @@ import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.expansion.Expander
+import org.clulab.wm.eidos.utils.TagSet
 import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
 
-
-class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: ExtractorEngine, val avoidEngine: ExtractorEngine) extends Finder {
+class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: ExtractorEngine,
+    val avoidEngine: ExtractorEngine, tagSet: TagSet) extends Finder {
   /**
     * Performs rule-based entity extraction with selective expansion along syntactic dependencies.
     * For filtering, see filterEntities.
@@ -25,11 +26,11 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     // Optionally expand
     val expandedEntities = expander.map(_.expand(validBaseEntities, stateFromAvoid)).getOrElse(validBaseEntities)
     // split entities on likely coordinations
-    val splitEntities = (validBaseEntities ++ expandedEntities).flatMap(EntityHelper.splitCoordinatedEntities)
+    val splitEntities = (validBaseEntities ++ expandedEntities).flatMap(EntityHelper.splitCoordinatedEntities(_, tagSet))
     // remove entity duplicates introduced by splitting expanded
     val distinctEntities = splitEntities.distinct
     // trim unwanted POS from entity edges
-    val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges)
+    val trimmedEntities = distinctEntities.map(EntityHelper.trimEntityEdges(_, tagSet))
     // if there are no avoid mentions, no need to filter
     val res = if (avoid.isEmpty || expander.isEmpty) {
       trimmedEntities
@@ -64,9 +65,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     // Helper method for determining if the next word after the entity is a noun
     def nextTagNN(entity: Mention): Boolean = {
       val tags = entity.sentenceObj.tags.get
-
-      entity.end < tags.length &&
-        (tags(entity.end).startsWith("N") || tags(entity.end).startsWith("PROPN"))
+      entity.end < tags.length && tagSet.isAnyNoun(tags(entity.end))
     }
 
     def containsValidNounVerb(entity: Mention): Boolean = {
@@ -76,17 +75,16 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
 
       // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
       tags.indices.exists { i =>
-        (tags(i).startsWith("N") || tags(i).startsWith("PROPN") || tags(i).startsWith("V")) &&
-          !StopwordManager.STOP_NER.contains(entities(i))
+        (tagSet.isAnyNoun(tags(i)) || tagSet.isAnyVerb(tags(i))) && !StopwordManager.STOP_NER.contains(entities(i))
       }
     }
     // If there's a non-named entity noun in the entity, it's valid
     containsValidNounVerb(entity) ||
-      // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
-      // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
-      (entity.tags.get.last.startsWith("JJ") || entity.tags.get.last.startsWith("ADJ")) && nextTagNN(entity) ||
-      // Otherwise, is it a determiner that may need to be resolved downstream?
-      CorefHandler.startsWithCorefDeterminer(entity) // fixme
+        // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
+        // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
+        tagSet.isAnyAdjective(entity.tags.get.last) && nextTagNN(entity) ||
+        // Otherwise, is it a determiner that may need to be resolved downstream?
+        CorefHandler.startsWithCorefDeterminer(entity) // fixme
     // Otherwise, it's not valid
   }
 
@@ -102,7 +100,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     val longest = keepLongest(filteredEntities, new State())
     for {
       m <- longest
-      if EntityConstraints.validFinalTag(m)
+      if EntityConstraints.validFinalTag(m, tagSet)
       if EntityConstraints.matchingBrackets(m)
     } yield m
   }
@@ -124,7 +122,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
 object RuleBasedEntityFinder {
   val DEFAULT_MAX_LENGTH = 50 // maximum length (in tokens) for an entity // FIXME read in?
 
-  def fromConfig(config: Config): RuleBasedEntityFinder = {
+  def fromConfig(config: Config, tagSet: TagSet): RuleBasedEntityFinder = {
     val entityRulesPath = config[String]("ruleBasedEntityFinder.entityRulesPath")
     val entityRules = FileUtils.getTextFromResource(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
@@ -134,8 +132,8 @@ object RuleBasedEntityFinder {
     val avoidEngine = ExtractorEngine(avoidRules)
 
     val expanderConfig = config.get[Config]("ruleBasedEntityFinder.expander")
-    val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig)
+    val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig(_, tagSet))
 
-    new RuleBasedEntityFinder(expander, entityEngine, avoidEngine)
+    new RuleBasedEntityFinder(expander, entityEngine, avoidEngine, tagSet)
   }
 }

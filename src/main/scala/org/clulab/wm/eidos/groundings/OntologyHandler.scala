@@ -11,6 +11,7 @@ import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntol
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.TagSet
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -215,8 +216,8 @@ class OntologyHandler(
 object OntologyHandler {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager): OntologyHandler = {
-    val canonicalizer = new Canonicalizer(stopwordManager)
+  def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager, tagSet: TagSet): OntologyHandler = {
+    val canonicalizer = new Canonicalizer(stopwordManager, tagSet)
     val cacheDir: String = config[String]("cacheDir")
     val useCacheForOntologies: Boolean = config[Boolean]("useCacheForOntologies")
     val useCacheForW2V: Boolean = config[Boolean]("useCacheForW2V")

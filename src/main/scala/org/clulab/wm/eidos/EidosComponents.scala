@@ -83,12 +83,12 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
         procOpt = Some(EidosProcessor(language, cutoff = 150))
         negationHandlerOpt = Some(NegationHandler(language))
       }
-      stopwordManagerOpt = Some(StopwordManager.fromConfig(config))
-      ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get))
+      stopwordManagerOpt = Some(StopwordManager.fromConfig(config, procOpt.get.getTagSet))
+      ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, procOpt.get.getTagSet))
     }
 
     migrationHandlerOpt = Some(MigrationHandler())
-    actionsOpt = Some(EidosActions.fromConfig(config[Config]("actions")))
+    actionsOpt = Some(EidosActions.fromConfig(config[Config]("actions"), procOpt.get.getTagSet))
     engineOpt = { // ODIN component
       val masterRulesPath: String = eidosConf[String]("masterRulesPath")
       val masterRules = FileUtils.getTextFromResource(masterRulesPath)
@@ -107,12 +107,12 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
     }
 
     // Entity Finders can be used to preload entities into the odin state, their use is optional.
-    entityFindersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".entityFinders", config))
+    entityFindersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".entityFinders", config, procOpt.get.getTagSet))
     conceptExpanderOpt = {
       // Expander for expanding the bare events
       val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
       // ConceptExpander, also
-      val expander: Option[Expander] = eidosConf.get[Config]("conceptExpander").map(Expander.fromConfig)
+      val expander: Option[Expander] = eidosConf.get[Config]("conceptExpander").map(Expander.fromConfig(_, procOpt.get.getTagSet))
 
       if (keepStatefulConcepts && expander.isEmpty)
         EidosComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")

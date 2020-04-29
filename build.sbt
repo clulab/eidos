@@ -15,7 +15,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val      procVer = "8.0.2"
+  val      procVer = "8.0.3"
   val procModelVer = "7.5.4"
   val    luceneVer = "6.6.6"
   val   lihaoyiVer = "0.7.1"
@@ -115,8 +115,10 @@ publishTo := {
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
-// let’s remove any repositories for optional dependencies in our artifact
-pomIncludeRepository := { _ => false }
+// account for dependency on glove vector file
+pomIncludeRepository := { (repo: MavenRepository) =>
+  repo.root.startsWith("http://artifactory.cs.arizona.edu")
+}
 
 scmInfo := Some(
   ScmInfo(
