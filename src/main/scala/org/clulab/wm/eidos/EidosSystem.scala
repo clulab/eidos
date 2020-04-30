@@ -132,8 +132,13 @@ class EidosSystem(val components: EidosComponents) {
   def refineOdinMentions(odinRefiners: Seq[EidosSystem.OdinRefiner], odinMentions: Seq[Mention]): Seq[Mention] =
       refine[Mention](odinRefiners, odinMentions)
 
-  def refineEidosMentions(eidosRefiners: Seq[EidosSystem.EidosRefiner], eidosMentions: Seq[EidosMention]): Seq[EidosMention] =
-      refine[EidosMention](eidosRefiners, eidosMentions)
+  def refineEidosMentions(eidosRefiners: Seq[EidosSystem.EidosRefiner], eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
+    // In case not all referenced mentions are in the list, track them down first.
+    val allEidosMentions = EidosMention.findReachableEidosMentions(eidosMentions)
+
+    refine[EidosMention](eidosRefiners, allEidosMentions)
+    eidosMentions
+  }
 
   // This could be used with more dynamically configured refiners, especially if made public.
   protected def extractFromDoc(doc: Document, odinRefiners: Seq[EidosSystem.OdinRefiner],
