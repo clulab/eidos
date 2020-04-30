@@ -68,7 +68,7 @@ class EidosSystem(val components: EidosComponents) {
   protected def mkEidosRefiners(options: EidosSystem.Options): Seq[EidosSystem.EidosRefiner] = Seq(
     (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) },
     (eidosMentions: Seq[EidosMention]) => {
-      eidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
+      EidosMention.findReachableEidosMentions(eidosMentions).foreach(_.groundAdjectives(components.adjectiveGrounder))
       eidosMentions
     }
   )
@@ -132,13 +132,8 @@ class EidosSystem(val components: EidosComponents) {
   def refineOdinMentions(odinRefiners: Seq[EidosSystem.OdinRefiner], odinMentions: Seq[Mention]): Seq[Mention] =
       refine[Mention](odinRefiners, odinMentions)
 
-  def refineEidosMentions(eidosRefiners: Seq[EidosSystem.EidosRefiner], eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
-    // In case not all referenced mentions are in the list, track them down first.
-    val allEidosMentions = EidosMention.findReachableEidosMentions(eidosMentions)
-
-    refine[EidosMention](eidosRefiners, allEidosMentions)
-    eidosMentions
-  }
+  def refineEidosMentions(eidosRefiners: Seq[EidosSystem.EidosRefiner], eidosMentions: Seq[EidosMention]): Seq[EidosMention] =
+      refine[EidosMention](eidosRefiners, eidosMentions)
 
   // This could be used with more dynamically configured refiners, especially if made public.
   protected def extractFromDoc(doc: Document, odinRefiners: Seq[EidosSystem.OdinRefiner],
