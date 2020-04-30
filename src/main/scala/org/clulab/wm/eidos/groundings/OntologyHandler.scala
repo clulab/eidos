@@ -23,26 +23,7 @@ class OntologyHandler(
   val includeParents: Boolean
 ) {
 
-  def ground(eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
-    EidosMention.findReachableEidosMentions(eidosMentions).foreach { eidosMention =>
-      eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
-
-      val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
-        val name: String = ontologyGrounder.name
-        val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold = Option(0.5f))
-        val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
-          OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
-        }
-
-        nameAndOntologyGroundings
-      }.toMap
-
-      eidosMention.grounding = ontologyGroundings
-    }
-    eidosMentions
-  }
-
-  protected def process(eidosMention: EidosMention): Unit = {
+  protected def ground(eidosMention: EidosMention): Unit = {
     // If any of the grounders needs their own version, they'll have to make it themselves.
     eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
 
@@ -59,13 +40,12 @@ class OntologyHandler(
     eidosMention.grounding = ontologyGroundings
   }
 
-  def process(annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
-    annotatedDocument.allEidosMentions.foreach { eidosMention =>
-      process(eidosMention)
+  def ground(eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
+    EidosMention.findReachableEidosMentions(eidosMentions).foreach { eidosMention =>
+      ground(eidosMention)
     }
-    annotatedDocument
+    eidosMentions
   }
-
 
   def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundings = {
     // This is assuming that there is just one sentence and the interval falls within it.  That may
@@ -109,7 +89,7 @@ class OntologyHandler(
 
       val eidosMention = eidosMentions.head
 
-      process(eidosMention)
+      ground(eidosMention)
       eidosMention.grounding
     }
     catch {
