@@ -20,7 +20,7 @@ as IPC Phase 4: "Emergency".
     val tester = new GraphTester(text)
 
     // Sentence 1
-    val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"), TimEx("February 2017"), TimEx("June 2017"), GeoLoc("Unity State"))
+    val conditions1 = NodeSpec("famine conditions", Dec("no longer occurring"), TimEx("February 2017"), TimEx("late June 2017"), GeoLoc("Unity State"))
     
     // Sentence 2
     // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
@@ -217,7 +217,7 @@ reportedly left their living areas.
 
     // Sentence 2
     val production = NodeSpec("crop production", Dec("lower"))
-    val displacements = NodeSpec("recent massive displacements", Quant("massive"), TimEx("recent"))
+    val displacements = NodeSpec("recent massive displacements", Quant("massive"))
 
     // Sentence 3
     val population = NodeSpec("population of the former Central Equatoria State", Quant("75 percent"))
