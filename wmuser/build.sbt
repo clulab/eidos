@@ -1,5 +1,5 @@
 
-name := "wmconsumer"
+name := "wmuser"
 organization := "org.clulab"
 
 scalaVersion := "2.12.4"
