@@ -66,7 +66,7 @@ object EvalTimeNorm {
 
       // Build a Timex for each Time attachment
       val mentions = eidosSystem.extractMentionsFrom(doc)
-      val predictTimex = mentions.flatMap(_.attachments).zipWithIndex.map{
+      val predictTimex = mentions.flatMap(_.attachments).zipWithIndex.collect {
         case (time: Time, tidx: Int) =>
           val span = time.interval.span
           val timexStrg = docText.slice(span.start, span.end)
