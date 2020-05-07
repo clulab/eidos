@@ -8,8 +8,6 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
 import org.clulab.wm.eidos.utils.StringUtils
 
-import scala.collection.mutable
-
 object CullVectors extends App {
 
   def l2(values: Array[Float]): Float =
