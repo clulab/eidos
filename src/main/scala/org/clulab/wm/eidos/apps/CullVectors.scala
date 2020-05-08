@@ -35,7 +35,7 @@ object CullVectors extends App {
 
   def keepByIndex(index: Int, freq: Int): Boolean = 0 <= index && index < limit
 
-  def keepByFreq(index: Int, freq: Int): Boolean = freq <= limit
+  def keepByFreq(index: Int, freq: Int): Boolean = 0 <= index && limit <= freq
 
   val keep = keepByFreq _
 
