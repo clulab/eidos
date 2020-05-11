@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.expansion.ConceptExpander
 import org.clulab.wm.eidos.expansion.Expander
+import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings._
@@ -24,6 +25,7 @@ case class EidosComponents(
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
   actions: EidosActions,
+  mostCompleteEventsKeeper: MostCompleteEventsKeeper,
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
   entityFinders: Seq[Finder],
@@ -43,8 +45,10 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var negationHandlerOpt: Option[NegationHandler] = None
   var migrationHandlerOpt: Option[MigrationHandler] = None
   var stopwordManagerOpt: Option[StopwordManager] = None
+  var mostCompleteEventsKeeperOpt: Option[MostCompleteEventsKeeper] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
   var actionsOpt: Option[EidosActions] = None
+
   var engineOpt: Option[ExtractorEngine] = None
   var hedgingHandlerOpt: Option[HypothesisHandler] = None
   var entityFindersOpt: Option[Seq[Finder]] = None
@@ -55,7 +59,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   def add(config: Config): Unit = add(config, None)
 
   def add(config: Config, eidosComponents: EidosComponents): EidosComponentsBuilder =
-      add(config, Some(eidosComponents))
+    add(config, Some(eidosComponents))
 
   def add(config: Config, eidosComponentsOpt: Option[EidosComponents]): EidosComponentsBuilder = {
     val reloading: Boolean = eidosComponentsOpt.isDefined
@@ -131,6 +135,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       stopwordManagerOpt.get,
       ontologyHandlerOpt.get,
       actionsOpt.get,
+      mostCompleteEventsKeeperOpt.get,
       engineOpt.get,
       hedgingHandlerOpt.get,
       entityFindersOpt.get,

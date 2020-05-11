@@ -44,7 +44,7 @@ class EidosSystem(val components: EidosComponents) {
   // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
   // val cagRelevant = keepCAGRelevant(events)
   protected val headOdinRefiners: Seq[OdinRefiner] = Seq(
-    new OdinRefiner("KeepMostCompleteEvents", (odinMentions: Seq[Mention]) => { components.actions.keepMostCompleteEvents(odinMentions) }),
+    new OdinRefiner("MostCompleteEventsKeeper",  (odinMentions: Seq[Mention]) => { components.mostCompleteEventsKeeper.keepMostCompleteEvents(odinMentions) }),
     new OdinRefiner("Distinct", (odinMentions: Seq[Mention]) => { odinMentions.distinct })
   )
 
