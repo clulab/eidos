@@ -2,6 +2,8 @@ package org.clulab.wm.eidos.utils
 
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.collection.mutable
+
 class Timer(val description: String) {
   var elapsedTime: Option[Long] = None
   var startTime: Option[Long] = None
@@ -42,6 +44,21 @@ class Timer(val description: String) {
 object Timer {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
+  val elapsedTimes: mutable.Map[String, Long] = mutable.Map.empty
+
+  def addTime(key: String, milliseconds: Long): Unit = this synchronized {
+    val oldTime = elapsedTimes.getOrElseUpdate(key, 0)
+    val newTime = oldTime + milliseconds
+
+    elapsedTimes.update(key, newTime)
+  }
+
+  def summarize: Unit = {
+    elapsedTimes.toSeq.sorted.foreach { case (key, milliseconds) =>
+      logger.info(s"\tTotal\t$key\t$milliseconds")
+    }
+  }
+
   def diffToString(diff: Long): String = {
     val  days = (diff / (1000 * 60 * 60 * 24)) / 1
     val hours = (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
@@ -65,6 +82,7 @@ object Timer {
     val diff = t1 - t0
     if (verbose) logger.info(s"\tDiff\t$description\t$diff\tms")
     if (verbose) logger.info(s"\tTime\t$description\t${diffToString(diff)}")
+    addTime(description, diff)
     result
   }
 }

@@ -61,10 +61,12 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
   var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
 
+  var useTimer = true
+
   def loadComponents(componentLoaders: Seq[ComponentLoader]): Unit = {
     Timer.time("Complete parallel load") {
       componentLoaders.par.foreach { componentLoader =>
-        Timer.time(componentLoader.name) {
+        Timer.time("Load " + componentLoader.name, useTimer) {
           componentLoader.load()
         }
       }

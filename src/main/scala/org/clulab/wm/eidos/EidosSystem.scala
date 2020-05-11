@@ -89,7 +89,7 @@ class EidosSystem(val components: EidosComponents) {
   // If there is a document time involved, please place it in the metadata
   // and use one of the calls that takes it into account.
   def annotate(text: String): Document = {
-    val tokenizedDoc = Timer.time("Processors", useTimer) {
+    val tokenizedDoc = Timer.time("Run Processors", useTimer) {
       components.proc.mkDocument(text, keepText = true)
     } // This must now be true.
     val annotatedDoc = annotateDoc(tokenizedDoc)
@@ -107,7 +107,7 @@ class EidosSystem(val components: EidosComponents) {
     // Prepare the initial state.  If you are using the entity finder, then it
     // contains the found entities; otherwise, it is empty.
     val initialState = components.entityFinders.foldLeft(emptyState) { (state, entityFinder) =>
-      Timer.time(entityFinder.getClass.getSimpleName, useTimer) {
+      Timer.time("Run " + entityFinder.getClass.getSimpleName, useTimer) {
         val mentions = entityFinder.find(doc, state)
 
         state.updated(mentions)
@@ -127,7 +127,7 @@ class EidosSystem(val components: EidosComponents) {
 
   protected def refine[T](refiners: Seq[Refiner[T]], mentions: Seq[T]): Seq[T] = {
     val lastMentions = refiners.foldLeft(mentions) { (prevMentions, refiner) =>
-      Timer.time(refiner.name, useTimer) {
+      Timer.time("Run " + refiner.name, useTimer) {
         val nextMentions = refiner.refine(prevMentions)
 
         nextMentions // inspect here
