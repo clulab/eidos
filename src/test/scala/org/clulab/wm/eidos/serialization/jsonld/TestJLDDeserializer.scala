@@ -3,14 +3,6 @@ package org.clulab.wm.eidos.serialization.json
 import java.time.LocalDateTime
 
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
-import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
-import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.json4s.jackson.JsonMethods._
-import JLDDeserializer.DocumentMap
-import JLDDeserializer.DocumentSentenceMap
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.attachments.CountAttachment
@@ -33,15 +25,23 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
-import org.clulab.wm.eidos.groundings.AdjectiveGrounder
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer.CountMap
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer.DctMap
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer.GeolocMap
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer.MentionMap
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer.ProvenanceMap
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.CountMap
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DctMap
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentMap
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentSentenceMap
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.GeolocMap
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.MentionMap
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.ProvenanceMap
+import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.FileUtils
 import org.json4s.JArray
+import org.json4s.jackson.JsonMethods._
 
 import scala.collection.Seq
 
@@ -61,7 +61,7 @@ class TestJLDDeserializer extends ExtractionTest {
 
   def serialize(corpus: Corpus): String = {
     val json = {
-      val jldCorpus = new JLDEidosCorpus(corpus)
+      val jldCorpus = new JLDCorpus(corpus)
       val jValue = jldCorpus.serialize()
       stringify(jValue, pretty = true)
     }
@@ -770,7 +770,7 @@ class TestJLDDeserializer extends ExtractionTest {
 
       def serialize(original: AnnotatedDocument): String = {
         val corpus = Seq(original)
-        val jldCorpus = new JLDEidosCorpus(corpus)
+        val jldCorpus = new JLDCorpus(corpus)
         val jValue = jldCorpus.serialize()
         val json = stringify(jValue, pretty = true)
 

@@ -33,7 +33,7 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 
@@ -52,7 +52,7 @@ class TestJLDSerializer extends ExtractionTest {
   
   def serialize(corpus: Corpus): String = {
     val json = {
-      val jldCorpus = new JLDEidosCorpus(corpus)
+      val jldCorpus = new JLDCorpus(corpus)
       val jValue = jldCorpus.serialize()
       stringify(jValue, pretty = true)
     }

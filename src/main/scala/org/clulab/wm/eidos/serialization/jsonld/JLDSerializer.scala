@@ -1,12 +1,13 @@
-package org.clulab.wm.eidos.serialization.json
+package org.clulab.wm.eidos.serialization.jsonld
 
 import java.io.PrintWriter
+import java.time.LocalDateTime
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
-import java.time.LocalDateTime
 
+import org.clulab.odin.Attachment
 import org.clulab.odin.EventMention
-import org.clulab.odin.{Attachment, Mention}
+import org.clulab.odin.Mention
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.serialization.json.stringify
@@ -19,16 +20,21 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
-import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyGrounding}
+import org.clulab.wm.eidos.groundings.AdjectiveGrounding
+import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosCrossSentenceEventMention
-import org.clulab.wm.eidos.mentions.{EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
-import org.json4s._
+import org.clulab.wm.eidos.mentions.EidosCrossSentenceMention
+import org.clulab.wm.eidos.mentions.EidosEventMention
+import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.mentions.EidosTextBoundMention
+import org.clulab.wm.eidos.serialization.utils.TidyJObject
 import org.json4s.JsonDSL._
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import scala.collection.mutable
