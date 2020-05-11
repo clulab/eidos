@@ -120,8 +120,9 @@ object CdrText {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def apply(file: File): CdrText = {
-    val json = FileUtils.getTextFromFile(file)
+  def apply(file: File): CdrText = apply(FileUtils.getTextFromFile(file))
+
+  def apply(json: String): CdrText = {
     val jValue = JsonMethods.parse(json)
     // If there is a _source, it came from an elastic search and the cdr is inside it.
     val cdrValue = (jValue \ "_source").extractOpt[JObject].getOrElse(jValue)

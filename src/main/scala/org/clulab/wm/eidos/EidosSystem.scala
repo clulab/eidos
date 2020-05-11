@@ -11,26 +11,26 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Timer
 
 /**
-  * A system for text processing and information extraction
-  *
-  * Eidos accepts text, uses the processors project (via a modified EidosProcessor) to tokenize and annotate
-  * it into a Document, tasks an engine from the odin project to extract Mentions from it with the help of local
-  * Actions and Finders, repeatedly refines the odin mentions with OdinRefiners, converts them into EidosMentions,
-  * refines those with EidosRefiners, and finally incorporates them into an AnnotatedDocument.
-  *
-  * OdinRefiners is a collection of functions that each refines (convert, transform, modifies) a Seq[Mention]
-  * (odin Mentions) to another Seq[Mention] which will be fed into the next refiner.
-  *
-  * EidosRefiners do the same, but with EidosMentions: Seq[EidosMention] => Seq[EidosMention].
-  *
-  * The collections of refiners form a pipeline which can be configured at runtime or even be supplied to
-  * Eidos from elsewhere.
-  */
+ * A system for text processing and information extraction
+ *
+ * Eidos accepts text, uses the processors project (via a modified EidosProcessor) to tokenize and annotate
+ * it into a Document, tasks an engine from the odin project to extract Mentions from it with the help of local
+ * Actions and Finders, repeatedly refines the odin mentions with OdinRefiners, converts them into EidosMentions,
+ * refines those with EidosRefiners, and finally incorporates them into an AnnotatedDocument.
+ *
+ * OdinRefiners is a collection of functions that each refines (convert, transform, modifies) a Seq[Mention]
+ * (odin Mentions) to another Seq[Mention] which will be fed into the next refiner.
+ *
+ * EidosRefiners do the same, but with EidosMentions: Seq[EidosMention] => Seq[EidosMention].
+ *
+ * The collections of refiners form a pipeline which can be configured at runtime or even be supplied to
+ * Eidos from elsewhere.
+ */
 class EidosSystem(val components: EidosComponents) {
   // The "copy constructor" below will take cheap-to-update values from the config, but expensive
   // values from eidosSystem.components, if present  It is the new reload().
   def this(config: Config, eidosSystemOpt: Option[EidosSystem] = None) =
-    this(new EidosComponentsBuilder(EidosSystem.PREFIX).add(config, eidosSystemOpt.map(_.components)).build())
+      this(new EidosComponentsBuilder(EidosSystem.PREFIX).add(config, eidosSystemOpt.map(_.components)).build())
   def this() = this(EidosSystem.defaultConfig)
   // Python now uses the default, empty constructor above, but the line below remains for documentation purposes.
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
@@ -137,14 +137,15 @@ class EidosSystem(val components: EidosComponents) {
   }
 
   def refineOdinMentions(odinRefiners: Seq[Refiner[Mention]], odinMentions: Seq[Mention]): Seq[Mention] =
-    refine[Mention](odinRefiners, odinMentions)
+      refine[Mention](odinRefiners, odinMentions)
 
   def refineEidosMentions(eidosRefiners: Seq[Refiner[EidosMention]], eidosMentions: Seq[EidosMention]): Seq[EidosMention] =
     refine[EidosMention](eidosRefiners, eidosMentions)
 
   // This could be used with more dynamically configured refiners, especially if made public.
+  // Refining is where, e.g., grounding and filtering happens.
   protected def extractFromDoc(doc: Document, odinRefiners: Seq[Refiner[Mention]],
-    eidosRefiners: Seq[Refiner[EidosMention]]): AnnotatedDocument = {
+      eidosRefiners: Seq[Refiner[EidosMention]]): AnnotatedDocument = {
     val odinMentions = mkMentions(doc)
     val refinedOdinMentions = refineOdinMentions(odinRefiners, odinMentions)
     val eidosMentions = EidosMention.asEidosMentions(refinedOdinMentions)
@@ -210,7 +211,7 @@ class EidosSystem(val components: EidosComponents) {
   protected def debugPrint(message: String): Unit = if (debug) EidosSystem.logger.debug(message)
 
   protected def debugMentions(mentions: Seq[Mention]): Unit =
-    mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
+      mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
 }
 
 class Refiner[T](val name: String, val refine: Seq[T] => Seq[T])

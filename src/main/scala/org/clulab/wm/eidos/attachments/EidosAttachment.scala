@@ -754,7 +754,7 @@ class CountAttachment(text: String, val migrationGroupCount: MigrationGroupCount
     val startOffset: Int, val endOffset: Int) extends ContextAttachment(text, migrationGroupCount) {
   // Unlike other examples of ContextAttachments, this attachment itself keeps track of offsets.
   // There is no independent reference to the migrationGroupCount sent to the superclass constructor.
-  // The "this" that we're interested in and it needs to be overridden here.
+  // This is the "this" that we're interested in and it needs to be overridden here.
   override val value: CountAttachment = this // "this" isn't allowed in the constructor
 
   override def toString: String =

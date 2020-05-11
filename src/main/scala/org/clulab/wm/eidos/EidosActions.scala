@@ -16,6 +16,7 @@ import org.clulab.wm.eidos.attachments.CountModifier._
 import org.clulab.wm.eidos.attachments.CountUnit._
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
+import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.wm.eidos.utils.TagSet
 import org.slf4j.Logger
@@ -47,7 +48,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
     // Merge attachments
     val merged = mergeAttachments(expanded, state.updated(expanded))
     // Keep only the most complete version of any given Mention
-    /*val mostComplete =*/ mostCompleteEventsKeeper.keepMostCompleteEvents(merged, state.updated(merged))
+//    /*val mostComplete =*/ keepMostCompleteEvents(merged, state.updated(merged))
     // If the cause of an event is itself another event, replace it with the nested event's effect
     // collect all effects from causal events
     val (causal, nonCausal) = merged.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
@@ -69,12 +70,12 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
   protected def getCount(groupArg: Mention, numberArg: NumberArg): CountAndProvenance = {
     (
-        numberArg._3,
-        (
-            groupArg.sentenceObj.words.slice(numberArg._1, numberArg._2).mkString(" "),
-            groupArg.sentenceObj.startOffsets(numberArg._1),
-            groupArg.sentenceObj.endOffsets(numberArg._2 - 1)
-        )
+      numberArg._3,
+      (
+        groupArg.sentenceObj.words.slice(numberArg._1, numberArg._2).mkString(" "),
+        groupArg.sentenceObj.startOffsets(numberArg._1),
+        groupArg.sentenceObj.endOffsets(numberArg._2 - 1)
+      )
     )
   }
 
@@ -188,10 +189,10 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
   }
 
   def migrationActionFlow(mentions: Seq[Mention], state: State): Seq[Mention] =
-    withArgs(normalizeGroup(mentions, state))
+      withArgs(normalizeGroup(mentions, state))
 
   def withArgs(mentions: Seq[Mention]): Seq[Mention] =
-    mentions.filter(_.arguments.nonEmpty)
+      mentions.filter(_.arguments.nonEmpty)
 
   protected def extractNumber(sentence: Sentence, startGroup: Int, endGroup: Int): Option[(Int, Int, Double)] = {
     // we need the NER tags for number extraction; these are better than regexes!
@@ -314,10 +315,10 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
         // Here, we want to keep the theme that is being modified, not the modification event itself
         case rm: RelationMention =>
           val theme = mostCompleteEventsKeeper.tieBreaker(rm.arguments("theme")).asInstanceOf[TextBoundMention]
-          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${rm.foundBy}")
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = FoundBy(theme).add(rm))
         case em: EventMention =>
           val theme = mostCompleteEventsKeeper.tieBreaker(em.arguments("theme")).asInstanceOf[TextBoundMention]
-          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = s"${theme.foundBy}++${em.foundBy}")
+          theme.copy(attachments = theme.attachments ++ Set(attachment), foundBy = FoundBy(theme).add(em))
       }
     } yield copyWithMod
   }
@@ -359,8 +360,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
       flattenedContextAttachments = entities.flatMap(_.attachments.collect{ case a: ContextAttachment => a })
       filteredAttachments = filterAttachments(flattenedTriggeredAttachments)
     }
-      yield {
-        val bestEntities =
+    yield {
+      val bestEntities =
           if (filteredAttachments.nonEmpty) {
             val bestAttachment = filteredAttachments.sorted.reverse.head
             // Since head was used above and there could have been a tie, == should be used below
@@ -370,8 +371,8 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
           else
             entities
 
-        MentionUtils.withOnlyAttachments(mostCompleteEventsKeeper.tieBreaker(bestEntities), filteredAttachments ++ flattenedContextAttachments)
-      }
+      MentionUtils.withOnlyAttachments(mostCompleteEventsKeeper.tieBreaker(bestEntities), filteredAttachments ++ flattenedContextAttachments)
+    }
 
     val res = mostCompleteEventsKeeper.keepMostCompleteEvents(mergedEntities.toSeq ++ nonentities, state)
     res
@@ -393,7 +394,7 @@ class EidosActions(val expansionHandler: Option[Expander], val coref: Option[Cor
 
   // Keep the most complete attachment here.
   protected def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
-    attachments.maxBy(_.argumentSize)
+      attachments.maxBy(_.argumentSize)
 
   // Filter out substring attachments.
   protected def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] = {
