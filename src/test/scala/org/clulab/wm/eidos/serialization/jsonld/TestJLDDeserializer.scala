@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.json
+package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 
@@ -28,8 +28,6 @@ import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
-import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.CountMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentMap

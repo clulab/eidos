@@ -1,16 +1,15 @@
-package org.clulab.wm.eidos.serialization.json
+package org.clulab.wm.eidos.serialization.jsonld
 
 import java.util.{HashMap => JHashMap}
 
-import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.text.english.cag.CAG._
 import com.github.jsonldjava.core.JsonLdOptions
 import com.github.jsonldjava.core.JsonLdProcessor
 import com.github.jsonldjava.utils.JsonUtils
-import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.text.english.cag.CAG._
 
 import scala.collection.Seq
 
