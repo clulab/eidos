@@ -205,7 +205,7 @@ object CompactDomainOntology {
           else
             -1
 
-      0.until(treeDomainOntology.size).foreach { i =>
+      treeDomainOntology.indices.foreach { i =>
         append(treeDomainOntology.getParents(i))
       }
       parentMap
@@ -214,7 +214,7 @@ object CompactDomainOntology {
     protected def mkLeafStringMap(): MutableHashMap[String, Int] = {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
 
-      0.until(treeDomainOntology.size).foreach { i =>
+      treeDomainOntology.indices.foreach { i =>
         treeDomainOntology.getValues(i).foreach(append(stringMap, _))
       }
       stringMap
@@ -224,7 +224,7 @@ object CompactDomainOntology {
       val stringBuffer = new ArrayBuffer[String]()
       val startIndexBuffer = new Array[Int](treeDomainOntology.size + 1)
 
-      0.until(treeDomainOntology.size).foreach { i =>
+      treeDomainOntology.indices.foreach { i =>
         startIndexBuffer(i) = stringBuffer.size
 
         val optionRegexes = treeDomainOntology.getPatterns(i)
@@ -248,7 +248,7 @@ object CompactDomainOntology {
       parentSeq.foreach { case (ontologyParentNode, _)  =>
         append(stringMap, ontologyParentNode.escaped)
       }
-      0.until(treeDomainOntology.size).foreach { i =>
+      treeDomainOntology.indices.foreach { i =>
         append(stringMap, treeDomainOntology.getNode(i).escaped)
       }
       stringMap
@@ -258,7 +258,7 @@ object CompactDomainOntology {
       val stringIndexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new ArrayBuffer[Int]()
 
-      0.until(treeDomainOntology.size).foreach { i =>
+      treeDomainOntology.indices.foreach { i =>
         startIndexBuffer += stringIndexBuffer.size
         treeDomainOntology.getValues(i).foreach { value =>
           stringIndexBuffer += leafStringMap(value)
@@ -271,7 +271,7 @@ object CompactDomainOntology {
     protected def mkLeafIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
 
-      0.until(treeDomainOntology.size).foreach { i =>
+      treeDomainOntology.indices.foreach { i =>
         val node: HalfOntologyLeafNode = treeDomainOntology.getNode(i)
 
         indexBuffer += parentMap.get(node.parent)._1 // parentOffset

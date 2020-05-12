@@ -16,7 +16,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 object ReconstituteAndExport extends App with Configured {
 
 
-  val config = ConfigFactory.load("eidos")
+  val config = ConfigFactory.load(EidosSystem.defaultConfig)
   override def getConf: Config = config
 
   val inputDir = getArgString("apps.inputDirectory", None)

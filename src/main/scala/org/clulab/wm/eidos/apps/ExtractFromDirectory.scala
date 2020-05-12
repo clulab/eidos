@@ -6,6 +6,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Timer
 
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
@@ -17,7 +18,7 @@ object ExtractFromDirectory extends App {
   val eidosSystem = new EidosSystem
 
   // For each file in the input directory
-  files.par.foreach { file =>
+  files.foreach { file =>
     println(s"Extracting from ${file.getName}")
     // 1. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
@@ -28,4 +29,5 @@ object ExtractFromDirectory extends App {
       new JLDCorpus(annotatedDocument).serialize(printWriter)
     }
   }
+  Timer.summarize
 }

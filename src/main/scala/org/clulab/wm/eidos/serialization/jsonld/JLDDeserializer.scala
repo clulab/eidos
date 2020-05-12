@@ -640,8 +640,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "causation") {
           require(JLDRelationCausation.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("source").nonEmpty)
-          require(misnamedArguments.get("destination").nonEmpty)
+          require(misnamedArguments.contains("source"))
+          require(misnamedArguments.contains("destination"))
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> misnamedArguments("source"),
             "effect" -> misnamedArguments("destination")
@@ -652,8 +652,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "positiveaffect") {
           require(JLDRelationPositiveAffect.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("source").nonEmpty)
-          require(misnamedArguments.get("destination").nonEmpty)
+          require(misnamedArguments.contains("source"))
+          require(misnamedArguments.contains("destination"))
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> misnamedArguments("source"),
             "effect" -> misnamedArguments("destination")
@@ -664,8 +664,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "negativeaffect") {
           require(JLDRelationNegativeAffect.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("source").nonEmpty)
-          require(misnamedArguments.get("destination").nonEmpty)
+          require(misnamedArguments.contains("source"))
+          require(misnamedArguments.contains("destination"))
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> misnamedArguments("source"),
             "effect" -> misnamedArguments("destination")
@@ -676,7 +676,7 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "correlation") {
           require(JLDRelationCorrelation.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("argument").nonEmpty)
+          require(misnamedArguments.contains("argument"))
           require(misnamedArguments("argument").size == 2)
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> Seq(misnamedArguments("argument").head),
@@ -688,8 +688,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "coreference") {
           require(JLDRelationCoreference.taxonomy == labels.head)
           require(triggerOpt.isEmpty)
-          require(misnamedArguments.get("anchor").nonEmpty)
-          require(misnamedArguments.get("reference").nonEmpty)
+          require(misnamedArguments.contains("anchor"))
+          require(misnamedArguments.contains("reference"))
           require(misnamedArguments.get("anchor").size == 1)
           require(misnamedArguments.get("reference").size == 1)
           val anchor = misnamedArguments("anchor").head

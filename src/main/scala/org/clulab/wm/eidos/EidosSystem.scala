@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.utils.Timer
 
 /**
  * A system for text processing and information extraction
@@ -36,41 +37,42 @@ class EidosSystem(val components: EidosComponents) {
 
   protected val emptyState = new State() // Keep this around for reuse.
   protected val debug = true
+  protected val useTimer = false
 
   // This abbreviated collection is used in a couple of apps that do not need the entire pipeline.
   // Note: In main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
   // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
   // val cagRelevant = keepCAGRelevant(events)
-  protected val headOdinRefiners = Seq(
-    (odinMentions: Seq[Mention]) => { components.actions.keepMostCompleteEvents(odinMentions) },
-    (odinMentions: Seq[Mention]) => { odinMentions.distinct }
+  protected val headOdinRefiners: Seq[OdinRefiner] = Seq(
+    new OdinRefiner("MostCompleteEventsKeeper",  (odinMentions: Seq[Mention]) => { components.mostCompleteEventsKeeper.keepMostCompleteEvents(odinMentions) }),
+    new OdinRefiner("Distinct", (odinMentions: Seq[Mention]) => { odinMentions.distinct })
   )
 
   // This is the pipeline for odin Mentions.
-  protected def mkOdinRefiners(options: EidosSystem.Options): Seq[EidosSystem.OdinRefiner] = {
+  protected def mkOdinRefiners(options: EidosSystem.Options): Seq[OdinRefiner] = {
     val tailOdinRefiners = Seq(
-      (odinMentions: Seq[Mention]) => { components.conceptExpander.expand(odinMentions) },
-      (odinMentions: Seq[Mention]) => { components.nestedArgumentExpander.traverse(odinMentions) },
-      (odinMentions: Seq[Mention]) => {
+      new OdinRefiner("ConceptExpander",        (odinMentions: Seq[Mention]) => { components.conceptExpander.expand(odinMentions) }),
+      new OdinRefiner("NestedArgumentExpander", (odinMentions: Seq[Mention]) => { components.nestedArgumentExpander.traverse(odinMentions) }),
+      new OdinRefiner("StopwordManager",        (odinMentions: Seq[Mention]) => {
         // This exception is dependent on runtime options.
         if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(odinMentions)
         else odinMentions
-      },
-      (odinMentions: Seq[Mention]) => { components.hedgingHandler.detectHypotheses(odinMentions) },
-      (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) },
-      (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) }
+      }),
+      new OdinRefiner("HedgingHandler",         (odinMentions: Seq[Mention]) => { components.hedgingHandler.detectHypotheses(odinMentions) }),
+      new OdinRefiner("NegationHandler",        (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) }),
+      new OdinRefiner("MigrationHandler",       (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) })
     )
 
     headOdinRefiners ++ tailOdinRefiners
   }
 
   // This is the pipeline for EidosMentions.
-  protected def mkEidosRefiners(options: EidosSystem.Options): Seq[EidosSystem.EidosRefiner] = Seq(
-    (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) },
-    (eidosMentions: Seq[EidosMention]) => {
-      EidosMention.findReachableEidosMentions(eidosMentions).foreach(_.groundAdjectives(components.adjectiveGrounder))
+  protected def mkEidosRefiners(options: EidosSystem.Options): Seq[EidosRefiner] = Seq(
+    new EidosRefiner("OntologyHandler",   (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) }),
+    new EidosRefiner("AdjectiveGrounder", (eidosMentions: Seq[EidosMention]) => {
+      eidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
       eidosMentions
-    }
+    })
   )
 
   // ---------------------------------------------------------------------------------------------
@@ -87,7 +89,9 @@ class EidosSystem(val components: EidosComponents) {
   // If there is a document time involved, please place it in the metadata
   // and use one of the calls that takes it into account.
   def annotate(text: String): Document = {
-    val tokenizedDoc = components.proc.mkDocument(text, keepText = true) // This must now be true.
+    val tokenizedDoc = Timer.time("Run Processors", useTimer) {
+      components.proc.mkDocument(text, keepText = true)
+    } // This must now be true.
     val annotatedDoc = annotateDoc(tokenizedDoc)
 
     annotatedDoc
@@ -103,9 +107,11 @@ class EidosSystem(val components: EidosComponents) {
     // Prepare the initial state.  If you are using the entity finder, then it
     // contains the found entities; otherwise, it is empty.
     val initialState = components.entityFinders.foldLeft(emptyState) { (state, entityFinder) =>
-      val mentions = entityFinder.find(doc, state)
+      Timer.time("Run " + entityFinder.getClass.getSimpleName, useTimer) {
+        val mentions = entityFinder.find(doc, state)
 
-      state.updated(mentions)
+        state.updated(mentions)
+      }
     }
 
     // It is believed that toVector is required to avoid some race conditions within the engine.
@@ -119,25 +125,27 @@ class EidosSystem(val components: EidosComponents) {
     refineOdinMentions(headOdinRefiners, odinMentions)
   }
 
-  protected def refine[T](refiners: Seq[EidosSystem.Refiner[T]], mentions: Seq[T]): Seq[T] = {
+  protected def refine[T](refiners: Seq[Refiner[T]], mentions: Seq[T]): Seq[T] = {
     val lastMentions = refiners.foldLeft(mentions) { (prevMentions, refiner) =>
-      val nextMentions = refiner(prevMentions)
+      Timer.time("Run " + refiner.name, useTimer) {
+        val nextMentions = refiner.refine(prevMentions)
 
-      nextMentions // inspect here
+        nextMentions // inspect here
+      }
     }
-
     lastMentions
   }
 
-  def refineOdinMentions(odinRefiners: Seq[EidosSystem.OdinRefiner], odinMentions: Seq[Mention]): Seq[Mention] =
+  def refineOdinMentions(odinRefiners: Seq[Refiner[Mention]], odinMentions: Seq[Mention]): Seq[Mention] =
       refine[Mention](odinRefiners, odinMentions)
 
-  def refineEidosMentions(eidosRefiners: Seq[EidosSystem.EidosRefiner], eidosMentions: Seq[EidosMention]): Seq[EidosMention] =
-      refine[EidosMention](eidosRefiners, eidosMentions)
+  def refineEidosMentions(eidosRefiners: Seq[Refiner[EidosMention]], eidosMentions: Seq[EidosMention]): Seq[EidosMention] =
+    refine[EidosMention](eidosRefiners, eidosMentions)
 
   // This could be used with more dynamically configured refiners, especially if made public.
-  protected def extractFromDoc(doc: Document, odinRefiners: Seq[EidosSystem.OdinRefiner],
-      eidosRefiners: Seq[EidosSystem.EidosRefiner]): AnnotatedDocument = {
+  // Refining is where, e.g., grounding and filtering happens.
+  protected def extractFromDoc(doc: Document, odinRefiners: Seq[Refiner[Mention]],
+      eidosRefiners: Seq[Refiner[EidosMention]]): AnnotatedDocument = {
     val odinMentions = mkMentions(doc)
     val refinedOdinMentions = refineOdinMentions(odinRefiners, odinMentions)
     val eidosMentions = EidosMention.asEidosMentions(refinedOdinMentions)
@@ -206,11 +214,13 @@ class EidosSystem(val components: EidosComponents) {
       mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
 }
 
-object EidosSystem {
-  type Refiner[T] = Seq[T] => Seq[T]
-  type OdinRefiner = Refiner[Mention]
-  type EidosRefiner = Refiner[EidosMention]
+class Refiner[T](val name: String, val refine: Seq[T] => Seq[T])
 
+class OdinRefiner(name: String, refine: Seq[Mention] => Seq[Mention]) extends Refiner[Mention](name, refine)
+
+class EidosRefiner(name: String, refine: Seq[EidosMention] => Seq[EidosMention]) extends Refiner[EidosMention](name, refine)
+
+object EidosSystem {
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   protected val PREFIX = "EidosSystem"

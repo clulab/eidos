@@ -40,6 +40,11 @@ class TestJLDSerializer extends ExtractionTest {
 
   def newTitledAnnotatedDocument(text: String): AnnotatedDocument = newTitledAnnotatedDocument(text, text)
 
+  // TODO: Find a way, perhaps with a refiner, to add new or manipulate existing mentions
+  // in the annotated document.  It should make use of this entrypoint:
+  // protected def extractFromDoc(doc: Document, odinRefiners: Seq[Refiner[Mention]],
+  //     eidosRefiners: Seq[Refiner[EidosMention]]): AnnotatedDocument = {
+
   def newTitledAnnotatedDocument(text: String, title: String): AnnotatedDocument = {
     val annotatedDocument = ieSystem.extractFromText(text)
 
