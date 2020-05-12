@@ -2,11 +2,12 @@ package org.clulab.wm.eidos.mentions
 
 import java.util
 
+import collection.JavaConverters._
+
 import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.attachments.TriggeredAttachment
 import org.clulab.wm.eidos.utils.HashCodeBagger
 import org.clulab.wm.eidos.utils.IdentityBagger
 
@@ -15,6 +16,7 @@ import scala.collection.mutable
 abstract class MentionMapper {
   def put(odinMention: Mention, eidosMention: EidosMention): Unit
   def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention
+  def getValues: Seq[EidosMention]
 }
 
 class HashCodeMapper extends MentionMapper {
@@ -23,6 +25,8 @@ class HashCodeMapper extends MentionMapper {
   def put(odinMention: Mention, eidosMention: EidosMention): Unit = mapOfMentions.put(odinMention, eidosMention)
 
   def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention = mapOfMentions.getOrElse(odinMention, default)
+
+  def getValues: Seq[EidosMention] = mapOfMentions.values.toSeq
 }
 
 class IdentityMapper extends MentionMapper {
@@ -33,6 +37,8 @@ class IdentityMapper extends MentionMapper {
   def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention =
       if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
       else default
+
+  def getValues: Seq[EidosMention] = mapOfMentions.values.asScala.toSeq
 }
 
 
@@ -107,12 +113,14 @@ object EidosMention {
     eidosMentions
   }
 
-  def asEidosMentions(odinMentions: Seq[Mention]): Seq[EidosMention] = {
+  def asEidosMentions(odinMentions: Seq[Mention]): (Seq[EidosMention], Seq[EidosMention]) = {
     // This will map odinMentions to eidosMentions.
     val mentionMapper = new HashCodeMapper()
     //  val mentionMapper = new IdentityMapper()
 
-    asEidosMentions(odinMentions, mentionMapper)
+    val eidosMentions = asEidosMentions(odinMentions, mentionMapper)
+    val allEidosMentions = mentionMapper.getValues
+    (eidosMentions, allEidosMentions)
   }
 
   def findReachableOdinMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {
