@@ -30,7 +30,6 @@ case class EidosComponents(
   migrationHandler: MigrationHandler,
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
-  actions: EidosActions,
   mostCompleteEventsKeeper: MostCompleteEventsKeeper,
   engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
@@ -59,7 +58,6 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var stopwordManagerOpt: Option[StopwordManager] = None
   var mostCompleteEventsKeeperOpt: Option[MostCompleteEventsKeeper] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
-  var actionsOpt: Option[EidosActions] = None
   var engineOpt: Option[ExtractorEngine] = None
   var hedgingHandlerOpt: Option[HypothesisHandler] = None
   var entityFindersOpt: Option[Seq[Finder]] = None
@@ -67,7 +65,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
   var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
 
-  var useTimer = true
+  var useTimer = false
 
   def loadComponents(componentLoaders: Seq[ComponentLoader]): Unit = {
     Timer.time("Complete parallel load", useTimer) {
@@ -110,16 +108,21 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
           EidosComponentsBuilder.logger.info("Loading processor...")
 
           procOpt = Some(EidosProcessor(language, cutoff = 150))
-        }),
-        new ComponentLoader("StopwordManager", { stopwordManagerOpt = Some(StopwordManager.fromConfig(config, procOpt.get.getTagSet)) })
+        })
       )
       // Get these out of the way so that the ontologyHandler can take its time about it
       // even while the processor is busy priming.
       loadComponents(preComponentLoaders)
 
+      val tagSet = procOpt.get.getTagSet
+      val postpreComponentLoaders = Seq(
+        new ComponentLoader("StopwordManager", { stopwordManagerOpt = Some(StopwordManager.fromConfig(config, tagSet)) }),
+      )
+      loadComponents(postpreComponentLoaders)
+
       Seq(
         new ComponentLoader("OntologyHandler", {
-          ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, procOpt.get.getTagSet))
+          ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, tagSet))
         }),
         new ComponentLoader("ProcessorsPrimer", {
           val eidosProcessor = procOpt.get
@@ -169,7 +172,6 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       migrationHandlerOpt.get,
       stopwordManagerOpt.get,
       ontologyHandlerOpt.get,
-      actionsOpt.get,
       mostCompleteEventsKeeperOpt.get,
       engineOpt.get,
       hedgingHandlerOpt.get,

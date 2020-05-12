@@ -37,7 +37,7 @@ class EidosSystem(val components: EidosComponents) {
 
   protected val emptyState = new State() // Keep this around for reuse.
   protected val debug = true
-  protected val useTimer = true
+  protected val useTimer = false
 
   // This abbreviated collection is used in a couple of apps that do not need the entire pipeline.
   // Note: In main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
