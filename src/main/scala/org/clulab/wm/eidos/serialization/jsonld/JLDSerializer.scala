@@ -32,7 +32,6 @@ import org.clulab.wm.eidos.mentions.EidosCrossSentenceMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.mentions.EidosTextBoundMention
-import org.clulab.wm.eidos.serialization.utils.TidyJObject
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._

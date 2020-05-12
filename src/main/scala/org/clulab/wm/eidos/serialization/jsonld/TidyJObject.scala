@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.utils
+package org.clulab.wm.eidos.serialization.jsonld
 
 import org.json4s._
 

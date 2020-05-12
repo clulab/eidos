@@ -4,7 +4,6 @@ import java.time.ZonedDateTime
 
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
-import com.github.worldModelers.ontologies.{Version => AwayVersion}
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
