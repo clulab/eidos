@@ -10,7 +10,7 @@ import org.clulab.utils.Configured
 import org.clulab.wm.eidos.{EidosSystem, utils}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.GroundingAnnotationExporter
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, FoundBy, ThreadUtils}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 

@@ -20,8 +20,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{DisplayUtils, DomainParams, GroundingUtils, MaaSUtils, PlayUtils}
 import play.api.mvc._
 import play.api.libs.json._
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import play.api.mvc.Action
 
 /**

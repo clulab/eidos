@@ -1,8 +1,11 @@
-package org.clulab.wm.eidos.serialization
+package org.clulab.wm.eidos.serialization.obj
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+import java.io.ByteArrayOutputStream
+import java.io.ObjectOutputStream
 
-import org.clulab.odin.{EventMention, Mention, TextBoundMention}
+import org.clulab.odin.EventMention
+import org.clulab.odin.Mention
+import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.utils.Closer.AutoCloser

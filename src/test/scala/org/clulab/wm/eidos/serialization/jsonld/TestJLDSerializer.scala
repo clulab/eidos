@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.json
+package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 
@@ -30,10 +30,7 @@ import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
-import org.clulab.wm.eidos.groundings.AdjectiveGrounder
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 
@@ -57,7 +54,7 @@ class TestJLDSerializer extends ExtractionTest {
   
   def serialize(corpus: Corpus): String = {
     val json = {
-      val jldCorpus = new JLDEidosCorpus(corpus)
+      val jldCorpus = new JLDCorpus(corpus)
       val jValue = jldCorpus.serialize()
       stringify(jValue, pretty = true)
     }

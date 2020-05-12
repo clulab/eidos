@@ -336,7 +336,7 @@ package org.yourself.eidosClient
 import scala.collection.Seq
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 
 object YourClassName extends App {
   val text = "Water trucking has decreased due to the cost of fuel."

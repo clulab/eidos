@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.apps.batch
 
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
