@@ -15,13 +15,13 @@ class TestDomainOntology extends Test {
   def matches(left: DomainOntology, right: DomainOntology): Boolean = {
 
     def getNames(domainOntology: DomainOntology): Seq[String] = {
-      0.until(domainOntology.size).map { index =>
+      domainOntology.indices.map { index =>
         domainOntology.getNamer(index).name
       }
     }
 
     def getValues(domainOntology: DomainOntology): Seq[Array[String]] = {
-      0.until(domainOntology.size).map { index =>
+      domainOntology.indices.map { index =>
         domainOntology.getValues(index)
       }
     }
@@ -38,7 +38,7 @@ class TestDomainOntology extends Test {
   def hasDuplicates(name: String, domainOntology: DomainOntology): Boolean = {
     val pathSeq = 0.until(domainOntology.size).map { i => domainOntology.getNamer(i).name }
 
-    0.until(domainOntology.size).foreach { i =>
+    domainOntology.indices.foreach { i =>
       // Just make sure this doesn't crash now.
       val branch = domainOntology.getNamer(i).branch
 //      println(branch)
@@ -72,7 +72,7 @@ class TestDomainOntology extends Test {
   val filter = true
 
   def show1(ontology: DomainOntology): Unit = {
-    0.until(ontology.size).foreach { i =>
+    ontology.indices.foreach { i =>
       println(ontology.getNamer(i).name + " = " + ontology.getValues(i).mkString(", "))
       ontology.getPatterns(i).map(_.foreach(regex => println(regex.toString)))
     }

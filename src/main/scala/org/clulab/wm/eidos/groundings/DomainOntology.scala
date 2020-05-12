@@ -15,6 +15,8 @@ trait DomainOntology {
 
   def size: Integer
 
+  def indices: Range = 0.until(size)
+
   def getNamer(n: Integer): Namer
 
   def getValues(n: Integer): Array[String]

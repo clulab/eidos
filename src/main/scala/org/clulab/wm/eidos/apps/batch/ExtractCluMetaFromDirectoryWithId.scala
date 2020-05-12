@@ -31,12 +31,14 @@ object ExtractCluMetaFromDirectoryWithId extends App {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val fileToIdMap = new mutable.HashMap[String, String]()
-    val bufferedSource = Sourcer.sourceFromFile(mapFile)
-    bufferedSource.getLines().foreach { line =>
-      val json = JsonMethods.parse(line)
-      val filename = (json \ "file_name").extract[String]
-      val id = (json \ "_id").extract[String]
-      fileToIdMap += (filename -> id)
+
+    Sourcer.sourceFromFile(mapFile).autoClose { source =>
+      source.getLines().foreach { line =>
+        val json = JsonMethods.parse(line)
+        val filename = (json \ "file_name").extract[String]
+        val id = (json \ "_id").extract[String]
+        fileToIdMap += (filename -> id)
+      }
     }
     fileToIdMap
   }

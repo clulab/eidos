@@ -108,7 +108,7 @@ class JLDSerializer {
     mkId(typename, id)
   }
 
-  protected def mkType(typename: String): JField = {
+  def mkType(typename: String): JField = {
     typenames += typename
     "@type" -> typename
   }
@@ -132,7 +132,7 @@ class JLDSerializer {
 
     val types: List[JField] = typenames.toList.sorted.map(mkContext)
 
-    new TidyJObject(types)
+    TidyJObject(types)
   }
 
   def mkRef(identity: Any): TidyJObject = {
@@ -142,7 +142,7 @@ class JLDSerializer {
 
     val field: JField = mkId(typename, id)
 
-    new TidyJObject(List(field))
+    TidyJObject(List(field))
   }
 
   def serialize(jldObjectProvider: JLDObject): JValue = {
@@ -216,7 +216,7 @@ object JLDOntologyGroundings {
 
 class JLDModifier(serializer: JLDSerializer, quantifier: String, provenance: Option[Provenance],
     adjectiveGroundingOpt: Option[AdjectiveGrounding]) extends JLDObject(serializer, JLDModifier.typename) {
-  val adjectiveGrounding = adjectiveGroundingOpt.getOrElse(JLDModifier.noAdjectiveGrounding)
+  val adjectiveGrounding: AdjectiveGrounding = adjectiveGroundingOpt.getOrElse(JLDModifier.noAdjectiveGrounding)
 
   override def toJObject: TidyJObject = {
     val jldProvenance = provenance.map(provenance => Seq(new JLDProvenance(serializer, provenance).toJObject))
@@ -237,7 +237,7 @@ object JLDModifier {
   val plural = "modifiers"
   val typename = "Modifier"
 
-  val noAdjectiveGrounding = AdjectiveGrounding(None, None, None)
+  val noAdjectiveGrounding: AdjectiveGrounding = AdjectiveGrounding(None, None, None)
 }
 
 abstract class JLDAttachment(serializer: JLDSerializer, kind: String)
@@ -418,23 +418,24 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     // the references.  This means that a duplicate, equals but not eq, count attribute will not be
     // found so that a reference cannot be generated and an exception will be thrown.  Perhaps
     // attachments need to be managed differently.
-    val jldAttachments = eidosMention.odinMention.attachments.toSeq
+    val attachments = eidosMention.odinMention.attachments.toSeq
+    val jldAttachments = attachments
         .collect{ case a: TriggeredAttachment => a }
         .sortWith(TriggeredAttachment.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldTimeAttachments = eidosMention.odinMention.attachments.toSeq
+    val jldTimeAttachments = attachments
         .collect{ case a: Time => a }
         .sortWith(Time.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldLocationAttachments = eidosMention.odinMention.attachments.toSeq
+    val jldLocationAttachments = attachments
         .collect{ case a: Location => a }
         .sortWith(Location.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldDctAttachments = eidosMention.odinMention.attachments.toSeq
+    val jldDctAttachments = attachments
         .collect{ case a: DCTime => a }
         .sortWith(DCTime.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldCountAttachments = eidosMention.odinMention.attachments.toSeq
+    val jldCountAttachments = attachments
         .collect{ case a: CountAttachment => a }
         .sortBy(countAttachment => countAttachment.startOffset)
         // Need to get the right JLD attachment from map
