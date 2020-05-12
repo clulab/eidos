@@ -128,7 +128,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
           val eidosProcessor = procOpt.get
           val tokenizedDoc = eidosProcessor.mkDocument("This is a test.", keepText = true)
 
-          eidosProcessor.annotate(tokenizedDoc)
+          if (eidosProcessor.language == "english")
+            eidosProcessor.annotate(tokenizedDoc)
         }),
         new ComponentLoader("NegationHandler", { negationHandlerOpt = Some(NegationHandler(language)) })
       )
