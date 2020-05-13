@@ -117,10 +117,13 @@ object EidosMention {
     // This will map odinMentions to eidosMentions.
     val mentionMapper = new HashCodeMapper()
     //  val mentionMapper = new IdentityMapper()
-
     val eidosMentions = asEidosMentions(odinMentions, mentionMapper)
-    val allEidosMentions = mentionMapper.getValues
-    (eidosMentions, allEidosMentions)
+    val allEidosMentions1 = mentionMapper.getValues
+    val allEidosMentions2 = EidosMention.findReachableEidosMentions(eidosMentions)
+
+//    if (allEidosMentions1.size != allEidosMentions2.size)
+//      println("Something is wrong!")
+    (eidosMentions, allEidosMentions2)
   }
 
   def findReachableOdinMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {
