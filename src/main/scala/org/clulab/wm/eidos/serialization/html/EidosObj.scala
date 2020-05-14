@@ -17,7 +17,7 @@ import play.api.libs.json.Json
 
 object EidosObj {
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Vector[Mention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
+  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Seq[Mention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
 
     // collect event mentions for display
@@ -27,13 +27,13 @@ object EidosObj {
     val relations = mentions.collect { case m: RelationMention => m }
 
     // collect triggers for event mentions
-    val triggers: Vector[TextBoundMention] = events.flatMap { e =>
+    val triggers: Seq[TextBoundMention] = events.flatMap { e =>
       val argTriggers = e.arguments.values.flatten.collect { case m: EventMention => m.trigger }
       e.trigger +: argTriggers.toVector
     }
 
     // collect event arguments as text bound mentions
-    val entities: Vector[TextBoundMention] = (events ++ relations).flatMap { e =>
+    val entities: Seq[TextBoundMention] = (events ++ relations).flatMap { e =>
       val tbms = e.arguments.values.flatten.collect {
         case m: TextBoundMention => m
         case m: RelationMention => new TextBoundMention(m.labels, m.tokenInterval, m.sentence, m.document, m.keep, m.foundBy)
@@ -60,7 +60,7 @@ object EidosObj {
     )
   }
 
-  def mkJsonFromEntities(mentions: Vector[TextBoundMention], tbmToId: Map[TextBoundMention, Int]): Json.JsValueWrapper = {
+  def mkJsonFromEntities(mentions: Seq[TextBoundMention], tbmToId: Map[TextBoundMention, Int]): Json.JsValueWrapper = {
     val entities = mentions.map(m => mkJsonFromTextBoundMention(m, tbmToId(m)))
     Json.arr(entities: _*)
   }

@@ -24,17 +24,17 @@ object HomeController extends App {
   def processText(text: String, cagRelevantOnly: Boolean): JsValue = {
     println(s"Processing sentence : $text" )
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
-    val doc = annotatedDocument.document
-    val mentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName)).toVector
     println("DONE .... ")
-    val eidosMentions = mentions.sortBy(m => (m.odinMention.sentence, m.odinMention.start))
-    val groundedEntities = GroundedEntity.groundEntities(ieSystem, mentions)
+    val doc = annotatedDocument.document
+    // This grounding should have taken place already.
+    val eidosMentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName, m.odinMention.start))
+    val groundedEntities = GroundedEntity.groundEntities(ieSystem, eidosMentions)
     val json = mkJson(text, doc, eidosMentions, groundedEntities)
 
     json
   }
 
-  def mkJson(text: String, doc: Document, eidosMentions: Vector[EidosMention], groundedEntities: Vector[GroundedEntity] ): JsValue = {
+  def mkJson(text: String, doc: Document, eidosMentions: Seq[EidosMention], groundedEntities: Vector[GroundedEntity] ): JsValue = {
     println("Found mentions (in mkJson):")
     val odinMentions = eidosMentions.map(_.odinMention)
     val timExs = ieSystem.components.timeNormFinderOpt.map(_.getTimExs(odinMentions, doc.sentences))
@@ -42,13 +42,13 @@ object HomeController extends App {
     val sent = doc.sentences.head
 
     val syntaxObj = SyntaxObj.mkJsonFromSyntax(doc, text)
-    val eidosJsonObj = EidosObj.mkJsonForEidos(text, sent, odinMentions, timExs, geoPhraseIDs)
+    val eidosObj = EidosObj.mkJsonForEidos(text, sent, odinMentions, timExs, geoPhraseIDs)
     val groundedObj = GroundedObj.mkGroundedObj(groundedEntities, eidosMentions, timExs, geoPhraseIDs)
     val parseObj = ParseObj.mkParseObj(doc)
 
     Json.obj(fields =
       "syntax" -> syntaxObj,
-      "eidosMentions" -> eidosJsonObj,
+      "eidosMentions" -> eidosObj,
       "groundedAdj" -> groundedObj,
       "parse" -> parseObj
     )

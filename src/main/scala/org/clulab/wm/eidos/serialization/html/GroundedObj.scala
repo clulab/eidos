@@ -6,13 +6,14 @@ import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.serialization.html.HomeController.tab
 import org.clulab.wm.eidos.utils.DisplayUtils
 import org.clulab.wm.eidos.utils.GroundingUtils
 
 object GroundedObj {
 
-  def mkGroundedObj(groundedEntities: Vector[GroundedEntity], mentions: Vector[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
+  def tab:String = "&nbsp;&nbsp;&nbsp;&nbsp;"
+
+  def mkGroundedObj(groundedEntities: Seq[GroundedEntity], mentions: Seq[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
 
     var objectToReturn = ""
 
