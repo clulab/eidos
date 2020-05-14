@@ -6,6 +6,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Resourcer
 
 class TestOntologyGrounder extends EnglishTest {
 
@@ -65,7 +66,7 @@ class TestOntologyGrounder extends EnglishTest {
       val unGrounding = eidosMention.grounding("un").grounding
       val grounding = unGrounding.map { case (namer, value) => (namer.name, value) }
 
-      val ontologyYaml = FileUtils.getTextFromResource("/org/clulab/wm/eidos/english/ontologies/un_ontology.yml")
+      val ontologyYaml = Resourcer.getText("/org/clulab/wm/eidos/english/ontologies/un_ontology.yml")
       val ontologyHandler = ieSystem.components.ontologyHandler
       val text = odinMention.text
       val canonicalName = eidosMention.canonicalName
