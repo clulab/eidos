@@ -36,7 +36,7 @@ object CurlProducerApp extends App {
             |-X POST "$service"
             |-H "accept: application/json"
             |-H "Content-Type: multipart/form-data"
-            |-F "metadata={ identity: \\"Eidos\\", version: \\"$version\\", document_id: \\"$docId\\" }"
+            |-F 'metadata={ "identity": "eidos", "version": "$version", "document_id": "$docId" }'
             |-F "file=@${file.getName}"
             |""".stripMargin.replace('\r', ' ').replace('\n', ' ')
 
