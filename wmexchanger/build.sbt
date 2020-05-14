@@ -1,5 +1,5 @@
 
-name := "wmuser"
+name := "wmexchanger"
 organization := "org.clulab"
 
 scalaVersion := "2.12.4"
