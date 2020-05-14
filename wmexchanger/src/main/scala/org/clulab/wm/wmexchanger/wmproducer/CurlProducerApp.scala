@@ -1,11 +1,11 @@
-package org.clulab.wm.wmproducer
+package org.clulab.wm.wmexchanger.wmproducer
 
 import com.typesafe.config.ConfigFactory
-import org.clulab.wm.utils.Closer.AutoCloser
-import org.clulab.wm.utils.FileUtils
-import org.clulab.wm.utils.PropertiesBuilder
-import org.clulab.wm.utils.Sinker
-import org.clulab.wm.utils.StringUtils
+import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
+import org.clulab.wm.wmexchanger.utils.FileUtils
+import org.clulab.wm.wmexchanger.utils.PropertiesBuilder
+import org.clulab.wm.wmexchanger.utils.Sinker
+import org.clulab.wm.wmexchanger.utils.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

@@ -1,4 +1,4 @@
-package org.clulab.wm.wmproducer
+package org.clulab.wm.wmexchanger.wmproducer
 
 import java.io.File
 import java.net.URL
@@ -14,12 +14,12 @@ import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
-import org.clulab.wm.utils.Closer.AutoCloser
-import org.clulab.wm.utils.FileEditor
-import org.clulab.wm.utils.FileUtils
-import org.clulab.wm.utils.PropertiesBuilder
-import org.clulab.wm.utils.Sourcer
-import org.clulab.wm.utils.StringUtils
+import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
+import org.clulab.wm.wmexchanger.utils.FileEditor
+import org.clulab.wm.wmexchanger.utils.FileUtils
+import org.clulab.wm.wmexchanger.utils.PropertiesBuilder
+import org.clulab.wm.wmexchanger.utils.Sourcer
+import org.clulab.wm.wmexchanger.utils.StringUtils
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 import org.slf4j.Logger
