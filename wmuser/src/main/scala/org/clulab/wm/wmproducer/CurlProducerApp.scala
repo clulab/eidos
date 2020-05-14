@@ -32,12 +32,12 @@ object CurlProducerApp extends App {
       try {
         val command = s"""curl
             |--basic
-            |--user $username:$password
+            |--user "$username:$password"
             |-X POST "$service"
             |-H "accept: application/json"
             |-H "Content-Type: multipart/form-data"
             |-F "metadata={ identity: \\"Eidos\\", version: \\"$version\\", document_id: \\"$docId\\" }"
-            |-T "${file.getName}"
+            |-F "file=@${file.getName}"
             |""".stripMargin.replace('\r', ' ').replace('\n', ' ')
 
         printWriter.print(command)

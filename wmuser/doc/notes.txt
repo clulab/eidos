@@ -1,0 +1,8 @@
+# Start up docker image
+docker run -d -p 80:8080 swaggerapi/swagger-editor
+
+# Visit localhost
+# Assuming that the docker VM allows the networking
+# Port forwarding may be necessary in VirtualBox Manager
+
+# Copy contents of openapi.yml into editor window

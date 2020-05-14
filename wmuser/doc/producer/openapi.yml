@@ -3,6 +3,8 @@ info:
   title: Reader Output Storage API
   description: Service for uploading Reader output
   version: '1.0.0'
+servers:
+  - url: https://darthost/dart/api/v1/wm-readers
 paths:
   /reader/health:
     get:
