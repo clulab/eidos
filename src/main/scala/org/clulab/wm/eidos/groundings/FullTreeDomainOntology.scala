@@ -5,7 +5,7 @@ import java.util.{Collection => JCollection, Map => JMap}
 
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, Namer}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -171,7 +171,7 @@ object FullTreeDomainOntology {
       filter: Boolean) {
 
     def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None):
-        FullTreeDomainOntology = buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
+        FullTreeDomainOntology = buildFromYaml(Resourcer.getText(ontologyPath), versionOpt, dateOpt)
 
     def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): FullTreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))

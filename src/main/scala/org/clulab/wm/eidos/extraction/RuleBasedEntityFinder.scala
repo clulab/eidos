@@ -6,6 +6,7 @@ import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.expansion.Expander
+import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.TagSet
 import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
 
@@ -124,11 +125,11 @@ object RuleBasedEntityFinder {
 
   def fromConfig(config: Config, tagSet: TagSet): RuleBasedEntityFinder = {
     val entityRulesPath = config[String]("ruleBasedEntityFinder.entityRulesPath")
-    val entityRules = FileUtils.getTextFromResource(entityRulesPath)
+    val entityRules = Resourcer.getText(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
 
     val avoidRulesPath = config[String]("ruleBasedEntityFinder.avoidRulesPath")
-    val avoidRules = FileUtils.getTextFromResource(avoidRulesPath)
+    val avoidRules = Resourcer.getText(avoidRulesPath)
     val avoidEngine = ExtractorEngine(avoidRules)
 
     val expanderConfig = config.get[Config]("ruleBasedEntityFinder.expander")

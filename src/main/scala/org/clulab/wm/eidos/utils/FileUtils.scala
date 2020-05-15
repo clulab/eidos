@@ -78,7 +78,7 @@ object FileUtils {
       }
 
   def loadYamlFromResource(path: String): Collection[Any] = {
-    val input = getTextFromResource(path)
+    val input = Resourcer.getText(path)
     val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
 
     yaml.load(input).asInstanceOf[Collection[Any]]

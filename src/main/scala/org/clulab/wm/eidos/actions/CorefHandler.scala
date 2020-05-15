@@ -6,6 +6,7 @@ import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Resourcer
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -122,7 +123,7 @@ object CausalBasicCorefHandler {
   }
 
   def readTaxonomy(path: String): Taxonomy = {
-    val input = FileUtils.getTextFromResource(path)
+    val input = Resourcer.getText(path)
     val yaml = new Yaml(new Constructor(classOf[java.util.Collection[Any]]))
     val data = yaml.load(input).asInstanceOf[java.util.Collection[Any]]
     Taxonomy(data)
