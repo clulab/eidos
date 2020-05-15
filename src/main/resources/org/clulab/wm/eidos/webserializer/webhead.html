@@ -17,6 +17,7 @@
                 console.log(eidosData);
 
                 document.getElementById("text").value = eidosData.syntax.text;
+                document.getElementById("text").disabled = true;
                 document.getElementById("submit").disabled = true;
                 document.getElementById("cagRelevantOnly").checked = cagRelevantOnly;
                 document.getElementById("cagRelevantOnly").disabled = true;
