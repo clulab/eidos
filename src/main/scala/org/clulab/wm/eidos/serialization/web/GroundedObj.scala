@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.webapp
+package org.clulab.wm.eidos.serialization.web
 
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID

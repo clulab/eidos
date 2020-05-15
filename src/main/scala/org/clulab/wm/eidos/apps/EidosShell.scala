@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.apps
 
+import com.typesafe.config.Config
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.web.WebSerializer
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
 import org.clulab.wm.eidos.utils.{CliReader, IdeReader}
 
@@ -11,21 +13,20 @@ import scala.collection.immutable.ListMap
   */
 
 object EidosShell extends App {
-
   val reader = {
     val prompt = "(Eidos)>>> "
 
     if (args.length == 0) new CliReader(prompt, "user.home", ".eidosshellhistory")
     else new IdeReader(prompt)
   }
-
   val commands = ListMap(
     ":help" -> "show commands",
     ":reload" -> "reload grammar",
     ":exit" -> "exit system"
   )
-
-  var ieSystem = new EidosSystem()
+  val eidosConfig: Config = EidosSystem.defaultConfig
+  var ieSystem = new EidosSystem(eidosConfig)
+  val webSerializer = new WebSerializer(ieSystem, eidosConfig)
 
   println("\nWelcome to the Eidos Shell!")
   printCommands()
@@ -56,15 +57,13 @@ object EidosShell extends App {
     println()
   }
 
-  def extractFrom(text:String): Unit = {
+  def extractFrom(text: String): Unit = {
+    val annotatedDocument = ieSystem.extractFromText(text)
+    val doc = annotatedDocument.document
+    val mentions = annotatedDocument.odinMentions
+    val sortedMentions = mentions.sortBy(m => (m.sentence, m.getClass.getSimpleName))
 
-    // preprocessing
-    val doc = ieSystem.annotate(text)
-
-    // extract mentions from annotated document
-    val mentions = ieSystem.extractMentionsFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
-
-    // debug display the mentions
-    displayMentions(mentions, doc, true)
+    webSerializer.serialize(annotatedDocument, cagRelevantOnly = true, "eidosshell.html")
+    displayMentions(sortedMentions, doc, true)
   }
 }

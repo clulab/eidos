@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.webapp
+package org.clulab.wm.eidos.serialization.web
 
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence

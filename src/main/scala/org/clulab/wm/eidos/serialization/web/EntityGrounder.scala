@@ -1,17 +1,14 @@
-package org.clulab.wm.eidos.serialization.webapp
+package org.clulab.wm.eidos.serialization.web
 
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.Aliases._
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Quantification
 import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.AdjectiveGrounding
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.serialization.webapp.HomeController.eidosConfig
 import org.clulab.wm.eidos.utils.DomainParams
 
 case class GroundedEntity(sentence: String,
@@ -21,14 +18,9 @@ case class GroundedEntity(sentence: String,
   mean: Option[Double],
   stdev: Option[Double])
 
-object GroundedEntity {
-  val stanza = "adjectiveGrounder"
+class EntityGrounder(val adjectiveGrounder: AdjectiveGrounder, val domainParams: DomainParams) {
 
-  val domainParams: DomainParams = DomainParams.fromConfig(eidosConfig.getConfig(stanza))
-  val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromConfig(eidosConfig.getConfig(stanza))
-
-
-  def groundEntities(ieSystem: EidosSystem, mentions: Seq[EidosMention]): Vector[GroundedEntity] = {
+  def groundEntities(mentions: Seq[EidosMention]): Seq[GroundedEntity] = {
     val gms = for {
       m <- mentions
       (quantifications, increases, decreases) = separateAttachments(m)
@@ -36,17 +28,17 @@ object GroundedEntity {
       groundedQuantifications = for {
         q <- quantifications
         quantTrigger = q.asInstanceOf[Quantification].trigger
-      } yield groundEntity(m.odinMention, quantTrigger, ieSystem)
+      } yield groundEntity( m.odinMention, quantTrigger)
 
       groundedIncreases = for {
         inc <- increases
         quantTrigger <- inc.asInstanceOf[Increase].quantifiers.getOrElse(Seq.empty[Quantifier])
-      } yield groundEntity(m.odinMention, quantTrigger, ieSystem)
+      } yield groundEntity( m.odinMention, quantTrigger)
 
       groundedDecreases = for {
         dec <- decreases
         quantTrigger <- dec.asInstanceOf[Decrease].quantifiers.getOrElse(Seq.empty[Quantifier])
-      } yield groundEntity(m.odinMention, quantTrigger, ieSystem)
+      } yield groundEntity(m.odinMention, quantTrigger)
 
 
     } yield groundedQuantifications ++ groundedIncreases ++ groundedDecreases
@@ -54,7 +46,7 @@ object GroundedEntity {
     gms.flatten.toVector
   }
 
-  def groundEntity(mention: Mention, quantifier: String, ieSystem: EidosSystem): GroundedEntity = {
+  def groundEntity(mention: Mention, quantifier: String): GroundedEntity = {
     // add the calculation
     println("loaded domain params:" + domainParams.toString())
     println(s"\tkeys: ${domainParams.keys.mkString(", ")}")

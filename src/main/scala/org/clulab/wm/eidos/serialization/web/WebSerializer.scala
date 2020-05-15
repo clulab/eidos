@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.webapp
+package org.clulab.wm.eidos.serialization.web
 
 import com.typesafe.config.Config
 import org.clulab.processors.Document
@@ -7,30 +7,17 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.DomainParams
 import play.api.libs.json._
 
-object HomeController extends App {
-  println("[EidosSystem] Initializing the EidosSystem ...")
-  val eidosConfig: Config = EidosSystem.defaultConfig
-  val ieSystem: EidosSystem = new EidosSystem(eidosConfig)
-  println("[EidosSystem] Completed Initialization ...")
+class WebSerializer(eidosSystem: EidosSystem, eidosConfig: Config) {
+  val adjectiveGrounder = eidosSystem.components.adjectiveGrounder
+  val domainParams = DomainParams.fromConfig(eidosConfig)
+  val entityGrounder = new EntityGrounder(adjectiveGrounder, domainParams)
+  val timeNormFinderOpt = eidosSystem.components.timeNormFinderOpt
+  val geoNormFinderOpt = eidosSystem.components.geoNormFinderOpt
 
-  {
-    println("[EidosSystem] Priming the EidosSystem ...")
-    // Modernize this without the fake date?
-    ieSystem.extractFromText("In 2014 drought caused a famine in Ethopia.", cagRelevantOnly = true, Some("2019-08-09"))
-    println("[EidosSystem] Completed Priming ...")
-  }
-
-  // Need name of output file
-  def processText(text: String, cagRelevantOnly: Boolean): Unit = {
-    println(s"Processing sentence : $text")
-    val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly = cagRelevantOnly)
-    println("DONE .... ")
-    process(annotatedDocument, cagRelevantOnly,"webapp.html")
-  }
-
-  def process(annotatedDocument: AnnotatedDocument, cagRelevantOnly: Boolean, fileName: String): Unit = {
+  def serialize(annotatedDocument: AnnotatedDocument, cagRelevantOnly: Boolean, fileName: String): Unit = {
     val text = annotatedDocument.document.text.get
     val json = processAnnotatedDocument(text, annotatedDocument).toString
     val oldIndexHtml = FileUtils.getTextFromFile("./webapp/app/views/index.scala.html")
@@ -46,22 +33,20 @@ object HomeController extends App {
     }
   }
 
-  // Later assume text is already there.
   def processAnnotatedDocument(text: String, annotatedDocument: AnnotatedDocument): JsValue = {
     val doc = annotatedDocument.document
-    // This grounding should have taken place already.
     val eidosMentions = annotatedDocument.eidosMentions.sortBy(m => (m.odinMention.sentence, m.getClass.getSimpleName, m.odinMention.start))
-    val groundedEntities = GroundedEntity.groundEntities(ieSystem, eidosMentions)
-    println("Found mentions (in mkJson):")
+    // An adjective grounding, perhaps not this one, should have taken place already.
+    val groundedEntities = entityGrounder.groundEntities(eidosMentions)
     val json = mkJson(text, doc, eidosMentions, groundedEntities)
 
     json
   }
 
-  def mkJson(text: String, doc: Document, eidosMentions: Seq[EidosMention], groundedEntities: Vector[GroundedEntity] ): JsValue = {
+  def mkJson(text: String, doc: Document, eidosMentions: Seq[EidosMention], groundedEntities: Seq[GroundedEntity] ): JsValue = {
     val odinMentions = eidosMentions.map(_.odinMention)
-    val timExs = ieSystem.components.timeNormFinderOpt.map(_.getTimExs(odinMentions, doc.sentences))
-    val geoPhraseIDs = ieSystem.components.geoNormFinderOpt.map(_.getGeoPhraseIDs(odinMentions, doc.sentences))
+    val timExs = timeNormFinderOpt.map(_.getTimExs(odinMentions, doc.sentences))
+    val geoPhraseIDs = geoNormFinderOpt.map(_.getGeoPhraseIDs(odinMentions, doc.sentences))
     val sent = doc.sentences.head
 
     val syntaxJson = new SyntaxObj(doc, text).mkJson
@@ -76,8 +61,4 @@ object HomeController extends App {
       "parse" -> parseHtml
     )
   }
-
-  val json = processText("The recent drought caused widespread famine in Ethoipia.", true)
-
-  println(json)
 }
