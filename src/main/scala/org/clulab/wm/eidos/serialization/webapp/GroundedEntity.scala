@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.html
+package org.clulab.wm.eidos.serialization.webapp
 
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
@@ -11,7 +11,7 @@ import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.AdjectiveGrounding
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.serialization.html.HomeController.eidosConfig
+import org.clulab.wm.eidos.serialization.webapp.HomeController.eidosConfig
 import org.clulab.wm.eidos.utils.DomainParams
 
 case class GroundedEntity(sentence: String,

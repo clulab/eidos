@@ -1,9 +1,9 @@
-package org.clulab.wm.eidos.serialization.html
+package org.clulab.wm.eidos.serialization.webapp
 
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 
-object ParseObj {
+class ParseObj(doc: Document) {
 
   def mkParseObj(sentence: Sentence, sb: StringBuilder): Unit = {
 
@@ -45,7 +45,7 @@ object ParseObj {
     }
   }
 
-  def mkParseObj(doc: Document): String = {
+  def mkHtml: String = {
     val header =
       """
         |  <tr>

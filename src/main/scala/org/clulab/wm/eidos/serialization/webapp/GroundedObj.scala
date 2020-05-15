@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.html
+package org.clulab.wm.eidos.serialization.webapp
 
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
@@ -9,11 +9,11 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DisplayUtils
 import org.clulab.wm.eidos.utils.GroundingUtils
 
-object GroundedObj {
+class GroundedObj(groundedEntities: Seq[GroundedEntity], mentions: Seq[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]) {
 
   def tab:String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 
-  def mkGroundedObj(groundedEntities: Seq[GroundedEntity], mentions: Seq[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): String = {
+  def mkHtml: String = {
 
     var objectToReturn = ""
 

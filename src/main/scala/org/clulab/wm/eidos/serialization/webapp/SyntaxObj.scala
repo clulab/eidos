@@ -1,23 +1,21 @@
-package org.clulab.wm.eidos.serialization.html
+package org.clulab.wm.eidos.serialization.webapp
 
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 
-object SyntaxObj {
+class SyntaxObj(val doc: Document, val text: String) {
 
-  def mkJsonFromSyntax(doc: Document, text: String): JsObject = {
+  def mkJson: JsObject = {
     Json.obj(fields =
-      "syntax" -> Json.obj(fields =
-        "text" -> text,
-        "entities" -> SyntaxObj.mkJsonFromTokens(doc),
-        "relations" -> SyntaxObj.mkJsonFromDependencies(doc)
-      )
+      "text" -> text,
+      "entities" -> mkJsonFromTokens,
+      "relations" -> mkJsonFromDependencies
     )
   }
 
-  def mkJsonFromTokens(doc: Document): Json.JsValueWrapper = {
+  def mkJsonFromTokens: Json.JsValueWrapper = {
     var offset = 0
 
     val tokens = doc.sentences.flatMap { sent =>
@@ -36,7 +34,7 @@ object SyntaxObj {
     )
   }
 
-  def mkJsonFromDependencies(doc: Document): Json.JsValueWrapper = {
+  def mkJsonFromDependencies: Json.JsValueWrapper = {
     var offset = 1
 
     val rels = doc.sentences.flatMap { sent =>

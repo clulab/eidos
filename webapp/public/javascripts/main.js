@@ -1,4 +1,5 @@
-var bratLocation = 'assets/brat';
+// This is now arranged by mainbrat.js.
+// var bratLocation = 'webapp/public/brat';
 
 // Color names used
 var baseConceptColor = '#CCD1D1';
@@ -432,18 +433,34 @@ var collData = {
 // docData is initially empty.
 var docData = {};
 
+// These two values and function are now global so that they can be called from other js files.
+var syntaxLiveDispatcher = null;
+
+var eidosMentionsLiveDispatcher = null;
+
+function formDone(data) {
+    console.log(data);
+    syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, data.syntax)]);
+    eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.eidosMentions)]);
+    document.getElementById("groundedAdj").innerHTML = data.groundedAdj;
+    document.getElementById("parse").innerHTML = data.parse;
+    // hide spinner
+    document.getElementById("overlay").style.display = "none";
+}
+
 head.ready(function() {
 
-    var syntaxLiveDispatcher = Util.embed('syntax',
+    syntaxLiveDispatcher = Util.embed('syntax',
         $.extend({'collection': null}, collData),
         $.extend({}, docData),
         webFontURLs
     );
-    var eidosMentionsLiveDispatcher = Util.embed('eidosMentions',
+    eidosMentionsLiveDispatcher = Util.embed('eidosMentions',
         $.extend({'collection': null}, collData),
         $.extend({}, docData),
         webFontURLs
     );
+
 
     $('form').submit(function (event) {
 
@@ -477,15 +494,7 @@ head.ready(function() {
             document.getElementById("overlay").style.display = "none";
             alert("error");
         })
-        .done(function (data) {
-            console.log(data);
-            syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, data.syntax)]);
-            eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.eidosMentions)]);
-            document.getElementById("groundedAdj").innerHTML = data.groundedAdj;
-            document.getElementById("parse").innerHTML = data.parse;
-            // hide spinner
-            document.getElementById("overlay").style.display = "none";
-        });
+        .done(formDone);
 
     });
 });

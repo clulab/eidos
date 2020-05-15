@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.html
+package org.clulab.wm.eidos.serialization.webapp
 
 import org.clulab.odin.CrossSentenceMention
 import org.clulab.odin.EventMention
@@ -15,9 +15,9 @@ import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import play.api.libs.json.Json
 
-object EidosObj {
+class EidosObj(sentenceText: String, sent: Sentence, mentions: Seq[Mention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]) {
 
-  def mkJsonForEidos(sentenceText: String, sent: Sentence, mentions: Seq[Mention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]): Json.JsValueWrapper = {
+  def mkJson: Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }
 
     // collect event mentions for display
