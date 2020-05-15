@@ -21,7 +21,7 @@ class WebSerializer(eidosSystem: EidosSystem, eidosConfig: Config) {
     val text = annotatedDocument.document.text.get
     val json = processAnnotatedDocument(text, annotatedDocument).toString
     val oldIndexHtml = FileUtils.getTextFromFile("./webapp/app/views/index.scala.html")
-    val webhead = FileUtils.getTextFromResource("/org/clulab/wm/eidos/webapp/webhead.html")
+    val webhead = FileUtils.getTextFromResource("/org/clulab/wm/eidos/webserializer/webhead.html")
         .replace("$json", json)
         .replace("$cagRelevantOnly", cagRelevantOnly.toString)
     val headStart = oldIndexHtml.indexOf("<head>")
