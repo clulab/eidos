@@ -1,5 +1,5 @@
 
-name := "wmuser"
+name := "wmexchanger"
 organization := "org.clulab"
 
 scalaVersion := "2.12.4"
@@ -24,6 +24,7 @@ libraryDependencies ++= {
     "com.typesafe"                % "config"           % "1.4.0",
     // rest
     "org.apache.httpcomponents"   % "httpcore"         % "4.4.13",
-    "org.apache.httpcomponents"   % "httpclient"       % "4.5.12"
+    "org.apache.httpcomponents"   % "httpclient"       % "4.5.12",
+    "org.apache.httpcomponents"   % "httpmime"         % "4.5.12"
   )
 }

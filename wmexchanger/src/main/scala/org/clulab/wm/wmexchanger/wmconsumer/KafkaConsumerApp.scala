@@ -1,10 +1,10 @@
-package org.clulab.wm.wmconsumer
+package org.clulab.wm.wmexchanger.wmconsumer
 
 import java.util.Properties
 
-import org.clulab.wm.utils.PropertiesBuilder
-import org.clulab.wm.utils.WmUserApp
-import org.clulab.wm.utils.SafeThread
+import org.clulab.wm.wmexchanger.utils.PropertiesBuilder
+import org.clulab.wm.wmexchanger.utils.WmUserApp
+import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

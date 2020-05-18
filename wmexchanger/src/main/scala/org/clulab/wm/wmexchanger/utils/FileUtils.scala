@@ -1,4 +1,4 @@
-package org.clulab.wm.utils
+package org.clulab.wm.wmexchanger.utils
 
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -10,7 +10,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.PrintWriter
 
-import org.clulab.wm.utils.Closer.AutoCloser
+import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
 
 import scala.io.Source
 

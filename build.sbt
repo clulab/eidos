@@ -164,7 +164,7 @@ lazy val webapp = project
 
 lazy val elasticsearch = project
 
-lazy val wmuser = project
+lazy val wmexchanger = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
