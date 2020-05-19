@@ -4,13 +4,17 @@ import java.io.File
 import java.net.URL
 
 import com.typesafe.config.ConfigFactory
+import org.apache.http.HttpHeaders
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ContentType
+import org.apache.http.entity.mime.FormBodyPartBuilder
 import org.apache.http.entity.mime.MultipartEntityBuilder
+import org.apache.http.entity.mime.content.FileBody
+import org.apache.http.entity.mime.content.StringBody
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
@@ -67,14 +71,18 @@ object RestProducerApp extends App {
   }
 
   def newHttpPost(url: URL, metadata: String, file: File): HttpPost = {
+    val stringBody = new StringBody(metadata, ContentType.TEXT_PLAIN)
+    val fileBody = new FileBody(file)
     val httpEntity = MultipartEntityBuilder
         .create
-        .addTextBody("metadata", metadata)
-        .addBinaryBody("file", file, ContentType.APPLICATION_OCTET_STREAM, file.getName )
+        .addPart("metadata", stringBody)
+        .addPart("file", fileBody)
         .build
     val httpPost = new HttpPost(url.toURI)
 
     httpPost.setEntity(httpEntity)
+    httpPost.setHeader(HttpHeaders.EXPECT, "100-continue")
+    httpPost.expectContinue()
     httpPost
   }
 
