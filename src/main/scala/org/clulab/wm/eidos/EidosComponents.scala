@@ -133,12 +133,13 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       )
     }
 
-    // FIXME: IDK where to put this now...
-    val actions = EidosActions.fromConfig(config[Config]("actions"), procOpt.get.getTagSet)
-    mostCompleteEventsKeeperOpt = Some(actions.mostCompleteEventsKeeper)
-
     val tailComponentLoaders = Seq(
       new ComponentLoader("MigrationHandler", { migrationHandlerOpt = Some(MigrationHandler()) }),
+      new ComponentLoader("MostCompleteEventsKeeper", {
+        val actions = EidosActions.fromConfig(config[Config]("actions"), procOpt.get.getTagSet)
+
+        mostCompleteEventsKeeperOpt = Some(actions.mostCompleteEventsKeeper)
+      }),
       new ComponentLoader("HedgingHandler", { hedgingHandlerOpt = Some(HypothesisHandler(eidosConf[String]("hedgingPath"))) }),
       // Extraction is performed using a sequence of finders.
       new ComponentLoader("Finders", { findersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".finders", config, procOpt.get.getTagSet)) }),
