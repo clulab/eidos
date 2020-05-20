@@ -819,7 +819,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val time1 = NodeSpec("1 February", TimEx("1 February"))
     val group1 = NodeSpec("12,828 refugees", CountSpec(12828))
-    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
+    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.firstFilter)
     val migration1 = HumanMigrationEdgeSpec(
       time = Some(time1),
       group = Some(group1),
