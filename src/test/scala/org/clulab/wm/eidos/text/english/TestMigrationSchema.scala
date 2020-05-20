@@ -300,7 +300,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
-    val moveThrough = NodeSpec("Pagak", GeoLoc("Pagak"))
+    val moveThrough = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
     val migration = HumanMigrationEdgeSpec(moveTo = Some(moveTo), moveThrough = Some(moveThrough))
 
     behavior of "migration_nouns"
@@ -620,7 +620,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "According to a recent sample survey conducted in Pagak, the new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
 
     val tester = new GraphTester(text)
-    val moveTo = NodeSpec("Pagak", GeoLoc("Pagak"))
+    val moveTo = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
     val group1 = NodeSpec("new arrivals") //leave of "the" ?
 
     val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
@@ -819,7 +819,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val time1 = NodeSpec("1 February", TimEx("1 February"))
     val group1 = NodeSpec("12,828 refugees", CountSpec(12828))
-    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
+    val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.firstFilter)
     val migration1 = HumanMigrationEdgeSpec(
       time = Some(time1),
       group = Some(group1),
@@ -1535,7 +1535,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("1,796 individuals", CountSpec(1796))
-    val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak")) //todo: should this be intermediate point?
+    val moveTo1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter) //todo: should this be intermediate point?
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1))
 
