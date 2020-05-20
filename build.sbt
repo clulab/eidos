@@ -27,7 +27,7 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-modelsmain"    % procModelVer,
     "org.clulab"                 %% "processors-modelscorenlp" % procModelVer,
     "org.clulab"                 %% "geonorm"                  % "1.0.0",
-    "org.clulab"                  % "geonames"                 % "1.0.0+20200404T005315Z",
+    "org.clulab"                  % "geonames"                 % "1.0.0+20200518T005330Z.gadmworedas",
     "org.clulab"                 %% "timenorm"                 % "1.0.5",
     "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
