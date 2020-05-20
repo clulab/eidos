@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.serialization.json
+package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -16,27 +16,31 @@ import org.clulab.struct.DirectedGraph
 import org.clulab.struct.Edge
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{CountAttachment, CountModifier, CountUnit, DCTime, Decrease, Hedging, Increase, Location, MigrationGroupCount, NegChange, Negation, PosChange, Property, Provenance, Quantification, Time}
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.actions.MigrationHandler
+import org.clulab.wm.eidos.attachments.CountAttachment
+import org.clulab.wm.eidos.attachments.CountModifier
+import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.attachments.MigrationGroupCount
+import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
-import org.clulab.wm.eidos.attachments.Time
-import org.clulab.wm.eidos.attachments.{Property, Quantification}
-import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.attachments.PosChange
+import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.attachments.Provenance
+import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.attachments.TriggeredAttachment
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
@@ -106,7 +110,7 @@ object JLDDeserializer {
 }
 
 class JLDDeserializer {
-  import org.clulab.wm.eidos.serialization.json.JLDDeserializer._
+  import JLDDeserializer._
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
   protected def requireType(jValue: JValue, typeName: String): Unit =
@@ -636,8 +640,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "causation") {
           require(JLDRelationCausation.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("source").nonEmpty)
-          require(misnamedArguments.get("destination").nonEmpty)
+          require(misnamedArguments.contains("source"))
+          require(misnamedArguments.contains("destination"))
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> misnamedArguments("source"),
             "effect" -> misnamedArguments("destination")
@@ -648,8 +652,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "positiveaffect") {
           require(JLDRelationPositiveAffect.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("source").nonEmpty)
-          require(misnamedArguments.get("destination").nonEmpty)
+          require(misnamedArguments.contains("source"))
+          require(misnamedArguments.contains("destination"))
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> misnamedArguments("source"),
             "effect" -> misnamedArguments("destination")
@@ -660,8 +664,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "negativeaffect") {
           require(JLDRelationNegativeAffect.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("source").nonEmpty)
-          require(misnamedArguments.get("destination").nonEmpty)
+          require(misnamedArguments.contains("source"))
+          require(misnamedArguments.contains("destination"))
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> misnamedArguments("source"),
             "effect" -> misnamedArguments("destination")
@@ -672,7 +676,7 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "correlation") {
           require(JLDRelationCorrelation.taxonomy == labels.head)
           require(triggerOpt.isDefined)
-          require(misnamedArguments.get("argument").nonEmpty)
+          require(misnamedArguments.contains("argument"))
           require(misnamedArguments("argument").size == 2)
           val renamedArguments: Map[String, Seq[Mention]] = Map(
             "cause" -> Seq(misnamedArguments("argument").head),
@@ -684,8 +688,8 @@ class JLDDeserializer {
         else if (extractionType == "relation" && extractionSubtype == "coreference") {
           require(JLDRelationCoreference.taxonomy == labels.head)
           require(triggerOpt.isEmpty)
-          require(misnamedArguments.get("anchor").nonEmpty)
-          require(misnamedArguments.get("reference").nonEmpty)
+          require(misnamedArguments.contains("anchor"))
+          require(misnamedArguments.contains("reference"))
           require(misnamedArguments.get("anchor").size == 1)
           require(misnamedArguments.get("reference").size == 1)
           val anchor = misnamedArguments("anchor").head

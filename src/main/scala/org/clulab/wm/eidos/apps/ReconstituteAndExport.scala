@@ -5,7 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.Exporter
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.utils.FileUtils
 
 /**
@@ -16,7 +16,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 object ReconstituteAndExport extends App with Configured {
 
 
-  val config = ConfigFactory.load("eidos")
+  val config = ConfigFactory.load(EidosSystem.defaultConfig)
   override def getConf: Config = config
 
   val inputDir = getArgString("apps.inputDirectory", None)

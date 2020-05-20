@@ -13,9 +13,11 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.utils.Domain
 
 object CacheOntologies extends App {
-  val config = ConfigFactory.load("eidos")
+  val config = ConfigFactory.load(EidosSystem.defaultConfig)
+  val domain = Domain.getDomain(config)
   val includeParents: Boolean = config[Boolean]("ontologies.includeParents")
   val cacheDir: String = config[String]("ontologies.cacheDir")
   // Not all operations require the reader, so hedge your bets.

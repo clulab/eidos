@@ -24,6 +24,14 @@ class TestFileEditor extends Test {
     newFile.getCanonicalPath should be (expectedFile.getCanonicalPath)
   }
 
+  it should "append to a dir" in {
+    val expectedFile = new File("dir/subdir/subdir2/file.txt")
+    val oldFile = new File("dir/subdir/file.txt")
+    val newFile = FileEditor(oldFile).incDir("subdir2").get
+
+    newFile.getCanonicalPath should be (expectedFile.getCanonicalPath)
+  }
+
   it should "append to a name" in {
     val expectedFile = new File("dir/subdir/file.txt.serialized")
     val oldFile = new File("dir/subdir/file.txt")

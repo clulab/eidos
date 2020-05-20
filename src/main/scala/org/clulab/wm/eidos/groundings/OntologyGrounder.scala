@@ -46,12 +46,12 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
-    0.until(domainOntology.size).map { n =>
+    domainOntology.indices.map { n =>
       ConceptEmbedding(domainOntology.getNamer(n), wordToVec.makeCompositeVector(domainOntology.getValues(n)))
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
-    0.until(domainOntology.size).map { n =>
+    domainOntology.indices.map { n =>
       ConceptPatterns(domainOntology.getNamer(n), domainOntology.getPatterns(n))
     }
 
@@ -298,32 +298,56 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val modifierMentions = headTextOpt.map { headText =>
         getModifierMentions(headText, mention.odinMention)
       }.getOrElse(Seq.empty)
-      val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
-      // Get all groundings for each branch.
-      val allSimiliarities = {
-        val allMentionTexts = allMentions.map { mention => mention.words.toArray }
 
-        Map(
-          CompositionalGrounder.PROPERTY ->
-              allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY))),
-          CompositionalGrounder.PROCESS ->
-              allMentionTexts.flatMap(mentionTexts => w2v.calculateSimilarities(mentionTexts, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS))),
-          CompositionalGrounder.CONCEPT ->
-              allMentionTexts.flatMap(mentionTexts => w2v.calculateSimilarities(mentionTexts, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
-        )
+      val mentionText = mention.odinMention.words.toArray
+      val allMentions = mentionHeadOpt.toSeq ++ modifierMentions
+      val allMentionTokens = allMentions.flatMap(m=>m.words)
+
+      // Get all groundings for each branch.
+      // Each branch is its own grounding strategy to allow best performance.
+      // The groundings of concepts and processes are competing at last, as it gains better performance.
+      val propertySimilarities = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
+      val processSimilarities = allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
+      val conceptSimilarities = {
+        val mentionHeadTagIsNN = mentionHeadOpt.map(m=>m.tags.head.head.startsWith("NN")).getOrElse(false)
+        if (!mentionHeadTagIsNN) {
+          if (modifierMentions.isEmpty) {
+            val posTags = mention.odinMention.tags.getOrElse(Seq.empty)
+            w2v.calculateSimilaritiesWeighted(mentionText, posTags, 5, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+          }
+          else
+          {
+            val allMentionTags = allMentions.flatMap(mention =>mention.tags).flatten
+            w2v.calculateSimilaritiesWeighted(allMentionTokens.toArray, allMentionTags, 1, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+          }
+        }
+        else
+        {
+          allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+        }
       }
+
+      // Start filtering procedure
       val effectiveThreshold = threshold.getOrElse(CompositionalGrounder.defaultThreshold)
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
-      val goodGroundings = allSimiliarities.map { case(name, similarities) =>
-        val goodSimilarities = similarities
-            .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
-            .sortBy(-_._2)
-            .take(effectiveTopN)
 
-        newOntologyGrounding(goodSimilarities, Some(name))
-      }.toSeq
+      // Filtering procedure: let process and concept to compete with each other:
+      def getTopKGrounding(similarities: Seq[(Namer, Float)], branch:String):OntologyGrounding = {
+        val goodSimilarities = similarities
+          .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
+          .sortBy(-_._2)
+          .take(effectiveTopN)
+          .filter(_._1.branch.get == branch)
+        newOntologyGrounding(goodSimilarities, Some(branch))
+      }
+      val goodPropertyGroundings = getTopKGrounding(propertySimilarities, CompositionalGrounder.PROPERTY)
+      val goodProcessGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, CompositionalGrounder.PROCESS)
+      val goodConceptGroundings = getTopKGrounding(processSimilarities++conceptSimilarities, CompositionalGrounder.CONCEPT)
+
+      val goodGroundings = Seq(goodPropertyGroundings, goodProcessGroundings, goodConceptGroundings)
 
       goodGroundings
+
     }
   }
 

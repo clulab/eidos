@@ -114,4 +114,27 @@ than in the corresponding period two years earlier.
     oil.head.canonicalName = canonicalizer.canonicalize(oil.head)
     canonicalizer.canonicalize(oil.head) should be ("oil")
   }
+
+  behavior of "mentions resulting from reading"
+
+  // It should also have the triggers, of course.
+  it should "include all the argument mentions" in {
+    val text = "85% of the new arrivals originated from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties), whilst 14% came from Jonglei State (Uror, Akobo and Ayod Counties)."
+    val odinMentions = ieSystem.extractFromText(text).odinMentions
+    val reachableOdinMentions = EidosMention.findReachableOdinMentions(odinMentions)
+
+    odinMentions.foreach { odinMention =>
+      val argumentMentions = odinMention.arguments.values.flatten
+
+      argumentMentions.foreach { argumentMention =>
+//        if (!odinMentions.exists { odinMention => odinMention.eq(argumentMention) })
+//          println("I couldn't find $argumentMention by eq in odinMentions!")
+//        if (!reachableOdinMentions.exists { odinMention => odinMention.eq(argumentMention) })
+//          println("I couldn't find $argumentMention by eq in reachableOdinMentions!")
+//        if (!reachableOdinMentions.exists { odinMention => odinMention.equals(argumentMention) })
+//          println("I couldn't find $argumentMention by equals in reachableOdinMentions!")
+        reachableOdinMentions should contain (argumentMention)
+      }
+    }
+  }
 }

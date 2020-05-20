@@ -23,7 +23,7 @@ class TestCachedDomainOntology extends Test {
   val cacheDir: String = config[String]("ontologies.cacheDir")
   val reader: EidosSystem = new EidosSystem(config)
   val proc: EidosProcessor = reader.components.proc
-  val canonicalizer = new Canonicalizer(reader.components.stopwordManager)
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManager, reader.components.proc.getTagSet)
   val filter = true
 
   case class OntologySpec(abbrev: String, path: String)
@@ -42,7 +42,7 @@ class TestCachedDomainOntology extends Test {
   }
 
   protected def extract(domainOntology: DomainOntology): Seq[OntologyEntry]= {
-    0.until(domainOntology.size).map { index =>
+    domainOntology.indices.map { index =>
       OntologyEntry(
         domainOntology.getNamer(index).name,
         domainOntology.getValues(index).sorted,

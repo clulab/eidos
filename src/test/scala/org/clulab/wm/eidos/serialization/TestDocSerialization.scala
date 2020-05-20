@@ -7,7 +7,6 @@ import org.clulab.processors.Document
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
@@ -15,7 +14,8 @@ import org.clulab.serialization.json.{DocOps, JSONSerializer}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 
@@ -103,7 +103,7 @@ class TestDocSerialization extends Test {
 
       def serialize(original: AnnotatedDocument): Unit = {
         val corpus = Seq(original)
-        val jldCorpus = new JLDEidosCorpus(corpus)
+        val jldCorpus = new JLDCorpus(corpus)
         val jValue = jldCorpus.serialize()
         val json = stringify(jValue, pretty = true)
         val copy = new JLDDeserializer().deserialize(json)

@@ -147,7 +147,7 @@ class TestDoc5 extends EnglishTest {
 
     val factors = NodeSpec("macroeconomic factors")
     val prices = NodeSpec("exorbitant staple food prices", Inc("exorbitant"))
-    val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("since 2014"))
+    val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("2014"))
     val reserves = NodeSpec("both foreign currency reserves", Dec("drop", "sharp"))
     val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"), GeoLoc("South Sudanese"))
     val factors2 = NodeSpec("factors", GeoLoc("South Sudan"))
@@ -394,8 +394,8 @@ class TestDoc5 extends EnglishTest {
 
     val action = NodeSpec("Urgent action to end the conflict", Dec("end"))
     val access = NodeSpec("humanitarian access to severely food insecure populations", Inc("improve"))
-    val assistance = NodeSpec("increase size and scope of emergency assistance delivery", Inc("increase"), Quant("critical"), TimEx("coming year"))
-    val lives = NodeSpec("save lives over the coming year", TimEx("coming year"))
+    val assistance = NodeSpec("increase size and scope of emergency assistance delivery", Inc("increase"), Quant("critical"), TimEx("the coming year"))
+    val lives = NodeSpec("save lives over the coming year", TimEx("the coming year"))
 
     behavior of "TestDoc5 Paragraph 8"
 

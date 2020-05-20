@@ -48,7 +48,7 @@ class TestMigrationSchema extends EnglishTest {
     val group = NodeSpec("almost 40,000 refugees", CountSpec(40000, CountModifier.Max))
     val moveTo = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
     val moveFrom = NodeSpec("South Sudan", GeoLoc("South Sudan"))
-    val timeStart = NodeSpec("September 2016", TimEx("September 2016"))
+    val timeStart = NodeSpec("the beginning of September 2016", TimEx("the beginning of September 2016"))
     val timeEnd = NodeSpec("mid-November", TimEx("mid-November"))
     val migration = HumanMigrationEdgeSpec(group = Some(group),
       moveTo = Some(moveTo), moveFrom = Some(moveFrom),
@@ -407,7 +407,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val time1 = NodeSpec("Between 1 and 11 March 2017", TimEx("Between 1 and 11 March 2017"))
+    val time1 = NodeSpec("11 March 2017", TimEx("11 March 2017"))
     val group1 = NodeSpec("total of 7,258 South Sudanese refugees", CountSpec(7258))
     val moveTo = NodeSpec("Gambella", GeoLoc("Gambella")) //todo: add ", Ethiopia"?
     val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
@@ -417,7 +417,7 @@ class TestMigrationSchema extends EnglishTest {
       moveTo = Some(moveTo),
       moveFrom = Some(moveFrom1))
 
-    val timeStart2 = NodeSpec("since September 2016", TimEx("since September 2016"))
+    val timeStart2 = NodeSpec("September 2016", TimEx("September 2016"))
     val group2 = NodeSpec("68,858", CountSpec(68858))
     val migration2 = HumanMigrationEdgeSpec(
       timeStart = Some(timeStart2),
@@ -460,7 +460,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("3,967", CountSpec(3967))
-    val time1 = NodeSpec("week of 6 to 11 March", TimEx("week of 6 to 11 March"))
+    val time1 = NodeSpec("the week", TimEx("the week"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       time = Some(time1))
@@ -817,7 +817,7 @@ class TestMigrationSchema extends EnglishTest {
     //fixme: test and rule for the second clause?
     val tester = new GraphTester(text)
 
-    val time1 = NodeSpec("Between 1 February and 11 March 2017", TimEx("Between 1 February and 11 March 2017"))
+    val time1 = NodeSpec("1 February", TimEx("1 February"))
     val group1 = NodeSpec("12,828 refugees", CountSpec(12828))
     val moveThrough1 = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
     val migration1 = HumanMigrationEdgeSpec(
@@ -879,7 +879,7 @@ class TestMigrationSchema extends EnglishTest {
     val group1 = NodeSpec("68,858", CountSpec(68858))
 //    val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese"))
     val moveTo1 = NodeSpec("Ethiopia", GeoLoc("Ethiopia"))
-    val timeStart1 = NodeSpec("since September 2016", TimEx("since September 2016"))
+    val timeStart1 = NodeSpec("September 2016", TimEx("September 2016"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
 //      moveFrom = Some(moveFrom1),
@@ -973,7 +973,7 @@ class TestMigrationSchema extends EnglishTest {
       time = Some(time1))
 
     val group2 = NodeSpec("77,874", CountSpec(77874))
-    val timeStart = NodeSpec("since September 2016", TimEx("since September 2016"))
+    val timeStart = NodeSpec("September 2016", TimEx("September 2016"))
     val migration2 = HumanMigrationEdgeSpec(
       group = Some(group2),
       moveTo = Some(moveTo1),
@@ -1016,7 +1016,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val group1 = NodeSpec("508 individuals", CountSpec(508, CountModifier.NoModifier, CountUnit.Daily))
     val groupMod1 = NodeSpec("daily", TimEx("daily"))
-    val time1 = NodeSpec("past week", TimEx("past week"))
+    val time1 = NodeSpec("the past week", TimEx("the past week"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       groupModifier = Some(groupMod1),
@@ -1151,7 +1151,7 @@ class TestMigrationSchema extends EnglishTest {
     val group1 = NodeSpec("4,608 new arrivals", CountSpec(4608))
     val moveFrom1 = NodeSpec("Pagak", GeoLoc("Pagak"))
     val moveTo1 = NodeSpec("Nguenyyiel", GeoLoc("Nguenyyiel"))
-    val time1 = NodeSpec("past week", TimEx("past week"))
+    val time1 = NodeSpec("the past week", TimEx("the past week"))
     val migration1 = HumanMigrationEdgeSpec(
       group = Some(group1),
       moveFrom = Some(moveFrom1),
@@ -1184,7 +1184,7 @@ class TestMigrationSchema extends EnglishTest {
     val tester = new GraphTester(text)
 
     val group1 = NodeSpec("3,604 South Sudanese refugees", CountSpec(3604))
-    val time1 = NodeSpec("Between 13 and 28 April 2017", TimEx("Between 13 and 28 April 2017"))
+    val time1 = NodeSpec("28 April 2017", TimEx("28 April 2017"))
     val moveFrom1 = NodeSpec("South Sudanese", GeoLoc("South Sudanese")) //fixme: can't extract locations from adjectives
     val moveTo1 = NodeSpec("Gambella", GeoLoc("Gambella"))
     val migration1 = HumanMigrationEdgeSpec(
@@ -1469,7 +1469,7 @@ class TestMigrationSchema extends EnglishTest {
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), moveTo = Some(moveTo1), timeStart = Some(time1))
 
     val group2 = NodeSpec("74,825", CountSpec(74825))
-    val timeStart2 = NodeSpec("since September 2016", TimEx("since September 2016"))
+    val timeStart2 = NodeSpec("September 2016", TimEx("September 2016"))
     val migration2 = HumanMigrationEdgeSpec(group = Some(group2), timeStart = Some(timeStart2), moveTo = Some(moveTo1))
 
     behavior of "migration-ma-1"
@@ -1510,7 +1510,7 @@ class TestMigrationSchema extends EnglishTest {
 
     val group1 = NodeSpec("626 individuals", CountSpec(626, CountModifier.NoModifier, CountUnit.Daily))
     val groupModifier = NodeSpec("daily", TimEx("daily"))
-    val time1 = NodeSpec("past week", TimEx("past week"))
+    val time1 = NodeSpec("the past week", TimEx("the past week"))
 
     val migration1 = HumanMigrationEdgeSpec(group = Some(group1), time = Some(time1), groupModifier = Some(groupModifier)) //fixme: time is not attached => fix rule (migration-arrival or add to migration-rate)
 
