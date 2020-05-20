@@ -620,7 +620,7 @@ class TestMigrationSchema extends EnglishTest {
     val text = "According to a recent sample survey conducted in Pagak, the new arrivals originated mainly from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties) and Jonglei State (Uror, Akobo and Ayod Counties)."
 
     val tester = new GraphTester(text)
-    val moveTo = NodeSpec("Pagak", GeoLoc("Pagak"))
+    val moveTo = NodeSpec("Pagak", GeoLoc("Pagak"), NodeSpec.lastFilter)
     val group1 = NodeSpec("new arrivals") //leave of "the" ?
 
     val moveFrom1 = NodeSpec("Upper Nile State", GeoLoc("Upper Nile State"))
