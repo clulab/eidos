@@ -4,7 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
-import org.clulab.wm.eidos.{EidosActions, EidosSystem}
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.FileUtils
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -12,10 +12,16 @@ import org.yaml.snakeyaml.constructor.Constructor
 import scala.collection.mutable.ArrayBuffer
 
 trait CorefHandler {
-  def resolveCoref(mentions: Seq[Mention], state: State): Seq[Mention]
-  def hasCorefToResolve(m: Mention): Boolean
+  def resolveCoref(mentions: Seq[Mention]): Seq[Mention]
 }
 object CorefHandler {
+
+  // Used for simplistic coreference identification
+  val COREF_DETERMINERS: Set[String] = Set("this", "that", "these", "those")
+
+  val ANTECEDENT: String = "antecedent"
+  val ANAPHOR: String = "anaphor"
+
   def fromConfig(config: Config): CorefHandler = {
     config[String]("corefType") match {
       case "causalBasic" => CausalBasicCorefHandler.fromConfig(config)
@@ -23,15 +29,33 @@ object CorefHandler {
     }
   }
 
+  def hasCorefToResolve(m: Mention): Boolean = {
+    m match {
+      case tb: TextBoundMention => startsWithCorefDeterminer(tb)
+      case rm: RelationMention => existsDeterminerCause(rm)
+      case em: EventMention => existsDeterminerCause(em)
+      case _ => false
+    }
+  }
+
   def startsWithCorefDeterminer(m: Mention): Boolean = {
-    val corefDeterminers = EidosActions.COREF_DETERMINERS
+    val corefDeterminers = COREF_DETERMINERS
     corefDeterminers.exists(det => m.text.toLowerCase.startsWith(det))
+  }
+
+  def existsDeterminerCause(mention: Mention): Boolean = {
+    if (isCauseEvent(mention)) CorefHandler.startsWithCorefDeterminer(mention.arguments("cause").head)
+    else false
+  }
+
+  def isCauseEvent(mention: Mention): Boolean = {
+    mention.arguments.get("cause").nonEmpty
   }
 }
 
 class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
 
-  def resolveCoref(mentions: Seq[Mention], state: State): Seq[Mention] = {
+  def resolveCoref(mentions: Seq[Mention]): Seq[Mention] = {
     val (eventMentions, _) = mentions.partition(_.isInstanceOf[EventMention])
 
     if (eventMentions.isEmpty) mentions
@@ -47,7 +71,7 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
           for (mention <- orderedBySentence.getOrElse(i, Seq.empty[Mention])) {
 
             // If there is an event with "this/that" as cause...
-            if (existsDeterminerCause(mention)) {
+            if (CorefHandler.existsDeterminerCause(mention)) {
 
               // Get Causal mentions from the previous sentence (if any)
               val prevSentenceCausal = getPreviousSentenceCausal(orderedBySentence, i)
@@ -70,7 +94,7 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
                     labels = taxonomy.hypernymsFor(EidosSystem.COREF_LABEL),
                     anchor = antecedent,
                     neighbor = anaphor,
-                    arguments = Map[String, Seq[Mention]]((EidosActions.ANTECEDENT, Seq(antecedent)), (EidosActions.ANAPHOR, Seq(anaphor))),
+                    arguments = Map[String, Seq[Mention]]((CorefHandler.ANTECEDENT, Seq(antecedent)), (CorefHandler.ANAPHOR, Seq(anaphor))),
                     document = mention.document,
                     keep = true,
                     foundBy = s"BasicCorefAction_ant:${lastOccurring.foundBy}_ana:${mention.foundBy}",
@@ -95,23 +119,6 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
     prevSentenceMentions.filter(_ matches EidosSystem.CAUSAL_LABEL)
   }
 
-  def existsDeterminerCause(mention: Mention): Boolean = {
-    if (isCauseEvent(mention)) CorefHandler.startsWithCorefDeterminer(mention.arguments("cause").head)
-    else false
-  }
-
-  def isCauseEvent(mention: Mention): Boolean = {
-    mention.arguments.get("cause").nonEmpty
-  }
-
-  def hasCorefToResolve(m: Mention): Boolean = {
-    m match {
-      case tb: TextBoundMention => CorefHandler.startsWithCorefDeterminer(tb)
-      case rm: RelationMention => existsDeterminerCause(rm)
-      case em: EventMention => existsDeterminerCause(em)
-      case _ => false
-    }
-  }
 }
 
 object CausalBasicCorefHandler {

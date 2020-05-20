@@ -152,10 +152,8 @@ class MostCompleteEventsKeeper {
     filteredMentions
   }
 
-  def keepMostCompleteEvents(ms: Seq[Mention]): Seq[Mention] = keepMostCompleteEvents(ms, emptyState)
-
   // Remove incomplete Mentions
-  def keepMostCompleteEvents(ms: Seq[Mention], state: State): Seq[Mention] = {
+  def keepMostCompleteEvents(ms: Seq[Mention]): Seq[Mention] = {
     val (baseEvents, nonEvents) = ms.partition(_.isInstanceOf[EventMention])
     // Filter out duplicate (or subsumed) events.  Strict containment used -- i.e. simply overlapping args is not
     // enough to be filtered out here.
@@ -164,7 +162,6 @@ class MostCompleteEventsKeeper {
     // Entities
     val (baseTextBounds, relationMentions) = nonEvents.partition(_.isInstanceOf[TextBoundMention])
     val textBounds = filterSubstringEntities(baseTextBounds.map(_.asInstanceOf[TextBoundMention]))
-
 
     // remove incomplete entities (i.e. under specified when more fully specified exists)
     val tbMentionGroupings =
@@ -193,10 +190,7 @@ class MostCompleteEventsKeeper {
         tieBreaker(filteredEMs)
       }
 
-    val res = completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
-
-    // Useful for debug
-    res
+    completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
   }
 }
 

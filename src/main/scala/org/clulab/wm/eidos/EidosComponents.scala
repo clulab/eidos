@@ -4,9 +4,8 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.ExtractorEngine
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
-import org.clulab.wm.eidos.actions.MigrationHandler
-import org.clulab.wm.eidos.attachments.HypothesisHandler
-import org.clulab.wm.eidos.attachments.NegationHandler
+import org.clulab.wm.eidos.actions.{CorefHandler, MigrationHandler}
+import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.expansion.ConceptExpander
@@ -20,7 +19,6 @@ import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidos.utils.Timer
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -36,7 +34,9 @@ case class EidosComponents(
   entityFinders: Seq[Finder],
   conceptExpander: ConceptExpander,
   nestedArgumentExpander: NestedArgumentExpander,
-  adjectiveGrounder: AdjectiveGrounder
+  adjectiveGrounder: AdjectiveGrounder,
+  corefHandler: CorefHandler,
+  attachmentHandler: AttachmentHandler
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -64,6 +64,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var conceptExpanderOpt: Option[ConceptExpander] = None
   var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
   var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
+  var corefHandlerOpt: Option[CorefHandler] = None
+  var attachmentHandlerOpt: Option[AttachmentHandler] = None
 
   var useTimer = false
 
@@ -99,6 +101,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       ontologyHandlerOpt = Some(eidosComponents.ontologyHandler)
       // This only depends on language, not any settings, so a reload is safe.
       negationHandlerOpt = Some(eidosComponents.negationHandler)
+
       Seq.empty
     }
     else {
@@ -159,7 +162,9 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
         Some(new ConceptExpander(expander, keepStatefulConcepts))
       } }),
       new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) }),
-      new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder"))) })
+      new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder"))) }),
+      new ComponentLoader("CorefHandler", { corefHandlerOpt = Some(CorefHandler.fromConfig(config[Config]("coref"))) }),
+      new ComponentLoader("AttachmentHandler", { attachmentHandlerOpt = Some(AttachmentHandler()) }),
     )
     val componentLoaders = headComponentLoaders ++ tailComponentLoaders
     loadComponents(componentLoaders)
@@ -179,7 +184,9 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       entityFindersOpt.get,
       conceptExpanderOpt.get,
       nestedArgumentExpanderOpt.get,
-      adjectiveGrounderOpt.get
+      adjectiveGrounderOpt.get,
+      corefHandlerOpt.get,
+      attachmentHandlerOpt.get,
     )
   }
 }
