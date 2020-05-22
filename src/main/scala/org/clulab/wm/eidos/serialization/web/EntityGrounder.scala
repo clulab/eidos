@@ -48,9 +48,9 @@ class EntityGrounder(val adjectiveGrounder: AdjectiveGrounder, val domainParams:
 
   def groundEntity(mention: Mention, quantifier: String): GroundedEntity = {
     // add the calculation
-    println("loaded domain params:" + domainParams.toString())
-    println(s"\tkeys: ${domainParams.keys.mkString(", ")}")
-    println(s"getting details for: ${mention.text}")
+//    println("loaded domain params:" + domainParams.toString())
+//    println(s"\tkeys: ${domainParams.keys.mkString(", ")}")
+//    println(s"getting details for: ${mention.text}")
 
     val paramDetails: Map[String, Double] = domainParams.get(DomainParams.DEFAULT_DOMAIN_PARAM).get
     val paramMean = paramDetails(DomainParams.PARAM_MEAN)

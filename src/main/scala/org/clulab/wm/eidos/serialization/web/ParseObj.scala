@@ -21,7 +21,6 @@ class ParseObj(doc: Document) {
 
     def getTdAtInt(values: Array[Int], n: Int): String = getTd(values(n).toString)
 
-
     def edgesToString(to: Int): String = {
       val edges = sentence.dependencies.get.incomingEdges(to)
 

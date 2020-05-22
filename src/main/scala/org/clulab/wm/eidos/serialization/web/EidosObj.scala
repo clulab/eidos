@@ -180,7 +180,6 @@ class EidosObj(sentenceText: String, sent: Sentence, mentions: Seq[Mention], tim
     result
   }
 
-
   def mkArgMentions(ev: EventMention, tbmToId: Map[TextBoundMention, Int]): Seq[Json.JsValueWrapper] = {
     val args = for {
       argRole <- ev.arguments.keys
