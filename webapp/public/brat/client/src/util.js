@@ -2,8 +2,8 @@
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var Util = (function(window, undefined) {
 
-    // var fontLoadTimeout = 5000; // 5 seconds
-    var fontLoadTimeout = 0;
+    var loadTheFonts = false;
+    var fontLoadTimeout = 5000; // 5 seconds
 
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -642,14 +642,20 @@ var Util = (function(window, undefined) {
         },
       };
 
-      WebFont.load(webFontConfig);
+      if (loadTheFonts) {
+        WebFont.load(webFontConfig);
 
-      setTimeout(function() {
-        if (!fontsLoaded) {
-          console.error('Timeout in loading fonts');
-          proceedWithFonts();
-        }
-      }, fontLoadTimeout);
+        setTimeout(function() {
+          if (!fontsLoaded) {
+            console.error('Timeout in loading fonts');
+            proceedWithFonts();
+          }
+        }, fontLoadTimeout);
+      }
+      else {
+        fontsLoaded = true;
+    //    proceedWithFonts();
+      }
     };
 
     var areFontsLoaded = function() {

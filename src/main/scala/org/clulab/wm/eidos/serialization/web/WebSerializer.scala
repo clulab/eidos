@@ -26,7 +26,9 @@ class WebSerializer(eidosSystem: EidosSystem, eidosConfig: Config) {
         .replace("$cagRelevantOnly", cagRelevantOnly.toString)
     val headStart = oldIndexHtml.indexOf("<head>")
     val headStop = oldIndexHtml.indexOf("</head>")
-    val newIndexHtml = oldIndexHtml.substring(0, headStart) + webhead + oldIndexHtml.substring(headStop)
+    val oldTail = oldIndexHtml.substring(headStop)
+    val newTail = oldTail.replace("assets/images/loading.svg", "webapp/public/images/loading.svg")
+    val newIndexHtml = oldIndexHtml.substring(0, headStart) + webhead + newTail
 
     FileUtils.printWriterFromFile(fileName).autoClose { printWriter =>
       printWriter.println(newIndexHtml)

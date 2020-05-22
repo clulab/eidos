@@ -36,9 +36,9 @@ head.js(
 );
 
 var webFontURLs = [
-    bratLocation + '/static/fonts/Astloch-Bold.ttf',
-    bratLocation + '/static/fonts/PT_Sans-Caption-Web-Regular.ttf',
-    bratLocation + '/static/fonts/Liberation_Sans-Regular.ttf'
+    bratLocation + '/static/fonts/Astloch-Bold.woff',
+    bratLocation + '/static/fonts/PT_Sans-Caption-Web-Regular.woff',
+    bratLocation + '/static/fonts/Liberation_Sans-Regular.woff'
 ];
 
 var collData = {
