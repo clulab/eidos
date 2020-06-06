@@ -43,6 +43,8 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    // TODO: We can add this in if it makes things better/faster (i.e., not expanding duplicates)
+    // val deduped = mentions.groupBy(mostCompleteEventsKeeper.weakIdentity).map(_._2.head).toVector
     // Expand mentions, if enabled
     val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
 
@@ -244,7 +246,7 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
         Seq(m)
       } else {
         // odin mentions keep track of the path between the trigger and the argument
-        // below we assume there is only one cause arg, so beware (see require statement abov)
+        // below we assume there is only one cause arg, so beware (see require statement above)
         val landed = m.paths(arg2)(m.arguments(arg2).head).last._2 // when the rule matched, it landed on this
         assembleEventChain(m.asInstanceOf[EventMention], arg2Mention, landed, arg1Mentions)
       }
@@ -280,6 +282,7 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
           val mentions = newArguments.values.flatten.toSeq :+ event.trigger
           val newStart = mentions.map(_.start).min
           val newEnd = mentions.map(_.end).max
+
           event.copy(arguments = newArguments, tokenInterval = Interval(newStart, newEnd))
         }
     }

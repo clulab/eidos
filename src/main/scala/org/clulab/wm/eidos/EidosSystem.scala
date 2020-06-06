@@ -116,11 +116,10 @@ class EidosSystem(val components: EidosComponents) {
   protected def mkMentions(doc: Document): Seq[Mention] = {
     require(doc.text.isDefined)
 
-    // Prepare the initial state.  If you are using the entity finder, then it
-    // contains the found entities; otherwise, it is empty.
-    val initialState = components.entityFinders.foldLeft(emptyState) { (state, entityFinder) =>
-      Timer.time("Run " + entityFinder.getClass.getSimpleName, useTimer) {
-        val mentions = entityFinder.find(doc, state)
+    // Perform the information extraction in the sequence set in the config, using Finders
+    val extractions = components.finders.foldLeft(emptyState) { (state, finder) =>
+      Timer.time("Run " + finder.getClass.getSimpleName, useTimer) {
+        val mentions = finder.find(doc, state).toVector
 
         state.updated(mentions)
       }
@@ -128,7 +127,7 @@ class EidosSystem(val components: EidosComponents) {
 
     // It is believed that toVector is required to avoid some race conditions within the engine.
     // The engine's extractFrom returns a Seq which may involve delayed evaluation.
-    components.engine.extractFrom(doc, initialState).toVector
+    extractions.allMentions
   }
 
   def extractMentionsFrom(doc: Document): Seq[Mention] = {

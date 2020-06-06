@@ -43,7 +43,7 @@ object EvalTimeNorm {
     // Configure eidos to apply only TimeNormFinder
     val config = EidosSystem.defaultConfig
     val newConfig = config
-      .withValue("EidosSystem.entityFinders", ConfigValueFactory.fromAnyRef(List("timenorm").asJava))
+      .withValue("EidosSystem.finders", ConfigValueFactory.fromAnyRef(List("timenorm").asJava))
       .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false))
     val useNeuralParser: Boolean = newConfig.getBoolean("timenorm.useNeuralParser")
     val eidosSystem = new EidosSystem(newConfig)

@@ -192,6 +192,17 @@ class MostCompleteEventsKeeper {
 
     completeTBMentions.toSeq ++ relationMentions ++ completeEventMentions.toSeq
   }
+
+
+  def weakIdentity(m: Mention): (Int, String, Interval, Seq[(String, Int)], Seq[String]) = {
+    val sent = m.sentence
+    val label = m.label
+    val interval = m.tokenInterval
+    val args = m.arguments.map(a => (a._1, a._2.length)).toSeq.sortBy(_._1)
+    val attachments = m.attachments.map(_.toString).toVector.sorted
+    (sent, label, interval, args, attachments)
+  }
+
 }
 
 object MostCompleteEventsKeeper {
