@@ -25,7 +25,12 @@ object OdinFinder {
     val rulesPath = config[String]("rulesPath")
     val rules = FileUtils.getTextFromResource(rulesPath)
     val actions = EidosActions.fromConfig(config[Config]("actions"), tagSet)
-    val entityEngine = ExtractorEngine(rules, actions)
+    val useGlobalAction = config[Boolean]("useGlobalAction")
+    val entityEngine = if (useGlobalAction) {
+      ExtractorEngine(rules, actions, actions.globalAction)
+    } else {
+      ExtractorEngine(rules, actions)
+    }
 
     val expanderConfigOpt = config.get[Config]("expander")
     val expanderOpt = expanderConfigOpt.map(Expander.fromConfig(_, tagSet))

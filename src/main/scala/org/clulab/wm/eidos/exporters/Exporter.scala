@@ -21,7 +21,6 @@ object Exporter {
   def apply(exporterString: String, filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
     exporterString match {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
-      case "mitre" => MitreExporter(filename + ".mitre.tsv", reader, filename, groundAs, topN)
       case "serialized" => SerializedExporter(filename)
       case "grounding" => GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
       case "migration" => MigrationExporter(filename + ".migration.tsv")

@@ -31,16 +31,15 @@ case class EidosComponents(
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
   mostCompleteEventsKeeper: MostCompleteEventsKeeper,
-  engine: ExtractorEngine,
   hedgingHandler: HypothesisHandler,
-  entityFinders: Seq[Finder],
+  finders: Seq[Finder],
   conceptExpander: ConceptExpander,
   nestedArgumentExpander: NestedArgumentExpander,
   adjectiveGrounder: AdjectiveGrounder
 ) {
-  lazy val geoNormFinderOpt: Option[GeoNormFinder] = entityFinders.collectFirst { case f: GeoNormFinder => f }
+  lazy val geoNormFinderOpt: Option[GeoNormFinder] = finders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
-  lazy val timeNormFinderOpt: Option[TimeNormFinder] = entityFinders.collectFirst { case f: TimeNormFinder => f }
+  lazy val timeNormFinderOpt: Option[TimeNormFinder] = finders.collectFirst { case f: TimeNormFinder => f }
   lazy val useTimeNorm: Boolean = timeNormFinderOpt.isDefined
   lazy val language: String = proc.language
 }
@@ -58,9 +57,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var stopwordManagerOpt: Option[StopwordManager] = None
   var mostCompleteEventsKeeperOpt: Option[MostCompleteEventsKeeper] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
-  var engineOpt: Option[ExtractorEngine] = None
   var hedgingHandlerOpt: Option[HypothesisHandler] = None
-  var entityFindersOpt: Option[Seq[Finder]] = None
+  var findersOpt: Option[Seq[Finder]] = None
   var conceptExpanderOpt: Option[ConceptExpander] = None
   var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
   var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
@@ -137,17 +135,14 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
 
     val tailComponentLoaders = Seq(
       new ComponentLoader("MigrationHandler", { migrationHandlerOpt = Some(MigrationHandler()) }),
-      new ComponentLoader("ExtractorEngine", { engineOpt = { // ODIN component
-        val masterRulesPath: String = eidosConf[String]("masterRulesPath")
-        val masterRules = FileUtils.getTextFromResource(masterRulesPath)
+      new ComponentLoader("MostCompleteEventsKeeper", {
         val actions = EidosActions.fromConfig(config[Config]("actions"), procOpt.get.getTagSet)
 
         mostCompleteEventsKeeperOpt = Some(actions.mostCompleteEventsKeeper)
-        Some(ExtractorEngine(masterRules, actions, actions.globalAction))
-      } }),
+      }),
       new ComponentLoader("HedgingHandler", { hedgingHandlerOpt = Some(HypothesisHandler(eidosConf[String]("hedgingPath"))) }),
-      // Entity Finders can be used to preload entities into the odin state, their use is optional.
-      new ComponentLoader("EntityFinders", { entityFindersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".entityFinders", config, procOpt.get.getTagSet)) }),
+      // Extraction is performed using a sequence of finders.
+      new ComponentLoader("Finders", { findersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".finders", config, procOpt.get.getTagSet)) }),
       new ComponentLoader("ConceptExpander", { conceptExpanderOpt = {
         // Expander for expanding the bare events
         val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
@@ -174,9 +169,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       stopwordManagerOpt.get,
       ontologyHandlerOpt.get,
       mostCompleteEventsKeeperOpt.get,
-      engineOpt.get,
       hedgingHandlerOpt.get,
-      entityFindersOpt.get,
+      findersOpt.get,
       conceptExpanderOpt.get,
       nestedArgumentExpanderOpt.get,
       adjectiveGrounderOpt.get
