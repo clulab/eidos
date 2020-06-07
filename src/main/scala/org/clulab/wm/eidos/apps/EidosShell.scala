@@ -11,20 +11,17 @@ import scala.collection.immutable.ListMap
   */
 
 object EidosShell extends App {
-
   val reader = {
     val prompt = "(Eidos)>>> "
 
     if (args.length == 0) new CliReader(prompt, "user.home", ".eidosshellhistory")
     else new IdeReader(prompt)
   }
-
   val commands = ListMap(
     ":help" -> "show commands",
     ":reload" -> "reload grammar",
     ":exit" -> "exit system"
   )
-
   var ieSystem = new EidosSystem()
 
   println("\nWelcome to the Eidos Shell!")
