@@ -1,4 +1,4 @@
-package org.clulab.wm.utils
+package org.clulab.wm.wmexchanger.utils
 
 import java.io.{File, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets

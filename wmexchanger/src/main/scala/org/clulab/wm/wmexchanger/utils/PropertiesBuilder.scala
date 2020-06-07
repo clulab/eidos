@@ -1,8 +1,8 @@
-package org.clulab.wm.utils
+package org.clulab.wm.wmexchanger.utils
 
 import java.util.Properties
 
-import org.clulab.wm.utils.Closer.AutoCloser
+import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
 
 import scala.collection.JavaConverters._
 

@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.expansion
 
 import org.clulab.odin._
-import org.clulab.wm.eidos.attachments.{DCTime, Property, Time}
+import org.clulab.wm.eidos.attachments.{AttachmentHandler, DCTime, Property, Time}
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
@@ -20,8 +20,12 @@ object ExpansionUtils {
     val completeFoundBy = if (overlapping.nonEmpty) FoundBy.concat(overlapping) else expanded.foundBy
     // get all the attachments for the overlapping mentions
     val allAttachments = overlapping.flatMap(m => m.attachments).distinct
+    // make attachments out of the properties todo: should we have already done this?
+    val propertyAttachments = getOverlappingPropertyAttachments(expanded, state)
+    // filter out substring attachments
+    val filtered = AttachmentHandler.filterAttachments(allAttachments ++ expanded.attachments.toSeq ++ propertyAttachments)
     // Add in all attachments
-    val withAttachments = MentionUtils.withMoreAttachments(expanded, allAttachments)
+    val withAttachments = MentionUtils.withOnlyAttachments(expanded, filtered)
     // Modify the foundby for paper trail
     MentionUtils.withFoundBy(withAttachments, completeFoundBy)
   }
@@ -37,22 +41,11 @@ object ExpansionUtils {
       m
   }
 
-  // FIXME -- the difference between this method and addSubsumedAttachments above is small, can they be unified?
-  def addOverlappingAttachmentsTextBounds(m: Mention, state: State): Mention = {
-    m match {
-      case tb: TextBoundMention =>
-        val attachments = getOverlappingAttachments(tb, state)
-        if (attachments.nonEmpty) tb.copy(attachments = tb.attachments ++ attachments) else tb
-      case _ => m
-    }
-
-  }
-
-  def getOverlappingAttachments(m: Mention, state: State): Set[Attachment] = {
+  def getOverlappingPropertyAttachments(m: Mention, state: State): Seq[Attachment] = {
     val interval = m.tokenInterval
     // TODO: Currently this is only Property attachments, but we can do more too
     val overlappingProps = state.mentionsFor(m.sentence, interval, label = "Property")
-    overlappingProps.map(pm => Property(pm.text, None)).toSet
+    overlappingProps.map(pm => Property(pm.text, None))
   }
 
 }
