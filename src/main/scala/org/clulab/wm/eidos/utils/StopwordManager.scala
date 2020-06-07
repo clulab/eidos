@@ -13,7 +13,7 @@ trait StopwordManaging {
   def containsStopwordStrict(stopword: String): Boolean = containsStopword(stopword)
 }
 
-class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler, tagSet: TagSet) extends StopwordManaging {
+class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: TagSet) extends StopwordManaging {
   protected val stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
   protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
 
@@ -47,7 +47,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, corefHandl
   }
 
   def resolvedCoref(mention: Mention, state: State): Boolean = {
-    if (corefHandler.hasCorefToResolve(mention)) {
+    if (CorefHandler.hasCorefToResolve(mention)) {
       val corefRelations = state.allMentions.filter(m => m.matches(EidosSystem.COREF_LABEL)) // fixme
       corefRelations.exists(cr => cr.arguments.values.toSeq.flatten.contains(mention))
     }
@@ -115,13 +115,12 @@ object StopwordManager {
   //  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")
 
 
-  def apply(stopwordsPath: String, transparentPath: String, corefHandler: CorefHandler, tagSet: TagSet) =
-      new StopwordManager(stopwordsPath, transparentPath, corefHandler, tagSet)
+  def apply(stopwordsPath: String, transparentPath: String, tagSet: TagSet) =
+      new StopwordManager(stopwordsPath, transparentPath, tagSet)
 
   def fromConfig(config: Config, tagSet: TagSet) = {
     val stopwordsPath: String = config[String]("filtering.stopWordsPath")
     val transparentPath: String = config[String]("filtering.transparentPath")
-    val corefHandler: CorefHandler = CorefHandler.fromConfig(config[Config]("actions")) // fixme
-    apply(stopwordsPath, transparentPath, corefHandler, tagSet)
+    apply(stopwordsPath, transparentPath, tagSet)
   }
 }
