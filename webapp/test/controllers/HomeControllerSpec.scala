@@ -1,6 +1,7 @@
 package controllers
 
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Resourcer
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.test._
@@ -61,7 +62,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
     "be able to reground" in {
       val name = "test"
       // This was simply chosen because it is the smallest.
-      val ontologyYaml = FileUtils.getTextFromResource("/org/clulab/wm/eidos/english/ontologies/un_properties.yml")
+      val ontologyYaml = Resourcer.getText("/org/clulab/wm/eidos/english/ontologies/un_properties.yml")
       val texts = Array(
         "Rainfall in the summer causes good crop yields in the fall.",
         "This is another text that should be grounded."
