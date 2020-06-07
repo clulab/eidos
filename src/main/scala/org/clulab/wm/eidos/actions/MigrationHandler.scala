@@ -208,8 +208,8 @@ class MigrationHandler {
           anchor = geoLocMention,
           neighbor = mention.arguments(argName).head,
           arguments = Map[String, Seq[Mention]](
-            (EidosActions.ANTECEDENT, Seq(geoLocMention)),
-            (EidosActions.ANAPHOR, Seq(mention.arguments(argName).head))
+            (CorefHandler.ANTECEDENT, Seq(geoLocMention)),
+            (CorefHandler.ANAPHOR, Seq(mention.arguments(argName).head))
           ),
           document = mention.document,
           keep = true,

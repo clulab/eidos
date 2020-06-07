@@ -1,4 +1,4 @@
-package org.clulab.wm.utils
+package org.clulab.wm.wmexchanger.utils
 
 import java.util.Properties
 

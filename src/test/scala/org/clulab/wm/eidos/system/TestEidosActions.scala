@@ -4,15 +4,11 @@ import java.util.IdentityHashMap
 
 import scala.collection.JavaConverters._
 import org.clulab.odin._
-import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.json.stringify
-import org.clulab.struct.Interval
 import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.MentionUtils
 
 class TestEidosActions extends ExtractionTest {
 
@@ -113,197 +109,18 @@ class TestEidosActions extends ExtractionTest {
     }
   }
 
-  def correctCoreference(m: Mention, antecedant: String, anaphor: String): Boolean = {
-    (m matches EidosSystem.COREF_LABEL) && (m.isInstanceOf[CrossSentenceMention]) &&
-      (m.arguments(EidosActions.ANTECEDENT).head.text == antecedant) &&
-      (m.arguments(EidosActions.ANAPHOR).head.text == anaphor)
-  }
-
 
   def hasProperty(m: Mention, term: String): Boolean = {
     m.attachments.collect{ case p: Property => p.trigger }.contains(term)
   }
 
-
-//  {
-//    val reader = new EidosSystem()
-//
-//    behavior of "EidosActions"
-//
-//    val texts = Seq(
-//      // This is something that Ben found.
-//      "The government promotes improved cultivar to boost agricultural production for ensuring food security.",
-//      // This one is sent19 in the TestRaps
-//      "The governmental policy objective is to achieve food security, ensure adequate raw materials for the manufacturing sector, " +
-//        "and increased export earnings through increased productivity, efficient input use, and better market access, " +
-//        "infrastructure, and service development.",
-//      "This is a test."
-//    )
-//
-//    texts.zipWithIndex.foreach { case (text, index) => test(reader, text, index) }
-//  }
-
-//  // fixme: do we want a default here for "english" ???
-  class TestEidosActions extends EidosActions(None, None) {
-    // Relax some protected functions for testing
-
-    override def filterSubstringTriggers(attachments: Seq[TriggeredAttachment]): Seq[TriggeredAttachment] =
-      super.filterSubstringTriggers(attachments)
-
-    override def filterMostComplete(attachments: Seq[TriggeredAttachment]): TriggeredAttachment =
-      super.filterMostComplete(attachments)
-  }
-
-  val eidosActions = new TestEidosActions()
-
-  behavior of "attachment merging"
-
-  it should "filter for duplicate strings" in {
-    val attachments = Seq(
-      Quantification("long trigger", None),
-      Quantification("long trigger", None)
-    )
-    val filtered = eidosActions.filterSubstringTriggers(attachments)
-
-    filtered.size should be (1)
-  }
-
-  it should "filter for substrings" in {
-    val attachments = Seq(
-      Quantification("trigger", None),
-      Quantification("long trigger", None),
-      Quantification("long trigger", None),
-      Quantification("ng tr", None),
-      Quantification("long", None),
-      Quantification("short", None)
-    )
-    val filtered = eidosActions.filterSubstringTriggers(attachments)
-
-    filtered.size should be (2)
-  }
-
-  it should "filter for completeness" in {
-    val attachments = Seq(
-      Quantification("trigger", None),
-      Quantification("long trigger", Some(Seq("one", "two"))),
-      Quantification("long trigger", Some(Seq("one", "two", "three"))),
-      Quantification("short trigger", Some(Seq.empty))
-    )
-    val filtered = eidosActions.filterMostComplete(attachments)
-
-    filtered.asInstanceOf[EidosAttachment].argumentSize should be (3)
-  }
-
-  it should "filter homogeneous attachments for both including type and trigger" in {
-    val attachments = Seq(
-      Quantification("trigger", None),
-      Quantification("long trigger", Some(Seq("one", "two"))),
-      Quantification("long trigger", Some(Seq("one", "two", "three"))),
-      Quantification("short trigger", Some(Seq.empty))
-    )
-    val filtered = eidosActions.filterAttachments(attachments)
-
-    filtered.size should be(2)
-    filtered.foreach { attachment =>
-      if (attachment.trigger == "short trigger")
-          attachment.asInstanceOf[EidosAttachment].argumentSize should be(0)
-      if (attachment.trigger == "long trigger")
-        attachment.asInstanceOf[EidosAttachment].argumentSize should be(3)
-    }
-  }
-
-  it should "filter heterogeneous attachments for both including type and trigger" in {
-    val attachments = Seq(
-      Increase("abc", None),
-      Increase("abcd", Some(Seq("one", "two"))),
-      Increase("xyz", Some(Seq("one", "two", "three"))),
-      Increase("xyz", Some(Seq.empty)),
-
-      Decrease("31415", None),
-      Decrease("314", Some(Seq("one", "two"))),
-      Decrease("314", Some(Seq("one", "two", "three"))),
-      Decrease("31415", Some(Seq("pi")))
-    )
-
-    val filtered = eidosActions.filterAttachments(attachments)
-
-    filtered.size should be (3)
-  }
-
-  it should "copy with attachments" in {
-    val attachments = Seq(
-      Increase("abc", None),
-      Increase("abcd", Some(Seq("one", "two"))),
-      Increase("xyz", Some(Seq("one", "two", "three"))),
-      Increase("xyz", Some(Seq.empty)),
-
-      Decrease("31415", None),
-      Decrease("314", Some(Seq("one", "two"))),
-      Decrease("314", Some(Seq("one", "two", "three"))),
-      Decrease("31415", Some(Seq("pi")))
-    )
-
-    val mention = new TextBoundMention(Seq("label"), Interval(2, 3), 5, Document(Array.empty[Sentence]), false, "Found by me", Set.empty)
-    mention.attachments.size should be(0)
-
-    val newMention = MentionUtils.withMoreAttachments(mention, attachments)
-    newMention.attachments.size should be(attachments.size)
-  }
-
-  it should "merge attachments" in {
-    val attachments = Seq(
-      Increase("abc", None),
-      Increase("abcd", Some(Seq("one", "two"))),
-      Increase("xyz", Some(Seq("one", "two", "three"))),
-      Increase("xyz", Some(Seq.empty)),
-
-      Decrease("31415", None),
-      Decrease("314", Some(Seq("one", "two"))),
-      Decrease("314", Some(Seq("one", "two", "three"))),
-      Decrease("31415", Some(Seq("pi")))
-    )
-
-    val beforeMentions = Seq(new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, new Document(Array.empty[Sentence]), false, "Found by me", attachments.toSet))
-    val afterMentions = eidosActions.mergeAttachments(beforeMentions, new State())
-
-    afterMentions.head.attachments.size should be(3)
-  }
-
-  it should "merge entities" in {
-    val attachments1 = Seq(
-      Increase("abc", None),
-      Increase("abcd", Some(Seq("one", "two"))),
-      Increase("xyz", Some(Seq("one", "two", "three"))),
-      Increase("xyz", Some(Seq.empty))
-    )
-    val attachments2 = Seq(
-      Decrease("31415", None),
-      Decrease("314", Some(Seq("one", "two"))),
-      Decrease("314", Some(Seq("one", "two", "three"))),
-      Decrease("31415", Some(Seq("pi")))
-    )
-
-    val beforeMentions = Seq(
-      new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, new Document(Array.empty[Sentence]), false, "Found by me", attachments1.toSet),
-      new TextBoundMention(Seq("Entity"), Interval(2, 3), 5, new Document(Array.empty[Sentence]), false, "Found by me", attachments2.toSet)
-    )
-    val afterMentions = eidosActions.mergeAttachments(beforeMentions, new State())
-
-    afterMentions.size should be (1)
-    afterMentions.head.attachments.size should be(3)
-  }
+  val eidosActions = new EidosActions(None)
 
   it should "not throw an Exception" in {
     val text = "Accordingly , the Cooperative Union has agreed to process locally produced maize and haricot bean as a blended food that meets the standards set by the Bureau of Education ."
 
     noException should be thrownBy
       extractMentions(text)
-  }
-
-  it should "identify simple coreference relations in adjacent sentences" in {
-    val text = "Rainfall causes flooding.  This causes problems."
-    val mentions = extractMentions(text)
-    mentions.exists(m => correctCoreference(m, "flooding", "This"))
   }
 
   it should "identify properties" in {

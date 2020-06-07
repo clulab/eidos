@@ -32,10 +32,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
     // Yields not only the mention with newly expanded arguments, but also yields the expanded argument mentions
     // themselves so that they can be added to the state (which happens when the Seq[Mentions] is returned at the
     // end of the action
-    val res = mentions.flatMap(expandArgs(_, state))
-
-    // Useful for debug
-    res
+    mentions.flatMap(expandArgs(_, state))
   }
 
   /**
@@ -95,7 +92,6 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
         val attached = expandedArgs
           .map(ExpansionUtils.addSubsumedAttachments(_, state))
           .map(ExpansionUtils.attachDCT(_, state))
-          .map(ExpansionUtils.addOverlappingAttachmentsTextBounds(_, state)) // todo: what does this do that the addSubsumed doesn't?
           .map(EntityHelper.trimEntityEdges(_, tagSet))
         // Store
         newArgs.put(argType, attached)
@@ -176,7 +172,6 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
       case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
     }
   }
-
 
 }
 

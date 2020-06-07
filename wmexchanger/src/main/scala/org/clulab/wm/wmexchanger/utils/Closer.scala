@@ -1,4 +1,4 @@
-package org.clulab.wm.utils
+package org.clulab.wm.wmexchanger.utils
 
 import scala.language.reflectiveCalls
 import scala.util.control.NonFatal

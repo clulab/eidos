@@ -44,23 +44,35 @@ class EidosSystem(val components: EidosComponents) {
   // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
   // val cagRelevant = keepCAGRelevant(events)
   protected val headOdinRefiners: Seq[OdinRefiner] = Seq(
-    new OdinRefiner("MostCompleteEventsKeeper",  (odinMentions: Seq[Mention]) => { components.mostCompleteEventsKeeper.keepMostCompleteEvents(odinMentions) }),
-    new OdinRefiner("Distinct", (odinMentions: Seq[Mention]) => { odinMentions.distinct })
+    // Merge attachments: look for mentions with the same span and label and merge their attachments so none get lost
+    new OdinRefiner("AttachmentHandler",        (odinMentions: Seq[Mention]) => { components.attachmentHandler.mergeAttachments(odinMentions) }),
+    // Keep the most complete version of redundant mentions, should be done *after* attachments have been merged
+    new OdinRefiner("MostCompleteEventsKeeper", (odinMentions: Seq[Mention]) => { components.mostCompleteEventsKeeper.keepMostCompleteEvents(odinMentions) }),
+    // Make sure there are no duplicated Mentions
+    new OdinRefiner("Distinct",                 (odinMentions: Seq[Mention]) => { odinMentions.distinct })
   )
 
   // This is the pipeline for odin Mentions.
   protected def mkOdinRefiners(options: EidosSystem.Options): Seq[OdinRefiner] = {
     val tailOdinRefiners = Seq(
+      // Try to find additional causal relations by resolving simple event coreference
+      new OdinRefiner("CorefHandler",           (odinMentions: Seq[Mention]) => { components.corefHandler.resolveCoref(odinMentions) }),
+      // Expand concepts that aren't part of causal events, but which we are keeping and outputting
       new OdinRefiner("ConceptExpander",        (odinMentions: Seq[Mention]) => { components.conceptExpander.expand(odinMentions) }),
+      // Expand any nested arguments that got missed before
       new OdinRefiner("NestedArgumentExpander", (odinMentions: Seq[Mention]) => { components.nestedArgumentExpander.traverse(odinMentions) }),
+      // Filtering based on contentfulness
       new OdinRefiner("StopwordManager",        (odinMentions: Seq[Mention]) => {
         // This exception is dependent on runtime options.
         if (options.cagRelevantOnly) components.stopwordManager.keepCAGRelevant(odinMentions)
         else odinMentions
       }),
+      // Annotate hedging
       new OdinRefiner("HedgingHandler",         (odinMentions: Seq[Mention]) => { components.hedgingHandler.detectHypotheses(odinMentions) }),
+      // Annotate negation
       new OdinRefiner("NegationHandler",        (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) }),
-      new OdinRefiner("MigrationHandler",       (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) })
+      // Process migration events, assembling event fragments
+      new OdinRefiner("MigrationHandler",       (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) }),
     )
 
     headOdinRefiners ++ tailOdinRefiners
@@ -104,11 +116,10 @@ class EidosSystem(val components: EidosComponents) {
   protected def mkMentions(doc: Document): Seq[Mention] = {
     require(doc.text.isDefined)
 
-    // Prepare the initial state.  If you are using the entity finder, then it
-    // contains the found entities; otherwise, it is empty.
-    val initialState = components.entityFinders.foldLeft(emptyState) { (state, entityFinder) =>
-      Timer.time("Run " + entityFinder.getClass.getSimpleName, useTimer) {
-        val mentions = entityFinder.find(doc, state)
+    // Perform the information extraction in the sequence set in the config, using Finders
+    val extractions = components.finders.foldLeft(emptyState) { (state, finder) =>
+      Timer.time("Run " + finder.getClass.getSimpleName, useTimer) {
+        val mentions = finder.find(doc, state).toVector
 
         state.updated(mentions)
       }
@@ -116,7 +127,7 @@ class EidosSystem(val components: EidosComponents) {
 
     // It is believed that toVector is required to avoid some race conditions within the engine.
     // The engine's extractFrom returns a Seq which may involve delayed evaluation.
-    components.engine.extractFrom(doc, initialState).toVector
+    extractions.allMentions
   }
 
   def extractMentionsFrom(doc: Document): Seq[Mention] = {
