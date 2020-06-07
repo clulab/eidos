@@ -17,6 +17,7 @@ import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidos.utils.Timer
 import org.slf4j.Logger
@@ -88,6 +89,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
     EidosComponentsBuilder.logger.info((if (reloading) "Reloading" else "Loading") + " config...")
 
     val eidosConf: Config = config[Config](eidosSystemPrefix)
+    Resourcer.setConfig(config) // This is a hack which initializes a global variable.
 
     val headComponentLoaders: Seq[ComponentLoader] = if (reloading) {
       // When reloading, the expensive things and those required to make them are borrowed from previous components.

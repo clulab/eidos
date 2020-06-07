@@ -5,7 +5,7 @@ import java.util.{Collection => JCollection, Map => JMap}
 
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, Namer}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -154,7 +154,7 @@ object HalfTreeDomainOntology {
   class HalfTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean) {
 
     def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): HalfTreeDomainOntology =
-        buildFromYaml(getTextFromResource(ontologyPath), versionOpt, dateOpt)
+        buildFromYaml(Resourcer.getText(ontologyPath), versionOpt, dateOpt)
 
     def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): HalfTreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))

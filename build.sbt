@@ -4,6 +4,8 @@ import Tests._
 name := "eidos"
 organization := "org.clulab"
 
+fork := true
+
 scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
