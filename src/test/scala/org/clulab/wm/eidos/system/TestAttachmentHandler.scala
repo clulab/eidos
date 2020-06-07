@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.system
 
-
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.Interval
@@ -9,7 +8,6 @@ import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.utils.MentionUtils
 
 class TestAttachmentHandler extends ExtractionTest {
-
 
   val attachmentHandler = new AttachmentHandler()
 
@@ -149,5 +147,4 @@ class TestAttachmentHandler extends ExtractionTest {
     val newMention = MentionUtils.withMoreAttachments(mention, attachments)
     newMention.attachments.size should be(attachments.size)
   }
-
 }
