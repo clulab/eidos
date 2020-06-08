@@ -5,7 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.Exporter
-import org.clulab.wm.eidos.groundings.CompositionalGrounder
+import org.clulab.wm.eidos.groundings.grounders.CompositionalGrounder
 import org.clulab.wm.eidos.utils.FileUtils
 
 /**

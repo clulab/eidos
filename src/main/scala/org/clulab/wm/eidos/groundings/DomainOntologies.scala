@@ -6,9 +6,11 @@ import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
-import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology
+import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology
+import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
