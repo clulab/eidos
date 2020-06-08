@@ -6,7 +6,6 @@ import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
@@ -221,7 +220,7 @@ object OntologyHandler {
         // Base grounding steps, which aren't compositional
         val ontologyGrounders: Seq[OntologyGrounder] = ontologyNames.map { ontologyName =>
           val path: String = config[String](ontologyName)
-          val domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
+          val domainOntology = DomainHandler.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
               useCacheForOntologies, includeParents)
           val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
 

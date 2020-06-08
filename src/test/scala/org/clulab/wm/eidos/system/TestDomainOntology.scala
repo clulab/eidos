@@ -95,7 +95,7 @@ class TestDomainOntology extends Test {
 
     it should "load and not have duplicates" in {
       val newOntology = Timer.time(s"Load $name without cache") {
-        DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies = false, includeParents)
+        DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies = false, includeParents)
       }
       hasDuplicates(name, newOntology) should be (false)
 
@@ -110,7 +110,7 @@ class TestDomainOntology extends Test {
 
       if (useCacheForOntologies) {
         val newestOntology = Timer.time(s"Load $name from cache") {
-          DomainOntologies("", cachePath(abbrev), proc, canonicalizer, filter, useCacheForOntologies = true, includeParents)
+          DomainHandler("", cachePath(abbrev), proc, canonicalizer, filter, useCacheForOntologies = true, includeParents)
         }
 
         show3(newOntology, newerOntology, newestOntology)

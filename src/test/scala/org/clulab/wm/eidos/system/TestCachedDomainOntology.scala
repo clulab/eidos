@@ -58,7 +58,7 @@ class TestCachedDomainOntology extends Test {
     val path = ontologySpec.path
     val domainOntologies = Array(false, true).flatMap { useCacheForOntologies =>
       if (!useCacheForOntologies) {
-        val orig = DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies , includeParents)
+        val orig = DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies , includeParents)
         val copy =
           if (!includeParents)  new CompactDomainOntologyBuilder(orig.asInstanceOf[HalfTreeDomainOntology]).build()
           else new FastDomainOntologyBuilder(orig.asInstanceOf[FullTreeDomainOntology]).build()
@@ -68,7 +68,7 @@ class TestCachedDomainOntology extends Test {
       else {
         val cachePath = OntologyHandler.serializedPath(ontologySpec.abbrev, cacheDir, includeParents)
 
-        Array(DomainOntologies("", cachePath, proc, canonicalizer, filter, useCacheForOntologies, includeParents))
+        Array(DomainHandler("", cachePath, proc, canonicalizer, filter, useCacheForOntologies, includeParents))
       }
     }
 
