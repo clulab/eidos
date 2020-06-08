@@ -22,7 +22,6 @@ object Finder {
         case "geonorm" => GeoNormFinder.fromConfig(config[Config]("geonorm"))
         case "timenorm" => TimeNormFinder.fromConfig(config[Config]("timenorm"))
         case "context" => OdinFinder.fromConfig(config[Config]("context"), tagSet)
-        case "migration" => OdinFinder.fromConfig(config[Config]("migration"), tagSet)
         case "causal" => OdinFinder.fromConfig(config[Config]("causal"), tagSet)
         case _ => ???
       }

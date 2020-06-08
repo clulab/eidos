@@ -4,7 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.ExtractorEngine
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
-import org.clulab.wm.eidos.actions.{CorefHandler, MigrationHandler}
+import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory
 case class EidosComponents(
   proc: EidosProcessor,
   negationHandler: NegationHandler,
-  migrationHandler: MigrationHandler,
   stopwordManager: StopwordManager,
   ontologyHandler: OntologyHandler,
   mostCompleteEventsKeeper: MostCompleteEventsKeeper,
@@ -54,7 +53,6 @@ class ComponentLoader(val name: String, loader: => Unit) {
 class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var procOpt: Option[EidosProcessor] = None
   var negationHandlerOpt: Option[NegationHandler] = None
-  var migrationHandlerOpt: Option[MigrationHandler] = None
   var stopwordManagerOpt: Option[StopwordManager] = None
   var mostCompleteEventsKeeperOpt: Option[MostCompleteEventsKeeper] = None
   var ontologyHandlerOpt: Option[OntologyHandler] = None
@@ -139,7 +137,6 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
     }
 
     val tailComponentLoaders = Seq(
-      new ComponentLoader("MigrationHandler", { migrationHandlerOpt = Some(MigrationHandler()) }),
       new ComponentLoader("MostCompleteEventsKeeper", {
         val actions = EidosActions.fromConfig(config[Config]("actions"), procOpt.get.getTagSet)
 
@@ -172,7 +169,6 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
     EidosComponents(
       procOpt.get,
       negationHandlerOpt.get,
-      migrationHandlerOpt.get,
       stopwordManagerOpt.get,
       ontologyHandlerOpt.get,
       mostCompleteEventsKeeperOpt.get,

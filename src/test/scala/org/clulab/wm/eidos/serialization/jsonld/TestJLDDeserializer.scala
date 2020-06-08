@@ -5,15 +5,11 @@ import java.time.LocalDateTime
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.attachments.CountAttachment
-import org.clulab.wm.eidos.attachments.CountModifier
-import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
-import org.clulab.wm.eidos.attachments.MigrationGroupCount
 import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.attachments.PosChange
@@ -28,7 +24,6 @@ import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.CountMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentSentenceMap
@@ -148,27 +143,6 @@ class TestJLDDeserializer extends ExtractionTest {
 
       id should be("_:GeoLocation_15")
       geoPhraseID.geonameID should be(Some("7909807"))
-    }
-
-    it should "deserialize Count from jsonld" in {
-      val json = """
-        |{
-        |  "@type" : "Count",
-        |  "@id" : "_:Count_1",
-        |  "startOffset" : 3612,
-        |  "endOffset" : 3623,
-        |  "text" : "3000",
-        |  "value" : 3000.0,
-        |  "modifier" : "Approximate",
-        |  "unit" : "Weekly"
-        |}""".stripMargin
-      val countValue = parse(json)
-      val idAndCountAttachment = new JLDDeserializer().deserializeCountAttachment(countValue)
-      val id = idAndCountAttachment.id
-      val countAttachment = idAndCountAttachment.value
-
-      id should be ("_:Count_1")
-      countAttachment.migrationGroupCount.value should be (3000.0d)
     }
 
     it should "deserialize Word from jsonld" in {
@@ -610,13 +584,6 @@ class TestJLDDeserializer extends ExtractionTest {
         |  $provenance
         |}, {
         |  "@type" : "State",
-        |  "type" : "Count",
-        |  "text" : "text",
-        |  "value" : {
-        |    "@id" : "_:Count_1"
-        |  }
-        |}, {
-        |  "@type" : "State",
         |  "type" : "LocationExp",
         |  "text" : "text",
         |  "value" : {
@@ -644,14 +611,11 @@ class TestJLDDeserializer extends ExtractionTest {
       val timexMap = Map("_:TimeExpression_1" -> timeIntervel)
       val geoPhraseID = GeoPhraseID("text", Some("Denmark"), 3, 5)
       val geolocMap: GeolocMap = Map("_:GeoLocation_1" -> geoPhraseID)
-      val migrationGroupCount = MigrationGroupCount(3000.0d, CountModifier.Approximate, CountUnit.Weekly)
-      val countAttachment = new CountAttachment("text", migrationGroupCount, 3, 6)
-      val countMap: CountMap = Map("_:Count_1" -> countAttachment)
 
       val dct = DCT(SimpleInterval(LocalDateTime.now.minusHours(5), LocalDateTime.now), "text")
       val dctMap: DctMap = Map("_:DCT_1" -> dct)
       val attachments = new JLDDeserializer().deserializeStates(Option(statesValue), documentMap, documentSentenceMap,
-          timexMap, geolocMap, dctMap, countMap)
+          timexMap, geolocMap, dctMap)
 
       attachments.exists { attachment => attachment.isInstanceOf[Quantification]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Increase]} should be (true)
@@ -662,7 +626,6 @@ class TestJLDDeserializer extends ExtractionTest {
       attachments.exists { attachment => attachment.isInstanceOf[PosChange]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[NegChange]} should be (true)
 
-      attachments.exists { attachment => attachment.isInstanceOf[CountAttachment]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Location]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[Time]} should be (true)
       attachments.exists { attachment => attachment.isInstanceOf[DCTime]} should be (true)
@@ -754,35 +717,11 @@ class TestJLDDeserializer extends ExtractionTest {
       val timeIntervel = TimEx(Interval(0, 4), List.empty[TimeStep], "hello there")
       val timexMap = Map("_:DCT_1" -> timeIntervel)
       val geolocMap: GeolocMap = Map.empty
-      val countMap: CountMap = Map.empty
       val mentionMap: MentionMap = Map.empty
       val provenanceMap: ProvenanceMap = Map(Provenance(null, 480, Interval(0, 1)) -> "_:Extraction_1")
       val dctMap: DctMap = Map.empty
       /*val mention =*/ new JLDDeserializer().deserializeMention(extractionValue, extraction, mentionMap,
-        documentMap, documentSentenceMap, timexMap, geolocMap, provenanceMap, dctMap, countMap)
-    }
-  }
-
-  def testCrossSentenceEventMention(): Unit = {
-    it should "deserialize CrossSentenceEventMention from jsonld" in {
-
-      def serialize(original: AnnotatedDocument): String = {
-        val corpus = Seq(original)
-        val jldCorpus = new JLDCorpus(corpus)
-        val jValue = jldCorpus.serialize()
-        val json = stringify(jValue, pretty = true)
-
-        json
-      }
-
-      // The jsonld is too long to reasonably include.
-      val text = "300 refugees fled South Sudan; they left the country for Ethiopia. They left in 1997."
-      val annotatedDocument = ieSystem.extractFromText(text)
-      val json = serialize(annotatedDocument)
-      val copy = new JLDDeserializer().deserialize(json)
-      val mentions = copy.head.odinMentions
-
-      mentions.count(_.isInstanceOf[CrossSentenceEventMention]) should be(1)
+        documentMap, documentSentenceMap, timexMap, geolocMap, provenanceMap, dctMap)
     }
   }
 
@@ -885,7 +824,6 @@ class TestJLDDeserializer extends ExtractionTest {
   testSentences()
   testParagraphs()
   testDocuments()
-  testCrossSentenceEventMention()
 
   // Do not run this last test on Travis, but instead periodically on a real corpus
   // with all options enabled (useGrounding, useTimeNorm, useGeoNorm, etc.)

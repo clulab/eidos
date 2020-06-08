@@ -70,9 +70,7 @@ class EidosSystem(val components: EidosComponents) {
       // Annotate hedging
       new OdinRefiner("HedgingHandler",         (odinMentions: Seq[Mention]) => { components.hedgingHandler.detectHypotheses(odinMentions) }),
       // Annotate negation
-      new OdinRefiner("NegationHandler",        (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) }),
-      // Process migration events, assembling event fragments
-      new OdinRefiner("MigrationHandler",       (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) }),
+      new OdinRefiner("NegationHandler",        (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) })
     )
 
     headOdinRefiners ++ tailOdinRefiners

@@ -7,15 +7,11 @@ import org.clulab.odin.TextBoundMention
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.attachments.CountAttachment
-import org.clulab.wm.eidos.attachments.CountModifier
-import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
-import org.clulab.wm.eidos.attachments.MigrationGroupCount
 import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.attachments.PosChange
@@ -99,17 +95,6 @@ class TestJLDSerializer extends ExtractionTest {
     
     inspect(json)
     json should not be empty
-  }
-
-  it should "serialize a human migration event" in {
-    val json = serialize(Seq(
-      newTitledAnnotatedDocument("Since the beginning of September 2016, almost 40,000 refugees arrived in Ethiopia from South Sudan as of mid-November.",
-        "This is the title") // This isn't cag-relevant
-    ))
-
-    inspect(json)
-    json should not be empty
-    json.contains("HumanMigration") should be (true)
   }
 
   it should "be grounded" in {
@@ -293,42 +278,21 @@ class TestJLDSerializer extends ExtractionTest {
     }
   }
   else
-
     println("It didn't do it")
-
-  it should "serialize a count attachment" in {
-    val json = serialize(Seq(
-      newTitledAnnotatedDocument(
-        "Since the beginning of September 2016, almost 40,000 refugees arrived daily in Ethiopia from South Sudan as of mid-November.",
-        "This includes a migration event")
-    ))
-
-    inspect(json)
-    json.contains("count") should be (true)
-    json.contains("value") should be (true)
-    json.contains("modifier") should be (true)
-    json.contains("unit") should be (true)
-
-    json.contains("40000.0") should be (true)
-    json.contains("Max") should be (true)
-    json.contains("Daily") should be (true)
-  }
 
   println("It did not test used geo expressions")
 
   it should "serialize all kinds of attachments" in {
     val annotatedDocument1 = newTitledAnnotatedDocument(
-        "Since the beginning of September 2016, almost 40,000 refugees arrived daily in Ethiopia from South Sudan as of mid-November.",
-        "This includes a migration event"
+        "Rainfall causes wetness.",
+        "Pithy quote"
     )
     val document = annotatedDocument1.document
-    val mention = annotatedDocument1.odinMentions(2)
-    val textBoundMention = mention.asInstanceOf[TextBoundMention]
-    val emptyMention = textBoundMention.newWithoutAttachment(mention.attachments.head)
+    val textBoundMention = annotatedDocument1.odinMentions.collect { case odinMention: TextBoundMention => odinMention }.head
+    val emptyMention = textBoundMention // .newWithoutAttachment(textBoundMention.attachments.head)
 
     val trigger = "trigger"
     val someQuantifications = Some(Seq("one", "two"))
-    val migrationGroupCount = MigrationGroupCount(3000.0d, CountModifier.Approximate, CountUnit.Weekly)
     val geoPhraseID = GeoPhraseID("text", Some("Denmark"), 3, 5)
     val timEx = TimEx(TextInterval(3, 8), Seq(TimeStep(LocalDateTime.now, LocalDateTime.now.plusDays(1))), "text")
     val dct = DCT(SimpleInterval(LocalDateTime.now.minusHours(5), LocalDateTime.now), "text")
@@ -345,7 +309,6 @@ class TestJLDSerializer extends ExtractionTest {
       new PosChange(trigger, someQuantifications),
       new NegChange(trigger, someQuantifications),
 
-      new CountAttachment("text", migrationGroupCount, 3, 6),
       new Location(geoPhraseID),
       new Time(timEx),
       new DCTime(dct),

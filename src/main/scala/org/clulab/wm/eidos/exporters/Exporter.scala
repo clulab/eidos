@@ -23,7 +23,6 @@ object Exporter {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
       case "serialized" => SerializedExporter(filename)
       case "grounding" => GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
-      case "migration" => MigrationExporter(filename + ".migration.tsv")
       case "reground" => new RegroundExporter(filename + ".jsonld", reader)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
