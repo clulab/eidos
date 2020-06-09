@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.actions.{CorefHandler, MigrationHandler}
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.document.SentenceClassifier
 import org.clulab.wm.eidos.expansion.ConceptExpander
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
@@ -17,6 +18,7 @@ import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidos.utils.Timer
@@ -109,8 +111,9 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       val preComponentLoaders = Seq(
         new ComponentLoader("Processors", {
           EidosComponentsBuilder.logger.info("Loading processor...")
+          val sentenceClassifierOpt = SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language)
 
-          procOpt = Some(EidosProcessor(language, cutoff = 150))
+          procOpt = Some(EidosProcessor(sentenceClassifierOpt, language, cutoff = 150))
         })
       )
       // Get these out of the way so that the ontologyHandler can take its time about it
@@ -131,7 +134,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
           val eidosProcessor = procOpt.get
           val tokenizedDoc = eidosProcessor.mkDocument("This is a test.", keepText = true)
 
-          if (eidosProcessor.language == "english")
+          if (eidosProcessor.language == Language.ENGLISH)
             eidosProcessor.annotate(tokenizedDoc)
         }),
         new ComponentLoader("NegationHandler", { negationHandlerOpt = Some(NegationHandler(language)) })

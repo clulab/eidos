@@ -13,7 +13,9 @@ import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.utils.ScienceUtils
+import org.clulab.wm.eidos.document.SentenceClassifier
 import org.clulab.wm.eidos.utils.EnglishTagSet
+import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.PortugueseTagSet
 import org.clulab.wm.eidos.utils.SpanishTagSet
 import org.clulab.wm.eidos.utils.TagSet
@@ -41,7 +43,7 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
-class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
+class EidosEnglishProcessor(val sentenceClassifier: SentenceClassifier, val language: String, cutoff: Int) extends FastNLPProcessor
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
   val tagSet = new EnglishTagSet()
@@ -55,11 +57,17 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
       tagPartsOfSpeech(document)
       lemmatize(document)
       recognizeNamedEntities(document)
+      classifySentences(document)
     }
     document
   }
 
   def getTagSet: TagSet = tagSet
+
+  def classifySentences(document: Document): Unit = {
+    val classifications = document.sentences.map(sentenceClassifier.classify)
+    // TODO: Store these in a document attachment
+  }
 }
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
@@ -313,9 +321,11 @@ object EidosProcessor {
 
   type EidosProcessor = Processor with SentencesExtractor with LanguageSpecific
 
-  def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
-    case "english" => new EidosEnglishProcessor(language, cutoff)
-    case "spanish" => new EidosSpanishProcessor(language, cutoff)
-    case "portuguese" => new EidosPortugueseProcessor(language, cutoff)
+  def apply(sentenceClassifierOpt: Option[SentenceClassifier], language: String, cutoff: Int = 200): EidosProcessor = language match {
+    case Language.ENGLISH =>
+      require(sentenceClassifierOpt.isDefined)
+      new EidosEnglishProcessor(sentenceClassifierOpt.get, language, cutoff)
+    case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
+    case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
   }
 }
