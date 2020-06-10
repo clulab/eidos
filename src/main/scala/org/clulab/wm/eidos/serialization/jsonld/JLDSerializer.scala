@@ -548,7 +548,7 @@ class JLDRelationCausation(serializer: JLDSerializer, mention: EidosEventMention
     val targets = mention.eidosArguments.getOrElse(JLDRelationCausation.effect, Seq.empty).filter(isExtractable)
 //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -581,7 +581,7 @@ class JLDRelationPositiveAffect(serializer: JLDSerializer, mention: EidosEventMe
     val targets = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.effect, Seq.empty).filter(isExtractable)
     //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -614,7 +614,7 @@ class JLDRelationNegativeAffect(serializer: JLDSerializer, mention: EidosEventMe
     val targets = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.effect, Seq.empty).filter(isExtractable)
     //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -648,7 +648,7 @@ class JLDRelationCorrelation(serializer: JLDSerializer, mention: EidosEventMenti
     val targets = mention.eidosArguments.getOrElse(JLDRelationCorrelation.effect, Seq.empty).filter(isExtractable)
 //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -679,7 +679,7 @@ class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSente
   extends JLDRelation(serializer, JLDRelationCoreference.subtypeString, mention, countAttachmentMap) {
 
   override def getMentions: Seq[EidosMention] =
-      Seq(mention.eidosAnchor, mention.eidosNeighbor) ++ super.getMentions
+      super.getMentions ++ Seq(mention.eidosAnchor, mention.eidosNeighbor)
 
   // The provenance of this mention is just that of anchor and neighbor.
   override protected def provenance(): Seq[JValue] = Seq(
@@ -712,7 +712,7 @@ class JLDRelationMigration(serializer: JLDSerializer, mention: EidosEventMention
       mention.eidosArguments.getOrElse(key, Seq.empty[EidosMention])
     }
 
-    mentions ++ super.getMentions
+    super.getMentions ++ mentions
   }
 
   // The provenance of this mention is just that of anchor and neighbor.
