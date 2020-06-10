@@ -59,7 +59,17 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
 
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]],
       mentionMapper: MentionMapper): Map[String, Seq[EidosMention]] = {
-    odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, mentionMapper))
+    // This original implementation seemed to produce unstable results.  It may include some degree of
+    // parallelism.  The mentionMapper, which is edited recursively, appeared to lose values.
+    // Consequently, allEidosMentions did not have a complete set and not all mentions were refined.
+    // val result = odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, mentionMapper))
+    val result = odinArguments.map { case (key, odinMentions) =>
+      val mappedValues = EidosMention.asEidosMentions(odinMentions.toVector, mentionMapper)
+
+      key -> mappedValues
+    }
+
+    result
   }
 
   protected def remapOdinMention(odinMention: Mention, mentionMapper: MentionMapper): EidosMention =
@@ -119,7 +129,7 @@ object EidosMention {
     //  val mentionMapper = new IdentityMapper()
 
     val eidosMentions = asEidosMentions(odinMentions, mentionMapper)
-    val allEidosMentions = mentionMapper.getValues
+    val allEidosMentions = mentionMapper.getValues.toVector // No streaming or buffering is allowed.
     (eidosMentions, allEidosMentions)
   }
 
