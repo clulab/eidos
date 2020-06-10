@@ -18,10 +18,10 @@ class HashCodeBagger[T] extends Bagger[T] {
 
   def putIfNew(value: T, block: => Unit): Unit = {
     val count = map.getOrElse(value, 0)
-
+    
+    map.put(value, count + 1)
     if (count == 0)
       block
-    map.put(value, count + 1)
   }
 
   def get(): Seq[T] = map.keySet.toSeq
