@@ -15,7 +15,7 @@ object OntologyMapper {
 
   // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
   def main(args: Array[String]): Unit = {
-    val config = ConfigFactory.load(EidosSystem.defaultConfig)
+    val config = EidosSystem.defaultConfig
     val outputFile = config[String]("apps.ontologymapper.outfile")
     val topN = config[Int]("apps.groundTopN")
     val reader = new EidosSystem(config)

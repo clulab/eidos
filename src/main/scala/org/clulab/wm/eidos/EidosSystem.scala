@@ -72,7 +72,7 @@ class EidosSystem(val components: EidosComponents) {
       // Annotate negation
       new OdinRefiner("NegationHandler",        (odinMentions: Seq[Mention]) => { components.negationHandler.detectNegations(odinMentions) }),
       // Process migration events, assembling event fragments
-      new OdinRefiner("MigrationHandler",       (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) }),
+      new OdinRefiner("MigrationHandler",       (odinMentions: Seq[Mention]) => { components.migrationHandler.processMigrationEvents(odinMentions) })
     )
 
     headOdinRefiners ++ tailOdinRefiners
