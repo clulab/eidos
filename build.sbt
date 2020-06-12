@@ -130,6 +130,8 @@ scmInfo := Some(
 
 licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html"))
 
+homepage := Some(url("https://github.com/clulab/eidos"))
+
 developers := List(
   Developer(
     id    = "mihai.surdeanu",
