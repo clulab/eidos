@@ -119,7 +119,6 @@ object CacheOntologies extends App {
     cacheOntologies()
   }
 
-  deleteFiles(Paths.get("./test"))
   // Comment these in and out as required.
   replaceGeoNorms() // This should go first before EidosSystem is created.
 //  cacheWord2Vec()
