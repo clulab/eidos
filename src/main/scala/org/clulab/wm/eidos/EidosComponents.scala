@@ -117,7 +117,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
 
       val tagSet = procOpt.get.getTagSet
       val postpreComponentLoaders = Seq(
-        new ComponentLoader("StopwordManager", { stopwordManagerOpt = Some(StopwordManager.fromConfig(config, tagSet)) }),
+        new ComponentLoader("StopwordManager", { stopwordManagerOpt = Some(StopwordManager.fromConfig(config, tagSet)) })
       )
       loadComponents(postpreComponentLoaders)
 
@@ -159,7 +159,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) }),
       new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder"))) }),
       new ComponentLoader("CorefHandler", { corefHandlerOpt = Some(CorefHandler.fromConfig(config[Config]("coref"))) }),
-      new ComponentLoader("AttachmentHandler", { attachmentHandlerOpt = Some(AttachmentHandler()) }),
+      new ComponentLoader("AttachmentHandler", { attachmentHandlerOpt = Some(AttachmentHandler()) })
     )
     val componentLoaders = headComponentLoaders ++ tailComponentLoaders
     loadComponents(componentLoaders)
@@ -180,7 +180,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       nestedArgumentExpanderOpt.get,
       adjectiveGrounderOpt.get,
       corefHandlerOpt.get,
-      attachmentHandlerOpt.get,
+      attachmentHandlerOpt.get
     )
   }
 }
