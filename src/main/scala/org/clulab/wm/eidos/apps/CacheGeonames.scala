@@ -9,7 +9,7 @@ import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
 
 object CacheGeonames extends App {
-  val config = ConfigFactory.load(EidosSystem.defaultConfig)
+  val config = EidosSystem.defaultConfig
   val geoNamesDir: Path = Paths.get(config[String]("geonorm.geoNamesDir")).toAbsolutePath.normalize
 
   GeoNamesIndex.fromClasspathJar(geoNamesDir)

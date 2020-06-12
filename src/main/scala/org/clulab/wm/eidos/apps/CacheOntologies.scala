@@ -16,8 +16,7 @@ import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.utils.Domain
 
 object CacheOntologies extends App {
-  val config = ConfigFactory.load(EidosSystem.defaultConfig)
-  val domain = Domain.getDomain(config)
+  val config = EidosSystem.defaultConfig
   val includeParents: Boolean = config[Boolean]("ontologies.includeParents")
   val cacheDir: String = config[String]("ontologies.cacheDir")
   // Not all operations require the reader, so hedge your bets.
@@ -27,8 +26,9 @@ object CacheOntologies extends App {
 
   def deleteFiles(path: Path): Unit = {
     if (Files.exists(path)) {
-      Files.list(path).forEach { path =>
-        Files.deleteIfExists(path)
+      // This is written for Scala 1.11 compatibility.
+      Files.list(path).toArray.foreach { path =>
+        Files.deleteIfExists(path.asInstanceOf[Path])
       }
       // At least on Windows, the directory doesn't disappear until the application exists.
       // In the meantime, it will be locked and unavailable for use by GeoNamesIndex.
@@ -119,6 +119,7 @@ object CacheOntologies extends App {
     cacheOntologies()
   }
 
+  deleteFiles(Paths.get("./test"))
   // Comment these in and out as required.
   replaceGeoNorms() // This should go first before EidosSystem is created.
 //  cacheWord2Vec()
