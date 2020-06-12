@@ -38,7 +38,7 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
       "Comments",
       "Trigger",
       "Rule",
-      "Negated",
+      "Negated"
     )
   }
 
@@ -99,7 +99,7 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
       "", // comments
       trigger,
       mention.odinMention.foundBy,
-      negation,
+      negation
     )
   }
 }
