@@ -1,9 +1,139 @@
-increase_triggers: "acceler|aggravat|amplif|augment|boost|compound|doubl|elev|enhanc|escalat|exorbitant|height|increas|intens|maximiz|multipl(y|ie)|prolong|promot|rais|reactivat|restor|spark|spike|spread|stimul|synerg|up-regul|upregul|uptick|widen"
-noncausal_increase_triggers: "above|above-average|climb|deep|greater|heav|(highs?$)|highe(r|s)|provid|rise|rising|(up)?surg(ed?|ing)$|upturn|widespread"
-create_triggers: "creat|generat|inspir|prompt"
+increase_triggers:
+  - acceler
+  - aggravat
+  - amplif
+  - augment
+  - boost
+  - compound
+  - doubl
+  - elev
+  - enhanc
+  - escalat
+  - exorbitant
+  - height
+  - increas
+  - intens
+  - maximiz
+  - multipl(y|ie)
+  - prolong
+  - promot
+  - rais
+  - reactivat
+  - restor
+  - spark
+  - spike
+  - spread
+  - stimul
+  - synerg
+  - up-regul
+  - upregul
+  - uptick
+  - widen
+noncausal_increase_triggers:
+  - above
+  - above-average
+  - climb
+  - deep
+  - greater
+  - heav
+  - (highs?$)
+  - highe(r|s)
+  - provid
+  - rise
+  - rising
+  - (up)?surg(ed?|ing)$
+  - upturn
+  - widespread
+create_triggers:
+  - creat
+  - generat
+  - inspir
+  - prompt
 
-decrease_triggers: "abat|attenu|abolish|abrog|arrest|block|collaps|constrain|curtail|(cuts?$)|cutting|damag|deactiv|decimat|decreas|degrad|deplet|depreciat|depress|destabili|deregul|deteriorat|difficult|diminish|disrupt|down-reg|downreg|drain|drop|dysregul|elimin|^ends?$|eras|erod|exhaust|impair|imped|inhibit|hamper|hinder|limit|less|lower|minimiz|mitigat|negat|nullifi|prevent|reduc|repress|restrict|revers|sequester|short|shrink|shrunk|slow|starv|suppress|supress|undermin"
-noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|downturn|(fall$)|fail|(fell$)|inactiv|inadequate|knockdown|lack|loss|(lows?$)|plummet|poor|scarce|scarcity|shortage|shutdown"
+decrease_triggers:
+  - abat
+  - attenu
+  - abolish
+  - abrog
+  - arrest
+  - block
+  - collaps
+  - constrain
+  - curtail
+  - (cuts?$)
+  - cutting
+  - damag
+  - deactiv
+  - decimat
+  - decreas
+  - degrad
+  - deplet
+  - depreciat
+  - depress
+  - destabili
+  - deregul
+  - deteriorat
+  - difficult
+  - diminish
+  - disrupt
+  - down-reg
+  - downreg
+  - drain
+  - drop
+  - dysregul
+  - elimin
+  - ^ends?$
+  - eras
+  - erod
+  - exhaust
+  - impair
+  - imped
+  - inhibit
+  - hamper
+  - hinder
+  - limit
+  - less
+  - lower
+  - minimiz
+  - mitigat
+  - negat
+  - nullifi
+  - prevent
+  - reduc
+  - repress
+  - restrict
+  - revers
+  - sequester
+  - short
+  - shrink
+  - shrunk
+  - slow
+  - starv
+  - suppress
+  - supress
+  - undermin
+noncausal_decrease_triggers:
+  - absence
+  - below-average
+  - declin
+  - defici
+  - discontinu
+  - downturn
+  - (fall$)
+  - fail
+  - (fell$)
+  - inactiv
+  - inadequate
+  - knockdown
+  - lack
+  - loss
+  - (lows?$)
+  - plummet
+  - poor
+  - scarce
+  - scarcity
+  - shortage
+  - shutdown
 #advers|perturb|resist|
 
 
@@ -12,21 +142,68 @@ noncausal_decrease_triggers: "absence|below-average|declin|defici|discontinu|dow
 
 # improve drought ==> DEC
 # improve wages   ==> INC
-positive_affect_triggers: "aid|alleviat|ameliorat|favorable|improv|reliev"
-noncausal_positive_affect_triggers: "better|good"
+positive_affect_triggers:
+  - aid
+  - alleviat
+  - ameliorat
+  - favorable
+  - improv
+  - reliev"
+noncausal_positive_affect_triggers:
+  - better
+  - good
 
 # worsen drought ==> INC
 # worsen wages   ==> DEC
-negative_affect_triggers: "exacerbat|worse"
+negative_affect_triggers:
+  - exacerbat
+  - worse
 
 
 
 # NOTE led by itself matches sealed, so we need to anchor it, i.e. ^led$
-cause_triggers: "activat|allow|because|cataly|caus|driv|elicit|enabl|force|forcing|induc|(initiat[e|(ed)|(ing)]?$)|interconvert|lead|^led$|mediat|modulat|produc[e|i]|signal|synthes|trigger|underli"
+cause_triggers:
+  - activat
+  - allow
+  - because
+  - cataly
+  - caus
+  - driv
+  - elicit
+  - enabl
+  - ensur
+  - force
+  - forcing
+  - induc
+  - (initiat[e|(ed)|(ing)]?$)
+  - interconvert
+  - lead
+  - ^led$
+  - mediat
+  - modulat
+  - precipitate
+  - produc[e|i]
+  - source
+  - signal
+  - spark
+  - synthes
+  - trigger
+  - underli
 #nonavoid_causal_triggers: "produc[ei]$"
-reverse_direction_cause_triggers: "result|effect|consequence"
+reverse_direction_cause_triggers:
+  - result
+  - effect
+  - consequence
 
-affect_triggers: "affect|alter|(displaces?$)|chang|influenc|modifi|modify"
-nonavoid_affect_triggers: "impact"
+affect_triggers:
+  - affect
+  - alter
+  - (displaces?$)
+  - chang
+  - influenc
+  - modifi
+  - modify
+nonavoid_affect_triggers:
+  - impact
 
 correlation_triggers: "associat|coincid|link|relat"
