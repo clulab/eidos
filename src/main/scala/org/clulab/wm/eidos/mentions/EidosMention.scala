@@ -2,11 +2,12 @@ package org.clulab.wm.eidos.mentions
 
 import java.util
 
+import collection.JavaConverters._
+
 import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.attachments.TriggeredAttachment
 import org.clulab.wm.eidos.utils.HashCodeBagger
 import org.clulab.wm.eidos.utils.IdentityBagger
 
@@ -15,6 +16,7 @@ import scala.collection.mutable
 abstract class MentionMapper {
   def put(odinMention: Mention, eidosMention: EidosMention): Unit
   def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention
+  def getValues: Seq[EidosMention]
 }
 
 class HashCodeMapper extends MentionMapper {
@@ -23,6 +25,8 @@ class HashCodeMapper extends MentionMapper {
   def put(odinMention: Mention, eidosMention: EidosMention): Unit = mapOfMentions.put(odinMention, eidosMention)
 
   def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention = mapOfMentions.getOrElse(odinMention, default)
+
+  def getValues: Seq[EidosMention] = mapOfMentions.values.toSeq
 }
 
 class IdentityMapper extends MentionMapper {
@@ -33,6 +37,8 @@ class IdentityMapper extends MentionMapper {
   def getOrElse(odinMention: Mention, default: => EidosMention): EidosMention =
       if (mapOfMentions.containsKey(odinMention)) mapOfMentions.get(odinMention)
       else default
+
+  def getValues: Seq[EidosMention] = mapOfMentions.values.asScala.toSeq
 }
 
 
@@ -53,7 +59,17 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
 
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]],
       mentionMapper: MentionMapper): Map[String, Seq[EidosMention]] = {
-    odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, mentionMapper))
+    // This original implementation seemed to produce unstable results.  It may include some degree of
+    // parallelism.  The mentionMapper, which is edited recursively, appeared to lose values.
+    // Consequently, allEidosMentions did not have a complete set and not all mentions were refined.
+    // val result = odinArguments.mapValues(odinMentions => EidosMention.asEidosMentions(odinMentions, mentionMapper))
+    val result = odinArguments.map { case (key, odinMentions) =>
+      val mappedValues = EidosMention.asEidosMentions(odinMentions.toVector, mentionMapper)
+
+      key -> mappedValues
+    }
+
+    result
   }
 
   protected def remapOdinMention(odinMention: Mention, mentionMapper: MentionMapper): EidosMention =
@@ -107,12 +123,14 @@ object EidosMention {
     eidosMentions
   }
 
-  def asEidosMentions(odinMentions: Seq[Mention]): Seq[EidosMention] = {
+  def asEidosMentions(odinMentions: Seq[Mention]): (Seq[EidosMention], Seq[EidosMention]) = {
     // This will map odinMentions to eidosMentions.
     val mentionMapper = new HashCodeMapper()
     //  val mentionMapper = new IdentityMapper()
 
-    asEidosMentions(odinMentions, mentionMapper)
+    val eidosMentions = asEidosMentions(odinMentions, mentionMapper)
+    val allEidosMentions = mentionMapper.getValues.toVector // No streaming or buffering is allowed.
+    (eidosMentions, allEidosMentions)
   }
 
   def findReachableOdinMentions(surfaceMentions: Seq[Mention]): Seq[Mention] = {

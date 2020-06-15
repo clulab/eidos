@@ -154,8 +154,7 @@ class TestJLDSerializer extends ExtractionTest {
         Set.empty
       )
       val nextOdinMentions = crossSentenceMention +: prevOdinMentions
-      val nextEidosMentions = EidosMention.asEidosMentions(nextOdinMentions)
-      val nextAnnotatedDocument = AnnotatedDocument(firstMention.document, nextEidosMentions)
+      val nextAnnotatedDocument = AnnotatedDocument.fromOdinMentions(firstMention.document, nextOdinMentions)
 
       nextAnnotatedDocument
     }
@@ -317,8 +316,7 @@ class TestJLDSerializer extends ExtractionTest {
 
     val fullMention = attachments.foldLeft(emptyMention) { case (textBoundMention, attachment) => textBoundMention.newWithAttachment(attachment)}
     val odinMentions = Seq(fullMention)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
-    val annotatedDocument2 = AnnotatedDocument(document, eidosMentions)
+    val annotatedDocument2 = AnnotatedDocument.fromOdinMentions(document, odinMentions)
     val json = serialize(Seq(annotatedDocument2))
 
     inspect(json)

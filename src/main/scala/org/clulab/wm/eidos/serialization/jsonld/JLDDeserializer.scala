@@ -766,7 +766,7 @@ class JLDDeserializer {
     }.getOrElse(Map.empty)
     val allOdinMentions = mentionMap.values.toArray
     val odinMentions = removeTriggerOnlyMentions(allOdinMentions)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val (eidosMentions, allEidosMentions) = EidosMention.asEidosMentions(odinMentions)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
       val document = documentSpec.idAndDocument.value
       // This one will use the deserialized groundings.
@@ -774,7 +774,7 @@ class JLDDeserializer {
       // This one will rerun the postProcessors, which hopefully match what was used
       // for the original grounding.
       // val newAnnotatedDocument = addEidosExtras2(annotatedDocument, postProcessors)
-      val annotatedDocument = AnnotatedDocument(document, eidosMentions)
+      val annotatedDocument = AnnotatedDocument(document, eidosMentions, allEidosMentions)
 
       annotatedDocument
     }

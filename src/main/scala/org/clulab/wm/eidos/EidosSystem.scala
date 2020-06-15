@@ -78,10 +78,13 @@ class EidosSystem(val components: EidosComponents) {
 
   // This is the pipeline for EidosMentions.
   protected def mkEidosRefiners(options: EidosSystem.Options): Seq[EidosRefiner] = Seq(
-    new EidosRefiner("OntologyHandler",   (eidosMentions: Seq[EidosMention]) => { components.ontologyHandler.ground(eidosMentions) }),
-    new EidosRefiner("AdjectiveGrounder", (eidosMentions: Seq[EidosMention]) => {
-      eidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
-      eidosMentions
+    new EidosRefiner("OntologyHandler",   (annotatedDocument: AnnotatedDocument) => {
+      annotatedDocument.allEidosMentions.foreach(components.ontologyHandler.ground)
+      annotatedDocument
+    }),
+    new EidosRefiner("AdjectiveGrounder", (annotatedDocument: AnnotatedDocument) => {
+      annotatedDocument.allEidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
+      annotatedDocument
     })
   )
 
@@ -134,8 +137,8 @@ class EidosSystem(val components: EidosComponents) {
     refineOdinMentions(headOdinRefiners, odinMentions)
   }
 
-  protected def refine[T](refiners: Seq[Refiner[T]], mentions: Seq[T]): Seq[T] = {
-    val lastMentions = refiners.foldLeft(mentions) { (prevMentions, refiner) =>
+  def refineOdinMentions(odinRefiners: Seq[OdinRefiner], odinMentions: Seq[Mention]): Seq[Mention] = {
+    val lastMentions = odinRefiners.foldLeft(odinMentions) { (prevMentions, refiner) =>
       Timer.time("Run " + refiner.name, useTimer) {
         val nextMentions = refiner.refine(prevMentions)
 
@@ -145,23 +148,27 @@ class EidosSystem(val components: EidosComponents) {
     lastMentions
   }
 
-  def refineOdinMentions(odinRefiners: Seq[Refiner[Mention]], odinMentions: Seq[Mention]): Seq[Mention] =
-      refine[Mention](odinRefiners, odinMentions)
+  def refineEidosMentions(eidosRefiners: Seq[EidosRefiner], annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    val lastAnnotatedDocument = eidosRefiners.foldLeft(annotatedDocument) { (prevAnnotatedDocument, refiner) =>
+      Timer.time("Run " + refiner.name, useTimer) {
+        val nextAnnotatedDocument = refiner.refine(prevAnnotatedDocument)
 
-  def refineEidosMentions(eidosRefiners: Seq[Refiner[EidosMention]], eidosMentions: Seq[EidosMention]): Seq[EidosMention] =
-    refine[EidosMention](eidosRefiners, eidosMentions)
+        nextAnnotatedDocument // inspect here
+      }
+    }
+    lastAnnotatedDocument
+  }
 
   // This could be used with more dynamically configured refiners, especially if made public.
   // Refining is where, e.g., grounding and filtering happens.
-  protected def extractFromDoc(doc: Document, odinRefiners: Seq[Refiner[Mention]],
-      eidosRefiners: Seq[Refiner[EidosMention]]): AnnotatedDocument = {
+  protected def extractFromDoc(doc: Document, odinRefiners: Seq[OdinRefiner],
+      eidosRefiners: Seq[EidosRefiner]): AnnotatedDocument = {
     val odinMentions = mkMentions(doc)
     val refinedOdinMentions = refineOdinMentions(odinRefiners, odinMentions)
-    val eidosMentions = EidosMention.asEidosMentions(refinedOdinMentions)
-    val refinedEidosMentions = refineEidosMentions(eidosRefiners, eidosMentions)
-    val annotatedDocument = AnnotatedDocument(doc, refinedEidosMentions)
+    val annotatedDocument = AnnotatedDocument.fromOdinMentions(doc, refinedOdinMentions)
+    val refinedAnnotatedDocument = refineEidosMentions(eidosRefiners, annotatedDocument)
 
-    annotatedDocument
+    refinedAnnotatedDocument
   }
 
   // MAIN PIPELINE METHOD if given doc
@@ -223,11 +230,9 @@ class EidosSystem(val components: EidosComponents) {
       mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
 }
 
-class Refiner[T](val name: String, val refine: Seq[T] => Seq[T])
+class OdinRefiner(val name: String, val refine: Seq[Mention] => Seq[Mention])
 
-class OdinRefiner(name: String, refine: Seq[Mention] => Seq[Mention]) extends Refiner[Mention](name, refine)
-
-class EidosRefiner(name: String, refine: Seq[EidosMention] => Seq[EidosMention]) extends Refiner[EidosMention](name, refine)
+class EidosRefiner(val name: String, val refine: AnnotatedDocument => AnnotatedDocument)
 
 object EidosSystem {
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
