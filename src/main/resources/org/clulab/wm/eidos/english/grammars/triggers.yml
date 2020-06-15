@@ -3,13 +3,19 @@ increase_triggers:
   - aggravat
   - amplif
   - augment
+  - bolster
   - boost
+  - compel(s?$)|compell
   - compound
   - doubl
   - elev
   - enhanc
   - escalat
   - exorbitant
+  - facilitat(e|ed|es|ing)
+  - foster
+  - goad
+  - growing
   - height
   - increas
   - intens
@@ -19,11 +25,14 @@ increase_triggers:
   - promot
   - rais
   - reactivat
+  - reinforc
   - restor
   - spark
   - spike
   - spread
   - stimul
+  - stok
+  - strengthen
   - synerg
   - up-regul
   - upregul
@@ -34,6 +43,7 @@ noncausal_increase_triggers:
   - above-average
   - climb
   - deep
+  - far-reaching
   - greater
   - heav
   - (highs?$)
@@ -49,6 +59,7 @@ create_triggers:
   - generat
   - inspir
   - prompt
+  - spawn
 
 decrease_triggers:
   - abat
@@ -73,8 +84,10 @@ decrease_triggers:
   - destabili
   - deregul
   - deteriorat
+  - deters?\b|deterr
   - difficult
   - diminish
+  - discourag
   - disrupt
   - down-reg
   - downreg
@@ -85,32 +98,43 @@ decrease_triggers:
   - ^ends?$
   - eras
   - erod
+  - eschew
   - exhaust
+  - extinguish
   - impair
   - imped
   - inhibit
+  - interdict
   - hamper
   - hinder
+  - jeopardiz
   - limit
   - less
   - lower
   - minimiz
   - mitigat
   - negat
+  - neutraliz
   - nullifi
   - prevent
+  - prohibit
   - reduc
   - repress
   - restrict
   - revers
   - sequester
+  - slash
   - short
   - shrink
   - shrunk
   - slow
   - starv
+  - stop
+  - stymi
   - suppress
   - supress
+  - suspend
+  - undercut
   - undermin
 noncausal_decrease_triggers:
   - absence
@@ -146,6 +170,7 @@ positive_affect_triggers:
   - aid
   - alleviat
   - ameliorat
+  - ease(s|d|ing)?
   - favorable
   - improv
   - reliev"
@@ -156,7 +181,10 @@ noncausal_positive_affect_triggers:
 # worsen drought ==> INC
 # worsen wages   ==> DEC
 negative_affect_triggers:
+  - challeng
+  - complicat
   - exacerbat
+  - threaten
   - worse
 
 
