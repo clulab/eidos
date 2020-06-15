@@ -1,16 +1,16 @@
 package org.clulab.wm.eidos.apps
 
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.mentions.{EidosMention, EidosTextBoundMention}
+import org.clulab.wm.eidos.mentions.EidosTextBoundMention
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
-import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.DisplayUtils.{displayMention, displayMentions}
+import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods._
 
 object ExampleGenerator extends App {
 
   // Needed for json4s
-  implicit val formats = org.json4s.DefaultFormats
+  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
 
   // creates an extractor engine using the rules and the default actions
@@ -21,10 +21,13 @@ object ExampleGenerator extends App {
 
   // extract mentions from annotated document
   val mentions = ieSystem.extractMentionsFrom(doc).sortBy(m => (m.sentence, m.getClass.getSimpleName))
-  val eidosMentions = EidosMention.asEidosMentions(mentions)
+  val annotatedDocument = ieSystem.extractFromText(text)
+  val entities = annotatedDocument.eidosMentions
+      .filter(_.odinMention matches "Entity")
+      .sortBy(eidosMention => (eidosMention.odinMention.sentence, eidosMention.odinMention.getClass.getSimpleName))
 
   // Display the groundings for all entities
-  for (e <- eidosMentions.filter(_.odinMention matches "Entity")) {
+  for (e <- entities) {
     println("EidosMention:")
     displayMention(e.odinMention)
     println("Groundings:")
