@@ -166,6 +166,7 @@ object FullTreeDomainOntology {
     domainOntology
   }
 
+
   // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
   class FullTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer,
       filter: Boolean) {
