@@ -18,13 +18,12 @@ import org.clulab.timenorm.scate.TemporalNeuralParser
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.OdinMention
 import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.JavaConverters._
 import scala.util.Try
-import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 @SerialVersionUID(1L)
@@ -52,8 +51,8 @@ object TimeNormFinder {
   }
 
   def getTimExs(odinMentions: Seq[Mention]): Seq[TimEx] = {
-    val reachableMentions = EidosMention.findReachableOdinMentions(odinMentions)
-    val timExSeq: Seq[TimEx] = reachableMentions.flatMap { odinMention =>
+    val allOdinMentions = OdinMention.findAllByIdentity(odinMentions)
+    val timExSeq: Seq[TimEx] = allOdinMentions.flatMap { odinMention =>
       odinMention.attachments.collect {
         case attachment: Time => attachment.interval
       }

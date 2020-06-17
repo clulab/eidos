@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.context
 
-import java.net.URL
 import java.nio.file.{Files, Path, Paths}
 import java.util.IdentityHashMap
 
@@ -13,9 +12,7 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.FileUtils
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidos.utils.OdinMention
 
 import scala.collection.JavaConverters._
 
@@ -23,7 +20,6 @@ import scala.collection.JavaConverters._
 case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int, endOffset: Int)
 
 object GeoNormFinder {
-  private lazy val logger = LoggerFactory.getLogger(getClass)
 
   def fromConfig(config: Config): GeoNormFinder = {
     val geoNamesDir: Path = Paths.get(config[String]("geoNamesDir")).toAbsolutePath.normalize
@@ -40,8 +36,8 @@ object GeoNormFinder {
   }
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention]): Array[GeoPhraseID]= {
-    val reachableMentions = EidosMention.findReachableOdinMentions(odinMentions)
-    val geoPhraseIDSeq: Seq[GeoPhraseID] = reachableMentions.flatMap { odinMention =>
+    val allOdinMentions = OdinMention.findAllByIdentity(odinMentions)
+    val geoPhraseIDSeq: Seq[GeoPhraseID] = allOdinMentions.flatMap { odinMention =>
       odinMention.attachments.collect {
         case attachment: Location => attachment.geoPhraseID
       }
