@@ -106,7 +106,7 @@ class TestGrounding extends EnglishTest {
       val causes = {
         val odinCauses = causeIntervals.map(x =>
             new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
-        val annotatedDocument = AnnotatedDocument.fromOdinMentions(doc, odinCauses)
+        val annotatedDocument = AnnotatedDocument(doc, odinCauses)
         val eidosCauses = annotatedDocument.eidosMentions
 
         // This only grounds the surfact mentions, but that is sufficient for the test.
@@ -117,7 +117,7 @@ class TestGrounding extends EnglishTest {
       val effects = {
         val odinEffects = effectIntervals.map(x =>
             new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
-        val annotatedDocument = AnnotatedDocument.fromOdinMentions(doc, odinEffects)
+        val annotatedDocument = AnnotatedDocument(doc, odinEffects)
         val eidosEffects = annotatedDocument.eidosMentions
 
         // This only grounds the surfact mentions, but that is sufficient for the test.
