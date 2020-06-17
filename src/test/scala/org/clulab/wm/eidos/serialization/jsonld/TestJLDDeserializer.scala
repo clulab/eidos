@@ -889,6 +889,6 @@ class TestJLDDeserializer extends ExtractionTest {
 
   // Do not run this last test on Travis, but instead periodically on a real corpus
   // with all options enabled (useGrounding, useTimeNorm, useGeoNorm, etc.)
-  testTextFiles("../corpora/Doc52/txt")
+//  testTextFiles("../corpora/Doc52/txt")
 //  testJsonldFiles("../jsonldtmp")
 }
