@@ -7,8 +7,6 @@ import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.attachments.CountModifier.CountModifier
-import org.clulab.wm.eidos.attachments.CountUnit.CountUnit
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.QuicklyEqualable
 
@@ -41,7 +39,6 @@ object Correlation extends EventSpec("Correlation", false)
 object SameAs extends EventSpec("SameAs", false)
 // Not in taxonomy
 object Affect extends EventSpec("Affect", true)
-object HumanMigration extends EventSpec("HumanMigration", true)
 
 abstract class AttachmentSpec extends GraphSpec with QuicklyEqualable {
 
@@ -286,40 +283,6 @@ object GeoLoc {
   def apply(text: String) =  new GeoLoc(text)
 }
 
-class CountSpec(val value: Double, val modifier: CountModifier, val unit: CountUnit) extends ContextAttachmentSpec("") {
-  override protected val matchingClass: Class[_] = classOf[CountAttachment]
-
-  override def calculateHashCode: Int = mix(mix(value.##, modifier.##), unit.##)
-
-  override def biEquals(other: Any): Boolean = {
-    val that = other.asInstanceOf[CountSpec]
-
-    this.value == that.value &&
-        this.modifier == that.modifier &&
-        this.unit == that.unit
-  }
-
-  override def toString = s"Count($value, $modifier, $unit)"
-
-  // The superclass just compares text, but these texts don't match.
-  // They have more complicated structure which much be compared.
-  override def matchAttachment(attachment: ContextAttachment): Boolean = {
-    val result = matchClass(attachment) && {
-      val countAttachment = attachment.asInstanceOf[CountAttachment]
-
-      countAttachment.migrationGroupCount.value == value &&
-          countAttachment.migrationGroupCount.modifier == modifier &&
-          countAttachment.migrationGroupCount.unit == unit
-    }
-    result
-  }
-}
-
-object CountSpec {
-  def apply(value: Double, modifier: CountModifier = CountModifier.NoModifier, unit: CountUnit = CountUnit.Absolute) =
-    new CountSpec(value, modifier, unit)
-}
-
 class Unmarked(trigger: String, quantifiers: Option[Seq[String]]) extends TriggeredAttachmentSpec(trigger, quantifiers) {
 
   override protected val matchingClass: Class[_] = Unmarked.targetClass
@@ -450,92 +413,6 @@ object AntiNodeSpec {
       new AntiNodeSpec(nodeText, attachmentSpecs.toSet)  
 }
 
-class HumanMigrationEdgeSpec(val event: EventSpec,
-    val group: Option[NodeSpec], val groupModifier: Option[NodeSpec],
-    val moveTo: Option[NodeSpec], val moveFrom: Option[NodeSpec], val moveThrough: Option[NodeSpec],
-    val timeStart: Option[NodeSpec], val timeEnd: Option[NodeSpec], val time: Option[NodeSpec])
-    extends GraphSpec {
-
-  val nodeSpecsMap: Map[String, NodeSpec] = Seq(
-    ("group", group),
-    ("groupModifier", groupModifier),
-    ("moveTo", moveTo),
-    ("moveFrom", moveFrom) ,
-    ("moveThrough", moveThrough),
-    ("timeStart", timeStart),
-    ("timeEnd", timeEnd),
-    ("time", time)
-  ).filter { case (_, value) => value.isDefined } // Keep only the ones used
-      .map { case (key, value) => (key, value.get) } // Remove the option
-      .toMap
-
-  protected def testSpec(mentions: Seq[Mention], nodeTestResultsMap: Map[String, TestResult]): Seq[Mention] = {
-    val matches1 = mentions
-    val matches2 = matches1.collect{ case a: EventMention => a }
-    val matches3 = matches2.filter(_.matches(event.label))
-    val matches4 = matches3.filter { mention =>
-      // They are all there.
-      nodeTestResultsMap.forall { case (name, testResult) =>
-        val argument = mention.arguments.get(name)
-
-        argument.isDefined && {
-          val values = argument.get
-
-          // There could be extra stuff hiding in here.
-          values.contains(testResult.mention.get)
-        }
-      } &&
-          // And only they are there.
-          mention.arguments.size == nodeTestResultsMap.size
-    }
-    matches4
-  }
-
-  def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
-    if (!testResults.containsKey(this)) {
-      val nodeTestResultsMap: Map[String, TestResult] = nodeSpecsMap.map { case (key, nodeSpec) =>
-        key -> nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
-      }
-      val nodeComplaints = nodeTestResultsMap.map { case (key, nodeTestResult) =>
-        nodeTestResult.complaints
-      }.flatten
-      val nodeSuccess = nodeComplaints.isEmpty
-      val edgeTestResult =
-        if (nodeSuccess) {
-          val matches = testSpec(mentions, nodeTestResultsMap)
-
-          if (matches.size < 1)
-            new TestResult(None, Seq("Could not find EdgeSpec " + this))
-          else if (matches.size > 1)
-            new TestResult(None, Seq("Found too many (" + matches.size + ") instances of EdgeSpec " + this))
-          else
-            new TestResult(Some(matches.head), Seq.empty)
-        }
-        else new TestResult(None, Seq.empty)
-      val testResult = new TestResult(edgeTestResult.mention, edgeTestResult.complaints ++ nodeComplaints)
-
-      testResults.put(this, testResult)
-    }
-    testResults.get(this)
-  }
-
-  def toString(left: String, right: String): String = {
-    val stringBuilder = new StringBuilder(event.label)
-
-    nodeSpecsMap.foreach { case (key, nodeSpec) =>
-      stringBuilder
-          .append(left)
-          .append(key)
-          .append(": ")
-          .append(nodeSpec.toString)
-          .append(right)
-    }
-    stringBuilder.toString
-  }
-
-  override def toString: String = toString("->(", ")")
-}
-
 class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) extends GraphSpec {
 
   protected def getArgument(eventMention: EventMention, causeOrEffectMention: Option[Mention], argument: String): Option[Mention] = {
@@ -660,11 +537,3 @@ object AntiEdgeSpec {
       new AntiEdgeSpec(cause, event, effect)
 }
 
-object HumanMigrationEdgeSpec {
-  def apply(
-      group: Option[NodeSpec] = None, groupModifier: Option[NodeSpec] = None,
-      moveTo: Option[NodeSpec] = None, moveFrom: Option[NodeSpec] = None, moveThrough: Option[NodeSpec] = None,
-      timeStart: Option[NodeSpec] = None, timeEnd: Option[NodeSpec] = None, time: Option[NodeSpec] = None): HumanMigrationEdgeSpec = {
-    new HumanMigrationEdgeSpec(HumanMigration, group, groupModifier, moveTo, moveFrom, moveThrough, timeStart, timeEnd, time)
-  }
-}

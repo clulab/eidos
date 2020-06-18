@@ -1,5 +1,6 @@
 # Changes
-+ **1.1.0** - Run main as Finder, set fork to true, use Resourcer, generate HTML from Eidos & use in EidosShell 
++ **1.1.0** - Run main as Finder, set fork to true, use Resourcer, generate HTML from Eidos & use in EidosShell,
+remove migration 
 + **1.0.3** - Restore Scala 1.11 compatibility, repair EidosSystem.defaultConfig use
 + **1.0.2** - Cache geonames from resource
 + **1.0.1** - Fix geoNamesDir in reference.conf
