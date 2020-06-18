@@ -6,6 +6,7 @@ import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
