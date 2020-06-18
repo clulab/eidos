@@ -6,16 +6,12 @@ import org.clulab.serialization.json.stringify
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.CountAttachment
-import org.clulab.wm.eidos.attachments.CountModifier
-import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
-import org.clulab.wm.eidos.attachments.MigrationGroupCount
 import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.attachments.PosChange
@@ -104,7 +100,6 @@ class TestJSONSerializer extends Test {
 
     val trigger = "trigger"
     val someQuantifications = Some(Seq("one", "two"))
-    val migrationGroupCount = MigrationGroupCount(3000.0d, CountModifier.Approximate, CountUnit.Weekly)
     val geoPhraseID = GeoPhraseID("text", Some("Denmark"), 3, 5)
     val timEx = TimEx(TextInterval(3, 8), Seq(TimeStep(LocalDateTime.now, LocalDateTime.now.plusDays(1))), "text")
     val dct = DCT(SimpleInterval(LocalDateTime.now.minusHours(5), LocalDateTime.now), "text")
@@ -118,7 +113,6 @@ class TestJSONSerializer extends Test {
       new PosChange(trigger, someQuantifications),
       new NegChange(trigger, someQuantifications),
 
-      new CountAttachment("text", migrationGroupCount, 3, 6),
       new Location(geoPhraseID),
       new Time(timEx),
       new DCTime(dct),

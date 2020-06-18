@@ -46,7 +46,7 @@ class TestEidosMention extends ExtractionTest {
 
     val odinMentions = reachableOdinMentions // These should already be distinct
     val distinctOdinMentions = new HashCodeBagger[Mention].put(odinMentions).get() // This shouldn't make a difference
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val (eidosMentions, _) = EidosMention.asEidosMentions(odinMentions)
     odinMentions.size should be (distinctOdinMentions.size)
     odinMentions.size should be (eidosMentions.size)
 
@@ -95,7 +95,7 @@ than in the corresponding period two years earlier.
   it should "properly make canonical form" in {
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
-    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
+    val (eidosMentions3, _) = EidosMention.asEidosMentions(odinMentions3)
     val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")

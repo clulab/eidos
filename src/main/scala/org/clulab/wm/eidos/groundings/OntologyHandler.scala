@@ -23,7 +23,7 @@ class OntologyHandler(
   val includeParents: Boolean
 ) {
 
-  protected def ground(eidosMention: EidosMention): Unit = {
+  def ground(eidosMention: EidosMention): Unit = {
     // If any of the grounders needs their own version, they'll have to make it themselves.
     eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
 
@@ -38,13 +38,6 @@ class OntologyHandler(
     }.toMap
 
     eidosMention.grounding = ontologyGroundings
-  }
-
-  def ground(eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
-    EidosMention.findReachableEidosMentions(eidosMentions).foreach { eidosMention =>
-      ground(eidosMention)
-    }
-    eidosMentions
   }
 
   def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundings = {
@@ -84,10 +77,10 @@ class OntologyHandler(
       val tokenInterval = Interval(tokenStart, tokenEnd + 1) // Add one to make it exclusive.
       val odinMention = new TextBoundMention(EidosOntologyGrounder.GROUNDABLE, tokenInterval, sentence = 0, document, keep = true, foundBy = "OntologyHandler.reground")
 
-      val eidosMentions = EidosMention.asEidosMentions(Seq(odinMention))
-      assert(eidosMentions.size == 1)
+      val annotatedDocument = AnnotatedDocument.fromOdinMentions(newDocument, Seq(odinMention))
+      assert(annotatedDocument.eidosMentions.size == 1)
 
-      val eidosMention = eidosMentions.head
+      val eidosMention = annotatedDocument.eidosMentions.head
 
       ground(eidosMention)
       eidosMention.grounding
@@ -137,12 +130,12 @@ class OntologyHandler(
       val tokenInterval = Interval(tokenStart, tokenEnd + 1) // Add one to make it exclusive.
       val odinMention = new TextBoundMention(EidosOntologyGrounder.GROUNDABLE, tokenInterval, sentence = 0, document, keep = true, foundBy = "OntologyHandler.reground")
 
-      val eidosMentions = EidosMention.asEidosMentions(Seq(odinMention))
-      assert(eidosMentions.size == 1)
+      val annotatedDocument = AnnotatedDocument.fromOdinMentions(document, Seq(odinMention))
+      assert(annotatedDocument.eidosMentions.size == 1)
 
-      val eidosMention = eidosMentions.head
+      val eidosMention = annotatedDocument.eidosMentions.head
 
-      ground(eidosMentions)
+      ground(eidosMention)
       eidosMention.grounding
     }
     catch {

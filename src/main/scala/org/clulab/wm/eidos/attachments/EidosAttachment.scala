@@ -15,7 +15,6 @@ import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.AdjectiveGrounding
 import org.clulab.wm.eidos.serialization.jsonld.JLDAttachment
 import org.clulab.wm.eidos.serialization.jsonld.JLDContextAttachment
-import org.clulab.wm.eidos.serialization.jsonld.JLDCountAttachment
 import org.clulab.wm.eidos.serialization.jsonld.JLDScoredAttachment
 import org.clulab.wm.eidos.serialization.jsonld.JLDSerializer
 import org.clulab.wm.eidos.serialization.jsonld.JLDTriggeredAttachment
@@ -83,7 +82,6 @@ object EidosAttachment {
     }
     .getOrElse {
       kind match {
-        case CountAttachment.label => CountAttachment(json)
         case Location.label => Location(json)
         case Time.label =>
         // DCTime.label is the same as Time.label, so the cases need to be distinguished by other means.
@@ -731,86 +729,4 @@ object Score {
 
     new Score(score)
   }
-}
-
-//
-// Needed for migration events
-//
-
-object CountModifier extends Enumeration {
-  type CountModifier = Value
-  val NoModifier, Approximate, Min, Max = Value
-}
-
-object CountUnit extends Enumeration {
-  type CountUnit = Value
-  val Absolute, Daily, Weekly, Monthly, Percentage = Value
-}
-
-case class MigrationGroupCount(value: Double, modifier: CountModifier.Value, unit: CountUnit.Value) {
-
-  def toJson: JValue = ("value" -> value) ~
-      ("modifier" -> modifier.toString) ~
-      ("unit" -> unit.toString)
-}
-
-class CountAttachment(text: String, val migrationGroupCount: MigrationGroupCount,
-    val startOffset: Int, val endOffset: Int) extends ContextAttachment(text, migrationGroupCount) {
-  // Unlike other examples of ContextAttachments, this attachment itself keeps track of offsets.
-  // There is no independent reference to the migrationGroupCount sent to the superclass constructor.
-  // This is the "this" that we're interested in and it needs to be overridden here.
-  override val value: CountAttachment = this // "this" isn't allowed in the constructor
-
-  override def toString: String =
-      s"""${CountAttachment.kind}("$text", value=${migrationGroupCount.value}, mod=${migrationGroupCount.modifier}, unit=${migrationGroupCount.unit})"""
-
-  override def newJLDAttachment(serializer: JLDSerializer): JLDAttachment =
-      newJLDContextAttachment(serializer, JLDCountAttachment.typename)
-
-  override def toJson: JValue = (EidosAttachment.TYPE -> CountAttachment.label) ~
-      ("text" -> text) ~
-      ("count" -> migrationGroupCount.toJson) ~
-      ("start" -> startOffset) ~
-      ("end" -> endOffset)
-
-  override def biEquals(other: Any): Boolean = {
-    super.biEquals(other) && {
-      val that = other.asInstanceOf[CountAttachment]
-
-      this.migrationGroupCount == that.migrationGroupCount &&
-          this.startOffset == that.startOffset &&
-          this.endOffset == that.endOffset
-    }
-  }
-
-  override protected def calculateHashCode: Int = {
-    val h0 = mix(super.calculateHashCode, migrationGroupCount.##)
-    val h1 = mix(h0, startOffset)
-    val h2 = mixLast(h1, endOffset)
-
-    finalizeHash(h2, 2)
-  }
-}
-
-object CountAttachment {
-
-  def apply(json: JValue): CountAttachment = {
-    implicit def formats: DefaultFormats.type = org.json4s.DefaultFormats
-
-    val text = (json \ "text").extract[String]
-    val count = (json \ "count")
-    val value = (count \ "value").extract[Double]
-    val modifier = (count \ "modifier").extract[String]
-    val countModifier = CountModifier.withName(modifier)
-    val unit = (count \ "unit").extract[String]
-    val countUnit = CountUnit.withName(unit)
-    val start = (json \ "start").extract[Integer]
-    val end = (json \ "end").extract[Integer]
-    val migrationGroupCount = MigrationGroupCount(value, countModifier, countUnit)
-
-    new CountAttachment(text, migrationGroupCount, start, end)
-  }
-
-  val label = "Count"
-  val kind = "COUNT"
 }
