@@ -1,12 +1,16 @@
-package org.clulab.wm.eidos.groundings
+package org.clulab.wm.eidos.groundings.ontologies
 
 import java.time.ZonedDateTime
-import java.util.{Collection => JCollection, Map => JMap}
+import java.util.{Collection => JCollection}
+import java.util.{Map => JMap}
 
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.groundings.DomainOntology
+import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.Resourcer
-import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, Namer}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml

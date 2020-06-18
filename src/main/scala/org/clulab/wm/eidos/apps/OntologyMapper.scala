@@ -7,6 +7,8 @@ import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
+import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 import scala.collection.mutable.ArrayBuffer

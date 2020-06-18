@@ -6,15 +6,17 @@ import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
-import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology
+import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology
+import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object DomainOntologies {
+object DomainHandler {
   protected lazy val logger: Logger = LoggerFactory.getLogger(getClass)
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
@@ -73,7 +75,7 @@ object DomainOntologies {
       includeParents: Boolean): DomainOntology = {
     val ontSerializedPath: String = serializedPath(name, cacheDir, includeParents)
 
-    DomainOntologies(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true,
+    DomainHandler(ontologyPath, ontSerializedPath, sentenceExtractor, canonicalizer: Canonicalizer, filter = true,
         useCacheForOntologies = useCacheForOntologies, includeParents = includeParents)
   }
 }
