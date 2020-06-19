@@ -78,7 +78,7 @@ class OntologyHandler(
       val tokenInterval = Interval(tokenStart, tokenEnd + 1) // Add one to make it exclusive.
       val odinMention = new TextBoundMention(EidosOntologyGrounder.GROUNDABLE, tokenInterval, sentence = 0, document, keep = true, foundBy = "OntologyHandler.reground")
 
-      val annotatedDocument = AnnotatedDocument.fromOdinMentions(newDocument, Seq(odinMention))
+      val annotatedDocument = AnnotatedDocument(newDocument, Seq(odinMention))
       assert(annotatedDocument.eidosMentions.size == 1)
 
       val eidosMention = annotatedDocument.eidosMentions.head
@@ -131,7 +131,7 @@ class OntologyHandler(
       val tokenInterval = Interval(tokenStart, tokenEnd + 1) // Add one to make it exclusive.
       val odinMention = new TextBoundMention(EidosOntologyGrounder.GROUNDABLE, tokenInterval, sentence = 0, document, keep = true, foundBy = "OntologyHandler.reground")
 
-      val annotatedDocument = AnnotatedDocument.fromOdinMentions(document, Seq(odinMention))
+      val annotatedDocument = AnnotatedDocument.apply(document, Seq(odinMention))
       assert(annotatedDocument.eidosMentions.size == 1)
 
       val eidosMention = annotatedDocument.eidosMentions.head

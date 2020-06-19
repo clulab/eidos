@@ -165,7 +165,7 @@ class EidosSystem(val components: EidosComponents) {
       eidosRefiners: Seq[EidosRefiner]): AnnotatedDocument = {
     val odinMentions = mkMentions(doc)
     val refinedOdinMentions = refineOdinMentions(odinRefiners, odinMentions)
-    val annotatedDocument = AnnotatedDocument.fromOdinMentions(doc, refinedOdinMentions)
+    val annotatedDocument = AnnotatedDocument(doc, refinedOdinMentions)
     val refinedAnnotatedDocument = refineEidosMentions(eidosRefiners, annotatedDocument)
 
     refinedAnnotatedDocument

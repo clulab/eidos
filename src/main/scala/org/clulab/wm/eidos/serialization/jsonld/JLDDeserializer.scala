@@ -774,7 +774,7 @@ class JLDDeserializer {
       // This one will rerun the postProcessors, which hopefully match what was used
       // for the original grounding.
       // val newAnnotatedDocument = addEidosExtras2(annotatedDocument, postProcessors)
-      val annotatedDocument = AnnotatedDocument(document, eidosMentions, allEidosMentions)
+      val annotatedDocument = new AnnotatedDocument(document, eidosMentions, allEidosMentions)
 
       annotatedDocument
     }
@@ -787,7 +787,7 @@ class JLDDeserializer {
       mentionMap: Map[String, Mention]): Seq[EidosMention] = {
     val extractionsMap = extractions.map { extraction => extraction.id -> extraction }.toMap
     val mentionToExtractionMap = new util.IdentityHashMap[Mention, Extraction]()
-    val allEidosMentions = EidosMention.findReachableEidosMentions(eidosMentions)
+    val allEidosMentions = EidosMention.findAllByIdentity(eidosMentions)
 
     mentionMap.foreach { case (id, mention) =>
       mentionToExtractionMap.put(mention, extractionsMap(id))

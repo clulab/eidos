@@ -28,6 +28,8 @@ object FoundBy {
 
   def split(foundBy: String): Array[String] = foundBy.split(splitter)
 
+  def size(mention: Mention): Int = mention.foundBy.split(splitter).length
+
   def concat(mentions: Seq[Mention]): String = {
     require(mentions.nonEmpty)
 
