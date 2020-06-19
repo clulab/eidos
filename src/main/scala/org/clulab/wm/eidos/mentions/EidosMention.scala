@@ -4,6 +4,7 @@ import org.clulab.odin._
 import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.IdentityBagger
 import org.clulab.wm.eidos.utils.IdentityMapper
 import org.clulab.wm.eidos.utils.OdinMention
@@ -121,11 +122,20 @@ object EidosMention {
     val allOdinMentions = OdinMention.findAllByIdentity(odinMentions)
     // Anything that is == to the key will be stored in the values.
     val groupedOdinMentions: Map[Mention, Seq[Mention]] = allOdinMentions.groupBy(odinMention => odinMention)
+    // Find the best representative from each group and use that as key.
+    val regroupedOdinMentions = groupedOdinMentions.map { case (keyOdinMention, valueOdinMentions) =>
+      val newKeyOdinMention = valueOdinMentions.minBy { odinMention =>
+        // Use the one with the fewest number of rules and upon tie, the first in alphabetical order.
+        (FoundBy.size(odinMention), odinMention.foundBy)
+      }
+      //if (newKeyOdinMention.foundBy != keyOdinMention.foundBy)
+      //  println("It changed!")
+      newKeyOdinMention -> valueOdinMentions
+    }
     val odinMentionMapper = new IdentityMapper[Mention, Mention]()
-    groupedOdinMentions.foreach { case (mainOdinMention, odinMentions) =>
-      // TODO: Perhaps a better alternative should be chosen.  Is it first come, first served?
-      odinMentions.foreach { odinMention =>
-        odinMentionMapper.put(odinMention, mainOdinMention)
+    regroupedOdinMentions.foreach { case (keyOdinMention, valueOdinMentions) =>
+      valueOdinMentions.foreach { valueOdinMention =>
+        odinMentionMapper.put(valueOdinMention, keyOdinMention)
       }
     }
 
