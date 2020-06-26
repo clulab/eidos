@@ -7,7 +7,7 @@ import java.nio.file.Paths
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.ConfigFactory
-import org.clulab.embeddings.word2vec.CompactWord2Vec
+import org.clulab.embeddings.CompactWordEmbeddingMap
 import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
@@ -95,8 +95,8 @@ object CacheOntologies extends App {
         if (!config[Boolean]("ontologies.useCacheForW2V"))
           realWordToVec.w2v // It wasn't cached, so we must have an up-to-date version.
         else
-          CompactWord2Vec(filenameIn, resource = true, cached = false)
-      case _ =>  CompactWord2Vec(filenameIn, resource = true, cached = false)
+          CompactWordEmbeddingMap(filenameIn, resource = true, cached = false)
+      case _ =>  CompactWordEmbeddingMap(filenameIn, resource = true, cached = false)
     }
     word2Vec.save(filenameOut)
     println(s"Finished serializing vectors.")
