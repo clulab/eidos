@@ -3,6 +3,8 @@ package org.clulab.wm.eidos
 import java.text.Normalizer
 import java.util.regex.Pattern
 
+import org.clulab.dynet.AnnotatedSentence
+import org.clulab.dynet.Metal
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
@@ -20,6 +22,7 @@ import org.clulab.wm.eidos.utils.TagSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 // This interface is needed by the TreeDomainOntologyBuilder that wants sentences
@@ -41,12 +44,12 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
-class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
+class EidosEnglishProcessor(val language: String, cutoff: Int, metal: Metal) extends FastNLPProcessor
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
   val tagSet = new EnglishTagSet()
 
-  // TODO: This should be checked with each update of processors.
+  // This should be checked with each update of processors.
   def extractDocument(text: String): Document = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = mkDocument(text, keepText = false)
@@ -60,6 +63,24 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
   }
 
   def getTagSet: TagSet = tagSet
+
+  // Switch between implementations here if necessary.
+  override def recognizeNamedEntities(document: Document): Unit =
+  //    super.recognizeNamedEntities(document)
+    newRecognizeNamedEntities(document)
+
+  // TODO Vikas
+  def newRecognizeNamedEntities(doc: Document): Unit = {
+    doc.sentences.foreach { sentence =>
+      val words = sentence.words
+      val posTags = Some(sentence.tags.get.toIndexedSeq) // these are probably wrong
+      val neTags = Some(sentence.norms.get.toIndexedSeq) // these are probably wrong
+      val annotatedSentence = new AnnotatedSentence(words, posTags, neTags)
+      val predictions = metal.predict(0, annotatedSentence)
+
+      sentence.entities = Some(predictions.toArray) // this is probably wrong
+    }
+  }
 }
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
@@ -313,8 +334,8 @@ object EidosProcessor {
 
   type EidosProcessor = Processor with SentencesExtractor with LanguageSpecific
 
-  def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
-    case "english" => new EidosEnglishProcessor(language, cutoff)
+  def apply(language: String, cutoff: Int = 200, metalOpt: Option[Metal] = None): EidosProcessor = language match {
+    case "english" => new EidosEnglishProcessor(language, cutoff, metalOpt.get)
     case "spanish" => new EidosSpanishProcessor(language, cutoff)
     case "portuguese" => new EidosPortugueseProcessor(language, cutoff)
   }
