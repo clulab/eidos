@@ -6,7 +6,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 import ai.lum.common.ConfigUtils._
-import com.typesafe.config.ConfigFactory
 import org.clulab.embeddings.CompactWordEmbeddingMap
 import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
@@ -15,7 +14,6 @@ import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology.FastDomainOn
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology
 import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology
-import org.clulab.wm.eidos.utils.Domain
 
 object CacheOntologies extends App {
   val config = EidosSystem.defaultConfig
@@ -123,7 +121,7 @@ object CacheOntologies extends App {
 
   // Comment these in and out as required.
   replaceGeoNorms() // This should go first before EidosSystem is created.
-//  cacheWord2Vec()
-//  safeCacheOntologies()
-//  updateIndicatorMappings()
+  cacheWord2Vec()
+  safeCacheOntologies()
+  updateIndicatorMappings()
 }
