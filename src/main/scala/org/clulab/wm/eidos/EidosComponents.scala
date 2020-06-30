@@ -111,9 +111,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       val preComponentLoaders = Seq(
         new ComponentLoader("Processors", {
           EidosComponentsBuilder.logger.info("Loading processor...")
-          val sentenceClassifierOpt = SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language)
-
-          procOpt = Some(EidosProcessor(sentenceClassifierOpt, language, cutoff = 150))
+          procOpt = Some(EidosProcessor(language, cutoff = 150))
         })
       )
       // Get these out of the way so that the ontologyHandler can take its time about it
@@ -129,6 +127,11 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       Seq(
         new ComponentLoader("OntologyHandler", {
           ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, tagSet))
+          if (procOpt.get.isInstanceOf[EidosEnglishProcessor]){
+            println("are we here? english processor ready to set sentence classifier")
+            val sentenceClassifierOpt = SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language, ontologyHandlerOpt.get)
+            procOpt.get.asInstanceOf[EidosEnglishProcessor].setSentenceClassifier(sentenceClassifierOpt.get)
+          }
         }),
         new ComponentLoader("ProcessorsPrimer", {
           val eidosProcessor = procOpt.get

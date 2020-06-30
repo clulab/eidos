@@ -43,10 +43,15 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
-class EidosEnglishProcessor(val sentenceClassifier: SentenceClassifier, val language: String, cutoff: Int) extends FastNLPProcessor
+class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
   val tagSet = new EnglishTagSet()
+
+  var sentenceClassifierOpt:Option[SentenceClassifier] = None
+  def setSentenceClassifier(sentenceClassifier: SentenceClassifier):Unit = {
+    sentenceClassifierOpt = Some(sentenceClassifier)
+  }
 
   // TODO: This should be checked with each update of processors.
   def extractDocument(text: String): Document = {
@@ -65,7 +70,8 @@ class EidosEnglishProcessor(val sentenceClassifier: SentenceClassifier, val lang
   def getTagSet: TagSet = tagSet
 
   def classifySentences(document: Document): Unit = {
-    val classifications = document.sentences.map(sentenceClassifier.classify)
+    //val classifications = document.sentences.map(sentenceClassifierOpt.get.classify)
+    println("we do not have any funtion right now")
     // TODO: Store these in a document attachment
   }
 }
@@ -321,10 +327,9 @@ object EidosProcessor {
 
   type EidosProcessor = Processor with SentencesExtractor with LanguageSpecific
 
-  def apply(sentenceClassifierOpt: Option[SentenceClassifier], language: String, cutoff: Int = 200): EidosProcessor = language match {
+  def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
     case Language.ENGLISH =>
-      require(sentenceClassifierOpt.isDefined)
-      new EidosEnglishProcessor(sentenceClassifierOpt.get, language, cutoff)
+      new EidosEnglishProcessor(language, cutoff)
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
     case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
   }
