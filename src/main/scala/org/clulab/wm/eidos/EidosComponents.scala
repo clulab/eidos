@@ -2,6 +2,7 @@ package org.clulab.wm.eidos
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
+import org.clulab.dynet.Metal
 import org.clulab.odin.ExtractorEngine
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.actions.CorefHandler
@@ -107,8 +108,14 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       val preComponentLoaders = Seq(
         new ComponentLoader("Processors", {
           EidosComponentsBuilder.logger.info("Loading processor...")
+          val metalOpt =
+            if (language == "english") {
+              val modelFilenamePrefix = config[String]("geonorm.modelFilenamePrefix")
+              Some(Metal(modelFilenamePrefix))
+            }
+            else None
 
-          procOpt = Some(EidosProcessor(language, cutoff = 150))
+          procOpt = Some(EidosProcessor(language, cutoff = 150, metalOpt))
         })
       )
       // Get these out of the way so that the ontologyHandler can take its time about it

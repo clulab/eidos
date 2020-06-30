@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.utils
 
-import org.clulab.embeddings.word2vec.Word2Vec
+import org.clulab.embeddings.WordEmbeddingMap
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.apps.OntologyMapper.{mostSimilar, mostSimilarIndicators}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, OntologyHandler}
@@ -46,7 +46,7 @@ object MaaSUtils {
     val node = json("name").str
     val examples = json("examples").arr.map(_.toString)
     // create a bag of words, and sanitize them
-    val sanitizedExampleBag = examples.flatMap(_.split("\\s+")).map(w => Word2Vec.sanitizeWord(w))
+    val sanitizedExampleBag = examples.flatMap(_.split("\\s+")).map(w => WordEmbeddingMap.sanitizeWord(w))
     // average the word embeddings
     val embedding = reader.components.ontologyHandler.wordToVec.makeCompositeVector(sanitizedExampleBag)
     // convert to a ConceptEmbedding
