@@ -36,7 +36,7 @@ class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler
     for (line <- bufferedSource.getLines) {
       val cols = line.split("_SEP_")
       // do whatever you want with the columns here
-      outputMap_(cols(0)) = cols(1).toInt
+      outputMap_(cols(0)) = cols(1).toFloat
     }
     bufferedSource.close
 
@@ -87,6 +87,11 @@ class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler
     val sentenceTokens = sentence.words
     val sentenceTokenWeights = sentenceTokens.map{ x => if (idfWeights.contains(x)) idfWeights(x) else 1.0f}
 
+//    println("======")
+//    println(sentenceTokens.toSeq)
+//    println(sentenceTokenWeights.toSeq)
+//    scala.io.StdIn.readLine()
+
     val groundings = Seq(flatOntologyGrounder.newOntologyGrounding(ontologyHandler.wordToVec.calculateSimilaritiesWeighted(sentenceTokens, sentenceTokenWeights, conceptEmbeddings)))
     getTop5Scores(groundings).head
   }
@@ -126,10 +131,10 @@ object DebugSentenceClassifier extends App{
     val label = sentenceClassifierEvaluationData(i)._2
 
     val classifierPred = sentenceClassifier.classify(sentenceObj)
-    if (classifierPred>0.6 & label==1){
+    if (classifierPred>0.7 & label==1){
       correctCount+=1
     }
-    else if (classifierPred<=0.6 & label==0){
+    else if (classifierPred<=0.7 & label==0){
       correctCount+=1
     }
   }
