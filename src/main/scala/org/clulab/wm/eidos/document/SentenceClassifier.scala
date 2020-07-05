@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.document
 
 import com.typesafe.config.Config
+import ai.lum.common.ConfigUtils._
+
 import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.{EidosEnglishProcessor, EidosProcessor, EidosSystem}
 import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
@@ -18,7 +20,6 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 
 import scala.collection.mutable.ArrayBuffer
-import ai.lum.common.ConfigUtils._
 
 
 
@@ -27,6 +28,7 @@ class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler
 
   // Prepare functions to read from the resource file
   val utf8: String = StandardCharsets.UTF_8.toString
+  val classificationThreshold = 0.7
 
   private def readFromText2Map(filename:String):Map[String, Float] = {
 
@@ -141,21 +143,6 @@ object DebugSentenceClassifier extends App{
   println(s"accuracy:${correctCount}/${sentenceClassifierEvaluationData.length}")
 
 
-  def newFileNotFoundException(path: String): FileNotFoundException = {
-    val message1 = path + " (The system cannot find the path specified"
-    val message2 = message1 + (if (path.startsWith("~")) ".  Make sure to not use the tilde (~) character in paths in lieu of the home directory." else "")
-    val message3 = message2 + ")"
-
-    new FileNotFoundException(message3)
-  }
-
-  def sourceFromResource(path: String): BufferedSource = {
-    val url = Option(this.getClass.getResource(path))
-      .getOrElse(throw newFileNotFoundException(path))
-
-    Source.fromURL(url, utf8)
-  }
-
   def readEvaluationData():Seq[(String, Int)] = {
     val sentenceClassifierEvaluationData = ArrayBuffer[(String, Int)]()
 
@@ -176,11 +163,5 @@ object DebugSentenceClassifier extends App{
 
     sentenceClassifierEvaluationData.toSeq
   }
-
-  def getTop5(allGroundings: OntologyGroundings, grounderName:String ="wm_flattened"): Seq[String] =
-    allGroundings(grounderName)
-      .take(5)
-      .map(_._1.name)
-
 
 }
