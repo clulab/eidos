@@ -149,17 +149,12 @@ class GeoNormFinder(normalizer: GeoLocationNormalizer, metal:Option[Metal] ) ext
           }
         }
 
-
-
-
         sentence.entities = Some(predictions.toArray) // this is probably wrong
       }
     }
 
 
-    val sentenceLocations = EidosEnglishProcessor.
-
-
+    val sentenceLocations = newRecognizeNamedEntities(doc)
 
 
     val mentions = for {

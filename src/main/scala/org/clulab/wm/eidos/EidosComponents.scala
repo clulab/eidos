@@ -3,7 +3,7 @@ package org.clulab.wm.eidos
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.dynet.Metal
-import org.clulab.odin.ExtractorEngine
+import org.clulab.dynet.Utils
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
@@ -111,7 +111,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
           val metalOpt =
             if (language == "english") {
               val modelFilenamePrefix = config[String]("geonorm.modelFilenamePrefix")
-              Some(Metal(modelFilenamePrefix))
+              Utils.initializeDyNet()
+              Some(Metal(modelFilenamePrefix)) // Skip the leading / Recheck with keith.
             }
             else None
 
