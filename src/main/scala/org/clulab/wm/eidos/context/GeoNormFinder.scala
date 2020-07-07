@@ -3,10 +3,11 @@ package org.clulab.wm.eidos.context
 import java.nio.file.{Files, Path, Paths}
 import java.util.IdentityHashMap
 import org.clulab.dynet.Metal
+import org.clulab.dynet.Utils
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.dynet.AnnotatedSentence
-// import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
+import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
 import org.clulab.geonorm.{GeoLocationNormalizer, GeoNamesIndex}
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
@@ -16,9 +17,46 @@ import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.utils.OdinMention
 
-import org.clulab.wm.eidos.EidosEnglishProcessor
-
 import scala.collection.JavaConverters._
+
+trait GeoExtractor {
+  def extract(sentenceWords: Array[Array[String]]): Array[Array[(Int, Int)]]
+}
+
+class GeoNormGeoExtractor(geoLocationExtractor: GeoLocationExtractor) extends GeoExtractor {
+
+  def extract(sentenceWords: Array[Array[String]]): Array[Array[(Int, Int)]] = geoLocationExtractor(sentenceWords)
+}
+
+class MetalGeoExtractor(metal: Metal) extends GeoExtractor {
+
+  def extract(sentenceWords: Array[Array[String]]): Array[Array[(Int, Int)]] = {
+    sentenceWords.map { words =>
+      val annotatedSentence = new AnnotatedSentence(words)
+      val predictions = metal.predict(0, annotatedSentence).toArray
+
+      // convert word-level class predictions into span-level geoname predictions
+      // trim off any predictions on padding words
+      // val wordPredictions = paddedWordPredictions.take(words.length)
+      for {
+        (prediction, index) <- predictions.zipWithIndex
+
+        // a start is either a B, or an I that is following an O
+        if prediction == "B_LOC" || (prediction == "I_LOC" &&
+            // an I at the beginning of a sentence is not considered to be a start,
+            // since as of Jun 2019, such tags seemed to be mostly errors (non-locations)
+            index != 0 && predictions(index - 1) == "O_LOC")
+      } yield {
+        // the end index is the first B or O (i.e., non-I) following the start
+        val end = predictions.indices.indexWhere(predictions(_) != "I_LOC", index + 1)
+        val endIndex = if (end == -1) words.length else end
+
+        // yield the token span
+        (index, endIndex)
+      }
+    }
+  }
+}
 
 @SerialVersionUID(1L)
 case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int, endOffset: Int)
@@ -26,21 +64,33 @@ case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int
 object GeoNormFinder {
 
   def fromConfig(config: Config): GeoNormFinder = {
-    val geoNamesDir: Path = Paths.get(config[String]("geoNamesDir")).toAbsolutePath.normalize
-    val geoNamesIndex =
+    val geoExtractor = {
+      val useMetal = config[Boolean]("useMetal")
+
+      if (useMetal) {
+        val modelFilenamePrefix = config[String]("modelFilenamePrefix")
+        val metal = {
+          Utils.initializeDyNet()
+          Metal(modelFilenamePrefix.drop(1))
+        }
+
+        new MetalGeoExtractor(metal)
+      }
+      else
+        new GeoNormGeoExtractor(new GeoLocationExtractor())
+      }
+    val geoLocationNormalizer = {
+      val geoNamesDir: Path = Paths.get(config[String]("geoNamesDir")).toAbsolutePath.normalize
+      val geoNamesIndex =
         if (Files.exists(geoNamesDir) && Files.list(geoNamesDir).count() > 0)
           new GeoNamesIndex(geoNamesDir)
         else
           GeoNamesIndex.fromClasspathJar(geoNamesDir)
 
-    val modelFilenamePrefix = config[String]("geonorm.modelFilenamePrefix")
+      new GeoLocationNormalizer(geoNamesIndex)
+    }
 
-    new GeoNormFinder(
-      // new GeoLocationExtractor(),
-      new GeoLocationNormalizer(geoNamesIndex),
-      Some(Metal(modelFilenamePrefix))
-      //new Metal(0, config[String]("geonorm.modelFilenamePrefix"))
-    )
+    new GeoNormFinder(geoExtractor, geoLocationNormalizer)
   }
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention]): Array[GeoPhraseID]= {
@@ -84,7 +134,7 @@ object GeoNormFinder {
   }
 }
 
-class GeoNormFinder(normalizer: GeoLocationNormalizer, metal:Option[Metal] ) extends Finder {
+class GeoNormFinder(geoExtractor: GeoExtractor, normalizer: GeoLocationNormalizer) extends Finder {
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[GeoPhraseID]] =
       GeoNormFinder.getGeoPhraseIDs(odinMentions, sentences)
@@ -108,54 +158,7 @@ class GeoNormFinder(normalizer: GeoLocationNormalizer, metal:Option[Metal] ) ext
       m.withAttachment(Location(geoPhraseID))
     }
 
-
-    // val sentenceLocations = extractor(doc.sentences.map(_.raw))
-    //
-    //
-    // Adding the Metal NER tagged locations here
-    //
-    //
-
-    def newRecognizeNamedEntities(doc: Document): Unit = {
-      doc.sentences.foreach { sentence =>
-        val words = sentence.words
-        // val space_separated_sentence = words.mkString(" ")
-        val posTags = Some(sentence.tags.get.toIndexedSeq) // these are probably wrong
-      val neTags = Some(sentence.norms.get.toIndexedSeq) // these are probably wrong
-      val annotatedSentence = new AnnotatedSentence(words, posTags, neTags)
-        val predictions = metal.predict(0, annotatedSentence)
-
-        // convert word-level class predictions into span-level geoname predictions
-
-        for ((words, wordPredictions) <- sentence.words zip predictions) yield {
-          // trim off any predictions on padding words
-          // val wordPredictions = paddedWordPredictions.take(words.length)
-          for {
-            (wordPrediction, wordIndex) <- wordPredictions.zipWithIndex
-
-            // a start is either a B, or an I that is following an O
-            if wordPrediction == "B_LOC" || (wordPrediction == "I_LOC" &&
-              // an I at the beginning of a sentence is not considered to be a start,
-              // since as of Jun 2019, such tags seemed to be mostly errors (non-locations)
-              wordIndex != 0 && wordPredictions(wordIndex - 1) == "O_LOC")
-          } yield {
-
-            // the end index is the first B or O (i.e., non-I) following the start
-            val end = wordPredictions.indices.indexWhere(wordPredictions(_) != "I_LOC", wordIndex + 1)
-            val endIndex = if (end == -1) words.length else end
-
-            // yield the token span
-            (wordIndex, endIndex)
-          }
-        }
-
-        sentence.entities = Some(predictions.toArray) // this is probably wrong
-      }
-    }
-
-
-    val sentenceLocations = newRecognizeNamedEntities(doc)
-
+    val sentenceLocations = geoExtractor.extract(doc.sentences.map(_.raw))
 
     val mentions = for {
       sentenceIndex <- doc.sentences.indices
