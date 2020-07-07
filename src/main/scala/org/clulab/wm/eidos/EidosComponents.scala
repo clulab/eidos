@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.actions.{CorefHandler, MigrationHandler}
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.document.EidosSentenceClassifier
 import org.clulab.wm.eidos.document.SentenceClassifier
 import org.clulab.wm.eidos.expansion.ConceptExpander
 import org.clulab.wm.eidos.expansion.Expander
@@ -38,7 +39,8 @@ case class EidosComponents(
   nestedArgumentExpander: NestedArgumentExpander,
   adjectiveGrounder: AdjectiveGrounder,
   corefHandler: CorefHandler,
-  attachmentHandler: AttachmentHandler
+  attachmentHandler: AttachmentHandler,
+  eidosSentenceClassifier: EidosSentenceClassifier
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = finders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -67,6 +69,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
   var corefHandlerOpt: Option[CorefHandler] = None
   var attachmentHandlerOpt: Option[AttachmentHandler] = None
+  var eidosSentenceClassifierOpt: Option[EidosSentenceClassifier] = None
 
   var useTimer = false
 
@@ -127,10 +130,10 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       Seq(
         new ComponentLoader("OntologyHandler", {
           ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, tagSet))
-          if (procOpt.get.isInstanceOf[EidosEnglishProcessor]){
+          if (procOpt.get.isInstanceOf[EidosEnglishProcessor]) {
             println("are we here? english processor ready to set sentence classifier")
             val sentenceClassifierOpt = SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language, ontologyHandlerOpt.get)
-            procOpt.get.asInstanceOf[EidosEnglishProcessor].setSentenceClassifier(sentenceClassifierOpt.get)
+            eidosSentenceClassifierOpt = Some(new EidosSentenceClassifier(sentenceClassifierOpt))
           }
         }),
         new ComponentLoader("ProcessorsPrimer", {
@@ -189,6 +192,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       adjectiveGrounderOpt.get,
       corefHandlerOpt.get,
       attachmentHandlerOpt.get,
+      eidosSentenceClassifierOpt.get
     )
   }
 }

@@ -84,6 +84,13 @@ class EidosSystem(val components: EidosComponents) {
     new EidosRefiner("AdjectiveGrounder", (eidosMentions: Seq[EidosMention]) => {
       eidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
       eidosMentions
+    }),
+    new EidosRefiner("SentenceClassifier", (eidosMentions: Seq[EidosMention]) => {
+      // TODO: This will be made smarter and cache classification values so that no sentence is processed twice.
+      eidosMentions.foreach { eidosMention =>
+        eidosMention.classificationOpt = components.eidosSentenceClassifier.classify(eidosMention.odinMention.sentenceObj)
+      }
+      eidosMentions
     })
   )
 

@@ -69,6 +69,7 @@ abstract class EidosMention(val odinMention: Mention, mentionMapper: MentionMapp
   // Default values are used instead of Option to simplify client code.
   var canonicalName: String = ""
   var grounding: OntologyAliases.OntologyGroundings = EidosMention.NO_ONTOLOGY_GROUNDINGS
+  var classificationOpt: Option[Float] = None
 
   // Other EidosMentions which can be reached from this.
   def reachableMentions: Seq[EidosMention] = eidosArguments.values.flatten.toSeq
