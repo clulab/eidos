@@ -73,10 +73,39 @@ class EidosEnglishProcessor(val language: String, cutoff: Int, metal: Metal) ext
   def newRecognizeNamedEntities(doc: Document): Unit = {
     doc.sentences.foreach { sentence =>
       val words = sentence.words
+      // val space_separated_sentence = words.mkString(" ")
       val posTags = Some(sentence.tags.get.toIndexedSeq) // these are probably wrong
       val neTags = Some(sentence.norms.get.toIndexedSeq) // these are probably wrong
       val annotatedSentence = new AnnotatedSentence(words, posTags, neTags)
       val predictions = metal.predict(0, annotatedSentence)
+
+
+      // convert word-level class predictions into span-level geoname predictions
+
+      for ((words, wordPredictions) <- sentence.words zip predictions) yield {
+        // trim off any predictions on padding words
+        // val wordPredictions = paddedWordPredictions.take(words.length)
+        for {
+          (wordPrediction, wordIndex) <- wordPredictions.zipWithIndex
+
+          // a start is either a B, or an I that is following an O
+          if wordPrediction == "B_LOC" || (wordPrediction == "I_LOC" &&
+            // an I at the beginning of a sentence is not considered to be a start,
+            // since as of Jun 2019, such tags seemed to be mostly errors (non-locations)
+            wordIndex != 0 && wordPredictions(wordIndex - 1) == "O_LOC")
+        } yield {
+
+          // the end index is the first B or O (i.e., non-I) following the start
+          val end = wordPredictions.indices.indexWhere(wordPredictions(_) != "I_LOC", wordIndex + 1)
+          val endIndex = if (end == -1) words.length else end
+
+          // yield the token span
+          (wordIndex, endIndex)
+        }
+      }
+
+
+
 
       sentence.entities = Some(predictions.toArray) // this is probably wrong
     }

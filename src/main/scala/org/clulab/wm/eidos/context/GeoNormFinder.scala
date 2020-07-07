@@ -2,10 +2,12 @@ package org.clulab.wm.eidos.context
 
 import java.nio.file.{Files, Path, Paths}
 import java.util.IdentityHashMap
-
+import org.clulab.dynet.Metal
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
+import org.clulab.dynet.AnnotatedSentence
+// import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
+import org.clulab.geonorm.{GeoLocationNormalizer, GeoNamesIndex}
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
@@ -13,6 +15,8 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.utils.OdinMention
+
+import org.clulab.wm.eidos.EidosEnglishProcessor
 
 import scala.collection.JavaConverters._
 
@@ -29,9 +33,13 @@ object GeoNormFinder {
         else
           GeoNamesIndex.fromClasspathJar(geoNamesDir)
 
+    val modelFilenamePrefix = config[String]("geonorm.modelFilenamePrefix")
+
     new GeoNormFinder(
-      new GeoLocationExtractor(),
-      new GeoLocationNormalizer(geoNamesIndex)
+      // new GeoLocationExtractor(),
+      new GeoLocationNormalizer(geoNamesIndex),
+      Some(Metal(modelFilenamePrefix))
+      //new Metal(0, config[String]("geonorm.modelFilenamePrefix"))
     )
   }
 
@@ -76,7 +84,7 @@ object GeoNormFinder {
   }
 }
 
-class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNormalizer) extends Finder {
+class GeoNormFinder(normalizer: GeoLocationNormalizer, metal:Option[Metal] ) extends Finder {
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[GeoPhraseID]] =
       GeoNormFinder.getGeoPhraseIDs(odinMentions, sentences)
@@ -100,7 +108,60 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
       m.withAttachment(Location(geoPhraseID))
     }
 
-    val sentenceLocations = extractor(doc.sentences.map(_.raw))
+
+    // val sentenceLocations = extractor(doc.sentences.map(_.raw))
+    //
+    //
+    // Adding the Metal NER tagged locations here
+    //
+    //
+
+    def newRecognizeNamedEntities(doc: Document): Unit = {
+      doc.sentences.foreach { sentence =>
+        val words = sentence.words
+        // val space_separated_sentence = words.mkString(" ")
+        val posTags = Some(sentence.tags.get.toIndexedSeq) // these are probably wrong
+      val neTags = Some(sentence.norms.get.toIndexedSeq) // these are probably wrong
+      val annotatedSentence = new AnnotatedSentence(words, posTags, neTags)
+        val predictions = metal.predict(0, annotatedSentence)
+
+        // convert word-level class predictions into span-level geoname predictions
+
+        for ((words, wordPredictions) <- sentence.words zip predictions) yield {
+          // trim off any predictions on padding words
+          // val wordPredictions = paddedWordPredictions.take(words.length)
+          for {
+            (wordPrediction, wordIndex) <- wordPredictions.zipWithIndex
+
+            // a start is either a B, or an I that is following an O
+            if wordPrediction == "B_LOC" || (wordPrediction == "I_LOC" &&
+              // an I at the beginning of a sentence is not considered to be a start,
+              // since as of Jun 2019, such tags seemed to be mostly errors (non-locations)
+              wordIndex != 0 && wordPredictions(wordIndex - 1) == "O_LOC")
+          } yield {
+
+            // the end index is the first B or O (i.e., non-I) following the start
+            val end = wordPredictions.indices.indexWhere(wordPredictions(_) != "I_LOC", wordIndex + 1)
+            val endIndex = if (end == -1) words.length else end
+
+            // yield the token span
+            (wordIndex, endIndex)
+          }
+        }
+
+
+
+
+        sentence.entities = Some(predictions.toArray) // this is probably wrong
+      }
+    }
+
+
+    val sentenceLocations = EidosEnglishProcessor.
+
+
+
+
     val mentions = for {
       sentenceIndex <- doc.sentences.indices
       sentence = doc.sentences(sentenceIndex)
