@@ -3,8 +3,6 @@ package org.clulab.wm.eidos
 import java.text.Normalizer
 import java.util.regex.Pattern
 
-import org.clulab.dynet.AnnotatedSentence
-import org.clulab.dynet.Metal
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
@@ -22,7 +20,6 @@ import org.clulab.wm.eidos.utils.TagSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 // This interface is needed by the TreeDomainOntologyBuilder that wants sentences
@@ -44,7 +41,7 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
-class EidosEnglishProcessor(val language: String, cutoff: Int, metal: Metal) extends FastNLPProcessor
+class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
   val tagSet = new EnglishTagSet()
@@ -63,25 +60,6 @@ class EidosEnglishProcessor(val language: String, cutoff: Int, metal: Metal) ext
   }
 
   def getTagSet: TagSet = tagSet
-
-  // Switch between implementations here if necessary.
-  override def recognizeNamedEntities(document: Document): Unit =
-  //    super.recognizeNamedEntities(document)
-    newRecognizeNamedEntities(document)
-
-  // TODO Vikas
-  def newRecognizeNamedEntities(doc: Document): Unit = {
-    doc.sentences.foreach { sentence =>
-      val words = sentence.words
-      // val space_separated_sentence = words.mkString(" ")
-      val posTags = Some(sentence.tags.get.toIndexedSeq) // these are probably wrong
-      val neTags = Some(sentence.norms.get.toIndexedSeq) // these are probably wrong
-      val annotatedSentence = new AnnotatedSentence(words, posTags, neTags)
-      val predictions = metal.predict(0, annotatedSentence)
-
-      sentence.entities = Some(predictions.toArray) // this is probably wrong
-    }
-  }
 }
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
@@ -147,8 +125,8 @@ class ParagraphSplitter {
       if (!hasEos) {
         val beginPosition = prevToken.endPosition
         val endPosition =
-            if (nextTokenOpt.isDefined) nextTokenOpt.get.beginPosition
-            else text.length
+          if (nextTokenOpt.isDefined) nextTokenOpt.get.beginPosition
+          else text.length
         val whitespace = text.slice(beginPosition, endPosition)
         // Always end the document with EOP, especially since sentenceSplitter does add a period.
         val hasEop = eopMatcher.reset(whitespace).matches || nextTokenOpt.isEmpty
@@ -211,7 +189,7 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
   }
 
   def isSanitized(text: String): Boolean =
-      !text.exists { char => EidosTokenizer.unicodes.contains(char) || 0x80 <= char }
+    !text.exists { char => EidosTokenizer.unicodes.contains(char) || 0x80 <= char }
 
   def sanitize(oldText: String, oldRanges: Seq[(Int, Int)], keepAccents: Boolean = false): (String, Seq[(Int, Int)]) = {
     if (isSanitized(oldText))
@@ -249,9 +227,9 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     val (sanitizedText, sanitizedRanges) = sanitize(normalizedText, normalizedRanges, keepAccents = true)
     val redTokens = super.readTokens(sanitizedText)
     val rawTokens =
-        if (text.eq(sanitizedText)) // If it is literally the same object...
-          redTokens
-        else
+      if (text.eq(sanitizedText)) // If it is literally the same object...
+      redTokens
+          else
           redTokens.map { case RawToken(_, oldBeginPosition, oldEndPosition, word) =>
             val newBeginPosition = sanitizedRanges(oldBeginPosition)._1
             val newEndPosition = sanitizedRanges(oldEndPosition - 1)._2
@@ -274,24 +252,24 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     // The first major change is with the added paragraphSplitter.
     val splitTokens = paragraphSplitter.split(sanitizedText, stepTokens)
     val paragraphTokens =
-        if (text.eq(sanitizedText)) // If it is literally the same object...
-          splitTokens
-        else
+      if (text.eq(sanitizedText)) // If it is literally the same object...
+      splitTokens
+          else
           splitTokens.map { case RawToken(_, oldBeginPosition, oldEndPosition, word) =>
             // The paragraph splitter may have added tokens with positions beyond the string
             // boundaries and therefore beyond the boundaries of the sanitized ranges.
             val newBeginPosition =
-                if (oldBeginPosition < sanitizedRanges.length)
-                  sanitizedRanges(oldBeginPosition)._1
-                else
-                  text.length
+              if (oldBeginPosition < sanitizedRanges.length)
+                sanitizedRanges(oldBeginPosition)._1
+              else
+                text.length
             val newEndPosition =
-                if (oldEndPosition < sanitizedRanges.length)
-                  // This might more typically be (oldEndPosition)._1, and usually that would give
-                  // the same answer, but if characters have been deleted it might not be.
-                  sanitizedRanges(oldEndPosition - 1)._2
-                else
-                  text.length
+              if (oldEndPosition < sanitizedRanges.length)
+              // This might more typically be (oldEndPosition)._1, and usually that would give
+              // the same answer, but if characters have been deleted it might not be.
+              sanitizedRanges(oldEndPosition - 1)._2
+              else
+              text.length
             val newRaw = text.slice(newBeginPosition, newEndPosition)
 
             RawToken(newRaw, newBeginPosition, newEndPosition, word)
@@ -335,8 +313,8 @@ object EidosProcessor {
 
   type EidosProcessor = Processor with SentencesExtractor with LanguageSpecific
 
-  def apply(language: String, cutoff: Int = 200, metalOpt: Option[Metal] = None): EidosProcessor = language match {
-    case "english" => new EidosEnglishProcessor(language, cutoff, metalOpt.get)
+  def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
+    case "english" => new EidosEnglishProcessor(language, cutoff)
     case "spanish" => new EidosSpanishProcessor(language, cutoff)
     case "portuguese" => new EidosPortugueseProcessor(language, cutoff)
   }

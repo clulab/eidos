@@ -2,8 +2,7 @@ package org.clulab.wm.eidos
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.dynet.Metal
-import org.clulab.dynet.Utils
+import org.clulab.odin.ExtractorEngine
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
@@ -80,7 +79,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   def add(config: Config): Unit = add(config, None)
 
   def add(config: Config, eidosComponents: EidosComponents): EidosComponentsBuilder =
-      add(config, Some(eidosComponents))
+    add(config, Some(eidosComponents))
 
   def add(config: Config, eidosComponentsOpt: Option[EidosComponents]): EidosComponentsBuilder = {
     val reloading: Boolean = eidosComponentsOpt.isDefined
@@ -108,15 +107,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       val preComponentLoaders = Seq(
         new ComponentLoader("Processors", {
           EidosComponentsBuilder.logger.info("Loading processor...")
-          val metalOpt =
-            if (language == "english") {
-              val modelFilenamePrefix = config[String]("geonorm.modelFilenamePrefix")
-              Utils.initializeDyNet()
-              Some(Metal(modelFilenamePrefix)) // Skip the leading / Recheck with keith.
-            }
-            else None
 
-          procOpt = Some(EidosProcessor(language, cutoff = 150, metalOpt))
+          procOpt = Some(EidosProcessor(language, cutoff = 150))
         })
       )
       // Get these out of the way so that the ontologyHandler can take its time about it
