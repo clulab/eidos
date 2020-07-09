@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
@@ -18,7 +18,7 @@ object ExtractJsonLDFromFile extends App {
     // 3. Extract causal mentions from the text
     val annotatedDocument = reader.extractFromText(text)
     // 4. Convert to an object that can be serialized as desired
-    val corpus = new JLDCorpus(Seq(annotatedDocument))
+    val corpus = new JLDCorpus(annotatedDocument)
     // 5. Convert to JSON
     val mentionsJSONLD = corpus.serialize()
     // 6. Write to output file

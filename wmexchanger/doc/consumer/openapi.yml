@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  description: DART's CDR Retrieval API
+  version: 0.0.1
+  title: CDR Retrieval API
+  contact:
+    email: john.hungerford@twosixlabs.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: https://darthost/dart/api/v1/cdrs
+paths:
+  /{doc-id}:
+    get:
+      summary: Retrieve CDR document
+      parameters:
+        - in: path
+          description: CDR id (md5 hash of raw document)
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          description: Latest timestamp of cdr version (defaults to current date)
+          name: date
+          required: false
+          schema:
+            type: string
+        - in: query
+          description: Include annotations?
+          name: annotations
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Successful retrieval
+          content:
+            application/json:
+              schema:
+                $ref: 'https://raw.githubusercontent.com/WorldModelers/Document-Schema/master/cdr-schema/cdr-v3.json'
+        '400':
+          description: 'Bad request: malformed query parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/failure_response'
+        '404':
+          description: 'No CDR exists with given document id with version on or prior to given date'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/failure_response'
+        '503':
+          description: Unable to reach canonical data store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/failure_response'
+
+components:
+  schemas:
+    failure_response:
+      type: object
+      required:
+        - status
+        - error
+      properties:
+        status:
+          description: the HTTP response status
+          type: number
+        error:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              description: explanation of failure
+              type: string

@@ -11,8 +11,8 @@ rules:
     label: ${ label }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/] (in|to|into)
-      cause: Entity  = nsubj /^nmod_/?
-      effect: Entity = (nmod_in | nmod_to){1,2} (amod | compound)? | ccomp (nsubj | dobj)?
+      cause: Entity  = /${agents}/ /^nmod_/?
+      effect: Entity = (nmod_in|nmod_of|nmod_on|nmod_to){1,2} (amod | compound)? | ccomp (nsubj | dobj)?
 
   - name: reverse_causal-noun-2
     priority: ${ rulepriority }
@@ -30,4 +30,4 @@ rules:
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/]
       cause: Entity  = >nmod_of
-      effect: Entity = <nmod_as >nsubj >/${preps}/?
+      effect: Entity = <nmod_as >nsubj? >/${preps}/?

@@ -84,7 +84,7 @@ class TestRaps1 extends EnglishTest {
     val noClarity = NodeSpec("clarity", Dec("lack"))
     val interestRates = NodeSpec("interest rates", Quant("high"), Inc("high"))
 
-    val conditions = NodeSpec("extremely difficult conditions", Quant("extremely"))
+    val conditions = NodeSpec("extremely difficult conditions", Dec("difficult", "extremely"))
 
     behavior of "Raps_sent23"
 

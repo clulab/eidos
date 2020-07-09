@@ -1,0 +1,12 @@
+vars: org/clulab/wm/eidos/english/grammars/vars.yml
+
+rules:
+
+  - name: locationattachment1
+    priority: ${ rulepriority }
+    example: "In Ecuador,... ...reflecting adequate imports"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      location: Location
+      entity: Entity = </^nmod/ >/^conj/? (>/^dobj/ | >/^nsubj/)? >/^nmod/*

@@ -5,10 +5,9 @@ import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json.{JSONSerializer, stringify}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.findFiles
 import org.json4s.jackson.JsonMethods
 
 object ExtractDocumentFromDirectory extends App {
@@ -45,7 +44,7 @@ object ExtractDocumentFromDirectory extends App {
     case "3" => annotateDoc _
     case _ => throw new Exception(s"Unknown format '$format'")
   }
-  val files = findFiles(inputDir, extension)
+  val files = FileUtils.findFiles(inputDir, extension)
   val reader = new EidosSystem()
 
   // For each file in the input directory:
@@ -56,9 +55,9 @@ object ExtractDocumentFromDirectory extends App {
       // 2. Get the input file contents
       val text = FileUtils.getTextFromFile(file)
       // 3. Extract causal mentions from the text
-      val annotatedDocuments = Seq(annotator(reader, text))
+      val annotatedDocument = annotator(reader, text)
       // 4. Convert to JSON
-      val corpus = new JLDCorpus(annotatedDocuments)
+      val corpus = new JLDCorpus(annotatedDocument)
       val mentionsJSONLD = corpus.serialize()
       // 5. Write to output file
       pw.println(stringify(mentionsJSONLD, pretty = true))

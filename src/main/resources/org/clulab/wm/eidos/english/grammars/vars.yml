@@ -1,4 +1,5 @@
-agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+#agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|nsubjpass|csubj|csubjpass|<acl|nmod_along_with"  #Comment:  nsubjpass for cause should not be there in an ideal world; but it does show up in practice
+agents: "nsubj|'nsubj:xsubj'|'nsubjpass:xsubj'|csubj|csubjpass|nmod_along_with"
 
 adverbial_clause: "advcl"
 
@@ -12,7 +13,7 @@ negTriggers: "not"
 
 objects: "dobj"
 
-preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_than|acl_of"
+preps: "nmod_of|nmod_in|nmod_to|nmod_over|nmod_for|nmod_on|nmod_than|acl_of"
 
 prep_dobjs: "nmod"
 

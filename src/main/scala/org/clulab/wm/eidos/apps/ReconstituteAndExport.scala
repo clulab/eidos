@@ -4,8 +4,9 @@ package org.clulab.wm.eidos.apps
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer
-import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
+import org.clulab.wm.eidos.exporters.Exporter
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
+import org.clulab.wm.eidos.utils.FileUtils
 
 /**
   * App used to extract mentions from files in a directory and produce the desired output format (i.e., jsonld, mitre
@@ -15,7 +16,7 @@ import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
 object ReconstituteAndExport extends App with Configured {
 
 
-  val config = ConfigFactory.load("eidos")
+  val config = EidosSystem.defaultConfig
   override def getConf: Config = config
 
   val inputDir = getArgString("apps.inputDirectory", None)
@@ -34,10 +35,10 @@ object ReconstituteAndExport extends App with Configured {
     println(s"Extracting from ${file.getName}")
     // 2. Get the input file contents (extractions)
     val json = FileUtils.getTextFromFile(file)
-    val corpus = deserializer.deserialize(json, reader.components.ontologyHandler.canonicalizer, reader.components.multiOntologyGrounder)
+    val annotatedDocument = deserializer.deserialize(json).head
     // 3. Export to all desired formats
     exportAs.foreach { format =>
-      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(corpus)
+      Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(annotatedDocument)
     }
   }
 }

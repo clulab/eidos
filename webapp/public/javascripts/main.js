@@ -1,13 +1,18 @@
-var bratLocation = 'assets/brat';
+// This is now arranged by mainbrat.js.
+// var bratLocation = 'webapp/public/brat';
 
 // Color names used
 var baseConceptColor = '#CCD1D1';
 var increaseConceptColor = '#BBDC90';
 var decreaseConceptColor = '#FC5C38';
+var positiveChangeConceptColor = '#7ED8E1';
+var negativeChangeConceptColor = '#E19630';
 var quantifierColor = '#AED6F1';
 var quantifiedConceptColor = '#85C1E9';
 var causalEventColor = '#BB8FCE';
 var correlationEventColor = '#F7DC6F';
+var posAffectEventColor = '#7EE1C5';
+var negAffectEventColor = '#EE86D1';
 var timeExpressionColor = '#FFA500'
 var geoLocationColor = '#FFA500'
 
@@ -31,9 +36,9 @@ head.js(
 );
 
 var webFontURLs = [
-    bratLocation + '/static/fonts/Astloch-Bold.ttf',
-    bratLocation + '/static/fonts/PT_Sans-Caption-Web-Regular.ttf',
-    bratLocation + '/static/fonts/Liberation_Sans-Regular.ttf'
+    bratLocation + '/static/fonts/Astloch-Bold.woff',
+    bratLocation + '/static/fonts/PT_Sans-Caption-Web-Regular.woff',
+    bratLocation + '/static/fonts/Liberation_Sans-Regular.woff'
 ];
 
 var collData = {
@@ -69,6 +74,24 @@ var collData = {
             // Blue is a nice colour for a person?
             //"bgColor": "thistle",
             "bgColor": decreaseConceptColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "Concept-Pos",
+            "labels" : ["Concept-Pos", "Conc"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": positiveChangeConceptColor,
+            // Use a slightly darker version of the bgColor for the border
+            "borderColor": "darken"
+        },
+        {
+            "type"   : "Concept-Neg",
+            "labels" : ["Concept-Neg", "Conc"],
+            // Blue is a nice colour for a person?
+            //"bgColor": "thistle",
+            "bgColor": negativeChangeConceptColor,
             // Use a slightly darker version of the bgColor for the border
             "borderColor": "darken"
         },
@@ -383,6 +406,26 @@ var collData = {
           {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
           {"type": "effect", "labels": ["effect"], "borderColor": "darken", "bgColor":"pink"}
          ]
+      },
+      {
+          "type": "PositiveAffect",
+          "labels": ["POS_AFFECT"],
+          "bgColor": posAffectEventColor,
+          "borderColor": "darken",
+          "arcs": [
+            {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
+            {"type": "effect", "labels": ["effect"], "borderColor": "darken", "bgColor":"pink"}
+           ]
+      },
+      {
+        "type": "NegativeAffect",
+        "labels": ["NEG_AFFECT"],
+        "bgColor": negAffectEventColor,
+        "borderColor": "darken",
+        "arcs": [
+          {"type": "cause", "labels": ["cause"], "borderColor": "darken", "bgColor":"pink"},
+          {"type": "effect", "labels": ["effect"], "borderColor": "darken", "bgColor":"pink"}
+         ]
       }
     ]
 };
@@ -390,18 +433,34 @@ var collData = {
 // docData is initially empty.
 var docData = {};
 
+// These two values and function are now global so that they can be called from other js files.
+var syntaxLiveDispatcher = null;
+
+var eidosMentionsLiveDispatcher = null;
+
+function formDone(data) {
+    console.log(data);
+    syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, data.syntax)]);
+    eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.eidosMentions)]);
+    document.getElementById("groundedAdj").innerHTML = data.groundedAdj;
+    document.getElementById("parse").innerHTML = data.parse;
+    // hide spinner
+    document.getElementById("overlay").style.display = "none";
+}
+
 head.ready(function() {
 
-    var syntaxLiveDispatcher = Util.embed('syntax',
+    syntaxLiveDispatcher = Util.embed('syntax',
         $.extend({'collection': null}, collData),
         $.extend({}, docData),
         webFontURLs
     );
-    var eidosMentionsLiveDispatcher = Util.embed('eidosMentions',
+    eidosMentionsLiveDispatcher = Util.embed('eidosMentions',
         $.extend({'collection': null}, collData),
         $.extend({}, docData),
         webFontURLs
     );
+
 
     $('form').submit(function (event) {
 
@@ -435,15 +494,7 @@ head.ready(function() {
             document.getElementById("overlay").style.display = "none";
             alert("error");
         })
-        .done(function (data) {
-            console.log(data);
-            syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, data.syntax)]);
-            eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, data.eidosMentions)]);
-            document.getElementById("groundedAdj").innerHTML = data.groundedAdj;
-            document.getElementById("parse").innerHTML = data.parse;
-            // hide spinner
-            document.getElementById("overlay").style.display = "none";
-        });
+        .done(formDone);
 
     });
 });

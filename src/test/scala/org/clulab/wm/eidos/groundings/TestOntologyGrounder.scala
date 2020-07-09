@@ -1,7 +1,12 @@
 package org.clulab.wm.eidos.groundings
 
+import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.graph._
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Resourcer
 
 class TestOntologyGrounder extends EnglishTest {
 
@@ -49,6 +54,35 @@ class TestOntologyGrounder extends EnglishTest {
     }
     it should "filter the cardinal POS" taggedAs(Somebody) in {
       tester.test(paper)
+    }
+
+    ignore should "reground properly" taggedAs(Keith) in {
+      // Run this with grounding on or else ignore!
+      val annotatedDocument = ieSystem.extractFromText("Trade with Sudan, South Sudan's second most important trading partner, has decreased significantly since independence.", false)
+      val odinMentions = annotatedDocument.odinMentions.filter { odinMention => odinMention.matches("Entity") } // must be groundable
+      val odinMention = odinMentions.head
+      val eidosMentions = annotatedDocument.eidosMentions.filter { eidosMention => eidosMention.odinMention.eq(odinMention) }
+      val eidosMention = eidosMentions.head
+      val unGrounding = eidosMention.grounding("un").grounding
+      val grounding = unGrounding.map { case (namer, value) => (namer.name, value) }
+
+      val ontologyYaml = Resourcer.getText("/org/clulab/wm/eidos/english/ontologies/un_ontology.yml")
+      val ontologyHandler = ieSystem.components.ontologyHandler
+      val text = odinMention.text
+      val canonicalName = eidosMention.canonicalName
+
+      def reground(text: String) = {
+        val name = "test"
+        val regrounding = ontologyHandler.reground(name = name, ontologyYaml = ontologyYaml, texts = Seq(text), isAlreadyCanonicalized = false)
+
+        regrounding
+      }
+
+      val textRegroundings = reground(text)(0).toSeq
+      val canonicalRegroundings = reground(canonicalName)(0).toSeq
+
+      grounding should be (canonicalRegroundings)
+      grounding should not be (textRegroundings)
     }
   }
 }

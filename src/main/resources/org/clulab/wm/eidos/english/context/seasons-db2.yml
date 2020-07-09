@@ -1,0 +1,153 @@
+'444179':
+  name: Afar
+  seasons:
+    crop / harvest season:
+      end: 1
+      start: 9
+    first short rainy season (sugum):
+      end: 5
+      start: 4
+    hunger season:
+      end: 3
+      start: 12
+    long rainy season (karma):
+      end: 9
+      start: 6
+    planting season:
+      end: 9
+      start: 6
+    second short rainy season (dada):
+      end: 12
+      start: 12
+'444180':
+  name: Amhara
+  seasons:
+    crop / harvest season:
+      end: 1
+      start: 9
+    hunger season:
+      end: 10
+      start: 6
+    long rainy season (kremt):
+      end: 9
+      start: 6
+    planting season:
+      end: 9
+      start: 6
+    short rainy season (belg):
+      end: 5
+      start: 4
+'444181':
+  name: Benishangul
+  seasons:
+    crop / harvest season:
+      end: 1
+      start: 9
+    hunger season:
+      end: 3
+      start: 12
+    planting season:
+      end: 9
+      start: 6
+    rainy season (kremt):
+      end: 10
+      start: 6
+'444183':
+  name: Gambella
+  seasons:
+    crop / harvest season:
+      end: 1
+      start: 9
+    hunger season:
+      end: 6
+      start: 2
+    planting season:
+      end: 9
+      start: 6
+    rainy season (kremt):
+      end: 10
+      start: 6
+'444185':
+  name: Oromifa
+  seasons:
+    crop / harvest season:
+      end: 8
+      start: 2
+    first rainy season (gana):
+      end: 5
+      start: 4
+    hunger season:
+      end: 3
+      start: 12
+    long rainy season (gana):
+      end: 9
+      start: 6
+    planting season:
+      end: 4
+      start: 2
+    second rainy season (hagaya):
+      end: 11
+      start: 10
+    short rainy season (afrasa):
+      end: 5
+      start: 4
+'444186':
+  name: Somali (North)
+  seasons:
+    crop / harvest season:
+      end: 8
+      start: 2
+    first rainy season (gu):
+      end: 5
+      start: 4
+    first short rainy season (diraac):
+      end: 5
+      start: 4
+    hunger season:
+      end: 3
+      start: 12
+    long rainy season (keren):
+      end: 9
+      start: 6
+    planting season:
+      end: 4
+      start: 2
+    second rainy season (deyr):
+      end: 11
+      start: 10
+    second short rainy season (heys):
+      end: 12
+      start: 12
+'444187':
+  name: Tigray
+  seasons:
+    crop / harvest season:
+      end: 1
+      start: 9
+    hunger season:
+      end: 10
+      start: 6
+    long rainy season (kremti):
+      end: 9
+      start: 6
+    planting season:
+      end: 9
+      start: 6
+    short rainy season (belgi):
+      end: 5
+      start: 4
+'444188':
+  name: SNNPR
+  seasons:
+    crop / harvest season:
+      end: 1
+      start: 9
+    hunger season:
+      end: 6
+      start: 2
+    planting season:
+      end: 9
+      start: 6
+    rainy season (kremt):
+      end: 10
+      start: 6

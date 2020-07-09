@@ -336,7 +336,7 @@ package org.yourself.eidosClient
 import scala.collection.Seq
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 
 object YourClassName extends App {
   val text = "Water trucking has decreased due to the cost of fuel."
@@ -426,21 +426,17 @@ in the directory `src/main/resources`.  The former is meant to contain default v
 that aren't very likely to change.  The latter is where users are advised to make
 adjustments.  These values in particular are often changed:
 
-- useW2V - turns on grounding, which uses Word2Vec
+- useGrounding - formerly useW2V, turns on grounding, which uses Word2Vec (W2V)
+- useCacheForOntologies - enables use of smaller and faster cached ontology files
+- useCacheForW2V - enables use of smaller and faster vector files
 
-Grounding also requires additional installation.  There are two significantly large files of
-vectors used for the Word2Vec algorithm which are not stored on GitHub but on 
-[Google Drive](https://drive.google.com/open?id=1cHJIfQTr0XE2CEqbo4POSm0-_xzrDP-A) instead:
-
-- [vectors.txt](https://drive.google.com/open?id=1tffQuLB5XtKcq9wlo0n-tsnPJYQF18oS) and
-- [glove.840B.300d.txt.tgz](https://drive.google.com/open?id=1k4Bc3iNWId8ac_fmkr9yFKhQEycdwOVk).
-
-Only one of the files can be configured at a time.  The former is smaller and quicker and the latter
-more accurate.  Either should be downloaded and if necessary unzipped and untarred, and then the *.txt
-file should be placed in the directory `src/main/resources/org/clulab/wm/eidos/english/w2v`.
-Next, check the configuration value for `wordToVecPath`.  It is usually preset to `glove.840B.300d.txt`,
-so if you are using the other one, change it to `vectors.txt`.  Lastly, change the
-value for `useW2V` from `false` to `true`. 
+Grounding no longer requires additional installation and in fact it is enabled by default.
+The large vector file used for this purpose is declared as a library dependency and will be
+installed automatically.  One disadvantage of these settings is that the program will start
+up more slowly and require extra memory.  One way to avoid this is to turn off grounding by
+setting `useGrounding` to `false`.  If you want to be relatively fast and still ground,
+follow instructions below for [optimizing](#optimizing) to create cached versions of these files and then
+turn on the two values `useCacheForOntologies` and `useCacheForW2V`.
 
 Two previous settings are no longer used:
 
@@ -457,26 +453,25 @@ from projects [timenorm](https://github.com/clulab/timenorm) and
 [geonorm](https://github.com/clulab/geonorm), which are separate from
 Eidos and declared in `built.sbt` as a library dependencies.
 
-With `useW2V` set to `true` and `geonorm` and `timenorm` included, your output should look more like this:
+With `useGrounding` set to `true` and `geonorm` and `timenorm` included, your output should look more like this:
 
 ![Eidos with Grounding](/doc/grounding.png?raw=True")
 
 
 ## Optimizing
 
-Processing the vector files and ontologies used in grounding can consume multiple minutes of time,
-so if you want to run Eidos more than once with the vectors, then it's useful to cache a
-preprocessed version of them along with the otherwise preinstalled ontologies.  This requires a large
-amount of memory, possibly 8 or 10GB, so please read the [notes](#notes) below.  If the files are located
-as described above and the configuration file `eidos.conf` is adjusted appropriately and there is
-enough memory, then the command
+Processing the vector file and ontologies used in grounding can consume multiple minutes of time,
+so if you want to run Eidos more than once with grounding, then it's useful to cache a preprocessed
+version of all of them.  This requires a large amount of memory, possibly 8 or 10GB, so please read
+the [notes](#notes) below.  If the configuration file `eidos.conf` is adjusted appropriately
+(`useGrounding` is turned on) and there is enough memory, then the command
 ```bash
 > sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
 ```
-should write serialized versions of the known ontologies and configured vector file to the directory
-`./cache/`.  To use the cached copies, set `useCache = true` in `eidos.conf`.  The program should
-work significantly faster afterwards.  The text version of the vector file(s) can be (re)moved
-after caching so that assembly of the jar file is hastened as well.
+should write serialized versions of the configured vector file and known ontologies to the directory
+`./cache/`.  To then use the cached copies, set `useCacheForOntologies = true` in `eidos.conf`.
+`useCacheForW2V` is set to track the same value, but can be independently controlled if need be.
+The program should work significantly faster afterwards.
 
 
 ## Translating
@@ -491,8 +486,12 @@ out, switch `language` in `eidos.conf` from `english` to `portuguese`.  Here is 
 
 If you want to use Eidos in its default configuration, it is available to project management
 software like Maven and `sbt` in prepackaged form, independently of the GitHub repository.
-Code like that below can be used to declare the dependency.
+Code like that below can be used to declare the dependency.  The extra resolver is used for
+`glove` word vectors and models from the [processors](https://github.com/clulab/processors) project.
+
 ```scala
+resolvers += "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release"
+
 libraryDependencies ++=
   Seq(
     "org.clulab"    %% "eidos"          % "0.2.2"

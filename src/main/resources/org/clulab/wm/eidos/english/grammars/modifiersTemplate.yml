@@ -41,8 +41,18 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/VBD|VBN|RB|JJR/]
-      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|<vmod) /${ noun_modifiers }|${ conjunctions }/{,2}
+      theme: Entity = (?! /dobj|${complements}/) (>/^nsubj/|</acl|vmod/) /${ noun_modifiers }|${ conjunctions }/{,2}
       quantifier:Quantifier? = ${ quant_modifiers }
+
+  - name: syntax_passive_verb_modifier-${label}
+    priority: ${ rulepriority }
+    example: "The water quality caused poverty by an increase in productivity."
+    #"Exacerbated by climate extremes and a reduction in planted area, the national cereal gap has widened."
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^VBN/ & outgoing=/nmod_by/]
+      theme: Entity = <advcl >/${agents}/
 
 
   - name: ${ label }_ported_syntax_6_verb
@@ -107,7 +117,7 @@ rules:
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/] [mention=Quantifier]
-      theme: Entity = </${ complements }/? >${ agents }
+      theme: Entity = </${ complements }/? >/${ agents }/
       quantifier: Quantifier? = ${quant_modifiers}
 
 
@@ -123,12 +133,22 @@ rules:
 
   - name: ${ label}_adjective_rule_4
     priority:  ${ rulepriority }
-    example: "heavier than normal"
+    example: "heavy for an X"
     label: ${ label }
     action: ${ action }
     pattern: |
       trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
       theme: Entity = nmod_for
+      quantifier: Quantifier? = ${quant_modifiers}
+
+  - name: ${ label}_adjective_rule_5
+    priority:  ${ rulepriority }
+    example: "difficult for X to Y"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      trigger = [word=/(?i)^(${ trigger })/ & tag=/^J/]
+      theme: Entity = >advcl_for
       quantifier: Quantifier? = ${quant_modifiers}
 
   - name: ${ label}_X_remains_y

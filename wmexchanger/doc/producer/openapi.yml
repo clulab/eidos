@@ -1,0 +1,122 @@
+openapi: '3.0.2'
+info:
+  title: Reader Output Storage API
+  description: Service for uploading Reader output
+  version: '1.0.0'
+servers:
+  - url: https://darthost/dart/api/v1/wm-readers
+paths:
+  /reader/health:
+    get:
+      summary: Returns the health of the service.
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: The health of the service.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/health_response"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/failure_response'
+  /reader/upload:
+    post:
+      summary: Upload readout output
+      security:
+        - basicAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  $ref: '#/components/schemas/upload_metadata'
+                file:
+                  type: string
+                  format: binary
+      responses:
+        201:
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/upload_results'
+        400:
+          description: 'Bad Request: missing or invalid body'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/failure_response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/failure_response'
+        503:
+          description: 'Service Unavailable: storage service unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/failure_response'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    upload_metadata:
+      type: object
+      properties:
+        identity:
+          type: string
+          description: Name of the tool that produced the output
+          example: MyAwesomeTool
+        version:
+          type: string
+          description: Version of the tool that produced the output
+          example: 3.1.4
+        document_id:
+          type: string
+          description: ID of the document from which the output was generated
+          example: qwerty1234
+    upload_results:
+      type: object
+      required:
+        - storage_key
+      properties:
+        storage_key:
+          description: the storage key of the output
+          type: string
+    failure_response:
+      type: object
+      required:
+        - status
+        - error
+      properties:
+        status:
+          description: the HTTP response status
+          type: number
+        error_message:
+          description: description of the error
+          type: string
+    health_response:
+      type: "object"
+      required:
+        - "status"
+        - "version"
+      properties:
+        status:
+          type: "string"
+          example: "healthy"
+          description: "Status of the server"
+        version:
+          type: "string"
+          example: "1.0.0"
+          description: "Version of the application"

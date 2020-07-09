@@ -32,8 +32,12 @@ object DomainParams {
   val DEFAULT_DOMAIN_PARAM: String = "DEFAULT"
   val PARAM_MEAN: String = "mean"
   val PARAM_STDEV: String = "stdev"
+  val stanza = "adjectiveGrounder"
 
   def apply(domainParamKBFile: String): DomainParams = new DomainParams(domainParamKBFile)
 
-  def fromConfig(config: Config): DomainParams = apply(config.getString("domainParamKBPath"))
+  def fromConfig(config: Config): DomainParams = apply(config
+      .getConfig(stanza)
+      .getString("domainParamKBPath")
+  )
 }

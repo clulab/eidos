@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>World Modelers Visualizer</title>
@@ -5,6 +6,7 @@
         <link rel="stylesheet" type="text/css" href="assets/brat/static/style-vis.css"/>
         <script type="text/javascript" src="assets/brat/client/lib/head.load.min.js"></script>
         <script type="text/javascript" src="assets/javascripts/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="assets/javascripts/mainbrat.js"></script>
         <script type="text/javascript" src="assets/javascripts/main.js"></script>
     </head>
 
@@ -19,17 +21,19 @@
         </div>
 
         <form>
-            <textarea name="text" rows="5" cols="120"></textarea>
+            <textarea id="text" name="text" rows="5" cols="120"></textarea>
             <br />
-            <input type="submit">
-            <input type="checkbox" name="cagRelevantOnly" value="cagRelevantOnly">Show CAG relevant only<br>
+            <input id="submit" type="submit">
+            <input id="cagRelevantOnly" type="checkbox" name="cagRelevantOnly" value="cagRelevantOnly">Show CAG relevant only<br>
         </form>
 
         <div id="eidosMentions"></div>
 
-        <div id="groundedAdj" class="add-info"></div>
+        <br>
 
         <div id="syntax"></div>
+
+        <div id="groundedAdj" class="add-info"></div>
 
         <table id="parse"></table>
     </body>

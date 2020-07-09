@@ -16,7 +16,7 @@ object Sinker {
   def printWriterFromFile(file: File, append: Boolean): PrintWriter = {
     logger.info("Sinking file " + file.getPath)
 
-    new PrintWriter(new Sink(file, Sourcer.utf8))
+    new PrintWriter(new Sink(file, Sourcer.utf8, append))
   }
 
   def printWriterFromFile(path: String, append: Boolean = false): PrintWriter = printWriterFromFile(new File(path), append)
