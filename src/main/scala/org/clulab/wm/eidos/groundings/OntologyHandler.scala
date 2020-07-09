@@ -5,7 +5,7 @@ import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.{EidosProcessor, EidosSystem, SentencesExtractor}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
@@ -188,6 +188,13 @@ class OntologyHandler(
 
 object OntologyHandler {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
+  def fromConfig(config: Config = EidosSystem.defaultConfig): OntologyHandler = {
+    val sentenceExtractor  = EidosProcessor("english", cutoff = 150)
+    val tagSet = sentenceExtractor.getTagSet
+    val stopwordManager = StopwordManager.fromConfig(config, tagSet)
+    OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet)
+  }
 
   def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager, tagSet: TagSet): OntologyHandler = {
     val canonicalizer = new Canonicalizer(stopwordManager, tagSet)
