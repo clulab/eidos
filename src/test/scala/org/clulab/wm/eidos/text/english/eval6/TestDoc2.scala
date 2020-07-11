@@ -86,7 +86,7 @@ class TestDoc2 extends EnglishTest {
                """
     val tester = new GraphTester(text)
 
-    val prices = NodeSpec("prices", Inc("rising"))
+    val prices = NodeSpec("rising prices", Inc("rising"))
     val roads = NodeSpec("impassable roads", Quant("impassable"))
     val markets = NodeSpec("dysfunctional markets", Quant("dysfunctional"))
     val families = NodeSpec("many families", Quant("many"), Dec("preventing"))

@@ -1,0 +1,33 @@
+<head>
+        <title>World Modelers Visualizer</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="webapp/public/stylesheets/main.css"/>
+        <link rel="stylesheet" type="text/css" href="webapp/public/brat/static/style-vis.css"/>
+        <script type="text/javascript" src="webapp/public/brat/client/lib/head.load.min.js"></script>
+        <script type="text/javascript" src="webapp/public/javascripts/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript">
+            <!-- This may be allowed because we're in a file context. -->
+            var bratLocation = "webapp/public/brat";
+        </script>
+        <script type="text/javascript" src="webapp/public/javascripts/main.js"></script>
+        <script type="text/javascript">
+            var eidosData = $json;
+            var cagRelevantOnly = $cagRelevantOnly;
+
+            function headReady() {
+                console.log(eidosData);
+
+                document.getElementById("text").value = eidosData.syntax.text;
+                document.getElementById("text").disabled = true;
+                document.getElementById("submit").disabled = true;
+                document.getElementById("cagRelevantOnly").checked = cagRelevantOnly;
+                document.getElementById("cagRelevantOnly").disabled = true;
+
+                syntaxLiveDispatcher.post('requestRenderData', [$.extend({}, eidosData.syntax)]);
+                eidosMentionsLiveDispatcher.post('requestRenderData', [$.extend({}, eidosData.eidosMentions)]);
+                document.getElementById("groundedAdj").innerHTML = eidosData.groundedAdj;
+                document.getElementById("parse").innerHTML = eidosData.parse;
+            }
+
+            head.ready(headReady);
+        </script>

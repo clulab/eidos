@@ -1,8 +1,9 @@
 package org.clulab.wm.eidos.expansion
 
 import org.clulab.odin._
-import org.clulab.wm.eidos.attachments.{DCTime, Property, Time}
+import org.clulab.wm.eidos.attachments.{AttachmentHandler, DCTime, Property, Time}
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
 
 object ExpansionUtils {
@@ -13,18 +14,18 @@ object ExpansionUtils {
 
   // During expansion, sometimes there are attachments that got sucked up, here we add them to the expanded argument mention
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
-    def compositionalFoundBy(ms: Seq[Mention]): String = {
-      ms.map(_.foundBy).flatMap(ruleName => ruleName.split("\\+\\+")).distinct.mkString("++")
-    }
-
     // find mentions of the same label and sentence overlap
     val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
     // new foundBy for paper-trail, removes duplicate portions
-    val completeFoundBy = compositionalFoundBy(overlapping)
+    val completeFoundBy = if (overlapping.nonEmpty) FoundBy.concat(overlapping) else expanded.foundBy
     // get all the attachments for the overlapping mentions
     val allAttachments = overlapping.flatMap(m => m.attachments).distinct
+    // make attachments out of the properties todo: should we have already done this?
+    val propertyAttachments = getOverlappingPropertyAttachments(expanded, state)
+    // filter out substring attachments
+    val filtered = AttachmentHandler.filterAttachments(allAttachments ++ expanded.attachments.toSeq ++ propertyAttachments)
     // Add in all attachments
-    val withAttachments = MentionUtils.withMoreAttachments(expanded, allAttachments)
+    val withAttachments = MentionUtils.withOnlyAttachments(expanded, filtered)
     // Modify the foundby for paper trail
     MentionUtils.withFoundBy(withAttachments, completeFoundBy)
   }
@@ -40,22 +41,11 @@ object ExpansionUtils {
       m
   }
 
-  // FIXME -- the difference between this method and addSubsumedAttachments above is small, can they be unified?
-  def addOverlappingAttachmentsTextBounds(m: Mention, state: State): Mention = {
-    m match {
-      case tb: TextBoundMention =>
-        val attachments = getOverlappingAttachments(tb, state)
-        if (attachments.nonEmpty) tb.copy(attachments = tb.attachments ++ attachments) else tb
-      case _ => m
-    }
-
-  }
-
-  def getOverlappingAttachments(m: Mention, state: State): Set[Attachment] = {
+  def getOverlappingPropertyAttachments(m: Mention, state: State): Seq[Attachment] = {
     val interval = m.tokenInterval
     // TODO: Currently this is only Property attachments, but we can do more too
     val overlappingProps = state.mentionsFor(m.sentence, interval, label = "Property")
-    overlappingProps.map(pm => Property(pm.text, None)).toSet
+    overlappingProps.map(pm => Property(pm.text, None))
   }
 
 }

@@ -7,24 +7,23 @@ import org.clulab.processors.Document
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.serialization.json.{JLDCorpus => JLDEidosCorpus}
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.serialization.json.{DocOps, JSONSerializer}
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.groundings.MultiOntologyGrounder
-import org.clulab.wm.eidos.serialization.json.JLDDeserializer
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 
 class TestDocSerialization extends Test {
-  val config: Config = EidosSystem.defaultConfig
+  val config: Config = this.defaultConfig // Do not use EidosSystem's defaultConfig!
   val reader: EidosSystem = new EidosSystem(config)
-  val adjectiveGrounder: EidosAdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
+  val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
   val canonicalizer: Canonicalizer = reader.components.ontologyHandler.canonicalizer
-  val ontologyGrounder: MultiOntologyGrounder = reader.components.multiOntologyGrounder
 
   def testObjectSerialization(annotatedDocument: AnnotatedDocument): Unit = {
     val document = annotatedDocument.document
@@ -104,10 +103,10 @@ class TestDocSerialization extends Test {
 
       def serialize(original: AnnotatedDocument): Unit = {
         val corpus = Seq(original)
-        val jldCorpus = new JLDEidosCorpus(corpus)
+        val jldCorpus = new JLDCorpus(corpus)
         val jValue = jldCorpus.serialize()
         val json = stringify(jValue, pretty = true)
-        val copy = new JLDDeserializer().deserialize(json, canonicalizer, ontologyGrounder)
+        val copy = new JLDDeserializer().deserialize(json)
 
         copy should not be (None)
 //        copy should be (original)

@@ -16,7 +16,7 @@ class TestCagP1 extends EnglishTest {
     val economy = NodeSpec("economy", Dec("collapsing"))
     val cerealProduction = NodeSpec("cereal production", Dec("low"), Quant("low"))
     val rainfall = NodeSpec("poor rainfall in southeastern areas", Dec("poor"), Quant("poor"))
-    val copingCapacities = NodeSpec("coping capacities", Dec("exhaustion"), TimEx("after several years"))
+    val copingCapacities = NodeSpec("coping capacities", Dec("exhaustion"), TimEx("several years"))
 
     behavior of "p1s1"
 
@@ -41,7 +41,7 @@ class TestCagP1 extends EnglishTest {
     val tester = new GraphTester(p1s2)
   
     val households = NodeSpec("households", Inc("doubled"))
-    val foodConsumption = NodeSpec("food consumption", Dec("poor"), Quant("poor"))
+    val foodConsumption = NodeSpec("poor food consumption", Dec("poor"), Quant("poor"))
 
     behavior of "p1s2"
 
@@ -56,7 +56,7 @@ class TestCagP1 extends EnglishTest {
   { // S3
     val tester = new GraphTester(p1s3)
   
-    val rainfall = NodeSpec("Rainfall", Dec("deficits"))
+    val rainfall = NodeSpec("Rainfall deficits", Dec("deficits"))
     val shock = NodeSpec("shock", Quant("major"))
     val pasture = NodeSpec("pasture")
     val waterAvailability = NodeSpec("water availability")
@@ -81,7 +81,7 @@ class TestCagP1 extends EnglishTest {
   { // S4
     val tester = new GraphTester(p1s4)
   
-    val rainfall = NodeSpec("rainfall", Dec("depressed"))
+    val rainfall = NodeSpec("depressed rainfall", Dec("depressed"))
 
     behavior of "p1s4"
 

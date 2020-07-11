@@ -1,9 +1,10 @@
 package org.clulab.wm.eidos.apps.batch
 
 import java.nio.file.Files
-import java.nio.file.Paths
 
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.StringUtils
 
 object RenameMetaFiles extends App {
   val textDir = args(0)
@@ -40,19 +41,21 @@ object RenameMetaFiles extends App {
   val textFiles = FileUtils.findFiles(textDir, "txt")
   val metaFiles = FileUtils.findFiles(inputDir, "json")
 
+  // Text files must have something_somethingElse.txt
+  // inMetaFileName is somethingElse.json.  If there is something like this, copy from it
+  // outMetaFile is something_somethingElse.json.  to this in the output dir.
   textFiles.foreach { textFile =>
-    val textFileName = textFile.getName()
-    val inMetaFileName = beforeLast(afterLast(textFileName, '_'), '.') + ".json"
-    val outMetaFileName = beforeLast(textFileName, '.', true) + ".json"
-    val metaFile = metaFiles.find(metaFile => metaFile.getName() == inMetaFileName)
+    val inMetaFile = FileEditor(textFile).setName(StringUtils.afterLast(textFile.getName, '_')).setExt("json").get
+    val outMetaFile = FileEditor(textFile).setExt("json").get
+    val metaFile = metaFiles.find(metaFile => metaFile.getName == inMetaFile.getName)
 
     if (metaFile.isDefined) {
       try {
-        val fromPath = metaFile.get.toPath()
-        val toPath = Paths.get(outputDir + "/" + outMetaFileName)
+        val fromFile = metaFile.get
+        val toFile = FileEditor(outMetaFile).setDir(outputDir).get
 
-        println("Renaming " + fromPath + " to " + toPath)
-        Files.move(fromPath, toPath)
+        println("Moving " + fromFile + " to " + toFile)
+        Files.move(fromFile.toPath, toFile.toPath)
       }
       catch {
         case exception: Exception =>

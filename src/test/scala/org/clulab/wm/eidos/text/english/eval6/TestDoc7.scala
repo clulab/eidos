@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.text.english.eval6
 
+import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.graph._
 
@@ -22,7 +23,7 @@ class TestDoc7 extends EnglishTest {
 
     val conflict = NodeSpec("nearly four years of civil conflict")
     val food = NodeSpec("food", Quant("scarce", "most"))
-    val hunger = NodeSpec("hunger", Quant("life-threatening"))
+    val hunger = NodeSpec("life-threatening hunger", Quant("life-threatening"))
     val leanSeason = NodeSpec("lean season")
 
     behavior of "TestDoc7 Paragraph 1"
@@ -51,9 +52,9 @@ class TestDoc7 extends EnglishTest {
   
     val tester = new GraphTester(text)
 
-    val foodAvailability = NodeSpec("food availability",
-                                    Inc("improvements", "slight"))
-    val seasonalHarvests = NodeSpec("seasonal harvests from October", TimEx("October to December, the 2018"))
+    val foodAvailability = NodeSpec("slight improvements in food availability",
+                                    Quant("slight"), Pos("improvements", "slight"))
+    val seasonalHarvests = NodeSpec("seasonal harvests from October", TimEx("October to December"))
     val leanSeasons = NodeSpec("lean seasons")
     val foodSecurity = NodeSpec("Food security", Dec("deteriorate"), TimEx("March"))
     val foodInsecurity = NodeSpec("levels of acute food insecurity", Dec("worse"))
@@ -82,7 +83,7 @@ class TestDoc7 extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val conflict = NodeSpec("conflict", Quant("ongoing"))
+    val conflict = NodeSpec("ongoing conflict", Quant("ongoing"))
     val foodInsecurity = NodeSpec("levels of acute food insecurity")
     val starvation = NodeSpec("starvation", Quant("evident"))
     val destitution = NodeSpec("destitution", Quant("evident"))
@@ -114,11 +115,11 @@ class TestDoc7 extends EnglishTest {
   
     val tester = new GraphTester(text)
 
-    val refugees = NodeSpec("2.4 million refugees", Quant("approximately"), TimEx("January 2017"))
+    val refugees = NodeSpec("approximately 2.4 million refugees", Quant("approximately"), TimEx("January 2017"), GeoLoc("South Sudanese"))
     val insecurity = NodeSpec("Widespread insecurity", Inc("Widespread"))
     val communities = NodeSpec("communities")
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disrupt"))
-    val foodInsecurity = NodeSpec("food insecurity", Inc("exacerbate"))
+    val foodInsecurity = NodeSpec("food insecurity", Neg("exacerbate"))
     val humanitarianAccess = NodeSpec("humanitarian access to vulnerable populations", Dec("impede"), Quant("vulnerable"))
     
     behavior of "TestDoc7 Paragraph 4"

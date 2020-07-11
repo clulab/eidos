@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.utils
 
 import java.io._
 import java.net.URL
-import java.nio.channels.Channels
 import java.nio.file.StandardCopyOption
 import java.nio.file.{Files, Path, Paths}
 import java.util.Collection
@@ -12,7 +11,7 @@ import org.clulab.serialization.json.stringify
 import org.clulab.utils.ClassLoaderObjectInputStream
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.serialization.json.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
@@ -22,14 +21,15 @@ import scala.io.Source
 
 object FileUtils {
 
-  def appendingPrintWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, true)
+  def appendingPrintWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, append = true)
 
-  def appendingPrintWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, true)
+  def appendingPrintWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, append = true)
 
-  def printWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, false)
+  def printWriterFromFile(file: File): PrintWriter = Sinker.printWriterFromFile(file, append = false)
 
-  def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, false)
+  def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, append = false)
 
+  //
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)
     val filter = new FilenameFilter {
@@ -78,7 +78,7 @@ object FileUtils {
       }
 
   def loadYamlFromResource(path: String): Collection[Any] = {
-    val input = getTextFromResource(path)
+    val input = Resourcer.getText(path)
     val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
 
     yaml.load(input).asInstanceOf[Collection[Any]]
@@ -144,8 +144,8 @@ object FileUtils {
           // val tmpFile = new File(cacheDir + "/" + StringUtils.afterLast(timeNormModelPath, '/') + ".tmp")
           // Instead, make a new temporary file each time and delete it afterwards.
           val tmpFile = File.createTempFile(
-            StringUtils.afterLast(resourcePath, '/') + '-', // Help identify the file later.
-            "." + StringUtils.afterLast(resourcePath, '.') // Keep extension for good measure.
+            getName(resourcePath) + '-', // Help identify the file later.
+            getExt(resourcePath) // Keep extension for good measure.
           )
 
           try {
@@ -209,5 +209,17 @@ object FileUtils {
         }
       }
     }
+  }
+
+  protected def replaceNameExtension(file: File, newExtension: String): String = {
+    StringUtils.beforeLast(file.getName, '.') + newExtension
+  }
+
+  protected def getName(filename: String): String = {
+    StringUtils.afterLast(filename, '/')
+  }
+
+  protected def getExt(filename: String): String = {
+    "." + StringUtils.afterLast(filename, '.')
   }
 }

@@ -4,7 +4,9 @@ package org.clulab.wm.eidos.apps
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.utils.{ExportUtils, FileUtils}
+import org.clulab.wm.eidos.exporters.Exporter
+import org.clulab.wm.eidos.groundings.grounders.CompositionalGrounder
+import org.clulab.wm.eidos.utils.FileUtils
 
 /**
   * App used to extract mentions from files in a directory and produce the desired output format (i.e., jsonld, mitre
@@ -15,7 +17,7 @@ object ExtractAndExport extends App with Configured {
 
 
 
-  val config = ConfigFactory.load("eidos")
+  val config = EidosSystem.defaultConfig
   override def getConf: Config = config
 
   val inputDir = getArgString("apps.inputDirectory", None)
@@ -23,6 +25,14 @@ object ExtractAndExport extends App with Configured {
   val inputExtension = getArgString("apps.inputFileExtension", None)
   val exportAs = getArgStrings("apps.exportAs", None)
   val groundAs = getArgStrings("apps.groundAs", None)
+  val groundedAs = groundAs.flatMap { grounder =>
+    grounder match {
+      case "wm_compositional" =>
+        CompositionalGrounder.branches.map { branch => grounder + "/" + branch }
+      case other => Seq(other)
+    }
+  }
+
   val topN = getArgInt("apps.groundTopN", Some(5))
   val files = FileUtils.findFiles(inputDir, inputExtension)
   val reader = new EidosSystem()
@@ -34,10 +44,10 @@ object ExtractAndExport extends App with Configured {
     // 2. Get the input file contents
     val text = FileUtils.getTextFromFile(file)
     // 3. Extract causal mentions from the text
-    val annotatedDocuments = Seq(reader.extractFromText(text, id = Some(file.getName)))
+    val annotatedDocument = reader.extractFromText(text, idOpt = Some(file.getName))
     // 4. Export to all desired formats
     exportAs.foreach { format =>
-      ExportUtils.getExporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(annotatedDocuments)
+      Exporter(format, s"$outputDir/${file.getName}", reader, groundedAs, topN).export(annotatedDocument)
     }
   }
 }

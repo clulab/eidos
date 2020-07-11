@@ -13,11 +13,13 @@ import org.clulab.wm.eidos.utils.MentionUtils
   * Adapted for use in Eidos
   */
 class HypothesisHandler(hintsFile: String) {
-
+  protected val emptyState = new State()
   val degree = 2 // Degree up to which we should follow the links in the graph
 
   // These are the words that hint a hypothesis going on
   protected val hints = FileUtils.getCommentedTextSetFromResource(hintsFile)
+
+  def detectHypotheses(mentions: Seq[Mention]): Seq[Mention] = detectHypotheses(mentions, emptyState)
 
   def detectHypotheses(mentions: Seq[Mention], state: State): Seq[Mention] = mentions.map(addAnyHedging)
 
