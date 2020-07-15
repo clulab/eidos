@@ -13,7 +13,6 @@ import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.utils.ScienceUtils
-import org.clulab.wm.eidos.document.SentenceClassifier
 import org.clulab.wm.eidos.utils.EnglishTagSet
 import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.PortugueseTagSet
@@ -48,11 +47,6 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
   val tagSet = new EnglishTagSet()
 
-  var sentenceClassifierOpt:Option[SentenceClassifier] = None
-  def setSentenceClassifier(sentenceClassifier: SentenceClassifier):Unit = {
-    sentenceClassifierOpt = Some(sentenceClassifier)
-  }
-
   // TODO: This should be checked with each update of processors.
   def extractDocument(text: String): Document = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
@@ -62,18 +56,11 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
       tagPartsOfSpeech(document)
       lemmatize(document)
       recognizeNamedEntities(document)
-      classifySentences(document)
     }
     document
   }
 
   def getTagSet: TagSet = tagSet
-
-  def classifySentences(document: Document): Unit = {
-    //val classifications = document.sentences.map(sentenceClassifierOpt.get.classify)
-    println("we do not have any funtion right now")
-    // TODO: Store these in a document attachment
-  }
 }
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
