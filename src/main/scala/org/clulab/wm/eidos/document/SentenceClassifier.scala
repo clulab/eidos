@@ -21,8 +21,6 @@ import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 
 import scala.collection.mutable.ArrayBuffer
 
-
-
 class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler) {
   // word2Vec object is also needed to build the embedding for each mention. Word2vec object is contained by ontologyHandler
 
@@ -164,4 +162,11 @@ object DebugSentenceClassifier extends App{
     sentenceClassifierEvaluationData.toSeq
   }
 
+}
+
+class EidosSentenceClassifier(sentenceClassifierOpt: Option[SentenceClassifier]) {
+
+  def classify(sentence: Sentence): Option[Float] = {
+    sentenceClassifierOpt.map(_.classify(sentence)).orElse(None)
+  }
 }
