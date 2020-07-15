@@ -21,18 +21,30 @@ import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 
 import scala.collection.mutable.ArrayBuffer
 
-class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler) {
-  // word2Vec object is also needed to build the embedding for each mention. Word2vec object is contained by ontologyHandler
 
-  // Prepare functions to read from the resource file
-  val utf8: String = StandardCharsets.UTF_8.toString
-  val classificationThreshold = 0.7
+// TODO: ask keith if this will cause new object?
+class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler) {
+
+  val classificationThreshold = config.getString("classificationThreshold").toFloat
+
+  // TODO: Ask Keith, will this consume additional resource? How to make a reference to the components in the ontology handler?
+  val flatOntologyGrounder = ontologyHandler.ontologyGrounders.filter(_.isInstanceOf[FlatOntologyGrounder]).head.asInstanceOf[FlatOntologyGrounder]
+  val conceptEmbeddings = flatOntologyGrounder.asInstanceOf[FlatOntologyGrounder].conceptEmbeddings
+  val idfWeights = loadTermIDF(config)
+
+  def classify(sentence: Sentence): Float = {
+    val sentenceTokens = sentence.words
+    val sentenceTokenWeights = sentenceTokens.map{ x => if (idfWeights.contains(x)) idfWeights(x) else 1.0f}
+
+    val groundings = Seq(flatOntologyGrounder.newOntologyGrounding(ontologyHandler.wordToVec.calculateSimilaritiesWeighted(sentenceTokens, sentenceTokenWeights, conceptEmbeddings)))
+    if (getTop5Scores(groundings).head>classificationThreshold) getTop5Scores(groundings).head else 0.0f
+  }
 
   private def readFromText2Map(filename:String):Map[String, Float] = {
 
     val outputMap_ = scala.collection.mutable.HashMap[String,Float]()
 
-    val bufferedSource = sourceFromResource(filename)
+    val bufferedSource = SentenceClassifier.sourceFromResource(filename)
     for (line <- bufferedSource.getLines) {
       val cols = line.split("_SEP_")
       // do whatever you want with the columns here
@@ -43,26 +55,10 @@ class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler
     outputMap_.toMap
   }
 
-  private def newFileNotFoundException(path: String): FileNotFoundException = {
-    val message1 = path + " (The system cannot find the path specified"
-    val message2 = message1 + (if (path.startsWith("~")) ".  Make sure to not use the tilde (~) character in paths in lieu of the home directory." else "")
-    val message3 = message2 + ")"
-
-    new FileNotFoundException(message3)
-  }
-
-  private def sourceFromResource(path: String): BufferedSource = {
-    val url = Option(this.getClass.getResource(path))
-      .getOrElse(throw newFileNotFoundException(path))
-
-    Source.fromURL(url, utf8)
-  }
-
-
   // Load idf scores of the tokens
-  private def loadTermIDF():Map[String, Float] = {
+  private def loadTermIDF(config:Config):Map[String, Float] = {
     // Load resource config:
-    val idfWeightsFile = config.getString("sentenceClassifier.tokenIDFWeights")
+    val idfWeightsFile = config[String]("tokenIDFWeights")
     readFromText2Map(idfWeightsFile)
   }
 
@@ -70,106 +66,39 @@ class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler
     allGroundings.head
       .take(5)
       .map(_._2)
-
-  // Load the full tree ontology， the embeddings are computed for each node, instead of each example.
-  // When we use the node to calculate the embedding (but node embedding does not use IDF weight), the best result is
-  // using IDF weight to compute sentence embedding, the acc is 0.695, the f1 is 0.778.
-  // TODO: this might be changed later
-
-  // TODO: will this consume additional resource? How to make a reference to the components in the ontology handler?
-  val flatOntologyGrounder = ontologyHandler.ontologyGrounders.filter(_.isInstanceOf[FlatOntologyGrounder]).head.asInstanceOf[FlatOntologyGrounder]
-  val conceptEmbeddings = flatOntologyGrounder.asInstanceOf[FlatOntologyGrounder].conceptEmbeddings
-  val idfWeights = loadTermIDF()
-
-  //Tdef classify(sentence: Sentence): Float = {
-  def classify(sentence: Sentence): Float = {
-    // Maybe we should normalize the sentence tokens . TODO later.
-    val sentenceTokens = sentence.words
-    val sentenceTokenWeights = sentenceTokens.map{ x => if (idfWeights.contains(x)) idfWeights(x) else 1.0f}
-
-//    println("======")
-//    println(sentenceTokens.toSeq)
-//    println(sentenceTokenWeights.toSeq)
-//    scala.io.StdIn.readLine()
-
-    val groundings = Seq(flatOntologyGrounder.newOntologyGrounding(ontologyHandler.wordToVec.calculateSimilaritiesWeighted(sentenceTokens, sentenceTokenWeights, conceptEmbeddings)))
-    getTop5Scores(groundings).head
-  }
 }
 
 object SentenceClassifier {
+  def newFileNotFoundException(path: String): FileNotFoundException = {
+    val message1 = path + " (The system cannot find the path specified"
+    val message2 = message1 + (if (path.startsWith("~")) ".  Make sure to not use the tilde (~) character in paths in lieu of the home directory." else "")
+    val message3 = message2 + ")"
+
+    new FileNotFoundException(message3)
+  }
+
+  def sourceFromResource(path: String): BufferedSource = {
+    val utf8: String = StandardCharsets.UTF_8.toString
+
+    val url = Option(this.getClass.getResource(path))
+      .getOrElse(throw newFileNotFoundException(path))
+
+    Source.fromURL(url, utf8)
+  }
 
   def fromConfig(config: Config, language: String, ontologyHandler: OntologyHandler): Option[SentenceClassifier] = {
     if (language == Language.ENGLISH)
-      Some(new SentenceClassifier(config, ontologyHandler)) // TODO: Use any config settings necessary
+      Some(new SentenceClassifier(config, ontologyHandler))
     else
       None
   }
 }
 
-object DebugSentenceClassifier extends App{
-  val utf8: String = StandardCharsets.UTF_8.toString
-
-  val eidosTest = new EidosSystem()
-  scala.io.StdIn.readLine()
-
-  // First, load the csv spread sheet
-  val sentenceClassifierEvaluationData = readEvaluationData()
-
-  // Second, load the ontology nodes.
-  val config = EidosSystem.defaultConfig
-  val sentenceExtractor  = EidosProcessor("english", cutoff = 150)
-  val tagSet = sentenceExtractor.getTagSet
-  val stopwordManager = StopwordManager.fromConfig(config, tagSet)
-  val ontologyHandler = OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet)
-  val sentenceClassifier = new SentenceClassifier(config, ontologyHandler)
-
-  println("ontology handler loaded")
-
-  // Third, write the actual code to align the concepts
-  var correctCount = 0
-  for (i <- sentenceClassifierEvaluationData.indices) {
-    val sentence = sentenceClassifierEvaluationData(i)._1
-    val sentenceObj = sentenceExtractor.annotate(sentence).sentences.head
-    val label = sentenceClassifierEvaluationData(i)._2
-
-    val classifierPred = sentenceClassifier.classify(sentenceObj)
-    if (classifierPred>0.7 & label==1){
-      correctCount+=1
-    }
-    else if (classifierPred<=0.7 & label==0){
-      correctCount+=1
-    }
-  }
-  println(s"accuracy:${correctCount}/${sentenceClassifierEvaluationData.length}")
-
-
-  def readEvaluationData():Seq[(String, Int)] = {
-    val sentenceClassifierEvaluationData = ArrayBuffer[(String, Int)]()
-
-    //TODO: read this from resource later
-    val spreadsheetPath = "/Users/zhengzhongliang/NLP_Research/2020_WorldModeler/20200703/SentenceClassifierEvaluation.tsv"
-
-    //val bufferedSource = sourceFromResource(spreadsheetPath)
-    val bufferedSource = Source.fromFile(spreadsheetPath, utf8)
-    for (line <- bufferedSource.getLines) {
-
-      val cols = line.split("\t").map(_.trim)
-      // do whatever you want with the columns here
-      val sentence = cols(0).toLowerCase()
-      val label = cols(1).toInt
-
-      sentenceClassifierEvaluationData.append((sentence, label))
-    }
-
-    sentenceClassifierEvaluationData.toSeq
-  }
-
-}
-
 class EidosSentenceClassifier(sentenceClassifierOpt: Option[SentenceClassifier]) {
+  val classificationThreshold = sentenceClassifierOpt.get.classificationThreshold
 
   def classify(sentence: Sentence): Option[Float] = {
     sentenceClassifierOpt.map(_.classify(sentence)).orElse(None)
   }
+
 }

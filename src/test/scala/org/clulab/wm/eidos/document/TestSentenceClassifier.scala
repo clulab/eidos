@@ -15,35 +15,62 @@ import scala.io.Source
 
 
 class TestSentenceClassifier extends Test {
-  //TODO: think of a way to use the existing eidos system when instantiating the test object.
+//  val config = EidosSystem.defaultConfig
+//  val sentenceExtractor  = EidosProcessor("english", cutoff = 150)
+//  val tagSet = sentenceExtractor.getTagSet
+//  val stopwordManager = StopwordManager.fromConfig(config, tagSet)
+//  val ontologyHandler = OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet)
   val config = EidosSystem.defaultConfig
-  val sentenceExtractor  = EidosProcessor("english", cutoff = 150)
-  val tagSet = sentenceExtractor.getTagSet
-  val stopwordManager = StopwordManager.fromConfig(config, tagSet)
-  val ontologyHandler = OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet)
+  val eidosSystem = new EidosSystem(config)  // TODO: maybe should add config.
 
-  class TestableSentenceClassifier extends SentenceClassifier(config, ontologyHandler) {
-    // TODO: Put real code into SentenceClassifier, but test code here.
-    var hasBeenCalled = false
+  // TODO: Ask Keith, do we really need this class?
+  // TODO: what does this "hasBeenCalled" do?
+//  class TestableSentenceClassifier extends SentenceClassifier(config, ontologyHandler) {
+//    var hasBeenCalled = false
+//
+//    override def classify(sentence: Sentence): Float = {
+//      val result = super.classify(sentence)
+//
+//      hasBeenCalled = true
+//      result
+//    }
+//  }
 
-    override def classify(sentence: Sentence): Float = {
-      val result = super.classify(sentence)
+  def getEvaluationStatistics(preds:Seq[Int], labels:Seq[Int]):(Float, Float) = {
+    var truePositive = 0
+    var falsePositive = 0
+    var trueNegative = 0
+    var falseNegative = 0
 
-      hasBeenCalled = true
-      result
+    for (idx <- preds.indices){
+      if (preds(idx)==1 && labels(idx)==1){
+        truePositive+=1
+      }
+      else if (preds(idx)==1 && labels(idx)==0){
+        falsePositive+=1
+      }
+      else if (preds(idx)==0 && labels(idx)==0){
+        trueNegative +=1
+      }
+      else if (preds(idx)==0 && labels(idx)==1){
+        falseNegative+=1
+      }
     }
+    val accuracy = (truePositive+trueNegative).toFloat/preds.length
+    val precision = truePositive.toFloat/(truePositive+falsePositive)
+    val recall = truePositive.toFloat/(truePositive+falseNegative)
+    val f1 = 2*precision*recall/(precision+recall)
+
+    (accuracy, f1)
   }
 
   def readEvaluationData():Seq[(String, Int)] = {
-    val utf8: String = StandardCharsets.UTF_8.toString
-
     val sentenceClassifierEvaluationData = ArrayBuffer[(String, Int)]()
 
-    //TODO: read this from resource later
-    val spreadsheetPath = "/Users/zhengzhongliang/NLP_Research/2020_WorldModeler/20200703/SentenceClassifierEvaluation.tsv"
+    val spreadsheetPath = config.getString("sentenceClassifier.evaluationFilePath")
 
     //val bufferedSource = sourceFromResource(spreadsheetPath)
-    val bufferedSource = Source.fromFile(spreadsheetPath, utf8)
+    val bufferedSource = SentenceClassifier.sourceFromResource(spreadsheetPath)
     for (line <- bufferedSource.getLines) {
 
       val cols = line.split("\t").map(_.trim)
@@ -57,7 +84,7 @@ class TestSentenceClassifier extends Test {
     sentenceClassifierEvaluationData.toSeq
   }
 
-  //TODO: this seems not to be useful right now.
+  //TODO: Ask Keith, this seems not to be useful right now.
 //  def newSentence(words: Array[String]): Sentence = {
 //    val startOffsets = words.scanLeft(0) { case (start, word) =>  start + word.length + 1 }.dropRight(1)
 //    val endOffsets = words.scanLeft(-1) { case (end, word) => end + 1 + word.length }.drop(1)
@@ -69,35 +96,39 @@ class TestSentenceClassifier extends Test {
   behavior of "SentenceClassifier"
 
   // the
-  it should "the accuraccy of sentence classifier should be above 0.67" in {
+  it should "have an accuracy above 0.69 and an f1 above 0.77" in {
     val sentenceClassifierEvaluationData = readEvaluationData()
-    val sentenceClassifier = new TestableSentenceClassifier()
+    val preds = new ArrayBuffer[Int]()
+    val labels = new ArrayBuffer[Int]()
+    //val sentenceClassifier = new TestableSentenceClassifier()
 
     // First, load the csv spread sheet
-
-    println("ontology handler loaded")
-
-    var correctCount = 0f
     for (i <- sentenceClassifierEvaluationData.indices) {
       val sentence = sentenceClassifierEvaluationData(i)._1
-      val sentenceObj = sentenceExtractor.annotate(sentence).sentences.head
+      val sentenceObj = eidosSystem.components.proc.annotate(sentence).sentences.head
       val label = sentenceClassifierEvaluationData(i)._2
+      labels.append(label)
 
 
-      val classifierPred = sentenceClassifier.classify(sentenceObj)
-      if (classifierPred>0.7 & label==1){
-        correctCount+=1
+      val classifierPred = eidosSystem.components.eidosSentenceClassifier.classify(sentenceObj).get
+      if (classifierPred> eidosSystem.components.eidosSentenceClassifier.classificationThreshold){
+        preds.append(1)
       }
-      else if (classifierPred<=0.7 & label==0){
-        correctCount+=1
+      else {
+        preds.append(0)
       }
-
     }
+    val (acc, f1) = getEvaluationStatistics(preds, labels)
 
-    sentenceClassifier.hasBeenCalled should be (true)
-    correctCount/sentenceClassifierEvaluationData.length>0.67 should be (true)
+    //TODO: delete this before actual merging.
+    println("acc f1 are", acc, f1)
+    //sentenceClassifier.hasBeenCalled should be (true)
+    acc>0.69 should be (true)
+    f1>0.77 should be (true)
   }
 
+
+  // TODO: ask keith, are these tests useful?
 //  ignore should "work integrated" in {
 //    val sentenceClassifier = new TestableSentenceClassifier()
 //    val eidosEnglishProcessor = new EidosEnglishProcessor(Language.ENGLISH, 100)
