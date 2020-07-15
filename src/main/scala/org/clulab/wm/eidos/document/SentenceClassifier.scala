@@ -112,6 +112,9 @@ object SentenceClassifier {
 object DebugSentenceClassifier extends App{
   val utf8: String = StandardCharsets.UTF_8.toString
 
+  val eidosTest = new EidosSystem()
+  scala.io.StdIn.readLine()
+
   // First, load the csv spread sheet
   val sentenceClassifierEvaluationData = readEvaluationData()
 
