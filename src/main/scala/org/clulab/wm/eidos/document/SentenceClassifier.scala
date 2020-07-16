@@ -3,14 +3,13 @@ package org.clulab.wm.eidos.document
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.processors.Sentence
-import org.clulab.wm.eidos.groundings.FlatOntologyGrounder
+import org.clulab.wm.eidos.groundings.ConceptEmbedding
 import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Sourcer
 import java.io.FileNotFoundException
-
-import org.clulab.wm.eidos.groundings.ConceptEmbedding
 
 class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[String, Float], ontologyHandler: OntologyHandler, flatOntologyGrounder: FlatOntologyGrounder) {
   val conceptEmbeddings: Seq[ConceptEmbedding] = flatOntologyGrounder.conceptEmbeddings
@@ -58,7 +57,6 @@ object SentenceClassifier {
 
       Some(new SentenceClassifier(classificationThreshold, idfWeights, ontologyHandler, flatOntologyGrounders.head))
     }
- 
     else
       None
   }
