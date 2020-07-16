@@ -4,32 +4,24 @@ import com.typesafe.config.Config
 import ai.lum.common.ConfigUtils._
 
 import org.clulab.processors.Sentence
-import org.clulab.wm.eidos.{EidosEnglishProcessor, EidosProcessor, EidosSystem}
-import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.{EidosWordToVec, FlatOntologyGrounder, OntologyGrounding, OntologyHandler}
-import org.clulab.wm.eidos.utils.{Canonicalizer, Language, StopwordManager, StringUtils}
+import org.clulab.wm.eidos.groundings.{FlatOntologyGrounder, OntologyGrounding, OntologyHandler}
+import org.clulab.wm.eidos.utils.{ Language}
 
 import scala.io.BufferedSource
 import scala.io.Source
-import java.io
 import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
 
-import org.clulab.embeddings.word2vec.Word2Vec
-import org.clulab.struct.Interval
-import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 
-import scala.collection.mutable.ArrayBuffer
-
-
-// TODO: ask keith if this will cause new object?
 class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler) {
 
+  // get the classification threshold from eidos.conf file
   val classificationThreshold = config.getString("classificationThreshold").toFloat
 
-  // TODO: Ask Keith, will this consume additional resource? How to make a reference to the components in the ontology handler?
   val flatOntologyGrounder = ontologyHandler.ontologyGrounders.filter(_.isInstanceOf[FlatOntologyGrounder]).head.asInstanceOf[FlatOntologyGrounder]
   val conceptEmbeddings = flatOntologyGrounder.asInstanceOf[FlatOntologyGrounder].conceptEmbeddings
+
+  // Load idf weights of the tokens from the resource folder
   val idfWeights = loadTermIDF(config)
 
   def classify(sentence: Sentence): Float = {
@@ -37,9 +29,12 @@ class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler
     val sentenceTokenWeights = sentenceTokens.map{ x => if (idfWeights.contains(x)) idfWeights(x) else 1.0f}
 
     val groundings = Seq(flatOntologyGrounder.newOntologyGrounding(ontologyHandler.wordToVec.calculateSimilaritiesWeighted(sentenceTokens, sentenceTokenWeights, conceptEmbeddings)))
+
+    // The correlation score of a sentence is set to 0 if it is below the threshold. Change it later if needed.
     if (getTop5Scores(groundings).head>classificationThreshold) getTop5Scores(groundings).head else 0.0f
   }
 
+  // Read idf weights of tokens as a map.
   private def readFromText2Map(filename:String):Map[String, Float] = {
 
     val outputMap_ = scala.collection.mutable.HashMap[String,Float]()
