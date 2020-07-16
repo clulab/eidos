@@ -96,7 +96,7 @@ class EidosSystem(val components: EidosComponents) {
         eidosMention.classificationOpt = cache.getOrElseUpdate(eidosMention.odinMention.sentence,
             components.eidosSentenceClassifier.classify(eidosMention.odinMention.sentenceObj))
       }
-      eidosMentions
+      annotatedDocument
     })
   )
 

@@ -4,7 +4,8 @@ import com.typesafe.config.Config
 import ai.lum.common.ConfigUtils._
 
 import org.clulab.processors.Sentence
-import org.clulab.wm.eidos.groundings.{FlatOntologyGrounder, OntologyGrounding, OntologyHandler}
+import org.clulab.wm.eidos.groundings.{OntologyGrounding, OntologyHandler}
+import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
 import org.clulab.wm.eidos.utils.{ Language}
 
 import scala.io.BufferedSource
