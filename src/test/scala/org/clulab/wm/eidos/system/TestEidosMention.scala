@@ -6,9 +6,10 @@ import java.util.HashMap
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{HashCodeBagger, IdentityBagger}
+import org.clulab.wm.eidos.utils.{EqualityBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
+import org.clulab.wm.eidos.utils.OdinMention
 
 class TestEidosMention extends ExtractionTest {
   
@@ -27,17 +28,17 @@ class TestEidosMention extends ExtractionTest {
     }
 
     val extractedOdinMentions = ieSystem.extractFromText(text, cagRelevantOnly = false).odinMentions
-    val reachableOdinMentions = EidosMention.findReachableOdinMentions(extractedOdinMentions)
+    val reachableOdinMentions = OdinMention.findAllByEquality(extractedOdinMentions)
 
     {
       // Diagnostics
-      val distinctExtractedOdinMentions = new HashCodeBagger[Mention].put(extractedOdinMentions).get()
-      val uniqueExtractedOdinMentions = new IdentityBagger[Mention].put(extractedOdinMentions).get()
-      val uniqueDistinctExtractedOdinMentions = new IdentityBagger[Mention].put(distinctExtractedOdinMentions).get()
+      val distinctExtractedOdinMentions = new EqualityBagger[Mention].put(extractedOdinMentions).get
+      val uniqueExtractedOdinMentions = new IdentityBagger[Mention].put(extractedOdinMentions).get
+      val uniqueDistinctExtractedOdinMentions = new IdentityBagger[Mention].put(distinctExtractedOdinMentions).get
 
-      val distinctReachableOdinMentions = new HashCodeBagger[Mention].put(reachableOdinMentions).get()
-      val uniqueReachableOdinMentions = new IdentityBagger[Mention].put(reachableOdinMentions).get()
-      val uniqueDistinctReachableOdinMentions = new IdentityBagger[Mention].put(distinctReachableOdinMentions).get()
+      val distinctReachableOdinMentions = new EqualityBagger[Mention].put(reachableOdinMentions).get
+      val uniqueReachableOdinMentions = new IdentityBagger[Mention].put(reachableOdinMentions).get
+      val uniqueDistinctReachableOdinMentions = new IdentityBagger[Mention].put(distinctReachableOdinMentions).get
 
       //    reachableOdinMentions.foreach { odinMention =>
       //      println(System.identityHashCode(odinMention) + "\t" + odinMention.hashCode())
@@ -45,14 +46,14 @@ class TestEidosMention extends ExtractionTest {
     }
 
     val odinMentions = reachableOdinMentions // These should already be distinct
-    val distinctOdinMentions = new HashCodeBagger[Mention].put(odinMentions).get() // This shouldn't make a difference
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val distinctOdinMentions = new EqualityBagger[Mention].put(odinMentions).get // This shouldn't make a difference
+    val (eidosMentions, _) = EidosMention.asEidosMentions(odinMentions)
     odinMentions.size should be (distinctOdinMentions.size)
     odinMentions.size should be (eidosMentions.size)
 
     // Since they are all distinct above, they are also unique
-    val odinUniqueMentions = new IdentityBagger[Mention].put(odinMentions).get()
-    val eidosUniqueMentions = new IdentityBagger[EidosMention].put(eidosMentions).get()
+    val odinUniqueMentions = new IdentityBagger[Mention].put(odinMentions).get
+    val eidosUniqueMentions = new IdentityBagger[EidosMention].put(eidosMentions).get
     odinMentions.size should be (odinUniqueMentions.size)
     odinMentions.size should be (eidosUniqueMentions.size)
 
@@ -95,7 +96,7 @@ than in the corresponding period two years earlier.
   it should "properly make canonical form" in {
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
-    val eidosMentions3 = EidosMention.asEidosMentions(odinMentions3)
+    val (eidosMentions3, _) = EidosMention.asEidosMentions(odinMentions3)
     val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
@@ -121,7 +122,7 @@ than in the corresponding period two years earlier.
   it should "include all the argument mentions" in {
     val text = "85% of the new arrivals originated from Upper Nile State (Nasir, Longechuk or Mathiang, Ulang and Maiwut Counties), whilst 14% came from Jonglei State (Uror, Akobo and Ayod Counties)."
     val odinMentions = ieSystem.extractFromText(text).odinMentions
-    val reachableOdinMentions = EidosMention.findReachableOdinMentions(odinMentions)
+    val reachableOdinMentions = OdinMention.findAllByEquality(odinMentions)
 
     odinMentions.foreach { odinMention =>
       val argumentMentions = odinMention.arguments.values.flatten

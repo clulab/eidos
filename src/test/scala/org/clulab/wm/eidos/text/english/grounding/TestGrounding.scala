@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.text.english.grounding
 
 import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyGrounder
 import org.clulab.wm.eidos.groundings.OntologyGrounding
@@ -102,23 +103,29 @@ class TestGrounding extends EnglishTest {
                          topN: Option[Int], threshold: Option[Float]):
     (Seq[EidosMention], Seq[EidosMention]) = {
       val doc = ieSystem.annotate(text)
-      val cause = {
+      val causes = {
         val odinCauses = causeIntervals.map(x =>
             new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
-        val eidosCauses = EidosMention.asEidosMentions(odinCauses)
+        val annotatedDocument = AnnotatedDocument(doc, odinCauses)
+        val eidosCauses = annotatedDocument.eidosMentions
 
-        ieSystem.components.ontologyHandler.ground(eidosCauses)
+        // This only grounds the surfact mentions, but that is sufficient for the test.
+        eidosCauses.foreach(ieSystem.components.ontologyHandler.ground)
+        eidosCauses
       }
 
-      val effect = {
-        val odinCauses = effectIntervals.map(x =>
+      val effects = {
+        val odinEffects = effectIntervals.map(x =>
             new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
-        val eidosCauses = EidosMention.asEidosMentions(odinCauses)
+        val annotatedDocument = AnnotatedDocument(doc, odinEffects)
+        val eidosEffects = annotatedDocument.eidosMentions
 
-        ieSystem.components.ontologyHandler.ground(eidosCauses)
+        // This only grounds the surfact mentions, but that is sufficient for the test.
+        eidosEffects.foreach(ieSystem.components.ontologyHandler.ground)
+        eidosEffects
       }
 
-      val returned = (cause, effect)
+      val returned = (causes, effects)
       returned
     }
   }

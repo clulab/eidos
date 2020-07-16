@@ -6,9 +6,11 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.CompactDomainOntology.CompactDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.FastDomainOntology.FastDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology
+import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Canonicalizer
 
@@ -56,7 +58,7 @@ class TestCachedDomainOntology extends Test {
     val path = ontologySpec.path
     val domainOntologies = Array(false, true).flatMap { useCacheForOntologies =>
       if (!useCacheForOntologies) {
-        val orig = DomainOntologies(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies , includeParents)
+        val orig = DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies , includeParents)
         val copy =
           if (!includeParents)  new CompactDomainOntologyBuilder(orig.asInstanceOf[HalfTreeDomainOntology]).build()
           else new FastDomainOntologyBuilder(orig.asInstanceOf[FullTreeDomainOntology]).build()
@@ -66,7 +68,7 @@ class TestCachedDomainOntology extends Test {
       else {
         val cachePath = OntologyHandler.serializedPath(ontologySpec.abbrev, cacheDir, includeParents)
 
-        Array(DomainOntologies("", cachePath, proc, canonicalizer, filter, useCacheForOntologies, includeParents))
+        Array(DomainHandler("", cachePath, proc, canonicalizer, filter, useCacheForOntologies, includeParents))
       }
     }
 
