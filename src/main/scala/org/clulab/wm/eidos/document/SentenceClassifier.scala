@@ -14,12 +14,10 @@ import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
 
 
-class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler) {
+class SentenceClassifier(val config:Config, val ontologyHandler: OntologyHandler, flatOntologyGrounder: FlatOntologyGrounder) {
 
   // get the classification threshold from eidos.conf file
   val classificationThreshold = config.getString("classificationThreshold").toFloat
-
-  val flatOntologyGrounder = ontologyHandler.ontologyGrounders.filter(_.isInstanceOf[FlatOntologyGrounder]).head.asInstanceOf[FlatOntologyGrounder]
   val conceptEmbeddings = flatOntologyGrounder.asInstanceOf[FlatOntologyGrounder].conceptEmbeddings
 
   // Load idf weights of the tokens from the resource folder
@@ -83,15 +81,17 @@ object SentenceClassifier {
   }
 
   def fromConfig(config: Config, language: String, ontologyHandler: OntologyHandler): Option[SentenceClassifier] = {
-    if (language == Language.ENGLISH)
-      Some(new SentenceClassifier(config, ontologyHandler))
+    val flatOntologyGrounders = ontologyHandler.ontologyGrounders.collect { case grounder: FlatOntologyGrounder => grounder }
+
+    if (language == Language.ENGLISH && flatOntologyGrounders.nonEmpty)
+        Some(new SentenceClassifier(config, ontologyHandler, flatOntologyGrounders.head))
     else
       None
   }
 }
 
 class EidosSentenceClassifier(sentenceClassifierOpt: Option[SentenceClassifier]) {
-  val classificationThreshold = sentenceClassifierOpt.get.classificationThreshold
+  val classificationThreshold: Float = sentenceClassifierOpt.map(_.classificationThreshold).getOrElse(0.0f)
 
   def classify(sentence: Sentence): Option[Float] = {
     sentenceClassifierOpt.map(_.classify(sentence)).orElse(None)
