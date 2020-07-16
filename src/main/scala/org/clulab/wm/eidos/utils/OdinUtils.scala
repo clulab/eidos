@@ -1,10 +1,5 @@
 package org.clulab.wm.eidos.utils
 
-import java.util.{Map => JMap}
-
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.Constructor
-
 object OdinUtils {
   // According to https://arxiv.org/pdf/1509.07513.pdf,
   // An exact string matcher is denoted using a string literal, which is a single- or double-quote delimited

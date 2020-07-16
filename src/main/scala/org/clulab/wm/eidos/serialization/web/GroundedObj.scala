@@ -4,7 +4,7 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder
+import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DisplayUtils
 import org.clulab.wm.eidos.utils.GroundingUtils

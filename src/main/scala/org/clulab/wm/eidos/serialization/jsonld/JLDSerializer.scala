@@ -56,12 +56,12 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 
   def toJObject: TidyJObject
   
-  def newJLDExtraction(mention: EidosMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDExtraction = mention match {
+  def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
 //    case mention: EidosCrossSentenceEventMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
-    case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
+    case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention)
     //case mention: EidosRelationMention =>
-    case mention: EidosCrossSentenceMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
-    case mention: EidosTextBoundMention => new JLDConceptEntity(serializer, mention, countAttachmentMap)
+    case mention: EidosCrossSentenceMention => JLDRelation.newJLDRelation(serializer, mention)
+    case mention: EidosTextBoundMention => new JLDConceptEntity(serializer, mention)
     case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
 
@@ -255,29 +255,6 @@ object JLDAttachment {
   val kind = "State"
 }
 
-class JLDCountAttachment(serializer: JLDSerializer, val countAttachment: CountAttachment)
-    extends JLDObject(serializer, JLDCountAttachment.typename, countAttachment) {
-
-  override def toJObject: TidyJObject = {
-    TidyJObject(List(
-      serializer.mkType(this),
-      serializer.mkId(this),
-      "startOffset" -> countAttachment.startOffset,
-      "endOffset" -> countAttachment.endOffset,
-      "text" -> countAttachment.text,
-      "value" -> countAttachment.migrationGroupCount.value,
-      "modifier" -> countAttachment.migrationGroupCount.modifier.toString,
-      "unit" -> countAttachment.migrationGroupCount.unit.toString
-    ))
-  }
-}
-
-object JLDCountAttachment {
-  val singular = "count"
-  val plural = "counts"
-  val typename = "Count"
-}
-
 class JLDTriggeredAttachment(serializer: JLDSerializer, kind: String, triggeredAttachment: TriggeredAttachment)
     extends JLDAttachment(serializer, JLDAttachment.kind) {
 
@@ -406,8 +383,7 @@ object JLDTrigger {
   val typename = "Trigger"
 }
 
-abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, val eidosMention: EidosMention,
-    countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
+abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, val eidosMention: EidosMention)
     extends JLDObject(serializer, JLDExtraction.typename, eidosMention) {
 
   def getMentions: Seq[EidosMention] =  Seq.empty
@@ -440,11 +416,6 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         .collect{ case a: DCTime => a }
         .sortWith(DCTime.lessThan)
         .map(attachment => newJLDAttachment(attachment))
-    val jldCountAttachments = attachments
-        .collect{ case a: CountAttachment => a }
-        .sortBy(countAttachment => countAttachment.startOffset)
-        // Need to get the right JLD attachment from map
-        .map(attachment => newJLDAttachment(countAttachmentMap(attachment).countAttachment)) // newJLDAttachment(attachment))
 
     // This might be used to test some groundings when they aren't configured to be produced.
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
@@ -459,7 +430,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         new JLDOntologyGroundings(serializer, key, ontologyGroundings).toJObject
       }
     }
-    val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments ++ jldCountAttachments).map(_.toJObject)
+    val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),
@@ -483,40 +454,39 @@ object JLDExtraction {
   val plural = "extractions"
 }
 
-class JLDConcept(serializer: JLDSerializer, subtypeString: String, mention: EidosMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-    extends JLDExtraction(serializer, JLDConcept.typeString, subtypeString, mention, countAttachmentMap) {
+class JLDConcept(serializer: JLDSerializer, subtypeString: String, mention: EidosMention)
+    extends JLDExtraction(serializer, JLDConcept.typeString, subtypeString, mention) {
 }
 
 object JLDConcept {
   val typeString = "concept"
 }
 
-class JLDConceptEntity(serializer: JLDSerializer, mention: EidosMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-  extends JLDConcept(serializer, JLDConceptEntity.subtypeString, mention, countAttachmentMap) {
+class JLDConceptEntity(serializer: JLDSerializer, mention: EidosMention)
+  extends JLDConcept(serializer, JLDConceptEntity.subtypeString, mention) {
 }
 
 object JLDConceptEntity {
   val subtypeString = "entity"
 }
 
-class JLDRelation(serializer: JLDSerializer, subtypeString: String, mention: EidosMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-  extends JLDExtraction(serializer, JLDRelation.typeString, subtypeString, mention, countAttachmentMap) {
+class JLDRelation(serializer: JLDSerializer, subtypeString: String, mention: EidosMention)
+  extends JLDExtraction(serializer, JLDRelation.typeString, subtypeString, mention) {
 }
 
 object JLDRelation {
   val typeString = "relation"
 
-  def newJLDRelation(serializer: JLDSerializer, mention: EidosCrossSentenceEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDRelation = {
+  def newJLDRelation(serializer: JLDSerializer, mention: EidosCrossSentenceEventMention): JLDRelation = {
     mention.odinMention.label match {
         // TODO: Figure out provenance for these!
 //      case JLDRelationCorrelation.taxonomy => new JLDRelationCorrelation(serializer, mention, countAttachmentMap)
 //      case JLDRelationCausation.taxonomy => new JLDRelationCausation(serializer, mention, countAttachmentMap)
-      case JLDRelationMigration.taxonomy => new JLDRelationMigration(serializer, mention, countAttachmentMap)
       case _ => throw new IllegalArgumentException("Unknown CrossSentenceEventMention: " + mention)
     }
   }
 
-  def newJLDRelation(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDRelation = {
+  def newJLDRelation(serializer: JLDSerializer, mention: EidosEventMention): JLDRelation = {
     // This could be looked up in the taxonomy somehow, but the taxonomy doesn't include
     // information about the name of the arguments anyway, so may as well do all decoding here.
     // This could be pushed down to JLDRelation given EidosEventMention => JLDRelation.
@@ -524,31 +494,30 @@ object JLDRelation {
     // names to be specified in master.yml file and then be taken over verbatim by querying the
     // arguments dictionary.
     mention.odinMention.label match {
-      case JLDRelationCorrelation.taxonomy => new JLDRelationCorrelation(serializer, mention, countAttachmentMap)
-      case JLDRelationCausation.taxonomy => new JLDRelationCausation(serializer, mention, countAttachmentMap)
-      case JLDRelationMigration.taxonomy => new JLDRelationMigration(serializer, mention, countAttachmentMap)
+      case JLDRelationCorrelation.taxonomy => new JLDRelationCorrelation(serializer, mention)
+      case JLDRelationCausation.taxonomy => new JLDRelationCausation(serializer, mention)
       case _ => throw new IllegalArgumentException("Unknown Mention: " + mention)
     }
   }
 
-  def newJLDRelation(serializer: JLDSerializer, mention: EidosCrossSentenceMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): JLDRelation = {
+  def newJLDRelation(serializer: JLDSerializer, mention: EidosCrossSentenceMention): JLDRelation = {
     // Cross sentence mentions are always a coreference.
     if (JLDRelationCoreference.taxonomy == mention.odinMention.label)
-      new JLDRelationCoreference(serializer, mention, countAttachmentMap)
+      new JLDRelationCoreference(serializer, mention)
     else
       throw new IllegalArgumentException("Unknown Mention: " + mention)
   }
 }
 
-class JLDRelationCausation(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-    extends JLDRelation(serializer, JLDRelationCausation.subtypeString, mention, countAttachmentMap) {
+class JLDRelationCausation(serializer: JLDSerializer, mention: EidosEventMention)
+    extends JLDRelation(serializer, JLDRelationCausation.subtypeString, mention) {
 
   override def getMentions: Seq[EidosMention] = {
     val sources = mention.eidosArguments.getOrElse(JLDRelationCausation.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationCausation.effect, Seq.empty).filter(isExtractable)
 //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -573,15 +542,15 @@ object JLDRelationCausation {
   val effect = "effect"
 }
 
-class JLDRelationPositiveAffect(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-  extends JLDRelation(serializer, JLDRelationPositiveAffect.subtypeString, mention, countAttachmentMap) {
+class JLDRelationPositiveAffect(serializer: JLDSerializer, mention: EidosEventMention)
+  extends JLDRelation(serializer, JLDRelationPositiveAffect.subtypeString, mention) {
 
   override def getMentions: Seq[EidosMention] = {
     val sources = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.effect, Seq.empty).filter(isExtractable)
     //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -606,15 +575,15 @@ object JLDRelationPositiveAffect {
   val effect = "effect"
 }
 
-class JLDRelationNegativeAffect(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-  extends JLDRelation(serializer, JLDRelationNegativeAffect.subtypeString, mention, countAttachmentMap) {
+class JLDRelationNegativeAffect(serializer: JLDSerializer, mention: EidosEventMention)
+  extends JLDRelation(serializer, JLDRelationNegativeAffect.subtypeString, mention) {
 
   override def getMentions: Seq[EidosMention] = {
     val sources = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.effect, Seq.empty).filter(isExtractable)
     //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -640,15 +609,15 @@ object JLDRelationNegativeAffect {
 }
 
 
-class JLDRelationCorrelation(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-  extends JLDRelation(serializer, JLDRelationCorrelation.subtypeString, mention, countAttachmentMap) {
+class JLDRelationCorrelation(serializer: JLDSerializer, mention: EidosEventMention)
+  extends JLDRelation(serializer, JLDRelationCorrelation.subtypeString, mention) {
 
   override def getMentions: Seq[EidosMention] = {
     val sources = mention.eidosArguments.getOrElse(JLDRelationCorrelation.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationCorrelation.effect, Seq.empty).filter(isExtractable)
 //    val triggers = Seq(mention.eidosTrigger) // Needed if extraction is to be read
 
-    sources ++ targets /*++ triggers*/ ++ super.getMentions
+    super.getMentions ++ sources ++ targets /*++ triggers*/
   }
 
   override def toJObject: TidyJObject = {
@@ -675,11 +644,11 @@ object JLDRelationCorrelation {
   val effect = "effect"
 }
 
-class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSentenceMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-  extends JLDRelation(serializer, JLDRelationCoreference.subtypeString, mention, countAttachmentMap) {
+class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSentenceMention)
+  extends JLDRelation(serializer, JLDRelationCoreference.subtypeString, mention) {
 
   override def getMentions: Seq[EidosMention] =
-      Seq(mention.eidosAnchor, mention.eidosNeighbor) ++ super.getMentions
+      super.getMentions ++ Seq(mention.eidosAnchor, mention.eidosNeighbor)
 
   // The provenance of this mention is just that of anchor and neighbor.
   override protected def provenance(): Seq[JValue] = Seq(
@@ -702,50 +671,6 @@ class JLDRelationCoreference(serializer: JLDSerializer, mention: EidosCrossSente
 object JLDRelationCoreference {
   val subtypeString = "coreference"
   val taxonomy = "Coreference"
-}
-
-class JLDRelationMigration(serializer: JLDSerializer, mention: EidosEventMention, countAttachmentMap: Map[CountAttachment, JLDCountAttachment])
-    extends JLDRelation(serializer, JLDRelationMigration.subtypeString, mention, countAttachmentMap) {
-
-  override def getMentions: Seq[EidosMention] = {
-    val mentions: Seq[EidosMention] = JLDRelationMigration.keys.flatMap { key =>
-      mention.eidosArguments.getOrElse(key, Seq.empty[EidosMention])
-    }
-
-    mentions ++ super.getMentions
-  }
-
-  // The provenance of this mention is just that of anchor and neighbor.
-//  override protected def provenance(): Seq[JValue] = Seq(
-//    new JLDProvenance(serializer, mention.)
-//    new JLDProvenance(serializer, mention.eidosAnchor).toJObject,
-//    new JLDProvenance(serializer, mention.eidosNeighbor).toJObject
-//  )
-
-  override def toJObject: TidyJObject = {
-    val trigger = new JLDTrigger(serializer, mention.eidosTrigger).toJObject
-    val keysAndValues = JLDRelationMigration.keys.flatMap { key =>
-      val values = mention.eidosArguments.getOrElse(key, Seq.empty[EidosMention])
-
-      values.map { value =>
-        (key, value)
-      }
-    }
-    val jldArguments = keysAndValues.map { case (key, value: EidosMention) =>
-      new JLDArgument(serializer, key, value).toJObject
-    }
-
-    super.toJObject + TidyJObject(List(
-      JLDTrigger.singular -> trigger,
-      JLDArgument.plural -> jldArguments
-    ))
-  }
-}
-
-object JLDRelationMigration {
-  val subtypeString = "migration"
-  val taxonomy = "HumanMigration"
-  val keys: Seq[String] = Seq("group", "groupModifier", "moveTo", "moveFrom", "moveThrough", "timeStart", "timeEnd", "time")
 }
 
 class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
@@ -912,7 +837,7 @@ object JLDDCT {
 }
 
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence, timExs: Seq[TimEx],
-    geoPhraseIDs: Seq[GeoPhraseID], jldCountAttachments: Seq[JLDCountAttachment])
+    geoPhraseIDs: Seq[GeoPhraseID])
     extends JLDObject(serializer, JLDSentence.typename, sentence)
 {
 
@@ -958,8 +883,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
       JLDWord.plural -> jldWords.map(_.toJObject),
       JLDDependency.plural -> jldGraphMapPair,
       JLDTimex.plural -> timexes,
-      JLDGeoID.plural -> geoExps,
-      JLDCountAttachment.plural -> jldCountAttachments.map(_.toJObject)
+      JLDGeoID.plural -> geoExps
     ))
   }
 }
@@ -970,31 +894,16 @@ object JLDSentence {
   val typename = "Sentence"
 }
 
-class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocument, jldCountAttachments: Seq[JLDCountAttachment])
+class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocument)
     extends JLDObject(serializer, JLDDocument.typename, annotatedDocument.document) {
-
-  protected def alignJldCountAttachments(jldCountAttachments: Seq[JLDCountAttachment], sentences: Array[Sentence]): Array[Seq[JLDCountAttachment]]= {
-    val alignedCountAttachments: Array[Seq[JLDCountAttachment]] = sentences.map { sentence =>
-      val sentenceStart = sentence.startOffsets.head
-      val sentenceEnd = sentence.endOffsets.last
-
-      jldCountAttachments.filter { jldCountAttachment =>
-        val countAttachment = jldCountAttachment.countAttachment
-
-        sentenceStart <= countAttachment.startOffset && countAttachment.endOffset <= sentenceEnd
-      }
-    }
-    alignedCountAttachments
-  }
 
   override def toJObject: TidyJObject = {
     val sentences = annotatedDocument.document.sentences
     val timExs = TimeNormFinder.getTimExs(annotatedDocument.odinMentions, sentences)
     val geoPhraseIDs = GeoNormFinder.getGeoPhraseIDs(annotatedDocument.odinMentions, sentences)
-    val alignedJldCountAttachments = alignJldCountAttachments(jldCountAttachments, sentences)
 
     val jldSentences = sentences.zipWithIndex.map { case (sentence, index) =>
-      new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index), alignedJldCountAttachments(index)).toJObject
+      new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index)).toJObject
     }.toSeq
     val jldText = annotatedDocument.document.text.map(text => text)
     val dctOpt = DctDocumentAttachment.getDct(annotatedDocument.document)
@@ -1025,8 +934,8 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
   def this(annotatedDocument: AnnotatedDocument) = this(Seq(annotatedDocument))
 
-  protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: JIdentityHashMap[EidosMention, Int],
-      countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): Seq[JLDExtraction] = {
+  protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: JIdentityHashMap[EidosMention, Int]):
+      Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable).filter { mention =>
       if (mapOfMentions.containsKey(mention))
         false
@@ -1039,18 +948,18 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
     newMentions.flatMap { mention =>
       // Add these in parent, children, parent, children order instead of
       // the previously used parents, children, children order.
-      val jldExtraction = newJLDExtraction(mention, countAttachmentMap)
+      val jldExtraction = newJLDExtraction(mention)
       val recMentions = jldExtraction.getMentions
-      val jldExtractions = jldExtraction +: collectMentions(recMentions, mapOfMentions, countAttachmentMap)
+      val jldExtractions = jldExtraction +: collectMentions(recMentions, mapOfMentions)
 
       jldExtractions
     }
   }
 
-  protected def collectMentions(mentions: Seq[EidosMention], countAttachmentMap: Map[CountAttachment, JLDCountAttachment]): Seq[JLDExtraction] = {
+  protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
     val mapOfMentions = new JIdentityHashMap[EidosMention, Int]()
 
-    collectMentions(mentions, mapOfMentions, countAttachmentMap)
+    collectMentions(mentions, mapOfMentions)
   }
 
 
@@ -1177,46 +1086,13 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
     sortedJldExtractions
   }
 
-  protected def getCountAttachments(reachableMentions: Seq[EidosMention]): Seq[CountAttachment]= {
-    val countAttachmentSeq: Seq[CountAttachment] = reachableMentions.flatMap { eidosMention =>
-      eidosMention.odinMention.attachments.collect {
-        case attachment: CountAttachment => attachment
-      }
-    }
-    // Do not use identity here, but equals, because we will base this on equality when outputting the mentions.
-    //    val countAttachmentMap: IdentityHashMap[CountAttachment, Int] = countAttachmentSeq.foldLeft(new IdentityHashMap[CountAttachment, Int]()) { (identityHashMap, countAttachment) =>
-    //      identityHashMap.put(countAttachment, 0)
-    //      identityHashMap
-    //    }
-    val countAttachmentMap = countAttachmentSeq.map { countAttachment => countAttachment -> 0 }.toMap
-    val countAttachmentArray = countAttachmentMap
-        .keySet
-        //        .asScala
-        .toArray
-        .sortWith { (left: CountAttachment, right: CountAttachment) =>
-          if (left.startOffset != right.startOffset)
-            left.startOffset < right.startOffset
-          else if (left.endOffset != right.endOffset)
-            left.endOffset < right.endOffset
-          else
-            true
-        }
-
-    countAttachmentArray.toSeq
-  }
-
   override def toJObject: TidyJObject = {
     // These are then on a per document basis.
-    val countAttachmentsSeq: Seq[Seq[CountAttachment]] =
-        corpus.map { annotatedDocument => getCountAttachments(annotatedDocument.allEidosMentions) }
-    val jldCountAttachmentsSeq: Seq[Seq[JLDCountAttachment]] =
-        countAttachmentsSeq.map { countAttachments => countAttachments.map { countAttachment => new JLDCountAttachment(serializer, countAttachment) } }
-    val countAttachmentMap: Map[CountAttachment, JLDCountAttachment] = countAttachmentsSeq.flatten.zip(jldCountAttachmentsSeq.flatten).toMap
     // TODO: Some of this seems to assume a single document, especially if attributes are compared by equals.
-    val jldDocuments = corpus.zip(jldCountAttachmentsSeq).map { case (annotatedDocument, jldCountAttachments) => new JLDDocument(serializer, annotatedDocument, jldCountAttachments ) }
+    val jldDocuments = corpus.map { annotatedDocument => new JLDDocument(serializer, annotatedDocument) }
     val jldDocumentObjects = jldDocuments.map(_.toJObject) // So that serializer has typenames
     val exposedEidosMentions = corpus.flatMap(_.eidosMentions)
-    val allJldExtractions = collectMentions(exposedEidosMentions, countAttachmentMap)
+    val allJldExtractions = collectMentions(exposedEidosMentions)
     val sortedJldExtractions = sortJldExtractions(allJldExtractions, corpus)
     val tidiedJldExtractions = sortedJldExtractions.map(_.toJObject)
 
