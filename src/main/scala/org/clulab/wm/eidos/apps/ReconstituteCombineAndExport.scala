@@ -34,7 +34,7 @@ object ReconstituteCombineAndExport extends App with Configured {
     }
 
     // For each file in the input directory:
-    files.par.foreach { file =>
+    files.foreach { file =>
       // 1. Open corresponding output file and make all desired exporters
       println(s"Extracting from ${file.getName}")
       // 2. Get the input file contents (extractions)
