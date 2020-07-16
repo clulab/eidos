@@ -1,14 +1,17 @@
 package org.clulab.wm.eidos.document
 
-import org.clulab.wm.eidos.{EidosSystem}
+import com.typesafe.config.Config
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.mutable.ArrayBuffer
 
+// This isn't inheriting from EnglishTest because grounding is usually not enabled for tests.
 class TestSentenceClassifier extends Test {
-
-  //Load eidos system
-  val config = EidosSystem.defaultConfig
+  // Load eidos system
+  val config: Config = EidosSystem.defaultConfig
   val eidosSystem = new EidosSystem(config)
 
   //Get accuracy and f1 score of the predictions.
@@ -46,15 +49,16 @@ class TestSentenceClassifier extends Test {
 
     val spreadsheetPath = config.getString("sentenceClassifier.evaluationFilePath")
 
-    val bufferedSource = SentenceClassifier.sourceFromResource(spreadsheetPath)
-    for (line <- bufferedSource.getLines) {
+    Sourcer.sourceFromResource(spreadsheetPath).autoClose { bufferedSource =>
+      for (line <- bufferedSource.getLines) {
 
-      val cols = line.split("\t").map(_.trim)
-      // do whatever you want with the columns here
-      val sentence = cols(0).toLowerCase()
-      val label = cols(1).toInt
+        val cols = line.split('\t').map(_.trim)
+        // do whatever you want with the columns here
+        val sentence = cols(0).toLowerCase()
+        val label = cols(1).toInt
 
-      sentenceClassifierEvaluationData.append((sentence, label))
+        sentenceClassifierEvaluationData.append((sentence, label))
+      }
     }
 
     sentenceClassifierEvaluationData
@@ -63,6 +67,8 @@ class TestSentenceClassifier extends Test {
   behavior of "SentenceClassifier"
 
   it should "have an accuracy above 0.69 and an f1 above 0.77" in {
+    // Classification threshold can be set in the eidos.conf file.
+    val classificationThreshold = eidosSystem.components.eidosSentenceClassifier.classificationThreshold
     val sentenceClassifierEvaluationData = readEvaluationData()
     val preds = new ArrayBuffer[Int]()
     val labels = new ArrayBuffer[Int]()
@@ -75,13 +81,7 @@ class TestSentenceClassifier extends Test {
 
       val classifierPred = eidosSystem.components.eidosSentenceClassifier.classify(sentenceObj).get
 
-      // Classification threshold can be set in the eidos.conf file.
-      if (classifierPred> eidosSystem.components.eidosSentenceClassifier.classificationThreshold){
-        preds.append(1)
-      }
-      else {
-        preds.append(0)
-      }
+      preds.append(if (classifierPred > classificationThreshold) 1 else 0)
     }
     val (acc, f1) = getEvaluationStatistics(preds, labels)
 
