@@ -7,6 +7,8 @@ import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
+import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 import scala.collection.mutable.ArrayBuffer
@@ -15,7 +17,7 @@ object OntologyMapper {
 
   // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
   def main(args: Array[String]): Unit = {
-    val config = ConfigFactory.load(EidosSystem.defaultConfig)
+    val config = EidosSystem.defaultConfig
     val outputFile = config[String]("apps.ontologymapper.outfile")
     val topN = config[Int]("apps.groundTopN")
     val reader = new EidosSystem(config)

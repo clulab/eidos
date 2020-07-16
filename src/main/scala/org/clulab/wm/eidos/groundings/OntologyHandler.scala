@@ -5,11 +5,12 @@ import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.{EidosProcessor, EidosSystem, SentencesExtractor}
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.EidosOntologyGrounder.mkGrounder
-import org.clulab.wm.eidos.groundings.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
+import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.TagSet
 import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
@@ -23,7 +24,7 @@ class OntologyHandler(
   val includeParents: Boolean
 ) {
 
-  protected def ground(eidosMention: EidosMention): Unit = {
+  def ground(eidosMention: EidosMention): Unit = {
     // If any of the grounders needs their own version, they'll have to make it themselves.
     eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
 
@@ -38,13 +39,6 @@ class OntologyHandler(
     }.toMap
 
     eidosMention.grounding = ontologyGroundings
-  }
-
-  def ground(eidosMentions: Seq[EidosMention]): Seq[EidosMention] = {
-    EidosMention.findReachableEidosMentions(eidosMentions).foreach { eidosMention =>
-      ground(eidosMention)
-    }
-    eidosMentions
   }
 
   def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundings = {
@@ -84,10 +78,10 @@ class OntologyHandler(
       val tokenInterval = Interval(tokenStart, tokenEnd + 1) // Add one to make it exclusive.
       val odinMention = new TextBoundMention(EidosOntologyGrounder.GROUNDABLE, tokenInterval, sentence = 0, document, keep = true, foundBy = "OntologyHandler.reground")
 
-      val eidosMentions = EidosMention.asEidosMentions(Seq(odinMention))
-      assert(eidosMentions.size == 1)
+      val annotatedDocument = AnnotatedDocument(newDocument, Seq(odinMention))
+      assert(annotatedDocument.eidosMentions.size == 1)
 
-      val eidosMention = eidosMentions.head
+      val eidosMention = annotatedDocument.eidosMentions.head
 
       ground(eidosMention)
       eidosMention.grounding
@@ -137,12 +131,12 @@ class OntologyHandler(
       val tokenInterval = Interval(tokenStart, tokenEnd + 1) // Add one to make it exclusive.
       val odinMention = new TextBoundMention(EidosOntologyGrounder.GROUNDABLE, tokenInterval, sentence = 0, document, keep = true, foundBy = "OntologyHandler.reground")
 
-      val eidosMentions = EidosMention.asEidosMentions(Seq(odinMention))
-      assert(eidosMentions.size == 1)
+      val annotatedDocument = AnnotatedDocument.apply(document, Seq(odinMention))
+      assert(annotatedDocument.eidosMentions.size == 1)
 
-      val eidosMention = eidosMentions.head
+      val eidosMention = annotatedDocument.eidosMentions.head
 
-      ground(eidosMentions)
+      ground(eidosMention)
       eidosMention.grounding
     }
     catch {
@@ -196,6 +190,13 @@ class OntologyHandler(
 object OntologyHandler {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
+  def fromConfig(config: Config = EidosSystem.defaultConfig): OntologyHandler = {
+    val sentenceExtractor  = EidosProcessor("english", cutoff = 150)
+    val tagSet = sentenceExtractor.getTagSet
+    val stopwordManager = StopwordManager.fromConfig(config, tagSet)
+    OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet)
+  }
+
   def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager, tagSet: TagSet): OntologyHandler = {
     val canonicalizer = new Canonicalizer(stopwordManager, tagSet)
     val cacheDir: String = config[String]("cacheDir")
@@ -220,7 +221,7 @@ object OntologyHandler {
         // Base grounding steps, which aren't compositional
         val ontologyGrounders: Seq[OntologyGrounder] = ontologyNames.map { ontologyName =>
           val path: String = config[String](ontologyName)
-          val domainOntology = DomainOntologies.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
+          val domainOntology = DomainHandler.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
               useCacheForOntologies, includeParents)
           val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
 

@@ -9,18 +9,19 @@ import org.clulab.wm.eidos.utils.FileUtils
 
 class RegroundExporter(filename: String, reader: EidosSystem) extends JSONLDExporter(filename, reader) {
   def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+    val ontologyHandler = reader.components.ontologyHandler
+
     FileUtils.printWriterFromFile(filename).autoClose { pw =>
-      val regroundedAnnotatedDocs = for {
-        ad <- annotatedDocuments
-        doc = ad.document
-        origMentions = ad.eidosMentions
-        regrounded = reader.components.ontologyHandler.ground(origMentions)
-      } yield AnnotatedDocument(doc, regrounded)
+      annotatedDocuments.foreach { annotatedDocument =>
+        annotatedDocument.allEidosMentions.foreach { eidosMention =>
+          ontologyHandler.ground(eidosMention)
+        }
 
-      val corpus = new JLDCorpus(regroundedAnnotatedDocs)
-      val mentionsJSONLD = corpus.serialize()
+        val corpus = new JLDCorpus(annotatedDocument)
+        val mentionsJSONLD = corpus.serialize()
 
-      pw.println(stringify(mentionsJSONLD, pretty = true))
+        pw.println(stringify(mentionsJSONLD, pretty = true))
+      }
     }
   }
 }

@@ -17,16 +17,11 @@ import org.clulab.struct.Edge
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.actions.MigrationHandler
-import org.clulab.wm.eidos.attachments.CountAttachment
-import org.clulab.wm.eidos.attachments.CountModifier
-import org.clulab.wm.eidos.attachments.CountUnit
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
 import org.clulab.wm.eidos.attachments.Increase
 import org.clulab.wm.eidos.attachments.Location
-import org.clulab.wm.eidos.attachments.MigrationGroupCount
 import org.clulab.wm.eidos.attachments.NegChange
 import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.attachments.PosChange
@@ -72,8 +67,6 @@ class IdAndTimex(id: String, timEx: TimEx) extends IdAndValue[TimEx](id, timEx)
 
 class IdAndGeoPhraseId(id: String, geoPhraseId: GeoPhraseID) extends IdAndValue[GeoPhraseID](id, geoPhraseId)
 
-class IdAndCountAttachment(id: String, countAttachment: CountAttachment) extends IdAndValue[CountAttachment](id, countAttachment)
-
 case class WordSpec(startOffset: Int, endOffset: Int, word: String, tag: String, lemma: String, entity: String,
     norm: String, chunk: String)
 class IdAndWordSpec(id: String, wordSpec: WordSpec) extends IdAndValue[WordSpec](id, wordSpec)
@@ -82,8 +75,7 @@ class IdAndSentence(id: String, sentence: Sentence) extends IdAndValue[Sentence]
 
 case class SentencesSpec(sentences: Array[Sentence], sentenceMap: Map[String, Int],
     timexes: Array[Seq[TimEx]], timexMap: Map[String, TimEx],
-    geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID],
-    counts: Array[Seq[CountAttachment]], countMap: Map[String, CountAttachment])
+    geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID])
 
 class IdAndDocument(id: String, document: Document) extends IdAndValue(id, document)
 
@@ -104,7 +96,6 @@ object JLDDeserializer {
   type GeolocMap = Map[String, GeoPhraseID]
   type TimexMap = Map[String, TimEx]
   type DctMap = Map[String, DCT]
-  type CountMap = Map[String, CountAttachment]
 
   type ProvenanceMap = Map[Provenance, String] // Do we really want this document involved?
 }
@@ -191,23 +182,6 @@ class JLDDeserializer {
     new IdAndGeoPhraseId(geoIdId, geoPhraseId)
   }
 
-  def deserializeCountAttachment(countIdValue: JValue): IdAndCountAttachment = {
-    requireType(countIdValue, JLDCountAttachment.typename)
-    val countId = getId(countIdValue)
-    val startOffset = (countIdValue \ "startOffset").extract[Int]
-    val endOffset = (countIdValue \ "endOffset").extract[Int]
-    val text = (countIdValue \ "text").extract[String]
-    val value = (countIdValue \ "value").extract[Double]
-    val modifier = (countIdValue \ "modifier").extract[String]
-    val countModifier = CountModifier.withName(modifier)
-    val unit = (countIdValue \ "unit").extract[String]
-    val countUnit = CountUnit.withName(unit)
-    val migrationGroupCount = MigrationGroupCount(value, countModifier, countUnit)
-    val countAttachment = new CountAttachment(text, migrationGroupCount, startOffset, endOffset)
-
-    new IdAndCountAttachment(countId, countAttachment)
-  }
-
   def deserializeWordData(wordDataValue: JValue): IdAndWordSpec = {
     requireType(wordDataValue, JLDWord.typename)
     val wordId = getId(wordDataValue)
@@ -252,8 +226,6 @@ class JLDDeserializer {
     var timexMap: Map[String, TimEx] = Map.empty
     var geolocs: List[Seq[GeoPhraseID]] = List.empty
     var geolocMap: Map[String, GeoPhraseID] = Map.empty
-    var counts: List[Seq[CountAttachment]] = List.empty
-    var countMap: Map[String, CountAttachment] = Map.empty
     val sentencesOpt = sentencesValue.extractOpt[JArray].map(_.arr)
     val idsAndSentences = sentencesOpt.map { sentences => sentences.map { sentenceValue: JValue =>
       requireType(sentenceValue, JLDSentence.typename)
@@ -287,12 +259,6 @@ class JLDDeserializer {
       geolocs = geolocs :+ idsAndGeolocs.map(_.value)
       geolocMap = geolocMap ++ idsAndGeolocs.map { idAndGeoloc => idAndGeoloc.id -> idAndGeoloc.value }
 
-      val idsAndCountAttachments = (sentenceValue \ "counts").extractOpt[JArray].map { jArray =>
-        jArray.arr.map(deserializeCountAttachment)
-      }.getOrElse(List.empty)
-      counts = counts :+ idsAndCountAttachments.map(_.value)
-      countMap = countMap ++ idsAndCountAttachments.map { idAndCountAttachment => idAndCountAttachment.id -> idAndCountAttachment.value }
-
       // IntelliJ doesn't like these, but the compiler is OK with them.
       val startOffsets: Array[Int] = idsAndWordSpecs.map(_.value.startOffset)
       val endOffsets: Array[Int] = idsAndWordSpecs.map(_.value.endOffset)
@@ -313,7 +279,7 @@ class JLDDeserializer {
     // This is because Mention only uses index of sentence in document, not reference to Sentence itself.
     val sentenceMap = idsAndSentences.indices.map { index => idsAndSentences(index).id -> index }.toMap
 
-    SentencesSpec(sentences, sentenceMap, timexes.toArray, timexMap, geolocs.toArray, geolocMap, counts.toArray, countMap)
+    SentencesSpec(sentences, sentenceMap, timexes.toArray, timexMap, geolocs.toArray, geolocMap)
   }
 
   def deserializeInterval(intervalValue: JValue, offset: Int, inclusiveEnd: Boolean): Interval = {
@@ -478,7 +444,7 @@ class JLDDeserializer {
   }
 
   def deserializeState(stateValue: JValue, documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
-      timexMap: TimexMap, geolocMap: GeolocMap, dctMap: DctMap, countMap: CountMap): Attachment = {
+      timexMap: TimexMap, geolocMap: GeolocMap, dctMap: DctMap): Attachment = {
     requireType(stateValue, JLDAttachment.kind)
     val stateType = (stateValue \ "type").extract[String]
     val text = (stateValue \ "text").extract[String]
@@ -520,12 +486,6 @@ class JLDDeserializer {
           new Time(timexMap(value))
         else
           new DCTime(dctMap(value))
-      case JLDCountAttachment.typename =>
-        require(provenanceOpt.isEmpty)
-        val value = getId((stateValue \ "value").extract[JValue])
-        val countAttachment = countMap(value)
-
-        countAttachment
       case "LocationExp" =>
         require(provenanceOpt.isEmpty)
         val value = getId((stateValue \ "value").extract[JValue])
@@ -586,10 +546,10 @@ class JLDDeserializer {
   }
 
   def deserializeStates(statesValueOpt: Option[JArray], documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
-      timexMap: TimexMap, geolocMap: GeolocMap, dctMap: DctMap, countMap: CountMap): Set[Attachment] = {
+      timexMap: TimexMap, geolocMap: GeolocMap, dctMap: DctMap): Set[Attachment] = {
     val attachments = statesValueOpt.map { statesValue =>
       statesValue.arr.map { stateValue =>
-        deserializeState(stateValue, documentMap, documentSentenceMap, timexMap, geolocMap, dctMap, countMap)
+        deserializeState(stateValue, documentMap, documentSentenceMap, timexMap, geolocMap, dctMap)
       }.toSet
     }.getOrElse(Set.empty)
 
@@ -598,15 +558,12 @@ class JLDDeserializer {
 
   def deserializeMention(extractionValue: JValue, extraction: Extraction, mentionMap: Map[String, Mention],
       documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap, timexMap: TimexMap,
-      geolocMap: GeolocMap, provenanceMap: ProvenanceMap, dctMap: DctMap, countMap: CountMap): Mention = {
+      geolocMap: GeolocMap, provenanceMap: ProvenanceMap, dctMap: DctMap): Mention = {
 
     def newEventMention(labels: Seq[String], tokenInterval: Interval, trigger: TextBoundMention,
         arguments: Map[String, Seq[Mention]], paths: Map[String, Map[Mention, SynPath]], sentence: Int,
         document: Document, keep: Boolean, foundBy: String, attachments: Set[Attachment]): EventMention = {
-      if (MigrationHandler.needsCrossSentence(sentence, Some(trigger.sentence), arguments))
-        new CrossSentenceEventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
-      else
-        new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
+      new EventMention(labels, tokenInterval, trigger, arguments, paths, sentence, document, keep, foundBy, attachments)
     }
 
     requireType(extractionValue, JLDExtraction.typename)
@@ -623,7 +580,7 @@ class JLDDeserializer {
       name -> ids.map { id => mentionMap(id) }
     }
     val attachments: Set[Attachment] = deserializeStates((extractionValue \ "states").extractOpt[JArray],
-        documentMap, documentSentenceMap, timexMap, geolocMap, dctMap, countMap)
+        documentMap, documentSentenceMap, timexMap, geolocMap, dctMap)
     val triggerOpt: Option[TextBoundMention] = extraction.triggerProvenanceOpt.map { provenance =>
       val triggerSentence = provenance.sentence
       val triggerDocument = provenance.document
@@ -703,12 +660,6 @@ class JLDDeserializer {
           new CrossSentenceMention(labels, anchor, neighbor, renamedArguments, document,
               keep, foundBy, attachments)
         }
-        else if (extractionType == "relation" && extractionSubtype == "migration") {
-          require(JLDRelationMigration.taxonomy == labels.head)
-          require(triggerOpt.isDefined)
-          newEventMention(labels, tokenInterval, triggerOpt.get, misnamedArguments, paths, sentence, document,
-              keep, foundBy, attachments)
-        }
         else
           throw new Exception(s"Unknown extraction type = $extractionType, subtype = $extractionSubtype")
 
@@ -719,7 +670,7 @@ class JLDDeserializer {
   final def deserializeMentions(extractionsValue: JArray, extractions: Seq[Extraction],
       mentionMap: Map[String, Mention], provenanceMap: Map[Provenance, String],
       documentMap: DocumentMap, documentSentenceMap: DocumentSentenceMap,
-      timexMap: TimexMap, geolocMap: GeolocMap, dctMap: DctMap, countMap: CountMap): Map[String, Mention] = {
+      timexMap: TimexMap, geolocMap: GeolocMap, dctMap: DctMap): Map[String, Mention] = {
 
     // TODO don't pass so many variables, only ones that change!
     def isRipe(extraction: Extraction): Boolean = {
@@ -748,7 +699,7 @@ class JLDDeserializer {
           extractionId == extraction.id
         }.get
         val mention = deserializeMention(extractionValue, extraction, mentionMap, documentMap, documentSentenceMap,
-            timexMap, geolocMap, provenanceMap, dctMap, countMap)
+            timexMap, geolocMap, provenanceMap, dctMap)
 
         new IdAndMention(extraction.id, mention)
       }
@@ -758,7 +709,7 @@ class JLDDeserializer {
       }
 
       deserializeMentions(extractionsValue, unripeExtractions, newMentionMap, newProvenanceMap,
-          documentMap, documentSentenceMap, timexMap, geolocMap, dctMap, countMap)
+          documentMap, documentSentenceMap, timexMap, geolocMap, dctMap)
     }
   }
 
@@ -803,9 +754,6 @@ class JLDDeserializer {
         idAndDct.id -> idAndDct.value
       }
     }.toMap
-    val countMap = documentSpecs.flatMap { documentSpec =>
-      documentSpec.sentencesSpec.countMap
-    }.toMap
     val extractionsValueOpt = (corpusValue \ "extractions").extractOpt[JArray]
     val extractions = extractionsValueOpt.map { extractionsValue =>
       extractionsValue.arr.map { extractionValue =>
@@ -814,11 +762,11 @@ class JLDDeserializer {
     }.getOrElse(Seq.empty[Extraction])
     val mentionMap = extractionsValueOpt.map { extractionsValue =>
       deserializeMentions(extractionsValue, extractions, Map.empty, Map.empty,
-        documentMap, documentSentenceMap, timexMap, geolocMap, dctMap, countMap)
+        documentMap, documentSentenceMap, timexMap, geolocMap, dctMap)
     }.getOrElse(Map.empty)
     val allOdinMentions = mentionMap.values.toArray
     val odinMentions = removeTriggerOnlyMentions(allOdinMentions)
-    val eidosMentions = EidosMention.asEidosMentions(odinMentions)
+    val (eidosMentions, allEidosMentions) = EidosMention.asEidosMentions(odinMentions)
     val annotatedDocuments = documentSpecs.map { documentSpec =>
       val document = documentSpec.idAndDocument.value
       // This one will use the deserialized groundings.
@@ -826,7 +774,7 @@ class JLDDeserializer {
       // This one will rerun the postProcessors, which hopefully match what was used
       // for the original grounding.
       // val newAnnotatedDocument = addEidosExtras2(annotatedDocument, postProcessors)
-      val annotatedDocument = AnnotatedDocument(document, eidosMentions)
+      val annotatedDocument = new AnnotatedDocument(document, eidosMentions, allEidosMentions)
 
       annotatedDocument
     }
@@ -839,7 +787,7 @@ class JLDDeserializer {
       mentionMap: Map[String, Mention]): Seq[EidosMention] = {
     val extractionsMap = extractions.map { extraction => extraction.id -> extraction }.toMap
     val mentionToExtractionMap = new util.IdentityHashMap[Mention, Extraction]()
-    val allEidosMentions = EidosMention.findReachableEidosMentions(eidosMentions)
+    val allEidosMentions = EidosMention.findAllByIdentity(eidosMentions)
 
     mentionMap.foreach { case (id, mention) =>
       mentionToExtractionMap.put(mention, extractionsMap(id))

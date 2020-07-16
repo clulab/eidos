@@ -12,8 +12,7 @@ import java.io.FileNotFoundException
 
 import org.clulab.wm.eidos.groundings.ConceptEmbedding
 
-class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[String, Float], ontologyHandler: OntologyHandler) {
-  val flatOntologyGrounder: FlatOntologyGrounder = ontologyHandler.ontologyGrounders.collect { case grounder: FlatOntologyGrounder => grounder }.head
+class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[String, Float], ontologyHandler: OntologyHandler, flatOntologyGrounder: FlatOntologyGrounder) {
   val conceptEmbeddings: Seq[ConceptEmbedding] = flatOntologyGrounder.conceptEmbeddings
 
   def classify(sentence: Sentence): Float = {
@@ -50,13 +49,16 @@ object SentenceClassifier {
   }
 
   def fromConfig(config: Config, language: String, ontologyHandler: OntologyHandler): Option[SentenceClassifier] = {
-    if (language == Language.ENGLISH) {
+    val flatOntologyGrounders = ontologyHandler.ontologyGrounders.collect { case grounder: FlatOntologyGrounder => grounder }
+
+    if (language == Language.ENGLISH && flatOntologyGrounders.nonEmpty) {
       val classificationThreshold = config[Double]("classificationThreshold").toFloat
       val idfWeightsFile = config[String]("tokenIDFWeights")
       val idfWeights = readFromText2Map(idfWeightsFile)
 
-      Some(new SentenceClassifier(classificationThreshold, idfWeights, ontologyHandler))
+      Some(new SentenceClassifier(classificationThreshold, idfWeights, ontologyHandler, flatOntologyGrounders.head))
     }
+ 
     else
       None
   }

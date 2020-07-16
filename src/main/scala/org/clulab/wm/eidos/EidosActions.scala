@@ -11,9 +11,6 @@ import org.clulab.odin.EventMention
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.actions.MigrationHandler
-import org.clulab.wm.eidos.attachments.CountModifier._
-import org.clulab.wm.eidos.attachments.CountUnit._
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.utils.FoundBy
@@ -33,8 +30,6 @@ import scala.util.Try
 class EidosActions(val expansionHandler: Option[Expander]) extends Actions with LazyLogging {
   type Provenance = (String, Int, Int) // text, startOffset, endOffset
   type CountAndProvenance = (Double, Provenance)
-  type CountUnitAndProvenanceOpt = (CountUnit.Value, Option[Provenance])
-  type CountModifierAndProvenanceOpt = (CountModifier.Value, Option[Provenance])
   type NumberArg = (Int, Int, Double) // start, end, value
 
   val mostCompleteEventsKeeper = new MostCompleteEventsKeeper()
@@ -59,17 +54,6 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
     assembled ++ nonCausal
   }
 
-  protected def getCount(groupArg: Mention, numberArg: NumberArg): CountAndProvenance = {
-    (
-      numberArg._3,
-      (
-        groupArg.sentenceObj.words.slice(numberArg._1, numberArg._2).mkString(" "),
-        groupArg.sentenceObj.startOffsets(numberArg._1),
-        groupArg.sentenceObj.endOffsets(numberArg._2 - 1)
-      )
-    )
-  }
-
   protected def getProvenanceOpt(pattern: Pattern, text: String, offset: Int): Option[Provenance] = {
     val matcher: Matcher = pattern.matcher(text)
 
@@ -80,107 +64,6 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
     }
     else None
   }
-
-  protected def getCountUnit(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountUnitAndProvenanceOpt = {
-    if (groupArg.sentenceObj.entities.get(numberArg._1) == "PERCENT")
-      (Percentage, Some((groupArg.sentenceObj.words(numberArg._1), groupArg.sentenceObj.startOffsets(numberArg._1), groupArg.sentenceObj.endOffsets(numberArg._1))))
-    else {
-      def getCountUnitOpt(countUnit: CountUnit, pattern: Pattern): Option[CountUnitAndProvenanceOpt] = {
-        val provenanceOpt = getProvenanceOpt(pattern, text, offset)
-
-        provenanceOpt.map { provenance => (countUnit, Some(provenance)) }
-      }
-
-      None
-          .orElse(getCountUnitOpt(Daily, EidosActions.DAILY_PATTERN))
-          .orElse(getCountUnitOpt(Weekly, EidosActions.WEEKLY_PATTERN))
-          .orElse(getCountUnitOpt(Monthly, EidosActions.MONTHLY_PATTERN))
-          .getOrElse((Absolute, None))
-    }
-  }
-
-  protected def getCountModifier(groupArg: Mention, numberArg: NumberArg, text: String, offset: Int): CountModifierAndProvenanceOpt = {
-
-    def getCountModifierOpt(countModifier: CountModifier, pattern: Pattern): Option[CountModifierAndProvenanceOpt] = {
-      val provenanceOpt = getProvenanceOpt(pattern, text, offset)
-
-      provenanceOpt.map { provenance => (countModifier, Some(provenance)) }
-    }
-
-    None
-        .orElse(getCountModifierOpt(Approximate, EidosActions.APPROXIMATE_PATTERN))
-        .orElse(getCountModifierOpt(Min, EidosActions.MIN_PATTERN))
-        .orElse(getCountModifierOpt(Max, EidosActions.MAX_PATTERN))
-        .getOrElse((NoModifier, None))
-  }
-
-  protected def newCountAttachment(count: CountAndProvenance, countModifier: CountModifierAndProvenanceOpt, countUnit: CountUnitAndProvenanceOpt): CountAttachment = {
-
-    def isPrefix(value: String, texts: Seq[String]): Boolean = texts.exists { text =>
-      text.length > value.length && text.startsWith(value)
-    }
-
-    // This is an attempt to make the text pretty and describe the interval succinctly.
-    val option: Seq[Option[Provenance]] = Seq(Some(count._2), countModifier._2, countUnit._2)
-    val some: Seq[Provenance] = option.filter(_.isDefined).map(_.get)
-    val sortedByStartOffset: Seq[Provenance] = some.sortBy(_._2)
-    val texts: Seq[String] = sortedByStartOffset.map(_._1)
-    // Percents in particular cause repeated values like "about 75 percent 75"
-    // Keep 75 percent, but rule out 75.
-    val longTexts: Seq[String] = texts.filter { text => !isPrefix(text, texts) }
-    val text: String = longTexts.mkString(" ")
-    val startOffset: Int = sortedByStartOffset.head._2
-    val sortedByEndOffset: Seq[Provenance] = some.sortBy(_._3)
-    val endOffset: Int = sortedByEndOffset.last._3
-
-    new CountAttachment(text, MigrationGroupCount(count._1, countModifier._1, countUnit._1), startOffset, endOffset)
-  }
-
-  protected def getCountAttachmentOpt(mention: Mention): Option[EidosAttachment] = {
-    if (mention.isInstanceOf[EventMention] && mention.label == "HumanMigration" && mention.arguments.contains("group")) {
-      val groupArg = mention.arguments("group").head // there should be a single group; this should be safe
-      val numberArgOpt: Option[NumberArg] = extractNumber(groupArg.sentenceObj, groupArg.start, groupArg.end)
-
-      numberArgOpt.map { numberArg =>
-        val startWordIndex = math.max(0, mention.start - 1)
-        val endWordIndex = math.min(mention.end + 1, mention.sentenceObj.size)
-        val eventText = mention.sentenceObj.words.slice(startWordIndex, endWordIndex).mkString(" ")
-        val eventStartOffset = mention.sentenceObj.startOffsets(startWordIndex)
-        val count = getCount(groupArg, numberArg)
-        val countUnit = getCountUnit(groupArg, numberArg, eventText, eventStartOffset)
-        val countModifier = getCountModifier(groupArg, numberArg, eventText, eventStartOffset)
-        val countAttachment = newCountAttachment(count, countModifier, countUnit)
-
-        countAttachment
-      }.orElse(None)
-    }
-    else
-      None
-  }
-
-  /**
-    * Normalizes migration events, e.g., by extracting the actual number of people displaced from the "group" argument
-    * @param mentions Sequence of mentions to be normalized
-    * @param state unused
-    * @return the sequence of normalized mentions
-    */
-  def normalizeGroup(mentions: Seq[Mention], state: State): Seq[Mention] = {
-    mentions.map { mention =>
-      val countAttachmentOpt = getCountAttachmentOpt(mention)
-
-      countAttachmentOpt.map { countAttachment =>
-        val oldGroupArg = mention.arguments("group").head //getting the group arg from the original event
-        val newGroupArg = oldGroupArg.withAttachment(countAttachment) //copying the old one but with the newly-found attachments
-        val newArgs = mention.arguments ++ Map("group" -> Seq(newGroupArg)) //creating the new set of args by taking the original event arguments and adding the new group argument
-        val withNewArg = MigrationHandler.copyWithNewArgs(mention, newArgs, Some("withGroupNormalized")) //creating the new event argument with the new set of arguments
-
-        withNewArg
-      }.getOrElse(mention)
-    }
-  }
-
-  def migrationActionFlow(mentions: Seq[Mention], state: State): Seq[Mention] =
-      withArgs(normalizeGroup(mentions, state))
 
   def withArgs(mentions: Seq[Mention]): Seq[Mention] =
       mentions.filter(_.arguments.nonEmpty)

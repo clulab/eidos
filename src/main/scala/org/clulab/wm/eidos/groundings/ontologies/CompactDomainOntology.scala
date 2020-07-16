@@ -1,16 +1,17 @@
-package org.clulab.wm.eidos.groundings
+package org.clulab.wm.eidos.groundings.ontologies
 
 import java.time.ZonedDateTime
 import java.util
 
+import org.clulab.wm.eidos.groundings.DomainOntology
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Namer
 import org.clulab.wm.eidos.utils.TsvReader
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.util.matching.Regex
 
 class CompactNamerData(val nodeStrings: Array[String], val leafIndexes: Array[Int], val branchIndexes: Array[Int])
