@@ -1,1572 +1,205 @@
 ---
-"7909807":
-  lean:
-    start: 3
-    end: 6
-  rainy:
-    start: 4
-    end: 7
-"8909807":
-  lean:
-    start: 3
-    end: 6
-"1149361":
-  lean:
-    start: 3
-    end: 6
-  rainy:
-    start: 4
-    end: 7
-  rains:
-    start: 4
-    end: 7
-  rain:
-    start: 4
-    end: 7
-  agricultural:
-    start: 4
-    end: 7
-  cropping:
-    start: 4
-    end: 7
-  crop:
-    start: 4
-    end: 7
-  dry:
-    start: 4
-    end: 7
-  feeding:
-    start: 4
-    end: 7
-  feed:
-    start: 4
-    end: 7
-  harvest:
-    start: 4
-    end: 7
-  planting:
-    start: 4
-    end: 7
-  plant:
-    start: 4
-    end: 7
-"1168579":
-  lean:
-    start: 3
-    end: 6
-  rainy:
-    start: 4
-    end: 7
-  rains:
-    start: 4
-    end: 7
-  rain:
-    start: 4
-    end: 7
-  agricultural:
-    start: 4
-    end: 7
-  cropping:
-    start: 4
-    end: 7
-  crop:
-    start: 4
-    end: 7
-  dry:
-    start: 4
-    end: 7
-  feeding:
-    start: 4
-    end: 7
-  feed:
-    start: 4
-    end: 7
-  harvest:
-    start: 4
-    end: 7
-  planting:
-    start: 4
-    end: 7
-  plant:
-    start: 4
-    end: 7
-#"149590":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"162199":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"192950":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"226074":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"247058":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"3351879":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"337996":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-"3504558":
-  lean:
-    start: 3
-    end: 6
-  rainy:
-    start: 4
-    end: 7
-  rains:
-    start: 4
-    end: 7
-  rain:
-    start: 4
-    end: 7
-  agricultural:
-    start: 4
-    end: 7
-  cropping:
-    start: 4
-    end: 7
-  crop:
-    start: 4
-    end: 7
-  dry:
-    start: 4
-    end: 7
-  feeding:
-    start: 4
-    end: 7
-  feed:
-    start: 4
-    end: 7
-  harvest:
-    start: 4
-    end: 7
-  planting:
-    start: 4
-    end: 7
-  plant:
-    start: 4
-    end: 7
-#"4273359":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"431747":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-"51537":
-  lean:
-    start: 3
-    end: 6
-  rainy:
-    start: 4
-    end: 7
-  rains:
-    start: 4
-    end: 7
-  rain:
-    start: 4
-    end: 7
-  agricultural:
-    start: 4
-    end: 7
-  cropping:
-    start: 4
-    end: 7
-  crop:
-    start: 4
-    end: 7
-  dry:
-    start: 4
-    end: 7
-  feeding:
-    start: 4
-    end: 7
-  feed:
-    start: 4
-    end: 7
-  harvest:
-    start: 4
-    end: 7
-  planting:
-    start: 4
-    end: 7
-  plant:
-    start: 4
-    end: 7
-#"6255146":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"734014":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"89693":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"92877":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-"932692":
-  lean:
-    start: 3
-    end: 6
-  rainy:
-    start: 4
-    end: 7
-  rains:
-    start: 4
-    end: 7
-  rain:
-    start: 4
-    end: 7
-  agricultural:
-    start: 4
-    end: 7
-  cropping:
-    start: 4
-    end: 7
-  crop:
-    start: 4
-    end: 7
-  dry:
-    start: 4
-    end: 7
-  feeding:
-    start: 4
-    end: 7
-  feed:
-    start: 4
-    end: 7
-  harvest:
-    start: 4
-    end: 7
-  planting:
-    start: 4
-    end: 7
-  plant:
-    start: 4
-    end: 7
-#"934841":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-"99237":
-  lean:
-    start: 3
-    end: 6
-  rainy:
-    start: 4
-    end: 7
-  rains:
-    start: 4
-    end: 7
-  rain:
-    start: 4
-    end: 7
-  agricultural:
-    start: 4
-    end: 7
-  cropping:
-    start: 4
-    end: 7
-  crop:
-    start: 4
-    end: 7
-  dry:
-    start: 4
-    end: 7
-  feeding:
-    start: 4
-    end: 7
-  feed:
-    start: 4
-    end: 7
-  harvest:
-    start: 4
-    end: 7
-  planting:
-    start: 4
-    end: 7
-  plant:
-    start: 4
-    end: 7
-#"99592":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"879586":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"408657":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"2328926":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"2597367":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"11820342":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"607145":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"927384":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"3370905":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"878675":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"3051723":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"3724613":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"3918740":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"1688422":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"5164997":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"2639577":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"432455":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"433561":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
-#"7303939":
-#  lean:
-#    start: 3
-#    end: 6
-#  rainy:
-#    start: 4
-#    end: 7
-#  rains:
-#    start: 4
-#    end: 7
-#  rain:
-#    start: 4
-#    end: 7
-#  agricultural:
-#    start: 4
-#    end: 7
-#  cropping:
-#    start: 4
-#    end: 7
-#  crop:
-#    start: 4
-#    end: 7
-#  dry:
-#    start: 4
-#    end: 7
-#  feeding:
-#    start: 4
-#    end: 7
-#  feed:
-#    start: 4
-#    end: 7
-#  harvest:
-#    start: 4
-#    end: 7
-#  planting:
-#    start: 4
-#    end: 7
-#  plant:
-#    start: 4
-#    end: 7
+triggers:
+  - season
+  - meher
+  - afrasa
+  - belg
+  - belgi
+  - dada
+  - deyr
+  - diraac
+  - gana
+  - gu
+  - hagaya
+  - heys
+  - karma
+  - keren
+  - kremt
+  - kremti
+  - sugum
+---
+'444179':
+    crop:
+      end: 1
+      start: 9
+    sugum:
+      end: 5
+      start: 4
+    short rainy:
+      end: 5
+      start: 4
+    harvest:
+      end: 1
+      start: 9
+    hunger:
+      end: 3
+      start: 12
+    karma:
+      end: 9
+      start: 6
+    meher:
+      end: 9
+      start: 6
+    long rainy:
+      end: 9
+      start: 6
+    planting:
+      end: 9
+      start: 6
+'444180':
+    crop:
+      end: 1
+      start: 9
+    harvest:
+      end: 1
+      start: 9
+    hunger:
+      end: 10
+      start: 6
+    kremti:
+      end: 9
+      start: 6
+    long rainy:
+      end: 9
+      start: 6
+    planting:
+      end: 9
+      start: 6
+    belgi:
+      end: 5
+      start: 4
+    short rainy:
+      end: 5
+      start: 4
+'444181':
+    crop:
+      end: 1
+      start: 9
+    harvest:
+      end: 1
+      start: 9
+    hunger:
+      end: 3
+      start: 12
+    planting:
+      end: 9
+      start: 6
+    kremt:
+      end: 10
+      start: 6
+    rainy:
+      end: 10
+      start: 6
+'444183':
+    crop:
+      end: 1
+      start: 9
+    harvest:
+      end: 1
+      start: 9
+    hunger:
+      end: 6
+      start: 2
+    planting:
+      end: 9
+      start: 6
+    kremt:
+      end: 10
+      start: 6
+    rainy:
+      end: 10
+      start: 6
+'444185':
+    crop:
+      end: 8
+      start: 2
+    gana:
+      end: 5
+      start: 4
+    first rainy:
+      end: 5
+      start: 4
+    harvest:
+      end: 8
+      start: 2
+    hunger:
+      end: 3
+      start: 12
+    long rainy:
+      end: 9
+      start: 6
+    planting:
+      end: 4
+      start: 2
+    hagaya:
+      end: 11
+      start: 10
+    second rainy:
+      end: 11
+      start: 10
+    short rainy:
+      end: 5
+        start: 4
+'444186':
+    crop:
+      end: 8
+      start: 2
+    first rainy:
+      end: 5
+      start: 4
+    short rainy:
+      end: 5
+      start: 4
+    harvest:
+      end: 8
+      start: 2
+    hunger:
+      end: 3
+      start: 12
+    long rainy:
+      end: 9
+      start: 6
+    planting:
+      end: 4
+      start: 2
+    second rainy:
+      end: 11
+      start: 10
+'444187':
+    crop:
+      end: 1
+      start: 9
+    harvest:
+      end: 1
+      start: 9
+    hunger:
+      end: 10
+      start: 6
+    long rainy:
+      end: 9
+      start: 6
+    planting:
+      end: 9
+      start: 6
+    short rainy:
+      end: 5
+      start: 4
+'444188':
+    crop:
+      end: 1
+      start: 9
+    harvest:
+      end: 1
+      start: 9
+    hunger:
+      end: 6
+      start: 2
+    planting:
+      end: 9
+      start: 6
+    kremt:
+      end: 10
+      start: 6
+    rainy:
+      end: 10
+      start: 6
