@@ -20,9 +20,9 @@ class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[Str
     val similarities = ontologyHandler.wordToVec.calculateSimilaritiesWeighted(words, weights, conceptEmbeddings)
     val grounding = flatOntologyGrounder.newOntologyGrounding(similarities)
     // The correlation score of a sentence is set to 0 if it is below the threshold. Change it later if needed.
-    val classification = grounding.headOption.map(_._2).getOrElse(0.0f)
+    val classificationRaw = grounding.headOption.map(_._2).getOrElse(0.0f)
 
-    classification
+    if (classificationRaw>classificationThreshold) {classificationRaw} else 0.0f
   }
 }
 
