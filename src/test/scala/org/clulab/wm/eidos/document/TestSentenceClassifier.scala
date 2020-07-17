@@ -1,7 +1,10 @@
 package org.clulab.wm.eidos.document
 
 import com.typesafe.config.Config
+import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.Sourcer
@@ -13,6 +16,8 @@ class TestSentenceClassifier extends Test {
   // Load eidos system
   val config: Config = EidosSystem.defaultConfig
   val eidosSystem = new EidosSystem(config)
+  // Classification threshold can be set in the eidos.conf file.
+  val classificationThreshold = eidosSystem.components.eidosSentenceClassifier.classificationThreshold
 
   //Get accuracy and f1 score of the predictions.
   def getEvaluationStatistics(preds:Seq[Int], labels:Seq[Int]):(Float, Float) = {
@@ -67,8 +72,6 @@ class TestSentenceClassifier extends Test {
   behavior of "SentenceClassifier"
 
   it should "have an accuracy above 0.69 and an f1 above 0.77" in {
-    // Classification threshold can be set in the eidos.conf file.
-    val classificationThreshold = eidosSystem.components.eidosSentenceClassifier.classificationThreshold
     val sentenceClassifierEvaluationData = readEvaluationData()
     val preds = new ArrayBuffer[Int]()
     val labels = new ArrayBuffer[Int]()
@@ -89,4 +92,21 @@ class TestSentenceClassifier extends Test {
     f1>0.77 should be (true)
   }
 
+  behavior of "(De)serialization"
+
+  // The test needs to be in this file because only here are the sentences guaranteed to get classified.
+  it should "handle the relevance" in {
+    val oldAnnotatedDocument = eidosSystem.extractFromText("Rainfall significantly increases poverty.")
+    val oldClassification = oldAnnotatedDocument.eidosMentions.head.classificationOpt.get
+    oldClassification should be > classificationThreshold
+
+    val oldCorpus = new JLDCorpus(Seq(oldAnnotatedDocument))
+    val oldJValue = oldCorpus.serialize()
+    val oldJson = stringify(oldJValue, pretty = true)
+    oldJson should include ("relevance")
+
+    val newAnnotatedDocument = new JLDDeserializer().deserialize(oldJson).head
+    val newClassification = newAnnotatedDocument.eidosMentions.head.classificationOpt.get
+    newClassification should === (oldClassification)
+  }
 }
