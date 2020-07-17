@@ -1,15 +1,23 @@
 package org.clulab.wm.eidos.document
 
-import org.clulab.wm.eidos.{EidosSystem}
+import com.typesafe.config.Config
+import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.collection.mutable.ArrayBuffer
 
+// This isn't inheriting from EnglishTest because grounding is usually not enabled for tests.
 class TestSentenceClassifier extends Test {
-
-  //Load eidos system
-  val config = EidosSystem.defaultConfig
+  // Load eidos system
+  val config: Config = EidosSystem.defaultConfig
   val eidosSystem = new EidosSystem(config)
+  // Classification threshold can be set in the eidos.conf file.
+  val classificationThreshold = eidosSystem.components.eidosSentenceClassifier.classificationThreshold
 
   //Get accuracy and f1 score of the predictions.
   def getEvaluationStatistics(preds:Seq[Int], labels:Seq[Int]):(Float, Float) = {
@@ -46,15 +54,16 @@ class TestSentenceClassifier extends Test {
 
     val spreadsheetPath = config.getString("sentenceClassifier.evaluationFilePath")
 
-    val bufferedSource = SentenceClassifier.sourceFromResource(spreadsheetPath)
-    for (line <- bufferedSource.getLines) {
+    Sourcer.sourceFromResource(spreadsheetPath).autoClose { bufferedSource =>
+      for (line <- bufferedSource.getLines) {
 
-      val cols = line.split("\t").map(_.trim)
-      // do whatever you want with the columns here
-      val sentence = cols(0).toLowerCase()
-      val label = cols(1).toInt
+        val cols = line.split('\t').map(_.trim)
+        // do whatever you want with the columns here
+        val sentence = cols(0).toLowerCase()
+        val label = cols(1).toInt
 
-      sentenceClassifierEvaluationData.append((sentence, label))
+        sentenceClassifierEvaluationData.append((sentence, label))
+      }
     }
 
     sentenceClassifierEvaluationData
@@ -75,13 +84,7 @@ class TestSentenceClassifier extends Test {
 
       val classifierPred = eidosSystem.components.eidosSentenceClassifier.classify(sentenceObj).get
 
-      // Classification threshold can be set in the eidos.conf file.
-      if (classifierPred> eidosSystem.components.eidosSentenceClassifier.classificationThreshold){
-        preds.append(1)
-      }
-      else {
-        preds.append(0)
-      }
+      preds.append(if (classifierPred > classificationThreshold) 1 else 0)
     }
     val (acc, f1) = getEvaluationStatistics(preds, labels)
 
@@ -89,4 +92,21 @@ class TestSentenceClassifier extends Test {
     f1>0.77 should be (true)
   }
 
+  behavior of "(De)serialization"
+
+  // The test needs to be in this file because only here are the sentences guaranteed to get classified.
+  it should "handle the relevance" in {
+    val oldAnnotatedDocument = eidosSystem.extractFromText("Rainfall significantly increases poverty.")
+    val oldClassification = oldAnnotatedDocument.eidosMentions.head.classificationOpt.get
+    oldClassification should be > classificationThreshold
+
+    val oldCorpus = new JLDCorpus(Seq(oldAnnotatedDocument))
+    val oldJValue = oldCorpus.serialize()
+    val oldJson = stringify(oldJValue, pretty = true)
+    oldJson should include ("relevance")
+
+    val newAnnotatedDocument = new JLDDeserializer().deserialize(oldJson).head
+    val newClassification = newAnnotatedDocument.eidosMentions.head.classificationOpt.get
+    newClassification should === (oldClassification)
+  }
 }

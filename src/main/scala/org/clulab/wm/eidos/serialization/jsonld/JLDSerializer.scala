@@ -441,6 +441,7 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
       "text" -> eidosMention.odinMention.text,
       "rule" -> eidosMention.odinMention.foundBy,
       "canonicalName" -> eidosMention.canonicalName,
+      "relevance" -> eidosMention.classificationOpt,
       "groundings" -> jldGroundings,
       JLDProvenance.singular -> provenance(),
       JLDAttachment.plural -> jldAllAttachments
