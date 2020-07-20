@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
+import org.clulab.wm.eidos.utils.Language
 
 import scala.collection.JavaConverters._
 import scala.collection.Seq
@@ -29,7 +30,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       .replace('\t', ' ')
       .replaceAll("  +", " ")
 
-    if (ieSystem.components.language == "english") {
+    if (ieSystem.components.language == Language.ENGLISH) {
       val specialChars = getSpecialChars(cleanText)
       if (!specialChars.isEmpty)
         throw new IllegalArgumentException("Text contained a special chars: " + specialChars)

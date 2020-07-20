@@ -84,7 +84,7 @@ case class DocumentSpec(idAndDocument: IdAndDocument, idAndDctOpt: Option[IdAndD
 class IdAndMention(id: String, mention: Mention) extends IdAndValue[Mention](id,mention)
 
 case class Extraction(id: String, extractionType: String, extractionSubtype: String, labels: List[String],
-    foundBy: String, canonicalNameOpt: Option[String], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundings],
+    foundBy: String, canonicalNameOpt: Option[String], classificationOpt: Option[Float], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundings],
     provenance: Provenance, triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
 
 object JLDDeserializer {
@@ -395,17 +395,16 @@ class JLDDeserializer {
     val extractionSubtype = (extractionValue \ "subtype").extract[String]
     val labels = (extractionValue \ "labels").extract[List[String]]
     val foundBy = (extractionValue \ "rule").extract[String]
-
     val canonicalNameOpt = (extractionValue \ "canonicalName").extractOpt[String]
+    val classificationOpt = (extractionValue \ "relevance").extractOpt[Float]
     val ontologyGroundingsOpt = (extractionValue \ "groundings").extractOpt[JArray].map { jArray =>
       deserializeGroundings(jArray)
     }
-
     val provenance = deserializeProvenance((extractionValue \ "provenance").extractOpt[JValue], documentMap, documentSentenceMap).get
     val triggerProvenanceOpt = deserializeTrigger((extractionValue \ "trigger").extractOpt[JValue], documentMap, documentSentenceMap)
     val argumentMap = deserializeArguments((extractionValue \ "arguments").extractOpt[JValue])
 
-    Extraction(extractionId, extractionType, extractionSubtype, labels, foundBy, canonicalNameOpt,
+    Extraction(extractionId, extractionType, extractionSubtype, labels, foundBy, canonicalNameOpt, classificationOpt,
         ontologyGroundingsOpt, provenance, triggerProvenanceOpt, argumentMap)
   }
 
@@ -801,6 +800,8 @@ class JLDDeserializer {
       extractionOpt.foreach { extraction =>
         extraction.canonicalNameOpt.foreach { canonicalName => eidosMention.canonicalName = canonicalName }
         extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.grounding = ontologyGroundings }
+        // It is done this way in case the default value already in the EidosMention has been changed.
+        extraction.classificationOpt.foreach { classification => eidosMention.classificationOpt = Some(classification) }
       }
     }
 

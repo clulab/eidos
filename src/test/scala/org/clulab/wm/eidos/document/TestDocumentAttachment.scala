@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.attachments
+package org.clulab.wm.eidos.document
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -9,8 +9,8 @@ import java.time.LocalDateTime
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.serialization.DocumentSerializer
-import org.clulab.serialization.json._
 import org.clulab.serialization.json.JSONSerializer
+import org.clulab.serialization.json._
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.context.DCT

@@ -32,6 +32,7 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
   // Default values are used instead of Option to simplify client code.
   var canonicalName: String = ""
   var grounding: OntologyAliases.OntologyGroundings = EidosMention.NO_ONTOLOGY_GROUNDINGS
+  var classificationOpt: Option[Float] = None
 
   // Accessor method to facilitate cleaner code downstream
   def label: String = odinMention.label
@@ -39,7 +40,7 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
   // Return any mentions that are involved in the canonical name.  By default, the argument values.
   // This is here to allow subclasses to override it so that the Canonicalizer doesn't have to keep track.
   def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
-
+  
   // You'd think this would just be OdinMention.getNeighbors(odinMention).  However,
   // the neighbors of odinMention may have been replaced by others that are ==.
   def getOdinNeighbors: Seq[Mention] = odinArguments.values.flatten.toSeq
