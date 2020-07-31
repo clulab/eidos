@@ -2,8 +2,8 @@ package org.clulab.wm.eidos.groundings
 
 import java.io.File
 
-import org.clulab.embeddings.word2vec.CompactWord2Vec
-import org.clulab.embeddings.word2vec.Word2Vec
+import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
+import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.{Logger, LoggerFactory}
