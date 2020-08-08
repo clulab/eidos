@@ -10,6 +10,8 @@ import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Timer
 
+import scala.collection.mutable
+
 /**
  * A system for text processing and information extraction
  *
@@ -84,6 +86,16 @@ class EidosSystem(val components: EidosComponents) {
     }),
     new EidosRefiner("AdjectiveGrounder", (annotatedDocument: AnnotatedDocument) => {
       annotatedDocument.allEidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
+      annotatedDocument
+    }),
+    new EidosRefiner("SentenceClassifier", (annotatedDocument: AnnotatedDocument) => {
+      // This maps sentence index to the sentence classification so that sentences aren't classified twice.
+      val cache: mutable.HashMap[Int, Option[Float]] = mutable.HashMap.empty
+
+      annotatedDocument.allEidosMentions.foreach { eidosMention =>
+        eidosMention.classificationOpt = cache.getOrElseUpdate(eidosMention.odinMention.sentence,
+            components.eidosSentenceClassifier.classify(eidosMention.odinMention.sentenceObj))
+      }
       annotatedDocument
     })
   )

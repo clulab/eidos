@@ -14,6 +14,7 @@ import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.processors.fastnlp.FastNLPProcessor
 import org.clulab.utils.ScienceUtils
 import org.clulab.wm.eidos.utils.EnglishTagSet
+import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.PortugueseTagSet
 import org.clulab.wm.eidos.utils.SpanishTagSet
 import org.clulab.wm.eidos.utils.TagSet
@@ -314,8 +315,9 @@ object EidosProcessor {
   type EidosProcessor = Processor with SentencesExtractor with LanguageSpecific
 
   def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
-    case "english" => new EidosEnglishProcessor(language, cutoff)
-    case "spanish" => new EidosSpanishProcessor(language, cutoff)
-    case "portuguese" => new EidosPortugueseProcessor(language, cutoff)
+    case Language.ENGLISH =>
+      new EidosEnglishProcessor(language, cutoff)
+    case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
+    case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
   }
 }

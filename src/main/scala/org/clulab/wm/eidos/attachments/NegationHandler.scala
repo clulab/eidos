@@ -2,9 +2,10 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin._
 import org.clulab.wm.eidos.EidosSystem
+
 import scala.collection.mutable.ArrayBuffer
 import org.clulab.struct.Interval
-
+import org.clulab.wm.eidos.utils.Language
 
 /**
   * Taken from Reach (1.4.0), the information system developed for the DARPA Big Mechanism program
@@ -19,8 +20,8 @@ class NegationHandler(val language: String) {
     // and then return the mentions
     // Note that the approach can be different for different languages!
     language match {
-      case "english" => mentions.map(detectNegationEnglish)
-      case "portuguese" => mentions.map(detectNegationPortuguese)
+      case Language.ENGLISH => mentions.map(detectNegationEnglish)
+      case Language.PORTUGUESE => mentions.map(detectNegationPortuguese)
       case _ => throw new RuntimeException(s"Unsupported language: $language")
     }
   }
