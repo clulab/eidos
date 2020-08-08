@@ -7,7 +7,7 @@ import com.typesafe.config.Config
 import org.yaml.snakeyaml.Yaml
 import org.clulab.timenorm.scate._
 import org.clulab.odin.{Mention, State, TextBoundMention}
-import org.clulab.processors.{Document, Sentence}
+import org.clulab.processors.Document
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.wm.eidos.attachments.{Location => LocationAttachment, Time => TimeAttachment}
 import org.clulab.wm.eidos.extraction.Finder
@@ -83,9 +83,9 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
     // of the mention, the starting and ending months of the season according to the seasons Map, and
     // the timeInterval of Time that will be used as reference to normalize the season mention.
     // The season type if checked with following priority:
-    //    1- The trigger is also the type, e.g. "meher"
-    //    2- Long format type , e.g. "short rainy season"
-    //    3- Short format type, e.g. "rainy season"
+    //    1- The trigger is also the type (Uni-gram season expression), e.g. "meher"
+    //    2- Long format type (Tri-gram season expression), e.g. "short rainy season"
+    //    3- Short format type (Bi-gram season expression), e.g. "rainy season"
     if (geoLocation.isDefined && timeInterval.isDefined) {
       val geoLocationID = geoLocation.get.geoPhraseID.geonameID.get
       seasonTrigger match {
