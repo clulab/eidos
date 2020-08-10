@@ -9,6 +9,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 
 import scala.collection.mutable
 
@@ -107,7 +108,14 @@ class EidosSystem(val components: EidosComponents) {
   def annotateDoc(doc: Document): Document = {
     // It is assumed and not verified that the document has _not_ already been annotated.
     components.proc.annotate(doc)
+    components.proc.annotate(doc)
+    // HERE
+    for (sentence <- doc.sentences){
+      val attachment = RelevanceDocumentAttachment.setRelevance(doc, this.components.eidosSentenceClassifier.classify(sentence).get) // TODO: check this later
+      doc.addAttachment("relevanceScore", attachment)
+    }
     doc
+
   }
 
   // Annotate the text using a Processor and then populate lexicon labels.
