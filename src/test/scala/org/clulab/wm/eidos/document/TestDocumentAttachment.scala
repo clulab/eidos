@@ -14,7 +14,7 @@ import org.clulab.serialization.json._
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.context.DCT
-import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, RelevanceDocumentAttachment}
 import org.clulab.wm.eidos.test.TestUtils._
 import org.json4s.jackson.parseJson
 import org.json4s.jackson.prettyJson
@@ -98,5 +98,38 @@ class TestDocumentAttachment extends Test {
 
     val dct2 = DCT(SimpleInterval(LocalDateTime.now, LocalDateTime.now), "then")
     newDctOpt.get should not be (dct2)
+  }
+
+  "Document with RelevanceDocumentAttachment" should "serialize as text" in {
+    val docRelevanceScore = 0.7f
+    val oldDocument = new Document(Array.empty[Sentence])
+
+    RelevanceDocumentAttachment.setRelevance(oldDocument, docRelevanceScore)
+
+    val documentSerializer = new DocumentSerializer()
+    val documentString = documentSerializer.save(oldDocument)
+
+    val newDocument = documentSerializer.load(documentString)
+    val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
+    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore) should be (true)
+
+    val docRelevanceScore2 = 0.8f
+    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore2) should be (false)
+  }
+
+  "Document with RelevanceDocumentAttachments" should "serialize as json" in {
+    val docRelevanceScore = 0.7f
+    val oldDocument = new Document(Array.empty[Sentence])
+
+    RelevanceDocumentAttachment.setRelevance(oldDocument, docRelevanceScore)
+
+    val documentString = prettyJson(renderJValue(oldDocument.jsonAST))
+
+    val newDocument: Document = JSONSerializer.toDocument(parseJson(documentString))
+    val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
+    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore) should be (true)
+
+    val docRelevanceScore2 = 0.8f
+    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore2) should be (false)
   }
 }
