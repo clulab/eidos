@@ -32,7 +32,7 @@ object OntologyMapper {
         line <- lines
         fields = line.split("\t")
         path = fields(0).split(",")
-        examples = fields(1).split(",").map(WordEmbeddingMap.sanitizeWord(_))
+        examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
         embedding = w2v.makeCompositeVector(examples)
       } yield ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
 
@@ -73,7 +73,7 @@ object OntologyMapper {
   // todo query expansion
 
   def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
-    val words = s.split("[ |_]").map(WordEmbeddingMap.sanitizeWord(_)).map(replaceSofiaAbbrev)
+    val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
     reader.components.ontologyHandler.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.components.proc))
   }
 

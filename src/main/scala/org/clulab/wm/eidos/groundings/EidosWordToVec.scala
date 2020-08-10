@@ -34,7 +34,7 @@ class FakeWordToVec extends EidosWordToVec {
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
 
-class RealWordToVec(val w2v: CompactWordEmbeddingMap, topKNodeGroundings: Int) extends EidosWordToVec {
+class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
@@ -64,7 +64,7 @@ class RealWordToVec(val w2v: CompactWordEmbeddingMap, topKNodeGroundings: Int) e
   }
 
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(WordEmbeddingMap.sanitizeWord(_))
+    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
     val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
@@ -82,7 +82,7 @@ class RealWordToVec(val w2v: CompactWordEmbeddingMap, topKNodeGroundings: Int) e
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], nounVerbWeightRatio:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(WordEmbeddingMap.sanitizeWord(_))
+    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
     val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
@@ -138,8 +138,8 @@ object EidosWordToVec {
       logger.info(s"Loading w2v from $wordToVecPath...")
 
       val w2v =
-        if (cached) CompactWordEmbeddingMap(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
-        else CompactWordEmbeddingMap(wordToVecPath, resource = true, cached)
+        if (cached) CompactWord2Vec(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
+        else CompactWord2Vec(wordToVecPath, resource = true, cached)
 
       new RealWordToVec(w2v, topKNodeGroundings)
     }

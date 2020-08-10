@@ -93,8 +93,8 @@ object CacheOntologies extends App {
         if (!config[Boolean]("ontologies.useCacheForW2V"))
           realWordToVec.w2v // It wasn't cached, so we must have an up-to-date version.
         else
-          CompactWordEmbeddingMap(filenameIn, resource = true, cached = false)
-      case _ =>  CompactWordEmbeddingMap(filenameIn, resource = true, cached = false)
+          CompactWord2Vec(filenameIn, resource = true, cached = false)
+      case _ =>  CompactWord2Vec(filenameIn, resource = true, cached = false)
     }
     word2Vec.save(filenameOut)
     println(s"Finished serializing vectors.")
