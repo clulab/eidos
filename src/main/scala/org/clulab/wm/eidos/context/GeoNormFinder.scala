@@ -71,7 +71,7 @@ object GeoNormFinder {
         val modelFilenamePrefix = config[String]("modelFilenamePrefix")
         val metal = {
           Utils.initializeDyNet()
-          Metal(modelFilenamePrefix.drop(1))
+          Metal(modelFilenamePrefix)
         }
 
         new MetalGeoExtractor(metal)
