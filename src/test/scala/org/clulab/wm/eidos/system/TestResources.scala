@@ -4,6 +4,7 @@ import java.io.File
 
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Sourcer
 
 import scala.io.Source
@@ -39,8 +40,10 @@ class TestResources extends Test {
   type Operation = (File) => Unit
 
   val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
-  val unwantedSuffixes = Seq("300d.txt", "vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
-                              "word2idx_file.txt")
+  val unwantedSuffixes = Seq(
+    "300d.txt", "vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
+    "word2idx_file.txt", "SentenceClassifierEvaluation.tsv"
+  )
 
   def fileMatches(file: File): Boolean = {
     val canonicalPath = file.getCanonicalPath().replace('\\', '/')
@@ -53,7 +56,7 @@ class TestResources extends Test {
   
   def doOperation(path: String)(operation: Operation): Unit = {
     for (files <- Option(new File(path).listFiles); file <- files) {
-        if (file.isFile() && fileMatches(file) && file.getAbsolutePath.contains("english"))
+        if (file.isFile() && fileMatches(file) && file.getAbsolutePath.contains(Language.ENGLISH))
           operation(file)
         if (file.isDirectory && directoryMatches(file))
           doOperation(file.getAbsolutePath)(operation)

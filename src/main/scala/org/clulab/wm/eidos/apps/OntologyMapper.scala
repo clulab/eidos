@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.ConfigFactory
-import org.clulab.embeddings.WordEmbeddingMap
+import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, PassThruNamer, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
