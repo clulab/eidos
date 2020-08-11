@@ -42,16 +42,20 @@ object SeasonFinder {
 
 class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], triggers: Set[String]) extends Finder{
 
-  // This function is used to filter out mentions with no attachments
+  // This function is used to filter out mentions with no Time or Location attachments
   private def filterMentions(mention: (Int, Mention)): Boolean = {
-    if (mention._2.attachments.isEmpty)
-      false
-    else
-      mention._2.attachments.head match {
-        case a: LocationAttachment if a.geoPhraseID.geonameID.isDefined => true
-        case a: TimeAttachment if a.interval.intervals.nonEmpty => true
-        case _ => false
-      }
+    mention._2.label match {
+      case l if l.equals("Time") || l.equals("Location") =>
+        if (mention._2.attachments.isEmpty)
+          false
+        else
+          mention._2.attachments.head match {
+            case a: LocationAttachment if a.geoPhraseID.geonameID.isDefined => true
+            case a: TimeAttachment if a.interval.intervals.nonEmpty => true
+            case _ => false
+          }
+      case _ => false
+    }
   }
 
   private def createMention(seasonMatch: (String, Int), sentIdx: Int, lemmas: Array[String], initialState: State): Option[SeasonMention] = {
@@ -63,8 +67,8 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
     // in the previous 5 sentences. Sort them by their proximity to the trigger prioritizing same sentence:
     //    - Mentions in same sentence: Distance in tokens to the trigger
     //    - Mentions in previous sentences: Just their index in the reverse list + trigger's sentence length
-    val previousMentions = initialState.mentionsFor(sentIdx, 0 to seasonTokenIdx).map(m => (seasonTokenIdx - m.tokenInterval.start, m))
-    val followingMentions = initialState.mentionsFor(sentIdx, seasonTokenIdx + 1 to sentSize).map(m => (m.tokenInterval.start - seasonTokenIdx, m))
+    val previousMentions = initialState.mentionsFor(sentIdx, 0 until seasonTokenIdx).map(m => (seasonTokenIdx - m.tokenInterval.start, m))
+    val followingMentions = initialState.mentionsFor(sentIdx, seasonTokenIdx + 1 until sentSize).map(m => (m.tokenInterval.start - seasonTokenIdx, m))
     val previousSentencesMentions = (max(0, sentIdx - 5) until sentIdx).reverse.flatMap(initialState.mentionsFor).zipWithIndex.map(m => (sentSize + m._2, m._1))
     val sortedMentions = (previousMentions ++ followingMentions ++ previousSentencesMentions).filter(filterMentions).sortBy(_._1).map(_._2)
 
