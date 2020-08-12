@@ -39,9 +39,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.AdjectiveGrounding
-import org.clulab.wm.eidos.groundings.OntologyAliases
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyAliases, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.PassThruNamer
@@ -532,7 +530,7 @@ class JLDDeserializer {
           val floatVal = (value \ "value").extract[Double].toFloat
           val namer = new PassThruNamer(ontologyConcept)
 
-          (namer, floatVal)
+          SingleOntologyNodeGrounding(namer, floatVal)
         }
       }.getOrElse(List.empty)
 

@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.apps
 import ai.lum.common.ConfigUtils._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.groundings.{IndividualGrounding, OntologyHandler}
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Sourcer
@@ -29,8 +29,8 @@ object GenerateGoldGroundingTSV extends App {
         Evaluator.grounderNames.map { groundingName =>
           allGroundings(groundingName)
               .headOption
-              .map { case (namer, score) =>
-                (namer.name, score.toString)
+              .map { case g: IndividualGrounding =>
+                (g.name, g.score.toString)
               }
               .getOrElse(("None", "None"))
         }

@@ -1,8 +1,6 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.DomainOntology
-import org.clulab.wm.eidos.groundings.EidosWordToVec
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.{DomainOntology, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 
@@ -11,10 +9,10 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
+    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings).map(SingleOntologyNodeGrounding(_))))
   }
 
-  def groundOntology(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
+  def groundEidosMention(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the ontology, if so, that is a very precise

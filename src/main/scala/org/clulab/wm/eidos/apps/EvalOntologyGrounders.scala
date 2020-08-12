@@ -4,7 +4,7 @@ import java.io.File
 import java.io.PrintWriter
 
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.OntologyAliases
+import org.clulab.wm.eidos.groundings.{IndividualGrounding, OntologyAliases, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.First
@@ -179,11 +179,11 @@ object EvalOntologyGrounders extends App {
     val singleOntologyGroundingOpt = multipleOntologyGroundingsOpt.map { multipleOntologyGroundingsOpt =>
       multipleOntologyGroundingsOpt.head // Can it be assumed not to be empty?
     }
-    val nameAndValue = singleOntologyGroundingOpt.map { case (namer, value) =>
-      val name = namer.name
+    val nameAndValue = singleOntologyGroundingOpt.map { case g: IndividualGrounding =>
+      val name = g.name
       val shorterName = getShorterName(name)
 
-      (shorterName, value.toDouble)
+      (shorterName, g.score.toDouble)
     }.getOrElse("", 0d)
 
     nameAndValue
@@ -198,8 +198,8 @@ object EvalOntologyGrounders extends App {
     if (multipleOntologyGroundingsOpt.isDefined) {
       if (!correct) {
         // See how far down the list the expected value is.
-        val shorterNames = multipleOntologyGroundingsOpt.get.map { case (namer, _) =>
-          getShorterName(namer.name)
+        val shorterNames = multipleOntologyGroundingsOpt.get.map { case g =>
+          getShorterName(g.name)
         }
         val index = shorterNames.indexOf(expectedName)
 

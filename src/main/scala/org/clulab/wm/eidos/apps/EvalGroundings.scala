@@ -36,7 +36,7 @@ object EvalGroundings {
     protected def getTop5(allGroundings: OntologyGroundings): Seq[String] =
         allGroundings(grounderName)
           .take(5)
-          .map(_._1.name)
+          .map(_.name)
 
     def evaluate(allGroundings: OntologyGroundings, gold: String): (String, String) = {
       val top5 = getTop5(allGroundings)

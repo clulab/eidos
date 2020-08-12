@@ -25,8 +25,7 @@ import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.AdjectiveGrounding
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosCrossSentenceEventMention
 import org.clulab.wm.eidos.mentions.EidosCrossSentenceMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
@@ -198,8 +197,10 @@ object JLDOntologyGrounding {
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, JLDOntologyGroundings.typename) {
-  val jldGroundings: Seq[JObject] = grounding.grounding.map { case (namer, value) =>
-    new JLDOntologyGrounding(serializer, namer.name, value).toJObject
+  val jldGroundings: Seq[JObject] = grounding.grounding.map {
+    case s: SingleOntologyNodeGrounding =>
+      new JLDOntologyGrounding(serializer, s.name, s.score).toJObject
+    case pred: PredicateGrounding => ??? // FIXME
   }
 //  val versionOpt = if (name == "wm") Some("a1a6dbee0296bdd2b81a4a751fce17c9ed0a3af8") else None
 

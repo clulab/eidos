@@ -1,16 +1,9 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.ConceptEmbedding
-import org.clulab.wm.eidos.groundings.ConceptPatterns
-import org.clulab.wm.eidos.groundings.DomainOntology
-import org.clulab.wm.eidos.groundings.EidosWordToVec
-import org.clulab.wm.eidos.groundings.OntologyAliases
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, OntologyAliases, OntologyGrounder, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
-import org.clulab.wm.eidos.groundings.OntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
-import org.clulab.wm.eidos.utils.Namer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -46,7 +39,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       }
       // Otherwise, back-off to the w2v-based approach
       else {
-        newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings))
+        newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings).map(SingleOntologyNodeGrounding(_)))
       }
     }
     else
@@ -56,8 +49,8 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
 
   // For Regex Matching
-  def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[(Namer, Float)] = {
-    nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => (node.namer, 1.0f))
+  def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[SingleOntologyNodeGrounding] = {
+    nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => SingleOntologyNodeGrounding(node.namer, 1.0f))
   }
 
   def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
@@ -79,13 +72,14 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings))
+      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings).map(SingleOntologyNodeGrounding(_)))
     }
   }
 }
 
 object EidosOntologyGrounder {
-  val                 GROUNDABLE = "Entity"
+  val GROUNDABLE = "Entity"
+
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
   protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
   protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
