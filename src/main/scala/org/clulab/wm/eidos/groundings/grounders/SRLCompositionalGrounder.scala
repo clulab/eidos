@@ -4,17 +4,19 @@ import org.clulab.odin.Mention
 import org.clulab.processors.Sentence
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.struct.{DirectedGraph, Interval}
+import org.clulab.wm.eidos.attachments.{ContextAttachment, TriggeredAttachment}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.slf4j.{Logger, LoggerFactory}
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
+
 import SRLCompositionalGrounder._
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
-case class GroundedToken(index: Int, grounding: OntologyGrounding)
-case class PredicatePackage(predicate: GroundedToken, agent: Seq[GroundedToken] = Nil, theme: Seq[GroundedToken] = Nil, other: Seq[GroundedToken] = Nil)
+case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding)
+case class PredicatePackage(predicate: GroundedSpan, agent: Seq[GroundedSpan] = Nil, theme: Seq[GroundedSpan] = Nil, other: Seq[GroundedSpan] = Nil)
 
 class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
   extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
@@ -44,25 +46,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     val doc = proc.annotate(text)
     val groundings = for {
       s <- doc.sentences
-      // FIXME -- the empty sequence here is a placeholder for increase/decrease triggers
-      ontologyGrounding <- groundSentenceSpan(s, 0, s.words.length, Seq())
+      // TODO (at some point) -- the empty sequence here is a placeholder for increase/decrease triggers
+      //  Currently we don't have "access" to those here, but that could be changed
+      ontologyGrounding <- groundSentenceSpan(s, 0, s.words.length, Set())
       singleGrounding <- ontologyGrounding.grounding
     } yield singleGrounding
 
     val groundingResult = newOntologyGrounding(groundings.sortBy(- _.score))
     groundingResult
-  }
-
-  def groundSentenceSpan(s: Sentence, start: Int, end: Int, exclude: Seq[Int]): Seq[OntologyGrounding] = {
-    val tokenInterval = Interval(start, end)
-    groundSentenceSpan(s, tokenInterval, exclude)
-  }
-  def groundSentenceSpan(s: Sentence, tokenInterval: Interval, exclude: Seq[Int]): Seq[OntologyGrounding] = {
-    //  3) for each Concept (cause/effect), look for all predicates --> these are the processes
-    val conceptPredicates = groundPredicates(s, tokenInterval, exclude)
-
-    //  9) ask Keith to pretty please make a way to output it in the json
-    ???
   }
 
   override def groundEidosMention(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
@@ -71,41 +62,42 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       Seq(newOntologyGrounding())
     // or else ground them.
     else {
-      val attachmentTriggers = findAttachmentTriggers(mention.odinMention)
-      groundSentenceSpan(mention.odinMention.sentenceObj, mention.odinMention.start, mention.odinMention.end, attachmentTriggers)
+      groundSentenceSpan(mention.odinMention.sentenceObj, mention.odinMention.start, mention.odinMention.end, attachmentStrings(mention.odinMention))
     }
   }
 
+  def groundSentenceSpan(s: Sentence, start: Int, end: Int, exclude: Set[String]): Seq[OntologyGrounding] = {
+    val tokenInterval = Interval(start, end)
+    groundSentenceSpan(s, tokenInterval, exclude)
+  }
 
+  def groundSentenceSpan(s: Sentence, tokenInterval: Interval, exclude: Set[String]): Seq[OntologyGrounding] = {
+    val conceptPredicates = groundPredicates(s, tokenInterval, exclude)
+    // TODO: Convert these into OntologyGroundings
+    ???
+  }
 
-  def groundPredicates(sentence: Sentence, tokenInterval: Interval, exclude: Seq[Int]): Seq[PredicatePackage] = {
-    val srls = sentence.semanticRoles.get
-    val predicates = srls.roots.toSeq
-      // keep only predicates that are within the mention
-      .filter(tokenInterval contains _)
-      // remove the predicates which correspond to our increase/decrease/quantifiers
-      .filterNot(exclude contains _)
-      // start with those closest to the syntactic root of the sentence to begin with "higher level" predicates
-      .sortBy(minGraphDistanceToSyntacticRoot(_, sentence.dependencies.get))
-
-    packagePredicates(predicates, Seq(), Set(), srls, predicates.toSet)
+  def groundPredicates(sentence: Sentence, tokenInterval: Interval, exclude: Set[String]): Seq[PredicatePackage] = {
+    val sentenceHelper = SentenceHelper(sentence, tokenInterval, exclude)
+    packagePredicates(sentenceHelper.validPredicates, Seq(), Set(), sentenceHelper)
   }
 
 
-
   @tailrec
-  private def packagePredicates(remaining: Seq[Int], results: Seq[PredicatePackage], seen: Set[Int], srls: DirectedGraph[String], predicates: Set[Int]): Seq[PredicatePackage] = {
+  private def packagePredicates(remaining: Seq[Int], results: Seq[PredicatePackage], seen: Set[Int], s: SentenceHelper): Seq[PredicatePackage] = {
     remaining match {
       case Seq() => results
-      case Seq(curr) => results ++ Seq(mkPredicatePackage(curr, srls, predicates))
+      case Seq(curr) => results ++ Seq(mkPredicatePackage(curr, s))
       case curr :: rest =>
         if (seen contains curr) {
           // we've been here before
-          packagePredicates(rest, results, seen, srls, predicates)
-        } else if (srls.roots contains curr) {
+          packagePredicates(rest, results, seen, s)
+        } else if (s.srls.roots contains curr) {
           // Otherwise, it's new and it's a predicate
-          val packaged = mkPredicatePackage(curr, srls, predicates)
-          packagePredicates(rest, results ++ Seq(packaged), seen ++ Set(curr), srls, predicates)
+          // TODO: this currently does not "nest" the predicates, if we decide we want to, we'll need to adjust it
+          //  if on the other hand, we want only to output the 4-tuples, then it shouldn't matter
+          val packaged = mkPredicatePackage(curr, s)
+          packagePredicates(rest, results ++ Seq(packaged), seen ++ Set(curr), s)
         }
         else {
           ???
@@ -118,39 +110,49 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   // Ground the predicate and also ground each of the relevant arguments
   // Return a PredicatePackage object
-  private def mkPredicatePackage(predicate: Int, srls: DirectedGraph[String], validPredicates: Set[Int]): PredicatePackage = {
+  private def mkPredicatePackage(predicate: Int, s: SentenceHelper): PredicatePackage = {
     // Otherwise, it's new.  If it's a predicate:
-    val groundedPredicate = groundToken(predicate, validPredicates)
+    val groundedPredicate = groundChunk(predicate, s)
     // get the arguments
-    val agents = groundArguments(predicate, AGENT_ROLE, srls, validPredicates)
-    val themes = groundArguments(predicate, THEME_ROLE, srls, validPredicates)
-    val others = groundArguments(predicate, OTHER_ROLE, srls, validPredicates)
+    val agents = groundArguments(predicate, AGENT_ROLE, s)
+    val themes = groundArguments(predicate, THEME_ROLE, s)
+    val others = groundArguments(predicate, OTHER_ROLE, s)
     PredicatePackage(groundedPredicate, agents, themes, others)
   }
 
   // Find all arguments from a given predicate of a certain role (e.g., A1, A0, etc) and ground them
-  private def groundArguments(predicate: Int, role: String, srls: DirectedGraph[String], validPredicates: Set[Int]): Seq[GroundedToken] = {
-    srls.outgoingEdges(predicate)
+  private def groundArguments(predicate: Int, role: String, s:SentenceHelper): Seq[GroundedSpan] = {
+    s.srls.outgoingEdges(predicate)
       .filter(_._2 == role)
-      .map(tok => groundToken(tok._1, validPredicates))
+      .map(tok => groundChunk(tok._1, s))
   }
 
-  // Ground a single token in isolation
-  //  4) if an arg is itself a predicate => it's a process
-  //  6) else if it matches a property regex => it's a property
-  //  7) else it's a concept
-  //  8) assemble the groundings for above steps into the data structure
-  private def groundToken(token: Int, validPredicates: Set[Int]): GroundedToken = {
-    if (validPredicates contains token) {
-      GroundedToken(token, groundProcess())
-    } else if (isProperty()) {
-      GroundedToken(token, groundProperty())
+  // Ground the chunk that the token is in, but in isolation from the rest of the sentence
+  //  a) if an arg is itself a predicate => it's a process
+  //  b) else if it matches a property regex => it's a property
+  //  c) else it's a concept
+  private def groundChunk(token: Int, s: SentenceHelper): GroundedSpan = {
+    val chunkSpan = s.chunkIntervals.collect{ case c if c.contains(token) => c} match {
+      case Seq() =>
+        logger.warn(s"Token $token is not in a chunk.  chunks: ${s.chunks.mkString(", ")}")
+        Interval(token, token + 1)  // if empty, backoff
+      case Seq(chunk) => chunk      // one found, yay! We'll use it
+      case chunks => throw new RuntimeException(s"Chunks have overlapped, there is a problem.  \n\ttoken: $token\n\tchunks: ${chunks.mkString(", ")}")
+    }
+    if (s.validPredicates contains token) {
+      GroundedSpan(chunkSpan, groundProcess(chunkSpan, s))
+    } else if (isProperty(chunkSpan, s)) {
+      GroundedSpan(chunkSpan, groundProperty(chunkSpan, s))
     } else {
-      GroundedToken(token, groundConcept())
+      GroundedSpan(chunkSpan, groundConcept(chunkSpan, s))
     }
   }
 
-  private def isProperty(): Boolean = ???
+
+  private def isProperty(span: Interval, s: SentenceHelper): Boolean = {
+    val spanText = s.wordsSliceString(span)
+    nodesPatternMatched(spanText, conceptPatternsSeq(PROPERTY)).nonEmpty
+  }
 
   // Find the shortest distance (in the syntax graph) between a given token and any of the roots
   private def minGraphDistanceToSyntacticRoot(token: Int, deps: DirectedGraph[String]): Int = {
@@ -161,28 +163,101 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     // select the shortest to be the distance from the token to any of the roots
     pathLengths.min
   }
-  private def findAttachmentTriggers(mention: Mention): Seq[Int] = ???
-  private def isModifierTrigger(token: Int, mention: Mention): Boolean = ???
 
-  private  def groundProcess() = groundBranch(PROCESS)
-  private def groundProperty() = groundBranch(PROPERTY)
-  private def groundConcept() = groundBranch(CONCEPT)
+  // Get the triggers, quantifiers, and context phrases of the attachments
+  private def attachmentStrings(mention: Mention): Set[String] = {
+    mention.attachments.flatMap { a =>
+      a match {
+        case t: TriggeredAttachment => Seq(t.trigger) ++ t.quantifiers.getOrElse(Seq())
+        case c: ContextAttachment => Seq(c.text)
+        case _ => ???
+      }
+    }
+  }
 
-  private def groundBranch(branch: String) = ???
+  private  def groundProcess(span: Interval, s: SentenceHelper): OntologyGrounding = groundBranch(PROCESS, span, s)
+  private def groundProperty(span: Interval, s: SentenceHelper): OntologyGrounding = groundBranch(PROPERTY, span, s)
+  private def groundConcept(span: Interval, s: SentenceHelper): OntologyGrounding = groundBranch(CONCEPT, span, s)
+
+  private def groundBranch(branch: String, span: Interval, s: SentenceHelper): OntologyGrounding = {
+    groundPatternsThenEmbeddings(s.wordsSlice(span), conceptPatternsSeq(branch), conceptEmbeddingsSeq(branch))
+  }
+
+
+  // Helper class to hold a bunch of things that are needed throughout the process for grounding
+  case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: Set[String]) {
+    val chunks: Array[String] = sentence.chunks.get
+    val chunkIntervals: Seq[Interval] = chunkSpans
+    val words: Array[String] = sentence.words
+    val srls: DirectedGraph[String] = sentence.semanticRoles.get
+    // The roots of the SRL graph that are within the concept being grounded and aren't part of
+    // an something we're ignoring (e.g., increase/decrease/quantification)
+    val validPredicates: Seq[Int] = {
+      srls.roots.toSeq
+      // keep only predicates that are within the mention
+      .filter(tokenInterval contains _)
+      // remove the predicates which correspond to our increase/decrease/quantifiers
+      .filterNot(exclude contains words(_))
+      // start with those closest to the syntactic root of the sentence to begin with "higher level" predicates
+      .sortBy(minGraphDistanceToSyntacticRoot(_, sentence.dependencies.get))
+    }
+
+    // Make a Seq of the Intervals corresponding to the syntactic chunks in the sentence (inclusive, exclusive).
+    def chunkSpans: Seq[Interval] = {
+      val chunkIntervals = new ArrayBuffer[Interval]
+      var currStart = -1
+      var currEnd = -1
+      val chunks = sentence.chunks.get
+      val numTokens = chunks.length
+      for ((t, i) <- chunks.zipWithIndex) {
+        if (t.startsWith("B")) {
+          // New chunk has started, package the previous
+          if (currStart != -1 && currEnd != -1) {
+            chunkIntervals.append(Interval(currStart, currEnd))
+          }
+          currStart = i
+          currEnd = -1
+        } else if (t.startsWith("I")) {
+          // if this isn't the last thing in the sentence
+          if (i + 1 < numTokens) {
+            if (chunks(i + 1) != t) {
+              // the next chunk is different, so this is the end
+              currEnd = i + 1
+            }
+          }
+        } else {
+          // chunk starts with "O", if this is the first one, mark it as the end
+          if (currEnd == -1) currEnd = i
+        }
+      }
+      // Handle any remaining chunks that didn't get added yet
+      if (currStart != -1 && currEnd != -1) {
+        chunkIntervals.append(Interval(currStart, currEnd))
+      }
+      chunkIntervals
+    }
+
+    def wordsSlice(span: Interval): Array[String] = words.slice(span.start, span.end)
+    def wordsSliceString(span: Interval): String = wordsSlice(span).mkString(" ")
+  }
 
 }
+
 
 object SRLCompositionalGrounder{
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
   // Semantic Roles
   val AGENT_ROLE = "A0"
   val THEME_ROLE = "A1"
   val OTHER_ROLE = "AX"
   val TIME_ROLE = "AM-TMP"
   val LOC_ROLE = "AM-LOC" // FIXME: may need offline processing to make happen
+
   // Compositional Ontology Branches
   val PROCESS = "process"
   val CONCEPT = "concept"
   val PROPERTY = "property"
+
 }
