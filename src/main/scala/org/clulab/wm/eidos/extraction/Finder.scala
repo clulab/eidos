@@ -4,7 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.{Mention, State}
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder}
+import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder, SeasonFinder}
 import org.clulab.wm.eidos.utils.TagSet
 
 trait Finder {
@@ -21,6 +21,7 @@ object Finder {
         case "gazetteer" => GazetteerEntityFinder.fromConfig(config, tagSet)
         case "geonorm" => GeoNormFinder.fromConfig(config[Config]("geonorm"))
         case "timenorm" => TimeNormFinder.fromConfig(config[Config]("timenorm"))
+        case "seasons" => SeasonFinder.fromConfig(config[Config]("seasons"))
         case "context" => OdinFinder.fromConfig(config[Config]("context"), tagSet)
         case "causal" => OdinFinder.fromConfig(config[Config]("causal"), tagSet)
         case _ => ???
