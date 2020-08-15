@@ -51,7 +51,7 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
 
   private def geoFilter(mention: Mention): Boolean = {
     mention.label == "Location" && (mention.attachments.head match {
-      case attachment: LocationAttachment => attachment.geoPhraseID.geonameID.map(seasonMap.contains).getOrElse(false)
+      case attachment: LocationAttachment => attachment.geoPhraseID.geonameID.exists(seasonMap.contains)
       case _ => false
     })
   }
@@ -94,19 +94,19 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
     //    2- Long format type (Tri-gram season expression), e.g. "short rainy season"
     //    3- Short format type (Bi-gram season expression), e.g. "rainy season"
     if (geonameIDOpt.isDefined && timeStepOpt.isDefined) {
-      val geonameID = geonameIDOpt.get
+      val season = seasonMap(geonameIDOpt.get)
       val timeStep = timeStepOpt.get
       seasonTrigger match {
-        case trigger if seasonMap(geonameID).contains(trigger) =>
-          Some(SeasonMention(seasonTokenIdx, seasonTokenIdx, seasonMap(geonameID)(trigger), timeStep))
+        case trigger if season.contains(trigger) =>
+          Some(SeasonMention(seasonTokenIdx, seasonTokenIdx, season(trigger), timeStep))
         case _ if seasonTokenIdx > 0 =>
           val seasonType = lemmas(seasonTokenIdx - 1)
           lemmas.lift(seasonTokenIdx - 2) match {
-            case Some(lemma) if seasonMap(geonameID).contains(lemma + " " + seasonType) =>
+            case Some(lemma) if season.contains(lemma + " " + seasonType) =>
               val seasonLongType = lemma + " " + seasonType
-              Some(SeasonMention(seasonTokenIdx - 2, seasonTokenIdx, seasonMap(geonameID)(seasonLongType), timeStep))
-            case _ if seasonMap(geonameID).contains(seasonType) =>
-              Some(SeasonMention(seasonTokenIdx - 1, seasonTokenIdx, seasonMap(geonameID)(seasonType), timeStep))
+              Some(SeasonMention(seasonTokenIdx - 2, seasonTokenIdx, season(seasonLongType), timeStep))
+            case _ if season.contains(seasonType) =>
+              Some(SeasonMention(seasonTokenIdx - 1, seasonTokenIdx, season(seasonType), timeStep))
             case _ => None
           }
       }
